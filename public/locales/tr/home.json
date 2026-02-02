@@ -1,0 +1,52 @@
+{
+    "greeting": {
+        "morning": "Günaydın",
+        "afternoon": "Tünaydın",
+        "evening": "İyi Akşamlar",
+        "night": "Hayırlı Geceler",
+        "generic": "Selamun Aleyküm"
+    },
+    "friday": {
+        "text": "Güneşin üzerine doğduğu en hayırlı gün Cuma günüdür.",
+        "source": "Hadis-i Şerif (Müslim)",
+        "message": "Hayırlı Cumalar",
+        "share_title": "Cuma Mesajı Paylaş"
+    },
+    "verse_share_title": "Ayet Paylaş",
+    "theme_select": "Tema Seçin",
+    "save_image": "Görseli Kaydet",
+    "close": "Kapat",
+    "reset": "Sıfırla",
+    "quick_actions": {
+        "dhikr": {
+            "label": "Zikirmatik",
+            "subtitle": "Zikir"
+        },
+        "new_day": {
+            "label": "Yeni Gün",
+            "subtitle": "+{{offset}} gün"
+        },
+        "sleep": {
+            "label": "Uyku Modu",
+            "subtitle": "Huzur"
+        },
+        "qibla": {
+            "label": "Kıble",
+            "subtitle": "Yön"
+        }
+    },
+    "widgets": {
+        "breath": {
+            "title": "Ruhunu Dinlendir",
+            "subtitle": "Rehberli Tefekkür & Nefes"
+        },
+        "dua": {
+            "title": "Dua Kardeşliği",
+            "subtitle": "Birbirimize gıyaben dua edelim."
+        }
+    },
+    "esma": {
+        "virtue_title": "Fazileti & Sırrı",
+        "cycle": "{{count}}. Tur"
+    }
+}

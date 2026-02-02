@@ -1,0 +1,35 @@
+{
+    "nav": {
+        "home": "Ana Sayfa",
+        "learn": "Öğren",
+        "stories": "Hikayeler",
+        "worship": "İbadetlerim",
+        "profile": "Profil"
+    },
+    "prayer": {
+        "fajr": "İmsak",
+        "sunrise": "Güneş",
+        "dhuhr": "Öğle",
+        "asr": "İkindi",
+        "maghrib": "Akşam",
+        "isha": "Yatsı"
+    },
+    "quran": {
+        "bismillah_translation": "Rahman ve Rahim olan Allah'ın adıyla",
+        "sadaqallah": "Azim olan Allah doğru söyledi",
+        "next_surah": "Sonraki Sureye Geç",
+        "load_more": "Daha Fazla Ayet Yükle",
+        "connection_error": "Bağlantı Hatası",
+        "retry": "Tekrar Dene",
+        "back": "Geri",
+        "loading": "Yükleniyor..."
+    },
+    "common": {
+        "loading": "Yükleniyor...",
+        "error": "Bir hata oluştu",
+        "save": "Kaydet",
+        "cancel": "İptal",
+        "back": "Geri",
+        "next": "İleri"
+    }
+}

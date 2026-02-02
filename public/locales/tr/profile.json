@@ -1,0 +1,54 @@
+{
+    "title": "Profil",
+    "user": {
+        "streak_desc": "Yolculuğun {{count}}. gününde"
+    },
+    "premium": {
+        "banner_title": "Premium'a Geç",
+        "banner_desc": "Reklamsız deneyim ve detaylı istatistikler."
+    },
+    "personal_settings": "Kişisel Ayarlar",
+    "general_settings": "Genel Ayarlar",
+    "notifications": {
+        "title": "Bildirimler",
+        "subtitle": "Namaz vakti hatırlatıcıları"
+    },
+    "privacy": {
+        "title": "Gizlilik & Güvenlik",
+        "subtitle": "Veri koruma ve kilit",
+        "modal_title": "Veri & Gizlilik",
+        "data_info": "Verileriniz sadece <strong>bu cihazda</strong> saklanır. Sunucularımıza hiçbir veri gönderilmez.",
+        "download": "Verilerimi İndir",
+        "delete_all": "Tüm Verileri Sil"
+    },
+    "appearance": {
+        "title": "Görünüm",
+        "subtitle_dark": "Karanlık Mod",
+        "subtitle_light": "Aydınlık Mod"
+    },
+    "share": {
+        "title": "İlerlemeyi Paylaş",
+        "subtitle": "Tuba Ağacını sosyal medyada paylaş"
+    },
+    "invite": {
+        "title": "Arkadaş Davet Et",
+        "subtitle": "Sevdiklerinle uygulama linkini paylaş"
+    },
+    "calc": {
+        "title": "Kaza Borcunu Hesapla",
+        "subtitle": "Otomatik hesaplama aracı"
+    },
+    "language": {
+        "title": "Uygulama Dili",
+        "subtitle": "Arayüz dilini değiştir"
+    },
+    "support": "Bizi Destekle",
+    "reset": "Verileri Sıfırla",
+    "modal": {
+        "select_lang": "Dil Seçimi",
+        "lang_note": "Dil değişimi anlık olarak uygulanır."
+    },
+    "avatar_modal_title": "Profil Fotoğrafı Seç",
+    "app_name": "Ruhani Yol",
+    "version": "Sürüm 2.1.0 (Pro Max)"
+}

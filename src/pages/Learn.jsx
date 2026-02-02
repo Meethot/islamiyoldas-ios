@@ -1,0 +1,1010 @@
+import React, { useState, useCallback, memo } from 'react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { ChevronRight, ChevronLeft, Droplets, BookOpen, Heart, Moon, PartyPopper, CheckCircle2, RotateCcw, Sparkles as SparklesIcon } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useHaptics } from '@/hooks/useMobile';
+
+const CATEGORIES = [
+    { id: 'abdest', label: 'Abdest', icon: Droplets },
+    { id: 'dualar', label: 'Dualar', icon: Heart },
+    { id: 'sureler', label: 'Sureler', icon: BookOpen },
+    { id: 'namazlar', label: 'Erkek Namazı', icon: Moon },
+    { id: 'kadinNamaz', label: 'Kadın Namazı', icon: Moon },
+];
+
+const GUIDES = {
+    abdest: {
+        title: 'Abdest Rehberi',
+        steps: [
+            {
+                title: 'Niyet',
+                instruction: 'Kalbinden abdest almaya niyet et. Dil ile söylemek gerekmez ama söylenebilir.',
+                arabic: 'نَوَيْتُ اَنْ اَتَوَضَّأَ لِرِضَا اللهِ تَعَالَى',
+                transcription: "Neveytü en etevadda'e li-ridâillâhi teâlâ.",
+                meaning: "Allah'ın rızası için abdest almaya niyet ettim.",
+                tips: ['Niyet kalbin işidir', 'Abdest boyunca niyeti muhafaza et']
+            },
+            {
+                title: 'Eûzu Besmele',
+                instruction: 'Abdestin başında Eûzu Besmele çekilir.',
+                arabic: 'أَعُوذُ بِاللَّهِ مِنَ الشَّيْطَانِ الرَّجِيمِ ، بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ',
+                transcription: 'Eûzu billâhi mineş-şeytânir-racîm. Bismillâhir-rahmânir-rahîm.',
+                meaning: 'Kovulmuş şeytanın şerrinden Allah’a sığınırım. Rahman ve Rahim olan Allah’ın adıyla.',
+                tips: ['Besmele abdestin sünnetidir', 'Huzurla başla']
+            },
+            {
+                title: 'Elleri Yıkama',
+                repeat: '3x tekrar',
+                instruction: 'Elleri bileklere kadar üç kere yıka. Parmak aralarını ovmayı unutma.',
+                arabic: 'بِسْمِ اللهِ الْعَظِيمِ وَالْحَمْدُ للهِ عَلَى دِينِ اْلاِسْلاَمِ',
+                transcription: "Bismillâhil-azîmi vel-hamdü lillâhi alâ dînil-İslâm.",
+                meaning: "Yüce Allah'ın adıyla başlarım. İslam dinini bize nasip eden Allah'a hamd olsun.",
+                tips: ['Yüzük varsa oynatılmalı', 'Kuru yer kalmamasına dikkat edilmeli']
+            },
+            {
+                title: 'Diş Temizliği',
+                instruction: 'Misvak, fırça veya parmaklarla dişleri temizlemek sünnettir.',
+                arabic: 'اَللَّهُمَّ بَارِكْ لِي فِي فَمِي',
+                transcription: 'Allahümme bârik lî fî femî.',
+                meaning: 'Allah’ım! Ağzımda benim için bereket halk eyle.',
+                tips: ['Misvak kullanmak ağız sağlığı ve sevap için mühimdir', 'Sağ elin parmakları kullanılabilir']
+            },
+            {
+                title: 'Ağza Su Verme (Mazmaza)',
+                repeat: '3x tekrar',
+                instruction: 'Sağ elinle ağzına üç kere su al ve her seferinde iyice çalkala.',
+                arabic: 'اَللَّهُمَّ اَسْقِنِي مِنْ حَوْضِ نَبِيِّكَ كَاْساً لاَ اَظْمَأُ بَعْدَهُ اَبَداً',
+                transcription: 'Allahümme eskınî min havdi nebiyyike ke’sen lâ ezmeü ba’dehü ebedâ.',
+                meaning: 'Allah’ım! Peygenderinin havzından bana öyle bir kadeh içir ki, ondan sonra asla susamayayım.',
+                tips: ['Misvak kullanımıyla beraber yapılmalı', 'Oruçluysan abartma']
+            },
+            {
+                title: 'Burna Su Verme (İstinsak)',
+                repeat: '3x tekrar',
+                instruction: 'Sağ elinle burnuna üç kere su çek ve sol elinle sümkür.',
+                arabic: 'اَللَّهُمَّ اَرِحْنِي رَائِحَةَ الْجَنَّةِ',
+                transcription: 'Allahümmerihnî râyihatel cenneti.',
+                meaning: 'Allah’ım! Bana cennetin kokusunu duyur.',
+                tips: ['Suyu genzine kadar çekmek sünnettir', 'Burun temizliği önemlidir']
+            },
+            {
+                title: 'Yüzü Yıkama',
+                repeat: '3x tekrar',
+                instruction: 'Alın nahiyesinden çene altına, kulak yumuşaklarına kadar bütün yüzünü üç kere yıka.',
+                arabic: 'اَللَّهُمَّ بَيِّضْ وَجْهِي بِنُورِكَ يَوْmَ تَبْيَضُّ وُجُوهٌ وَتَسْوَدُّ وُجُوهٌ',
+                transcription: 'Allahümme beyyid vechî binûrike yevme tebyaddu vücûhün ve tesveddü vücûh.',
+                meaning: 'Allah’ım! Bazı yüzlerin ağarıp, bazı yüzlerin kararacağı günde benim yüzümü nurunla ak et.',
+                tips: ['Göz pınarlarını temizle', 'Sakal altını ıslat']
+            },
+            {
+                title: 'Sağ Kolu Yıkama',
+                repeat: '3x tekrar',
+                instruction: 'Sağ kolunu dirseğinle beraber üç kere yıka.',
+                arabic: 'اَللَّهُمَّ اَع่طِنِي كِتَابِي بِيَمِينِي وَحَاسِبْنِي حِسَاباً يَسِيراً',
+                transcription: 'Allahümme a’tinî kitâbî biyemînî ve hâsibnî hisâben yesîrâ.',
+                meaning: "Allah’ım! Kitabımı sağ tarafımdan ver ve hesabımı kolaylaştır.",
+                tips: ['Dirsekler dahil edilmeli', 'Kuru yer kalmamalı']
+            },
+            {
+                title: 'Sol Kolu Yıkama',
+                repeat: '3x tekrar',
+                instruction: 'Sol kolunu dirseğinle beraber üç kere yıka.',
+                arabic: 'اَللَّهُمَّ لاَ تُعْطِنِي كِتَابِي بِشِمَالِي وَلاَ مِنْ وَرَاءِ ظَهْرِي',
+                transcription: 'Allahümme lâ tut’inî kitâbî bişimâlî velâ min verâi zahrî.',
+                meaning: 'Allah’ım! Kitabımı solumdan ve arkamdan verme.',
+                tips: ['Sıralamaya dikkat et', 'Tertip sünnettir']
+            },
+            {
+                title: 'Başın Mesh Edilmesi',
+                instruction: 'Ellerini ıslatıp başının dörtte birini mesh et.',
+                arabic: 'اَللَّهُمَّ غَشِّنِي بِرَحْمETِكَ وَاَنْZِلْ عَلَيَّ مِنْ بَرَكَاTِكَ',
+                transcription: 'Allahümme ğâşşinî birahmetike ve enzil aleyye min berekâtike.',
+                meaning: 'Allah’ım! Beni rahmetinle kuşat, üzerime bereketlerini indir.',
+                tips: ['Kaplama mesh daha faziletlidir', 'Eller yaş olmalı']
+            },
+            {
+                title: 'Kulakların Meshi',
+                instruction: 'Her iki elin parmaklarıyla kulaklarının içini ve dışını mesh et.',
+                arabic: 'اَللَّهُمَّ اجْعَلْنِي مِنَ الَّذِينَ يَسْتَمِعُونَ الْقَوْلَ فَيَتَّبِعُونَ اَحْسَنَهُ',
+                transcription: 'Allahümme’c-alnî minellezîne yestemiûnel kavle feyettebiûne ahseneh.',
+                meaning: 'Allah’ım! Beni sözü dinleyip de en güzeline uyanlardan eyle.',
+                tips: ['Serçe parmak içe', 'Baş parmak dışa']
+            },
+            {
+                title: 'Boynun Meshi',
+                instruction: 'Ellerinin dışıyla boynunu mesh et.',
+                arabic: 'اَللَّهُمَّ اَعْتِقْ رَقَبَتِي مِنَ النَّارِ',
+                transcription: 'Allahümme a’tık rakabetî minen nâr.',
+                meaning: 'Allah’ım! Boynumu cehennem ateşinden azad eyle.',
+                tips: ['Boğaz kısmına mesh yapılmaz', 'Sadece yan ve arka kısım']
+            },
+            {
+                title: 'Sağ Ayak Yıkama',
+                repeat: '3x tekrar',
+                instruction: 'Sağ ayağını topuklarla beraber yıka.',
+                arabic: 'اَللَّهُمَّ ثَبِّتْ قَدَمَيَّ عَلَى الصِّرَاطِ يَوْمَ تَزِلُّ فِيهِ اْلاَقْدَAMُ',
+                transcription: 'Allahümme sebbit kademeyye ales sırâtı yevme tezillü fîhil akdâm.',
+                meaning: 'Allah’ım! Ayakların kaydığı günde ayaklarımı sırat üzerinde sabit kıl.',
+                tips: ['Parmak araları hilallenmeli', 'Topuklar iyi yıkanmalı']
+            },
+            {
+                title: 'Sol Ayak Yıkama',
+                repeat: '3x tekrar',
+                instruction: 'Sol ayağını topuklarla beraber yıka.',
+                arabic: 'اَللَّهُمَّ اجْعَلْ سَعْيِي مَشْكُوراً وَذَنْبِي مَغْفُوراً',
+                transcription: 'Allahümme’c-al sa’yî meşkûran ve zenbî mağfûrâ.',
+                meaning: 'Allah’ım! Çalışmamı şükre layık, günahımı bağışlanmış eyle.',
+                tips: ['Sıralamayı tamamlarken şükret', 'Dua ile bitir']
+            }
+        ]
+    },
+    dualar: {
+        title: 'Kırk Dua (Gönül İlaçları)',
+        steps: [
+            // --- 1. KUR'AN DUALARI (PEYGAMBER DUALARI) ---
+            {
+                title: 'Rabbena Âtina',
+                instruction: 'En kapsamlı dünya ve ahiret duası.',
+                arabic: 'رَبَّنَا آتِنَا فِي الدُّنْيَا حَسَنَةً وَفِي الآخِرَةِ حَسَنَةً وَقِنَا عَذَابَ النَّارِ',
+                transcription: 'Rabbenâ âtinâ fid-dünyâ haseneten ve fil-âhirati haseneten ve kınâ azâbennâr.',
+                meaning: 'Rabbimiz! Bize dünyada da iyilik ver, ahirette de iyilik ver ve bizi cehennem azabından koru.',
+                tips: ['Bakara Suresi, 201. Ayet', 'Peygamberimiz (s.a.v) en çok bu duayı ederdi.']
+            },
+            {
+                title: 'Rabbenağfirlî',
+                instruction: 'Hesap günü bağışlanma duası.',
+                arabic: 'رَبَّنَا اغْفِرْ لِي وَلِوَالِدَيَّ وَلِلْمُؤْمِنِينَ يَوْمَ يَقُومُ الْحِسَابُ',
+                transcription: "Rabbenâğfirlî ve li-vâlideyye ve lil-mü'minîne yevme yekûmul hisâb.",
+                meaning: 'Rabbimiz! Hesap kurulacağı gün beni, anamı, babamı ve müminleri bağışla.',
+                tips: ['İbrahim Suresi, 41. Ayet', 'Hz. İbrahim\'in duasıdır.']
+            },
+            {
+                title: 'Rabbi Yessir',
+                instruction: 'İşlerin kolaylaşması için dua.',
+                arabic: 'رَبِّ يَسِّرْ وَلاَ تُعَسِّرْ ، رَبِّ تَمِّمْ بِالْخَيْرِ',
+                transcription: 'Rabbi yessir ve lâ tuassir, Rabbi temmim bil-hayr.',
+                meaning: 'Rabbim! Kolaylaştır zorlaştırma, Rabbim hayırla sonuçlandır.',
+                tips: ['Hadis kaynaklıdır', 'Her işe başlarken okunması tavsiye edilir.']
+            },
+            {
+                title: 'Hz. Yunus\'un Duası',
+                instruction: 'Sıkıntı ve darlıktan kurtuluş duası.',
+                arabic: 'لاَ اِلَهَ اِلاَّ اَنْتَ سُبْحَانَكَ اِنِّي كُنْتُ مِنَ الظَّالِمِينَ',
+                transcription: 'Lâ ilâhe illâ ente sübhâneke innî küntü minez-zâlimîn.',
+                meaning: 'Senden başka ilah yoktur. Seni tenzih ederim. Şüphesiz ben zalimlerden oldum.',
+                tips: ['Enbiya Suresi, 87. Ayet', 'Balığın karnındaki Yunus (a.s)\'un kurtuluş duası.']
+            },
+            {
+                title: 'Hz. Musa\'nın Duası (İnşirah)',
+                instruction: 'Konuşma zorluğu ve heyecan için.',
+                arabic: 'رَبِّ اشْرَحْ لِي صَدْرِي وَيَسِّرْ لِي اَمْرِي وَاحْلُلْ عُقْدَةً مِنْ لِسَانِي يَفْقَهُوا قَوْلِي',
+                transcription: 'Rabbişrah lî sadrî ve yessir lî emrî vahlul ukdeten min lisânî yefkahû kavlî.',
+                meaning: 'Rabbim! Göğsüme genişlik ver, işimi kolaylaştır. Dilimdeki düğümü çöz ki sözümü anlasınlar.',
+                tips: ['Taha Suresi, 25-28. Ayetler', 'Topluluk önünde konuşurken okunur.']
+            },
+            {
+                title: 'Hz. Adem\'in Tövbesi',
+                instruction: 'Günah ve hatalardan pişmanlık.',
+                arabic: 'رَبَّنَا ظَلَمْنَا اَنْفُسَنَا وَاِنْ لَمْ تَغْفِرْ لَنَا وَتَرْحَمْنَا لَنَكُونَنَّ مِنَ الْخَاسِرِينَ',
+                transcription: 'Rabbenâ zalemnâ enfüsenâ ve in lem tağfir lenâ ve terhamnâ lenekûnenne minel hâsirîn.',
+                meaning: 'Rabbimiz! Biz kendimize zulmettik. Eğer bizi bağışlamaz ve bize merhamet etmezsen hüsrana uğrayanlardan oluruz.',
+                tips: ['Araf Suresi, 23. Ayet', 'İlk insan ve ilk tövbe.']
+            },
+            {
+                title: 'Hz. Eyyüb\'ün Şifa Duası',
+                instruction: 'Hastalık anında okunacak dua.',
+                arabic: 'اَنِّي مَسَّنِيَ الضُّرُّ وَاَنْتَ اَرْحَمُ الرَّاحِمِينَ',
+                transcription: 'Ennî messeniyed-durru ve ente erhamur-râhimîn.',
+                meaning: 'Şüphesiz ki bana bu dert dokundu. Sen merhametlilerin en merhametlisisin.',
+                tips: ['Enbiya Suresi, 83. Ayet', 'Sabır ve şifa istemek için.']
+            },
+            {
+                title: 'Rabbena La Tuzig',
+                instruction: 'Kalbi hidayet üzere sabit kılma.',
+                arabic: 'رَبَّنَا لاَ تُزِغْ قُلُوبَنَا بَعْدَ اِذْ هَدَيْتَنَا وَهَبْ لَنَا مِنْ لَدُنْكَ رَحْمَةً',
+                transcription: 'Rabbenâ lâ tüziğ kulûbenâ ba’de iz hedeytenâ ve heb lenâ min ledünke rahmeh.',
+                meaning: 'Rabbimiz! Bizi doğru yola ilettikten sonra kalplerimizi eğriltme. Bize katından bir rahmet bağışla.',
+                tips: ['Ali İmran Suresi, 8. Ayet', 'İmanla ölmek için okunur.']
+            },
+            {
+                title: 'Hasbünallah',
+                instruction: 'Zorluklara karşı Allah\'a güvenmek.',
+                arabic: 'حَسْبُنَا اللهُ وَنِعْمَ الْوَكِيلُ',
+                transcription: 'Hasbünallâhu ve ni’mel vekîl.',
+                meaning: 'Allah bize yeter, O ne güzel vekildir.',
+                tips: ['Ali İmran Suresi, 173. Ayet', 'Hz. İbrahim ateşe atılırken okumuştur.']
+            },
+            {
+                title: 'Rabbi Zidni',
+                instruction: 'İlim ve anlayış artırma.',
+                arabic: 'رَبِّ زِدْنِي عِلْمًا وَفَهْمًا',
+                transcription: 'Rabbi zidnî ilmen ve fehmen.',
+                meaning: 'Rabbim! İlmimi ve anlayışımı artır.',
+                tips: ['Taha Suresi, 114. Ayet', 'Zihin açıklığı ve ders başarısı için.']
+            },
+
+            // --- 2. GÜNLÜK SÜNNET DUALAR ---
+            {
+                title: 'Uyanınca Okunan Dua',
+                instruction: 'Güne şükürle başlamak.',
+                arabic: 'اَلْحَمْدُ للهِ الَّذِي اَحْيَانَا بَعْدَ مَا اَمَاتَنَا وَاِلَيْهِ النُّشُورُ',
+                transcription: 'Elhamdülillâhillezî ahyânâ ba’de mâ emâtenâ ve ileyhin-nüşûr.',
+                meaning: 'Bizi öldükten (uyuduktan) sonra dirilten Allah\'a hamd olsun. Dönüş O\'nadı.',
+                tips: ['Buhari', 'Sabah uyanır uyanmaz ilk söz bu olmalı.']
+            },
+            {
+                title: 'Eve Girerken',
+                instruction: 'Eve bereket getirmek için.',
+                arabic: 'اَللَّهُمَّ اِنِّي اَسْأَلُكَ خَيْرَ الْمَوْلِجِ وَخَيْرَ الْمَخْرَجِ',
+                transcription: 'Allahümme innî es’elüke hayral mevlici ve hayral mahraci.',
+                meaning: 'Allah’ım! Senden girişin de çıkışın da hayırlısını isterim.',
+                tips: ['Ebu Davud', 'Girerken selam vermek bereketi artırır.']
+            },
+            {
+                title: 'Evden Çıkarken',
+                instruction: 'Dışarıdaki tehlikelerden korunmak.',
+                arabic: 'بِسْمِ اللهِ تَوَكَّلْتُ عَلَى اللهِ لاَ حَوْلَ وَلاَ قُوَّةَ اِلاَّ بِاللهِ',
+                transcription: 'Bismillâhi tevekkeltü alellâhi lâ havle ve lâ kuvvete illâ billâh.',
+                meaning: 'Allah\'ın adıyla. Allah\'a tevekkül ettim. Güç ve kuvvet ancak Allah\'tandır.',
+                tips: ['Tirmizi', 'Bunu okuyana şeytan yaklaşamaz denilmiştir.']
+            },
+            {
+                title: 'Yemek Duası (Başlarken)',
+                instruction: 'Yemeğe bereket katmak.',
+                arabic: 'بِسْمِ اللهِ ، اَللَّهُمَّ بَارِكْ لَنَا فِيمَا رَزَقْتَنَا وَقِنَا عَذَابَ النَّارِ',
+                transcription: 'Bismillah. Allahümme bârik lenâ fîmâ razaktenâ ve kınâ azâbennâr.',
+                meaning: 'Bismillah. Allah’ım! Bize verdiğin rızkı bereketlendir ve bizi ateş azabından koru.',
+                tips: ['Unutulursa "Bismillahi evvelehu ve ahirahu" denir.']
+            },
+            {
+                title: 'Yemek Duası (Bitince)',
+                instruction: 'Nimete şükretmek.',
+                arabic: 'اَلْحَمْدُ للهِ الَّذِي اَطْعَمَنَا وَسَقَانَا وَجَعَلَنَا مِنَ الْمُسْلِمِينَ',
+                transcription: 'Elhamdülillâhillezî at’amenâ ve sekânâ ve cealenâ minel müslimîn.',
+                meaning: 'Bizi yediren, içiren ve Müslümanlardan kılan Allah\'a hamd olsun.',
+                tips: ['Tirmizi', 'Sofradan kalkmadan okunur.']
+            },
+            {
+                title: 'Camiye Girerken',
+                instruction: ' Allah\'ın rahmetini istemek.',
+                arabic: 'اَللَّهُمَّ افْتَحْ لِي اَبْوَابَ رَحْمَتِكَ',
+                transcription: 'Allahümmeftah lî ebvâbe rahmetik.',
+                meaning: 'Allah’ım! Bana rahmet kapılarını aç.',
+                tips: ['Müslim', 'Sağ ayakla girilir.']
+            },
+            {
+                title: 'Tuvalete Girerken',
+                instruction: 'Manevi kirlerden sığınma.',
+                arabic: 'اَللَّهُمَّ اِنِّي اَعُوذُ بِكَ مِنَ الْخُبُثِ وَالْخَبَائِثِ',
+                transcription: 'Allahümme innî eûzü bike minel hubusi vel habâis.',
+                meaning: 'Allah’ım! Pislikten ve pis şeylerden (şeytanlardan) Sana sığınırım.',
+                tips: ['Buhari', 'Sol ayakla girilir.']
+            },
+            {
+                title: 'Aynaya Bakarken',
+                instruction: ' Ahlak güzelliği istemek.',
+                arabic: 'اَللَّهُمَّ كَمَا حَسَّنْتَ خَلْقِي فَحَسِّنْ خُلُقِي',
+                transcription: 'Allahümme kemâ hassente halkî fehassin hulukî.',
+                meaning: 'Allah’ım! Yaratılışımı güzel yaptığın gibi ahlakımı da güzelleştir.',
+                tips: ['İbn Hibban', 'Kişisel bakım yaparken okunur.']
+            },
+            {
+                title: 'Yolculuk Duası',
+                instruction: 'Kazadan beladan korunmak.',
+                arabic: 'سُبْحَانَ الَّذِي سَخَّرَ لَنَا هَذَا وَمَا كُنَّا لَهُ مُقْرِنِينَ',
+                transcription: 'Sübhânellezî sehhara lenâ hâzâ ve mâ künnâ lehû mukrinîn.',
+                meaning: 'Bunu bizim hizmetimize veren Allah\'ı tenzih ederiz; yoksa biz buna güç yetiremezdik.',
+                tips: ['Zuhruf Suresi, 13. Ayet', 'Her vasıtaya bindiğinde okunur.']
+            },
+            {
+                title: 'Yatarken Okunan Dua',
+                instruction: 'Günü Allah ile bitirmek.',
+                arabic: 'بِاسْمِكَ اللَّهُمَّ اَمُوتُ وَاَحْيَا',
+                transcription: 'Bismike Allahümme emûtü ve ahyâ.',
+                meaning: 'Allah’ım! Senin adınla ölür (uyur) ve Senin adınla dirilirim (uyanırım).',
+                tips: ['Buhari', 'Sağ tarafa yatıp avuç içine üfleyerek İhlas-Felak-Nas okunur.']
+            },
+
+            // --- 3. ŞİFA, KORUNMA VE SIKINTI DUALARI ---
+            {
+                title: 'Borç ve Sıkıntı Duası',
+                instruction: 'Hz. Peygamber\'in öğrettiği ferahlık duası.',
+                arabic: 'اَللَّهُمَّ اِنِّي اَعُوذُ بِكَ مِنَ الْهَمِّ وَالْحَزَنِ... وَغَلَبَةِ الدَّيْنِ',
+                transcription: 'Allahümme innî eûzü bike minel hemmi vel hazeni ve minel aczi vel keseli... ve ğalebetid-deyni...',
+                meaning: 'Allah’ım! Kederden, hüzünden, acizlikten, tembellikten, borç yükünden Sana sığınırım.',
+                tips: ['Buhari', 'Sabah akşam okunması tavsiye edilmiştir.']
+            },
+            {
+                title: 'Nazar Ayeti',
+                instruction: 'Göz değmesine karşı.',
+                arabic: 'وَاِنْ يَكَادُ الَّذِينَ كَفَرُوا لَيُزْلِقُونَكَ بِاَبْصَارِهِمْ',
+                transcription: 'Ve in yekâdullezîne keferû leyuzlikûneke biebsârihim lemmâ semiuz-zikra...',
+                meaning: 'İnkar edenler Zikr\'i (Kur\'an\'ı) işittikleri zaman, neredeyse seni gözleriyle devireceklerdi.',
+                tips: ['Kalem Suresi, 51-52. Ayetler', 'Nazara karşı en etkili ayettir.']
+            },
+            {
+                title: 'Şifa Duası',
+                instruction: 'Hasta ziyareti veya ağrı için.',
+                arabic: 'اَذْهِبِ الْبَأْسَ رَبَّ النَّاسِ اِشْفِ اَنْتَ الشَّافِي',
+                transcription: 'Ezhibil be’se rabben-nâsi işfi enteş-şâfî lâ şifâe illâ şifâuke.',
+                meaning: 'Bu hastalığı gider ey insanların Rabbi! Şifa ver, çünkü şifa verici Sensin. Senin şifandan başka şifa yoktur.',
+                tips: ['Buhari', 'Ağrıyan yere el konularak okunur.']
+            },
+            {
+                title: 'Korunma Duası (Bismillâhillezi)',
+                instruction: 'Sabah-akşam okuyana zarar gelmez.',
+                arabic: 'بِسْمِ اللهِ الَّذِي لاَ يَضُرُّ مَعَ اسْمِهِ شَيْءٌ فِي اْلاَرْضِ وَلاَ فِي السَّمَاءِ',
+                transcription: 'Bismillâhillezî lâ yedurru meas-mihî şey’un fil ardı ve lâ fis-semâi.',
+                meaning: 'İsmiyle beraber yerde ve gökte hiçbir şeyin zarar veremediği Allah\'ın adıyla.',
+                tips: ['Tirmizi', 'Sabah ve akşam 3 kere okunur.']
+            },
+            {
+                title: 'Sıkıntı Anında (La ilahe illallah)',
+                instruction: 'Büyük sıkıntılar için.',
+                arabic: 'لاَ اِلَهَ اِلاَّ اللهُ الْعَظِيمُ الْحَلِيمُ',
+                transcription: 'Lâ ilâhe illâllâhül azîmül halîm, Lâ ilâhe illâllâhü rabbül arşil azîm.',
+                meaning: 'Azim ve Halim olan Allah\'tan başka ilah yoktur. Büyük Arş\'ın Rabbi Allah\'tan başka ilah yoktur.',
+                tips: ['Buhari', 'Peygamberimiz sıkıntılı anlarda bunu tekrar ederdi.']
+            },
+            {
+                title: 'Zor Bir İşle Karşılaşınca',
+                instruction: 'Kolaylık istemek.',
+                arabic: 'اَللَّهُمَّ لاَ سَهْلَ اِلاَّ مَا جَعَلْتَهُ سَهْلاً',
+                transcription: 'Allahümme lâ sehle illâ mâ cealtehû sehlen ve ente tec’alül hazne izâ şi’te sehlen.',
+                meaning: 'Allah’ım! Senin kolay kıldığından başka kolay yoktur. Sen dilersen zor olanı kolay kılarsın.',
+                tips: ['İbn Hibban', 'Sınav, iş görüşmesi vb. öncesi okunur.']
+            },
+            {
+                title: 'Vücut Ağrısı İçin',
+                instruction: 'Peygamberimizin tavsiyesi.',
+                arabic: 'بِسْمِ اللهِ (3) اَعُوذُ بِاللهِ وَقُدْرَتِهِ مِنْ شَرِّ مَا اَجِدُ وَاُحَاذِرُ (7)',
+                transcription: 'Bismillah (3 kere). Eûzü billâhi ve kudretihî min şerri mâ ecidü ve uhâziru (7 kere).',
+                meaning: 'Allah\'ın adıyla. Hissettiğim ve sakındığım acının şerrinden Allah\'a ve O\'nun kudretine sığınırım.',
+                tips: ['Müslim', 'Ağrıyan yere el konulup okunur.']
+            },
+            {
+                title: 'Tehlike Anında',
+                instruction: 'Koruma kalkanı.',
+                arabic: 'اَعُوذُ بِكَلِمَاتِ اللهِ التَّامَّاتِ مِنْ شَرِّ مَا خَلَقَ',
+                transcription: 'Eûzü bikelimâtillâhit-tâmmâti min şerri mâ halak.',
+                meaning: 'Yarattığı şeylerin şerrinden Allah\'ın tam kelimelerine sığınırım.',
+                tips: ['Müslim', 'Bir yere konaklayınca veya korkunca okunur.']
+            },
+            {
+                title: 'Vesveseye Karşı',
+                instruction: 'Şeytanın fısıltılarına karşı.',
+                arabic: 'آمَنْتُ بِاللَّهِ وَرُسُلِهِ',
+                transcription: 'Âmentü billâhi ve rusülih.',
+                meaning: 'Allah\'a ve peygamberlerine iman ettim.',
+                tips: ['Müslim', 'Bunu söyleyip şeytandan Allah\'a sığınılmalıdır.']
+            },
+            {
+                title: 'Bereket Duası (Karınca)',
+                instruction: 'Rızık bolluğu için.',
+                arabic: 'اَللَّهُمَّ يَا رَبَّ جَبْرَائِيلَ وَمِيكَائِيلَ... اُرْزُقْنِي',
+                transcription: 'Allahümme yâ Rabbe Cebrâîle ve Mîkâîle... ürzuknî...',
+                meaning: 'Ey Cebrail ve Mikail\'in Rabbi olan Allah\'ım! Beni rızıklandır.',
+                tips: ['Halk arasında Karınca Duası olarak bilinir, rızık için okunur.']
+            },
+
+            // --- 4. TÖVBE VE SALAVAT DUALARI ---
+            {
+                title: 'Seyyidül İstiğfar',
+                instruction: 'Tövbelerin en büyüğü ve efendisi.',
+                arabic: 'اَللَّهُمَّ اَنْتَ رَبِّي لاَ اِلَهَ اِلاَّ اَنْتَ خَلَقْتَنِي وَاَنَا عَبْدُكَ',
+                transcription: 'Allahümme ente Rabbî lâ ilâhe illâ ente halaktenî ve ene abdüke...',
+                meaning: 'Allah’ım! Sen benim Rabbimsin. Senden başka ilah yoktur. Beni Sen yarattın ve ben Senin kulunum...',
+                tips: ['Buhari', 'Sabah okuyup akşam ölen, akşam okuyup sabah ölen cennetliktir.']
+            },
+            {
+                title: 'Kadir Gecesi Duası',
+                instruction: 'Hz. Ayşe\'ye öğretilen af duası.',
+                arabic: 'اَللَّهُمَّ اِنَّكَ عَفُوٌّ تُحِبُّ الْعَفْوَ فَاعْفُ عَنِّي',
+                transcription: 'Allahümme inneke afuvvun tuhibbul afve fa’fu annî.',
+                meaning: 'Allah’ım! Sen çok affedicisin, affetmeyi seversin. Beni bağışla.',
+                tips: ['Tirmizi', 'Kandil gecelerinde ve ramazanda çokça okunmalı.']
+            },
+            {
+                title: 'Salât-ı Tefriciye (Nariye)',
+                instruction: 'Sıkıntıların giderilmesi için.',
+                arabic: 'اَللَّهُمَّ صَلِّ صَلاَةً كَامِلَةً وَسَلِّمْ سَلاَماً تَامّاً عَلَى سَيِّدِنَا مُحَمَّدٍ',
+                transcription: 'Allahümme salli salâten kâmileten ve sellim selâmen tâmmen alâ seyyidinâ Muhammedin...',
+                meaning: 'Allah’ım! Efendimiz Muhammed\'e kusursuz bir salat ve mükemmel bir selam eyle...',
+                tips: ['4444 kere okunmasıyla meşhurdur.', 'Büyük hacetler için okunur.']
+            },
+            {
+                title: 'Salât-ı Münciye (Tuncina)',
+                instruction: 'Belalardan kurtuluş salavatı.',
+                arabic: 'اَللَّهُمَّ صَلِّ عَلَى سَيِّدِنَا مُحَمَّدٍ صَلاَةً تُنْجِينَا بِهَا مِنْ جَمِيعِ اْلاَحْوَالِ وَاْلاـفَاتِ',
+                transcription: 'Allahümme salli alâ seyyidinâ Muhammedin salâten tüncînâ bihâ min cemîil ahvâli vel âfât.',
+                meaning: 'Allah’ım! Efendimiz Muhammed\'e öyle bir salat et ki, onunla bizi her türlü korku ve afetten kurtar.',
+                tips: ['Namazlardan sonra okunması çok faziletlidir.']
+            },
+            {
+                title: 'Kısa İstiğfar',
+                instruction: 'Sürekli dil alışkanlığı için.',
+                arabic: 'اَسْتَغْفِرُ اللهَ الْعَظِيمَ وَاَتُوبُ اِلَيْهِ',
+                transcription: 'Estağfirullâhel-azîm ve etûbü ileyh.',
+                meaning: 'Yüce Allah\'tan bağışlanma diler ve O\'na tövbe ederim.',
+                tips: ['Günde en az 100 kere söylenmelidir.', 'Günahlara kefarettir.']
+            },
+            {
+                title: 'Salavat-ı Şerife',
+                instruction: 'Peygamberimize selam.',
+                arabic: 'اَللَّهُمَّ صَلِّ عَلَى سَيِّدِنَا مُحَمَّدٍ وَعَلَى آلِ سَيِّدِنَا مُحَمَّدٍ',
+                transcription: 'Allahümme salli alâ seyyidinâ Muhammedin ve alâ âli seyyidinâ Muhammed.',
+                meaning: 'Allah’ım! Efendimiz Muhammed\'e ve onun aline salat ve selam eyle.',
+                tips: ['En kısa ve öz salavattır.', 'Her dUa\'nın başında ve sonunda okunmalı.']
+            },
+            {
+                title: 'Namaz Sonrası İstiğfar',
+                instruction: ' Selamdan sonra.',
+                arabic: 'اَللَّهُمَّ اَنْتَ السَّلاَمُ وَمِنْكَ السَّلاَمُ تَبَارَكْتَ يَا ذَا الْجَلاَلِ وَاْلاِكْرَامِ',
+                transcription: 'Allahümme entes-selâmü ve minkes-selâm, tebârakte yâ zel-celâli vel-ikrâm.',
+                meaning: 'Allah’ım! Sen Selam\'sın (esenlik sahibisin). Esenlik Sendendir. Ey Celal ve İkram sahibi, Sen münezzehsin.',
+                tips: ['Müslim', 'Farz namazlardan sonra okunur.']
+            },
+            {
+                title: 'Kabul Duası',
+                instruction: 'İbadetlerin kabulü için.',
+                arabic: 'رَبَّنَا تَقَبَّلْ مِنَّا اِنَّكَ اَنْتَ السَّمِيعُ الْعَلِيمُ',
+                transcription: 'Rabbenâ tekabbel minnâ inneke entes-semîul alîm.',
+                meaning: 'Rabbimiz! Bizden kabul buyur. Şüphesiz Sen hakkıyla işitensin, hakkıyla bilensin.',
+                tips: ['Bakara Suresi, 127. Ayet', 'Kabe inşa edilirken Hz. İbrahim\'in duası.']
+            },
+            {
+                title: 'Şehadet Getirmek',
+                instruction: 'İman tazeleme.',
+                arabic: 'اَشْهَدُ اَنْ لاَ اِلَهَ اِلاَّ اللهُ وَاَشْهَدُ اَنَّ مُحَمَّدًا عَبْدُهُ وَرَسُولُهُ',
+                transcription: 'Eşhedü en lâ ilâhe illâllâh ve eşhedü enne Muhammeden abdühû ve rasûlüh.',
+                meaning: 'Şehadet ederim ki Allah\'tan başka ilah yoktur ve yine şehadet ederim ki Muhammed O\'nun kulu ve elçisidir.',
+                tips: ['İmanın temelidir.', 'Sık sık tekrar edilerek iman tazelenir.']
+            },
+            {
+                title: 'Hatim/Bitiş Duası',
+                instruction: 'Son söz.',
+                arabic: 'سُبْحَانَ رَبِّكَ رَبِّ الْعِزَّةِ عَمَّا يَصِفُونَ وَسَلاَمٌ عَلَى الْمُرْسَلِينَ وَالْحَمْدُ للهِ رَبِّ الْعَالَمِينَ',
+                transcription: 'Sübhâne Rabbike Rabbil-izzeti ammâ yasifûn. Ve selâmün alel-mürselîn. Vel-hamdü lillâhi Rabbil-âlemîn.',
+                meaning: 'Senin Rabbin; kudret ve şeref sahibi olan Rab, onların nitelemelerinden münezzehtir. Peygamberlere selam olsun. Hamd Alemlerin Rabbi Allah\'a mahsustur.',
+                tips: ['Saffat Suresi, 180-182. Ayetler', 'Her duanın ve meclisin sonunda okunur.']
+            }
+        ]
+    },
+    sureler: {
+        title: 'Sureler Rehberi',
+        steps: [
+            {
+                title: 'Fâtiha Suresi',
+                instruction: 'Kur\'an\'ın açılış kapısıdır. Namazın her rekatında okunması vaciptir.',
+                arabic: 'بِسْمِ اللّٰهِ الرَّحْمٰنِ الرَّح۪يمِ ﴿١﴾ اَلْحَمْدُ لِلّٰهِ رَبِّ الْعَالَم۪ينَۙ ﴿٢﴾ اَلرَّحْمٰنِ الرَّح۪يمِۙ ﴿٣﴾ مَالِكِ يَوْمِ الدّ۪ينِۜ ﴿٤﴾ اِيَّاكَ نَعْبُدُ وَاِيَّاكَ نَسْتَع۪ينُۜ ﴿٥﴾ اِهْدِنَا الصِّرَاطَ الْمُسْتَق۪يمَۙ ﴿٦﴾ صِرَاطَ الَّذ۪ينَ اَنْعَمْتَ عَلَيْهِمْۙ غَيْرِ الْمَغْضُوبِ عَلَيْهِمْ وَلَا الضَّٓالّ۪ينَ ﴿٧﴾',
+                transcription: 'Bismillâhirrahmânirrahîm. Elhamdülillâhi rabbil\'alemin. Errahmânir\'rahim. Mâliki yevmiddin. İyyâke na\'budü ve iyyâke neste\'în. İhdinessırâtel müstakîm. Sırâtellezine en\'amte aleyhim ğayrilmağdûbi aleyhim ve leddâllîn.',
+                meaning: 'Rahman ve Rahim olan Allah\'ın adıyla. Hamd, Alemlerin Rabbi, Rahman ve Rahim olan ve Din Gününün sahibi olan Allah\'a mahsustur. (Allahım!) Yalnız Sana ibadet ederiz ve yalnız Senden yardım dileriz. Bizi doğru yola, kendilerine nimet verdiklerinin yoluna ilet; gazaba uğrayanlarınkine ve sapıklarınkine değil.',
+                tips: ['"Amin" kelimesi Fatiha\'dan sonra söylenir.', 'Kur\'an\'ın özü kabul edilir.']
+            },
+            {
+                title: 'Fil Suresi',
+                instruction: 'Kabe\'yi yıkmaya gelen Ebrehe\'nin ordusunun ebabil kuşlarıyla yok edilişini anlatır.',
+                arabic: 'بِسْمِ اللّٰهِ الرَّحْمٰنِ الرَّح۪يمِ اَلَمْ تَرَ كَيْفَ فَعَلَ رَبُّكَ بِاَصْحَابِ الْف۪يلِۜ ﴿١﴾ اَلَمْ يَجْعَلْ كَيْدَهُمْ ف۪ي تَضْل۪يلٍۙ ﴿٢﴾ وَاَرْسَلَ عَلَيْهِمْ طَيْرًا اَبَاب۪يلَۙ ﴿٣﴾ تَرْم۪يهِمْ بِحِجَارَةٍ مِنْ سِجّ۪يلٍۙ ﴿٤﴾ فَجَعَلَهُمْ كَعَصْفٍ مَأْكُولٍ ﴿٥﴾',
+                transcription: 'Bismillâhirrahmânirrahîm. Elem tera keyfe fe\'ale rabbüke biashâbilfîl. Elem yec\'al keydehüm fî tadlîl. Ve ersele aleyhim tayran ebâbîl. Termîhim bihicâratin min siccîl. Fece\'alehüm ke\'asfin me\'kûl.',
+                meaning: 'Rabbinin, fil sahiplerine ne yaptığını görmedin mi? Onların tuzaklarını boşa çıkarmadı mı? Üzerlerine sürü sürü kuşlar gönderdi. Onlara çamurdan sertleşmiş taşlar atıyorlardı. Nihayet onları yenilmiş ekin yaprağı gibi yapıverdi.',
+                tips: ['Kabe\'nin kutsallığını ve korunmasını anlatır.', 'Namazda zamm-ı sure olarak okunur.']
+            },
+            {
+                title: 'Kureyş Suresi',
+                instruction: 'Kureyş kabilesine verilen güven ve nimetleri hatırlatır.',
+                arabic: 'بِسْمِ اللّٰهِ الرَّحْمٰنِ الرَّح۪يمِ لِا۪يلَافِ قُرَيْشٍۙ ﴿١﴾ ا۪يلَافِهِمْ رِحْلَةَ الشِّتَٓاءِ وَالصَّيْفِۚ ﴿٢﴾ فَلْيَعْبُدُوا رَبَّ هٰذَا الْبَيْتِۙ ﴿٣﴾ اَلَّذ۪ٓي اَطْعَمَهُمْ مِنْ جُوعٍ وَاٰمَنَهُمْ مِنْ خَوْفٍ ﴿٤﴾',
+                transcription: 'Bismillâhirrahmânirrahîm. Li\'îlâfi Kureyşin. Îlâfihim rihleteşşitâi vessayf. Felye\'büdû rabbe hâzelbeyt. Ellezî et\'amehüm min cû\'in ve âmenehüm min havf.',
+                meaning: 'Kureyş\'i ısındırıp alıştırdığı; onları kışın ve yazın yolculuğuna alıştırdığı için, Kureyş de, kendilerini besleyip açlıklarını gideren ve onları korkudan emin kılan bu Ev\'in (Kabe\'nin) Rabbine kulluk etsin.',
+                tips: ['Nimetlere şükrü hatırlatır.', 'Ticaret ve güvenliğin Allah\'ın lütfu olduğu vurgulanır.']
+            },
+            {
+                title: 'Maûn Suresi',
+                instruction: 'Gösteriş yapanları ve yardıma engel olanları uyarır.',
+                arabic: 'بِسْمِ اللّٰهِ الرَّحْمٰنِ الرَّح۪يمِ اَرَأَيْتَ الَّذ۪ي يُكَذِّبُ بِالدّ۪ينِۜ ﴿١﴾ فَذٰلِكَ الَّذ۪ي يَدُعُّ الْيَت۪يمَۙ ﴿٢﴾ وَلَا يَحُضُّ عَلٰى طَعَامِ الْمِسْك۪ينِۜ ﴿٣﴾ فَوَيْلٌ لِلْمُصَلّ۪ينَۙ ﴿٤﴾ اَلَّذ۪ينَ هُمْ عَنْ صَلَاتِهِمْ سَاهُونَۙ ﴿٥﴾ اَلَّذ۪ينَ هُمْ يُرَٓاؤُ۫نَۙ ﴿٦﴾ وَيَمْنَعُونَ الْمَاعُونَ ﴿٧﴾',
+                transcription: 'Bismillâhirrahmânirrahîm. Era\'eytellezî yükezzibü biddîn. Fezâlikellezî yedü\'ulyetîm. Ve lâ yehuddu alâ ta\'âmil miskîn. Feveylün lilmusallîn. Ellezîne hüm an salâtihim sâhûn. Ellezîne hüm yürâûn. Ve yemne\'ûnel mâ\'ûn.',
+                meaning: 'Dini yalanlayanı gördün mü? İşte o, yetimi itip kakar; yoksulu doyurmaya teşvik etmez. Yazıklar olsun o namaz kılanlara ki; onlar namazlarını ciddiye almazlar. Onlar gösteriş yaparlar. Ufacık bir yardıma bile engel olurlar.',
+                tips: ['Sosyal yardımlaşmanın önemini vurgular.', 'Samimiyetsiz ibadeti eleştirir.']
+            },
+            {
+                title: 'Kevser Suresi',
+                instruction: 'Kur\'an\'ın en kısa suresidir. Peygamberimize verilen bitmez tükenmez nimet anlatılır.',
+                arabic: 'بِسْمِ اللّٰهِ الرَّحْمٰنِ الرَّح۪يمِ اِنَّٓا اَعْطَيْنَاكَ الْكَوْثَرَۜ ﴿١﴾ فَصَلِّ لِرَبِّكَ وَانْحَرْۜ ﴿٢﴾ اِنَّ شَانِئَكَ هُوَ الْاَبْتَرُ ﴿٣﴾',
+                transcription: 'Bismillâhirrahmânirrahîm. İnnâ a\'taynâkelkevser. Fesalli lirabbike venhar. İnne şâni\'eke hüvel ebter.',
+                meaning: 'Şüphesiz Biz sana Kevser\'i (bol nimeti) verdik. O halde, Rabbin için namaz kıl ve kurban kes. Asıl soyu kesik olan, şüphesiz sana kin besleyendir.',
+                tips: ['Kevser: Cennette bir havuz ve çok nimet.', 'Kurban ibadetinin emredildiği süredir.']
+            },
+            {
+                title: 'Kâfirûn Suresi',
+                instruction: 'İnançta taviz verilmeyeceğini, senin dinin sana, benimki bana ilkesini anlatır.',
+                arabic: 'بِسْمِ اللّٰهِ الرَّحْمٰنِ الرَّح۪يمِ قُلْ يَٓا اَيُّهَا الْكَافِرُونَۙ ﴿١﴾ لَٓا اَعْبُدُ مَا تَعْبُدُونَۙ ﴿٢﴾ وَلَٓا اَنْتُمْ عَابدُونَ مَٓا اَعْبُدُۚ ﴿٣﴾ وَلَٓا اَنَا۬ عَابدٌ مَا عَبَدْتُمْۙ ﴿٤﴾ وَلَٓا اَنْتُمْ عَابدُونَ مَٓا اَعْبُدُۜ ﴿٥﴾ لَكُمْ د۪ينُكُمْ وَلِيَ د۪ينِ ﴿٦﴾',
+                transcription: 'Bismillâhirrahmânirrahîm. Kul yâ eyyühel kâfirûn. Lâ a\'büdü mâ ta\'büdûn. Ve lâ entüm âbidûne mâ a\'büd. Ve lâ ene âbidün mâ abedtüm. Ve lâ entüm âbidûne mâ a\'büd. Leküm dînüküm veliye dîn.',
+                meaning: 'De ki: Ey kâfirler! Ben sizin tapmakta olduğunuz şeylere tapmam. Siz de benim taptığıma tapıyor değilsiniz. Ben sizin taptıklarınıza tapacak değilim. Siz de benim taptığıma tapacak değilsiniz. Sizin dininiz size, benim dinim banadır.',
+                tips: ['Tevhid inancının kesin sınırlarını çizer.', 'İnanca saygı ve kararlılık vurgulanır.']
+            },
+            {
+                title: 'Nasr Suresi',
+                instruction: 'Mekke\'nin fethini müjdeler. Peygamberimizin vefatının yaklaştığına işarettir.',
+                arabic: 'بِسْمِ اللّٰهِ الرَّحْمٰنِ الرَّح۪يمِ اِذَا جَٓاءَ نَصْرُ اللّٰهِ وَالْفَتْحُۙ ﴿١﴾ وَرَأَيْتَ النَّاسَ يَدْخُلُونَ ف۪ي د۪ينِ اللّٰهِ اَفْوَاجًاۙ ﴿٢﴾ فَسَبِّحْ بِحَمْدِ رَبِّكَ وَاسْتَغْفِرْهُۜ اِنَّهُ كَانَ تَوَّابًا ﴿٣﴾',
+                transcription: 'Bismillâhirrahmânirrahîm. İzâ câe nasrullâhivelfeth. Ve raeytennâse yedhulûne fî dînillâhi efvâcâ. Fesebbih bihamdi rabbike vestağfirh. İnnehû kâne tevvâbâ.',
+                meaning: 'Allah\'ın yardımı ve fetih (Mekke\'nin fethi) geldiğinde; ve insanların bölük bölük Allah\'ın dinine girdiğini gördüğünde; Rabbini hamd ile tesbih et ve O\'ndan bağışlanma dile. Şüphesiz O, tevbeleri çok kabul edendir.',
+                tips: ['Kur\'an\'ın en son inen tam suresidir.', 'Zafer anında bile tevekkül öğütlenir.']
+            },
+            {
+                title: 'Tebbet Suresi',
+                instruction: 'Peygamberimizin amcası Ebu Leheb\'in inkarcılığını ve sonunu anlatır.',
+                arabic: 'بِسْمِ اللّٰهِ الرَّحْمٰنِ الرَّح۪يمِ تَبَّتْ يَدَٓا اَب۪ي لَهَبٍ وَتَبَّۜ ﴿١﴾ مَٓا اَغْنٰى عَنْهُ مَالُهُ وَمَا كَسَبَۜ ﴿٢﴾ سَيَصْلٰى نَارًا ذَاتَ لَهَبٍۚ ﴿٣﴾ وَامْرَأَتُهُۜ حَمَّالَةَ الْحَطَبِۚ ﴿٤﴾ ف۪ي ج۪يدِهَا حَبْلٌ مِنْ مَسَدٍ ﴿٥﴾',
+                transcription: 'Bismillâhirrahmânirrahîm. Tebbet yedâ ebî lehebin ve tebb. Mâ ağnâ anhü mâlühû ve mâ keseb. Seyaslâ nâran zâte leheb. Vemraetüh. Hammâletelhatab. Fî cîdihâ hablün min mesed.',
+                meaning: 'Ebu Leheb\'in elleri kurusun! Kurudu da. Malı ve kazandıkları ona fayda vermedi. O, alevli bir ateşe girecektir. Odun taşıyıcısı olarak karısı da (ateşe girecek). Boynunda hurma lifinden bükülmüş bir ip olduğu halde.',
+                tips: ['"Tebbet": Kurusun, yok olsun demektir.', 'Zalımların sonunun hüsran olduğu anlatılır.']
+            },
+            {
+                title: 'İhlâs Suresi',
+                instruction: 'Allah\'ın birliğini en net anlatan suredir. Okumak, Kur\'an\'ın üçte birine denktir.',
+                arabic: 'بِسْمِ اللّٰهِ الرَّحْمٰنِ الرَّح۪يمِ قُلْ هُوَ اللّٰهُ اَحَدٌۚ ﴿١﴾ اَللّٰهُ الصَّمَدُۚ ﴿٢﴾ لَمْ يَلِدْ وَلَمْ يُولَدْۙ ﴿٣﴾ وَلَمْ يَكُنْ لَهُ كُفُوًا اَحَدٌ ﴿٤﴾',
+                transcription: 'Bismillâhirrahmânirrahîm. Kul hüvallâhü ehad. Allâhüssamed. Lem yelid ve lem yûled. Ve lem yekün lehû küfüven ehad.',
+                meaning: 'De ki: O Allah tektir. Allah Samed\'dir (Her şey O\'na muhtaçtır, O hiçbir şeye muhtaç değildir). O, doğurmamış ve doğmamıştır. O\'nun hiçbir dengi yoktur.',
+                tips: ['Tevhidin en kısa ve öz ifadesidir.', 'Namazlarda çok sık okunur.']
+            },
+            {
+                title: 'Felak Suresi',
+                instruction: 'Büyüden, karanlıktan ve kıskançlıktan Allah\'a sığınmayı öğretir.',
+                arabic: 'بِسْمِ اللّٰهِ الرَّحْمٰنِ الرَّح۪يمِ قُلْ اَعُوذُ بِرَبِّ الْفَلَقِۙ ﴿١﴾ مِنْ شَرِّ مَا خَلَقَۙ ﴿٢﴾ وَمِنْ شَرِّ غَاسِقٍ اِذَا وَقَبَۙ ﴿٣﴾ وَمِنْ شَرِّ النَّفَّاثَاتِ فِي الْعُقَدِۙ ﴿٤﴾ وَمِنْ شَرِّ حَاسِدٍ اِذَا حَسَدَ ﴿٥﴾',
+                transcription: 'Bismillâhirrahmânirrahîm. Kul e\'ûzü birabbilfelak. Min şerri mâ halak. Ve min şerri ğâsikın izâ vekab. Ve min şerrinneffâsâti fil\'ukad. Ve min şerri hâsidin izâ hased.',
+                meaning: 'De ki: Yarattığı şeylerin şerrinden, karanlığı çöktüğü zaman gecenin şerrinden, düğümlere üfleyen büyücülerin şerrinden ve haset ettiği zaman hasetçinin şerrinden sabahın Rabbine sığınırım.',
+                tips: ['Muavvizeteyn (Koruyucu iki sure) dualarından biridir.', 'Nazar ve büyüye karşı okunur.']
+            },
+            {
+                title: 'Nâs Suresi',
+                instruction: 'İnsanların ve cinlerin sinsi vesveselerinden Allah\'a sığınmayı öğretir.',
+                arabic: 'بِسْمِ اللّٰهِ الرَّحْمٰنِ الرَّح۪يمِ قُلْ اَعُوذُ بِرَبِّ النَّاسِۙ ﴿١﴾ مَلِكِ النَّاسِۙ ﴿٢﴾ اِلٰهِ النَّاسِۙ ﴿٣﴾ مِنْ شَرِّ الْوَسْوَاسِ الْخَنَّاسِۙ ﴿٤﴾ اَلَّذ۪ي يُوَسْوِسُ ف۪ي صُدُورِ النَّاسِۙ ﴿٥﴾ مِنَ الْجِنَّةِ وَالنَّاسِ ﴿٦﴾',
+                transcription: 'Bismillâhirrahmânirrahîm. Kul e\'ûzü birabbinnâs. Melikinnâs. İlâhinnâs. Min şerrilvesvâsilhannâs. Ellezî yüvesvisü fî sudûrinnâs. Minelcinneti vennâs.',
+                meaning: 'De ki: İnsanların ve cinlerin şerrinden, insanların göğüslerine vesvese veren o sinsi vesvesecinin şerrinden; insanların Rabbine, insanların Melikine (Hükümdarına), insanların İlahına sığınırım.',
+                tips: ['Kur\'an\'ın son suresidir.', 'Psikolojik ve manevi korunma için okunur.']
+            },
+            {
+                title: 'Ayetel Kürsi',
+                instruction: 'Kur\'an\'ın en yüce ayetidir. Namazlardan sonra ve yatmadan önce okunur.',
+                arabic: 'بِسْمِ اللّٰهِ الرَّحْمٰنِ الرَّح۪يمِ اَللّٰهُ لَٓا اِلٰهَ اِلَّا هُوَۚ اَلْحَيُّ الْقَيُّومُۚ لَا تَأْخُذُهُ سِنَةٌ وَلَا نَوْمٌۜ لَهُ مَا فِي السَّمٰوَاتِ وَمَا فِي الْاَرْضِۜ مَنْ ذَا الَّذ۪ي يَشْفَعُ عِنْدَهُٓ اِلَّا بِاِذْنِه۪ۜ يَعْلَمُ مَا بَيْنَ اَيْد۪يهِمْ وَمَا خَلْفَهُمْۚ وَلَا يُح۪يطُونَ بِشَيْءٍ مِنْ عِلْمِه۪ٓ اِلَّا بِمَا شَٓاءَۚ وَسِعَ كُرْسِيُّهُ السَّمٰوَاتِ وَالْاَرْضَۚ وَلَا يَؤُ۫دُهُ حِفْظُهُمَاۚ وَهُوَ الْعَلِيُّ الْعَظ۪يمُ ﴿٢٥٥﴾',
+                transcription: 'Allâhü lâ ilâhe illâ hüvel hayyül kayyûm. Lâ te\'huzühû sinetün ve lâ nevm. Lehû mâ fis-semâvâti ve mâ fil ard. Men zellezî yeşfeu indehû illâ bi-iznih. Ya\'lemü mâ beyne eydîhim ve mâ halfehüm. Ve lâ yuhîtûne bi-şey\'in min ilmihî illâ bimâ şâe. Vesia kürsiyyühüs-semâvâti vel ard. Ve lâ yeûdühû hıfzuhumâ ve hüvel aliyyül azîm.',
+                meaning: 'Allah, O\'ndan başka ilah yoktur; O, Hayy\'dır (diridir), Kayyum\'dur (her şeyi ayakta tutandır). O\'nu ne bir uyuklama ne de bir uyku tutar. Göklerde ve yerde ne varsa O\'nundur. İzni olmadan O\'nun katında kim şefaat edebilir? O, kullarının yaptıklarını ve yapacaklarını bilir. Onlar ise, O\'nun dilediği kadarından başka ilminden hiçbir şeyi kavrayamazlar. O\'nun kürsüsü gökleri ve yeri kaplamıştır. Onları koruyup gözetmek O\'na ağır gelmez. O, Aliy\'dir (yücedir), Azim\'dir (büyüktür).',
+                tips: ['Bakara Suresi\'nin 255. ayetidir.', 'İçinde "Allah\'ın Kürsüsü" geçtiği için bu adı almıştır.']
+            }
+        ]
+    },
+    namazlar: {
+        title: 'Erkek Namazı (2 Rekat Örnek)',
+        steps: [
+            {
+                title: '1. Niyet ve İftitah Tekbiri',
+                instruction: 'İpucu: Ayaklar 4 parmak açık. Eller kulak hizasına, baş parmak kulağa değecek şekilde kaldırılır. Avuç içleri Kabe\'ye bakar.',
+                arabic: 'نَوَيْتُ... اَللهُ اَكْبَرُ',
+                transcription: '"Niyet ettim Allah rızası için namaz kılmaya" denir. Sonra "Allâhu Ekber" diyerek eller bağlanır.',
+                meaning: 'Allah en büyüktür.',
+                tips: ['Tekbir alırken ellerin içi kıbleye dönük olmalı.', 'Dünya işleri arkada bırakılır.']
+            },
+            {
+                title: '2. Kıyam (Sübhaneke)',
+                instruction: 'İpucu: Eller göbek deliği altında bağlanır. Sağ el bileği kavrar. Gözler secde yerine bakar.',
+                arabic: 'سُبْحَانَكَ...',
+                transcription: 'Sübhânekellâhümme ve bi hamdik ve tebârakesmük ve teâlâ ceddük ve lâ ilâhe ğayrük.',
+                meaning: 'Allah\'ım! Sen eksik sıfatlardan pak ve uzaksın...',
+                tips: ['İlk rekatta Sübhaneke okunur.', 'Huşu içinde, kıpırdamadan durulur.']
+            },
+            {
+                title: '3. Kıyam (Fatiha ve Sure)',
+                instruction: 'İpucu: Hareket edilmez. Sadece dudaklar kıpırdar.',
+                arabic: 'الْفَاتِحَة... سُورَة',
+                transcription: 'Euzü Besmele çekilir. Fatiha Suresi okunur, "Amin" denir. Ardından bir Zammı Sure (Örn: Kevser) okunur.',
+                meaning: 'Fatiha ve Sure ile Allah\'a munacaat edilir.',
+                tips: ['Besmele sadece Fatiha\'dan önce çekilir.', 'Zammı sure en az 3 ayet olmalıdır.']
+            },
+            {
+                title: '4. Rükû',
+                instruction: 'İpucu: "Allahu Ekber" denir. Bel tam düz (90 derece). Parmaklar açık dizleri kavrar. Bacaklar ve kollar gergin.',
+                arabic: 'سُبْحَانَ رَبِّيَ الْعَظِيمِ',
+                transcription: '3 kere: "Sübhâne Rabbiyel Azîm"',
+                meaning: 'Büyük olan Rabbimi tenzih ederim.',
+                tips: ['Sırt düz olmalı, baş sırt hizasında durmalı.', 'Gözler iki ayak ucuna bakmalı.']
+            },
+            {
+                title: '5. Doğrulma (Kavme)',
+                instruction: 'İpucu: Rükûdan tam doğrulunur. Vücut dimdik hale gelmeden secdeye gidilmez.',
+                arabic: 'سَمِعَ اللهُ لِمَنْ حَمِدَهُ... رَبَّنَا لَكَ الْحَمْدُ',
+                transcription: 'Doğrulurken: "Semiallahü limen hamideh". Dik duruşta: "Rabbena lekel hamd".',
+                meaning: 'Allah, kendisine hamd edeni işitti... Rabbimiz, hamd Sanadır.',
+                tips: ['Bu duruşa "Kavme" denir.', 'Acele etmeden tam doğrulmak gerekir (Tadil-i Erkan).']
+            },
+            {
+                title: '6. Birinci Secde',
+                instruction: 'İpucu: "Allahu Ekber" ile gidilir. Önce dizler, sonra eller, sonra alın ve burun yere konur. Dirsekler havada, karın uyluktan uzak.',
+                arabic: 'سُبْحَانَ رَبِّيَ اْلاَعْلَى',
+                transcription: '3 kere: "Sübhâne Rabbiyel A\'lâ"',
+                meaning: 'Yüce olan Rabbimi tenzih ederim.',
+                tips: ['Alın ve burun tam yere değmeli.', 'Ayak parmakları kıbleye dönük ve yerde olmalı.']
+            },
+            {
+                title: '7. İki Secde Arası Oturuş',
+                instruction: 'İpucu: "Allahu Ekber" ile oturulur. Sol ayak üzerine oturulur, sağ ayak dik (parmaklar kıbleye). Eller dizlerde.',
+                arabic: 'رَبِّ اغْفِرْ لِي',
+                transcription: 'Kısa bir an durulur (Sübhanallah diyecek kadar).',
+                meaning: 'Rabbim beni bağışla.',
+                tips: ['Bu oturuşa "Celse" denir.', 'Tam oturmadan ikinci secdeye gidilmez.']
+            },
+            {
+                title: '8. İkinci Secde',
+                instruction: 'İpucu: Tekrar "Allahu Ekber" ile kapanılır. İlk secde ile aynı pozisyon alınır.',
+                arabic: 'سُبْحَانَ رَبِّيَ اْلاَعْلَى',
+                transcription: '3 kere: "Sübhâne Rabbiyel A\'lâ"',
+                meaning: 'Yüce olan Rabbimi tenzih ederim.',
+                tips: ['Secde anı, kula Allah\'a en yakın andır.', 'Dua makamıdır.']
+            },
+            {
+                title: '9. İkinci Rekat (Kıyam)',
+                instruction: 'İpucu: "Allahu Ekber" ile ayağa kalkılır. Eller tekrar göbek altında bağlanır.',
+                arabic: 'الْفَاتِحَة... سُورَة',
+                transcription: 'Besmele, Fatiha ve Zammı Sure (Örn: İhlas) okunur. (Sübhaneke okunmaz).',
+                meaning: 'Kur\'an kıraati.',
+                tips: ['İkinci rekatta Sübhaneke ve Euzü okunmaz.', 'Sadece Besmele ile başlanır.']
+            },
+            {
+                title: '10. Rükû ve Secdeler',
+                instruction: 'İpucu: İlk rekattaki gibi sırasıyla Rükû, Doğrulma ve iki Secde yapılır.',
+                arabic: '...',
+                transcription: 'Tesbihatlar aynen tekrarlanır (Sübhâne Rabbiyel Azîm / A\'lâ).',
+                meaning: 'Rabbim Tenzih ederim.',
+                tips: ['Acele etmeden, hakkını vererek yapılır.', 'Hareketler arasında sükunet sağlanır.']
+            },
+            {
+                title: '11. Son Oturuş (Ettehiyyatü)',
+                instruction: 'İpucu: Sol ayak üzerine oturulur, sağ ayak dik. Eller dizlerde. Bakışlar kucağa.',
+                arabic: 'اَلتَّحِيَّاتُ...',
+                transcription: 'Ettehiyyatü duası okunur.',
+                meaning: 'Selam, rahmet ve bütün güzellikler Allah içindir...',
+                tips: ['Şehadet parmağı "La ilahe" derken kaldırılır.', 'Miraç hatırasıdır.']
+            },
+            {
+                title: '12. Salli, Barik ve Rabbena',
+                instruction: 'İpucu: Oturuş bozulmaz. Edeple durulur.',
+                arabic: 'اَللَّهُمَّ صَلِّ... رَبَّنَا',
+                transcription: 'Allahümme Salli, Barik ve Rabbena Atina/Rabbenağfirli duaları okunur.',
+                meaning: 'Peygamberimize salavat ve dua.',
+                tips: ['Namazın son dualarıdır.', 'Dünya ve ahiret iyiliği istenir.']
+            },
+            {
+                title: '13. Selam',
+                instruction: 'İpucu: Önce sağ omuza, sonra sol omuza bakılır.',
+                arabic: 'اَلسَّلاَمُ عَلَيْكُمْ وَرَحْمَةُ اللهِ',
+                transcription: 'Sağa: "Esselâmü aleyküm ve rahmetullâh". Sola: "Esselâmü aleyküm ve rahmetullâh".',
+                meaning: 'Allah\'ın selamı ve rahmeti üzerinize olsun.',
+                tips: ['Meleklere ve cemaate niyet edilir.', 'Namaz tamamlanmış olur.']
+            }
+        ]
+    },
+    kadinNamaz: {
+        title: 'Kadın Namazı (Özel Haller)',
+        steps: [
+            {
+                title: '1. Niyet ve İftitah Tekbiri',
+                instruction: 'İpucu: Eller göğüs hizasına (omuz başlarına) hafifçe kaldırılır. Parmaklar bitişik, avuç içi kıbleye bakar.',
+                arabic: 'نَوَيْتُ... اَللهُ اَكْبَرُ',
+                transcription: '"Niyet ettim..." denir. "Allâhu Ekber" diyerek eller göğüs üstünde bağlanır.',
+                meaning: 'Allah en büyüktür.',
+                tips: ['Erkekler gibi kulaklara götürülmez.', 'Kollar vücuda daha yakın tutulur.']
+            },
+            {
+                title: '2. Kıyam (Sübhaneke)',
+                instruction: 'İpucu: Eller göğüs üzerinde bağlanır. Sağ el solun üzerine konur (bilek kavranmaz, sadece üstüne konur). Ayaklar bitişik.',
+                arabic: 'سُبْحَانَكَ...',
+                transcription: 'Sübhânekellâhümme ve bi hamdik...',
+                meaning: 'Seni tenzih ederim Allah\'ım...',
+                tips: ['Vücut dik durur.', 'Gözler secde yerine bakar.']
+            },
+            {
+                title: '3. Kıyam (Fatiha ve Sure)',
+                instruction: 'İpucu: Eller göğüs üstünde bağlı, sükunetle durulur.',
+                arabic: 'الْفَاتِحَة... سُورَة',
+                transcription: 'Euzü Besmele, Fatiha ve Zammı Sure okunur.',
+                meaning: 'Kur\'an kıraati.',
+                tips: ['Kadınların sesi sadece kendi duyacağı kadar çıkar.', 'Gizli okunur.']
+            },
+            {
+                title: '4. Rükû',
+                instruction: 'İpucu: Az eğilinir (dümdüz olunmaz). Dizler hafif bükük. Eller dizlerin üzerine konur (kavranmaz).',
+                arabic: 'سُبْحَانَ رَبِّيَ الْعَظِيمِ',
+                transcription: '3 kere: "Sübhâne Rabbiyel Azîm"',
+                meaning: 'Büyük olan Rabbimi tenzih ederim.',
+                tips: ['Erkekler gibi sırt 90 derece yapılmaz.', 'Daha dik ve toplu bir duruş sergilenir.']
+            },
+            {
+                title: '5. Doğrulma (Kavme)',
+                instruction: 'İpucu: Rükûdan tam doğrulunur.',
+                arabic: 'سَمِعَ اللهُ لِمَنْ حَمِدَهُ... رَبَّنَا لَكَ الْحَمْدُ',
+                transcription: '"Semiallahü limen hamideh... Rabbena lekel hamd".',
+                meaning: 'Allah hamd edeni işitti.',
+                tips: ['Dik durulur, beklenir.']
+            },
+            {
+                title: '6. Birinci Secde',
+                instruction: 'İpucu: Kollar yere yapışık, karın bacaklara bitişik (küçülerek) secde edilir.',
+                arabic: 'سُبْحَانَ رَبِّيَ اْلاَعْلَى',
+                transcription: '3 kere: "Sübhâne Rabbiyel A\'lâ"',
+                meaning: 'Yüce olan Rabbimi tenzih ederim.',
+                tips: ['Dirsekler yere değer.', 'Mümkün olduğunca toplu ve kapalı durulur (Tessettüre en uygun hal).']
+            },
+            {
+                title: '7. İki Secde Arası Oturuş',
+                instruction: 'İpucu: Ayaklar sağ tarafa çıkarılır, yere oturulur.',
+                arabic: 'رَبِّ اغْفِرْ لِي',
+                transcription: 'Kısa bir an durulur.',
+                meaning: 'Rabbim bağışla.',
+                tips: ['Bu oturuşa "Teverrük" denir.', 'Erkekler gibi ayağın üstüne oturulmaz.']
+            },
+            {
+                title: '8. İkinci Secde',
+                instruction: 'İpucu: Tekrar kapanılır. Kollar yere yapışık.',
+                arabic: 'سُبْحَانَ رَبِّيَ اْلاَعْلَى',
+                transcription: '3 kere: "Sübhâne Rabbiyel A\'lâ"',
+                meaning: 'Yüce olan Rabbimi tenzih ederim.',
+                tips: ['Alın ve burun yerde sabitlenir.']
+            },
+            {
+                title: '9. İkinci Rekat (Kıyam)',
+                instruction: 'İpucu: Ayağa kalkılır, eller göğüste bağlanır. Ayaklar bitişik.',
+                arabic: 'الْفَاتِحَة... سُورَة',
+                transcription: 'Besmele, Fatiha ve Zammı Sure okunur.',
+                meaning: 'Kıraat.',
+                tips: ['İkinci rekatta sadece Besmele çekilir.']
+            },
+            {
+                title: '10. Rükû ve Secdeler',
+                instruction: 'İpucu: Rükû (hafif eğilme) ve Secdeler (kapalı duruş) tekrarlanır.',
+                arabic: '...',
+                transcription: 'Tesbihatlar aynen yapılır.',
+                meaning: 'Tesbih.',
+                tips: ['Tadil-i Erkana dikkat edilir.']
+            },
+            {
+                title: '11. Son Oturuş (Ettehiyyatü)',
+                instruction: 'İpucu: Ayaklar sağa çıkarılır, yere oturulur. Eller dizler üzerinde.',
+                arabic: 'اَلتَّحِيَّاتُ...',
+                transcription: 'Ettehiyyatü okunur.',
+                meaning: 'Tahiyyat.',
+                tips: ['Bakışlar kucağa doğrudur.']
+            },
+            {
+                title: '12. Salli, Barik ve Rabbena',
+                instruction: 'İpucu: Oturuş aynı şekilde devam eder.',
+                arabic: 'اَللَّهُمَّ صَلِّ... رَبَّنَا',
+                transcription: 'Dualar okunur.',
+                meaning: 'Dua.',
+                tips: ['Samimiyetle dua edilir.']
+            },
+            {
+                title: '13. Selam',
+                instruction: 'İpucu: Baş sağa ve sola çevrilir.',
+                arabic: 'اَلسَّلاَمُ عَلَيْكُمْ وَرَحْمَةُ اللهِ',
+                transcription: '"Esselâmü aleyküm ve rahmetullâh".',
+                meaning: 'Selam vermek.',
+                tips: ['Namaz bitiminde Allah\'a şükredilir.']
+            }
+        ]
+    },
+};
+
+const CategoryButton = memo(({ cat, isSelected, onClick }) => (
+    <button
+        onClick={() => onClick(cat.id)}
+        className={cn(
+            "flex items-center gap-2 px-5 py-3 rounded-2xl border transition-all text-sm font-bold whitespace-nowrap active:scale-95",
+            isSelected
+                ? "bg-islamic-green dark:bg-islamic-gold text-white dark:text-[#032e18] border-transparent shadow-lg"
+                : "bg-white dark:bg-white/5 text-gray-500 dark:text-emerald-100/40 border-gray-100 dark:border-white/5 hover:border-islamic-gold"
+        )}
+    >
+        <cat.icon size={18} />
+        {cat.label}
+    </button>
+));
+
+const GuideStepCard = memo(({ step }) => {
+    if (!step) return null;
+    return (
+        <Card className="border-none shadow-xl rounded-[2.5rem] bg-white dark:bg-white/5 overflow-hidden p-6 relative dark:text-white">
+            <div className="space-y-6">
+                <div className="flex items-start gap-4">
+                    <div className="w-14 h-14 bg-islamic-green dark:bg-islamic-gold rounded-2xl flex items-center justify-center text-white dark:text-[#032e18] shadow-lg shrink-0">
+                        <Heart className="w-8 h-8 fill-current" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                            {step.repeat && (
+                                <span className="bg-islamic-gold/10 text-islamic-gold text-[10px] font-black px-2 py-0.5 rounded-full border border-islamic-gold/20 uppercase">
+                                    {step.repeat}
+                                </span>
+                            )}
+                        </div>
+                        <h2 className="text-2xl font-serif font-bold leading-tight">{step.title}</h2>
+                    </div>
+                </div>
+
+                <p className="text-gray-600 dark:text-emerald-100/80 leading-relaxed text-base italic">
+                    "{step.instruction}"
+                </p>
+
+                {/* Arabic Content Box */}
+                <div className="bg-islamic-green/[0.03] dark:bg-islamic-gold/5 border border-islamic-green/10 dark:border-islamic-gold/10 rounded-3xl p-6 text-center space-y-4 shadow-inner">
+                    <p className="font-arabic text-3xl text-gray-800 dark:text-white leading-[2] break-words">{step.arabic}</p>
+                    <div className="space-y-1">
+                        <p className="text-gray-400 dark:text-gray-500 italic text-xs">{step.transcription}</p>
+                        <p className="text-gray-700 dark:text-emerald-100/60 font-medium text-sm">"{step.meaning}"</p>
+                    </div>
+                </div>
+
+                {/* Tips Section */}
+                <div className="bg-gray-50 dark:bg-white/5 rounded-3xl p-6 border dark:border-white/5 shadow-sm">
+                    <h4 className="flex items-center gap-2 text-islamic-gold font-bold text-xs uppercase tracking-widest mb-4">
+                        <SparklesIcon size={14} /> İpucu
+                    </h4>
+                    <ul className="space-y-3">
+                        {step.tips.map((tip, idx) => (
+                            <li key={idx} className="flex items-start gap-3 text-gray-600 dark:text-emerald-100/40 text-[14px]">
+                                <div className="w-1.5 h-1.5 rounded-full bg-islamic-gold mt-1.5 shrink-0" />
+                                <span>{tip}</span>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            </div>
+        </Card>
+    );
+});
+
+export default function Learn() {
+    const [selectedCategory, setSelectedCategory] = useState('abdest');
+    const [currentStep, setCurrentStep] = useState(0);
+    const [isComplete, setIsComplete] = useState(false);
+    const { selection, success, heavy } = useHaptics();
+
+    const guide = GUIDES[selectedCategory];
+    const step = guide?.steps[currentStep];
+    const totalSteps = guide?.steps.length || 0;
+
+    const next = useCallback(() => {
+        selection();
+        if (currentStep < totalSteps - 1) {
+            setCurrentStep(prev => prev + 1);
+        } else {
+            success();
+            setIsComplete(true);
+        }
+    }, [currentStep, totalSteps, selection, success]);
+
+    const prev = useCallback(() => {
+        selection();
+        if (currentStep > 0) setCurrentStep(prev => prev - 1);
+    }, [currentStep, selection]);
+
+    const reset = useCallback(() => {
+        heavy();
+        setCurrentStep(0);
+        setIsComplete(false);
+    }, [heavy]);
+
+    const handleCategorySelect = useCallback((id) => {
+        selection();
+        setSelectedCategory(id);
+        setCurrentStep(0);
+        setIsComplete(false);
+    }, [selection]);
+
+    if (isComplete) {
+        return (
+            <motion.div
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                className="flex flex-col items-center justify-center min-h-[60vh] text-center p-8 bg-white dark:bg-white/5 rounded-[3rem] shadow-xl m-2 border dark:border-white/10"
+            >
+                <div className="w-24 h-24 bg-islamic-green/10 dark:bg-islamic-gold/10 rounded-full flex items-center justify-center mb-6 relative">
+                    <PartyPopper className="w-12 h-12 text-islamic-green dark:text-islamic-gold animate-bounce" />
+                    <SparklesIcon className="absolute -top-2 -right-2 text-islamic-gold" />
+                </div>
+                <h2 className="text-3xl font-serif font-bold text-islamic-green dark:text-islamic-gold mb-2">Maşallah!</h2>
+                <p className="text-gray-500 dark:text-emerald-100/40 mb-10 max-w-xs">{guide.title} başarıyla tamamlandı. Allah kabul etsin.</p>
+                <div className="grid gap-4 w-full max-w-xs">
+                    <Button onClick={reset} className="bg-islamic-green dark:bg-islamic-gold hover:opacity-90 text-white dark:text-[#032e18] h-14 rounded-2xl font-bold shadow-lg">
+                        <RotateCcw className="mr-2 w-5 h-5" /> Tekrar Başa Dön
+                    </Button>
+                    <Button variant="ghost" onClick={() => setIsComplete(false)} className="h-12 rounded-2xl dark:text-gray-400">
+                        Geri Dön
+                    </Button>
+                </div>
+            </motion.div>
+        );
+    }
+
+    return (
+        <div className="flex flex-col space-y-6 p-5 pb-32">
+            {/* Header Area */}
+            <div className="text-center space-y-4">
+                <h1 className="text-2xl font-serif font-bold text-islamic-green dark:text-islamic-gold">İslami Öğrenme</h1>
+
+                {/* Category Selection */}
+                <div className="flex w-full overflow-x-auto whitespace-nowrap scrollbar-hide px-4 gap-3 py-2">
+                    {CATEGORIES.map((cat) => (
+                        <CategoryButton
+                            key={cat.id}
+                            cat={cat}
+                            isSelected={selectedCategory === cat.id}
+                            onClick={handleCategorySelect}
+                        />
+                    ))}
+                </div>
+            </div>
+
+            {/* Guide Title + Progress Bar */}
+            <div className="space-y-4">
+                <div className="flex items-center justify-between px-1">
+                    <div className="flex items-center gap-2 bg-islamic-gold/10 px-4 py-1.5 rounded-full border border-islamic-gold/20">
+                        <Droplets className="w-4 h-4 text-islamic-gold" />
+                        <span className="text-xs font-bold text-islamic-green dark:text-islamic-gold uppercase tracking-widest">{guide?.title}</span>
+                    </div>
+                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Adım {currentStep + 1} / {totalSteps}</span>
+                </div>
+
+                <div className="w-full h-2 bg-gray-100 dark:bg-white/10 rounded-full overflow-hidden shadow-inner">
+                    <motion.div
+                        className="h-full bg-islamic-green dark:bg-islamic-gold shadow-sm"
+                        initial={{ width: 0 }}
+                        animate={{ width: `${((currentStep + 1) / (totalSteps || 1)) * 100}%` }}
+                        transition={{ duration: 0.5, ease: "easeOut" }}
+                    />
+                </div>
+            </div>
+
+            {/* Main Presentation Area */}
+            <div className="relative">
+                <AnimatePresence mode="wait">
+                    <motion.div
+                        key={`${selectedCategory}-${currentStep}`}
+                        initial={{ x: 20, opacity: 0 }}
+                        animate={{ x: 0, opacity: 1 }}
+                        exit={{ x: -20, opacity: 0 }}
+                        transition={{ duration: 0.3 }}
+                    >
+                        <GuideStepCard step={step} />
+                    </motion.div>
+                </AnimatePresence>
+            </div>
+
+            {/* Navigation Buttons */}
+            <div className="fixed bottom-20 left-1/2 -translate-x-1/2 w-full max-w-md px-6 flex justify-between items-center pointer-events-none z-40">
+                <Button
+                    variant="outline"
+                    onClick={prev}
+                    disabled={currentStep === 0}
+                    className="bg-white/80 dark:bg-white/10 backdrop-blur-md h-16 px-8 rounded-2xl border-gray-100 dark:border-white/10 text-gray-500 dark:text-white pointer-events-auto shadow-lg active:scale-95 disabled:opacity-30 font-bold"
+                >
+                    <ChevronLeft className="mr-2 h-5 w-5" /> Geri
+                </Button>
+
+                <Button
+                    onClick={next}
+                    className={cn(
+                        "h-16 px-10 rounded-2xl shadow-xl pointer-events-auto transition-all active:scale-95 font-bold",
+                        currentStep === totalSteps - 1
+                            ? "bg-islamic-green dark:bg-islamic-gold text-white dark:text-[#032e18] px-12"
+                            : "bg-islamic-green dark:bg-islamic-gold text-white dark:text-[#032e18]"
+                    )}
+                >
+                    {currentStep === totalSteps - 1 ? (
+                        <>Tamamla <CheckCircle2 className="ml-2 h-5 w-5" /></>
+                    ) : (
+                        <>İleri <ChevronRight className="ml-2 h-5 w-5" /></>
+                    )}
+                </Button>
+            </div>
+        </div>
+    );
+}

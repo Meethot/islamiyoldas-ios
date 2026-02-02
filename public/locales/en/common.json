@@ -1,0 +1,35 @@
+{
+    "nav": {
+        "home": "Home",
+        "learn": "Learn",
+        "stories": "Stories",
+        "worship": "Worship",
+        "profile": "Profile"
+    },
+    "prayer": {
+        "fajr": "Fajr",
+        "sunrise": "Sunrise",
+        "dhuhr": "Dhuhr",
+        "asr": "Asr",
+        "maghrib": "Maghrib",
+        "isha": "Isha"
+    },
+    "quran": {
+        "bismillah_translation": "In the name of Allah, the Entirely Merciful, the Especially Merciful",
+        "sadaqallah": "Allah the Almighty has spoken the truth",
+        "next_surah": "Next Surah",
+        "load_more": "Load More Verses",
+        "connection_error": "Connection Error",
+        "retry": "Retry",
+        "back": "Back",
+        "loading": "Loading..."
+    },
+    "common": {
+        "loading": "Loading...",
+        "error": "An error occurred",
+        "save": "Save",
+        "cancel": "Cancel",
+        "back": "Back",
+        "next": "Next"
+    }
+}

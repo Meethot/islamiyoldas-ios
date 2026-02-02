@@ -1,0 +1,52 @@
+{
+    "greeting": {
+        "morning": "Good Morning",
+        "afternoon": "Good Afternoon",
+        "evening": "Good Evening",
+        "night": "Good Night",
+        "generic": "Salam Alaykum"
+    },
+    "friday": {
+        "text": "The best day on which the sun has risen is Friday.",
+        "source": "Hadith (Muslim)",
+        "message": "Blessed Friday",
+        "share_title": "Share Friday Message"
+    },
+    "verse_share_title": "Share Verse",
+    "theme_select": "Select Theme",
+    "save_image": "Save Image",
+    "close": "Close",
+    "reset": "Reset",
+    "quick_actions": {
+        "dhikr": {
+            "label": "Dhikr Counter",
+            "subtitle": "Dhikr"
+        },
+        "new_day": {
+            "label": "New Day",
+            "subtitle": "+{{offset}} days"
+        },
+        "sleep": {
+            "label": "Sleep Mode",
+            "subtitle": "Peace"
+        },
+        "qibla": {
+            "label": "Qibla",
+            "subtitle": "Direction"
+        }
+    },
+    "widgets": {
+        "breath": {
+            "title": "Rest Your Soul",
+            "subtitle": "Guided Meditation & Breath"
+        },
+        "dua": {
+            "title": "Prayer Brotherhood",
+            "subtitle": "Pray for each other"
+        }
+    },
+    "esma": {
+        "virtue_title": "Virtue & Secret",
+        "cycle": "Cycle {{count}}"
+    }
+}

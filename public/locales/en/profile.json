@@ -1,0 +1,54 @@
+{
+    "title": "Profile",
+    "user": {
+        "streak_desc": "Day {{count}} of the journey"
+    },
+    "premium": {
+        "banner_title": "Go Premium",
+        "banner_desc": "Ad-free experience and detailed stats."
+    },
+    "personal_settings": "Personal Settings",
+    "general_settings": "General Settings",
+    "notifications": {
+        "title": "Notifications",
+        "subtitle": "Prayer time reminders"
+    },
+    "privacy": {
+        "title": "Privacy & Security",
+        "subtitle": "Data protection and lock",
+        "modal_title": "Data & Privacy",
+        "data_info": "Your data is stored <strong>only on this device</strong>. No data is sent to our servers.",
+        "download": "Download My Data",
+        "delete_all": "Delete All Data"
+    },
+    "appearance": {
+        "title": "Appearance",
+        "subtitle_dark": "Dark Mode",
+        "subtitle_light": "Light Mode"
+    },
+    "share": {
+        "title": "Share Progress",
+        "subtitle": "Share Tuba Tree on social media"
+    },
+    "invite": {
+        "title": "Invite Friend",
+        "subtitle": "Share app link with loved ones"
+    },
+    "calc": {
+        "title": "Calc Missed Prayers",
+        "subtitle": "Automatic calculation tool"
+    },
+    "language": {
+        "title": "App Language",
+        "subtitle": "Change interface language"
+    },
+    "support": "Support Us",
+    "reset": "Reset Data",
+    "modal": {
+        "select_lang": "Language Selection",
+        "lang_note": "Language change applies instantly."
+    },
+    "avatar_modal_title": "Select Profile Photo",
+    "app_name": "Spiritual Path",
+    "version": "Version 2.1.0 (Pro Max)"
+}

@@ -1,0 +1,24 @@
+import { StrictMode } from 'react'
+import { createRoot } from 'react-dom/client'
+import './index.css'
+import './i18n'
+import App from './App.jsx'
+
+import ErrorBoundary from './components/ErrorBoundary.jsx'
+import { UserProvider } from './context/UserContext.jsx'
+import { ThemeProvider } from './context/ThemeContext.jsx'
+
+// Disable selection and context menu globally for security
+document.addEventListener('contextmenu', (e) => e.preventDefault());
+
+createRoot(document.getElementById('root')).render(
+  <StrictMode>
+    <ErrorBoundary>
+      <UserProvider>
+        <ThemeProvider>
+          <App />
+        </ThemeProvider>
+      </UserProvider>
+    </ErrorBoundary>
+  </StrictMode>,
+)
