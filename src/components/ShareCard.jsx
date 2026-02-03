@@ -75,7 +75,8 @@ export const SHARE_THEMES = {
 
 export default function ShareCard({
     streak = 0,
-    theme = 'emerald'
+    theme = 'emerald',
+    data = null // { type: 'verse', arabic, translation, surah, verseNumber }
 }) {
     // Get theme config
     const currentTheme = SHARE_THEMES[theme] || SHARE_THEMES.emerald;
@@ -187,46 +188,129 @@ export default function ShareCard({
                     }}
                 />
 
-                {/* Header */}
-                <div className="relative z-10 flex flex-col items-center text-center space-y-6">
-                    <h1 className={`font-serif font-bold ${currentTheme.accentColor} leading-tight drop-shadow-2xl`}
-                        style={{ fontSize: '80px' }}
-                    >
-                        Cennet Bahçem<br />
-                        <span className={currentTheme.textColor}>Yeşeriyor</span>
-                    </h1>
-                    <div className={`h-1 w-32 bg-gradient-to-r from-transparent via-current to-transparent opacity-50 ${currentTheme.accentColor}`} />
-                </div>
+                {data ? (
+                    // --- VERSE LAYOUT (Clean Premium Design) ---
+                    <>
+                        {/* Subtle Corner Frames - Thin & Elegant */}
+                        <div className="absolute top-16 left-16 w-20 h-20 border-l-2 border-t-2 border-white/20" />
+                        <div className="absolute top-16 right-16 w-20 h-20 border-r-2 border-t-2 border-white/20" />
+                        <div className="absolute bottom-16 left-16 w-20 h-20 border-l-2 border-b-2 border-white/20" />
+                        <div className="absolute bottom-16 right-16 w-20 h-20 border-r-2 border-b-2 border-white/20" />
 
-                {/* Hero: The Tree */}
-                <div className="flex-grow flex items-center justify-center relative z-10 w-full">
-                    {renderTree()}
-                </div>
+                        {/* HEADER SECTION */}
+                        <div className="relative z-10 w-full flex flex-col items-center pt-8" style={{ gap: '32px' }}>
+                            {/* Surah & Verse Number */}
+                            <div className="text-center">
+                                <h2 className={`font-serif font-bold ${currentTheme.accentColor} tracking-wide`}
+                                    style={{ fontSize: '56px', lineHeight: '1.2' }}>
+                                    {data.surah}
+                                </h2>
+                                <p className={`${currentTheme.textColor} opacity-80 font-medium tracking-widest uppercase`}
+                                    style={{ fontSize: '32px', marginTop: '16px' }}>
+                                    {data.verseNumber}. Ayet
+                                </p>
+                            </div>
 
-                {/* Footer */}
-                <div className="relative z-10 w-full flex flex-col items-center text-center space-y-8">
-                    {/* Streak Badge */}
-                    <div className="flex items-center gap-4 bg-white/5 backdrop-blur-md px-10 py-5 rounded-full border border-white/10 shadow-xl">
-                        <div className="w-5 h-5 bg-green-500 rounded-full animate-pulse shadow-[0_0_15px_#22c55e]" />
-                        <span className={`${currentTheme.textColor} text-4xl font-bold tracking-wide`}>{streak} Gün</span>
-                    </div>
-
-                    <p className={`${currentTheme.textColor} opacity-80 font-serif italic text-4xl mt-4`}>
-                        "Bugün de ruhumu besledim."
-                    </p>
-
-                    <div className="flex flex-col items-center text-center space-y-6 mt-4">
-                        <p className={`font-bold ${currentTheme.textColor}`} style={{ fontSize: '42px' }}>
-                            İslami Yoldaş ile <span className={currentTheme.accentColor}>sen de başla!</span> 🤲
-                        </p>
-
-                        <div className="bg-white/10 border border-white/20 rounded-[30px] px-12 py-6 flex items-center gap-4 backdrop-blur-md">
-                            <span className={`${currentTheme.textColor} opacity-80 font-mono tracking-wider`} style={{ fontSize: '32px' }}>
-                                islamiyoldas.app/download
-                            </span>
+                            {/* Elegant Divider */}
+                            <div className="flex items-center justify-center" style={{ gap: '24px' }}>
+                                <div className={`h-px w-20 ${currentTheme.accentColor.replace('text-', 'bg-')} opacity-40`} />
+                                <div className={`w-2 h-2 rounded-full ${currentTheme.accentColor.replace('text-', 'bg-')} opacity-60`} />
+                                <div className={`h-px w-20 ${currentTheme.accentColor.replace('text-', 'bg-')} opacity-40`} />
+                            </div>
                         </div>
-                    </div>
-                </div>
+
+                        {/* ARABIC TEXT - Centered & Dominant */}
+                        <div className="flex-1 flex items-center justify-center relative z-10 w-full"
+                            style={{ padding: '48px 64px' }}>
+                            <p className={`${currentTheme.accentColor} font-arabic text-center`}
+                                style={{
+                                    fontSize: '88px',
+                                    lineHeight: '1.8',
+                                    textShadow: '0 4px 30px rgba(0,0,0,0.3)'
+                                }}>
+                                {data.arabic}
+                            </p>
+                        </div>
+
+                        {/* TRANSLATION SECTION */}
+                        <div className="relative z-10 w-full flex flex-col items-center pb-8" style={{ gap: '48px' }}>
+                            {/* Translation Card */}
+                            <div className="w-full flex justify-center" style={{ padding: '0 48px' }}>
+                                <div className="bg-white/5 backdrop-blur-sm border border-white/10 text-center"
+                                    style={{
+                                        padding: '40px 48px',
+                                        borderRadius: '32px',
+                                        maxWidth: '920px'
+                                    }}>
+                                    <p className={`${currentTheme.textColor} font-serif italic`}
+                                        style={{
+                                            fontSize: '40px',
+                                            lineHeight: '1.6',
+                                            opacity: 0.95
+                                        }}>
+                                        "{data.translation}"
+                                    </p>
+                                </div>
+                            </div>
+
+                            {/* App Branding - Minimal & Clean */}
+                            <div className="flex flex-col items-center text-center" style={{ gap: '20px' }}>
+                                <p className={`${currentTheme.textColor} font-bold tracking-wider`}
+                                    style={{ fontSize: '28px', letterSpacing: '0.15em' }}>
+                                    İSLAMİ YOLDAŞ
+                                </p>
+                                <p className={`${currentTheme.textColor} opacity-50 font-mono`}
+                                    style={{ fontSize: '24px', letterSpacing: '0.1em' }}>
+                                    islamiyoldas.app
+                                </p>
+                            </div>
+                        </div>
+                    </>
+                ) : (
+                    // --- TREE/STREAK LAYOUT ---
+                    <>
+                        {/* Header */}
+                        <div className="relative z-10 flex flex-col items-center text-center space-y-6">
+                            <h1 className={`font-serif font-bold ${currentTheme.accentColor} leading-tight drop-shadow-2xl`}
+                                style={{ fontSize: '80px' }}
+                            >
+                                Cennet Bahçem<br />
+                                <span className={currentTheme.textColor}>Yeşeriyor</span>
+                            </h1>
+                            <div className={`h-1 w-32 bg-gradient-to-r from-transparent via-current to-transparent opacity-50 ${currentTheme.accentColor}`} />
+                        </div>
+
+                        {/* Hero: The Tree */}
+                        <div className="flex-grow flex items-center justify-center relative z-10 w-full">
+                            {renderTree()}
+                        </div>
+
+                        {/* Footer */}
+                        <div className="relative z-10 w-full flex flex-col items-center text-center space-y-8">
+                            {/* Streak Badge */}
+                            <div className="flex items-center gap-4 bg-white/5 backdrop-blur-md px-10 py-5 rounded-full border border-white/10 shadow-xl">
+                                <div className="w-5 h-5 bg-green-500 rounded-full animate-pulse shadow-[0_0_15px_#22c55e]" />
+                                <span className={`${currentTheme.textColor} text-4xl font-bold tracking-wide`}>{streak} Gün</span>
+                            </div>
+
+                            <p className={`${currentTheme.textColor} opacity-80 font-serif italic text-4xl mt-4`}>
+                                "Bugün de ruhumu besledim."
+                            </p>
+
+                            <div className="flex flex-col items-center text-center space-y-6 mt-4">
+                                <p className={`font-bold ${currentTheme.textColor}`} style={{ fontSize: '42px' }}>
+                                    İslami Yoldaş ile <span className={currentTheme.accentColor}>sen de başla!</span> 🤲
+                                </p>
+
+                                <div className="bg-white/10 border border-white/20 rounded-[30px] px-12 py-6 flex items-center gap-4 backdrop-blur-md">
+                                    <span className={`${currentTheme.textColor} opacity-80 font-mono tracking-wider`} style={{ fontSize: '32px' }}>
+                                        islamiyoldas.app/download
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </>
+                )}
 
                 {/* Border Frame */}
                 <div className={`absolute inset-10 border ${currentTheme.borderColor} rounded-[4rem] pointer-events-none`} />

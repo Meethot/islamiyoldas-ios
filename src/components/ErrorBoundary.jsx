@@ -30,7 +30,7 @@ class ErrorBoundary extends React.Component {
         if (this.state.hasError) {
             return (
                 <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-red-50 text-center dark:bg-[#032e18]">
-                    <div className="bg-white dark:bg-white/5 p-8 rounded-3xl shadow-xl max-w-sm w-full border border-red-100 dark:border-white/10">
+                    <div className="bg-white dark:bg-white/5 p-8 rounded-3xl shadow-xl max-w-4xl w-full border border-red-100 dark:border-white/10">
                         <div className="w-16 h-16 bg-red-100 dark:bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
                             <AlertTriangle className="w-8 h-8 text-red-600 dark:text-red-400" />
                         </div>
@@ -43,7 +43,7 @@ class ErrorBoundary extends React.Component {
                             Uygulama beklenmedik bir hatayla karşılaştı. Lütfen sayfayı yenilemeyi deneyin.
                         </p>
 
-                        <div className="space-y-3">
+                        <div className="space-y-3 max-w-sm mx-auto">
                             <Button
                                 onClick={this.handleReload}
                                 className="w-full bg-red-600 hover:bg-red-700 text-white rounded-xl h-12"
@@ -61,9 +61,9 @@ class ErrorBoundary extends React.Component {
                         </div>
 
                         {process.env.NODE_ENV === 'development' && this.state.error && (
-                            <div className="mt-8 text-left bg-gray-900 rounded-lg p-4 overflow-auto max-h-48">
-                                <p className="text-red-400 font-mono text-xs mb-2 font-bold">{this.state.error.toString()}</p>
-                                <pre className="text-gray-500 font-mono text-[10px] whitespace-pre-wrap">
+                            <div className="mt-8 text-left bg-gray-900 rounded-lg p-4 overflow-auto max-h-[60vh] border border-red-900/50">
+                                <p className="text-red-400 font-mono text-sm mb-2 font-bold select-all">{this.state.error.toString()}</p>
+                                <pre className="text-gray-400 font-mono text-xs whitespace-pre-wrap select-all">
                                     {this.state.errorInfo?.componentStack}
                                 </pre>
                             </div>

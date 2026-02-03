@@ -191,3 +191,57 @@ export async function shareVerse(elementId, text, source, isFriday = false) {
     }
 }
 
+/**
+ * Captures a specific hidden element (like ShareCard), temporarily moving it to viewport
+ * @param {string} elementId - DOM ID
+ * @param {string} shareText - Text to share
+ * @param {string} title - Share title
+ */
+export async function shareHiddenElement(elementId, shareText, title = 'İslami Yoldaş Paylaşımı') {
+    try {
+        const element = document.getElementById(elementId);
+        if (!element) return false;
+
+        const originalStyle = element.style.cssText;
+        element.style.left = '0';
+        element.style.top = '0';
+        element.style.position = 'fixed';
+        element.style.zIndex = '-1';
+
+        const canvas = await html2canvas(element, {
+            backgroundColor: null,
+            scale: 1.5,
+            width: 1080,
+            height: 1920,
+            useCORS: true,
+            logging: false
+        });
+
+        element.style.cssText = originalStyle;
+
+        const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png', 1.0));
+        const file = new File([blob], 'paylasim.png', { type: 'image/png' });
+
+        const shareData = {
+            files: [file],
+            title: title,
+            text: shareText
+        };
+
+        if (navigator.share && navigator.canShare && navigator.canShare(shareData)) {
+            await navigator.share(shareData);
+            return true;
+        } else {
+            const url = canvas.toDataURL('image/png');
+            const link = document.createElement('a');
+            link.download = 'paylasim.png';
+            link.href = url;
+            link.click();
+            return true;
+        }
+    } catch (e) {
+        console.error('Hidden share failed', e);
+        return false;
+    }
+}
+

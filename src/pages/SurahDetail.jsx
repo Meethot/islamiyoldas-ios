@@ -4,7 +4,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import {
     BookOpen, ArrowLeft, Bookmark, BookmarkCheck, Share2, RefreshCw, WifiOff,
-    Loader2, ChevronDown, ChevronRight
+    Loader2, ChevronDown, ChevronRight, X
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -12,6 +12,8 @@ import { useHaptics } from '@/hooks/useMobile';
 import { fetchSurahContent, fetchChapterInfo } from '@/services/quranApi';
 import { turkifyTransliteration } from '@/utils/textFormatter';
 import { safeGetStorage, safeSetStorage } from '@/utils/storageHelper';
+import ShareCard, { SHARE_THEMES } from '@/components/ShareCard';
+import { shareHiddenElement } from '@/lib/share';
 
 import { useTranslation } from 'react-i18next';
 
@@ -31,6 +33,40 @@ export default function SurahDetail() {
     const [error, setError] = useState(null);
     const [pagination, setPagination] = useState(null);
     const [bookmarks, setBookmarks] = useState(() => safeGetStorage(BOOKMARKS_KEY, []));
+
+    // Share State
+    const [shareModalData, setShareModalData] = useState(null);
+    const [activeTheme, setActiveTheme] = useState(SHARE_THEMES.emerald);
+    const [sharing, setSharing] = useState(false);
+
+    const handleShareClick = (verse) => {
+        selection();
+        setShareModalData({
+            type: 'verse',
+            arabic: verse.arabic,
+            translation: verse.translation,
+            surah: surahInfo?.name || `Sure ${surahId}`,
+            verseNumber: verse.verseNumber
+        });
+        setActiveTheme(SHARE_THEMES.emerald);
+    };
+
+    const handleShare = async () => {
+        if (sharing) return;
+        setSharing(true);
+        try {
+            await shareHiddenElement(
+                'share-card',
+                `"${shareModalData.translation}"\n\n${surahInfo?.name || 'Kuran-ı Kerim'} ${shareModalData.verseNumber}. Ayet - İslami Yoldaş 🤲`,
+                'Ayet Paylaş'
+            );
+            setShareModalData(null);
+        } catch (e) {
+            console.error(e);
+        } finally {
+            setSharing(false);
+        }
+    };
 
     // Check if a verse is bookmarked
     const isBookmarked = (verseKey) => bookmarks.some(b => b.verseKey === verseKey);
@@ -264,7 +300,7 @@ export default function SurahDetail() {
                                             <Button
                                                 variant="ghost"
                                                 size="sm"
-                                                onClick={() => selection()}
+                                                onClick={() => handleShareClick(verse)}
                                                 className="text-gray-400 hover:text-islamic-gold"
                                             >
                                                 <Share2 className="w-4 h-4" />
@@ -353,6 +389,92 @@ export default function SurahDetail() {
                     </motion.div>
                 )}
             </div>
+
+            {/* SHARE MODAL */}
+            <AnimatePresence>
+                {shareModalData && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-[100] bg-black/70 backdrop-blur-md flex items-center justify-center p-4"
+                        onClick={() => setShareModalData(null)}
+                    >
+                        <motion.div
+                            initial={{ scale: 0.9, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.95, opacity: 0 }}
+                            className="bg-[#F9F8F3] dark:bg-[#021a0f] w-full max-w-sm rounded-[2.5rem] p-6 shadow-2xl relative border border-white/10"
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            <div className="flex justify-between items-center mb-6">
+                                <h3 className="font-serif text-xl font-bold text-islamic-green dark:text-islamic-gold">
+                                    Ayet Paylaş
+                                </h3>
+                                <button
+                                    onClick={() => setShareModalData(null)}
+                                    className="p-2 bg-black/5 dark:bg-white/10 rounded-full hover:bg-black/10 dark:hover:bg-white/20 transition-colors"
+                                >
+                                    <X className="w-5 h-5 text-gray-800 dark:text-white" />
+                                </button>
+                            </div>
+
+                            {/* Theme Grid */}
+                            <div className="grid grid-cols-5 gap-3 mb-8">
+                                {Object.values(SHARE_THEMES).map(theme => (
+                                    <button
+                                        key={theme.id}
+                                        onClick={() => {
+                                            selection();
+                                            setActiveTheme(theme);
+                                        }}
+                                        className={cn(
+                                            "aspect-square rounded-full transition-all duration-300 relative border-2 border-transparent",
+                                            theme.preview,
+                                            activeTheme.id === theme.id ? "scale-110 ring-2 ring-offset-2 ring-islamic-gold ring-offset-[#021a0f]" : "opacity-70 hover:opacity-100"
+                                        )}
+                                        aria-label={theme.name}
+                                    >
+                                        {activeTheme.id === theme.id && (
+                                            <motion.div
+                                                layoutId="activeTheme"
+                                                className="absolute inset-0 border-2 border-white/50 rounded-full"
+                                            />
+                                        )}
+                                    </button>
+                                ))}
+                            </div>
+
+                            {/* Action Button */}
+                            <Button
+                                onClick={handleShare}
+                                disabled={sharing}
+                                className="w-full bg-islamic-gold hover:bg-islamic-gold/90 text-white font-bold h-14 rounded-2xl text-lg shadow-lg shadow-islamic-gold/20"
+                            >
+                                {sharing ? (
+                                    <>
+                                        <Loader2 className="w-5 h-5 animate-spin mr-2" />
+                                        Hazırlanıyor...
+                                    </>
+                                ) : (
+                                    <>
+                                        <Share2 className="w-5 h-5 mr-2" />
+                                        Paylaş
+                                    </>
+                                )}
+                            </Button>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* Hidden Share Card */}
+            {shareModalData && (
+                <ShareCard
+                    theme={activeTheme.id}
+                    data={shareModalData}
+                />
+            )}
         </div>
     );
 }

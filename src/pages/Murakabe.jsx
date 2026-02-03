@@ -46,6 +46,33 @@ export default function Murakabe() {
     const [isCompleted, setIsCompleted] = useState(false);
     const [isAnimating, setIsAnimating] = useState(false);
     const [savedScore, setSavedScore] = useState(null);
+    const [selectedAyah, setSelectedAyah] = useState(null);
+
+    // Gift Ayahs - Themed spiritual rewards for completing Murakabe
+    const giftAyahs = [
+        // RIZIK & BEREKET (Wealth/Provision)
+        { text: "Şüphesiz rızkı veren, sarsılmaz gücün sahibi olan Allah'tır.", source: "Zâriyat, 58" },
+        { text: "Kim Allah'tan sakınırsa, Allah ona bir çıkış yolu ihsan eder ve ona beklemediği yerden rızık verir.", source: "Talâk, 2-3" },
+        { text: "Yeryüzünde kımıldayan hiçbir canlı yoktur ki rızkı Allah'a ait olmasın.", source: "Hûd, 6" },
+
+        // ŞİFA & SAĞLIK (Health/Healing)
+        { text: "Hastalandığım zaman bana şifa veren O'dur.", source: "Şuarâ, 80" },
+        { text: "Biz Kur'an'dan, müminler için şifa ve rahmet olan şeyler indiriyoruz.", source: "İsrâ, 82" },
+
+        // AİLE & MUHABBET (Love/Family)
+        { text: "Kendileri ile huzur bulasınız diye sizin için türünüzden eşler yaratması ve aranıza sevgi ve merhamet koyması O'nun ayetlerindendir.", source: "Rûm, 21" },
+        { text: "Rabbimiz! Bize göz aydınlığı olacak eşler ve çocuklar bahşet.", source: "Furkân, 74" },
+
+        // FERAHLIK & UMUT (Relief/Hope)
+        { text: "Elbette zorluğun yanında bir kolaylık vardır. Gerçekten, zorlukla beraber bir kolaylık daha vardır.", source: "İnşirah, 5-6" },
+        { text: "Kalpler ancak Allah'ı anmakla huzur bulur.", source: "Ra'd, 28" },
+        { text: "Rabbin seni terk etmedi ve sana darılmadı.", source: "Duhâ, 3" },
+        { text: "Sabret! Senin sabrın ancak Allah'ın yardımı iledir.", source: "Nahl, 127" },
+
+        // BAŞARI & GAYRET (Success/Effort)
+        { text: "İnsan için ancak çalıştığının karşılığı vardır.", source: "Necm, 39" },
+        { text: "Allah, hiç kimseye gücünün yettiğinden fazlasını yüklemez.", source: "Bakara, 286" }
+    ];
 
     // Initial Shuffle on Mount & Check Storage
     useEffect(() => {
@@ -73,6 +100,10 @@ export default function Murakabe() {
         }
         // Select first 7
         setQuestions(shuffled.slice(0, 7));
+
+        // Select random gift ayah
+        const randomIndex = Math.floor(Math.random() * giftAyahs.length);
+        setSelectedAyah(giftAyahs[randomIndex]);
     }, []);
 
     // Safety: only access current question if not completed and index is valid
@@ -347,24 +378,37 @@ export default function Murakabe() {
                                 Bugün kalbini yokladın, ruhun ferah olsun.
                             </motion.p>
 
-                            {/* Summary Stats - Staggered */}
-                            <motion.div
-                                className="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-6 mb-8"
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 1.2, duration: 0.6 }}
-                            >
-                                <div className="flex items-center justify-center gap-2 mb-2">
-                                    <Scale className="w-5 h-5 text-islamic-gold" />
-                                    <span className="text-sm text-white/50 uppercase tracking-widest">Özet</span>
-                                </div>
-                                <p className="text-5xl font-bold text-islamic-gold">
-                                    {positiveCount}/{questions.length}
-                                </p>
-                                <p className="text-sm text-white/40 mt-1">
-                                    olumlu cevap
-                                </p>
-                            </motion.div>
+                            {/* Daily Destiny (Ayah) Card */}
+                            {selectedAyah && (
+                                <motion.div
+                                    className="bg-gradient-to-br from-emerald-900/60 to-emerald-950/80 backdrop-blur-xl border border-islamic-gold/20 rounded-3xl p-8 mb-8 max-w-sm mx-auto"
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: 1.2, duration: 0.6 }}
+                                >
+                                    {/* Intro Label */}
+                                    <p className="text-sm text-islamic-gold/70 italic text-center mb-4 tracking-wide">
+                                        Bugünkü Nasibin...
+                                    </p>
+
+                                    {/* Decorative Line */}
+                                    <div className="flex items-center justify-center gap-3 mb-6">
+                                        <div className="h-px w-12 bg-islamic-gold/30" />
+                                        <div className="w-1.5 h-1.5 rounded-full bg-islamic-gold/50" />
+                                        <div className="h-px w-12 bg-islamic-gold/30" />
+                                    </div>
+
+                                    {/* Ayah Text */}
+                                    <p className="text-xl font-serif text-amber-100 text-center leading-relaxed mb-6">
+                                        "{selectedAyah.text}"
+                                    </p>
+
+                                    {/* Reference */}
+                                    <p className="text-sm text-white/40 text-center tracking-wider">
+                                        — {selectedAyah.source}
+                                    </p>
+                                </motion.div>
+                            )}
 
                             {/* Finish Button - Staggered */}
                             <motion.div

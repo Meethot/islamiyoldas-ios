@@ -46,15 +46,15 @@ const SHARE_THEMES = [
 ];
 
 const RELIGIOUS_DAYS = [
-    { name: 'Miraç Kandili', date: '2026-02-12' },
-    { name: 'Berat Kandili', date: '2026-03-02' },
-    { name: 'Ramazan Başlangıcı', date: '2026-03-20' },
-    { name: 'Kadir Gecesi', date: '2026-04-14' },
-    { name: 'Ramazan Bayramı', date: '2026-04-19' }, // 1. Gün
-    { name: 'Hicri Yılbaşı', date: '2026-07-16' },
-    { name: 'Aşure Günü', date: '2026-07-25' },
-    { name: 'Kurban Bayramı', date: '2026-07-26' }, // 1. Gün
-    { name: 'Mevlid Kandili', date: '2026-09-24' },
+    { name: 'Miraç Kandili', date: '2026-01-15' },
+    { name: 'Berat Kandili', date: '2026-02-02' },
+    { name: 'Ramazan Başlangıcı', date: '2026-02-19' },
+    { name: 'Kadir Gecesi', date: '2026-03-16' },
+    { name: 'Ramazan Bayramı', date: '2026-03-20' }, // 1. Gün
+    { name: 'Kurban Bayramı', date: '2026-05-27' }, // 1. Gün
+    { name: 'Hicri Yılbaşı', date: '2026-06-16' },
+    { name: 'Aşure Günü', date: '2026-06-25' },
+    { name: 'Mevlid Kandili', date: '2026-08-24' },
 ];
 
 const containerVariants = {

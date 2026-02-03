@@ -29,7 +29,7 @@ export default function Profile() {
         { id: 'male', label: 'Bey' },
         { id: 'female', label: 'Hanım' },
         { id: 'beads', label: 'Tesbih' },
-        { id: 'kaaba', label: 'Kabe' },
+        { id: 'tuba', label: 'Tuba' },
         { id: 'quran', label: 'Kuran' },
         { id: 'moon', label: 'Hilal' }
     ];
@@ -82,15 +82,22 @@ export default function Profile() {
     // Remove local state currentLang, use i18n.language instead
 
     const LANGUAGES = [
-        { code: 'tr', label: 'Türkçe', native: 'Türkçe', flag: '🇹🇷' },
-        { code: 'en', label: 'English', native: 'English', flag: '🇬🇧' },
-        { code: 'de', label: 'Deutsch', native: 'Deutsch', flag: '🇩🇪' },
-        { code: 'ar', label: 'العربية', native: 'Arabic', flag: '🇸🇦' }
+        { code: 'tr', label: 'Türkçe', native: 'Türkçe', flag: '🇹🇷', disabled: false },
+        { code: 'en', label: 'English', native: 'English', flag: '🇬🇧', disabled: true },
+        { code: 'de', label: 'Deutsch', native: 'Deutsch', flag: '🇩🇪', disabled: true },
+        { code: 'ar', label: 'العربية', native: 'Arabic', flag: '🇸🇦', disabled: true }
     ];
 
-    const handleLangSelect = (code) => {
+    const handleLangSelect = (lang) => {
         selection();
-        i18n.changeLanguage(code);
+
+        if (lang.disabled) {
+            // Show "Coming Soon" toast/alert
+            alert("Çok Yakında! Şu an sadece Türkçe hizmet veriyoruz. Diğer diller hazırlanıyor. 🌍");
+            return;
+        }
+
+        i18n.changeLanguage(lang.code);
         setTimeout(() => setShowLangModal(false), 300);
     };
 
@@ -103,7 +110,13 @@ export default function Profile() {
         setStreak(localStorage.getItem('userStreak') || '7');
         setIsPremium(localStorage.getItem('isPremium') === 'true');
         setNotifications(localStorage.getItem('notifications') !== 'false');
-        setSelectedAvatar(localStorage.getItem('userAvatar') || 'male');
+        // Migration: kaaba -> tuba
+        let currentAvatar = localStorage.getItem('userAvatar') || 'male';
+        if (currentAvatar === 'kaaba') {
+            currentAvatar = 'tuba';
+            localStorage.setItem('userAvatar', 'tuba');
+        }
+        setSelectedAvatar(currentAvatar);
 
         // Sync with UserContext if avatar is not set
         if (!userData.avatar || userData.avatar === '🕌' || userData.avatar.length > 2) {
@@ -497,23 +510,31 @@ export default function Profile() {
                                 {LANGUAGES.map((lang) => (
                                     <button
                                         key={lang.code}
-                                        onClick={() => handleLangSelect(lang.code)}
+                                        onClick={() => handleLangSelect(lang)}
                                         className={cn(
                                             "w-full flex items-center justify-between p-4 rounded-2xl border-2 transition-all active:scale-[0.98]",
                                             i18n.language === lang.code
                                                 ? "bg-islamic-gold/10 border-islamic-gold"
-                                                : "bg-gray-50 dark:bg-white/5 border-transparent hover:bg-gray-100 dark:hover:bg-white/10"
+                                                : "bg-gray-50 dark:bg-white/5 border-transparent hover:bg-gray-100 dark:hover:bg-white/10",
+                                            lang.disabled && "opacity-70"
                                         )}
                                     >
                                         <div className="flex items-center gap-4">
                                             <span className="text-3xl">{lang.flag}</span>
                                             <div className="text-left">
-                                                <span className={cn(
-                                                    "block font-bold text-lg",
-                                                    i18n.language === lang.code ? "text-islamic-gold" : "text-gray-900 dark:text-white"
-                                                )}>
-                                                    {lang.label}
-                                                </span>
+                                                <div className="flex items-center gap-2">
+                                                    <span className={cn(
+                                                        "block font-bold text-lg",
+                                                        i18n.language === lang.code ? "text-islamic-gold" : "text-gray-900 dark:text-white"
+                                                    )}>
+                                                        {lang.label}
+                                                    </span>
+                                                    {lang.disabled && (
+                                                        <span className="text-[10px] bg-gray-200 dark:bg-white/10 px-2 py-0.5 rounded-full text-gray-500 font-medium">
+                                                            Yakında
+                                                        </span>
+                                                    )}
+                                                </div>
                                                 <span className="text-xs text-gray-500 dark:text-gray-400">{lang.native}</span>
                                             </div>
                                         </div>

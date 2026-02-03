@@ -1,5 +1,5 @@
 import React from 'react';
-import { User, Heart, Box, BookOpen, Moon, Landmark } from 'lucide-react';
+import { User, Heart, Box, BookOpen, Moon, Landmark, Leaf } from 'lucide-react';
 
 export function BeadsIcon({ className, size = 24 }) {
     return (
@@ -21,7 +21,7 @@ export const AVATAR_MAP = {
     'male': { icon: User, label: 'Bey' },
     'female': { icon: Heart, label: 'Hanım' },
     'beads': { icon: BeadsIcon, label: 'Tesbih' },
-    'kaaba': { icon: Box, label: 'Kabe' },
+    'tuba': { icon: Leaf, label: 'Tuba' },
     'quran': { icon: BookOpen, label: 'Kuran' },
     'moon': { icon: Moon, label: 'Hilal' },
     'mosque': { icon: Landmark, label: 'Cami' }
