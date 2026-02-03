@@ -1,7 +1,8 @@
 import React, { useState, useMemo } from 'react';
 import {
     Moon, Sun, Bell, MapPin, ChevronRight, Share2,
-    MessageSquare, Shield, HelpCircle, Info, ArrowLeft, Search, Check, X, Navigation, Loader2
+    MessageSquare, Shield, HelpCircle, Info, ArrowLeft, Search, Check, X, Navigation, Loader2,
+    Crosshair, RefreshCw, AlertTriangle
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
@@ -10,6 +11,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useHaptics } from '@/hooks/useMobile';
 import { usePrayerTimes } from '../context/PrayerTimesContext';
 import { useTheme } from '../context/ThemeContext';
+import { useLocation } from '../context/LocationContext';
 
 import { Share } from '@capacitor/share';
 import { Capacitor } from '@capacitor/core';
@@ -29,11 +31,15 @@ export default function Settings() {
     const { isDarkMode, toggleTheme } = useTheme();
     const navigate = useNavigate();
     const { selection, success, medium } = useHaptics();
-    const { settings: prayerSettings, updateSettings } = usePrayerTimes();
+    const { settings: prayerSettings, updateSettings, locationSource } = usePrayerTimes();
+
+    // Location context
+    const { latitude, longitude, loading: locationLoading, hasLocation, error: locationError, refreshLocation } = useLocation();
 
     // State
     const [city, setCityState] = useState(localStorage.getItem('userCity') || 'İstanbul');
     const [isCityModalOpen, setIsCityModalOpen] = useState(false);
+    const [useAutoLocation, setUseAutoLocation] = useState(true); // Default to auto
     const [notifications, setNotifications] = useState({
         // ezan: removed, managed by context
         verse: true,
@@ -169,22 +175,101 @@ export default function Settings() {
                 {/* Location */}
                 <section className="space-y-3">
                     <h3 className="px-2 text-[10px] font-bold text-gray-400 dark:text-emerald-100/40 uppercase tracking-widest">Konum</h3>
-                    <button
-                        onClick={() => { medium(); setIsCityModalOpen(true); }}
-                        className="w-full bg-white dark:bg-white/5 rounded-[2rem] shadow-sm border border-transparent dark:border-white/5 p-6 hover:border-islamic-green/20 transition-all active:scale-[0.98]"
-                    >
-                        <div className="flex items-center gap-4">
-                            <div className="p-3 bg-islamic-green/5 dark:bg-islamic-gold/10 rounded-2xl text-islamic-green dark:text-islamic-gold">
-                                <MapPin size={20} />
+                    <div className="bg-white dark:bg-white/5 rounded-[2rem] shadow-sm border dark:border-white/5 overflow-hidden">
+                        {/* Auto Location Toggle */}
+                        <SettingsToggle
+                            icon={Crosshair}
+                            label="Otomatik Konum"
+                            subtitle="GPS ile konumunuz otomatik algılansın"
+                            active={useAutoLocation}
+                            onToggle={() => {
+                                selection();
+                                setUseAutoLocation(!useAutoLocation);
+                            }}
+                        />
+
+                        {/* GPS Status Indicator */}
+                        {useAutoLocation && (
+                            <div className="p-5 border-t dark:border-white/5">
+                                {locationLoading ? (
+                                    <div className="flex items-center gap-4">
+                                        <div className="p-3 bg-amber-100 dark:bg-amber-500/20 rounded-2xl">
+                                            <Loader2 className="w-5 h-5 text-amber-600 dark:text-amber-400 animate-spin" />
+                                        </div>
+                                        <div className="flex-1">
+                                            <p className="text-sm font-bold text-gray-900 dark:text-white">Konum Alınıyor...</p>
+                                            <p className="text-[10px] text-gray-400 dark:text-gray-500">GPS sinyali bekleniyor</p>
+                                        </div>
+                                    </div>
+                                ) : hasLocation && latitude && longitude ? (
+                                    <div className="flex items-center gap-4">
+                                        <div className="p-3 bg-emerald-100 dark:bg-emerald-500/20 rounded-2xl">
+                                            <Navigation className="w-5 h-5 text-emerald-600 dark:text-emerald-400 fill-current" />
+                                        </div>
+                                        <div className="flex-1">
+                                            <div className="flex items-center gap-2">
+                                                <p className="text-sm font-bold text-emerald-600 dark:text-emerald-400">GPS Aktif</p>
+                                                <span className="px-2 py-0.5 bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 text-[8px] font-black uppercase tracking-wider rounded-full">
+                                                    Canlı
+                                                </span>
+                                            </div>
+                                            <p className="text-[10px] text-gray-400 dark:text-gray-500">
+                                                Konumunuz otomatik olarak algılandı
+                                            </p>
+                                        </div>
+                                        <button
+                                            onClick={() => { selection(); refreshLocation(); }}
+                                            className="p-2 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-100 dark:hover:bg-emerald-500/20 transition-all active:scale-90"
+                                        >
+                                            <RefreshCw className="w-4 h-4" />
+                                        </button>
+                                    </div>
+                                ) : (
+                                    <div className="flex items-center gap-4">
+                                        <div className="p-3 bg-amber-100 dark:bg-amber-500/20 rounded-2xl">
+                                            <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+                                        </div>
+                                        <div className="flex-1">
+                                            <p className="text-sm font-bold text-amber-600 dark:text-amber-400">Konum Alınamadı</p>
+                                            <p className="text-[10px] text-gray-400 dark:text-gray-500">
+                                                Varsayılan konum (İstanbul) kullanılıyor
+                                            </p>
+                                        </div>
+                                        <button
+                                            onClick={() => { selection(); refreshLocation(); }}
+                                            className="p-2 rounded-xl bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-500/20 transition-all active:scale-90"
+                                        >
+                                            <RefreshCw className="w-4 h-4" />
+                                        </button>
+                                    </div>
+                                )}
                             </div>
-                            <div className="flex-1 text-left">
-                                <p className="text-[10px] text-gray-400 dark:text-gray-500 font-bold uppercase tracking-wider mb-1">Şehrin</p>
-                                <p className="text-lg font-bold text-gray-900 dark:text-white leading-none">{city}</p>
-                            </div>
-                            <ChevronRight size={16} className="text-gray-300" />
-                        </div>
-                        <p className="text-[9px] text-gray-400 dark:text-gray-500 italic mt-4 text-left">Ezan vakitleri bu konuma göre otomatik güncellenir.</p>
-                    </button>
+                        )}
+
+                        {/* Manual City Selection - Only show when auto is off */}
+                        {!useAutoLocation && (
+                            <button
+                                onClick={() => { medium(); setIsCityModalOpen(true); }}
+                                className="w-full flex items-center justify-between p-5 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors border-t dark:border-white/5"
+                            >
+                                <div className="flex items-center gap-4">
+                                    <div className="p-3 bg-islamic-green/5 dark:bg-islamic-gold/10 rounded-2xl text-islamic-green dark:text-islamic-gold">
+                                        <MapPin size={20} />
+                                    </div>
+                                    <div className="text-left">
+                                        <p className="text-[10px] text-gray-400 dark:text-gray-500 font-bold uppercase tracking-wider mb-1">Şehrin</p>
+                                        <p className="text-lg font-bold text-gray-900 dark:text-white leading-none">{city}</p>
+                                    </div>
+                                </div>
+                                <ChevronRight size={16} className="text-gray-300" />
+                            </button>
+                        )}
+                    </div>
+                    <p className="px-2 text-[9px] text-gray-400 dark:text-gray-500 italic">
+                        {useAutoLocation
+                            ? "Namaz vakitleri GPS konumunuza göre otomatik hesaplanır."
+                            : "Ezan vakitleri seçtiğiniz şehre göre belirlenir."}
+                    </p>
                 </section>
 
                 {/* About & Legal */}

@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { LocalNotifications } from '@capacitor/local-notifications';
 import { Preferences } from '@capacitor/preferences';
 import { Capacitor } from '@capacitor/core';
+import { useLocation } from '@/context/LocationContext';
 
 const PrayerTimesContext = createContext();
 
@@ -17,6 +18,13 @@ export const PrayerTimesProvider = ({ children }) => {
         vibrateOnly: false
     });
     const [loading, setLoading] = useState(true);
+    const [locationSource, setLocationSource] = useState('loading'); // 'gps' | 'fallback' | 'loading'
+
+    // Get location from global context
+    const { latitude, longitude, loading: locationLoading, hasLocation, error: locationError } = useLocation();
+
+    // Istanbul fallback coordinates
+    const FALLBACK_COORDS = { lat: 41.0082, lng: 28.9784 };
 
     // Initial Setup
     useEffect(() => {
@@ -24,8 +32,14 @@ export const PrayerTimesProvider = ({ children }) => {
         if (Capacitor.isNativePlatform()) {
             initializeNotifications();
         }
-        fetchPrayerTimes();
     }, []);
+
+    // Fetch prayer times when location changes
+    useEffect(() => {
+        if (!locationLoading) {
+            fetchPrayerTimes();
+        }
+    }, [latitude, longitude, locationLoading]);
 
     // Re-schedule when settings change
     useEffect(() => {
@@ -88,8 +102,7 @@ export const PrayerTimesProvider = ({ children }) => {
 
     const { i18n } = useTranslation();
 
-    // ...
-
+    // ...\n
     const fetchPrayerTimes = useCallback(async () => {
         try {
             setLoading(true);
@@ -99,13 +112,25 @@ export const PrayerTimesProvider = ({ children }) => {
             // Dynamic method: 13 (Diyanet) for TR, 3 (MWL) for others
             const method = i18n.language?.startsWith('tr') ? 13 : 3;
 
-            // Getting Istanbul times for now (Can be dynamic later)
-            const response = await axios.get(`https://api.aladhan.com/v1/timingsByCity`, {
+            // Use GPS coordinates if available, otherwise fallback to Istanbul
+            let lat, lng;
+            if (hasLocation && latitude && longitude) {
+                lat = latitude;
+                lng = longitude;
+                setLocationSource('gps');
+            } else {
+                lat = FALLBACK_COORDS.lat;
+                lng = FALLBACK_COORDS.lng;
+                setLocationSource('fallback');
+                console.log('Prayer times: Using fallback location (Istanbul)');
+            }
+
+            // Use coordinate-based API instead of city-based
+            const response = await axios.get(`https://api.aladhan.com/v1/timings/${dateStr}`, {
                 params: {
-                    city: 'Istanbul',
-                    country: 'Turkey',
-                    method: method,
-                    date: dateStr
+                    latitude: lat,
+                    longitude: lng,
+                    method: method
                 }
             });
 
@@ -118,7 +143,7 @@ export const PrayerTimesProvider = ({ children }) => {
         } finally {
             setLoading(false);
         }
-    }, [i18n.language]);
+    }, [i18n.language, latitude, longitude, hasLocation]);
 
     const findNextPrayer = (timings) => {
         try {
@@ -203,9 +228,10 @@ export const PrayerTimesProvider = ({ children }) => {
         nextPrayer,
         loading,
         settings,
+        locationSource, // 'gps' | 'fallback' | 'loading'
         updateSettings,
         fetchPrayerTimes
-    }), [prayerTimes, nextPrayer, loading, settings, updateSettings, fetchPrayerTimes]);
+    }), [prayerTimes, nextPrayer, loading, settings, locationSource, updateSettings, fetchPrayerTimes]);
 
     return (
         <PrayerTimesContext.Provider value={value}>

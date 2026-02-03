@@ -1,9 +1,32 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Moon, Volume2, VolumeX, Play, Pause, Heart, ChevronLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { getAppDate } from '@/lib/testDate';
+
+// Background Mode Helper (Cordova Plugin)
+const BackgroundMode = {
+    enable: () => {
+        if (window.cordova?.plugins?.backgroundMode) {
+            window.cordova.plugins.backgroundMode.enable();
+            window.cordova.plugins.backgroundMode.setDefaults({
+                title: 'İslami Yoldaş',
+                text: 'Uyku modu aktif - Kuran dinleniyor',
+                icon: 'ic_launcher',
+                color: 'D4AF37',
+                resume: true,
+                hidden: false,
+                bigText: false
+            });
+        }
+    },
+    disable: () => {
+        if (window.cordova?.plugins?.backgroundMode) {
+            window.cordova.plugins.backgroundMode.disable();
+        }
+    }
+};
 
 export default function SleepMode() {
     const navigate = useNavigate();
@@ -26,13 +49,23 @@ export default function SleepMode() {
         return audio;
     }, []);
 
+    // Background Mode Management
+    const updateBackgroundMode = useCallback((playing, ambient) => {
+        if (playing || ambient) {
+            BackgroundMode.enable();
+        } else {
+            BackgroundMode.disable();
+        }
+    }, []);
+
     useEffect(() => {
         if (ambientOn) {
             rainAudio.play().catch(() => { });
         } else {
             rainAudio.pause();
         }
-    }, [ambientOn]);
+        updateBackgroundMode(isPlaying, ambientOn);
+    }, [ambientOn, isPlaying, updateBackgroundMode]);
 
     const toggleMulk = () => {
         if (isPlaying) {
@@ -48,11 +81,12 @@ export default function SleepMode() {
         localStorage.setItem(getTodayKey(), 'true');
     };
 
-    // Stop all audio on unmount
+    // Stop all audio and disable background mode on unmount
     useEffect(() => {
         return () => {
             mulkAudio.pause();
             rainAudio.pause();
+            BackgroundMode.disable();
         };
     }, []);
 

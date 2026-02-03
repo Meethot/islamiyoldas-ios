@@ -1,64 +1,48 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Moon, Sunrise, Sun, Sunset } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { usePrayerTimes } from '@/context/PrayerTimesContext';
+import { useLocation } from '@/context/LocationContext';
 
 /**
  * Custom hook for prayer times management
- * Centralizes prayer time fetching, countdown logic, and city/country state
+ * Now consumes from PrayerTimesContext for consistency with GPS-based times
+ * Maintains backward compatibility with existing components
  */
 export function usePrayers() {
-    const [prayerTimes, setPrayerTimes] = useState(null);
-    const [loadingPrayers, setLoadingPrayers] = useState(true);
     const [nextPrayerInfo, setNextPrayerInfo] = useState({ name: '-', timeLeft: '00:00:00' });
-    const [city, setCity] = useState(localStorage.getItem('userCity') || 'İstanbul');
-    const [country, setCountry] = useState(localStorage.getItem('userCountry') || 'Türkiye');
+
+    // Get prayer times from global context (already GPS-aware)
+    const { prayerTimes: rawTimes, loading: loadingPrayers, fetchPrayerTimes, locationSource } = usePrayerTimes();
+    const { latitude, longitude, hasLocation } = useLocation();
 
     const { t, i18n } = useTranslation('common');
-    // Default method: 13 (Diyanet) for TR, 3 (MWL) for others
-    const calculationMethod = i18n.language?.startsWith('tr') ? 13 : 3;
 
-    // Fetch prayer times from API
-    const fetchPrayers = async () => {
-        setLoadingPrayers(true);
-        try {
-            const response = await fetch(
-                `https://api.aladhan.com/v1/timingsByCity?city=${city}&country=${country}&method=${calculationMethod}`
-            );
-            const data = await response.json();
-            if (data.code === 200) {
-                const timings = data.data.timings;
+    // Format times and add icons for UI display
+    const prayerTimes = useMemo(() => {
+        if (!rawTimes) return null;
 
-                const formatTime = (time) => {
-                    const cleanTime = time.split(' ')[0];
-                    if (i18n.language?.startsWith('en')) {
-                        const [h, m] = cleanTime.split(':');
-                        const date = new Date();
-                        date.setHours(h, m);
-                        return date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
-                    }
-                    return cleanTime;
-                };
-
-                setPrayerTimes([
-                    { id: 'fajr', name: t('prayer.fajr'), time: formatTime(timings.Fajr), icon: Moon },
-                    { id: 'sunrise', name: t('prayer.sunrise'), time: formatTime(timings.Sunrise), icon: Sunrise },
-                    { id: 'dhuhr', name: t('prayer.dhuhr'), time: formatTime(timings.Dhuhr), icon: Sun },
-                    { id: 'asr', name: t('prayer.asr'), time: formatTime(timings.Asr), icon: Sun },
-                    { id: 'maghrib', name: t('prayer.maghrib'), time: formatTime(timings.Maghrib), icon: Sunset },
-                    { id: 'isha', name: t('prayer.isha'), time: formatTime(timings.Isha), icon: Moon },
-                ]);
+        const formatTime = (time) => {
+            if (!time) return '--:--';
+            const cleanTime = time.split(' ')[0];
+            if (i18n.language?.startsWith('en')) {
+                const [h, m] = cleanTime.split(':');
+                const date = new Date();
+                date.setHours(h, m);
+                return date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
             }
-        } catch (error) {
-            console.error('Prayer fetch error:', error);
-        } finally {
-            setLoadingPrayers(false);
-        }
-    };
+            return cleanTime;
+        };
 
-    // Fetch prayers on mount and when city/country/language changes
-    useEffect(() => {
-        fetchPrayers();
-    }, [city, country, i18n.language]);
+        return [
+            { id: 'fajr', name: t('prayer.fajr'), time: formatTime(rawTimes.Fajr), icon: Moon },
+            { id: 'sunrise', name: t('prayer.sunrise'), time: formatTime(rawTimes.Sunrise), icon: Sunrise },
+            { id: 'dhuhr', name: t('prayer.dhuhr'), time: formatTime(rawTimes.Dhuhr), icon: Sun },
+            { id: 'asr', name: t('prayer.asr'), time: formatTime(rawTimes.Asr), icon: Sun },
+            { id: 'maghrib', name: t('prayer.maghrib'), time: formatTime(rawTimes.Maghrib), icon: Sunset },
+            { id: 'isha', name: t('prayer.isha'), time: formatTime(rawTimes.Isha), icon: Moon },
+        ];
+    }, [rawTimes, i18n.language, t]);
 
     // Countdown timer logic for next prayer
     useEffect(() => {
@@ -70,9 +54,30 @@ export function usePrayers() {
             let minDiff = Infinity;
 
             prayerTimes.forEach((p) => {
-                const [h, m] = p.time.split(':').map(Number);
+                // Handle 12h format (e.g., "5:23 AM") or 24h format (e.g., "05:23")
+                let hours, minutes;
+                const timeStr = p.time;
+
+                if (timeStr.includes('AM') || timeStr.includes('PM')) {
+                    // 12h format
+                    const match = timeStr.match(/(\d+):(\d+)\s*(AM|PM)/i);
+                    if (match) {
+                        hours = parseInt(match[1]);
+                        minutes = parseInt(match[2]);
+                        if (match[3].toUpperCase() === 'PM' && hours !== 12) hours += 12;
+                        if (match[3].toUpperCase() === 'AM' && hours === 12) hours = 0;
+                    }
+                } else {
+                    // 24h format
+                    const [h, m] = timeStr.split(':').map(Number);
+                    hours = h;
+                    minutes = m;
+                }
+
+                if (isNaN(hours) || isNaN(minutes)) return;
+
                 const pDate = new Date();
-                pDate.setHours(h, m, 0, 0);
+                pDate.setHours(hours, minutes, 0, 0);
                 if (pDate < now) pDate.setDate(pDate.getDate() + 1);
                 const diff = pDate - now;
                 if (diff < minDiff) {
@@ -94,12 +99,21 @@ export function usePrayers() {
         return () => clearInterval(timer);
     }, [prayerTimes]);
 
+    // Generate location display string - simplified, no GPS coordinates
+    const locationDisplay = useMemo(() => {
+        if (locationSource === 'gps' && hasLocation) {
+            return ''; // Don't show anything when using GPS - it's automatic
+        }
+        return 'İstanbul';
+    }, [locationSource, hasLocation]);
+
     return {
         prayerTimes,
         loadingPrayers,
         nextPrayerInfo,
-        city,
-        country,
-        refreshPrayers: fetchPrayers,
+        city: locationDisplay,
+        country: locationSource === 'gps' ? '' : 'Türkiye',
+        refreshPrayers: fetchPrayerTimes,
+        locationSource,
     };
 }

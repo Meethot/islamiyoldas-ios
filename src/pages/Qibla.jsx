@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Compass, Navigation, Info, X, MapPin, Volume2, VolumeX, AlertCircle, RefreshCw, Star } from 'lucide-react';
-import { Geolocation } from '@capacitor/geolocation';
+import { Compass, Navigation, Info, X, MapPin, Volume2, VolumeX, AlertCircle, RefreshCw, Star, Loader2 } from 'lucide-react';
+import { useLocation } from '@/context/LocationContext';
 import { useHaptics } from '@/hooks/useMobile';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -13,6 +13,9 @@ const DEFAULT_ALIGNMENT_THRESHOLD = 8;
 export default function Qibla() {
     const { selection, success, medium } = useHaptics();
 
+    // Get location from global context
+    const { latitude, longitude, loading: locationLoading, error: locationError, hasLocation, refreshLocation } = useLocation();
+
     // State
     const [userCoords, setUserCoords] = useState(null);
     const [qiblaAngle, setQiblaAngle] = useState(0);
@@ -20,7 +23,7 @@ export default function Qibla() {
     const [isAligned, setIsAligned] = useState(false);
     const [isMuted, setIsMuted] = useState(true);
     const [showInfo, setShowInfo] = useState(false);
-    const [status, setStatus] = useState('active'); // active, error
+    const [status, setStatus] = useState('loading'); // loading, active, error
     const [errorMessage, setErrorMessage] = useState('');
 
     const audioRef = useRef(null);
@@ -36,29 +39,27 @@ export default function Qibla() {
         return (angle + 360) % 360;
     }, []);
 
-    // 2. Initialization: Location
+    // 2. Sync with global location context
     useEffect(() => {
-        const initLocation = async () => {
-            try {
-                const pos = await Geolocation.getCurrentPosition({
-                    enableHighAccuracy: true,
-                    timeout: 8000
-                });
-                const { latitude, longitude } = pos.coords;
-                setUserCoords({ lat: latitude, lng: longitude });
-                setQiblaAngle(getQiblaAngle(latitude, longitude));
-                setStatus('active');
-            } catch (err) {
-                console.warn("Location precise failed, using network or fallback:", err);
-                const fallbackLat = 41.0082; // Istanbul
-                const fallbackLng = 28.9784;
-                setUserCoords({ lat: fallbackLat, lng: fallbackLng });
-                setQiblaAngle(getQiblaAngle(fallbackLat, fallbackLng));
-                setStatus('active');
-            }
-        };
-        initLocation();
-    }, [getQiblaAngle]);
+        if (locationLoading) {
+            setStatus('loading');
+            return;
+        }
+
+        if (hasLocation && latitude && longitude) {
+            setUserCoords({ lat: latitude, lng: longitude });
+            setQiblaAngle(getQiblaAngle(latitude, longitude));
+            setStatus('active');
+        } else if (locationError) {
+            // Fallback to Istanbul if location fails
+            const fallbackLat = 41.0082;
+            const fallbackLng = 28.9784;
+            setUserCoords({ lat: fallbackLat, lng: fallbackLng });
+            setQiblaAngle(getQiblaAngle(fallbackLat, fallbackLng));
+            setErrorMessage(locationError);
+            setStatus('active'); // Still show compass with fallback
+        }
+    }, [latitude, longitude, locationLoading, locationError, hasLocation, getQiblaAngle]);
 
     // 3. Sensor: Orientation logic
     useEffect(() => {
@@ -153,92 +154,115 @@ export default function Qibla() {
             {/* Main Interaction Area */}
             <main className="relative z-10 flex-1 flex flex-col items-center justify-center p-6 gap-10">
 
-                {/* HIGH-VISIBILITY COMPASS INDICATOR */}
-                <div className="text-center w-full max-w-xs space-y-8 pt-4">
-                    <div className="relative flex items-center justify-center">
-                        <AnimatePresence>
-                            {isAligned && (
-                                <motion.div
-                                    initial={{ scale: 0, opacity: 0 }} animate={{ scale: 2.2, opacity: 0.2 }} exit={{ scale: 0, opacity: 0 }}
-                                    className="absolute inset-0 bg-amber-400 rounded-full blur-3xl"
-                                />
-                            )}
-                        </AnimatePresence>
-
-                        {/* Large High-Contrast Compass Dial */}
-                        <div className="relative w-40 h-40 flex items-center justify-center">
-                            {/* Simplified Dial Ring */}
-                            <motion.svg
-                                className="absolute w-full h-full" viewBox="0 0 100 100"
-                                animate={{ rotate: qiblaAngle - heading }}
-                                transition={{ type: "spring", stiffness: 40, damping: 15 }}
-                            >
-                                <circle cx="50" cy="50" r="48" fill="none" stroke="#D4AF37" strokeWidth="0.5" opacity="0.3" strokeDasharray="1 3" />
-                                {/* Compass Points */}
-                                <text x="50" y="8" fontSize="6" fill="#D4AF37" textAnchor="middle" fontWeight="black" opacity="0.8">N</text>
-                                <text x="92" y="52" fontSize="6" fill="#D4AF37" textAnchor="middle" fontWeight="black" opacity="0.4">E</text>
-                                <text x="50" y="96" fontSize="6" fill="#D4AF37" textAnchor="middle" fontWeight="black" opacity="0.4">S</text>
-                                <text x="8" y="52" fontSize="6" fill="#D4AF37" textAnchor="middle" fontWeight="black" opacity="0.4">W</text>
-                            </motion.svg>
-
-                            {/* Solid Gold Arrow Holder */}
-                            <motion.div
-                                className={cn(
-                                    "w-32 h-32 rounded-full flex items-center justify-center transition-all duration-500 relative z-10",
-                                    isAligned ? "bg-amber-400 shadow-[0_0_60px_rgba(251,191,36,0.6)] scale-110" : "bg-black/40 backdrop-blur-xl border border-white/10"
-                                )}
-                            >
-                                {/* THE ARROW: Large, Solid, Unmistakable */}
-                                <div
-                                    className="relative transition-transform duration-500"
-                                    style={{ transform: `rotate(${qiblaAngle - heading}deg)` }}
-                                >
-                                    {/* Custom Solid Arrow SVG for better control than Navigation icon */}
-                                    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path
-                                            d="M12 2L4.5 20.29L5.21 21L12 18L18.79 21L19.5 20.29L12 2Z"
-                                            fill={isAligned ? "black" : "#FBBF24"}
-                                            className="transition-colors duration-500 drop-shadow-[0_4px_10px_rgba(0,0,0,0.5)]"
-                                        />
-                                    </svg>
-
-                                    {/* Arrow Glow */}
-                                    {!isAligned && (
-                                        <div className="absolute inset-0 bg-amber-400/20 blur-xl -z-10 animate-pulse" />
-                                    )}
-                                </div>
-
-                                {/* Center Pivot */}
-                                <div className={cn(
-                                    "absolute w-2 h-2 rounded-full z-20 shadow-inner",
-                                    isAligned ? "bg-black/20" : "bg-amber-400/40"
-                                )} />
-                            </motion.div>
+                {/* LOADING STATE */}
+                {status === 'loading' && (
+                    <div className="text-center w-full max-w-xs space-y-6">
+                        <div className="w-32 h-32 mx-auto bg-white/5 rounded-full flex items-center justify-center border border-white/10 backdrop-blur-xl">
+                            <Loader2 className="w-12 h-12 text-amber-400 animate-spin" />
                         </div>
-                    </div>
-
-                    <motion.div animate={{ opacity: isAligned ? 1 : 0.9 }} className="space-y-2">
-                        <h2 className={cn("text-3xl font-black font-serif tracking-tight transition-all duration-700", isAligned ? "text-amber-400 drop-shadow-[0_0_20px_rgba(251,191,36,0.4)] scale-105" : "text-white")}>
-                            {isAligned ? "Kabe Önünüzde 🤲" : "Kıbleyi Arıyoruz..."}
-                        </h2>
-                        <p className="text-[12px] text-white/70 font-black uppercase tracking-[0.5em] font-sans">
-                            {isAligned ? "Huzurla Selamlayın" : "Cihazı Yavaşça Çevirin"}
-                        </p>
-                    </motion.div>
-
-                    {/* Controls */}
-                    <div className="flex justify-center pt-2">
+                        <div className="space-y-2">
+                            <h2 className="text-2xl font-black font-serif text-white">Konum Alınıyor...</h2>
+                            <p className="text-sm text-white/50">Kıble yönünü hesaplamak için konum bilgisi bekleniyor</p>
+                        </div>
                         <Button
-                            variant="ghost" onClick={() => { selection(); setIsMuted(!isMuted); }}
-                            className={cn(
-                                "rounded-full h-14 w-14 p-0 backdrop-blur-3xl border transition-all duration-500 shadow-2xl",
-                                isMuted ? "bg-white/5 border-white/5" : "bg-amber-400/20 border-amber-400/40 shadow-amber-400/10"
-                            )}
+                            onClick={refreshLocation}
+                            variant="ghost"
+                            className="gap-2 text-amber-400 hover:text-amber-300"
                         >
-                            {isMuted ? <VolumeX className="w-6 h-6 text-gray-400" /> : <Volume2 className="w-6 h-6 text-amber-400 animate-pulse" />}
+                            <RefreshCw className="w-4 h-4" />
+                            Tekrar Dene
                         </Button>
                     </div>
-                </div>
+                )}
+
+                {/* HIGH-VISIBILITY COMPASS INDICATOR - Only show when active */}
+                {status === 'active' && (
+                    <div className="text-center w-full max-w-xs space-y-8 pt-4">
+                        <div className="relative flex items-center justify-center">
+                            <AnimatePresence>
+                                {isAligned && (
+                                    <motion.div
+                                        initial={{ scale: 0, opacity: 0 }} animate={{ scale: 2.2, opacity: 0.2 }} exit={{ scale: 0, opacity: 0 }}
+                                        className="absolute inset-0 bg-amber-400 rounded-full blur-3xl"
+                                    />
+                                )}
+                            </AnimatePresence>
+
+                            {/* Large High-Contrast Compass Dial */}
+                            <div className="relative w-40 h-40 flex items-center justify-center">
+                                {/* Simplified Dial Ring */}
+                                <motion.svg
+                                    className="absolute w-full h-full" viewBox="0 0 100 100"
+                                    animate={{ rotate: qiblaAngle - heading }}
+                                    transition={{ type: "spring", stiffness: 40, damping: 15 }}
+                                >
+                                    <circle cx="50" cy="50" r="48" fill="none" stroke="#D4AF37" strokeWidth="0.5" opacity="0.3" strokeDasharray="1 3" />
+                                    {/* Compass Points */}
+                                    <text x="50" y="8" fontSize="6" fill="#D4AF37" textAnchor="middle" fontWeight="black" opacity="0.8">N</text>
+                                    <text x="92" y="52" fontSize="6" fill="#D4AF37" textAnchor="middle" fontWeight="black" opacity="0.4">E</text>
+                                    <text x="50" y="96" fontSize="6" fill="#D4AF37" textAnchor="middle" fontWeight="black" opacity="0.4">S</text>
+                                    <text x="8" y="52" fontSize="6" fill="#D4AF37" textAnchor="middle" fontWeight="black" opacity="0.4">W</text>
+                                </motion.svg>
+
+                                {/* Solid Gold Arrow Holder */}
+                                <motion.div
+                                    className={cn(
+                                        "w-32 h-32 rounded-full flex items-center justify-center transition-all duration-500 relative z-10",
+                                        isAligned ? "bg-amber-400 shadow-[0_0_60px_rgba(251,191,36,0.6)] scale-110" : "bg-black/40 backdrop-blur-xl border border-white/10"
+                                    )}
+                                >
+                                    {/* THE ARROW: Large, Solid, Unmistakable */}
+                                    <div
+                                        className="relative transition-transform duration-500"
+                                        style={{ transform: `rotate(${qiblaAngle - heading}deg)` }}
+                                    >
+                                        {/* Custom Solid Arrow SVG for better control than Navigation icon */}
+                                        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path
+                                                d="M12 2L4.5 20.29L5.21 21L12 18L18.79 21L19.5 20.29L12 2Z"
+                                                fill={isAligned ? "black" : "#FBBF24"}
+                                                className="transition-colors duration-500 drop-shadow-[0_4px_10px_rgba(0,0,0,0.5)]"
+                                            />
+                                        </svg>
+
+                                        {/* Arrow Glow */}
+                                        {!isAligned && (
+                                            <div className="absolute inset-0 bg-amber-400/20 blur-xl -z-10 animate-pulse" />
+                                        )}
+                                    </div>
+
+                                    {/* Center Pivot */}
+                                    <div className={cn(
+                                        "absolute w-2 h-2 rounded-full z-20 shadow-inner",
+                                        isAligned ? "bg-black/20" : "bg-amber-400/40"
+                                    )} />
+                                </motion.div>
+                            </div>
+                        </div>
+
+                        <motion.div animate={{ opacity: isAligned ? 1 : 0.9 }} className="space-y-2">
+                            <h2 className={cn("text-3xl font-black font-serif tracking-tight transition-all duration-700", isAligned ? "text-amber-400 drop-shadow-[0_0_20px_rgba(251,191,36,0.4)] scale-105" : "text-white")}>
+                                {isAligned ? "Kabe Önünüzde 🤲" : "Kıbleyi Arıyoruz..."}
+                            </h2>
+                            <p className="text-[12px] text-white/70 font-black uppercase tracking-[0.5em] font-sans">
+                                {isAligned ? "Huzurla Selamlayın" : "Cihazı Yavaşça Çevirin"}
+                            </p>
+                        </motion.div>
+
+                        {/* Controls */}
+                        <div className="flex justify-center pt-2">
+                            <Button
+                                variant="ghost" onClick={() => { selection(); setIsMuted(!isMuted); }}
+                                className={cn(
+                                    "rounded-full h-14 w-14 p-0 backdrop-blur-3xl border transition-all duration-500 shadow-2xl",
+                                    isMuted ? "bg-white/5 border-white/5" : "bg-amber-400/20 border-amber-400/40 shadow-amber-400/10"
+                                )}
+                            >
+                                {isMuted ? <VolumeX className="w-6 h-6 text-gray-400" /> : <Volume2 className="w-6 h-6 text-amber-400 animate-pulse" />}
+                            </Button>
+                        </div>
+                    </div>
+                )}
             </main>
 
             {/* Spiritual Verse & Footer */}
