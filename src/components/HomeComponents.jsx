@@ -116,7 +116,15 @@ export const WeeklyStreakWidget = memo(({ tubaData, setTubaData }) => {
             return initial;
         }
 
-        return stored ? JSON.parse(stored) : Array(7).fill(false);
+        if (stored && stored !== 'undefined' && stored !== 'null') {
+            try {
+                return JSON.parse(stored);
+            } catch (e) {
+                console.warn('[HomeComponents] Corrupted completedDays, resetting...', e);
+                localStorage.removeItem('tubaAgaci_completedDays');
+            }
+        }
+        return Array(7).fill(false);
     });
 
     // Determine Organic Growth Stage
@@ -131,35 +139,35 @@ export const WeeklyStreakWidget = memo(({ tubaData, setTubaData }) => {
         StageIcon = Sprout;
         stageLabel = "Manevi Tohum";
         stageMeaning = "Potansiyel";
-        growthColor = "text-emerald-400";
+        growthColor = "text-emerald-500 dark:text-emerald-300";
         nextMilestone = 3;
         progress = (growthProgress / 3) * 100;
     } else if (growthProgress >= 3 && growthProgress < 7) {
         StageIcon = Leaf;
         stageLabel = "Körpe Fidan";
         stageMeaning = "Büyüme";
-        growthColor = "text-emerald-500";
+        growthColor = "text-emerald-600 dark:text-emerald-300";
         nextMilestone = 7;
         progress = ((growthProgress - 3) / (7 - 3)) * 100;
     } else if (growthProgress >= 7 && growthProgress < 21) {
         StageIcon = TreeDeciduous;
         stageLabel = "Genç Ağaç";
         stageMeaning = "İstikrar";
-        growthColor = "text-islamic-green";
+        growthColor = "text-islamic-green dark:text-emerald-200";
         nextMilestone = 21;
         progress = ((growthProgress - 7) / (21 - 7)) * 100;
     } else if (growthProgress >= 21 && growthProgress < 40) {
         StageIcon = Trees;
         stageLabel = "Köklü Çınar";
         stageMeaning = "Sadakat";
-        growthColor = "text-teal-600 dark:text-teal-400";
+        growthColor = "text-teal-600 dark:text-teal-300";
         nextMilestone = 40;
         progress = ((growthProgress - 21) / (40 - 21)) * 100;
     } else if (growthProgress >= 40) {
         StageIcon = Flower2;
         stageLabel = "Mübarek Tuba";
         stageMeaning = "Bereket";
-        growthColor = "text-islamic-gold shadow-islamic-gold";
+        growthColor = "text-islamic-gold dark:text-islamic-gold";
         nextMilestone = 100;
         progress = Math.min(((growthProgress - 40) / (100 - 40)) * 100, 100);
     }
@@ -324,7 +332,7 @@ export const WeeklyStreakWidget = memo(({ tubaData, setTubaData }) => {
 
                         {/* Main Content */}
                         <div className="flex items-center justify-between">
-                            <div className="flex-1">
+                            <div className="flex-1 relative z-20">
                                 <div className="flex items-center gap-2 mb-1">
                                     <span className="text-[10px] font-bold font-serif text-gray-400 dark:text-emerald-100/40 uppercase tracking-widest">
                                         {stageLabel}
@@ -336,7 +344,7 @@ export const WeeklyStreakWidget = memo(({ tubaData, setTubaData }) => {
                                         </div>
                                     )}
                                 </div>
-                                <h3 className={cn("text-2xl font-bold font-serif mb-0.5 transition-colors duration-[1500ms]", growthColor)}>
+                                <h3 className={cn("text-2xl font-bold font-serif mb-0.5 transition-colors duration-[1500ms] drop-shadow-sm", growthColor)}>
                                     Tuba Ağacı
                                 </h3>
                                 <p className="text-[11px] text-gray-400 dark:text-emerald-100/50 font-medium italic mb-3">
@@ -365,13 +373,13 @@ export const WeeklyStreakWidget = memo(({ tubaData, setTubaData }) => {
                             </div>
 
                             {/* Tree Icon with Impact Animation */}
-                            <div className="relative">
+                            <div className="relative z-10">
                                 <AnimatePresence>
                                     {growthProgress >= 40 && (
                                         <motion.div
                                             initial={{ opacity: 0 }}
                                             animate={{ opacity: 1 }}
-                                            className="absolute inset-0 bg-islamic-gold/20 blur-2xl rounded-full animate-pulse"
+                                            className="absolute inset-0 bg-islamic-gold/20 blur-2xl rounded-full animate-pulse pointer-events-none"
                                         />
                                     )}
                                 </AnimatePresence>

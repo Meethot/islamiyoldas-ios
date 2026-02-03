@@ -126,3 +126,68 @@ export async function shareInvite(userId = 'default') {
         return false;
     }
 }
+
+/**
+ * Captures a screenshot of a verse card and shares it
+ * @param {string} elementId - DOM element ID to capture
+ * @param {string} text - Verse text
+ * @param {string} source - Verse source (e.g. "Bakara, 1")
+ * @param {boolean} isFriday - Whether it's a Friday message
+ * @returns {Promise<boolean>} - Success status
+ */
+export async function shareVerse(elementId, text, source, isFriday = false) {
+    try {
+        const element = document.getElementById(elementId);
+        if (!element) {
+            console.error(`Element with ID "${elementId}" not found`);
+            return false;
+        }
+
+        // Prepare capture
+        const originalStyle = element.style.cssText;
+        // Don't modify layout too much, just ensure it's captured correctly
+
+        const canvas = await html2canvas(element, {
+            backgroundColor: null,
+            scale: 2, // Higher scale for text clarity
+            logging: false,
+            useCORS: true,
+            allowTaint: true
+        });
+
+        const blob = await new Promise((resolve) => {
+            canvas.toBlob(resolve, 'image/png', 1.0);
+        });
+
+        const fileName = isFriday ? 'cuma-mesaji.png' : 'gunun-ayeti.png';
+        const file = new File([blob], fileName, { type: 'image/png' });
+
+        const shareTitle = isFriday ? 'Hayırlı Cumalar' : 'Günün Ayeti';
+        const shareText = `"${text}" - ${source}\n\nİslami Yoldaş - Maneviyatta En Yakın Arkadaşın 🤲`;
+
+        const shareData = {
+            files: [file],
+            title: shareTitle,
+            text: shareText
+        };
+
+        if (navigator.share && navigator.canShare && navigator.canShare(shareData)) {
+            await navigator.share(shareData);
+            return true;
+        } else {
+            const url = canvas.toDataURL('image/png');
+            const link = document.createElement('a');
+            link.download = fileName;
+            link.href = url;
+            link.click();
+            return true;
+        }
+    } catch (error) {
+        console.error('Verse share failed:', error);
+        if (error.name !== 'AbortError') {
+            alert('Paylaşım sırasında bir hata oluştu.');
+        }
+        return false;
+    }
+}
+

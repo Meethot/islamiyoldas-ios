@@ -2,14 +2,14 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
     Moon, Sunrise, Sun, Sunset, Sparkles, Star, Wind, MessageCircle, X, Download,
-    ChevronRight, Heart
+    ChevronRight, Heart, Share2
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import { GOOD_DEEDS } from '@/data/spiritualData';
 import { getDailyVerse } from '@/data/dailyVerses';
-import { advanceTestDay, getTestDayOffset, getAppDate, getDailyPrayersKey, getTodayString } from '@/lib/testDate';
-import { safeGetStorage } from '@/utils/storageHelper';
+import { getAppDate, getDailyPrayersKey, getTodayString } from '@/lib/testDate';
+import { safeGetStorage, safeSetStorage } from '@/utils/storageHelper';
 import { useHaptics } from '@/hooks/useMobile';
 import { usePrayers } from '@/hooks/usePrayers';
 import {
@@ -18,6 +18,7 @@ import {
     ReligiousCalendarWidget, QuickAction, LoadingPlaceholder, TasbihIcon
 } from '@/components/HomeComponents';
 import { Button } from '@/components/ui/button';
+import { shareProgress, shareInvite, shareVerse } from '@/lib/share';
 import PrayerTimeOverlay from '@/components/PrayerTimeOverlay';
 import { usePrayerFocus } from '@/hooks/usePrayerFocus';
 import { useTranslation } from 'react-i18next';
@@ -38,8 +39,9 @@ const ESMA_UL_HUSNA = [
 
 const SHARE_THEMES = [
     { id: 'emerald', name: 'Koyu Zümrüt', class: 'bg-gradient-to-br from-[#044d29] to-[#065f33] text-white' },
-    { id: 'golden', name: 'Altın Işık', class: 'bg-[#F9F8F3] border-4 border-islamic-gold text-islamic-green' },
-    { id: 'minimal', name: 'Sade Beyaz', class: 'bg-white text-gray-900 shadow-xl' },
+    { id: 'golden', name: 'Altın Işık', class: 'bg-gradient-to-br from-[#d97706] to-[#b45309] text-white' },
+    { id: 'gray', name: 'Gece', class: 'bg-gradient-to-br from-[#374151] to-[#1f2937] text-white' },
+    { id: 'blue', name: 'Okyanus', class: 'bg-gradient-to-br from-[#1e40af] to-[#1e3a8a] text-white' },
     { id: 'friday', name: 'Cuma Özel', class: 'bg-gradient-to-br from-[#134951] to-[#0d2a2e] text-white border-2 border-islamic-gold shadow-[0_0_20px_rgba(212,175,55,0.3)]' },
 ];
 
@@ -92,7 +94,8 @@ export default function Home() {
     const [currentDeed, setCurrentDeed] = useState("");
     const [selectedEsma, setSelectedEsma] = useState(null);
     const [showAllEsma, setShowAllEsma] = useState(false);
-    const [esmaCounts, setEsmaCounts] = useState({}); // Stores count for each Esma: { "Allah": 5, "Rahman": 10 }
+    const [esmaCounts, setEsmaCounts] = useState(() => safeGetStorage('esma_counts', {})); // Stores count for each Esma: { "Allah": 5, "Rahman": 10 }
+    const [sharing, setSharing] = useState(false);
 
     // Prayer Focus Detection (Blur Mode)
     const { activePrayer, shouldShowOverlay, snooze, clearSnooze } = usePrayerFocus(
@@ -144,15 +147,24 @@ export default function Home() {
         const storedTuba = localStorage.getItem('tubaAgaci_data');
         let initialTuba = { currentStreak: 0, totalWateredDays: 0, lastWateredDate: null };
 
-        if (storedTuba) {
-            initialTuba = JSON.parse(storedTuba);
+        if (storedTuba && storedTuba !== 'undefined' && storedTuba !== 'null') {
+            try {
+                initialTuba = JSON.parse(storedTuba);
+            } catch (e) {
+                console.warn('[Home] Corrupted tubaAgaci_data, resetting...', e);
+                localStorage.removeItem('tubaAgaci_data');
+            }
         } else {
             // Migration from legacy userStreak if exists
             const legacyStreak = localStorage.getItem('userStreak');
-            if (legacyStreak) {
-                initialTuba.currentStreak = parseInt(legacyStreak, 10);
-                initialTuba.totalWateredDays = initialTuba.currentStreak; // Assuming they were same before
-                initialTuba.lastWateredDate = localStorage.getItem('tubaAgaci_lastWatered') || null;
+            if (legacyStreak && legacyStreak !== 'undefined') {
+                try {
+                    initialTuba.currentStreak = parseInt(legacyStreak, 10) || 0;
+                    initialTuba.totalWateredDays = initialTuba.currentStreak;
+                    initialTuba.lastWateredDate = localStorage.getItem('tubaAgaci_lastWatered') || null;
+                } catch (e) {
+                    console.warn('[Home] Corrupted legacy streak data', e);
+                }
             }
         }
 
@@ -261,10 +273,7 @@ export default function Home() {
         navigate(path);
     }, [selection, navigate]);
 
-    const handleAdviceDay = useCallback(() => {
-        selection();
-        advanceTestDay();
-    }, [selection]);
+
 
     return (
         <motion.div
@@ -304,19 +313,14 @@ export default function Home() {
                 <QuickAction
                     onClick={() => handleNavigate('/dhikr')}
                     icon={TasbihIcon} label={t('quick_actions.dhikr.label')} subtitle={t('quick_actions.dhikr.subtitle')}
-                    color="bg-[#032e18] text-islamic-gold shadow-lg shadow-black/20"
+                    color="bg-white dark:bg-white/5 border dark:border-white/10 text-islamic-green dark:text-islamic-gold glass-panel"
                     to={null}
                 />
-                <QuickAction
-                    onClick={handleAdviceDay}
-                    icon={ChevronRight} label={t('quick_actions.new_day.label')} subtitle={t('quick_actions.new_day.subtitle', { offset: getTestDayOffset() })}
-                    color="bg-purple-600 text-white shadow-lg shadow-purple-600/20"
-                    to={null}
-                />
+
                 <QuickAction
                     onClick={() => handleNavigate('/uyku')}
                     icon={Moon} label={t('quick_actions.sleep.label')} subtitle={t('quick_actions.sleep.subtitle')}
-                    color="bg-[#02150a] text-white border border-white/10"
+                    color="bg-white dark:bg-white/5 border dark:border-white/10 text-islamic-green dark:text-islamic-gold glass-panel"
                     to={null}
                 />
                 <QuickAction
@@ -398,7 +402,7 @@ export default function Home() {
                                 </button>
                             </div>
                             <div className="p-6">
-                                <div className={cn("aspect-square rounded-[2rem] p-8 flex flex-col justify-center items-center text-center transition-all duration-500 mb-6 relative shadow-inner", activeTheme.class)}>
+                                <div id="verse-share-card" className={cn("aspect-square rounded-[2rem] p-8 flex flex-col justify-center items-center text-center transition-all duration-500 mb-6 relative shadow-inner", activeTheme.class)}>
                                     <div className="absolute top-4 left-1/2 -translate-x-1/2 opacity-20"><Heart className="w-12 h-12" /></div>
                                     <p className="font-serif text-xl leading-relaxed italic mb-4">"{isFriday ? FRIDAY_CONTENT.text : DAILY_VERSE.text}"</p>
                                     <p className="text-xs font-bold tracking-widest uppercase opacity-70">- {isFriday ? FRIDAY_CONTENT.source : DAILY_VERSE.source}</p>
@@ -412,14 +416,39 @@ export default function Home() {
                                                 aria-label={`Tema: ${theme.name}`}
                                                 className={cn("touch-target w-12 h-12 rounded-full border-2 transition-all active:scale-95",
                                                     activeTheme.id === theme.id ? "border-islamic-gold scale-110 shadow-lg" : "border-transparent",
-                                                    theme.id === 'emerald' ? "bg-islamic-green" : theme.id === 'golden' ? "bg-islamic-gold" : theme.id === 'friday' ? "bg-[#134951]" : "bg-gray-200 dark:bg-white/20"
+                                                    theme.id === 'emerald' ? "bg-islamic-green" :
+                                                        theme.id === 'golden' ? "bg-amber-500" :
+                                                            theme.id === 'gray' ? "bg-gray-500" :
+                                                                theme.id === 'blue' ? "bg-blue-600" :
+                                                                    theme.id === 'friday' ? "bg-[#134951]" : "bg-gray-200"
                                                 )}
                                             />
                                         ))}
                                     </div>
                                 </div>
-                                <Button className="w-full mt-8 bg-islamic-green dark:bg-islamic-gold hover:opacity-90 text-white dark:text-[#032e18] h-14 rounded-2xl gap-2 font-bold transition-all active:scale-95 shadow-lg" onClick={heavy}>
-                                    <Download className="w-5 h-5" /> {t('save_image')}
+                                <Button
+                                    className="w-full mt-8 bg-islamic-green dark:bg-islamic-gold hover:opacity-90 text-white dark:text-[#032e18] h-14 rounded-2xl gap-2 font-bold transition-all active:scale-95 shadow-lg disabled:opacity-50"
+                                    onClick={async () => {
+                                        if (sharing) return;
+                                        heavy();
+                                        setSharing(true);
+                                        const success = await shareVerse(
+                                            'verse-share-card',
+                                            isFriday ? FRIDAY_CONTENT.text : DAILY_VERSE.text,
+                                            isFriday ? FRIDAY_CONTENT.source : DAILY_VERSE.source,
+                                            isFriday
+                                        );
+                                        setSharing(false);
+                                        if (success) selection();
+                                    }}
+                                    disabled={sharing}
+                                >
+                                    {sharing ? (
+                                        <div className="w-5 h-5 border-2 border-white dark:border-[#032e18] border-t-transparent rounded-full animate-spin" />
+                                    ) : (
+                                        <Share2 className="w-5 h-5" />
+                                    )}
+                                    {sharing ? t('sharing') : t('share_image')}
                                 </Button>
                             </div>
                         </motion.div>
@@ -446,10 +475,15 @@ export default function Home() {
                         esma={selectedEsma}
                         count={esmaCounts[selectedEsma.name] || 0}
                         setCount={(val) => {
-                            setEsmaCounts(prev => ({
-                                ...prev,
-                                [selectedEsma.name]: typeof val === 'function' ? val(prev[selectedEsma.name] || 0) : val
-                            }));
+                            setEsmaCounts(prev => {
+                                const nextCount = typeof val === 'function' ? val(prev[selectedEsma.name] || 0) : val;
+                                const next = {
+                                    ...prev,
+                                    [selectedEsma.name]: nextCount
+                                };
+                                safeSetStorage('esma_counts', next);
+                                return next;
+                            });
                         }}
                         onClose={() => { selection(); setSelectedEsma(null); }}
                     />

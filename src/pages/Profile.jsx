@@ -15,7 +15,7 @@ import { useUser } from '@/context/UserContext';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '@/context/ThemeContext';
 import AvatarIcon from '@/components/AvatarIcon';
-import ShareCard from '@/components/ShareCard';
+import ShareCard, { SHARE_THEMES } from '@/components/ShareCard';
 
 export default function Profile() {
     const { isDarkMode, toggleTheme } = useTheme();
@@ -73,6 +73,10 @@ export default function Profile() {
         ]
     });
 
+    // Share Theme Selection
+    const [shareTheme, setShareTheme] = useState('emerald');
+    const [showShareModal, setShowShareModal] = useState(false);
+
     // Language Settings
     const [showLangModal, setShowLangModal] = useState(false);
     // Remove local state currentLang, use i18n.language instead
@@ -114,16 +118,23 @@ export default function Profile() {
             try {
                 // 1. Load Completed Prayers (Source of Truth: Home.jsx)
                 const storedPrayers = localStorage.getItem('dailyPrayers');
-                const completedPrayers = storedPrayers ? JSON.parse(storedPrayers) : [];
+                let completedPrayers = [];
+                if (storedPrayers && storedPrayers !== 'undefined' && storedPrayers !== 'null') {
+                    try {
+                        completedPrayers = JSON.parse(storedPrayers) || [];
+                    } catch { completedPrayers = []; }
+                }
 
                 // 2. Load Streak (Source of Truth: Home.jsx / Tuba Agaci)
                 const storedTuba = localStorage.getItem('tubaAgaci_data');
                 let streak = 0;
-                if (storedTuba) {
-                    streak = JSON.parse(storedTuba).currentStreak || 0;
+                if (storedTuba && storedTuba !== 'undefined' && storedTuba !== 'null') {
+                    try {
+                        streak = JSON.parse(storedTuba).currentStreak || 0;
+                    } catch { streak = 0; }
                 } else {
                     // Fallback to minimal streak if tuba data missing
-                    streak = parseInt(localStorage.getItem('userStreak') || '0', 10);
+                    streak = parseInt(localStorage.getItem('userStreak') || '0', 10) || 0;
                 }
 
                 setShareData({
@@ -182,9 +193,9 @@ export default function Profile() {
 
 
 
-    const resetOnboarding = () => {
+    const deleteAccount = () => {
         heavy();
-        if (confirm('Tüm verileriniz silinecektir. Emin misiniz?')) {
+        if (confirm('Hesabınız ve tüm verileriniz silinecektir. Bu işlem geri alınamaz. Emin misiniz?')) {
             localStorage.clear();
             window.location.reload();
         }
@@ -364,8 +375,8 @@ export default function Profile() {
                         className="p-5 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-white/5 transition-colors cursor-pointer"
                         onClick={async () => {
                             selection();
-                            const success = await shareProgress('share-card', shareData.streak);
-                            if (success) heavy();
+                            heavy();
+                            await shareProgress('share-card', shareData.streak);
                         }}
                     >
                         <div className="flex items-center gap-4">
@@ -452,73 +463,14 @@ export default function Profile() {
                 </div>
             </motion.div>
 
-            {/* Qada Calculator Widget (Polished) */}
-            <motion.div variants={itemVariants} className="px-4">
-                <div
-                    className={cn(
-                        "rounded-[2rem] border-2 transition-all duration-500 overflow-hidden",
-                        showCalculator
-                            ? "bg-white dark:bg-[#032e18] border-islamic-gold shadow-lg"
-                            : "bg-white dark:bg-white/5 border-transparent shadow-sm"
-                    )}
-                >
-                    <div onClick={() => setShowCalculator(!showCalculator)} className="p-5 flex items-center justify-between cursor-pointer">
-                        <div className="flex items-center gap-4">
-                            <div className="p-3 bg-amber-50 dark:bg-amber-900/10 text-amber-600 dark:text-amber-400 rounded-2xl">
-                                <RefreshCw size={20} className={cn("transition-transform duration-700", showCalculator && "rotate-180")} />
-                            </div>
-                            <div>
-                                <p className="text-sm font-bold text-gray-900 dark:text-white">{t('calc.title')}</p>
-                                <p className="text-[10px] text-gray-400">{t('calc.subtitle')}</p>
-                            </div>
-                        </div>
-                        <ChevronRight className={cn("text-gray-300 transition-transform", showCalculator && "rotate-90")} />
-                    </div>
-                    {/* Simplified Calculator Content - expandable */}
-                    <AnimatePresence>
-                        {showCalculator && (
-                            <motion.div
-                                initial={{ height: 0, opacity: 0 }}
-                                animate={{ height: 'auto', opacity: 1 }}
-                                exit={{ height: 0, opacity: 0 }}
-                                className="px-5 pb-5 overflow-hidden"
-                            >
-                                <div className="space-y-4 pt-2 border-t border-gray-100 dark:border-white/5">
-                                    <div className="grid grid-cols-2 gap-3">
-                                        <input
-                                            type="date"
-                                            className="p-3 bg-gray-50 dark:bg-white/5 rounded-xl text-xs dark:text-white"
-                                            value={calcData.birthDate}
-                                            onChange={(e) => setCalcData({ ...calcData, birthDate: e.target.value })}
-                                        />
-                                        <input
-                                            type="date"
-                                            className="p-3 bg-gray-50 dark:bg-white/5 rounded-xl text-xs dark:text-white"
-                                            value={calcData.startDate}
-                                            onChange={(e) => setCalcData({ ...calcData, startDate: e.target.value })}
-                                        />
-                                    </div>
-                                    <Button onClick={calculateQada} className="w-full bg-islamic-gold text-[#032e18] font-bold rounded-xl h-10">Hesapla</Button>
-                                </div>
-                            </motion.div>
-                        )}
-                    </AnimatePresence>
-                </div>
-            </motion.div>
-
-            {/* Support & Danger Zone */}
+            {/* Danger Zone */}
             <motion.div variants={itemVariants} className="px-4 space-y-4 pb-10">
-                <Button variant="ghost" className="w-full justify-between h-14 bg-white dark:bg-white/5 rounded-[2rem] border border-gray-100 dark:border-white/5 text-gray-600 dark:text-gray-300 px-6 hover:bg-gray-50 dark:hover:bg-white/10">
-                    <span className="flex items-center gap-3 font-bold text-sm"><Heart size={18} /> {t('support')}</span>
-                    <ChevronRight size={18} className="opacity-50" />
-                </Button>
-
                 <Button
                     variant="ghost"
-                    onClick={resetOnboarding}
+                    onClick={deleteAccount}
                     className="w-full justify-between h-14 bg-red-50 dark:bg-red-900/10 rounded-[2rem] border border-red-100 dark:border-red-900/20 text-red-600 hover:bg-red-100 dark:hover:bg-red-900/30 px-6"
                 >
-                    <span className="flex items-center gap-3 font-bold text-sm"><Trash2 size={18} /> {t('reset')}</span>
+                    <span className="flex items-center gap-3 font-bold text-sm"><Trash2 size={18} /> Hesabı Sil</span>
                     <LogOut size={18} />
                 </Button>
             </motion.div>
@@ -671,7 +623,84 @@ export default function Profile() {
             <ShareCard
                 completedPrayers={shareData.completedPrayers}
                 streak={shareData.streak}
+                theme={shareTheme}
             />
+
+            {/* Share Theme Picker Modal */}
+            <AnimatePresence>
+                {showShareModal && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-end justify-center"
+                        onClick={() => setShowShareModal(false)}
+                    >
+                        <motion.div
+                            initial={{ y: 300 }}
+                            animate={{ y: 0 }}
+                            exit={{ y: 300 }}
+                            transition={{ type: 'spring', damping: 25 }}
+                            onClick={(e) => e.stopPropagation()}
+                            className="w-full max-w-md bg-white dark:bg-gray-900 rounded-t-3xl p-6 pb-safe"
+                        >
+                            <div className="flex items-center justify-between mb-6">
+                                <h3 className="text-lg font-bold text-gray-900 dark:text-white">Tema Seç</h3>
+                                <button
+                                    onClick={() => setShowShareModal(false)}
+                                    className="p-2 rounded-full bg-gray-100 dark:bg-gray-800"
+                                >
+                                    <X size={18} className="text-gray-500" />
+                                </button>
+                            </div>
+
+                            {/* Theme Grid */}
+                            <div className="grid grid-cols-5 gap-3 mb-6">
+                                {Object.values(SHARE_THEMES).map((theme) => (
+                                    <button
+                                        key={theme.id}
+                                        onClick={() => {
+                                            selection();
+                                            setShareTheme(theme.id);
+                                        }}
+                                        className={cn(
+                                            "flex flex-col items-center gap-2 p-3 rounded-2xl border-2 transition-all",
+                                            shareTheme === theme.id
+                                                ? "border-islamic-green dark:border-islamic-gold scale-105"
+                                                : "border-transparent"
+                                        )}
+                                    >
+                                        <div className={cn(
+                                            "w-12 h-12 rounded-xl shadow-lg",
+                                            theme.preview
+                                        )} />
+                                        <span className="text-[10px] font-medium text-gray-600 dark:text-gray-400">
+                                            {theme.name}
+                                        </span>
+                                        {shareTheme === theme.id && (
+                                            <Check size={14} className="text-islamic-green dark:text-islamic-gold" />
+                                        )}
+                                    </button>
+                                ))}
+                            </div>
+
+                            {/* Share Button */}
+                            <Button
+                                onClick={async () => {
+                                    heavy();
+                                    setShowShareModal(false);
+                                    const success = await shareProgress('share-card', shareData.streak);
+                                    if (success) success();
+                                }}
+                                className="w-full py-6 bg-islamic-green hover:bg-islamic-green/90 text-white font-bold rounded-2xl"
+                            >
+                                <Share2 size={20} className="mr-2" />
+                                Paylaş
+                            </Button>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </motion.div>
     );
 }

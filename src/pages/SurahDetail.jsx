@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import {
-    BookOpen, ArrowLeft, Bookmark, Share2, RefreshCw, WifiOff,
+    BookOpen, ArrowLeft, Bookmark, BookmarkCheck, Share2, RefreshCw, WifiOff,
     Loader2, ChevronDown, ChevronRight
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -11,8 +11,11 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useHaptics } from '@/hooks/useMobile';
 import { fetchSurahContent, fetchChapterInfo } from '@/services/quranApi';
 import { turkifyTransliteration } from '@/utils/textFormatter';
+import { safeGetStorage, safeSetStorage } from '@/utils/storageHelper';
 
 import { useTranslation } from 'react-i18next';
+
+const BOOKMARKS_KEY = 'quran_bookmarks';
 
 export default function SurahDetail() {
     const { surahId } = useParams();
@@ -27,6 +30,35 @@ export default function SurahDetail() {
     const [loadingMore, setLoadingMore] = useState(false);
     const [error, setError] = useState(null);
     const [pagination, setPagination] = useState(null);
+    const [bookmarks, setBookmarks] = useState(() => safeGetStorage(BOOKMARKS_KEY, []));
+
+    // Check if a verse is bookmarked
+    const isBookmarked = (verseKey) => bookmarks.some(b => b.verseKey === verseKey);
+
+    // Toggle bookmark
+    const toggleBookmark = (verse) => {
+        selection();
+        setBookmarks(prev => {
+            const exists = prev.some(b => b.verseKey === verse.verseKey);
+            let updated;
+            if (exists) {
+                updated = prev.filter(b => b.verseKey !== verse.verseKey);
+            } else {
+                updated = [...prev, {
+                    verseKey: verse.verseKey,
+                    verseNumber: verse.verseNumber,
+                    surahId: parseInt(surahId),
+                    surahName: surahInfo?.name || '',
+                    arabic: verse.arabic,
+                    translation: verse.translation,
+                    savedAt: Date.now()
+                }];
+                success?.();
+            }
+            safeSetStorage(BOOKMARKS_KEY, updated);
+            return updated;
+        });
+    };
 
     // Fetch surah data
     const loadSurah = useCallback(async (page = 1, append = false) => {
@@ -216,10 +248,18 @@ export default function SurahDetail() {
                                             <Button
                                                 variant="ghost"
                                                 size="sm"
-                                                onClick={() => selection()}
-                                                className="text-gray-400 hover:text-islamic-gold"
+                                                onClick={() => toggleBookmark(verse)}
+                                                className={cn(
+                                                    "transition-colors",
+                                                    isBookmarked(verse.verseKey)
+                                                        ? "text-islamic-gold"
+                                                        : "text-gray-400 hover:text-islamic-gold"
+                                                )}
                                             >
-                                                <Bookmark className="w-4 h-4" />
+                                                {isBookmarked(verse.verseKey)
+                                                    ? <BookmarkCheck className="w-4 h-4 fill-current" />
+                                                    : <Bookmark className="w-4 h-4" />
+                                                }
                                             </Button>
                                             <Button
                                                 variant="ghost"
@@ -233,26 +273,14 @@ export default function SurahDetail() {
                                     </div>
 
                                     {/* Arabic Text */}
-                                    <p className="text-2xl leading-[2.5] text-right font-arabic text-gray-900 dark:text-white">
+                                    <p className="text-2xl leading-[2.5] text-right font-arabic text-islamic-gold">
                                         {verse.arabic}
                                     </p>
-
-                                    {/* Latin Transliteration (Okunuş) */}
-                                    {verse.transliteration && (
-                                        <p
-                                            className="text-amber-600 dark:text-amber-400/90 italic text-base font-serif leading-relaxed mt-4 mb-3"
-                                            dangerouslySetInnerHTML={{
-                                                __html: i18n.language?.startsWith('tr')
-                                                    ? turkifyTransliteration(verse.transliteration)
-                                                    : verse.transliteration
-                                            }}
-                                        />
-                                    )}
 
                                     {/* Translation (Meal) */}
                                     <div className="border-t border-gray-100 dark:border-white/10 pt-4">
                                         <p
-                                            className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed"
+                                            className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed"
                                             dangerouslySetInnerHTML={{ __html: verse.translation }}
                                         />
                                     </div>

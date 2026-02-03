@@ -4,41 +4,69 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import {
     BookOpen, Search, Play, Pause, SkipBack, SkipForward, Volume2, VolumeX,
-    ChevronDown, ChevronUp, Bookmark, Share2, X
+    ChevronDown, ChevronUp, Bookmark, BookmarkCheck, Share2, X, Loader2, Trash2
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useHaptics } from '@/hooks/useMobile';
+import { fetchChapters } from '@/services/quranApi';
+import { safeGetStorage, safeSetStorage } from '@/utils/storageHelper';
+
+const BOOKMARKS_KEY = 'quran_bookmarks';
 
 export default function Quran() {
     const navigate = useNavigate();
     const { selection, success } = useHaptics();
 
     // State
+    const [surahs, setSurahs] = useState([]);
+    const [isLoadingSurahs, setIsLoadingSurahs] = useState(true);
+    const [surahError, setSurahError] = useState(null);
     const [selectedSurah, setSelectedSurah] = useState(null);
     const [searchQuery, setSearchQuery] = useState('');
     const [isPlaying, setIsPlaying] = useState(false);
     const [isMuted, setIsMuted] = useState(false);
     const [currentAyah, setCurrentAyah] = useState(1);
     const [showSurahList, setShowSurahList] = useState(true);
+    const [activeTab, setActiveTab] = useState('surahs'); // 'surahs' | 'bookmarks'
+    const [bookmarks, setBookmarks] = useState(() => safeGetStorage(BOOKMARKS_KEY, []));
 
-    // TODO: Replace with API data
-    const PLACEHOLDER_SURAHS = [
-        { id: 1, name: 'Fatiha', arabic: 'الفَاتِحَة', ayahCount: 7, revelation: 'Mekke' },
-        { id: 2, name: 'Bakara', arabic: 'البَقَرَة', ayahCount: 286, revelation: 'Medine' },
-        { id: 3, name: 'Al-i İmran', arabic: 'آلِ عِمۡرَان', ayahCount: 200, revelation: 'Medine' },
-        { id: 4, name: 'Nisa', arabic: 'النِّسَاء', ayahCount: 176, revelation: 'Medine' },
-        { id: 5, name: 'Maide', arabic: 'المَائِدَة', ayahCount: 120, revelation: 'Medine' },
-    ];
+    // Remove bookmark
+    const removeBookmark = (verseKey) => {
+        selection();
+        setBookmarks(prev => {
+            const updated = prev.filter(b => b.verseKey !== verseKey);
+            safeSetStorage(BOOKMARKS_KEY, updated);
+            return updated;
+        });
+    };
 
-    const PLACEHOLDER_AYAHS = selectedSurah ? Array.from({ length: 7 }, (_, i) => ({
-        number: i + 1,
-        arabic: 'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ',
-        translation: '[API\'den Türkçe meal gelecek]',
-        audio: null // API'den ses URL'i gelecek
-    })) : [];
+    // Fetch all 114 surahs on mount
+    useEffect(() => {
+        const loadSurahs = async () => {
+            try {
+                setIsLoadingSurahs(true);
+                setSurahError(null);
+                const chapters = await fetchChapters('tr');
+                // Map to UI format
+                setSurahs(chapters.map(ch => ({
+                    id: ch.id,
+                    name: ch.nameTurkish || ch.name,
+                    arabic: ch.nameArabic,
+                    ayahCount: ch.ayahCount,
+                    revelation: ch.revelation
+                })));
+            } catch (err) {
+                console.error('Failed to fetch surahs:', err);
+                setSurahError('Sureler yüklenemedi. İnternet bağlantınızı kontrol edin.');
+            } finally {
+                setIsLoadingSurahs(false);
+            }
+        };
+        loadSurahs();
+    }, []);
 
-    const filteredSurahs = PLACEHOLDER_SURAHS.filter(surah =>
+    const filteredSurahs = surahs.filter(surah =>
         surah.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         surah.arabic.includes(searchQuery)
     );
@@ -47,6 +75,7 @@ export default function Quran() {
         selection();
         navigate(`/quran/${surah.id}`);
     };
+
 
     const togglePlay = () => {
         selection();
@@ -95,8 +124,8 @@ export default function Quran() {
                 </div>
 
                 {/* Search Bar */}
-                {showSurahList && (
-                    <div className="relative">
+                {showSurahList && activeTab === 'surahs' && (
+                    <div className="relative mb-3">
                         <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/50" />
                         <input
                             type="text"
@@ -107,23 +136,81 @@ export default function Quran() {
                         />
                     </div>
                 )}
+
+                {/* Tab Switcher */}
+                {showSurahList && (
+                    <div className="flex gap-2">
+                        <button
+                            onClick={() => { selection(); setActiveTab('surahs'); }}
+                            className={cn(
+                                "flex-1 py-2.5 rounded-xl text-sm font-medium transition-all",
+                                activeTab === 'surahs'
+                                    ? "bg-islamic-gold text-white"
+                                    : "bg-white/10 text-white/60 hover:bg-white/15"
+                            )}
+                        >
+                            <BookOpen className="w-4 h-4 inline-block mr-2" />
+                            Sureler
+                        </button>
+                        <button
+                            onClick={() => { selection(); setActiveTab('bookmarks'); }}
+                            className={cn(
+                                "flex-1 py-2.5 rounded-xl text-sm font-medium transition-all relative",
+                                activeTab === 'bookmarks'
+                                    ? "bg-islamic-gold text-white"
+                                    : "bg-white/10 text-white/60 hover:bg-white/15"
+                            )}
+                        >
+                            <Bookmark className="w-4 h-4 inline-block mr-2" />
+                            Kaydettiklerim
+                            {bookmarks.length > 0 && (
+                                <span className="absolute -top-1 -right-1 w-5 h-5 bg-emerald-500 text-white text-xs rounded-full flex items-center justify-center">
+                                    {bookmarks.length}
+                                </span>
+                            )}
+                        </button>
+                    </div>
+                )}
             </div>
 
             {/* Surah List */}
             <AnimatePresence>
-                {showSurahList && (
+                {showSurahList && activeTab === 'surahs' && (
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -20 }}
                         className="p-5 space-y-2"
                     >
-                        {filteredSurahs.map((surah, index) => (
+                        {/* Loading State */}
+                        {isLoadingSurahs && (
+                            <div className="flex flex-col items-center justify-center py-20 gap-4">
+                                <Loader2 className="w-10 h-10 text-islamic-gold animate-spin" />
+                                <p className="text-sm text-gray-400">Kur'an yükleniyor...</p>
+                            </div>
+                        )}
+
+                        {/* Error State */}
+                        {surahError && !isLoadingSurahs && (
+                            <div className="text-center py-12 space-y-4">
+                                <p className="text-red-400">{surahError}</p>
+                                <Button
+                                    onClick={() => window.location.reload()}
+                                    variant="outline"
+                                    className="border-islamic-gold text-islamic-gold"
+                                >
+                                    Tekrar Dene
+                                </Button>
+                            </div>
+                        )}
+
+                        {/* Surah Cards */}
+                        {!isLoadingSurahs && !surahError && filteredSurahs.map((surah, index) => (
                             <motion.div
                                 key={surah.id}
                                 initial={{ opacity: 0, x: -20 }}
                                 animate={{ opacity: 1, x: 0 }}
-                                transition={{ delay: index * 0.05 }}
+                                transition={{ delay: Math.min(index * 0.02, 0.5) }}
                             >
                                 <Card
                                     onClick={() => handleSurahSelect(surah)}
@@ -148,7 +235,7 @@ export default function Quran() {
                                 </Card>
                             </motion.div>
                         ))}
-                        {filteredSurahs.length === 0 && (
+                        {!isLoadingSurahs && !surahError && filteredSurahs.length === 0 && (
                             <div className="text-center py-12">
                                 <p className="text-gray-400">Sure bulunamadı</p>
                             </div>
@@ -156,6 +243,81 @@ export default function Quran() {
                     </motion.div>
                 )}
             </AnimatePresence>
+
+            {/* Bookmarks List */}
+            <AnimatePresence>
+                {showSurahList && activeTab === 'bookmarks' && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -20 }}
+                        className="p-5 space-y-3"
+                    >
+                        {bookmarks.length === 0 ? (
+                            <div className="text-center py-16 space-y-4">
+                                <div className="w-20 h-20 mx-auto rounded-full bg-islamic-gold/10 flex items-center justify-center">
+                                    <Bookmark className="w-10 h-10 text-islamic-gold/50" />
+                                </div>
+                                <div>
+                                    <h3 className="text-lg font-bold text-white mb-1">Henüz kayıt yok</h3>
+                                    <p className="text-sm text-gray-400">
+                                        Ayetleri okurken kaydet butonuna basarak buraya ekleyebilirsiniz.
+                                    </p>
+                                </div>
+                            </div>
+                        ) : (
+                            bookmarks.map((bookmark, index) => (
+                                <motion.div
+                                    key={bookmark.verseKey}
+                                    initial={{ opacity: 0, x: -20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    transition={{ delay: Math.min(index * 0.05, 0.3) }}
+                                >
+                                    <Card className="glass-panel border-none overflow-hidden">
+                                        <CardContent className="p-4 space-y-3">
+                                            {/* Header */}
+                                            <div className="flex items-center justify-between">
+                                                <button
+                                                    onClick={() => {
+                                                        selection();
+                                                        navigate(`/quran/${bookmark.surahId}`);
+                                                    }}
+                                                    className="flex items-center gap-2 text-islamic-gold hover:underline"
+                                                >
+                                                    <BookmarkCheck className="w-4 h-4" />
+                                                    <span className="text-sm font-medium">
+                                                        {bookmark.surahName} • Ayet {bookmark.verseNumber}
+                                                    </span>
+                                                </button>
+                                                <Button
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    onClick={() => removeBookmark(bookmark.verseKey)}
+                                                    className="text-red-400 hover:text-red-300 hover:bg-red-500/10"
+                                                >
+                                                    <Trash2 className="w-4 h-4" />
+                                                </Button>
+                                            </div>
+
+                                            {/* Arabic */}
+                                            <p className="text-xl leading-loose text-right font-arabic text-islamic-gold">
+                                                {bookmark.arabic}
+                                            </p>
+
+                                            {/* Translation */}
+                                            <p
+                                                className="text-sm text-gray-400 leading-relaxed border-t border-white/5 pt-3"
+                                                dangerouslySetInnerHTML={{ __html: bookmark.translation }}
+                                            />
+                                        </CardContent>
+                                    </Card>
+                                </motion.div>
+                            ))
+                        )}
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
 
             {/* Ayah Display */}
             {selectedSurah && !showSurahList && (

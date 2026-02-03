@@ -13,6 +13,7 @@ import Legal from './pages/Legal';
 import AppLayout from './layouts/AppLayout';
 import SplashScreen from './components/SplashScreen';
 import Murakabe from './pages/Murakabe';
+import Tefekkur from './pages/Tefekkur';
 import SleepMode from './pages/SleepMode';
 import DuaKosesi from './pages/DuaKosesi';
 import Quran from './pages/Quran';
@@ -44,7 +45,7 @@ function App() {
             <Route path="/tracking" element={<Tracking />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/dhikr" element={<Dhikr />} />
-            <Route path="/tefekkur" element={<Murakabe />} />
+            <Route path="/tefekkur" element={<Tefekkur />} />
             <Route path="/uyku" element={<SleepMode />} />
             <Route path="/dua" element={<DuaKosesi />} />
             <Route path="/quran" element={<Quran />} />

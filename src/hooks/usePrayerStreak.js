@@ -6,8 +6,16 @@ import { useState, useEffect, useCallback } from 'react';
  */
 export function usePrayerStreak() {
     const [streakData, setStreakData] = useState(() => {
-        const saved = localStorage.getItem('prayerStreak');
-        return saved ? JSON.parse(saved) : {
+        try {
+            const saved = localStorage.getItem('prayerStreak');
+            if (saved && saved !== 'undefined' && saved !== 'null') {
+                return JSON.parse(saved);
+            }
+        } catch (e) {
+            console.warn('[usePrayerStreak] Corrupted data, resetting...', e);
+            localStorage.removeItem('prayerStreak');
+        }
+        return {
             currentStreak: 0,
             longestStreak: 0,
             lastCompletedDate: null,
