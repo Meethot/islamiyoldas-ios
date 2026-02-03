@@ -13,6 +13,7 @@ export function useLocation() {
 
 export function LocationProvider({ children }) {
     const [location, setLocation] = useState(null);
+    const [address, setAddress] = useState(null);
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(true);
     const [permissionStatus, setPermissionStatus] = useState('prompt'); // 'granted' | 'denied' | 'prompt'
@@ -40,6 +41,23 @@ export function LocationProvider({ children }) {
         }
     }, []);
 
+    const getReverseGeocode = useCallback(async (lat, lon) => {
+        try {
+            const response = await fetch(
+                `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=10&addressdetails=1`,
+                { headers: { 'Accept-Language': 'tr' } }
+            );
+            const data = await response.json();
+            const city = data.address.province || data.address.city || data.address.town || data.address.village || data.address.suburb;
+            setAddress(city);
+            localStorage.setItem('cached_address', city);
+            return city;
+        } catch (err) {
+            console.error('Reverse geocode error:', err);
+            return null;
+        }
+    }, []);
+
     const getCurrentPosition = useCallback(async () => {
         setLoading(true);
         setError(null);
@@ -59,19 +77,23 @@ export function LocationProvider({ children }) {
             };
 
             setLocation(coords);
-
-            // Cache to localStorage for offline use
             localStorage.setItem('cached_location', JSON.stringify(coords));
+
+            // Fetch city name asynchronously
+            getReverseGeocode(coords.latitude, coords.longitude);
 
             return coords;
         } catch (err) {
             console.error('Geolocation error:', err);
 
-            // Try to use cached location
             const cached = localStorage.getItem('cached_location');
             if (cached) {
                 const cachedCoords = JSON.parse(cached);
                 setLocation(cachedCoords);
+
+                const cachedAddr = localStorage.getItem('cached_address');
+                if (cachedAddr) setAddress(cachedAddr);
+
                 setError('Güncel konum alınamadı, son bilinen konum kullanılıyor');
                 return cachedCoords;
             }
@@ -81,7 +103,7 @@ export function LocationProvider({ children }) {
         } finally {
             setLoading(false);
         }
-    }, []);
+    }, [getReverseGeocode]);
 
     const refreshLocation = useCallback(async () => {
         const status = await checkPermissions();
@@ -108,6 +130,8 @@ export function LocationProvider({ children }) {
             if (cached) {
                 try {
                     setLocation(JSON.parse(cached));
+                    const cachedAddr = localStorage.getItem('cached_address');
+                    if (cachedAddr) setAddress(cachedAddr);
                 } catch (e) {
                     // Invalid cache, ignore
                 }
@@ -122,6 +146,7 @@ export function LocationProvider({ children }) {
 
     const value = {
         location,
+        address,
         error,
         loading,
         permissionStatus,
@@ -129,7 +154,8 @@ export function LocationProvider({ children }) {
         // Convenience getters
         latitude: location?.latitude || null,
         longitude: location?.longitude || null,
-        hasLocation: !!location
+        hasLocation: !!location,
+        cityName: address || 'İstanbul'
     };
 
     return (

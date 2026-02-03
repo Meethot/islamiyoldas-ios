@@ -171,16 +171,21 @@ export default function Home() {
         // Streak Reset Logic
         if (initialTuba.lastWateredDate) {
             const today = getAppDate();
-            today.setHours(0, 0, 0, 0);
+            const year = today.getFullYear();
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const day = String(today.getDate()).padStart(2, '0');
+            const todayStr = `${year}-${month}-${day}`;
 
-            const lastDate = new Date(initialTuba.lastWateredDate);
-            lastDate.setHours(0, 0, 0, 0);
+            // Calculate Yesterday
+            const y = new Date(today);
+            y.setDate(y.getDate() - 1);
+            const yYear = y.getFullYear();
+            const yMonth = String(y.getMonth() + 1).padStart(2, '0');
+            const yDay = String(y.getDate()).padStart(2, '0');
+            const yesterdayStr = `${yYear}-${yMonth}-${yDay}`;
 
-            const diffTime = Math.abs(today - lastDate);
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-            if (diffDays > 1) {
-                // Streak broken (more than 1 day since last watering)
+            // Reset if last watered date is NEITHER today NOR yesterday
+            if (initialTuba.lastWateredDate !== todayStr && initialTuba.lastWateredDate !== yesterdayStr) {
                 initialTuba.currentStreak = 0;
             }
         }

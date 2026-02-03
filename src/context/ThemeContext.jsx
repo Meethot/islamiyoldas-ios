@@ -7,11 +7,12 @@ export function ThemeProvider({ children }) {
         // Check localStorage first
         const saved = localStorage.getItem('theme');
         if (saved) return saved;
-        // Fallback to system preference (but default to 'system' logic)
-        return 'system';
+
+        // Default to dark mode if no preference saved
+        return 'dark';
     });
 
-    const [resolvedTheme, setResolvedTheme] = useState('light');
+    const [resolvedTheme, setResolvedTheme] = useState('dark');
 
     useEffect(() => {
         const root = window.document.documentElement;

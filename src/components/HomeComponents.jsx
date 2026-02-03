@@ -5,8 +5,9 @@ import {
     CheckCircle2, ChevronRight, Share2, Star, Sparkles, Check,
     Loader2, Moon, Sun, Sunrise, Sunset, Wind, MessageCircle, X, Download, Heart,
     Sprout, Leaf, TreeDeciduous, CalendarDays, Droplet, Trees, Flower2, Search,
-    SortAsc, SortDesc, Flame, Trophy
+    SortAsc, SortDesc, Flame, Trophy, Bell
 } from 'lucide-react';
+import { LocalNotifications } from '@capacitor/local-notifications';
 import { ALL_ESMA } from '@/data/esmaData';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -74,10 +75,15 @@ export const WeeklyStreakWidget = memo(({ tubaData, setTubaData }) => {
     const [treeImpact, setTreeImpact] = useState(false);
     const [alreadyWateredMessage, setAlreadyWateredMessage] = useState(false);
     const [showWeeklyCelebration, setShowWeeklyCelebration] = useState(false);
-    const { selection, success } = useHaptics();
+    const { selection, success, impactMedium } = useHaptics();
 
     // Destructure Tuba Data
     const { currentStreak, totalWateredDays, lastWateredDate } = tubaData;
+
+    // Check if task is completed for today
+    const tomorrowStr = getTodayString(); // Using standardized date string
+    const isCompletedToday = lastWateredDate === tomorrowStr;
+
     const streak = currentStreak; // Support for existing logic
     const growthProgress = totalWateredDays;
 
@@ -205,31 +211,44 @@ export const WeeklyStreakWidget = memo(({ tubaData, setTubaData }) => {
         setParticleFlying(true);
     };
 
-    const handleWatering = () => {
-        const todayStr = getTodayString(); // Use test date system
+    // Auto-sync completedDays if lastWateredDate matches today (for initial load)
+    useEffect(() => {
+        if (isCompletedToday && !completedDays[currentDayIndex]) {
+            const newCompletedDays = [...completedDays];
+            newCompletedDays[currentDayIndex] = true;
+            setCompletedDays(newCompletedDays);
+            localStorage.setItem('tubaAgaci_completedDays', JSON.stringify(newCompletedDays));
+        }
+    }, [isCompletedToday, currentDayIndex]); // Intentionally omitting completedDays to avoid loops
 
-        // Prevent multiple waterings per day
-        if (lastWateredDate === todayStr) {
+    const handleWatering = () => {
+        const todayStr = getTodayString();
+
+        // Prevent multiple waterings per day logic
+        if (isCompletedToday) {
             setAlreadyWateredMessage(true);
             setTimeout(() => setAlreadyWateredMessage(false), 3000);
             return;
         }
 
         // Streak logic
+        // Streak logic
         let newStreak = currentStreak;
-        if (lastWateredDate) {
-            const lastDate = new Date(lastWateredDate);
-            lastDate.setHours(0, 0, 0, 0);
-            const todayDate = getAppDate(); // Use test date system
-            todayDate.setHours(0, 0, 0, 0);
-            const diffDays = Math.ceil((todayDate - lastDate) / (1000 * 60 * 60 * 24));
 
-            if (diffDays === 1) {
-                newStreak += 1;
-            } else {
-                newStreak = 1;
-            }
+        // Calculate "Yesterday" string for comparison
+        const d = getAppDate();
+        d.setDate(d.getDate() - 1);
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        const yesterdayStr = `${year}-${month}-${day}`;
+
+        if (lastWateredDate === yesterdayStr) {
+            newStreak += 1;
+        } else if (lastWateredDate === todayStr) {
+            newStreak = currentStreak; // Should be handled by guard, but safe
         } else {
+            // Streak broken (missed at least one day) or first time
             newStreak = 1;
         }
 
@@ -420,19 +439,29 @@ export const WeeklyStreakWidget = memo(({ tubaData, setTubaData }) => {
                         </div>
 
                         {/* Watering Button (İbrik) */}
+                        {/* Watering Button (İbrik) */}
                         <motion.button
                             onClick={handleWatering}
-                            whileTap={{ scale: 0.95 }}
+                            disabled={isCompletedToday || isWatering}
+                            whileTap={!isCompletedToday ? { scale: 0.95 } : {}}
                             className={cn(
-                                "w-full mt-6 h-12 rounded-2xl font-bold text-sm uppercase tracking-wide transition-all shadow-md",
-                                "bg-gradient-to-r from-islamic-green to-emerald-600 dark:from-islamic-gold dark:to-amber-600",
-                                "text-white dark:text-[#032e18]",
-                                "hover:shadow-lg active:shadow-sm",
-                                "flex items-center justify-center gap-2"
+                                "w-full mt-6 h-12 rounded-2xl font-bold text-sm uppercase tracking-wide transition-all shadow-md flex items-center justify-center gap-2",
+                                isCompletedToday
+                                    ? "bg-gray-100 dark:bg-white/5 text-gray-400 dark:text-gray-500 cursor-default border border-gray-200 dark:border-white/5 shadow-none"
+                                    : "bg-gradient-to-r from-islamic-green to-emerald-600 dark:from-islamic-gold dark:to-amber-600 text-white dark:text-[#032e18] hover:shadow-lg active:shadow-sm"
                             )}
                         >
-                            <Droplet size={18} />
-                            Can Suyu Ver
+                            {isCompletedToday ? (
+                                <>
+                                    <CheckCircle2 size={18} />
+                                    Bugün Verildi
+                                </>
+                            ) : (
+                                <>
+                                    <Droplet size={18} className={cn(isWatering && "animate-bounce")} />
+                                    {isWatering ? "Sulanıyor..." : "Can Suyu Ver"}
+                                </>
+                            )}
                         </motion.button>
                     </CardContent>
 
@@ -890,47 +919,288 @@ export const AffirmationCarousel = memo(({ affirmations, currentIndex }) => {
 
 // --- Prayer Countdown ---
 export const PrayerCountdownWidget = memo(({ loading, city, nextPrayerInfo }) => {
+    const [showReminderOptions, setShowReminderOptions] = useState(false);
+    const [alarmSet, setAlarmSet] = useState(false);
+    const [alarmTime, setAlarmTime] = useState(null);
+    const [selectedMinutes, setSelectedMinutes] = useState(null);
+    const [alarmId, setAlarmId] = useState(null);
+
+    // Check if alarm is already set for this prayer instance
+    useEffect(() => {
+        if (!nextPrayerInfo || !nextPrayerInfo.name) return;
+
+        // Use the date of the prayer itself for the persistence key
+        const prayerDate = nextPrayerInfo.date || getTodayString();
+        const key = `reminder_${nextPrayerInfo.name}_${prayerDate}`;
+        const savedTime = localStorage.getItem(key);
+        const savedMins = localStorage.getItem(key + '_mins');
+        const savedId = localStorage.getItem(key + '_id');
+
+        if (savedTime) {
+            setAlarmSet(true);
+            setAlarmTime(savedTime);
+            setSelectedMinutes(savedMins !== null ? parseInt(savedMins) : null);
+            setAlarmId(savedId);
+        } else {
+            setAlarmSet(false);
+            setAlarmTime(null);
+            setSelectedMinutes(null);
+            setAlarmId(null);
+        }
+    }, [nextPrayerInfo?.name, nextPrayerInfo?.date]);
+
+    const handleSetReminder = async (minutesBefore) => {
+        // Hatırlatıcı seçildiği anda ekranı kapat
+        setShowReminderOptions(false);
+        try {
+            // 1. Permissions
+            const perm = await LocalNotifications.checkPermissions();
+            if (perm.display !== 'granted') {
+                const req = await LocalNotifications.requestPermissions();
+                if (req.display !== 'granted') {
+                    return;
+                }
+            }
+
+            // 2. Calculate Time
+            if (!nextPrayerInfo || !nextPrayerInfo.time) return;
+
+            const [hours, mins] = nextPrayerInfo.time.split(':').map(Number);
+            let targetDate = new Date();
+            targetDate.setHours(hours, mins, 0, 0);
+
+            const now = new Date();
+            if (targetDate <= now) {
+                targetDate.setDate(targetDate.getDate() + 1);
+            }
+
+            const triggerDate = new Date(targetDate.getTime() - (minutesBefore * 60000));
+
+            // Geçmişe alarm kurulmasını engelle
+            if (triggerDate <= now && minutesBefore !== 0) {
+                alert('Vakte çok az kalmış, bu süre için alarm kurulamaz.');
+                return;
+            }
+
+            // 3. Schedule
+            const id = Math.floor(Math.random() * 2147483647);
+
+            await LocalNotifications.schedule({
+                notifications: [{
+                    title: "Vakit Yaklaşıyor!",
+                    body: `${nextPrayerInfo.name} vaktine ${minutesBefore === 0 ? 'girdi' : `${minutesBefore} dakika kaldı`}.`,
+                    id: id,
+                    schedule: { at: triggerDate, allowWhileIdle: true },
+                    sound: 'beep.wav',
+                    actionTypeId: "",
+                    extra: null
+                }]
+            });
+
+            // 4. Update State & Storage
+            const prayerDate = nextPrayerInfo.date || getTodayString();
+            const key = `reminder_${nextPrayerInfo.name}_${prayerDate}`;
+            const timeStr = triggerDate.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
+
+            localStorage.setItem(key, timeStr);
+            localStorage.setItem(key + '_mins', minutesBefore.toString());
+            localStorage.setItem(key + '_id', id.toString());
+
+            setAlarmSet(true);
+            setAlarmTime(timeStr);
+            setSelectedMinutes(minutesBefore);
+            setAlarmId(id);
+
+            if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+
+        } catch (error) {
+            console.error('Reminder error:', error);
+            setShowReminderOptions(false);
+        }
+    };
+
+    const handleRemoveReminder = async () => {
+        try {
+            if (alarmId) {
+                await LocalNotifications.cancel({ notifications: [{ id: parseInt(alarmId) }] });
+            }
+            const prayerDate = nextPrayerInfo.date || getTodayString();
+            const key = `reminder_${nextPrayerInfo.name}_${prayerDate}`;
+            localStorage.removeItem(key);
+            localStorage.removeItem(key + '_mins');
+            localStorage.removeItem(key + '_id');
+
+            setAlarmSet(false);
+            setAlarmTime(null);
+            setSelectedMinutes(null);
+            setAlarmId(null);
+            setShowReminderOptions(false);
+
+            if (navigator.vibrate) navigator.vibrate([50]);
+        } catch (error) {
+            console.error('Remove reminder error:', error);
+            setShowReminderOptions(false);
+        }
+    };
+
     return (
-        <motion.div variants={itemVariants}>
-            <Card className="glass-panel border-none text-black dark:text-white overflow-hidden">
-                <CardContent className="p-0 flex items-stretch">
-                    <div className="bg-islamic-green/5 dark:bg-black/20 p-5 flex items-center justify-center min-w-[90px]">
-                        {loading ? (
-                            <div className="w-12 h-12 rounded-full shimmer" />
-                        ) : (
-                            <div className="w-12 h-12 rounded-full border-4 border-islamic-gold border-t-transparent animate-spin-slow flex items-center justify-center shadow-inner bg-white/5">
-                                <Moon className="w-5 h-5 text-islamic-green dark:text-islamic-gold" />
-                            </div>
-                        )}
-                    </div>
-                    <div className="p-5 flex-1 flex flex-col justify-center">
-                        {loading ? (
-                            <div className="space-y-3 w-full">
-                                <div className="h-2 w-20 rounded shimmer" />
-                                <div className="h-8 w-32 rounded shimmer" />
-                            </div>
-                        ) : (
-                            <div className="flex items-center justify-between w-full">
-                                <div>
-                                    <p className="text-gray-500 dark:text-emerald-100/50 text-[10px] uppercase font-bold tracking-widest mb-1">
-                                        Sıradaki Vakit ({city})
-                                    </p>
-                                    <h2 className="text-2xl font-bold text-islamic-green dark:text-islamic-gold font-serif">
-                                        {nextPrayerInfo.name}
-                                    </h2>
+        <>
+            <motion.div variants={itemVariants}>
+                <Card className="glass-panel border-none text-black dark:text-white overflow-visible relative">
+                    <CardContent className="p-0 flex items-stretch">
+                        <div className="bg-islamic-green/5 dark:bg-black/20 p-5 flex items-center justify-center min-w-[90px]">
+                            {loading ? (
+                                <div className="w-12 h-12 rounded-full shimmer" />
+                            ) : (
+                                <div className="relative">
+                                    <div className="w-12 h-12 rounded-full border-4 border-islamic-gold border-t-transparent animate-spin-slow flex items-center justify-center shadow-inner bg-white/5">
+                                        <Moon className="w-5 h-5 text-islamic-green dark:text-islamic-gold" />
+                                    </div>
+                                    {alarmSet && (
+                                        <div className="absolute -top-1 -right-1 bg-islamic-gold text-[8px] font-bold text-black w-5 h-5 rounded-full flex items-center justify-center border-2 border-[#fdfaf5] dark:border-[#032e18]">
+                                            <Bell size={10} fill="currentColor" />
+                                        </div>
+                                    )}
                                 </div>
-                                <div className="text-right">
-                                    <p className="text-gray-400 dark:text-gray-600 text-[10px] uppercase font-bold mb-1">Kalan</p>
-                                    <div className="text-xl font-mono font-medium text-gray-800 dark:text-white bg-gray-100/50 dark:bg-white/5 px-3 py-1 rounded-lg border border-gray-100 dark:border-white/5">
-                                        {nextPrayerInfo.timeLeft}
+                            )}
+                        </div>
+                        <div className="p-5 flex-1 flex flex-col justify-center relative">
+                            {loading ? (
+                                <div className="space-y-3 w-full">
+                                    <div className="h-2 w-20 rounded shimmer" />
+                                    <div className="h-8 w-32 rounded shimmer" />
+                                </div>
+                            ) : (
+                                <div className="flex items-center justify-between w-full">
+                                    <div>
+                                        <p className="text-gray-500 dark:text-emerald-100/50 text-[10px] uppercase font-bold tracking-widest mb-1">
+                                            Sıradaki Vakit ({city})
+                                        </p>
+                                        <h2 className="text-2xl font-bold text-islamic-green dark:text-islamic-gold font-serif">
+                                            {nextPrayerInfo.name}
+                                        </h2>
+                                        {alarmSet && (
+                                            <p className="text-[10px] text-islamic-gold font-bold flex items-center gap-1 mt-1">
+                                                <Bell size={10} fill="currentColor" /> {alarmTime}'a kuruldu ({selectedMinutes === 0 ? 'Vaktinde' : `${selectedMinutes} dk önce`})
+                                            </p>
+                                        )}
+                                    </div>
+                                    <div className="text-right flex flex-col items-end gap-2">
+                                        <div className="flex items-center gap-2">
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                className={cn(
+                                                    "h-8 w-8 rounded-full",
+                                                    alarmSet ? "text-islamic-gold bg-islamic-gold/10" : "text-gray-400 hover:text-islamic-gold"
+                                                )}
+                                                onClick={() => setShowReminderOptions(true)}
+                                            >
+                                                <Bell size={16} fill={alarmSet ? "currentColor" : "none"} />
+                                            </Button>
+                                            <div className="text-2xl tabular-nums font-bold tracking-tight text-islamic-green dark:text-islamic-gold bg-islamic-green/5 dark:bg-white/5 px-3 py-1 rounded-xl border border-islamic-green/10 dark:border-white/5">
+                                                {nextPrayerInfo.timeLeft}
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
+                            )}
+
+
+                        </div>
+                    </CardContent>
+                </Card>
+            </motion.div>
+
+            {/* Reminder Options Modal - Full Screen Portal */}
+            <AnimatePresence>
+                {showReminderOptions && (
+                    <>
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm"
+                            onClick={() => setShowReminderOptions(false)}
+                        />
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                            className="fixed inset-0 z-[101] flex items-center justify-center p-4 pointer-events-none"
+                        >
+                            <div className="w-full max-w-sm bg-[#fdfaf5] dark:bg-[#044d29] rounded-[2rem] shadow-2xl overflow-hidden border border-white/10 pointer-events-auto">
+                                <div className="p-6 pb-2 border-b border-gray-100 dark:border-white/5 flex justify-between items-center bg-white/50 dark:bg-black/20">
+                                    <div>
+                                        <h3 className="text-lg font-bold font-serif text-gray-800 dark:text-white">Hatırlatıcı Kur</h3>
+                                        {alarmSet ? (
+                                            <p className="text-[10px] text-islamic-gold font-bold mt-1">
+                                                Şu an {selectedMinutes === 0 ? 'Tam Vaktinde' : `${selectedMinutes} Dakika Önce`} seçili
+                                            </p>
+                                        ) : (
+                                            <p className="text-xs text-gray-500 dark:text-emerald-100/60 font-medium">
+                                                {nextPrayerInfo?.name} vakti için
+                                            </p>
+                                        )}
+                                    </div>
+                                    <Button size="icon" variant="ghost" className="h-8 w-8 rounded-full bg-black/5 dark:bg-white/10" onClick={() => setShowReminderOptions(false)}>
+                                        <X size={16} />
+                                    </Button>
+                                </div>
+                                <div className="p-4 space-y-2 max-h-[60vh] overflow-y-auto">
+                                    {[
+                                        { label: 'Tam Vaktinde', val: 0, icon: Check },
+                                        { label: '15 Dakika Önce', val: 15, icon: Bell },
+                                        { label: '30 Dakika Önce', val: 30, icon: Bell },
+                                        { label: '45 Dakika Önce', val: 45, icon: Bell },
+                                    ].map((opt) => {
+                                        const isSelected = alarmSet && selectedMinutes === opt.val;
+                                        return (
+                                            <button
+                                                key={opt.val}
+                                                onClick={() => handleSetReminder(opt.val)}
+                                                className={cn(
+                                                    "w-full text-left px-4 py-3.5 text-sm font-bold rounded-2xl transition-all flex items-center justify-between group active:scale-98 border",
+                                                    isSelected
+                                                        ? "bg-islamic-gold/10 border-islamic-gold text-islamic-green dark:text-islamic-gold"
+                                                        : "hover:bg-islamic-gold/10 dark:hover:bg-white/5 text-gray-700 dark:text-white border-transparent hover:border-islamic-gold/30"
+                                                )}
+                                            >
+                                                <span className="flex items-center gap-3">
+                                                    <div className={cn(
+                                                        "w-8 h-8 rounded-full flex items-center justify-center transition-colors",
+                                                        isSelected
+                                                            ? "bg-islamic-gold text-white"
+                                                            : "bg-islamic-green/10 dark:bg-emerald-500/10 text-islamic-green dark:text-emerald-400 group-hover:bg-islamic-gold group-hover:text-white"
+                                                    )}>
+                                                        {isSelected ? <Check size={14} /> : <opt.icon size={14} />}
+                                                    </div>
+                                                    <div className="flex flex-col">
+                                                        <span>{opt.label}</span>
+                                                        {isSelected && <span className="text-[10px] opacity-70">Zaten Seçili</span>}
+                                                    </div>
+                                                </span>
+                                                <ChevronRight size={16} className={cn(isSelected ? "text-islamic-gold" : "text-gray-300 group-hover:text-islamic-gold")} />
+                                            </button>
+                                        );
+                                    })}
+
+                                    {alarmSet && (
+                                        <button
+                                            onClick={handleRemoveReminder}
+                                            className="w-full mt-4 flex items-center justify-center gap-2 py-3 text-red-500 dark:text-fuchsia-400 text-xs font-bold hover:bg-red-50 dark:hover:bg-red-900/10 rounded-xl transition-colors border border-red-100 dark:border-red-900/20"
+                                        >
+                                            <Bell size={14} className="animate-pulse" />
+                                            Hatırlatıcıyı Kapat (İptal Et)
+                                        </button>
+                                    )}
+                                </div>
                             </div>
-                        )}
-                    </div>
-                </CardContent>
-            </Card>
-        </motion.div>
+                        </motion.div>
+                    </>
+                )}
+            </AnimatePresence>
+        </>
     );
 });
 

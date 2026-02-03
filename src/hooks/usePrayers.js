@@ -92,6 +92,8 @@ export function usePrayers() {
                 setNextPrayerInfo({
                     name: next.name,
                     timeLeft: `${pad(Math.floor(diff / 3600000))}:${pad(Math.floor((diff / 60000) % 60))}:${pad(Math.floor((diff / 1000) % 60))}`,
+                    time: next.time.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' }),
+                    date: next.time.toISOString().split('T')[0]
                 });
             }
         }, 1000);
@@ -99,13 +101,11 @@ export function usePrayers() {
         return () => clearInterval(timer);
     }, [prayerTimes]);
 
-    // Generate location display string - simplified, no GPS coordinates
+    // Generate location display string
+    const { cityName } = useLocation();
     const locationDisplay = useMemo(() => {
-        if (locationSource === 'gps' && hasLocation) {
-            return ''; // Don't show anything when using GPS - it's automatic
-        }
-        return 'İstanbul';
-    }, [locationSource, hasLocation]);
+        return cityName;
+    }, [cityName]);
 
     return {
         prayerTimes,
