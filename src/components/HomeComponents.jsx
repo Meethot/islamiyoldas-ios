@@ -563,7 +563,7 @@ export const VerseOfDayCard = memo(({ isFriday, verse, fridayContent, onShare })
             <Card className={cn(
                 "border-none shadow-xl relative overflow-hidden group transition-all duration-700",
                 isFriday
-                    ? "bg-gradient-to-br from-[#134951] to-[#0d2a2e] text-white border-2 border-islamic-gold shadow-[0_0_30px_rgba(212,175,55,0.2)]"
+                    ? "bg-gradient-to-br from-islamic-green to-[#065f33] text-white border-2 border-islamic-gold shadow-[0_0_30px_rgba(212,175,55,0.2)]"
                     : "bg-gradient-to-br from-islamic-green to-[#065f33] text-white glow-green"
             )}>
                 {isFriday && <div className="absolute inset-0 bg-islamic-gold/5 animate-pulse" />}

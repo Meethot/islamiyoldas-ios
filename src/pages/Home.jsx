@@ -42,7 +42,7 @@ const SHARE_THEMES = [
     { id: 'golden', name: 'Altın Işık', class: 'bg-gradient-to-br from-[#d97706] to-[#b45309] text-white' },
     { id: 'gray', name: 'Gece', class: 'bg-gradient-to-br from-[#374151] to-[#1f2937] text-white' },
     { id: 'blue', name: 'Okyanus', class: 'bg-gradient-to-br from-[#1e40af] to-[#1e3a8a] text-white' },
-    { id: 'friday', name: 'Cuma Özel', class: 'bg-gradient-to-br from-[#134951] to-[#0d2a2e] text-white border-2 border-islamic-gold shadow-[0_0_20px_rgba(212,175,55,0.3)]' },
+    { id: 'friday', name: 'Cuma Özel', class: 'bg-gradient-to-br from-islamic-green to-[#065f33] text-white border-2 border-islamic-gold shadow-[0_0_20px_rgba(212,175,55,0.3)]' },
 ];
 
 const RELIGIOUS_DAYS = [

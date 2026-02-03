@@ -1,10 +1,24 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Heart, MessageCircle, ChevronLeft, Sparkles, Send, X, Clock, Check, AlertCircle } from 'lucide-react';
+import { Heart, MessageCircle, ChevronLeft, Sparkles, Send, X, Clock, Check, AlertCircle, Trash2, History, Users } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
+
+// ========== SIMULATION CONFIG ==========
+// Set to true to test: 1 minute = 1 hour (fast simulation)
+// Set to false for production: real time delays
+const IS_TEST_MODE = true;
+
+// Time constants
+const ONE_HOUR_MS = IS_TEST_MODE ? 60 * 1000 : 60 * 60 * 1000; // 1 min or 1 hour
+const APPROVAL_DELAY_MS = 3 * ONE_HOUR_MS; // 3 hours (or 3 mins in test mode)
+const THREE_DAYS_MS = 3 * 24 * ONE_HOUR_MS; // Duration for likes to continue
+
+const LIKES_PER_DAY_MIN = 30;
+const LIKES_PER_DAY_MAX = 50;
+// ========================================
 
 const INITIAL_DUAS = [
     { id: 1, text: "Annem çok hasta, şifa bekliyoruz. Dualarınızda ona da yer ayırır mısınız?", count: 128 },
@@ -15,10 +29,65 @@ const INITIAL_DUAS = [
     { id: 6, text: "Yalnızlık ve kimsesizlik hissinden kurtulmak için kalpten bir dua istiyorum.", count: 97 }
 ];
 
+// ========== SIMULATION ENGINE ==========
+function runSimulationEngine(requests) {
+    if (!requests || requests.length === 0) return requests;
+
+    const now = Date.now();
+    let hasChanges = false;
+
+    const updated = requests.map(request => {
+        const requestDate = new Date(request.date).getTime();
+        const timeSinceCreation = now - requestDate;
+        let updatedRequest = { ...request };
+
+        // Rule 1: Auto-approve after 3 hours
+        if (request.status === 'pending' && timeSinceCreation >= APPROVAL_DELAY_MS) {
+            updatedRequest.status = 'approved';
+            updatedRequest.approvedAt = now;
+            updatedRequest.aminCount = updatedRequest.aminCount || 0;
+            hasChanges = true;
+        }
+
+        // Rule 2: Add fake amin counts for approved prayers
+        if (updatedRequest.status === 'approved') {
+            const approvedAt = updatedRequest.approvedAt || requestDate + APPROVAL_DELAY_MS;
+            const timeSinceApproval = now - approvedAt;
+
+            // Only add likes for 3 days after approval
+            if (timeSinceApproval < THREE_DAYS_MS && timeSinceApproval >= 0) {
+                // Calculate expected likes based on time passed
+                const hoursPassed = timeSinceApproval / ONE_HOUR_MS;
+                const avgLikesPerHour = ((LIKES_PER_DAY_MIN + LIKES_PER_DAY_MAX) / 2) / 24;
+
+                // Add some randomness using a seeded approach based on request id
+                const seed = request.id % 100;
+                const randomMultiplier = 0.8 + (seed / 100) * 0.4; // 0.8 to 1.2
+
+                const expectedLikes = Math.floor(hoursPassed * avgLikesPerHour * randomMultiplier);
+                const currentAmin = updatedRequest.aminCount || 0;
+
+                // Only increase, never decrease
+                if (expectedLikes > currentAmin) {
+                    updatedRequest.aminCount = expectedLikes;
+                    hasChanges = true;
+                }
+            }
+        }
+
+        return updatedRequest;
+    });
+
+    return { updated, hasChanges };
+}
+// ========================================
+
 export default function DuaKosesi() {
     const navigate = useNavigate();
     const [showForm, setShowForm] = useState(false);
+    const [showHistory, setShowHistory] = useState(false);
     const [showSuccess, setShowSuccess] = useState(false);
+    const [showDeleteToast, setShowDeleteToast] = useState(false);
 
     // Load duas from localStorage
     const [duas, setDuas] = useState(() => {
@@ -63,7 +132,9 @@ export default function DuaKosesi() {
             id: Date.now(),
             text: text,
             status: 'pending', // 'pending' | 'approved' | 'rejected'
-            date: new Date().toISOString()
+            date: new Date().toISOString(),
+            aminCount: 0,
+            approvedAt: null
         };
 
         const updated = [newRequest, ...myRequests];
@@ -75,6 +146,35 @@ export default function DuaKosesi() {
 
         // Hide success message after 3 seconds
         setTimeout(() => setShowSuccess(false), 3000);
+    };
+
+    // Run simulation engine on mount and periodically
+    useEffect(() => {
+        const runSimulation = () => {
+            const result = runSimulationEngine(myRequests);
+            if (result.hasChanges) {
+                setMyRequests(result.updated);
+                localStorage.setItem('myDuaRequests', JSON.stringify(result.updated));
+            }
+        };
+
+        // Run immediately on mount
+        runSimulation();
+
+        // Run every minute in test mode, every hour in production
+        const interval = IS_TEST_MODE ? 10 * 1000 : 60 * 60 * 1000; // 10 sec or 1 hour
+        const timer = setInterval(runSimulation, interval);
+
+        return () => clearInterval(timer);
+    }, [myRequests.length]); // Re-run when requests count changes
+
+    const handleDeleteRequest = (id) => {
+        const updated = myRequests.filter(r => r.id !== id);
+        setMyRequests(updated);
+        localStorage.setItem('myDuaRequests', JSON.stringify(updated));
+
+        setShowDeleteToast(true);
+        setTimeout(() => setShowDeleteToast(false), 2500);
     };
 
     const getStatusBadge = (status) => {
@@ -137,6 +237,23 @@ export default function DuaKosesi() {
                 )}
             </AnimatePresence>
 
+            {/* Delete Toast */}
+            <AnimatePresence>
+                {showDeleteToast && (
+                    <motion.div
+                        initial={{ opacity: 0, y: -20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -20 }}
+                        className="fixed top-4 left-4 right-4 z-50 bg-gray-800 text-white p-4 rounded-2xl shadow-xl flex items-center gap-3"
+                    >
+                        <div className="p-2 bg-white/20 rounded-full">
+                            <Trash2 size={18} />
+                        </div>
+                        <p className="font-medium">Dua isteği silindi</p>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
             {/* Featured Quote */}
             <div className="bg-emerald-900 shadow-xl rounded-[2.5rem] p-8 relative overflow-hidden text-center group">
                 <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-islamic-gold/10 to-transparent" />
@@ -146,28 +263,6 @@ export default function DuaKosesi() {
                 </p>
                 <p className="text-islamic-gold/60 text-xs mt-4 font-bold uppercase tracking-widest relative z-10">- Hadis-i Şerif</p>
             </div>
-
-            {/* My Requests Section */}
-            {myRequests.length > 0 && (
-                <div className="space-y-4">
-                    <h3 className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest px-1">Dua İsteklerim</h3>
-                    {myRequests.map((request) => (
-                        <Card key={request.id} className="rounded-[2rem] border-none shadow-sm dark:bg-white/5 overflow-hidden">
-                            <CardContent className="p-6">
-                                <div className="flex items-start justify-between gap-4 mb-3">
-                                    {getStatusBadge(request.status)}
-                                    <span className="text-[10px] text-gray-400 dark:text-gray-500">
-                                        {new Date(request.date).toLocaleDateString('tr-TR')}
-                                    </span>
-                                </div>
-                                <p className="text-gray-700 dark:text-gray-300 font-serif italic leading-relaxed">
-                                    "{request.text}"
-                                </p>
-                            </CardContent>
-                        </Card>
-                    ))}
-                </div>
-            )}
 
             {/* Prayer Feed */}
             <div className="space-y-4">
@@ -211,7 +306,7 @@ export default function DuaKosesi() {
             </div>
 
             {/* Add Own Dua - Floating Action Style */}
-            <div className="bg-white dark:bg-white/5 border border-islamic-gold/20 p-6 rounded-[2.5rem] text-center shadow-lg">
+            <div className="bg-white dark:bg-white/5 border border-islamic-gold/20 p-6 rounded-[2.5rem] text-center shadow-lg space-y-3">
                 <p className="text-sm font-bold text-gray-700 dark:text-emerald-100/80 mb-4">Sen de dua kardeşliğine katılmak ister misin?</p>
                 <Button
                     onClick={() => setShowForm(true)}
@@ -220,6 +315,16 @@ export default function DuaKosesi() {
                     <Send size={18} />
                     Dua İsteği Gönder
                 </Button>
+                {myRequests.length > 0 && (
+                    <Button
+                        onClick={() => setShowHistory(true)}
+                        variant="ghost"
+                        className="w-full h-12 text-gray-500 dark:text-gray-400 rounded-2xl font-medium gap-2 hover:bg-gray-100 dark:hover:bg-white/5"
+                    >
+                        <History size={18} />
+                        Dua İsteklerim ({myRequests.length})
+                    </Button>
+                )}
             </div>
 
             {/* Prayer Request Form Modal */}
@@ -228,6 +333,18 @@ export default function DuaKosesi() {
                     <DuaIstegiFormu
                         onSubmit={handleSubmitRequest}
                         onCancel={() => setShowForm(false)}
+                    />
+                )}
+            </AnimatePresence>
+
+            {/* History Modal */}
+            <AnimatePresence>
+                {showHistory && (
+                    <DuaIstekleriGecmisi
+                        requests={myRequests}
+                        onDelete={handleDeleteRequest}
+                        onClose={() => setShowHistory(false)}
+                        getStatusBadge={getStatusBadge}
                     />
                 )}
             </AnimatePresence>
@@ -257,12 +374,20 @@ function DuaIstegiFormu({ onSubmit, onCancel }) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex flex-col"
+            onClick={onCancel}
         >
             <motion.div
                 initial={{ y: "100%" }}
                 animate={{ y: 0 }}
                 exit={{ y: "100%" }}
                 transition={{ type: "spring", damping: 25, stiffness: 300 }}
+                drag="y"
+                dragConstraints={{ top: 0, bottom: 0 }}
+                dragElastic={{ top: 0, bottom: 0.2 }}
+                onDragEnd={(_, info) => {
+                    if (info.offset.y > 100) onCancel();
+                }}
+                onClick={(e) => e.stopPropagation()}
                 className="mt-auto h-[85vh] bg-[#fdfaf5] dark:bg-[#032e18] rounded-t-[2.5rem] overflow-hidden flex flex-col shadow-2xl"
             >
                 {/* Header */}
@@ -333,6 +458,110 @@ function DuaIstegiFormu({ onSubmit, onCancel }) {
                         className="w-full h-12 text-gray-500 dark:text-gray-400 rounded-2xl font-bold"
                     >
                         Vazgeç
+                    </Button>
+                </div>
+            </motion.div>
+        </motion.div>
+    );
+}
+
+// History Modal Component
+function DuaIstekleriGecmisi({ requests, onDelete, onClose, getStatusBadge }) {
+    return (
+        <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex flex-col"
+            onClick={onClose}
+        >
+            <motion.div
+                initial={{ y: "100%" }}
+                animate={{ y: 0 }}
+                exit={{ y: "100%" }}
+                transition={{ type: "spring", damping: 25, stiffness: 300 }}
+                drag="y"
+                dragConstraints={{ top: 0, bottom: 0 }}
+                dragElastic={{ top: 0, bottom: 0.2 }}
+                onDragEnd={(_, info) => {
+                    if (info.offset.y > 100) onClose();
+                }}
+                onClick={(e) => e.stopPropagation()}
+                className="mt-auto h-[85vh] bg-[#fdfaf5] dark:bg-[#032e18] rounded-t-[2.5rem] overflow-hidden flex flex-col shadow-2xl"
+            >
+                {/* Header */}
+                <div className="p-6 pb-4 border-b dark:border-white/5 bg-white/50 dark:bg-[#032e18]/50 backdrop-blur-xl">
+                    <div className="w-12 h-1.5 bg-gray-200 dark:bg-white/20 rounded-full mx-auto mb-4" />
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <h2 className="text-2xl font-serif font-bold text-islamic-green dark:text-islamic-gold">Dua İsteklerim</h2>
+                            <p className="text-sm text-gray-400 dark:text-gray-500">{requests.length} istek</p>
+                        </div>
+                        <Button variant="ghost" size="icon" onClick={onClose} className="rounded-full bg-gray-100 dark:bg-white/10">
+                            <X size={20} />
+                        </Button>
+                    </div>
+                </div>
+
+                {/* Content */}
+                <div className="flex-1 p-6 overflow-y-auto">
+                    {requests.length === 0 ? (
+                        <div className="text-center py-20">
+                            <div className="w-20 h-20 mx-auto bg-gray-100 dark:bg-white/5 rounded-full flex items-center justify-center mb-6">
+                                <History className="w-10 h-10 text-gray-300 dark:text-gray-600" />
+                            </div>
+                            <p className="text-gray-500 dark:text-gray-400 font-medium">Henüz bir dua isteğiniz yok</p>
+                            <p className="text-sm text-gray-400 dark:text-gray-500 mt-2">İlk dua isteğinizi gönderin!</p>
+                        </div>
+                    ) : (
+                        <div className="space-y-4">
+                            {requests.map((request) => (
+                                <Card key={request.id} className="rounded-[2rem] border-none shadow-sm dark:bg-white/5 overflow-hidden">
+                                    <CardContent className="p-5">
+                                        <div className="flex items-start justify-between gap-3 mb-3">
+                                            {getStatusBadge(request.status)}
+                                            <span className="text-[10px] text-gray-400 dark:text-gray-500">
+                                                {new Date(request.date).toLocaleDateString('tr-TR')}
+                                            </span>
+                                        </div>
+                                        <p className="text-gray-700 dark:text-gray-300 font-serif italic leading-relaxed mb-4">
+                                            "{request.text}"
+                                        </p>
+                                        <div className="flex items-center justify-between">
+                                            {/* Amin Count - Only show for approved */}
+                                            {request.status === 'approved' && request.aminCount > 0 ? (
+                                                <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400">
+                                                    <Users size={14} />
+                                                    <span className="text-xs font-bold">{request.aminCount} Amin</span>
+                                                </div>
+                                            ) : (
+                                                <div /> // Empty spacer
+                                            )}
+                                            <Button
+                                                onClick={() => onDelete(request.id)}
+                                                variant="ghost"
+                                                size="sm"
+                                                className="text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-500/10 gap-2 h-9 px-4 rounded-xl"
+                                            >
+                                                <Trash2 size={14} />
+                                                Sil
+                                            </Button>
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                            ))}
+                        </div>
+                    )}
+                </div>
+
+                {/* Footer */}
+                <div className="p-6 pt-4 border-t dark:border-white/5 bg-white/50 dark:bg-[#032e18]/50 backdrop-blur-xl">
+                    <Button
+                        onClick={onClose}
+                        variant="ghost"
+                        className="w-full h-12 text-gray-500 dark:text-gray-400 rounded-2xl font-bold"
+                    >
+                        Kapat
                     </Button>
                 </div>
             </motion.div>
