@@ -10,7 +10,6 @@ import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useHaptics } from '@/hooks/useMobile';
 import { fetchSurahContent, fetchChapterInfo } from '@/services/quranApi';
-import { turkifyTransliteration } from '@/utils/textFormatter';
 import { safeGetStorage, safeSetStorage } from '@/utils/storageHelper';
 import ShareCard, { SHARE_THEMES } from '@/components/ShareCard';
 import { shareHiddenElement } from '@/lib/share';
@@ -312,6 +311,14 @@ export default function SurahDetail() {
                                     <p className="text-2xl leading-[2.5] text-right font-arabic text-islamic-gold">
                                         {verse.arabic}
                                     </p>
+
+                                    {/* Transliteration (Okunuş) */}
+                                    {verse.transliteration && (
+                                        <p className="text-lg text-gray-600 dark:text-emerald-100/70 my-3 leading-relaxed font-serif">
+                                            <span className="opacity-50 text-xs uppercase tracking-widest mr-2 not-italic">Okunuş:</span>
+                                            <span className="italic">{verse.transliteration}</span>
+                                        </p>
+                                    )}
 
                                     {/* Translation (Meal) */}
                                     <div className="border-t border-gray-100 dark:border-white/10 pt-4">

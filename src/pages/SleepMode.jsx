@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
-import { Moon, Volume2, VolumeX, Play, Pause, Heart, ChevronLeft } from 'lucide-react';
+import { Moon, Volume2, VolumeX, Play, Pause, Heart, ChevronLeft, CloudRain, Repeat, BookOpen } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { getAppDate } from '@/lib/testDate';
@@ -32,6 +32,17 @@ export default function SleepMode() {
     const navigate = useNavigate();
     const [isPlaying, setIsPlaying] = useState(false);
     const [ambientOn, setAmbientOn] = useState(false);
+    const [audioUrl, setAudioUrl] = useState(null);
+    const [isAudioLoading, setIsAudioLoading] = useState(true);
+    const [isAmbientLoading, setIsAmbientLoading] = useState(false);
+    const [ambientError, setAmbientError] = useState(null);
+    const [isMulkLooping, setIsMulkLooping] = useState(false);
+
+    // Audio State
+    const [currentTime, setCurrentTime] = useState(0);
+    const [duration, setDuration] = useState(0);
+    const [volume, setVolume] = useState(0.8);
+    const [ambientVolume, setAmbientVolume] = useState(0.4);
 
     const getTodayKey = () => `sleep_forgiven_${getAppDate().toISOString().split('T')[0]}`;
 
@@ -39,15 +50,81 @@ export default function SleepMode() {
         return localStorage.getItem(getTodayKey()) === 'true';
     });
 
-    // Audio Sources
-    const mulkAudio = React.useMemo(() => new Audio('https://www.tvquran.com/uploads/multimedia/mishary/067.mp3'), []);
+    // Persistent Audio Objects
+    const mulkAudio = React.useMemo(() => new Audio(), []);
     const rainAudio = React.useMemo(() => {
-        // Using a reliable rain sound source
-        const audio = new Audio('https://cdn.freesound.org/previews/521/521544_3248244-lq.mp3');
+        const audio = new Audio();
+        // A direct, known working URL from a GitHub repo (meditation-app)
+        audio.src = 'https://media.rainymood.com/0.mp3';
         audio.loop = true;
-        audio.volume = 0.5; // Set to 50% volume for ambient sound
+        audio.preload = 'auto';
+        audio.volume = ambientVolume;
         return audio;
-    }, []);
+    }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+    // Sync loop state for Mulk
+    useEffect(() => {
+        mulkAudio.loop = isMulkLooping;
+    }, [isMulkLooping, mulkAudio]);
+
+    // Sync ambient volume
+    useEffect(() => {
+        rainAudio.volume = ambientVolume;
+    }, [ambientVolume, rainAudio]);
+
+    // Fetch Mulk Audio from API
+    useEffect(() => {
+        const fetchMulkAudio = async () => {
+            try {
+                // Recitation ID 7 is Mishary Rashid Alafasy
+                const response = await fetch('https://api.quran.com/api/v4/chapter_recitations/7/67');
+                const data = await response.json();
+                const url = data.audio_file.audio_url;
+                setAudioUrl(url);
+                mulkAudio.src = url;
+                mulkAudio.load();
+                mulkAudio.volume = volume;
+
+                // Listen for metadata to get duration
+                mulkAudio.addEventListener('loadedmetadata', () => {
+                    setDuration(mulkAudio.duration);
+                    setIsAudioLoading(false);
+                });
+
+                // Periodic time update
+                mulkAudio.addEventListener('timeupdate', () => {
+                    setCurrentTime(mulkAudio.currentTime);
+                });
+
+            } catch (error) {
+                console.error('Mulk audio fetch error:', error);
+                const fallback = 'https://download.quranicaudio.com/qdc/mishari_al_afasy/murattal/67.mp3';
+                setAudioUrl(fallback);
+                mulkAudio.src = fallback;
+                mulkAudio.load();
+                mulkAudio.volume = volume;
+                setIsAudioLoading(false);
+            }
+        };
+
+        fetchMulkAudio();
+    }, [mulkAudio]); // Volume handled separately to avoid re-fetching
+
+    // Sync volume changes
+    useEffect(() => {
+        mulkAudio.volume = volume;
+    }, [volume, mulkAudio]);
+
+    // Handle Mulk Playback Ended
+    useEffect(() => {
+        const handleEnded = () => {
+            if (!isMulkLooping) {
+                setIsPlaying(false);
+            }
+        };
+        mulkAudio.addEventListener('ended', handleEnded);
+        return () => mulkAudio.removeEventListener('ended', handleEnded);
+    }, [mulkAudio, isMulkLooping]);
 
     // Background Mode Management
     const updateBackgroundMode = useCallback((playing, ambient) => {
@@ -58,16 +135,45 @@ export default function SleepMode() {
         }
     }, []);
 
-    useEffect(() => {
+    const toggleRain = () => {
         if (ambientOn) {
-            rainAudio.play().catch(() => { });
-        } else {
+            console.log("Pausing rain audio via toggle...");
             rainAudio.pause();
+            setAmbientOn(false);
+            updateBackgroundMode(isPlaying, false);
+        } else {
+            console.log("Starting rain audio via toggle...");
+            setIsAmbientLoading(true);
+            setAmbientError(null);
+
+            // Ensure source is set to RainyMood (stable, high quality, long)
+            if (!rainAudio.src || !rainAudio.src.includes('rainymood')) {
+                rainAudio.src = 'https://media.rainymood.com/0.mp3';
+            }
+
+            rainAudio.play()
+                .then(() => {
+                    console.log("Rain audio started successfully");
+                    setIsAmbientLoading(false);
+                    setAmbientOn(true);
+                    updateBackgroundMode(isPlaying, true);
+                })
+                .catch((e) => {
+                    console.error("Rain audio play failed:", e);
+                    setAmbientError("Ses yüklenemedi. Lütfen internetinizi kontrol edin.");
+                    setIsAmbientLoading(false);
+                });
         }
+    };
+
+    // Keep background mode in sync with playback states
+    useEffect(() => {
         updateBackgroundMode(isPlaying, ambientOn);
-    }, [ambientOn, isPlaying, updateBackgroundMode]);
+    }, [isPlaying, ambientOn, updateBackgroundMode]);
 
     const toggleMulk = () => {
+        if (isAudioLoading) return;
+
         if (isPlaying) {
             mulkAudio.pause();
         } else {
@@ -76,19 +182,32 @@ export default function SleepMode() {
         setIsPlaying(!isPlaying);
     };
 
+    const handleSeek = (e) => {
+        const time = parseFloat(e.target.value);
+        mulkAudio.currentTime = time;
+        setCurrentTime(time);
+    };
+
+    const formatTime = (time) => {
+        if (isNaN(time)) return "00:00";
+        const minutes = Math.floor(time / 60);
+        const seconds = Math.floor(time % 60);
+        return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    };
+
     const handleForgive = () => {
         setForgiven(true);
         localStorage.setItem(getTodayKey(), 'true');
     };
 
-    // Stop all audio and disable background mode on unmount
+    // Stop all audio on unmount
     useEffect(() => {
         return () => {
             mulkAudio.pause();
             rainAudio.pause();
             BackgroundMode.disable();
         };
-    }, []);
+    }, [mulkAudio, rainAudio]);
 
     return (
         <div className="min-h-screen bg-[#02150a] text-white p-5 flex flex-col relative overflow-hidden">
@@ -131,41 +250,119 @@ export default function SleepMode() {
 
                 {/* Audio Controls */}
                 <div className="w-full space-y-6">
-                    <div className="bg-white/5 border border-white/10 rounded-3xl p-6 flex items-center justify-between">
-                        <div className="flex items-center gap-4">
-                            <div className="p-3 bg-islamic-gold/10 rounded-2xl text-islamic-gold">
-                                <Play size={24} />
+                    <div className="bg-white/5 border border-white/10 rounded-3xl p-6 flex flex-col gap-6">
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-4">
+                                <div className="p-3 bg-islamic-gold/10 rounded-2xl text-islamic-gold">
+                                    <BookOpen size={24} />
+                                </div>
+                                <div className="text-left">
+                                    <p className="text-sm font-bold">Mülk Suresi</p>
+                                    <p className="text-[10px] text-gray-400">Kabir azabından koruyucu</p>
+                                </div>
                             </div>
-                            <div className="text-left">
-                                <p className="text-sm font-bold">Mülk Suresi</p>
-                                <p className="text-[10px] text-gray-400">Kabir azabından koruyucu</p>
+                            <div className="flex items-center gap-2">
+                                <Button
+                                    onClick={() => setIsMulkLooping(!isMulkLooping)}
+                                    className={cn(
+                                        "w-12 h-12 rounded-full flex items-center justify-center transition-all border shadow-lg active:scale-95",
+                                        isMulkLooping
+                                            ? "bg-islamic-gold text-[#02150a] border-islamic-gold shadow-islamic-gold/20"
+                                            : "bg-white/5 text-gray-400 border-white/10 hover:bg-white/10 hover:text-white"
+                                    )}
+                                    title="Döngü (Sürekli Çal)"
+                                >
+                                    <Repeat size={20} />
+                                </Button>
+                                <Button
+                                    onClick={toggleMulk}
+                                    disabled={isAudioLoading}
+                                    className="w-12 h-12 rounded-full bg-islamic-gold text-[#02150a] flex items-center justify-center disabled:opacity-50 shadow-lg shadow-islamic-gold/20"
+                                >
+                                    {isAudioLoading ? (
+                                        <div className="w-5 h-5 border-2 border-[#02150a] border-t-transparent rounded-full animate-spin" />
+                                    ) : isPlaying ? (
+                                        <Pause size={20} />
+                                    ) : (
+                                        <Play size={20} />
+                                    )}
+                                </Button>
                             </div>
                         </div>
-                        <Button
-                            onClick={toggleMulk}
-                            className="w-12 h-12 rounded-full bg-islamic-gold text-[#02150a] flex items-center justify-center"
-                        >
-                            {isPlaying ? <Pause size={20} /> : <Play size={20} />}
-                        </Button>
+
+                        {/* Progress Bar */}
+                        <div className="space-y-2">
+                            <input
+                                type="range"
+                                min="0"
+                                max={duration || 0}
+                                value={currentTime}
+                                onChange={handleSeek}
+                                className="w-full h-1.5 bg-white/10 rounded-lg appearance-none cursor-pointer accent-islamic-gold"
+                            />
+                            <div className="flex justify-between text-[10px] font-mono text-gray-400">
+                                <span>{formatTime(currentTime)}</span>
+                                <span>{formatTime(duration)}</span>
+                            </div>
+                        </div>
+
+                        {/* Volume Control */}
+                        <div className="flex items-center gap-3 bg-white/5 p-3 rounded-2xl">
+                            <Volume2 size={14} className="text-gray-400" />
+                            <input
+                                type="range"
+                                min="0"
+                                max="1"
+                                step="0.01"
+                                value={volume}
+                                onChange={(e) => setVolume(parseFloat(e.target.value))}
+                                className="flex-1 h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-gray-400"
+                            />
+                        </div>
                     </div>
 
-                    <div className="bg-white/5 border border-white/10 rounded-3xl p-6 flex items-center justify-between">
-                        <div className="flex items-center gap-4">
-                            <div className="p-3 bg-blue-400/10 rounded-2xl text-blue-400">
-                                <Volume2 size={24} />
+                    <div className="bg-white/5 border border-white/10 rounded-3xl p-6 flex flex-col gap-4">
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-4">
+                                <div className="p-3 bg-blue-400/10 rounded-2xl text-blue-400">
+                                    <CloudRain size={24} />
+                                </div>
+                                <div className="text-left">
+                                    <p className="text-sm font-bold">Yağmur Sesi</p>
+                                    <p className="text-[10px] text-gray-400">Dinlendirici ambiyans</p>
+                                    {ambientError && <p className="text-[8px] text-red-400 mt-1">Hata: {ambientError}</p>}
+                                </div>
                             </div>
-                            <div className="text-left">
-                                <p className="text-sm font-bold">Yağmur Sesi</p>
-                                <p className="text-[10px] text-gray-400">Dinlendirici ambiyans</p>
-                            </div>
+                            <Button
+                                onClick={toggleRain}
+                                className={cn(
+                                    "w-12 h-12 rounded-full flex items-center justify-center transition-all shadow-lg active:scale-95",
+                                    ambientOn ? "bg-blue-400 text-[#02150a] shadow-blue-400/20" : "bg-white/10 text-white border border-white/10"
+                                )}
+                            >
+                                {isAmbientLoading ? (
+                                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                                ) : ambientOn ? (
+                                    <Pause size={20} />
+                                ) : (
+                                    <Play size={20} />
+                                )}
+                            </Button>
                         </div>
-                        <Button
-                            variant="ghost"
-                            onClick={() => setAmbientOn(!ambientOn)}
-                            className={cn("w-12 h-12 rounded-full border border-white/10 flex items-center justify-center transition-colors", ambientOn ? "bg-white/20" : "bg-transparent")}
-                        >
-                            {ambientOn ? <Volume2 size={20} /> : <VolumeX size={20} />}
-                        </Button>
+
+                        {/* Volume Control for Rain */}
+                        <div className="flex items-center gap-3 bg-white/5 p-3 rounded-2xl">
+                            <Volume2 size={14} className="text-gray-400" />
+                            <input
+                                type="range"
+                                min="0"
+                                max="1"
+                                step="0.01"
+                                value={ambientVolume}
+                                onChange={(e) => setAmbientVolume(parseFloat(e.target.value))}
+                                className="flex-1 h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-gray-400"
+                            />
+                        </div>
                     </div>
                 </div>
 
