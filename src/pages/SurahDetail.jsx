@@ -4,12 +4,12 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import {
     BookOpen, ArrowLeft, Bookmark, BookmarkCheck, Share2, RefreshCw, WifiOff,
-    Loader2, ChevronDown, ChevronRight, X
+    Loader2, ChevronDown, ChevronRight, X, Play, Pause, Volume2, VolumeX
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useHaptics } from '@/hooks/useMobile';
-import { fetchSurahContent, fetchChapterInfo } from '@/services/quranApi';
+import { fetchSurahContent, fetchChapterInfo, fetchSurahAudio, fetchAyahAudio } from '@/services/quranApi';
 import { useQuery, useInfiniteQuery } from '@tanstack/react-query';
 import { safeGetStorage, safeSetStorage } from '@/utils/storageHelper';
 import ShareCard, { SHARE_THEMES } from '@/components/ShareCard';
@@ -17,10 +17,35 @@ import { shareHiddenElement } from '@/lib/share';
 
 import { useTranslation } from 'react-i18next';
 
+// Background Mode Helper (Cordova Plugin)
+const BackgroundMode = {
+    enable: (title, text) => {
+        if (window.cordova?.plugins?.backgroundMode) {
+            window.cordova.plugins.backgroundMode.enable();
+            window.cordova.plugins.backgroundMode.setDefaults({
+                title: 'İslami Yoldaş',
+                text: text,
+                icon: 'ic_launcher',
+                color: 'D4AF37',
+                resume: true,
+                hidden: false,
+                bigText: false
+            });
+        }
+    },
+    disable: () => {
+        if (window.cordova?.plugins?.backgroundMode) {
+            window.cordova.plugins.backgroundMode.disable();
+        }
+    }
+};
+
 const BOOKMARKS_KEY = 'quran_bookmarks';
 
 // Memoized individual verse to prevent list re-renders
-const VerseItem = React.memo(({ verse, index, isBookmarked, toggleBookmark, handleShareClick, t }) => {
+const VerseItem = React.memo(({ verse, index, isBookmarked, toggleBookmark, handleShareClick, handlePlayAyah, playingAyahKey, t }) => {
+    const isPlaying = playingAyahKey === verse.verseKey;
+
     return (
         <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -52,6 +77,17 @@ const VerseItem = React.memo(({ verse, index, isBookmarked, toggleBookmark, hand
                                         ? <BookmarkCheck className="w-5 h-5 fill-current" />
                                         : <Bookmark className="w-5 h-5" />
                                     }
+                                </Button>
+                                <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    onClick={() => handlePlayAyah(verse)}
+                                    className={cn(
+                                        "rounded-xl transition-all w-10 h-10 hover:bg-islamic-gold/10",
+                                        isPlaying ? "text-islamic-gold bg-islamic-gold/10" : "text-gray-400 hover:text-islamic-gold"
+                                    )}
+                                >
+                                    {isPlaying ? <Pause className="w-5 h-5 fill-current" /> : <Play className="w-5 h-5 fill-current" />}
                                 </Button>
                                 <Button
                                     variant="ghost"
@@ -99,6 +135,7 @@ const VerseItem = React.memo(({ verse, index, isBookmarked, toggleBookmark, hand
     return (
         prev.verse.id === next.verse.id &&
         prev.isBookmarked === next.isBookmarked &&
+        prev.playingAyahKey === next.playingAyahKey &&
         prev.index === next.index
     );
 });
@@ -117,6 +154,18 @@ export default function SurahDetail() {
     const [shareModalData, setShareModalData] = useState(null);
     const [activeTheme, setActiveTheme] = useState(SHARE_THEMES.emerald);
     const [sharing, setSharing] = useState(false);
+
+    // Audio State
+    const [audio] = useState(() => new Audio());
+    const [isSurahPlaying, setIsSurahPlaying] = useState(false);
+    const [isSurahLoading, setIsSurahLoading] = useState(false);
+    const [playingAyahKey, setPlayingAyahKey] = useState(null);
+    const [audioProgress, setAudioProgress] = useState(0);
+    const [currentTime, setCurrentTime] = useState(0);
+    const [duration, setDuration] = useState(0);
+    const [volume, setVolume] = useState(1);
+    const [showVolumeSlider, setShowVolumeSlider] = useState(false);
+    const [isMuted, setIsMuted] = useState(false);
 
     // TanStack Query: Surah Info
     const { data: surahInfo, isLoading: infoLoading, error: infoError } = useQuery({
@@ -197,10 +246,108 @@ export default function SurahDetail() {
         }
     };
 
+    // Audio Logic
+    const toggleSurahAudio = async () => {
+        selection();
+        if (playingAyahKey) {
+            audio.pause();
+            setPlayingAyahKey(null);
+        }
+
+        if (isSurahPlaying) {
+            audio.pause();
+            setIsSurahPlaying(false);
+            BackgroundMode.disable();
+        } else {
+            if (audio.src && audio.src.includes('chapter_recitations') || audio.src.includes('quranicaudio')) {
+                audio.play();
+                setIsSurahPlaying(true);
+                BackgroundMode.enable(surahInfo?.name, `${surahInfo?.name} Suresi dinleniyor`);
+            } else {
+                try {
+                    setIsSurahLoading(true);
+                    const url = await fetchSurahAudio(surahId);
+                    audio.src = url;
+                    audio.load();
+                    audio.volume = volume;
+                    audio.muted = isMuted;
+
+                    const onCanPlay = () => {
+                        audio.play();
+                        setIsSurahPlaying(true);
+                        setIsSurahLoading(false);
+                        setDuration(audio.duration);
+                        BackgroundMode.enable(surahInfo?.name, `${surahInfo?.name} Suresi dinleniyor`);
+                        audio.removeEventListener('canplay', onCanPlay);
+                    };
+                    audio.addEventListener('canplay', onCanPlay);
+
+                    audio.addEventListener('loadedmetadata', () => {
+                        setDuration(audio.duration);
+                    });
+
+                    audio.ontimeupdate = () => {
+                        setCurrentTime(audio.currentTime);
+                        setAudioProgress((audio.currentTime / audio.duration) * 100);
+                    };
+
+                    audio.onended = () => {
+                        setIsSurahPlaying(false);
+                        setAudioProgress(0);
+                        setCurrentTime(0);
+                        BackgroundMode.disable();
+                    };
+                } catch (e) {
+                    console.error(e);
+                    setIsSurahLoading(false);
+                }
+            }
+        }
+    };
+
+    const handlePlayAyah = async (verse) => {
+        selection();
+        if (isSurahPlaying) {
+            audio.pause();
+            setIsSurahPlaying(false);
+            BackgroundMode.disable();
+        }
+
+        if (playingAyahKey === verse.verseKey) {
+            audio.pause();
+            setPlayingAyahKey(null);
+            return;
+        }
+
+        try {
+            setPlayingAyahKey(verse.verseKey);
+            const url = await fetchAyahAudio(verse.verseKey);
+            if (!url) throw new Error('No audio URL');
+
+            audio.src = url;
+            audio.load();
+            audio.volume = volume;
+            audio.muted = isMuted;
+            audio.play();
+
+            audio.onended = () => {
+                setPlayingAyahKey(null);
+            };
+        } catch (e) {
+            console.error(e);
+            setPlayingAyahKey(null);
+        }
+    };
+
     // Scroll to top when surah changes
     useEffect(() => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
-    }, [surahId]);
+        return () => {
+            audio.pause();
+            audio.src = '';
+            BackgroundMode.disable();
+        };
+    }, [surahId, audio]);
 
     const loadMore = () => {
         if (hasNextPage && !isFetchingNextPage) {
@@ -209,6 +356,26 @@ export default function SurahDetail() {
     };
 
     const isBookmarked = (verseKey) => bookmarks.some(b => b.verseKey === verseKey);
+
+    const handleVolumeChange = (e) => {
+        const newVolume = parseFloat(e.target.value);
+        setVolume(newVolume);
+        audio.volume = newVolume;
+        if (newVolume === 0) {
+            setIsMuted(true);
+            audio.muted = true;
+        } else if (isMuted) {
+            setIsMuted(false);
+            audio.muted = false;
+        }
+    };
+
+    const formatTime = (time) => {
+        if (isNaN(time)) return "00:00";
+        const minutes = Math.floor(time / 60);
+        const seconds = Math.floor(time % 60);
+        return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    };
 
     // Initial Loading State
     if (infoLoading || (versesLoading && !verseData)) {
@@ -299,6 +466,21 @@ export default function SurahDetail() {
                             </div>
                         </div>
                     </div>
+                </div>
+                <div className="flex items-center justify-between mt-4">
+                    <Button
+                        onClick={toggleSurahAudio}
+                        disabled={isSurahLoading}
+                        className="bg-islamic-gold text-[#032e18] hover:bg-islamic-gold/90 h-10 px-4 rounded-xl shadow-lg shadow-islamic-gold/20 flex items-center gap-2 font-bold"
+                    >
+                        {isSurahLoading ? (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : isSurahPlaying ? (
+                            <><Pause size={18} fill="currentColor" /> Durdur</>
+                        ) : (
+                            <><Play size={18} fill="currentColor" className="ml-0.5" /> Dinle</>
+                        )}
+                    </Button>
                     <p className="text-2xl font-arabic text-islamic-gold">
                         {surahInfo?.nameArabic}
                     </p>
@@ -333,6 +515,8 @@ export default function SurahDetail() {
                             isBookmarked={isBookmarked(verse.verseKey)}
                             toggleBookmark={toggleBookmark}
                             handleShareClick={handleShareClick}
+                            handlePlayAyah={handlePlayAyah}
+                            playingAyahKey={playingAyahKey}
                             t={t}
                         />
                     ))}
@@ -481,12 +665,132 @@ export default function SurahDetail() {
             </AnimatePresence>
 
             {/* Hidden Share Card */}
-            {shareModalData && (
-                <ShareCard
-                    theme={activeTheme.id}
-                    data={shareModalData}
-                />
-            )}
+            {
+                shareModalData && (
+                    <ShareCard
+                        theme={activeTheme.id}
+                        data={shareModalData}
+                    />
+                )
+            }
+
+            {/* Mini Player for Surah Playback */}
+            <AnimatePresence>
+                {isSurahPlaying && (
+                    <motion.div
+                        initial={{ y: 100 }}
+                        animate={{ y: 0 }}
+                        exit={{ y: 100 }}
+                        className="fixed bottom-24 left-4 right-4 z-50 px-2 max-w-sm mx-auto"
+                    >
+                        <div className="bg-[#032e18]/95 backdrop-blur-2xl border border-white/10 rounded-[2.5rem] p-3 pl-3 pr-5 flex items-center gap-4 shadow-[0_20px_50px_rgba(0,0,0,0.5)] border-t-white/20">
+                            {/* Play/Pause Button */}
+                            <motion.button
+                                whileTap={{ scale: 0.95 }}
+                                onClick={toggleSurahAudio}
+                                className="w-14 h-14 flex-shrink-0 flex items-center justify-center bg-islamic-gold rounded-full shadow-[0_8px_25px_rgba(212,175,55,0.4)] text-[#032e18] transition-all"
+                            >
+                                {isSurahLoading ? (
+                                    <Loader2 className="w-6 h-6 animate-spin" />
+                                ) : isSurahPlaying ? (
+                                    <Pause size={28} fill="currentColor" />
+                                ) : (
+                                    <Play size={28} fill="currentColor" className="ml-1" />
+                                )}
+                            </motion.button>
+
+                            {/* Info & Progress */}
+                            <div className="flex-1 min-w-0 py-1">
+                                <div className="flex justify-between items-end mb-2">
+                                    <div className="truncate mr-2">
+                                        <p className="text-[9px] text-islamic-gold font-black uppercase tracking-[0.2em] mb-1 opacity-80">Sure Dinleniyor</p>
+                                        <h4 className="text-sm font-bold text-white truncate leading-none">
+                                            {surahInfo?.name} Suresi
+                                        </h4>
+                                    </div>
+                                    <div className="text-[10px] font-bold text-white/40 tabular-nums shrink-0">
+                                        {formatTime(currentTime)} / {formatTime(duration)}
+                                    </div>
+                                </div>
+
+                                {/* Progress Bar */}
+                                <div className="h-1.5 bg-white/10 rounded-full overflow-hidden relative">
+                                    <motion.div
+                                        className="h-full bg-islamic-gold rounded-full shadow-[0_0_15px_rgba(212,175,55,0.8)]"
+                                        initial={{ width: 0 }}
+                                        animate={{ width: `${audioProgress}%` }}
+                                        transition={{ duration: 0.1 }}
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Actions */}
+                            <div className="flex flex-col gap-2">
+                                <button
+                                    onClick={() => {
+                                        selection();
+                                        audio.pause();
+                                        setIsSurahPlaying(false);
+                                        BackgroundMode.disable();
+                                    }}
+                                    className="w-10 h-10 flex items-center justify-center rounded-full bg-white/5 text-white/30 hover:text-red-400 hover:bg-red-400/10 transition-all border border-white/5"
+                                >
+                                    <X size={18} />
+                                </button>
+                                <div className="relative flex items-center justify-center">
+                                    <AnimatePresence>
+                                        {showVolumeSlider && (
+                                            <motion.div
+                                                initial={{ opacity: 0, height: 0, scale: 0.9 }}
+                                                animate={{ opacity: 1, height: 140, scale: 1 }}
+                                                exit={{ opacity: 0, height: 0, scale: 0.9 }}
+                                                className="absolute bottom-full mb-0 left-0 w-10 bg-[#032e18]/95 backdrop-blur-xl border border-islamic-gold/20 rounded-t-full shadow-2xl z-50 flex flex-col items-center justify-end overflow-hidden origin-bottom pb-1"
+                                            >
+                                                <div className="relative w-full h-full group flex flex-col items-center">
+                                                    {/* Background Track */}
+                                                    <div className="absolute inset-x-3 bottom-0 top-3 bg-white/10 rounded-full" />
+
+                                                    {/* Active Volume Level (Gold Fill) */}
+                                                    <div
+                                                        className="absolute bottom-0 inset-x-3 bg-islamic-gold transition-all duration-75 ease-out rounded-b-full rounded-t-sm"
+                                                        style={{ height: `${volume * 100}%`, maxHeight: 'calc(100% - 12px)' }}
+                                                    />
+
+                                                    {/* Invisible Input for Touch Interaction */}
+                                                    <input
+                                                        type="range"
+                                                        min="0"
+                                                        max="1"
+                                                        step="0.01"
+                                                        value={volume}
+                                                        onChange={handleVolumeChange}
+                                                        onTouchEnd={() => setShowVolumeSlider(false)}
+                                                        onMouseUp={() => setShowVolumeSlider(false)}
+                                                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20 touch-none"
+                                                        style={{ appearance: 'slider-vertical' }}
+                                                    />
+                                                </div>
+                                            </motion.div>
+                                        )}
+                                    </AnimatePresence>
+                                    <button
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setShowVolumeSlider(!showVolumeSlider);
+                                        }}
+                                        className={cn(
+                                            "w-10 h-10 flex items-center justify-center rounded-full transition-all border border-white/5 relative z-50",
+                                            isMuted ? "bg-red-500/20 text-red-400" : "bg-white/5 text-white/30 hover:bg-white/10 hover:text-white"
+                                        )}
+                                    >
+                                        {isMuted ? <VolumeX size={18} /> : <Volume2 size={18} />}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     );
 }

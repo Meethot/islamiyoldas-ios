@@ -194,17 +194,7 @@ export default function Onboarding() {
     const { selection, success, impactHeavy } = useHaptics();
 
     const steps = useMemo(() => [
-        {
-            id: 'language',
-            title: t('steps.language.title'),
-            subtitle: t('steps.language.subtitle'),
-            description: t('steps.language.select'),
-            icon: Globe,
-            options: [
-                { label: 'Türkçe', value: 'tr', emoji: '🇹🇷' },
-                { label: 'English', value: 'en', emoji: '🇬🇧' },
-            ]
-        },
+
         {
             id: 'gender',
             title: t('welcome.title'),

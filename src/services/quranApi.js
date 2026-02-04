@@ -166,6 +166,48 @@ export async function fetchChapterInfo(surahId, language = 'tr') {
         revelationOrder: ch.revelation_order
     };
 }
+
+/**
+ * Fetch surah recitation audio URL
+ * @param {number} surahId 
+ * @param {number} recitationId - Default to Mishary Rashid Alafasy (7)
+ */
+export async function fetchSurahAudio(surahId, recitationId = 7) {
+    try {
+        const response = await fetch(`${BASE_URL}/chapter_recitations/${recitationId}/${surahId}`);
+        if (!response.ok) throw new Error('Ses dosyası alınamadı');
+        const data = await response.json();
+        return data.audio_file.audio_url;
+    } catch (error) {
+        console.error('Surah Audio Error:', error);
+        // Fallback to quranicaudio.com
+        return `https://download.quranicaudio.com/qdc/mishari_al_afasy/murattal/${surahId}.mp3`;
+    }
+}
+
+/**
+ * Fetch specific ayah recitation audio URL
+ * @param {string} verseKey - Format "surahId:ayahNumber" (e.g. "1:1")
+ * @param {number} recitationId - Default to Mishary Rashid Alafasy (7)
+ */
+export async function fetchAyahAudio(verseKey, recitationId = 7) {
+    try {
+        // Quran.com API uses "1:1" format
+        const response = await fetch(`${BASE_URL}/recitations/${recitationId}/by_ayah/${verseKey}`);
+        if (!response.ok) throw new Error('Ayet ses dosyası alınamadı');
+        const data = await response.json();
+        // Returns an array usually, get the first one
+        const url = data.audio_files[0]?.url;
+        if (url && !url.startsWith('http')) {
+            return `https://verses.quran.com/${url}`;
+        }
+        return url;
+    } catch (error) {
+        console.error('Ayah Audio Error:', error);
+        return null;
+    }
+}
+
 /**
  * Formats academic transliteration into a cleaner user-friendly version
  * @param {string} text 

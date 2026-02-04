@@ -9,9 +9,32 @@ import {
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useHaptics } from '@/hooks/useMobile';
-import { fetchChapters } from '@/services/quranApi';
+import { fetchChapters, fetchSurahAudio } from '@/services/quranApi';
 import { safeGetStorage, safeSetStorage } from '@/utils/storageHelper';
 import { getSurahSummary } from '@/data/surahSummaries';
+
+// Background Mode Helper (Cordova Plugin)
+const BackgroundMode = {
+    enable: (surahName) => {
+        if (window.cordova?.plugins?.backgroundMode) {
+            window.cordova.plugins.backgroundMode.enable();
+            window.cordova.plugins.backgroundMode.setDefaults({
+                title: 'İslami Yoldaş',
+                text: `${surahName} Suresi dinleniyor`,
+                icon: 'ic_launcher',
+                color: 'D4AF37',
+                resume: true,
+                hidden: false,
+                bigText: false
+            });
+        }
+    },
+    disable: () => {
+        if (window.cordova?.plugins?.backgroundMode) {
+            window.cordova.plugins.backgroundMode.disable();
+        }
+    }
+};
 
 const BOOKMARKS_KEY = 'quran_bookmarks';
 
@@ -31,6 +54,17 @@ export default function Quran() {
     const [showSurahList, setShowSurahList] = useState(true);
     const [activeTab, setActiveTab] = useState('surahs'); // 'surahs' | 'bookmarks'
     const [bookmarks, setBookmarks] = useState(() => safeGetStorage(BOOKMARKS_KEY, []));
+
+    // Audio Playback State
+    const [audio] = useState(() => new Audio());
+    const [currentlyPlaying, setCurrentlyPlaying] = useState(null); // surah object
+    const [isAudioPlaying, setIsAudioPlaying] = useState(false);
+    const [audioProgress, setAudioProgress] = useState(0);
+    const [currentTime, setCurrentTime] = useState(0);
+    const [duration, setDuration] = useState(0);
+    const [volume, setVolume] = useState(1);
+    const [showVolumeSlider, setShowVolumeSlider] = useState(false);
+    const [isAudioLoading, setIsAudioLoading] = useState(false);
 
     // Remove bookmark
     const removeBookmark = (verseKey) => {
@@ -78,16 +112,106 @@ export default function Quran() {
     };
 
 
-    const togglePlay = () => {
-        selection();
-        setIsPlaying(!isPlaying);
-        // TODO: Implement audio playback with API URL
-    };
-
     const toggleMute = () => {
         selection();
-        setIsMuted(!isMuted);
+        const newMuted = !isMuted;
+        setIsMuted(newMuted);
+        audio.muted = newMuted;
+        if (!newMuted && volume === 0) {
+            setVolume(0.5);
+            audio.volume = 0.5;
+        }
     };
+
+    const handleVolumeChange = (e) => {
+        const newVolume = parseFloat(e.target.value);
+        setVolume(newVolume);
+        audio.volume = newVolume;
+        if (newVolume === 0) {
+            setIsMuted(true);
+            audio.muted = true;
+        } else if (isMuted) {
+            setIsMuted(false);
+            audio.muted = false;
+        }
+    };
+
+    const formatTime = (time) => {
+        if (isNaN(time)) return "00:00";
+        const minutes = Math.floor(time / 60);
+        const seconds = Math.floor(time % 60);
+        return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    };
+
+    // Audio Logic
+    const handlePlaySurah = async (e, surah) => {
+        e.stopPropagation(); // Don't navigate to detail
+        selection();
+
+        if (currentlyPlaying?.id === surah.id) {
+            if (isAudioPlaying) {
+                audio.pause();
+                setIsAudioPlaying(false);
+                BackgroundMode.disable();
+            } else {
+                audio.play();
+                setIsAudioPlaying(true);
+                BackgroundMode.enable(surah.name);
+            }
+            return;
+        }
+
+        // New Surah
+        try {
+            setIsAudioLoading(true);
+            const audioUrl = await fetchSurahAudio(surah.id);
+            audio.pause();
+            audio.src = audioUrl;
+            audio.load();
+            audio.volume = volume;
+            audio.muted = isMuted;
+            setCurrentlyPlaying(surah);
+
+            const onCanPlay = () => {
+                audio.play();
+                setIsAudioPlaying(true);
+                setIsAudioLoading(false);
+                setDuration(audio.duration);
+                BackgroundMode.enable(surah.name);
+                audio.removeEventListener('canplay', onCanPlay);
+            };
+            audio.addEventListener('canplay', onCanPlay);
+            audio.addEventListener('loadedmetadata', () => {
+                setDuration(audio.duration);
+            });
+
+            audio.ontimeupdate = () => {
+                setCurrentTime(audio.currentTime);
+                setAudioProgress((audio.currentTime / audio.duration) * 100);
+            };
+
+            audio.onended = () => {
+                setIsAudioPlaying(false);
+                setCurrentlyPlaying(null);
+                setAudioProgress(0);
+                setCurrentTime(0);
+                BackgroundMode.disable();
+            };
+
+        } catch (error) {
+            console.error('Audio play error:', error);
+            setIsAudioLoading(false);
+        }
+    };
+
+    // Cleanup audio on unmount
+    useEffect(() => {
+        return () => {
+            audio.pause();
+            audio.src = '';
+            BackgroundMode.disable();
+        };
+    }, [audio]);
 
     return (
         <div className="min-h-screen bg-gradient-to-b from-white to-gray-50 dark:from-[#032e18] dark:to-[#021a0f] pb-24">
@@ -222,7 +346,7 @@ export default function Quran() {
                                         <div className="absolute top-0 right-0 w-40 h-40 bg-islamic-gold/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 group-hover:bg-islamic-gold/10 transition-colors duration-500" />
 
                                         <div className="p-6 flex items-start gap-5 relative z-10">
-                                            {/* Number Box - Reverted to Rounded Square */}
+                                            {/* Number Box - Reverted to static for mobile UX */}
                                             <div className="w-12 h-12 rounded-2xl bg-islamic-green/10 dark:bg-islamic-gold/10 flex items-center justify-center text-islamic-green dark:text-islamic-gold font-bold text-lg shadow-sm shrink-0 group-hover:scale-110 transition-transform duration-300">
                                                 {surah.id}
                                             </div>
@@ -233,9 +357,33 @@ export default function Quran() {
                                                     <h3 className="text-xl font-bold text-gray-900 dark:text-white font-serif tracking-tight">
                                                         {surah.name}
                                                     </h3>
-                                                    <span className="font-arabic text-2xl text-islamic-gold group-hover:scale-110 transition-transform duration-300">
-                                                        {surah.arabic}
-                                                    </span>
+                                                    <div className="flex items-center gap-3">
+                                                        <span className="font-arabic text-2xl text-islamic-gold group-hover:scale-110 transition-transform duration-300">
+                                                            {surah.arabic}
+                                                        </span>
+                                                        {/* Play Button - Always visible on mobile */}
+                                                        <button
+                                                            onClick={(e) => handlePlaySurah(e, surah)}
+                                                            className={cn(
+                                                                "w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300",
+                                                                currentlyPlaying?.id === surah.id
+                                                                    ? "bg-islamic-gold text-[#032e18] shadow-lg shadow-islamic-gold/20 scale-110"
+                                                                    : "bg-islamic-green/10 dark:bg-islamic-gold/10 text-islamic-green dark:text-islamic-gold hover:bg-islamic-gold/20"
+                                                            )}
+                                                        >
+                                                            {currentlyPlaying?.id === surah.id ? (
+                                                                isAudioLoading ? (
+                                                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                                                ) : isAudioPlaying ? (
+                                                                    <Pause className="w-5 h-5 fill-current" />
+                                                                ) : (
+                                                                    <Play className="w-5 h-5 fill-current ml-0.5" />
+                                                                )
+                                                            ) : (
+                                                                <Play className="w-5 h-5 fill-current ml-0.5" />
+                                                            )}
+                                                        </button>
+                                                    </div>
                                                 </div>
 
                                                 <div className="flex items-center gap-3 mb-3">
@@ -452,6 +600,124 @@ export default function Quran() {
                     </div>
                 </div>
             )}
+            {/* Mini Player */}
+            <AnimatePresence>
+                {currentlyPlaying && (
+                    <motion.div
+                        initial={{ y: 100 }}
+                        animate={{ y: 0 }}
+                        exit={{ y: 100 }}
+                        className="fixed bottom-24 left-4 right-4 z-50 max-w-sm mx-auto"
+                    >
+                        <div className="bg-[#032e18]/95 backdrop-blur-2xl border border-white/10 rounded-[2.5rem] p-3 pl-3 pr-5 flex items-center gap-4 shadow-[0_20px_50px_rgba(0,0,0,0.5)] border-t-white/20">
+                            {/* Play/Pause Button */}
+                            <motion.button
+                                whileTap={{ scale: 0.95 }}
+                                onClick={(e) => handlePlaySurah(e, currentlyPlaying)}
+                                className="w-14 h-14 flex-shrink-0 flex items-center justify-center bg-islamic-gold rounded-full shadow-[0_8px_25px_rgba(212,175,55,0.4)] text-[#032e18] transition-all"
+                            >
+                                {isAudioLoading ? (
+                                    <Loader2 className="w-6 h-6 animate-spin" />
+                                ) : isAudioPlaying ? (
+                                    <Pause size={28} fill="currentColor" />
+                                ) : (
+                                    <Play size={28} fill="currentColor" className="ml-1" />
+                                )}
+                            </motion.button>
+
+                            {/* Info & Progress */}
+                            <div className="flex-1 min-w-0 py-1">
+                                <div className="flex justify-between items-end mb-2">
+                                    <div className="truncate mr-2">
+                                        <p className="text-[9px] text-islamic-gold font-black uppercase tracking-[0.2em] mb-1 opacity-80">Dinleniyor</p>
+                                        <h4 className="text-sm font-bold text-white truncate leading-none">
+                                            {currentlyPlaying.name} Suresi
+                                        </h4>
+                                    </div>
+                                    <div className="text-[10px] font-bold text-white/40 tabular-nums shrink-0">
+                                        {formatTime(currentTime)} / {formatTime(duration)}
+                                    </div>
+                                </div>
+
+                                {/* Progress Bar */}
+                                <div className="h-1.5 bg-white/10 rounded-full overflow-hidden relative">
+                                    <motion.div
+                                        className="h-full bg-islamic-gold rounded-full shadow-[0_0_15px_rgba(212,175,55,0.8)]"
+                                        initial={{ width: 0 }}
+                                        animate={{ width: `${audioProgress}%` }}
+                                        transition={{ duration: 0.1 }}
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Actions */}
+                            <div className="flex flex-col gap-2">
+                                <button
+                                    onClick={() => {
+                                        selection();
+                                        audio.pause();
+                                        setCurrentlyPlaying(null);
+                                        setIsAudioPlaying(false);
+                                        BackgroundMode.disable();
+                                    }}
+                                    className="w-10 h-10 flex items-center justify-center rounded-full bg-white/5 text-white/30 hover:text-red-400 hover:bg-red-400/10 transition-all border border-white/5"
+                                >
+                                    <X size={18} />
+                                </button>
+                                <div className="relative flex items-center justify-center">
+                                    <AnimatePresence>
+                                        {showVolumeSlider && (
+                                            <motion.div
+                                                initial={{ opacity: 0, height: 0, scale: 0.9 }}
+                                                animate={{ opacity: 1, height: 140, scale: 1 }}
+                                                exit={{ opacity: 0, height: 0, scale: 0.9 }}
+                                                className="absolute bottom-full mb-0 left-0 w-10 bg-[#032e18]/95 backdrop-blur-xl border border-islamic-gold/20 rounded-t-full shadow-2xl z-50 flex flex-col items-center justify-end overflow-hidden origin-bottom pb-1"
+                                            >
+                                                <div className="relative w-full h-full group flex flex-col items-center">
+                                                    {/* Background Track */}
+                                                    <div className="absolute inset-x-3 bottom-0 top-3 bg-white/10 rounded-full" />
+
+                                                    {/* Active Volume Level (Gold Fill) */}
+                                                    <div
+                                                        className="absolute bottom-0 inset-x-3 bg-islamic-gold transition-all duration-75 ease-out rounded-b-full rounded-t-sm"
+                                                        style={{ height: `${volume * 100}%`, maxHeight: 'calc(100% - 12px)' }}
+                                                    />
+
+                                                    {/* Invisible Input for Touch Interaction */}
+                                                    <input
+                                                        type="range"
+                                                        min="0"
+                                                        max="1"
+                                                        step="0.01"
+                                                        value={volume}
+                                                        onChange={handleVolumeChange}
+                                                        onTouchEnd={() => setShowVolumeSlider(false)}
+                                                        onMouseUp={() => setShowVolumeSlider(false)}
+                                                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20 touch-none"
+                                                        style={{ appearance: 'slider-vertical' }}
+                                                    />
+                                                </div>
+                                            </motion.div>
+                                        )}
+                                    </AnimatePresence>
+                                    <button
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setShowVolumeSlider(!showVolumeSlider);
+                                        }}
+                                        className={cn(
+                                            "w-10 h-10 flex items-center justify-center rounded-full transition-all border border-white/5 relative z-50",
+                                            isMuted ? "bg-red-500/20 text-red-400" : "bg-white/5 text-white/30 hover:bg-white/10 hover:text-white"
+                                        )}
+                                    >
+                                        {isMuted ? <VolumeX size={18} /> : <Volume2 size={18} />}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     );
 }
