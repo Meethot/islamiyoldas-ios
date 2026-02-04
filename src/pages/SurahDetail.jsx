@@ -246,6 +246,15 @@ export default function SurahDetail() {
         }
     };
 
+    const handleSeek = (e) => {
+        const time = parseFloat(e.target.value);
+        if (duration > 0) {
+            audio.currentTime = time;
+            setCurrentTime(time);
+            setAudioProgress((time / duration) * 100);
+        }
+    };
+
     // Audio Logic
     const toggleSurahAudio = async () => {
         selection();
@@ -259,7 +268,12 @@ export default function SurahDetail() {
             setIsSurahPlaying(false);
             BackgroundMode.disable();
         } else {
-            if (audio.src && audio.src.includes('chapter_recitations') || audio.src.includes('quranicaudio')) {
+            // Check if we are resuming the SAME surah
+            // We use a simplified check: if audio.src is set and we've already loaded duration/metadata
+            // and we are just paused.
+            const isSameAudio = audio.src && (audio.src.includes(`chapter_recitations/${surahId}.mp3`) || audio.src.includes(`/${surahId}.mp3`));
+
+            if (isSameAudio && audio.currentTime > 0) {
                 audio.play();
                 setIsSurahPlaying(true);
                 BackgroundMode.enable(surahInfo?.name, `${surahInfo?.name} Suresi dinleniyor`);
@@ -267,10 +281,18 @@ export default function SurahDetail() {
                 try {
                     setIsSurahLoading(true);
                     const url = await fetchSurahAudio(surahId);
-                    audio.src = url;
-                    audio.load();
-                    audio.volume = volume;
-                    audio.muted = isMuted;
+
+                    // Only reload if URL is different to avoid resetting
+                    if (audio.src !== url) {
+                        audio.src = url;
+                        audio.load();
+                        audio.volume = volume;
+                        audio.muted = isMuted;
+                    } else {
+                        // If URL is same but we seeked or stopped, just ensure volume/mute
+                        audio.volume = volume;
+                        audio.muted = isMuted;
+                    }
 
                     const onCanPlay = () => {
                         audio.play();
@@ -280,7 +302,12 @@ export default function SurahDetail() {
                         BackgroundMode.enable(surahInfo?.name, `${surahInfo?.name} Suresi dinleniyor`);
                         audio.removeEventListener('canplay', onCanPlay);
                     };
-                    audio.addEventListener('canplay', onCanPlay);
+
+                    if (audio.readyState >= 3) { // HAVE_FUTURE_DATA or HAVE_ENOUGH_DATA
+                        onCanPlay();
+                    } else {
+                        audio.addEventListener('canplay', onCanPlay);
+                    }
 
                     audio.addEventListener('loadedmetadata', () => {
                         setDuration(audio.duration);
@@ -714,12 +741,20 @@ export default function SurahDetail() {
                                 </div>
 
                                 {/* Progress Bar */}
-                                <div className="h-1.5 bg-white/10 rounded-full overflow-hidden relative">
+                                <div className="h-1.5 bg-white/10 rounded-full relative group">
                                     <motion.div
-                                        className="h-full bg-islamic-gold rounded-full shadow-[0_0_15px_rgba(212,175,55,0.8)]"
+                                        className="h-full bg-islamic-gold rounded-full shadow-[0_0_15px_rgba(212,175,55,0.8)] relative z-10"
                                         initial={{ width: 0 }}
                                         animate={{ width: `${audioProgress}%` }}
                                         transition={{ duration: 0.1 }}
+                                    />
+                                    <input
+                                        type="range"
+                                        min="0"
+                                        max={duration || 0}
+                                        value={currentTime}
+                                        onChange={handleSeek}
+                                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20"
                                     />
                                 </div>
                             </div>

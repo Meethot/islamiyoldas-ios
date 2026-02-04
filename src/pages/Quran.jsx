@@ -154,6 +154,7 @@ export default function Quran() {
                 setIsAudioPlaying(false);
                 BackgroundMode.disable();
             } else {
+                // Resuming same surah
                 audio.play();
                 setIsAudioPlaying(true);
                 BackgroundMode.enable(surah.name);
@@ -165,11 +166,20 @@ export default function Quran() {
         try {
             setIsAudioLoading(true);
             const audioUrl = await fetchSurahAudio(surah.id);
-            audio.pause();
-            audio.src = audioUrl;
-            audio.load();
-            audio.volume = volume;
-            audio.muted = isMuted;
+
+            // Only reload if URL is different to avoid resetting
+            if (audio.src !== audioUrl) {
+                audio.pause();
+                audio.src = audioUrl;
+                audio.load();
+                audio.volume = volume;
+                audio.muted = isMuted;
+            } else {
+                // Seeked or stopped but same URL
+                audio.volume = volume;
+                audio.muted = isMuted;
+            }
+
             setCurrentlyPlaying(surah);
 
             const onCanPlay = () => {
@@ -180,7 +190,12 @@ export default function Quran() {
                 BackgroundMode.enable(surah.name);
                 audio.removeEventListener('canplay', onCanPlay);
             };
-            audio.addEventListener('canplay', onCanPlay);
+
+            if (audio.readyState >= 3) {
+                onCanPlay();
+            } else {
+                audio.addEventListener('canplay', onCanPlay);
+            }
             audio.addEventListener('loadedmetadata', () => {
                 setDuration(audio.duration);
             });
@@ -201,6 +216,15 @@ export default function Quran() {
         } catch (error) {
             console.error('Audio play error:', error);
             setIsAudioLoading(false);
+        }
+    };
+
+    const handleSeek = (e) => {
+        const time = parseFloat(e.target.value);
+        if (duration > 0) {
+            audio.currentTime = time;
+            setCurrentTime(time);
+            setAudioProgress((time / duration) * 100);
         }
     };
 
@@ -449,44 +473,61 @@ export default function Quran() {
                                     animate={{ opacity: 1, x: 0 }}
                                     transition={{ delay: Math.min(index * 0.05, 0.3) }}
                                 >
-                                    <Card className="glass-panel border-none overflow-hidden">
-                                        <CardContent className="p-4 space-y-3">
-                                            {/* Header */}
-                                            <div className="flex items-center justify-between">
-                                                <button
-                                                    onClick={() => {
-                                                        selection();
-                                                        navigate(`/quran/${bookmark.surahId}`);
-                                                    }}
-                                                    className="flex items-center gap-2 text-islamic-gold hover:underline"
-                                                >
-                                                    <BookmarkCheck className="w-4 h-4" />
-                                                    <span className="text-sm font-medium">
-                                                        {bookmark.surahName} • Ayet {bookmark.verseNumber}
-                                                    </span>
-                                                </button>
-                                                <Button
-                                                    variant="ghost"
-                                                    size="sm"
-                                                    onClick={() => removeBookmark(bookmark.verseKey)}
-                                                    className="text-red-400 hover:text-red-300 hover:bg-red-500/10"
-                                                >
-                                                    <Trash2 className="w-4 h-4" />
-                                                </Button>
+                                    <div className="relative mb-6">
+                                        <Card className="border-none shadow-xl rounded-[2.5rem] bg-white dark:bg-white/5 overflow-hidden p-6 relative dark:text-white">
+                                            <div className="space-y-6">
+                                                {/* Header: Number & Actions */}
+                                                <div className="flex items-start justify-between">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="w-14 h-14 bg-islamic-green dark:bg-islamic-gold rounded-2xl flex items-center justify-center text-white dark:text-[#032e18] font-bold text-lg shadow-lg shrink-0">
+                                                            {bookmark.verseNumber}
+                                                        </div>
+                                                        <div>
+                                                            <button
+                                                                onClick={() => {
+                                                                    selection();
+                                                                    navigate(`/quran/${bookmark.surahId}`);
+                                                                }}
+                                                                className="text-lg font-bold text-islamic-green dark:text-islamic-gold hover:underline font-serif"
+                                                            >
+                                                                {bookmark.surahName}
+                                                            </button>
+                                                            <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">
+                                                                Ayat {bookmark.verseNumber}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        onClick={() => removeBookmark(bookmark.verseKey)}
+                                                        className="rounded-xl text-red-400 hover:text-red-500 hover:bg-red-500/10 w-10 h-10 transition-all"
+                                                    >
+                                                        <Trash2 className="w-5 h-5" />
+                                                    </Button>
+                                                </div>
+
+                                                {/* Content Box: Arabic, Transcription, Translation */}
+                                                <div className="bg-islamic-green/[0.03] dark:bg-islamic-gold/5 border border-islamic-green/10 dark:border-islamic-gold/10 rounded-3xl p-6 text-center space-y-6 shadow-inner">
+                                                    {/* Arabic */}
+                                                    <p className="font-arabic text-3xl leading-[2.2] text-islamic-gold break-words">
+                                                        {bookmark.arabic}
+                                                    </p>
+
+                                                    <div className="space-y-4">
+                                                        {/* Separator */}
+                                                        <div className="w-16 h-1 bg-islamic-gold/20 rounded-full mx-auto" />
+
+                                                        {/* Translation (Meal) */}
+                                                        <div className="text-gray-800 dark:text-emerald-50 font-medium text-lg leading-relaxed font-sans">
+                                                            <span dangerouslySetInnerHTML={{ __html: bookmark.translation }} />
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             </div>
-
-                                            {/* Arabic */}
-                                            <p className="text-xl leading-loose text-right font-arabic text-islamic-gold">
-                                                {bookmark.arabic}
-                                            </p>
-
-                                            {/* Translation */}
-                                            <p
-                                                className="text-sm text-gray-400 leading-relaxed border-t border-white/5 pt-3"
-                                                dangerouslySetInnerHTML={{ __html: bookmark.translation }}
-                                            />
-                                        </CardContent>
-                                    </Card>
+                                        </Card>
+                                    </div>
                                 </motion.div>
                             ))
                         )}
@@ -640,12 +681,20 @@ export default function Quran() {
                                 </div>
 
                                 {/* Progress Bar */}
-                                <div className="h-1.5 bg-white/10 rounded-full overflow-hidden relative">
+                                <div className="h-1.5 bg-white/10 rounded-full relative group">
                                     <motion.div
-                                        className="h-full bg-islamic-gold rounded-full shadow-[0_0_15px_rgba(212,175,55,0.8)]"
+                                        className="h-full bg-islamic-gold rounded-full shadow-[0_0_15px_rgba(212,175,55,0.8)] relative z-10"
                                         initial={{ width: 0 }}
                                         animate={{ width: `${audioProgress}%` }}
                                         transition={{ duration: 0.1 }}
+                                    />
+                                    <input
+                                        type="range"
+                                        min="0"
+                                        max={duration || 0}
+                                        value={currentTime}
+                                        onChange={handleSeek}
+                                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20"
                                     />
                                 </div>
                             </div>

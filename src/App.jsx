@@ -20,6 +20,8 @@ import Quran from './pages/Quran';
 import SurahDetail from './pages/SurahDetail';
 import { PrayerTimesProvider } from './context/PrayerTimesContext';
 
+import ScrollToTop from './components/ScrollToTop';
+
 function App() {
   const [showSplash, setShowSplash] = useState(true);
   const onboardingComplete = localStorage.getItem('onboardingComplete') === 'true';
@@ -35,6 +37,7 @@ function App() {
   return (
     <PrayerTimesProvider>
       <Router>
+        <ScrollToTop />
         <Routes>
           <Route path="/onboarding" element={<Onboarding />} />
 

@@ -1,6 +1,43 @@
 export const STORIES = {
     prophets: [
-        { id: 1, title: "Hz. Yusuf'un Sabrı", content: "Kuyudan saraya uzanan, iftiralarla imtihan edilen ama asla pes etmeyen Yusuf (a.s)'ın hikayesi...", duration: "5 dk", category: "Peygamberler" },
+        {
+            id: 1,
+            title: "Hz. Yusuf'un Sabrı",
+            content: `Kenan ilinde, geceleri yıldızların en parlak olduğu topraklarda, Yakup Peygamber’in on iki oğlu vardı. Ama içlerinden biri, yüzündeki nur ve kalbindeki masumiyetle diğerlerinden ayrılırdı: Yusuf...
+
+Henüz küçük bir çocukken gördüğü o rüya, kaderinin habercisiydi. Babasına koşup şöyle demişti: "Babacığım! Rüyamda on bir yıldız, güneş ve ayın bana secde ettiklerini gördüm."
+
+Hz. Yakup, bunun büyük bir peygamberlik müjdesi olduğunu anlamış; ama aynı zamanda kıskanç kardeşlerin öfkesinden korkmuştu. "Yavrucuğum" dedi, "Rüyanı sakın kardeşlerine anlatma..."
+
+Ancak kader ağlarını örmeye başlamıştı bile. Kardeşlerinin kalbine düşen kıskançlık ateşi, onları korkunç bir plana sürükledi. Bir gün Yusuf’u kıra götürmek bahanesiyle babalarından izin aldılar. Ve o masum çocuğu, ıssız bir çöldeki karanlık bir kuyuya attılar.
+
+Yusuf kuyunun dibindeydi. Karanlıktı, soğuktu ve yalnızdı. Ama o, küçücük kalbiyle Rabbine sığındı. Allah ona kuyunun dibinde şöyle vahyetti: "Korkma Yusuf... Gün gelecek, onlar farkında bile değilken, bu yaptıklarını yüzlerine vuracaksın."
+
+Kardeşleri, Yusuf’un gömleğini bir kurdun kanıyla boyayıp babalarına götürdüler. Yakup Peygamber, kanlı gömleği eline aldığında, gömleğin hiç yırtılmadığını fark etti. Bir kurt, bir insanı parçalar da gömleği sağlam mı bırakırdı? Yüreği yansa da, gözlerinden yaşlar boşalsa da şöyle dedi: "Artık bana düşen, güzel bir sabırdır..."
+
+... ... ...
+
+Kuyunun yanından geçen bir kervan, su çekmek için kovasını sarkıttı. Kova yukarı çıktığında, su yerine dünya güzeli bir çocuk buldular. Yusuf’u alıp Mısır’ın köle pazarına götürdüler ve onu az bir paraya sattılar.
+
+Yusuf, artık Mısır Azizi’nin sarayında bir köleydi. Ama Allah, ona ilim ve hikmet verdi, onu güzelleştirdi. Zamanla sarayda büyüdü, serpildi. Fakat imtihan bitmemişti. Bu seferki imtihan, kuyudan daha derin, zindandan daha karanlıktı: İftira.
+
+Sarayın hanımı Züleyha’nın teklifini, "Ben Allah'a sığınırım" diyerek reddeden Yusuf, işlemediği bir suç yüzünden zindana atıldı. Zindan... Kimileri için son durak, Yusuf içinse bir eğitim yeriydi. Orada yıllarca kaldı. Suçsuzluğunu haykırmak yerine, tevekkül edip bekledi. Arkadaşlarına rüyalarını yorumladı, hakikati anlattı. Yıllar, sabır taşını çatlatacak kadar uzun sürse de, Yusuf’un inancı dimdik ayaktaydı.
+
+Ve bir gece... Mısır Kralı bir rüya gördü. Yedi zayıf inek, yedi semiz ineği yiyordu. Kimse bu rüyayı yorumlayamadı. O an, zindandaki Yusuf hatırlandı. Yusuf zindandan çıkarıldı, rüyayı yorumladı ve Mısır’ı bekleyen kıtlık yıllarını haber verdi.
+
+Allah’ın planı kusursuz işliyordu. Kuyudaki köle, zindandaki mahkum; şimdi Mısır’ın en yetkili veziri olmuştu.
+
+Yıllar sonra kıtlık baş gösterdiğinde, Kenan ilinden erzak almak için gelenler arasında Yusuf’un kardeşleri de vardı. Onu tanımadılar. Ama Yusuf onları tanıdı. Onlara ne öfke duydu ne de intikam aldı. Sabrının meyvesi olan o büyük affedicilikle onlara gömleğini verdi ve dedi ki: "Bu gömleğimi götürün, babamın yüzüne sürün. Gözleri açılacaktır."
+
+Kenan ilinde, rüzgar Yusuf’un kokusunu getirdiğinde Yakup Peygamber doğruldu: "Eğer bana bunak demezseniz, ben Yusuf’un kokusunu alıyorum" dedi. Gömlek yüzüne sürüldüğünde gözleri açıldı, hüzün yerini vuslata bıraktı.
+
+Yusuf aleyhisselam, tahtına anne ve babasını oturttuğunda, çocukken gördüğü o rüya gerçekleşmişti. Güneş, Ay ve on bir yıldız huzurundaydı.
+
+Kuyunun karanlığından Mısır’ın sultanlığına uzanan bu yolun sırrı tek bir kelimeydi: Sabır. Hz. Yusuf bize öğretti ki; bazen düşmek, yükselmenin ilk adımıdır. Ve Allah, sabredenlerle beraberdir.`,
+            duration: "5 dk",
+            category: "Peygamberler",
+            audioUrl: "/audio/hz-yusuf.mp3"
+        },
         { id: 2, title: "Hz. Eyüp'ün Şifası", content: "Yıllarca süren hastalığına rağmen 'Şüphesiz bu dert bana dokundu, Sen ise merhametlilerin en merhametlisisin' diyen sabır abidesi...", duration: "4 dk", category: "Peygamberler" },
         { id: 3, title: "Hz. İbrahim ve Ateş", content: "Nemrut'un ateşine atılırken 'Allah bize yeter, O ne güzel vekildir' diyen tevekkül sultanı...", duration: "6 dk", category: "Peygamberler" },
         { id: 4, title: "Hz. Musa ve Deniz", content: "Firavun'un ordusu arkasındayken, denizin önünde inancıyla yol açan Kelimullah...", duration: "7 dk", category: "Peygamberler" },
