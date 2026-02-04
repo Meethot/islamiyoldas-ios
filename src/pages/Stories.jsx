@@ -3,7 +3,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Play, BookOpen, Clock, ChevronRight, X, Headphones, Volume2, Sparkles, Heart, VolumeX, SkipBack, SkipForward, Zap } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, motion, useDragControls } from 'framer-motion';
 
 import { STORIES } from '@/data/spiritualData';
 
@@ -24,6 +24,7 @@ export default function Stories() {
     const [showVolumeSlider, setShowVolumeSlider] = useState(false);
     const [isSpeeding, setIsSpeeding] = useState(false);
     const audioRef = React.useRef(null);
+    const dragControls = useDragControls();
 
     React.useEffect(() => {
         if (selectedStory && audioRef.current) {
@@ -215,6 +216,16 @@ export default function Stories() {
                         onClick={() => setSelectedStory(null)}
                     >
                         <motion.div
+                            drag="y"
+                            dragControls={dragControls}
+                            dragListener={false}
+                            dragConstraints={{ top: 0, bottom: 0 }}
+                            dragElastic={{ top: 0, bottom: 0.2 }}
+                            onDragEnd={(event, info) => {
+                                if (info.offset.y > 100 || info.velocity.y > 500) {
+                                    setSelectedStory(null);
+                                }
+                            }}
                             initial={{ y: "100%", opacity: 0, scale: 0.95 }}
                             animate={{ y: 0, opacity: 1, scale: 1 }}
                             exit={{ y: "100%", opacity: 0, scale: 0.95 }}
@@ -222,7 +233,10 @@ export default function Stories() {
                             className="w-full max-w-[420px] h-full max-h-[90vh] bg-white dark:bg-[#032e18] rounded-[2.5rem] shadow-2xl relative overflow-hidden flex flex-col border border-white/5 ring-4 ring-black/20"
                             onClick={(e) => e.stopPropagation()}
                         >
-                            <div className="p-4 flex items-center justify-between border-b dark:border-white/10 bg-cream-bg/40 dark:bg-black/20 shrink-0">
+                            <div
+                                className="p-4 flex items-center justify-between border-b dark:border-white/10 bg-cream-bg/40 dark:bg-black/20 shrink-0 cursor-grab active:cursor-grabbing touch-none"
+                                onPointerDown={(e) => dragControls.start(e)}
+                            >
                                 <Button variant="ghost" size="icon" onClick={() => setSelectedStory(null)} className="rounded-full hover:bg-black/5 dark:hover:bg-white/5">
                                     <X className="w-6 h-6 text-islamic-green dark:text-islamic-gold" />
                                 </Button>
@@ -233,10 +247,13 @@ export default function Stories() {
                                     </span>
                                     <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Şuan Dinleniyor</span>
                                 </div>
-                                <div className="w-10"></div>
+                                <div className="w-10 flex justify-center">
+                                    {/* Optional Handle Indicator */}
+                                    <div className="w-8 h-1 bg-gray-300 dark:bg-white/20 rounded-full md:hidden opacity-50" />
+                                </div>
                             </div>
 
-                            <div className="flex-1 overflow-y-auto px-5 py-6">
+                            <div className="flex-1 overflow-y-auto px-5 py-6 no-scrollbar">
                                 {/* Audio Player Card */}
                                 <div className={cn(
                                     "bg-gradient-to-br from-islamic-green to-[#033a1f] rounded-[2rem] p-6 mb-8 shadow-xl relative overflow-hidden group/card ring-1 ring-white/10 transition-transform duration-200",
