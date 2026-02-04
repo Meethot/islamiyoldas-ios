@@ -1,5 +1,11 @@
 {
   "appId": "com.islamic.app",
   "appName": "İslami Yoldaş",
-  "webDir": "dist"
+  "webDir": "dist",
+  "plugins": {
+    "StatusBar": {
+      "overlaysWebView": true,
+      "style": "Dark"
+    }
+  }
 }

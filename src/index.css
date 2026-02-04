@@ -137,6 +137,11 @@
 }
 
 @layer utilities {
+  .header-safe-padding {
+    padding-top: 1.5rem;
+    padding-top: calc(1.5rem + env(safe-area-inset-top));
+  }
+
   .glass-panel {
     @apply backdrop-blur-md bg-white/10 dark:bg-white/5 border border-white/20 dark:border-white/10 shadow-xl;
   }

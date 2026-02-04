@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     Bug, X, Clock, Trash2, Database, Volume2, Calendar,
-    FastForward, AlertTriangle, CheckCircle2, RefreshCcw
+    FastForward, AlertTriangle, CheckCircle2, RefreshCcw, Navigation
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { advanceTestDay, resetTestDay, getTestDayOffset, getTodayString, getDailyPrayersKey } from '@/lib/testDate';
@@ -126,6 +126,11 @@ const DebugMenu = () => {
         }
     };
 
+    const toggleQiblaDebug = () => {
+        window.dispatchEvent(new CustomEvent('qiblaDebugToggle'));
+        setLastAction('🧭 Qibla debug toggled');
+    };
+
     // ===== ACTION BUTTONS CONFIG =====
     const actions = [
         {
@@ -149,6 +154,12 @@ const DebugMenu = () => {
             items: [
                 { label: 'Test Adhan Sound', icon: Volume2, action: testAdhanSound, color: 'bg-amber-500' },
                 { label: 'Test Vibration', icon: Database, action: testVibration, color: 'bg-purple-500' },
+            ]
+        },
+        {
+            group: '🕋 Qibla Finder',
+            items: [
+                { label: 'Force Align', icon: Navigation, action: toggleQiblaDebug, color: 'bg-emerald-600' },
             ]
         }
     ];

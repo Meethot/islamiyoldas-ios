@@ -928,8 +928,6 @@ export default function Learn() {
         <div className="flex flex-col space-y-6 p-5 pb-32">
             {/* Header Area */}
             <div className="text-center space-y-4">
-                <h1 className="text-2xl font-serif font-bold text-islamic-green dark:text-islamic-gold">İslami Öğrenme</h1>
-
                 {/* Category Selection */}
                 <div className="flex w-full overflow-x-auto whitespace-nowrap scrollbar-hide px-4 gap-3 py-2">
                     {CATEGORIES.map((cat) => (
@@ -979,7 +977,7 @@ export default function Learn() {
             </div>
 
             {/* Navigation Buttons */}
-            <div className="fixed bottom-20 left-1/2 -translate-x-1/2 w-full max-w-md px-6 flex justify-between items-center pointer-events-none z-40">
+            <div className="fixed bottom-32 left-1/2 -translate-x-1/2 w-full max-w-md px-6 flex justify-between items-center pointer-events-none z-40">
                 <Button
                     variant="outline"
                     onClick={prev}

@@ -136,10 +136,7 @@ export default function Stories() {
 
     return (
         <div className="space-y-4 p-5 pb-24 dark:bg-[#032e18]">
-            <header className="mb-6 px-1">
-                <h2 className="text-2xl font-serif font-bold text-islamic-green dark:text-islamic-gold">Sesli Şifa</h2>
-                <p className="text-sm text-gray-500 dark:text-emerald-100/40 italic">Maneviyatınızı dinlendirecek, ruhunuzu iyileştirecek hikayeler...</p>
-            </header>
+
 
             {/* Category Selection */}
             <div className="flex gap-2 overflow-x-auto pb-4 scrollbar-hide -mx-1 px-1">

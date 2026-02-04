@@ -1,3 +1,4 @@
+import { Capacitor } from '@capacitor/core';
 import React, { useRef, useEffect } from 'react';
 import { Outlet, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { Home, BookOpen, Target, User, Heart, Star } from 'lucide-react';
@@ -16,6 +17,7 @@ export default function AppLayout() {
     const { userData } = useUser();
     const { t } = useTranslation('home'); // Use home namespace for greetings
     const { t: tNav } = useTranslation('common'); // Use common for nav items
+    const isIOS = Capacitor.getPlatform() === 'ios';
 
     // Real-time avatar sync using ID
     const [headerAvatarId, setHeaderAvatarId] = React.useState(localStorage.getItem('userAvatar') || 'male');
@@ -51,7 +53,10 @@ export default function AppLayout() {
 
                 {/* Top Bar (Dynamic Greeting) */}
                 {pathname !== '/qibla' && (
-                    <header className="px-6 pb-2 pt-[calc(1.5rem+env(safe-area-inset-top))] flex justify-between items-center bg-[#FBF9F4]/80 dark:bg-[#032e18]/80 backdrop-blur-md sticky top-0 z-40 border-b border-amber-100/50 dark:border-white/5">
+                    <header className={cn(
+                        "px-6 pb-2 flex justify-between items-center bg-[#FBF9F4]/80 dark:bg-[#032e18]/80 backdrop-blur-md sticky top-0 z-40 border-b border-amber-100/50 dark:border-white/5",
+                        isIOS ? "pt-[env(safe-area-inset-top,2rem)]" : "header-safe-padding"
+                    )}>
                         <div className="flex flex-col">
                             <span className="text-[10px] font-bold tracking-widest text-gray-400 dark:text-emerald-100/40 uppercase mb-0.5">
                                 İslami Yoldaş
@@ -83,7 +88,7 @@ export default function AppLayout() {
                 {/* Main Content Area */}
                 <main
                     ref={mainContentRef}
-                    className="flex-1 pb-28 overflow-y-auto scroll-smooth"
+                    className="flex-1 pb-40 pb-safe overflow-y-auto scroll-smooth"
                 >
                     <Outlet />
                 </main>

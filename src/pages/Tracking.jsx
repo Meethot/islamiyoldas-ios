@@ -227,13 +227,7 @@ export default function Tracking() {
 
     return (
         <div className="flex flex-col gap-6 p-5 pb-24">
-            {/* Header */}
-            <div className="flex justify-between items-center px-1">
-                <div>
-                    <h1 className="text-2xl font-serif font-bold text-islamic-green dark:text-islamic-gold">İbadetlerim</h1>
-                    <p className="text-sm text-gray-500 dark:text-gray-400 italic">Manevi Yolculuk Merkezi</p>
-                </div>
-            </div>
+
 
             {/* Tab Navigation */}
             <div className="glass-panel rounded-3xl p-2 grid grid-cols-4 gap-1">

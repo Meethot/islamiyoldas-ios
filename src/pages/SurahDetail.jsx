@@ -43,11 +43,12 @@ const BackgroundMode = {
 const BOOKMARKS_KEY = 'quran_bookmarks';
 
 // Memoized individual verse to prevent list re-renders
-const VerseItem = React.memo(({ verse, index, isBookmarked, toggleBookmark, handleShareClick, handlePlayAyah, playingAyahKey, t }) => {
+const VerseItem = React.memo(({ verse, index, isBookmarked, toggleBookmark, handleShareClick, handlePlayAyah, playingAyahKey, t, verseRef }) => {
     const isPlaying = playingAyahKey === verse.verseKey;
 
     return (
         <motion.div
+            ref={verseRef}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: Math.min(index * 0.05, 0.5) }}
@@ -150,6 +151,11 @@ export default function SurahDetail() {
     // State
     const [bookmarks, setBookmarks] = useState(() => safeGetStorage(BOOKMARKS_KEY, []));
 
+    // Jump to Verse State
+    const verseRefs = React.useRef({});
+    const [jumpTarget, setJumpTarget] = useState('');
+    const [pendingJumpVerse, setPendingJumpVerse] = useState(null);
+
     // Share State
     const [shareModalData, setShareModalData] = useState(null);
     const [activeTheme, setActiveTheme] = useState(SHARE_THEMES.emerald);
@@ -166,6 +172,36 @@ export default function SurahDetail() {
     const [volume, setVolume] = useState(1);
     const [showVolumeSlider, setShowVolumeSlider] = useState(false);
     const [isMuted, setIsMuted] = useState(false);
+
+    const handleJumpToVerse = (e) => {
+        e.preventDefault();
+        const verseNumber = parseInt(jumpTarget);
+        if (!verseNumber) return;
+
+        // Try to find element by verse number or index
+        const element = verseRefs.current[verseNumber] || verseRefs.current[`idx-${verseNumber}`];
+
+        if (element) {
+            selection();
+            element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            // Don't clear immediately so user can see what they typed if they want to adjust
+            setJumpTarget('');
+            console.log(`Jumped to verse ${verseNumber}`);
+        } else {
+            console.log(`Verse ${verseNumber} not currently loaded. Checks started...`);
+            // Store pending jump target
+            setPendingJumpVerse(verseNumber);
+
+            // If we have more pages, this will trigger the effect to fetch
+            if (hasNextPage) {
+                // Show a toast or small loading indicator could be nice here, but logical flow first
+            } else if (surahInfo && verseNumber <= surahInfo.ayahCount) {
+                // Valid verse but maybe just not rendered yet? (Edge case)
+            } else {
+                console.warn('Verse likely out of range');
+            }
+        }
+    };
 
     // TanStack Query: Surah Info
     const { data: surahInfo, isLoading: infoLoading, error: infoError } = useQuery({
@@ -404,6 +440,39 @@ export default function SurahDetail() {
         return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
     };
 
+    // Auto-Pagination Effect for Jump to Verse
+    useEffect(() => {
+        if (!pendingJumpVerse) return;
+
+        const verseNumber = pendingJumpVerse;
+        const element = verseRefs.current[verseNumber] || verseRefs.current[`idx-${verseNumber}`];
+
+        if (element) {
+            // Found it! Scroll and clear pending
+            console.log(`Found pending verse ${verseNumber}, scrolling...`);
+            selection();
+            element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            setPendingJumpVerse(null);
+            setJumpTarget('');
+        } else {
+            // Not found yet
+            if (isFetchingNextPage) {
+                // Already loading, just wait
+                return;
+            }
+
+            if (hasNextPage) {
+                console.log(`Fetching next page for verse ${verseNumber}...`);
+                fetchNextPage();
+            } else {
+                // No more pages and still not found
+                console.warn(`Verse ${verseNumber} could not be found even after loading all pages.`);
+                setPendingJumpVerse(null);
+                // Optionally trigger an alert here via a toast system if available
+            }
+        }
+    }, [pendingJumpVerse, verses.length, hasNextPage, isFetchingNextPage, fetchNextPage, selection]);
+
     // Initial Loading State
     if (infoLoading || (versesLoading && !verseData)) {
         return (
@@ -465,7 +534,7 @@ export default function SurahDetail() {
     return (
         <div className="min-h-screen bg-gradient-to-b from-white to-gray-50 dark:from-[#032e18] dark:to-[#021a0f] pb-24">
             {/* Header */}
-            <div className="bg-islamic-green dark:bg-[#032e18] p-5 sticky top-0 z-40 border-b border-white/10">
+            <div className="bg-islamic-green dark:bg-[#032e18] p-5 sticky top-0 z-40 border-b border-white/10 shadow-lg">
                 <div className="flex items-center gap-4">
                     <Button
                         onClick={() => {
@@ -494,6 +563,8 @@ export default function SurahDetail() {
                         </div>
                     </div>
                 </div>
+
+                {/* Audio and Title Row */}
                 <div className="flex items-center justify-between mt-4">
                     <Button
                         onClick={toggleSurahAudio}
@@ -512,6 +583,31 @@ export default function SurahDetail() {
                         {surahInfo?.nameArabic}
                     </p>
                 </div>
+
+                {/* Jump to Verse Input */}
+                {/* Jump to Verse Input */}
+                <form onSubmit={handleJumpToVerse} className="mt-4 flex items-center gap-3">
+                    <div className="relative flex-1">
+                        <input
+                            type="number"
+                            inputMode="numeric"
+                            pattern="[0-9]*"
+                            placeholder="Ayet No (örn: 25)"
+                            value={jumpTarget}
+                            onChange={(e) => setJumpTarget(e.target.value)}
+                            onKeyDown={(e) => e.key === 'Enter' && handleJumpToVerse(e)}
+                            className="w-full bg-white/10 border border-white/10 rounded-2xl px-5 py-3 pl-5 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-islamic-gold/50 backdrop-blur-sm transition-all text-lg font-medium [&::-webkit-inner-spin-button]:appearance-none"
+                        />
+                    </div>
+                    <Button
+                        type="button"
+                        onClick={handleJumpToVerse}
+                        disabled={!jumpTarget}
+                        className="bg-islamic-gold text-[#032e18] hover:bg-islamic-gold/90 border-none rounded-2xl w-12 h-12 flex items-center justify-center shadow-lg shadow-islamic-gold/10 active:scale-95 transition-all"
+                    >
+                        <ChevronRight className="w-6 h-6" />
+                    </Button>
+                </form>
             </div>
 
             {/* Verses */}
@@ -538,6 +634,12 @@ export default function SurahDetail() {
                         <VerseItem
                             key={verse.id}
                             verse={verse}
+                            verseRef={(el) => {
+                                if (el) {
+                                    verseRefs.current[verse.verseNumber] = el;
+                                    verseRefs.current[`idx-${index + 1}`] = el;
+                                }
+                            }}
                             index={index}
                             isBookmarked={isBookmarked(verse.verseKey)}
                             toggleBookmark={toggleBookmark}
