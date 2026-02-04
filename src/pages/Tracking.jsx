@@ -140,9 +140,11 @@ export default function Tracking() {
     // Prayer Toggle Handler
     const togglePrayer = useCallback((name) => {
         selection();
+        const prayerKey = getDailyPrayersKey();
+
         setCompletedPrayers(prev => {
             const next = prev.includes(name) ? prev.filter(p => p !== name) : [...prev, name];
-            localStorage.setItem('dailyPrayers', JSON.stringify(next));
+            localStorage.setItem(prayerKey, JSON.stringify(next));
 
             // Check if all 5 prayers are completed (streak trigger)
             if (next.length === 5 && !prev.includes(name)) {

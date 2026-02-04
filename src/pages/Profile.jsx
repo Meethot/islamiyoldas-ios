@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getAppDate } from '@/lib/testDate';
+import { getAppDate, getDailyPrayersKey, getTodayString } from '@/lib/testDate';
 import { Button } from '@/components/ui/button';
 import {
     User, Settings, Shield, Bell, HelpCircle, RefreshCw,
@@ -129,8 +129,9 @@ export default function Profile() {
     useEffect(() => {
         const loadShareData = () => {
             try {
-                // 1. Load Completed Prayers (Source of Truth: Home.jsx)
-                const storedPrayers = localStorage.getItem('dailyPrayers');
+                // 1. Load Completed Prayers (Source of Truth)
+                const prayerKey = getDailyPrayersKey();
+                const storedPrayers = localStorage.getItem(prayerKey);
                 let completedPrayers = [];
                 if (storedPrayers && storedPrayers !== 'undefined' && storedPrayers !== 'null') {
                     try {
@@ -296,6 +297,7 @@ export default function Profile() {
                                     const start = new Date(userData.installDate || new Date());
                                     const now = getAppDate(); // Use simulated date
                                     const diff = now - start;
+                                    const todayStr = getTodayString();
                                     const days = Math.floor(diff / (1000 * 60 * 60 * 24)) + 1;
                                     return days;
                                 })()

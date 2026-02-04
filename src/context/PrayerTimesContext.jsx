@@ -122,7 +122,6 @@ export const PrayerTimesProvider = ({ children }) => {
                 lat = FALLBACK_COORDS.lat;
                 lng = FALLBACK_COORDS.lng;
                 setLocationSource('fallback');
-                console.log('Prayer times: Using fallback location (Istanbul)');
             }
 
             // Use coordinate-based API instead of city-based

@@ -56,7 +56,7 @@ const DebugMenu = () => {
     // ===== DATA STRESS =====
     const corruptStorage = () => {
         const corruptData = [
-            { key: 'dailyPrayers', value: '{invalid json::' },
+            { key: getDailyPrayersKey(), value: '{invalid json::' },
             { key: 'tubaAgaci_data', value: 'undefined' },
             { key: 'qadaCounts', value: '[null, null, "broken"' },
         ];

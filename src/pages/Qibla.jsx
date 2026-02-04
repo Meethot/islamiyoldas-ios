@@ -98,7 +98,7 @@ export default function Qibla() {
                         setStatus('error');
                     }
                 } catch (err) {
-                    console.error("Permission error", err);
+                    // Silently fail sensor permission in production
                 }
             } else {
                 window.addEventListener('deviceorientation', handleMotion);
@@ -113,7 +113,7 @@ export default function Qibla() {
         if (audioRef.current) {
             audioRef.current.loop = true;
             if (isAligned && !isMuted) {
-                audioRef.current.play().catch(() => console.log("Audio blocked"));
+                audioRef.current.play().catch(() => { });
             } else {
                 audioRef.current.pause();
             }

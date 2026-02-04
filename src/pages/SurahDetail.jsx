@@ -10,6 +10,7 @@ import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useHaptics } from '@/hooks/useMobile';
 import { fetchSurahContent, fetchChapterInfo } from '@/services/quranApi';
+import { useQuery, useInfiniteQuery } from '@tanstack/react-query';
 import { safeGetStorage, safeSetStorage } from '@/utils/storageHelper';
 import ShareCard, { SHARE_THEMES } from '@/components/ShareCard';
 import { shareHiddenElement } from '@/lib/share';
@@ -18,19 +19,98 @@ import { useTranslation } from 'react-i18next';
 
 const BOOKMARKS_KEY = 'quran_bookmarks';
 
+// Memoized individual verse to prevent list re-renders
+const VerseItem = React.memo(({ verse, index, isBookmarked, toggleBookmark, handleShareClick, t }) => {
+    return (
+        <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: Math.min(index * 0.05, 0.5) }}
+        >
+            <div className="relative mb-6">
+                <Card className="border-none shadow-xl rounded-[2.5rem] bg-white dark:bg-white/5 overflow-hidden p-6 relative dark:text-white">
+                    <div className="space-y-6">
+                        {/* Header: Number & Actions */}
+                        <div className="flex items-start justify-between">
+                            <div className="w-14 h-14 bg-islamic-green dark:bg-islamic-gold rounded-2xl flex items-center justify-center text-white dark:text-[#032e18] font-bold text-lg shadow-lg shrink-0">
+                                {verse.verseNumber}
+                            </div>
+
+                            <div className="flex gap-2">
+                                <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    onClick={() => toggleBookmark(verse)}
+                                    className={cn(
+                                        "rounded-xl transition-all w-10 h-10 hover:bg-islamic-gold/10",
+                                        isBookmarked
+                                            ? "text-islamic-gold bg-islamic-gold/10"
+                                            : "text-gray-400 hover:text-islamic-gold"
+                                    )}
+                                >
+                                    {isBookmarked
+                                        ? <BookmarkCheck className="w-5 h-5 fill-current" />
+                                        : <Bookmark className="w-5 h-5" />
+                                    }
+                                </Button>
+                                <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    onClick={() => handleShareClick(verse)}
+                                    className="rounded-xl text-gray-400 hover:text-islamic-gold hover:bg-islamic-gold/10 w-10 h-10"
+                                >
+                                    <Share2 className="w-5 h-5" />
+                                </Button>
+                            </div>
+                        </div>
+
+                        {/* Content Box: Arabic, Transcription, Translation */}
+                        <div className="bg-islamic-green/[0.03] dark:bg-islamic-gold/5 border border-islamic-green/10 dark:border-islamic-gold/10 rounded-3xl p-6 text-center space-y-6 shadow-inner">
+                            {/* Arabic */}
+                            <p className="font-arabic text-3xl leading-[2.2] text-islamic-gold break-words">
+                                {verse.arabic}
+                            </p>
+
+                            {/* Divider/Spacer if needed, or just space-y */}
+
+                            <div className="space-y-4">
+                                {/* Transcription (Okunuş) */}
+                                {verse.transliteration && (
+                                    <p className="text-gray-500 dark:text-emerald-100/60 italic text-base font-serif leading-relaxed px-2">
+                                        {verse.transliteration}
+                                    </p>
+                                )}
+
+                                {/* Separator */}
+                                <div className="w-16 h-1 bg-islamic-gold/20 rounded-full mx-auto" />
+
+                                {/* Translation (Meal) */}
+                                <div className="text-gray-800 dark:text-emerald-50 font-medium text-lg leading-relaxed font-sans">
+                                    <span dangerouslySetInnerHTML={{ __html: verse.translation }} />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </Card>
+            </div>
+        </motion.div>
+    );
+}, (prev, next) => {
+    return (
+        prev.verse.id === next.verse.id &&
+        prev.isBookmarked === next.isBookmarked &&
+        prev.index === next.index
+    );
+});
+
 export default function SurahDetail() {
     const { surahId } = useParams();
     const navigate = useNavigate();
     const { selection, success } = useHaptics();
     const { t, i18n } = useTranslation();
+    const currentLang = i18n.language?.split('-')[0] || 'tr';
 
     // State
-    const [surahInfo, setSurahInfo] = useState(null);
-    const [verses, setVerses] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [loadingMore, setLoadingMore] = useState(false);
-    const [error, setError] = useState(null);
-    const [pagination, setPagination] = useState(null);
     const [bookmarks, setBookmarks] = useState(() => safeGetStorage(BOOKMARKS_KEY, []));
 
     // Share State
@@ -38,40 +118,33 @@ export default function SurahDetail() {
     const [activeTheme, setActiveTheme] = useState(SHARE_THEMES.emerald);
     const [sharing, setSharing] = useState(false);
 
-    const handleShareClick = (verse) => {
-        selection();
-        setShareModalData({
-            type: 'verse',
-            arabic: verse.arabic,
-            translation: verse.translation,
-            surah: surahInfo?.name || `Sure ${surahId}`,
-            verseNumber: verse.verseNumber
-        });
-        setActiveTheme(SHARE_THEMES.emerald);
-    };
+    // TanStack Query: Surah Info
+    const { data: surahInfo, isLoading: infoLoading, error: infoError } = useQuery({
+        queryKey: ['surahInfo', surahId, currentLang],
+        queryFn: () => fetchChapterInfo(surahId, currentLang),
+    });
 
-    const handleShare = async () => {
-        if (sharing) return;
-        setSharing(true);
-        try {
-            await shareHiddenElement(
-                'share-card',
-                `"${shareModalData.translation}"\n\n${surahInfo?.name || 'Kuran-ı Kerim'} ${shareModalData.verseNumber}. Ayet - İslami Yoldaş 🤲`,
-                'Ayet Paylaş'
-            );
-            setShareModalData(null);
-        } catch (e) {
-            console.error(e);
-        } finally {
-            setSharing(false);
-        }
-    };
+    // TanStack Query: Infinite Verses
+    const {
+        data: verseData,
+        fetchNextPage,
+        hasNextPage,
+        isFetchingNextPage,
+        isLoading: versesLoading,
+        error: versesError,
+        refetch: retry
+    } = useInfiniteQuery({
+        queryKey: ['verses', surahId, currentLang],
+        queryFn: ({ pageParam = 1 }) => fetchSurahContent(surahId, pageParam, currentLang),
+        getNextPageParam: (lastPage) => lastPage.pagination.next_page,
+        initialPageParam: 1,
+    });
 
-    // Check if a verse is bookmarked
-    const isBookmarked = (verseKey) => bookmarks.some(b => b.verseKey === verseKey);
+    const verses = verseData ? verseData.pages.flatMap(page => page.verses) : [];
+    const pagination = verseData?.pages[verseData.pages.length - 1]?.pagination;
 
     // Toggle bookmark
-    const toggleBookmark = (verse) => {
+    const toggleBookmark = useCallback((verse) => {
         selection();
         setBookmarks(prev => {
             const exists = prev.some(b => b.verseKey === verse.verseKey);
@@ -93,46 +166,36 @@ export default function SurahDetail() {
             safeSetStorage(BOOKMARKS_KEY, updated);
             return updated;
         });
-    };
+    }, [surahId, surahInfo, selection, success]);
 
-    // Fetch surah data
-    const loadSurah = useCallback(async (page = 1, append = false) => {
+    const handleShareClick = useCallback((verse) => {
+        selection();
+        setShareModalData({
+            type: 'verse',
+            arabic: verse.arabic,
+            translation: verse.translation,
+            surah: surahInfo?.name || `Sure ${surahId}`,
+            verseNumber: verse.verseNumber
+        });
+        setActiveTheme(SHARE_THEMES.emerald);
+    }, [surahId, surahInfo, selection]);
+
+    const handleShare = async () => {
+        if (sharing) return;
+        setSharing(true);
         try {
-            if (page === 1) {
-                setLoading(true);
-                setError(null);
-            } else {
-                setLoadingMore(true);
-            }
-
-            const currentLang = i18n.language?.split('-')[0] || 'tr';
-
-            // Fetch chapter info and verses in parallel
-            const [info, content] = await Promise.all([
-                page === 1 ? fetchChapterInfo(surahId, currentLang) : Promise.resolve(surahInfo),
-                fetchSurahContent(surahId, page, currentLang)
-            ]);
-
-            if (page === 1) {
-                setSurahInfo(info);
-                setVerses(content.verses);
-            } else {
-                setVerses(prev => [...prev, ...content.verses]);
-            }
-            setPagination(content.pagination);
-            success?.();
-        } catch (err) {
-            console.error('Quran API Error:', err);
-            setError(err.message || 'Bir hata oluştu');
+            await shareHiddenElement(
+                'share-card',
+                `"${shareModalData.translation}"\n\n${surahInfo?.name || 'Kuran-ı Kerim'} ${shareModalData.verseNumber}. Ayet - İslami Yoldaş 🤲`,
+                'Ayet Paylaş'
+            );
+            setShareModalData(null);
+        } catch (e) {
+            console.error(e);
         } finally {
-            setLoading(false);
-            setLoadingMore(false);
+            setSharing(false);
         }
-    }, [surahId, surahInfo, success]);
-
-    useEffect(() => {
-        loadSurah(1);
-    }, [surahId]);
+    };
 
     // Scroll to top when surah changes
     useEffect(() => {
@@ -140,17 +203,15 @@ export default function SurahDetail() {
     }, [surahId]);
 
     const loadMore = () => {
-        if (pagination?.next_page && !loadingMore) {
-            loadSurah(pagination.next_page, true);
+        if (hasNextPage && !isFetchingNextPage) {
+            fetchNextPage();
         }
     };
 
-    const retry = () => {
-        loadSurah(1);
-    };
+    const isBookmarked = (verseKey) => bookmarks.some(b => b.verseKey === verseKey);
 
-    // Loading State
-    if (loading) {
+    // Initial Loading State
+    if (infoLoading || (versesLoading && !verseData)) {
         return (
             <div className="min-h-screen bg-gradient-to-b from-white to-gray-50 dark:from-[#032e18] dark:to-[#021a0f] flex items-center justify-center">
                 <div className="text-center space-y-4">
@@ -167,6 +228,7 @@ export default function SurahDetail() {
     }
 
     // Error State
+    const error = infoError || versesError;
     if (error) {
         return (
             <div className="min-h-screen bg-gradient-to-b from-white to-gray-50 dark:from-[#032e18] dark:to-[#021a0f] flex items-center justify-center p-6">
@@ -180,7 +242,7 @@ export default function SurahDetail() {
                                 {t('quran.connection_error', 'Bağlantı Hatası')}
                             </h2>
                             <p className="text-gray-500 dark:text-gray-400">
-                                {error}
+                                {error.message || 'Bir hata oluştu'}
                             </p>
                         </div>
                         <div className="flex gap-3 justify-center">
@@ -264,77 +326,20 @@ export default function SurahDetail() {
                 {/* Verse Cards */}
                 <AnimatePresence>
                     {verses.map((verse, index) => (
-                        <motion.div
+                        <VerseItem
                             key={verse.id}
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: Math.min(index * 0.05, 0.5) }}
-                        >
-                            <Card className="glass-panel border-none overflow-hidden">
-                                <CardContent className="p-5 space-y-4">
-                                    {/* Verse Header */}
-                                    <div className="flex items-start justify-between">
-                                        <div className="w-10 h-10 rounded-full bg-islamic-gold/10 flex items-center justify-center">
-                                            <span className="text-islamic-gold font-bold text-sm">
-                                                {verse.verseNumber}
-                                            </span>
-                                        </div>
-                                        <div className="flex gap-1">
-                                            <Button
-                                                variant="ghost"
-                                                size="sm"
-                                                onClick={() => toggleBookmark(verse)}
-                                                className={cn(
-                                                    "transition-colors",
-                                                    isBookmarked(verse.verseKey)
-                                                        ? "text-islamic-gold"
-                                                        : "text-gray-400 hover:text-islamic-gold"
-                                                )}
-                                            >
-                                                {isBookmarked(verse.verseKey)
-                                                    ? <BookmarkCheck className="w-4 h-4 fill-current" />
-                                                    : <Bookmark className="w-4 h-4" />
-                                                }
-                                            </Button>
-                                            <Button
-                                                variant="ghost"
-                                                size="sm"
-                                                onClick={() => handleShareClick(verse)}
-                                                className="text-gray-400 hover:text-islamic-gold"
-                                            >
-                                                <Share2 className="w-4 h-4" />
-                                            </Button>
-                                        </div>
-                                    </div>
-
-                                    {/* Arabic Text */}
-                                    <p className="text-2xl leading-[2.5] text-right font-arabic text-islamic-gold">
-                                        {verse.arabic}
-                                    </p>
-
-                                    {/* Transliteration (Okunuş) */}
-                                    {verse.transliteration && (
-                                        <p className="text-lg text-gray-600 dark:text-emerald-100/70 my-3 leading-relaxed font-serif">
-                                            <span className="opacity-50 text-xs uppercase tracking-widest mr-2 not-italic">Okunuş:</span>
-                                            <span className="italic">{verse.transliteration}</span>
-                                        </p>
-                                    )}
-
-                                    {/* Translation (Meal) */}
-                                    <div className="border-t border-gray-100 dark:border-white/10 pt-4">
-                                        <p
-                                            className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed"
-                                            dangerouslySetInnerHTML={{ __html: verse.translation }}
-                                        />
-                                    </div>
-                                </CardContent>
-                            </Card>
-                        </motion.div>
+                            verse={verse}
+                            index={index}
+                            isBookmarked={isBookmarked(verse.verseKey)}
+                            toggleBookmark={toggleBookmark}
+                            handleShareClick={handleShareClick}
+                            t={t}
+                        />
                     ))}
                 </AnimatePresence>
 
                 {/* Load More Button */}
-                {pagination?.next_page && (
+                {hasNextPage && (
                     <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
@@ -342,10 +347,10 @@ export default function SurahDetail() {
                     >
                         <Button
                             onClick={loadMore}
-                            disabled={loadingMore}
+                            disabled={isFetchingNextPage}
                             className="w-full bg-islamic-gold/10 text-islamic-gold hover:bg-islamic-gold/20 border border-islamic-gold/20"
                         >
-                            {loadingMore ? (
+                            {isFetchingNextPage ? (
                                 <>
                                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                                     {t('quran.loading', 'Yükleniyor...')}
@@ -361,7 +366,7 @@ export default function SurahDetail() {
                 )}
 
                 {/* End of Surah */}
-                {!pagination?.next_page && verses.length > 0 && (
+                {!hasNextPage && (
                     <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}

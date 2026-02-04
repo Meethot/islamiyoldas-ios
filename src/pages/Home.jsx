@@ -133,7 +133,6 @@ export default function Home() {
                 // Day has changed! Reset prayers for new day.
                 setCurrentDateKey(newDateKey);
                 setCompletedPrayers([]);
-                console.log('[Home] Day changed, resetting prayers:', newDateKey);
             }
         };
 
@@ -151,7 +150,6 @@ export default function Home() {
             try {
                 initialTuba = JSON.parse(storedTuba);
             } catch (e) {
-                console.warn('[Home] Corrupted tubaAgaci_data, resetting...', e);
                 localStorage.removeItem('tubaAgaci_data');
             }
         } else {
@@ -163,7 +161,7 @@ export default function Home() {
                     initialTuba.totalWateredDays = initialTuba.currentStreak;
                     initialTuba.lastWateredDate = localStorage.getItem('tubaAgaci_lastWatered') || null;
                 } catch (e) {
-                    console.warn('[Home] Corrupted legacy streak data', e);
+                    // Fail silently in production
                 }
             }
         }

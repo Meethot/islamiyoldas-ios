@@ -8,6 +8,7 @@ import ErrorBoundary from './components/ErrorBoundary.jsx'
 import { UserProvider } from './context/UserContext.jsx'
 import { ThemeProvider } from './context/ThemeContext.jsx'
 import { LocationProvider } from './context/LocationContext.jsx'
+import QueryProvider from './providers/QueryProvider.jsx'
 
 // Disable selection and context menu globally for security
 document.addEventListener('contextmenu', (e) => e.preventDefault());
@@ -15,13 +16,15 @@ document.addEventListener('contextmenu', (e) => e.preventDefault());
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <ErrorBoundary>
-      <LocationProvider>
-        <UserProvider>
-          <ThemeProvider>
-            <App />
-          </ThemeProvider>
-        </UserProvider>
-      </LocationProvider>
+      <QueryProvider>
+        <LocationProvider>
+          <UserProvider>
+            <ThemeProvider>
+              <App />
+            </ThemeProvider>
+          </UserProvider>
+        </LocationProvider>
+      </QueryProvider>
     </ErrorBoundary>
   </StrictMode>,
 )

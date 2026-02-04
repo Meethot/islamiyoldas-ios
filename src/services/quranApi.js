@@ -1,13 +1,31 @@
+import { Preferences } from '@capacitor/preferences';
+import { MANUAL_SURAH_DATA } from '@/data/manualSurahData';
+
 const BASE_URL = 'https://api.quran.com/api/v4';
 const CDN_BASE_URL = 'https://cdn.jsdelivr.net/gh/fawazahmed0/quran-api@1/editions';
 
 // FAWAZ AHMED EDITION IDENTIFIERS
 const EDITIONS = {
     arabic: 'ara-quranuthmanihaf',
-    transliteration: 'tur-latinalphabet',
+    transliteration: 'tur-latinalphabet1',
     translation_tr: 'tur-diyanetisleri', // Diyanet İşleri
     translation_en: 'en-sahih' // Sahih International
 };
+
+// Caching helper
+const CACHE_KEY_PREFIX = 'surah_content_v3_';
+
+async function getCachedSurah(surahId, language) {
+    const { value } = await Preferences.get({ key: `${CACHE_KEY_PREFIX}${surahId}_${language}` });
+    return value ? JSON.parse(value) : null;
+}
+
+async function setCachedSurah(surahId, language, data) {
+    await Preferences.set({
+        key: `${CACHE_KEY_PREFIX}${surahId}_${language}`,
+        value: JSON.stringify(data)
+    });
+}
 
 /**
  * Fetch all chapters (surahs) metadata
@@ -32,12 +50,40 @@ export async function fetchChapters(language = 'tr') {
 }
 
 /**
- * Fetch verses for a specific chapter from CDN
+ * Fetch verses for a specific chapter from CDN with local caching
  * @param {number} surahId - Chapter ID (1-114)
  * @param {number} page - Page number (legacy support, CDN serves full chapters)
  * @param {string} language - Language code (tr, en, de)
  */
 export async function fetchSurahContent(surahId, page = 1, language = 'tr') {
+    const perPage = 50;
+
+    // 1. Try Cache First
+    const cached = await getCachedSurah(surahId, language);
+    if (cached && page === 1) {
+        // Return first page from cache immediately
+        return {
+            verses: cached.slice(0, perPage),
+            pagination: {
+                next_page: cached.length > perPage ? 2 : null,
+                total_pages: Math.ceil(cached.length / perPage),
+                total_verses: cached.length
+            }
+        };
+    } else if (cached) {
+        // Return specific page from cache
+        const startIndex = (page - 1) * perPage;
+        const paginatedVerses = cached.slice(startIndex, startIndex + perPage);
+        return {
+            verses: paginatedVerses,
+            pagination: {
+                next_page: startIndex + perPage < cached.length ? page + 1 : null,
+                total_pages: Math.ceil(cached.length / perPage),
+                total_verses: cached.length
+            }
+        };
+    }
+
     let translationEdition = EDITIONS.translation_tr;
     if (language === 'en') translationEdition = EDITIONS.translation_en;
     if (language === 'de') translationEdition = EDITIONS.translation_de;
@@ -60,32 +106,35 @@ export async function fetchSurahContent(surahId, page = 1, language = 'tr') {
             translationRes.json()
         ]);
 
-        // Merge sources by verse index
-        // Fawaz Ahmed API structure: { chapter: [{ chapter: 1, verse: 1, text: "..." }, ...] }
-        const mergedVerses = arabicData.chapter.map((item, index) => {
+        const combinedData = arabicData.chapter.map((verse, index) => {
+            // Check for manual override data
+            const manualSurah = MANUAL_SURAH_DATA[surahId];
+            const manualVerse = manualSurah?.verses.find(v => v.verse_number === verse.verse);
+
             return {
-                id: `${surahId}:${item.verse}`,
-                verseKey: `${surahId}:${item.verse}`,
-                verseNumber: item.verse,
-                arabic: item.text,
-                transliteration: translitData.chapter[index]?.text || '',
-                translation: translationData.chapter[index]?.text || ''
+                id: `${surahId}:${verse.verse}`,
+                verseKey: `${surahId}:${verse.verse}`,
+                verseNumber: verse.verse,
+                arabic: verse.text,
+                transliteration: manualVerse ? manualVerse.transliteration : formatTransliteration(translitData.chapter[index]?.text || ''),
+                translation: manualVerse ? manualVerse.translation : (translationData.chapter[index]?.text || ''),
             };
         });
 
-        // Handle client-side pagination since CDN serves full chapters
-        const perPage = 50;
-        const totalVerses = mergedVerses.length;
-        const totalPages = Math.ceil(totalVerses / perPage);
+        // 2. Save to Cache
+        await setCachedSurah(surahId, language, combinedData);
+
+        // Handle client-side pagination
         const startIndex = (page - 1) * perPage;
-        const paginatedVerses = mergedVerses.slice(startIndex, startIndex + perPage);
+        const totalPages = Math.ceil(combinedData.length / perPage);
+        const paginatedVerses = combinedData.slice(startIndex, startIndex + perPage);
 
         return {
             verses: paginatedVerses,
             pagination: {
                 next_page: page < totalPages ? page + 1 : null,
                 total_pages: totalPages,
-                total_verses: totalVerses
+                total_verses: combinedData.length
             }
         };
     } catch (error) {
@@ -116,4 +165,23 @@ export async function fetchChapterInfo(surahId, language = 'tr') {
         revelation: ch.revelation_place === 'makkah' ? 'Mekke' : 'Medine',
         revelationOrder: ch.revelation_order
     };
+}
+/**
+ * Formats academic transliteration into a cleaner user-friendly version
+ * @param {string} text 
+ */
+function formatTransliteration(text) {
+    if (!text) return '';
+
+    return text
+        // 1. Clear any weird formatting if present (though latinalphabet1 is clean)
+        .replace(/`/g, '')
+        // 2. Normalize some characters if necessary but KEEP circumflexes (â, î, û)
+        .replace(/ʿ/g, '')
+        // 3. Remove parentheses content if it's too technical? 
+        // Some users prefer the parenthetical notes for reading rules, keeping for now unless asked.
+
+        // 4. Capitalize first letter
+        .trim()
+        .replace(/^\w/, (c) => c.toUpperCase());
 }

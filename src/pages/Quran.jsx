@@ -11,6 +11,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useHaptics } from '@/hooks/useMobile';
 import { fetchChapters } from '@/services/quranApi';
 import { safeGetStorage, safeSetStorage } from '@/utils/storageHelper';
+import { getSurahSummary } from '@/data/surahSummaries';
 
 const BOOKMARKS_KEY = 'quran_bookmarks';
 
@@ -205,36 +206,63 @@ export default function Quran() {
                         )}
 
                         {/* Surah Cards */}
-                        {!isLoadingSurahs && !surahError && filteredSurahs.map((surah, index) => (
-                            <motion.div
-                                key={surah.id}
-                                initial={{ opacity: 0, x: -20 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                transition={{ delay: Math.min(index * 0.02, 0.5) }}
-                            >
-                                <Card
-                                    onClick={() => handleSurahSelect(surah)}
-                                    className="glass-panel border-none cursor-pointer hover:shadow-lg transition-all active:scale-98"
+                        {!isLoadingSurahs && !surahError && filteredSurahs.map((surah, index) => {
+                            const summaryData = getSurahSummary(surah.id);
+                            return (
+                                <motion.div
+                                    key={surah.id}
+                                    initial={{ opacity: 0, x: -20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    transition={{ delay: Math.min(index * 0.05, 0.5) }}
                                 >
-                                    <CardContent className="p-4 flex items-center justify-between">
-                                        <div className="flex items-center gap-4">
-                                            <div className="w-12 h-12 rounded-xl bg-islamic-gold/10 flex items-center justify-center">
-                                                <span className="text-islamic-gold font-bold text-lg">{surah.id}</span>
+                                    <div
+                                        onClick={() => handleSurahSelect(surah)}
+                                        className="group relative overflow-hidden rounded-[2.5rem] bg-islamic-green/[0.03] dark:bg-islamic-gold/5 border border-islamic-green/10 dark:border-islamic-gold/10 hover:border-islamic-gold/30 transition-all cursor-pointer hover:shadow-xl active:scale-[0.98]"
+                                    >
+                                        <div className="absolute top-0 right-0 w-40 h-40 bg-islamic-gold/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 group-hover:bg-islamic-gold/10 transition-colors duration-500" />
+
+                                        <div className="p-6 flex items-start gap-5 relative z-10">
+                                            {/* Number Box - Reverted to Rounded Square */}
+                                            <div className="w-12 h-12 rounded-2xl bg-islamic-green/10 dark:bg-islamic-gold/10 flex items-center justify-center text-islamic-green dark:text-islamic-gold font-bold text-lg shadow-sm shrink-0 group-hover:scale-110 transition-transform duration-300">
+                                                {surah.id}
                                             </div>
-                                            <div>
-                                                <h3 className="text-base font-bold text-gray-900 dark:text-white">{surah.name}</h3>
-                                                <p className="text-xs text-gray-500 dark:text-gray-400">
-                                                    {surah.ayahCount} Ayet • {surah.revelation}
-                                                </p>
+
+                                            {/* Content */}
+                                            <div className="flex-1 min-w-0">
+                                                <div className="flex items-center justify-between mb-1.5">
+                                                    <h3 className="text-xl font-bold text-gray-900 dark:text-white font-serif tracking-tight">
+                                                        {surah.name}
+                                                    </h3>
+                                                    <span className="font-arabic text-2xl text-islamic-gold group-hover:scale-110 transition-transform duration-300">
+                                                        {surah.arabic}
+                                                    </span>
+                                                </div>
+
+                                                <div className="flex items-center gap-3 mb-3">
+                                                    <span className="text-[10px] uppercase tracking-[0.15em] font-extrabold text-islamic-green/60 dark:text-islamic-gold/60">
+                                                        {surah.revelation}
+                                                    </span>
+                                                    <div className="w-1 h-1 rounded-full bg-gray-300 dark:bg-gray-700" />
+                                                    <span className="text-[11px] font-semibold text-gray-500 dark:text-gray-400">
+                                                        {surah.ayahCount} Ayet
+                                                    </span>
+                                                </div>
+
+                                                {/* Summary Text (Premium Italicized) */}
+                                                {summaryData && (
+                                                    <div className="relative mt-2">
+                                                        <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-islamic-gold/40 to-transparent rounded-full" />
+                                                        <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed italic pl-4">
+                                                            "{summaryData.summary}"
+                                                        </p>
+                                                    </div>
+                                                )}
                                             </div>
                                         </div>
-                                        <p className="text-2xl font-arabic text-islamic-green dark:text-islamic-gold">
-                                            {surah.arabic}
-                                        </p>
-                                    </CardContent>
-                                </Card>
-                            </motion.div>
-                        ))}
+                                    </div>
+                                </motion.div>
+                            );
+                        })}
                         {!isLoadingSurahs && !surahError && filteredSurahs.length === 0 && (
                             <div className="text-center py-12">
                                 <p className="text-gray-400">Sure bulunamadı</p>
@@ -325,7 +353,7 @@ export default function Quran() {
                     {/* Bismillah */}
                     {selectedSurah.id !== 1 && selectedSurah.id !== 9 && (
                         <div className="text-center py-8">
-                            <p className="text-3xl font-arabic text-islamic-green dark:text-islamic-gold">
+                            <p className="text-3xl font-arabic text-islamic-gold">
                                 بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
                             </p>
                         </div>
@@ -349,7 +377,7 @@ export default function Quran() {
                                     </div>
                                 </div>
 
-                                <p className="text-2xl leading-loose text-right font-arabic text-gray-900 dark:text-white">
+                                <p className="text-2xl leading-loose text-right font-arabic text-islamic-gold">
                                     {ayah.arabic}
                                 </p>
 

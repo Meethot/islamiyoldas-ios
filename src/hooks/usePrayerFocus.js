@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { getTodayString } from '@/lib/testDate';
 
 /**
  * usePrayerFocus Hook
@@ -22,7 +23,7 @@ export function usePrayerFocus(prayerTimes, completedPrayers) {
             const currentHour = now.getHours();
             const currentMinute = now.getMinutes();
             const currentTimeInMinutes = currentHour * 60 + currentMinute;
-            const todayStr = now.toISOString().split('T')[0];
+            const todayStr = getTodayString();
 
             // Filter to only actual prayer times (exclude Güneş, İmsak)
             const actualPrayers = prayerTimes.filter(p =>
@@ -79,8 +80,7 @@ export function usePrayerFocus(prayerTimes, completedPrayers) {
 
     // Snooze / Dismiss for the day
     const snooze = (prayerName) => {
-        const now = new Date();
-        const todayStr = now.toISOString().split('T')[0];
+        const todayStr = getTodayString();
         const dismissalKey = `popup_dismissed_${todayStr}_${prayerName}`;
 
         localStorage.setItem(dismissalKey, 'true');
@@ -89,8 +89,7 @@ export function usePrayerFocus(prayerTimes, completedPrayers) {
 
     // Clear snooze (when prayer is completed) - effectively same as snooze/dismiss + marks done in parent
     const clearSnooze = (prayerName) => {
-        const now = new Date();
-        const todayStr = now.toISOString().split('T')[0];
+        const todayStr = getTodayString();
         const dismissalKey = `popup_dismissed_${todayStr}_${prayerName}`;
 
         localStorage.setItem(dismissalKey, 'true');

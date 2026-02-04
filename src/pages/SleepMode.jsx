@@ -137,12 +137,10 @@ export default function SleepMode() {
 
     const toggleRain = () => {
         if (ambientOn) {
-            console.log("Pausing rain audio via toggle...");
             rainAudio.pause();
             setAmbientOn(false);
             updateBackgroundMode(isPlaying, false);
         } else {
-            console.log("Starting rain audio via toggle...");
             setIsAmbientLoading(true);
             setAmbientError(null);
 
@@ -153,13 +151,11 @@ export default function SleepMode() {
 
             rainAudio.play()
                 .then(() => {
-                    console.log("Rain audio started successfully");
                     setIsAmbientLoading(false);
                     setAmbientOn(true);
                     updateBackgroundMode(isPlaying, true);
                 })
                 .catch((e) => {
-                    console.error("Rain audio play failed:", e);
                     setAmbientError("Ses yüklenemedi. Lütfen internetinizi kontrol edin.");
                     setIsAmbientLoading(false);
                 });

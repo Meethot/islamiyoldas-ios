@@ -835,7 +835,7 @@ const GuideStepCard = memo(({ step }) => {
 
                 {/* Arabic Content Box */}
                 <div className="bg-islamic-green/[0.03] dark:bg-islamic-gold/5 border border-islamic-green/10 dark:border-islamic-gold/10 rounded-3xl p-6 text-center space-y-4 shadow-inner">
-                    <p className="font-arabic text-3xl text-gray-800 dark:text-white leading-[2] break-words">{step.arabic}</p>
+                    <p className="font-arabic text-3xl text-islamic-gold leading-[2] break-words">{step.arabic}</p>
                     <div className="space-y-1">
                         <p className="text-gray-400 dark:text-gray-500 italic text-xs">{step.transcription}</p>
                         <p className="text-gray-700 dark:text-emerald-100/60 font-medium text-sm">"{step.meaning}"</p>

@@ -42,7 +42,7 @@ export const advanceTestDay = () => {
         if (key && (
             key.includes('dailyDeed') ||
             key.includes('lastRevealed') ||
-            key === 'dailyPrayers' // Reset completed prayers
+            key.startsWith('dailyPrayers_') // Reset completed prayers (date-specific)
         )) {
             keysToRemove.push(key);
         }
@@ -100,8 +100,7 @@ export const getDayOfYear = () => {
  * @returns {string} e.g., "dailyPrayers_2026-2-2"
  */
 export const getDailyPrayersKey = () => {
-    const date = getAppDate();
-    return `dailyPrayers_${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
+    return `dailyPrayers_${getTodayString()}`;
 };
 
 /**
