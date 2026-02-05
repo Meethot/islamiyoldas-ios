@@ -79,7 +79,7 @@ export default function LegalSettings() {
                 {/* Version Info */}
                 <div className="py-10 text-center">
                     <p className="text-[10px] text-gray-300 dark:text-gray-600 font-bold uppercase tracking-[0.3em]">
-                        Ruhani Yol v1.0.0
+                        İslami Yoldaş v1.0.0
                     </p>
                     <p className="text-[8px] text-gray-200 dark:text-gray-700 mt-2 italic">
                         Maneviyat Yolunda Beraberiz

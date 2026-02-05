@@ -19,7 +19,7 @@ export default function SplashScreen() {
             {/* App Name */}
             <div className="mt-8 text-center animate-in slide-in-from-bottom-4 duration-1000 delay-300">
                 <h1 className="text-3xl font-serif font-bold text-white tracking-widest uppercase">
-                    Ruhani Yol
+                    İslami Yoldaş
                 </h1>
                 <div className="w-12 h-1 bg-islamic-gold mx-auto mt-2 rounded-full" />
                 <p className="text-emerald-100/40 text-[10px] uppercase font-bold tracking-[0.3em] mt-4">

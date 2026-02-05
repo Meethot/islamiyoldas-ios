@@ -11,7 +11,7 @@ export default function Legal() {
         privacy: {
             title: "Gizlilik Politikası",
             body: `
-                Ruhani Yol olarak gizliliğinize önem veriyoruz. 
+                İslami Yoldaş olarak gizliliğinize önem veriyoruz. 
                 Bu uygulama tamamen kullanıcı dostu olup, kişisel verilerinizi toplamaz ve üçüncü şahıslarla paylaşmaz.
                 Tüm verileriniz (Kaza namazları, hedefler vb.) sadece telefonunuzda saklanır.
                 Uygulama silindiğinde bu veriler de silinebilir.
@@ -21,7 +21,7 @@ export default function Legal() {
         about: {
             title: "Hakkımızda",
             body: `
-                Ruhani Yol, modern dünyaya manevi bir pencere açmak için tasarlandı.
+                İslami Yoldaş, modern dünyaya manevi bir pencere açmak için tasarlandı.
                 Amacımız, ibadetlerinizi daha düzenli takip etmenize yardımcı olmak, 
                 zor anlarınızda manevi destek sunmak ve her gün yeni bir ilhamla güne başlamanızı sağlamaktır.
                 
@@ -50,7 +50,7 @@ export default function Legal() {
                 </article>
 
                 <div className="mt-12 p-6 bg-islamic-green/5 dark:bg-white/5 rounded-[2rem] text-center">
-                    <p className="text-xs text-islamic-green dark:text-islamic-gold font-bold">Ruhani Yol Ekibi</p>
+                    <p className="text-xs text-islamic-green dark:text-islamic-gold font-bold">İslami Yoldaş Ekibi</p>
                     <p className="text-[10px] text-gray-400 mt-1 italic">Vakit Ayırdığınız İçin Teşekkürler</p>
                 </div>
             </div>
