@@ -287,6 +287,8 @@ export default function Home() {
         >
             {/* Top Bar Removed as per user request */}
 
+
+
             <WeeklyStreakWidget tubaData={tubaData} setTubaData={setTubaData} />
 
             <VerseOfDayCard

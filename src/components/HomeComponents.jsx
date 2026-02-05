@@ -1,4 +1,5 @@
 import React, { memo, useMemo, useState, useRef, useEffect, Fragment } from 'react';
+import { usePrayerTimes } from '@/context/PrayerTimesContext';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import {
@@ -1575,6 +1576,7 @@ export const PrayerStreakBadge = memo(({ currentStreak, longestStreak, message }
 // --- Refined Daily Prayer Checklist ---
 export const DailyPrayerChecklist = memo(({ prayerTimes, completedPrayers, loading, onToggle, streakData }) => {
     const { selection, success, vibrate } = useHaptics();
+    const { settings } = usePrayerTimes();
 
     // Prayer Reward Modal State
     const [showRewardModal, setShowRewardModal] = useState(false);
@@ -1613,10 +1615,13 @@ export const DailyPrayerChecklist = memo(({ prayerTimes, completedPrayers, loadi
             setRewardContent(content);
             setCompletedPrayerName(name);
 
-            // Show modal after brief delay for better UX
-            setTimeout(() => {
-                setShowRewardModal(true);
-            }, 300);
+            // Show modal after brief delay for better UX - ONLY IF ENABLED
+            const isRewardsEnabled = settings?.spiritualRewards ?? true;
+            if (isRewardsEnabled) {
+                setTimeout(() => {
+                    setShowRewardModal(true);
+                }, 300);
+            }
         }
 
         onToggle(name);

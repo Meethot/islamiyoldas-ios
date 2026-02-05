@@ -2,8 +2,9 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     Bug, X, Clock, Trash2, Database, Volume2, Calendar,
-    FastForward, AlertTriangle, CheckCircle2, RefreshCcw, Navigation
+    FastForward, AlertTriangle, CheckCircle2, RefreshCcw, Navigation, Bell
 } from 'lucide-react';
+import { LocalNotifications } from '@capacitor/local-notifications';
 import { Button } from '@/components/ui/button';
 import { advanceTestDay, resetTestDay, getTestDayOffset, getTodayString, getDailyPrayersKey } from '@/lib/testDate';
 
@@ -117,6 +118,38 @@ const DebugMenu = () => {
         }
     };
 
+    const test5SecNotification = async () => {
+        try {
+            let permStatus = await LocalNotifications.checkPermissions();
+            if (permStatus.display !== 'granted') {
+                permStatus = await LocalNotifications.requestPermissions();
+            }
+
+            if (permStatus.display === 'granted') {
+                await LocalNotifications.schedule({
+                    notifications: [
+                        {
+                            title: "Test Başarılı",
+                            body: "Ekran kapalıyken bildirim geldi!",
+                            id: Math.floor(Math.random() * 100000),
+                            schedule: { at: new Date(Date.now() + 5000) },
+                            sound: null,
+                            attachments: null,
+                            actionTypeId: "",
+                            extra: null
+                        }
+                    ]
+                });
+                setLastAction('⏰ Notification scheduled in 5s!');
+                alert("Bildirim kuruldu! Hemen ekranı kilitle.");
+            } else {
+                setLastAction('❌ Notification permission denied');
+            }
+        } catch (error) {
+            setLastAction('❌ Notification error: ' + error.message);
+        }
+    };
+
     const testVibration = () => {
         if ('vibrate' in navigator) {
             navigator.vibrate([100, 50, 100, 50, 200]);
@@ -153,6 +186,7 @@ const DebugMenu = () => {
             group: '🔔 Notifications',
             items: [
                 { label: 'Test Adhan Sound', icon: Volume2, action: testAdhanSound, color: 'bg-amber-500' },
+                { label: '5s Notification', icon: Bell, action: test5SecNotification, color: 'bg-red-500' },
                 { label: 'Test Vibration', icon: Database, action: testVibration, color: 'bg-purple-500' },
             ]
         },

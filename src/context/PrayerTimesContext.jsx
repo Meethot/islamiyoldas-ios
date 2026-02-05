@@ -5,6 +5,7 @@ import { LocalNotifications } from '@capacitor/local-notifications';
 import { Preferences } from '@capacitor/preferences';
 import { Capacitor } from '@capacitor/core';
 import { useLocation } from '@/context/LocationContext';
+import { DAILY_VERSES } from '@/data/dailyVerses';
 
 const PrayerTimesContext = createContext();
 
@@ -15,8 +16,13 @@ export const PrayerTimesProvider = ({ children }) => {
     const [nextPrayer, setNextPrayer] = useState(null);
     const [settings, setSettings] = useState({
         adhanEnabled: true,
-        vibrateOnly: false
+        vibrateOnly: false,
+        verseEnabled: true,
+        prayerFocusMode: true,
+        spiritualRewards: true,
+        fridayMessage: true
     });
+
     const [loading, setLoading] = useState(true);
     const [locationSource, setLocationSource] = useState('loading'); // 'gps' | 'fallback' | 'loading'
 
@@ -46,16 +52,26 @@ export const PrayerTimesProvider = ({ children }) => {
         if (prayerTimes) {
             scheduleDailyNotifications(prayerTimes);
         }
+        scheduleVerseNotifications();
+        scheduleFridayMessage();
     }, [settings, prayerTimes]); // Added prayerTimes dependency
 
     const loadSettings = async () => {
         try {
             const { value: adhanEnabled } = await Preferences.get({ key: 'adhanEnabled' });
             const { value: vibrateOnly } = await Preferences.get({ key: 'vibrateOnly' });
+            const { value: verseEnabled } = await Preferences.get({ key: 'verseEnabled' });
+            const { value: prayerFocusMode } = await Preferences.get({ key: 'prayerFocusMode' });
+            const { value: spiritualRewards } = await Preferences.get({ key: 'spiritualRewards' });
+            const { value: fridayMessage } = await Preferences.get({ key: 'fridayMessage' });
 
             setSettings({
                 adhanEnabled: adhanEnabled === null ? true : adhanEnabled === 'true',
-                vibrateOnly: vibrateOnly === 'true'
+                vibrateOnly: vibrateOnly === 'true',
+                verseEnabled: verseEnabled === null ? true : verseEnabled === 'true',
+                prayerFocusMode: prayerFocusMode === null ? true : prayerFocusMode === 'true',
+                spiritualRewards: spiritualRewards === null ? true : spiritualRewards === 'true',
+                fridayMessage: fridayMessage === null ? true : fridayMessage === 'true'
             });
         } catch (error) {
             console.error('Error loading settings:', error);
@@ -70,6 +86,18 @@ export const PrayerTimesProvider = ({ children }) => {
             }
             if (newSettings.vibrateOnly !== undefined) {
                 await Preferences.set({ key: 'vibrateOnly', value: String(newSettings.vibrateOnly) });
+            }
+            if (newSettings.verseEnabled !== undefined) {
+                await Preferences.set({ key: 'verseEnabled', value: String(newSettings.verseEnabled) });
+            }
+            if (newSettings.prayerFocusMode !== undefined) {
+                await Preferences.set({ key: 'prayerFocusMode', value: String(newSettings.prayerFocusMode) });
+            }
+            if (newSettings.spiritualRewards !== undefined) {
+                await Preferences.set({ key: 'spiritualRewards', value: String(newSettings.spiritualRewards) });
+            }
+            if (newSettings.fridayMessage !== undefined) {
+                await Preferences.set({ key: 'fridayMessage', value: String(newSettings.fridayMessage) });
             }
         } catch (error) {
             console.error('Error saving settings:', error);
@@ -102,7 +130,7 @@ export const PrayerTimesProvider = ({ children }) => {
 
     const { i18n } = useTranslation();
 
-    // ...\n
+    // ...
     const fetchPrayerTimes = useCallback(async () => {
         try {
             setLoading(true);
@@ -208,7 +236,7 @@ export const PrayerTimesProvider = ({ children }) => {
                     body: `${p.name} Vakti Girdi`,
                     id: p.id,
                     schedule: { at: date, allowWhileIdle: true },
-                    sound: settings.vibrateOnly ? null : 'ezan.mp3',
+                    sound: settings.vibrateOnly ? null : (Capacitor.getPlatform() === 'android' ? 'ezan' : 'ezan.mp3'),
                     channelId: 'ezan_vakti',
                     smallIcon: 'ic_stat_icon_config_sample' // Default resource
                 };
@@ -221,6 +249,139 @@ export const PrayerTimesProvider = ({ children }) => {
             console.error('Error scheduling notifications:', error);
         }
     }, [settings.adhanEnabled, settings.vibrateOnly]); // Added dependencies
+
+    const scheduleVerseNotifications = useCallback(async () => {
+        if (!Capacitor.isNativePlatform()) return;
+
+        try {
+            // Cancel existing verse notifications (IDs 1001 and 1002)
+            await LocalNotifications.cancel({ notifications: [{ id: 1001 }, { id: 1002 }] });
+
+            if (!settings.verseEnabled) return;
+
+            // Helper to get random verse
+            const getRandomVerse = () => DAILY_VERSES[Math.floor(Math.random() * DAILY_VERSES.length)];
+
+            // Schedule for tomorrow if time passed
+            const getScheduleDate = (hour, minute) => {
+                const date = new Date();
+                date.setHours(hour, minute, 0, 0);
+                if (date < new Date()) {
+                    date.setDate(date.getDate() + 1);
+                }
+                return date;
+            };
+
+            const morningVerse = getRandomVerse();
+            const eveningVerse = getRandomVerse();
+
+            const notifications = [
+                {
+                    id: 1001,
+                    title: 'Günün Ayeti (Sabah)',
+                    body: morningVerse.text,
+                    schedule: { at: getScheduleDate(9, 0), allowWhileIdle: true },
+                    smallIcon: 'ic_stat_icon_config_sample',
+                    sound: null
+                },
+                {
+                    id: 1002,
+                    title: 'Günün Ayeti (Akşam)',
+                    body: eveningVerse.text,
+                    schedule: { at: getScheduleDate(21, 0), allowWhileIdle: true },
+                    smallIcon: 'ic_stat_icon_config_sample',
+                    sound: null
+                }
+            ];
+
+            await LocalNotifications.schedule({ notifications });
+
+        } catch (error) {
+            console.error('Error scheduling verse notifications:', error);
+        }
+    }, [settings.verseEnabled]);
+
+    const scheduleFridayMessage = useCallback(async () => {
+        if (!Capacitor.isNativePlatform()) return;
+
+        try {
+            // Cancel existing Friday notifications (using a range of IDs)
+            // We'll use IDs 2000 to 2050 for Friday messages
+            const pending = await LocalNotifications.getPending();
+            const fridayIds = pending.notifications
+                .filter(n => n.id >= 2000 && n.id < 2050)
+                .map(n => ({ id: n.id }));
+
+            if (fridayIds.length > 0) {
+                await LocalNotifications.cancel({ notifications: fridayIds });
+            }
+
+            if (!settings.fridayMessage) return;
+
+            const FRIDAY_MESSAGES = [
+                "Hayırlı Cumalar 🌹 Allah dualarınızı kabul, ömrünüzü bereketli eylesin.",
+                "Cumanız Mübarek Olsun. Kalbiniz nur, eviniz huzur dolsun. 🤲",
+                "Ey Rabbimiz! Bizi sana boyun eğenlerden kıl. Hayırlı Cumalar.",
+                "Gönüller duada birleşince Cumalar güzelleşir. Hayırlı Cumalar 🕌",
+                "Allah'ım! Recep ve Şaban'ı bize mübarek kıl ve bizi Ramazan'a ulaştır. Hayırlı Cumalar.",
+                "Cuma gününün hayrı, bereketi üzerinize olsun. Selam ve dua ile... 🌹",
+                "Rabbim! Gönlümüzden geçen hayırlı duaları kabul eyle. Cumanız mübarek olsun.",
+                "Bugün duaların geri çevrilmediği o icabet saatine denk gelmeniz duasıyla. Hayırlı Cumalar.",
+                "Allah'ın rahmeti ve bereketi üzerinize olsun. Hayırlı, huzurlu Cumalar.",
+                "Ömrümüzün her anı Cuma bereketiyle dolsun. Dualarda buluşmak ümidiyle. 🤲"
+            ];
+
+            const notifications = [];
+            const now = new Date();
+
+            // Schedule for the next 10 weeks
+            for (let i = 0; i < 10; i++) {
+                const nextFriday = new Date();
+                nextFriday.setHours(11, 30, 0, 0);
+
+                const dayOfWeek = now.getDay();
+                const daysUntilFriday = (5 + 7 - dayOfWeek) % 7;
+
+                // Calculate date for this iteration's Friday
+                if (i === 0) {
+                    if (dayOfWeek === 5 && now > nextFriday) {
+                        nextFriday.setDate(now.getDate() + 7);
+                    } else {
+                        nextFriday.setDate(now.getDate() + daysUntilFriday);
+                    }
+                } else {
+                    // For i > 0, calculate based on the first scheduled Friday
+                    const baseFriday = new Date();
+                    baseFriday.setHours(11, 30, 0, 0);
+                    let baseDaysToAdd = daysUntilFriday;
+                    if (dayOfWeek === 5 && now > baseFriday) {
+                        baseDaysToAdd += 7;
+                    }
+                    nextFriday.setDate(now.getDate() + baseDaysToAdd + (i * 7));
+                }
+
+                // Verify future check
+                if (nextFriday <= now) {
+                    nextFriday.setDate(nextFriday.getDate() + 7);
+                }
+
+                notifications.push({
+                    id: 2000 + i,
+                    title: 'Hayırlı Cumalar 🌹',
+                    body: FRIDAY_MESSAGES[i % FRIDAY_MESSAGES.length],
+                    schedule: { at: nextFriday, allowWhileIdle: true },
+                    sound: settings.vibrateOnly ? null : 'beep.wav',
+                    smallIcon: 'ic_stat_icon_config_sample'
+                });
+            }
+
+            console.log(`Scheduling ${notifications.length} Friday messages`);
+            await LocalNotifications.schedule({ notifications });
+
+        } catch (error) {
+            console.error('Error scheduling Friday message:', error);
+        }
+    }, [settings.fridayMessage, settings.vibrateOnly]);
 
     const value = useMemo(() => ({
         prayerTimes,

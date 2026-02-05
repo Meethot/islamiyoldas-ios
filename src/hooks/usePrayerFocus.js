@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { getTodayString } from '@/lib/testDate';
+import { usePrayerTimes } from '@/context/PrayerTimesContext';
 
 /**
  * usePrayerFocus Hook
@@ -12,11 +13,15 @@ import { getTodayString } from '@/lib/testDate';
  * @returns {Object} { activePrayer, shouldShowOverlay, snooze, clearSnooze }
  */
 export function usePrayerFocus(prayerTimes, completedPrayers) {
+    const { settings } = usePrayerTimes();
     const [activePrayer, setActivePrayer] = useState(null);
     const [shouldShowOverlay, setShouldShowOverlay] = useState(false);
 
+    // If focus mode is disabled in settings, return default state (never show overlay)
+    const isFocusModeEnabled = settings?.prayerFocusMode ?? true;
+
     useEffect(() => {
-        if (!prayerTimes || prayerTimes.length === 0) return;
+        if (!prayerTimes || prayerTimes.length === 0 || !isFocusModeEnabled) return;
 
         const checkPrayerTime = () => {
             const now = new Date();

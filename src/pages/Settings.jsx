@@ -40,24 +40,12 @@ export default function Settings() {
     const [city, setCityState] = useState(localStorage.getItem('userCity') || 'İstanbul');
     const [isCityModalOpen, setIsCityModalOpen] = useState(false);
     const [useAutoLocation, setUseAutoLocation] = useState(true); // Default to auto
-    const [notifications, setNotifications] = useState({
-        // ezan: removed, managed by context
-        verse: true,
-        prayerFocusMode: true, // Blur Mode
-        spiritualRewards: true, // Hadith/Dua Modal
-        smartReminders: true // Gentle Reminders
-    });
 
     const setCity = (newCity) => {
         setCityState(newCity);
         localStorage.setItem('userCity', newCity);
         success();
         setIsCityModalOpen(false);
-    };
-
-    const toggleNotification = (key) => {
-        selection();
-        setNotifications(prev => ({ ...prev, [key]: !prev[key] }));
     };
 
     const handleShareApp = async () => {
@@ -138,8 +126,11 @@ export default function Settings() {
                             icon={Info}
                             label="Günün Ayeti"
                             subtitle="Her gün yeni bir ilham"
-                            active={notifications.verse}
-                            onToggle={() => toggleNotification('verse')}
+                            active={prayerSettings.verseEnabled}
+                            onToggle={() => {
+                                selection();
+                                updateSettings({ verseEnabled: !prayerSettings.verseEnabled });
+                            }}
                         />
                     </div>
                 </section>
@@ -152,22 +143,31 @@ export default function Settings() {
                             icon={Moon}
                             label="Namaz Modu"
                             subtitle="Vakit girince huzurlu odaklanma modu"
-                            active={notifications.prayerFocusMode}
-                            onToggle={() => toggleNotification('prayerFocusMode')}
+                            active={prayerSettings.prayerFocusMode}
+                            onToggle={() => {
+                                selection();
+                                updateSettings({ prayerFocusMode: !prayerSettings.prayerFocusMode });
+                            }}
                         />
                         <SettingsToggle
                             icon={Share2} // Gift icon would be better but using simple icon for now
                             label="Manevi Ödüller"
                             subtitle="Namaz sonrası hadis ve dualar"
-                            active={notifications.spiritualRewards}
-                            onToggle={() => toggleNotification('spiritualRewards')}
+                            active={prayerSettings.spiritualRewards}
+                            onToggle={() => {
+                                selection();
+                                updateSettings({ spiritualRewards: !prayerSettings.spiritualRewards });
+                            }}
                         />
                         <SettingsToggle
                             icon={MessageSquare}
-                            label="Nazik Hatırlatıcı"
-                            subtitle="Sana özel motivasyon mesajları"
-                            active={notifications.smartReminders}
-                            onToggle={() => toggleNotification('smartReminders')}
+                            label="Cuma Mesajı"
+                            subtitle="Her Cuma manevi bir hatırlatma al"
+                            active={prayerSettings.fridayMessage}
+                            onToggle={() => {
+                                selection();
+                                updateSettings({ fridayMessage: !prayerSettings.fridayMessage });
+                            }}
                         />
                     </div>
                 </section>
