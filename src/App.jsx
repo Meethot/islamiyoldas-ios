@@ -8,7 +8,7 @@ import Profile from './pages/Profile';
 import Stories from './pages/Stories';
 import Dhikr from './pages/Dhikr';
 import Qibla from './pages/Qibla';
-import Settings from './pages/Settings';
+// Settings.jsx removed - Profile is now the settings hub
 import Legal from './pages/Legal';
 import AppLayout from './layouts/AppLayout';
 import SplashScreen from './components/SplashScreen';
@@ -19,6 +19,10 @@ import DuaKosesi from './pages/DuaKosesi';
 import Quran from './pages/Quran';
 import SurahDetail from './pages/SurahDetail';
 import { PrayerTimesProvider } from './context/PrayerTimesContext';
+import NotificationSettings from './pages/settings/NotificationSettings';
+// AppearanceSettings removed - now handled as direct toggle in Profile
+import LocationSettings from './pages/settings/LocationSettings';
+import LegalSettings from './pages/settings/LegalSettings';
 
 import ScrollToTop from './components/ScrollToTop';
 
@@ -54,7 +58,11 @@ function App() {
             <Route path="/quran" element={<Quran />} />
             <Route path="/quran/:surahId" element={<SurahDetail />} />
             <Route path="/qibla" element={<Qibla />} />
-            <Route path="/settings" element={<Settings />} />
+            {/* /settings removed - Profile now handles settings navigation */}
+            <Route path="/settings/notifications" element={<NotificationSettings />} />
+            {/* /settings/appearance removed - now direct toggle in Profile */}
+            <Route path="/settings/location" element={<LocationSettings />} />
+            <Route path="/settings/legal" element={<LegalSettings />} />
             <Route path="/legal/:type" element={<Legal />} />
           </Route>
         </Routes>

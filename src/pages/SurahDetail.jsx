@@ -592,7 +592,7 @@ export default function SurahDetail() {
                             type="number"
                             inputMode="numeric"
                             pattern="[0-9]*"
-                            placeholder="Ayet No (örn: 25)"
+                            placeholder="Ayet Numarası (örn: 25)"
                             value={jumpTarget}
                             onChange={(e) => setJumpTarget(e.target.value)}
                             onKeyDown={(e) => e.key === 'Enter' && handleJumpToVerse(e)}

@@ -251,9 +251,6 @@ export default function Profile() {
             <motion.div variants={itemVariants} className="relative pt-6 px-4">
                 <div className="flex justify-between items-center mb-6">
                     <h1 className="text-3xl font-serif font-bold text-islamic-green dark:text-islamic-gold">{t('title')}</h1>
-                    <Button variant="ghost" size="icon" className="rounded-full" onClick={() => navigate('/settings')}>
-                        <Settings className="w-6 h-6 text-gray-400" />
-                    </Button>
                 </div>
 
                 {/* Profile Card */}
@@ -336,31 +333,75 @@ export default function Profile() {
                 </motion.div>
             )}
 
-            {/* Functional Settings */}
+            {/* Settings Navigation (Drill-Down Pattern) */}
             <motion.div variants={itemVariants} className="px-4 space-y-4">
                 <h3 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest px-2">{t('personal_settings')}</h3>
                 <div className="bg-white dark:bg-white/5 rounded-[2rem] shadow-sm border border-gray-100 dark:border-white/5 overflow-hidden divide-y divide-gray-50 dark:divide-white/5">
 
-                    {/* Notifications Toggle */}
-                    <div className="p-5 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-white/5 transition-colors cursor-pointer" onClick={toggleNotifications}>
+                    {/* Notifications - Navigate to sub-page */}
+                    <div
+                        className="p-5 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-white/5 transition-colors cursor-pointer group"
+                        onClick={() => { selection(); navigate('/settings/notifications'); }}
+                    >
                         <div className="flex items-center gap-4">
-                            <div className={cn("p-3 rounded-2xl transition-colors", notifications ? "bg-islamic-green/10 text-islamic-green dark:bg-islamic-green/20 dark:text-islamic-gold" : "bg-gray-100 text-gray-400 dark:bg-white/5 dark:text-gray-500")}>
+                            <div className="p-3 bg-islamic-green/10 text-islamic-green dark:bg-islamic-green/20 dark:text-islamic-gold rounded-2xl group-hover:scale-110 transition-transform">
                                 <Bell size={20} />
                             </div>
                             <div className="text-left">
                                 <p className="text-sm font-bold text-gray-900 dark:text-white">{t('notifications.title')}</p>
-                                <p className="text-[10px] text-gray-400 font-medium">{t('notifications.subtitle')}</p>
+                                <p className="text-[10px] text-gray-400 font-medium">Ezan, ayet ve motivasyon</p>
                             </div>
                         </div>
-                        <div className={cn("w-12 h-7 rounded-full p-1 transition-colors duration-300 flex items-center", notifications ? "bg-islamic-green justify-end" : "bg-gray-200 dark:bg-white/10 justify-start")}>
-                            <motion.div layout className="w-5 h-5 bg-white rounded-full shadow-sm" />
+                        <ChevronRight className="w-5 h-5 text-gray-300 group-hover:translate-x-1 transition-transform" />
+                    </div>
+
+                    {/* Appearance - Direct Toggle (no sub-page needed) */}
+                    <div
+                        className="p-5 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-white/5 transition-colors cursor-pointer group"
+                        onClick={() => { selection(); toggleTheme(); }}
+                    >
+                        <div className="flex items-center gap-4">
+                            <div className="p-3 bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 rounded-2xl group-hover:scale-110 transition-transform">
+                                {isDarkMode ? <Moon size={20} /> : <Sun size={20} />}
+                            </div>
+                            <div className="text-left">
+                                <p className="text-sm font-bold text-gray-900 dark:text-white">{t('appearance.title')}</p>
+                                <p className="text-[10px] text-gray-400 font-medium">{isDarkMode ? 'Gece modu aktif' : 'Gündüz modu aktif'}</p>
+                            </div>
+                        </div>
+                        {/* Sliding Toggle Switch */}
+                        <div className={cn(
+                            "w-12 h-6 rounded-full p-1 transition-colors relative",
+                            isDarkMode ? "bg-islamic-green dark:bg-islamic-gold" : "bg-gray-200 dark:bg-white/10"
+                        )}>
+                            <div className={cn(
+                                "w-4 h-4 bg-white rounded-full shadow-sm transition-transform",
+                                isDarkMode ? "translate-x-6" : "translate-x-0"
+                            )} />
                         </div>
                     </div>
 
-                    {/* Privacy Modal Trigger */}
-                    <div className="p-5 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-white/5 transition-colors cursor-pointer" onClick={() => setShowPrivacyModal(true)}>
+                    {/* Location - Navigate to sub-page */}
+                    <div
+                        className="p-5 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-white/5 transition-colors cursor-pointer group"
+                        onClick={() => { selection(); navigate('/settings/location'); }}
+                    >
                         <div className="flex items-center gap-4">
-                            <div className="p-3 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-2xl">
+                            <div className="p-3 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 rounded-2xl group-hover:scale-110 transition-transform">
+                                <Box size={20} />
+                            </div>
+                            <div className="text-left">
+                                <p className="text-sm font-bold text-gray-900 dark:text-white">Konum</p>
+                                <p className="text-[10px] text-gray-400 font-medium">GPS ve şehir ayarları</p>
+                            </div>
+                        </div>
+                        <ChevronRight className="w-5 h-5 text-gray-300 group-hover:translate-x-1 transition-transform" />
+                    </div>
+
+                    {/* Privacy Modal Trigger - Keep as modal */}
+                    <div className="p-5 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-white/5 transition-colors cursor-pointer group" onClick={() => setShowPrivacyModal(true)}>
+                        <div className="flex items-center gap-4">
+                            <div className="p-3 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-2xl group-hover:scale-110 transition-transform">
                                 <Shield size={20} />
                             </div>
                             <div className="text-left">
@@ -368,26 +409,12 @@ export default function Profile() {
                                 <p className="text-[10px] text-gray-400 font-medium">{t('privacy.subtitle')}</p>
                             </div>
                         </div>
-                        <ChevronRight className="w-5 h-5 text-gray-300" />
-                    </div>
-
-                    {/* Theme Toggle */}
-                    <div className="p-5 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-white/5 transition-colors cursor-pointer" onClick={toggleTheme}>
-                        <div className="flex items-center gap-4">
-                            <div className="p-3 bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400 rounded-2xl">
-                                {isDarkMode ? <Moon size={20} /> : <Sun size={20} />}
-                            </div>
-                            <div className="text-left">
-                                <p className="text-sm font-bold text-gray-900 dark:text-white">{t('appearance.title')}</p>
-                                <p className="text-[10px] text-gray-400 font-medium">{isDarkMode ? t('appearance.subtitle_dark') : t('appearance.subtitle_light')}</p>
-                            </div>
-                        </div>
-                        <ChevronRight className="w-5 h-5 text-gray-300" />
+                        <ChevronRight className="w-5 h-5 text-gray-300 group-hover:translate-x-1 transition-transform" />
                     </div>
 
                     {/* Share Progress */}
                     <div
-                        className="p-5 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-white/5 transition-colors cursor-pointer"
+                        className="p-5 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-white/5 transition-colors cursor-pointer group"
                         onClick={async () => {
                             selection();
                             heavy();
@@ -395,7 +422,7 @@ export default function Profile() {
                         }}
                     >
                         <div className="flex items-center gap-4">
-                            <div className="p-3 bg-islamic-gold/10 text-islamic-gold dark:bg-islamic-gold/20 rounded-2xl">
+                            <div className="p-3 bg-islamic-gold/10 text-islamic-gold dark:bg-islamic-gold/20 rounded-2xl group-hover:scale-110 transition-transform">
                                 <Share2 size={20} />
                             </div>
                             <div className="text-left">
@@ -403,12 +430,12 @@ export default function Profile() {
                                 <p className="text-[10px] text-gray-400 font-medium">{t('share.subtitle')}</p>
                             </div>
                         </div>
-                        <ChevronRight className="w-5 h-5 text-gray-300" />
+                        <ChevronRight className="w-5 h-5 text-gray-300 group-hover:translate-x-1 transition-transform" />
                     </div>
 
                     {/* Invite Friend */}
                     <div
-                        className="p-5 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-white/5 transition-colors cursor-pointer"
+                        className="p-5 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-white/5 transition-colors cursor-pointer group"
                         onClick={async () => {
                             selection();
                             const success = await shareInvite('user-' + Date.now());
@@ -416,7 +443,7 @@ export default function Profile() {
                         }}
                     >
                         <div className="flex items-center gap-4">
-                            <div className="p-3 bg-islamic-green/10 text-islamic-green dark:bg-islamic-green/20 dark:text-islamic-gold rounded-2xl">
+                            <div className="p-3 bg-islamic-green/10 text-islamic-green dark:bg-islamic-green/20 dark:text-islamic-gold rounded-2xl group-hover:scale-110 transition-transform">
                                 <UserPlus size={20} />
                             </div>
                             <div className="text-left">
@@ -424,7 +451,7 @@ export default function Profile() {
                                 <p className="text-[10px] text-gray-400 font-medium">{t('invite.subtitle')}</p>
                             </div>
                         </div>
-                        <ChevronRight className="w-5 h-5 text-gray-300" />
+                        <ChevronRight className="w-5 h-5 text-gray-300 group-hover:translate-x-1 transition-transform" />
                     </div>
 
                 </div>
@@ -460,11 +487,11 @@ export default function Profile() {
 
                     {/* Report Bug */}
                     <div
-                        className="p-5 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-white/5 transition-colors cursor-pointer"
+                        className="p-5 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-white/5 transition-colors cursor-pointer group"
                         onClick={handleReportBug}
                     >
                         <div className="flex items-center gap-4">
-                            <div className="p-3 bg-red-50 dark:bg-red-900/20 text-red-500 dark:text-red-400 rounded-2xl">
+                            <div className="p-3 bg-red-50 dark:bg-red-900/20 text-red-500 dark:text-red-400 rounded-2xl group-hover:scale-110 transition-transform">
                                 <Bug size={20} />
                             </div>
                             <div className="text-left">
@@ -472,7 +499,24 @@ export default function Profile() {
                                 <p className="text-[10px] text-gray-400 font-medium">Uygulamada sorun mu var?</p>
                             </div>
                         </div>
-                        <ChevronRight className="w-5 h-5 text-gray-300" />
+                        <ChevronRight className="w-5 h-5 text-gray-300 group-hover:translate-x-1 transition-transform" />
+                    </div>
+
+                    {/* Legal & About - Navigate to sub-page */}
+                    <div
+                        className="p-5 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-white/5 transition-colors cursor-pointer group"
+                        onClick={() => { selection(); navigate('/settings/legal'); }}
+                    >
+                        <div className="flex items-center gap-4">
+                            <div className="p-3 bg-gray-100 dark:bg-white/5 text-gray-500 dark:text-gray-400 rounded-2xl group-hover:scale-110 transition-transform">
+                                <HelpCircle size={20} />
+                            </div>
+                            <div className="text-left">
+                                <p className="text-sm font-bold text-gray-900 dark:text-white">Yasal & Hakkımızda</p>
+                                <p className="text-[10px] text-gray-400 font-medium">Gizlilik, iletişim ve destek</p>
+                            </div>
+                        </div>
+                        <ChevronRight className="w-5 h-5 text-gray-300 group-hover:translate-x-1 transition-transform" />
                     </div>
 
                 </div>

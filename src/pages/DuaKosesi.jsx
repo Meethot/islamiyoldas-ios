@@ -472,7 +472,7 @@ function DuaIstekleriGecmisi({ requests, onDelete, onClose, getStatusBadge }) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex flex-col"
+            className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-end justify-center"
             onClick={onClose}
         >
             <motion.div
@@ -487,7 +487,7 @@ function DuaIstekleriGecmisi({ requests, onDelete, onClose, getStatusBadge }) {
                     if (info.offset.y > 100) onClose();
                 }}
                 onClick={(e) => e.stopPropagation()}
-                className="mt-auto h-[85vh] bg-[#fdfaf5] dark:bg-[#032e18] rounded-t-[2.5rem] overflow-hidden flex flex-col shadow-2xl"
+                className="w-full max-w-md h-[85vh] bg-[#fdfaf5] dark:bg-[#032e18] rounded-t-[2.5rem] overflow-hidden flex flex-col shadow-2xl"
             >
                 {/* Header */}
                 <div className="p-6 pb-4 border-b dark:border-white/5 bg-white/50 dark:bg-[#032e18]/50 backdrop-blur-xl">
