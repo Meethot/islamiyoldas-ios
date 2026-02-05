@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { RotateCcw, Volume2, VolumeX, Smartphone, Settings, Heart, Star, Sparkles, Edit3, X, Check } from 'lucide-react';
+import { RotateCcw, Volume2, VolumeX, Smartphone, Settings, Heart, Star, Sparkles, Edit3, X, Check, Trash2 } from 'lucide-react';
 // Eğer lib/utils.js oluşturmadıysan aşağıdaki importu silip cn fonksiyonunu bu dosyanın içine de yazabilirsin.
 import { cn } from '../lib/utils';
 
@@ -24,6 +24,7 @@ export default function Dhikr() {
     const [tempTarget, setTempTarget] = useState('33');
     const [celebrating, setCelebrating] = useState(false);
     const [hapticMessage, setHapticMessage] = useState('');
+    const [showTotalResetConfirm, setShowTotalResetConfirm] = useState(false);
 
     const clickSound = useRef(new Audio('https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3'));
 
@@ -95,18 +96,24 @@ export default function Dhikr() {
         }
     };
 
+    const resetTotal = () => {
+        setTotalCount(0);
+        localStorage.setItem('totalDhikrOverall', '0');
+        setShowTotalResetConfirm(false);
+    };
+
     const progress = (count % target) / target * 100;
     const radius = 85;
     const circumference = 2 * Math.PI * radius;
     const offset = circumference - (progress / 100) * circumference;
 
     return (
-        <div className="flex flex-col min-h-screen bg-[#021a0f] text-white p-5 relative overflow-hidden font-sans">
+        <div className="flex flex-col min-h-screen bg-[#021a0f] text-white px-5 pb-5 pt-0 relative overflow-hidden font-sans">
             {/* Ambient Background Elements */}
             <div className="absolute top-[-10%] right-[-10%] w-64 h-64 bg-islamic-gold/10 rounded-full blur-[100px]" />
             <div className="absolute bottom-[-5%] left-[-5%] w-72 h-72 bg-islamic-green/20 rounded-full blur-[120px]" />
 
-            <header className="flex justify-between items-center z-10 mb-8 sticky top-0 bg-[#021a0f]/80 backdrop-blur-sm -mx-6 px-6 py-2 border-b border-white/5">
+            <header className="flex justify-between items-center z-10 mb-4 sticky top-0 bg-[#021a0f]/80 backdrop-blur-sm -mx-6 px-6 py-1 border-b border-white/5">
                 <div className="flex items-center gap-2">
                     <div className="bg-islamic-gold/10 p-2 rounded-xl">
                         <Sparkles className="w-5 h-5 text-islamic-gold animate-pulse" />
@@ -151,21 +158,21 @@ export default function Dhikr() {
                 </div>
             </header>
 
-            {/* Main Interaction Area */}
-            <div className="flex-1 flex flex-col justify-center items-center z-10 relative mt-4">
-                {/* Visual Feedback Text */}
-                <div className="text-center mb-10 animate-in fade-in zoom-in duration-700">
-                    <p className="text-islamic-gold font-serif text-4xl mb-1 opacity-95 drop-shadow-lg">{activePreset.arabic}</p>
+            {/* Main Interaction Area - Aesthetic spacing from top */}
+            <div className="flex-1 flex flex-col justify-start items-center z-10 relative mt-8">
+                {/* Visual Feedback Text - Balanced margin */}
+                <div className="text-center mb-6 animate-in fade-in zoom-in duration-700">
+                    <p className="text-islamic-gold font-serif text-4xl mb-2 opacity-95 drop-shadow-lg">{activePreset.arabic}</p>
                     <p className="text-white/40 text-xs italic mb-4 font-normal tracking-wide">{activePreset.meaning}</p>
 
                     {/* Interactive Target Indicator */}
                     <button
                         onClick={() => setShowTargetModal(true)}
-                        className="group flex items-center gap-3 bg-islamic-gold/5 hover:bg-islamic-gold/10 px-10 py-3.5 rounded-full border border-islamic-gold/40 transition-all mx-auto shadow-[0_0_20px_rgba(212,175,55,0.15)] hover:shadow-[0_0_30px_rgba(212,175,55,0.25)] active:scale-95"
+                        className="group flex items-center gap-3 bg-islamic-gold/5 hover:bg-islamic-gold/10 px-10 py-3.5 rounded-full border border-islamic-gold/40 transition-all mx-auto shadow-[0_0_20px_rgba(212,175,55,0.15)] active:scale-95"
                     >
                         <span className="text-islamic-gold font-bold text-xs uppercase tracking-[0.25em]"> Hedef: {target}</span>
                         <div className="bg-islamic-gold/20 p-1.5 rounded-full">
-                            <Edit3 size={14} className="text-islamic-gold opacity-80 group-hover:opacity-100 transition-opacity" />
+                            <Edit3 size={14} className="text-islamic-gold opacity-80" />
                         </div>
                     </button>
                 </div>
@@ -244,22 +251,57 @@ export default function Dhikr() {
                     <Heart size={14} className="absolute top-12 left-10 text-islamic-gold/10 animate-pulse delay-500" />
                 </div>
 
-                {/* Cumulative Counter Card */}
-                <div className="mt-14 group">
-                    <div className="bg-white/5 backdrop-blur-xl px-8 py-4 rounded-3xl border border-white/10 flex items-center gap-5 transition-all hover:bg-white/10 hover:border-islamic-gold/30 hover:scale-105 shadow-xl">
-                        <div className="p-3 bg-islamic-gold/10 rounded-2xl border border-islamic-gold/20">
-                            <Star size={20} className="text-islamic-gold drop-shadow-[0_0_8px_rgba(212,175,55,0.5)]" />
+                {/* Cumulative Counter Card - Balanced distance */}
+                <div className="mt-10 group relative">
+                    <div className="bg-white/5 backdrop-blur-xl px-8 py-4 rounded-3xl border border-white/10 flex items-center justify-between gap-5 transition-all hover:bg-white/10 hover:border-islamic-gold/30 hover:scale-105 shadow-xl">
+                        <div className="flex items-center gap-5">
+                            <div className="p-3 bg-islamic-gold/10 rounded-2xl border border-islamic-gold/20">
+                                <Star size={20} className="text-islamic-gold drop-shadow-[0_0_8px_rgba(212,175,55,0.5)]" />
+                            </div>
+                            <div className="text-left">
+                                <p className="text-[10px] font-bold text-white/30 uppercase tracking-[0.25em] leading-none mb-1">Toplam Zikir</p>
+                                <p className="text-2xl font-mono font-bold text-islamic-gold tracking-tight">{totalCount.toLocaleString('tr-TR')}</p>
+                            </div>
                         </div>
-                        <div className="text-left">
-                            <p className="text-[10px] font-bold text-white/30 uppercase tracking-[0.25em] leading-none mb-1">Toplam Zikir</p>
-                            <p className="text-2xl font-mono font-bold text-islamic-gold tracking-tight">{totalCount.toLocaleString('tr-TR')}</p>
-                        </div>
+
+                        {/* Reset Total Button */}
+                        <button
+                            onClick={() => setShowTotalResetConfirm(true)}
+                            className="p-2.5 bg-islamic-gold/5 hover:bg-islamic-gold/10 text-white/20 hover:text-islamic-gold rounded-xl transition-all active:scale-90 border border-transparent hover:border-islamic-gold/30"
+                            title="Tüm Zikirleri Sıfırla"
+                        >
+                            <RotateCcw size={18} />
+                        </button>
                     </div>
+
+                    {/* Total Reset Confirmation Dialog */}
+                    {showTotalResetConfirm && (
+                        <div className="absolute inset-0 z-50 flex items-center justify-center animate-in fade-in zoom-in duration-200">
+                            <div className="absolute inset-0 bg-[#021a0f]/95 rounded-3xl backdrop-blur-md" />
+                            <div className="relative text-center px-4">
+                                <p className="text-[11px] text-white/80 font-bold uppercase tracking-wider mb-3">Tüm zikirleri sıfırla?</p>
+                                <div className="flex gap-2 justify-center">
+                                    <button
+                                        onClick={() => setShowTotalResetConfirm(false)}
+                                        className="px-4 py-1.5 rounded-lg bg-white/10 text-white/60 text-[10px] font-bold uppercase transition-all"
+                                    >
+                                        İPTAL
+                                    </button>
+                                    <button
+                                        onClick={resetTotal}
+                                        className="px-4 py-1.5 rounded-lg bg-red-500 text-white text-[10px] font-bold uppercase transition-all shadow-lg shadow-red-500/20"
+                                    >
+                                        SIFIRLA
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
                 </div>
             </div>
 
             {/* Bottom Quote / Inspiration */}
-            <footer className="mt-auto text-center pb-8 z-10 px-10">
+            <footer className="mt-auto text-center pb-6 z-10 px-10">
                 <div className="relative inline-block px-12">
                     <div className="absolute top-0 left-0 w-8 h-[1px] bg-gradient-to-r from-transparent to-islamic-gold/40" />
                     <div className="absolute top-0 right-0 w-8 h-[1px] bg-gradient-to-l from-transparent to-islamic-gold/40" />

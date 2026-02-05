@@ -929,15 +929,23 @@ export default function Learn() {
             {/* Header Area */}
             <div className="text-center space-y-4">
                 {/* Category Selection */}
-                <div className="flex w-full overflow-x-auto whitespace-nowrap scrollbar-hide px-4 gap-3 py-2">
-                    {CATEGORIES.map((cat) => (
-                        <CategoryButton
-                            key={cat.id}
-                            cat={cat}
-                            isSelected={selectedCategory === cat.id}
-                            onClick={handleCategorySelect}
-                        />
-                    ))}
+                <div className="relative">
+                    <div className="flex w-full overflow-x-auto whitespace-nowrap scrollbar-hide px-4 gap-3 py-2 scroll-smooth">
+                        {CATEGORIES.map((cat) => (
+                            <CategoryButton
+                                key={cat.id}
+                                cat={cat}
+                                isSelected={selectedCategory === cat.id}
+                                onClick={handleCategorySelect}
+                            />
+                        ))}
+                    </div>
+                    {/* Horizontal Scroll Indicator */}
+                    <div className="flex justify-end px-5 mt-1">
+                        <span className="text-[10px] font-bold text-islamic-gold/60 uppercase tracking-tighter">
+                            Sağa Kaydır <span className="animate-pulse">→</span>
+                        </span>
+                    </div>
                 </div>
             </div>
 
@@ -982,24 +990,24 @@ export default function Learn() {
                     variant="outline"
                     onClick={prev}
                     disabled={currentStep === 0}
-                    className="bg-white/80 dark:bg-white/10 backdrop-blur-md h-16 px-8 rounded-2xl border-gray-100 dark:border-white/10 text-gray-500 dark:text-white pointer-events-auto shadow-lg active:scale-95 disabled:opacity-30 font-bold"
+                    className="bg-white/80 dark:bg-white/10 backdrop-blur-md h-14 px-6 rounded-2xl border-gray-100 dark:border-white/10 text-gray-500 dark:text-white pointer-events-auto shadow-lg active:scale-95 disabled:opacity-30 font-bold text-sm"
                 >
-                    <ChevronLeft className="mr-2 h-5 w-5" /> Geri
+                    <ChevronLeft className="mr-1.5 h-4 w-4" /> Geri
                 </Button>
 
                 <Button
                     onClick={next}
                     className={cn(
-                        "h-16 px-10 rounded-2xl shadow-xl pointer-events-auto transition-all active:scale-95 font-bold",
+                        "h-14 px-8 rounded-2xl shadow-xl pointer-events-auto transition-all active:scale-95 font-bold text-sm",
                         currentStep === totalSteps - 1
-                            ? "bg-islamic-green dark:bg-islamic-gold text-white dark:text-[#032e18] px-12"
+                            ? "bg-islamic-green dark:bg-islamic-gold text-white dark:text-[#032e18] px-10"
                             : "bg-islamic-green dark:bg-islamic-gold text-white dark:text-[#032e18]"
                     )}
                 >
                     {currentStep === totalSteps - 1 ? (
-                        <>Tamamla <CheckCircle2 className="ml-2 h-5 w-5" /></>
+                        <>Tamamla <CheckCircle2 className="ml-1.5 h-4 w-4" /></>
                     ) : (
-                        <>İleri <ChevronRight className="ml-2 h-5 w-5" /></>
+                        <>İleri <ChevronRight className="ml-1.5 h-4 w-4" /></>
                     )}
                 </Button>
             </div>

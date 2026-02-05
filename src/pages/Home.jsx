@@ -130,9 +130,10 @@ export default function Home() {
         const checkDayChange = () => {
             const newDateKey = getTodayString();
             if (newDateKey !== currentDateKey) {
-                // Day has changed! Reset prayers for new day.
+                // Day has changed! Reset prayers and deed status for new day.
                 setCurrentDateKey(newDateKey);
                 setCompletedPrayers([]);
+                setDeedRevealed(false);
             }
         };
 
@@ -199,7 +200,11 @@ export default function Home() {
         if (isFriday) {
             setActiveTheme(SHARE_THEMES.find(t => t.id === 'friday'));
         }
-    }, [isFriday]);
+
+        // Persistent Deed Reveal Logic
+        const deedKey = `deedRevealed_${getTodayString()}`;
+        setDeedRevealed(localStorage.getItem(deedKey) === 'true');
+    }, [isFriday, currentDateKey]);
 
 
 
@@ -217,6 +222,8 @@ export default function Home() {
     const revealDeed = useCallback(() => {
         selection();
         setDeedRevealed(true);
+        const deedKey = `deedRevealed_${getTodayString()}`;
+        localStorage.setItem(deedKey, 'true');
     }, [selection]);
 
     const openEsma = useCallback((esma) => {
@@ -497,14 +504,60 @@ export default function Home() {
         </motion.div >
     );
 }
+// --- Esma Detail Modal (Redesigned: Divine Elegance) ---
+// --- Web Audio API for instant sound ---
+const ESMA_SOUND_URL = 'https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3';
+let esmaAudioContext = null;
+let esmaAudioBuffer = null;
 
-// --- Esma Detail Modal (Redesigned: Divine Elegance) ---
-// --- Esma Detail Modal (Redesigned: Divine Elegance) ---
-// --- Esma Detail Modal (Redesigned: Divine Elegance) ---
+async function initEsmaAudio() {
+    if (esmaAudioContext) return;
+    try {
+        esmaAudioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const response = await fetch(ESMA_SOUND_URL);
+        const arrayBuffer = await response.arrayBuffer();
+        esmaAudioBuffer = await esmaAudioContext.decodeAudioData(arrayBuffer);
+    } catch (e) {
+        console.log('[EsmaAudio] Init failed:', e);
+    }
+}
+
+function playEsmaSound() {
+    if (!esmaAudioContext || !esmaAudioBuffer) {
+        initEsmaAudio();
+        return;
+    }
+    if (esmaAudioContext.state === 'suspended') {
+        esmaAudioContext.resume();
+    }
+    const source = esmaAudioContext.createBufferSource();
+    source.buffer = esmaAudioBuffer;
+    source.connect(esmaAudioContext.destination);
+    source.start(0);
+}
+
+// Initialize audio on module load
+if (typeof window !== 'undefined') {
+    initEsmaAudio();
+}
+
 function EsmaDetailModal({ esma, count, setCount, onClose }) {
-    const { selection, heavy } = useHaptics();
+    const { selection, heavy, medium, targetReached } = useHaptics();
     const { t } = useTranslation('home');
+
+    // Sound and Haptics settings
+    const [soundEnabled, setSoundEnabled] = useState(true);
+    const [hapticsMode, setHapticsMode] = useState('all'); // 'all', 'target', 'off'
+    const [showResetConfirm, setShowResetConfirm] = useState(false);
+    const [feedbackMessage, setFeedbackMessage] = useState('');
+
     if (!esma) return null;
+
+    // Show setting feedback briefly
+    const showFeedback = (msg) => {
+        setFeedbackMessage(msg);
+        setTimeout(() => setFeedbackMessage(''), 2000);
+    };
 
     // Calculate progress (Target: standard 100 or ebced value if reasonable)
     const target = esma.ebced && !isNaN(esma.ebced) ? parseInt(esma.ebced) : 100;
@@ -515,6 +568,63 @@ function EsmaDetailModal({ esma, count, setCount, onClose }) {
     const radius = 60;
     const circumference = 2 * Math.PI * radius;
     const strokeDashoffset = circumference - progress * circumference;
+
+    const handleIncrement = () => {
+        const newCount = count + 1;
+        setCount(newCount);
+
+        // Sound feedback
+        if (soundEnabled) {
+            playEsmaSound();
+        }
+
+        // Haptic feedback using Capacitor Haptics (works on iOS)
+        const isTargetReached = newCount % target === 0;
+        if (hapticsMode === 'all') {
+            if (isTargetReached) {
+                targetReached(); // Enhanced double-pulse on target
+            } else {
+                medium(); // Heavy impact on each tap (as requested "stronger")
+            }
+        } else if (hapticsMode === 'target' && isTargetReached) {
+            targetReached(); // Enhanced double-pulse only on target
+        }
+    };
+
+    const handleReset = () => {
+        if (count === 0) return;
+        setShowResetConfirm(true);
+    };
+
+    const confirmReset = () => {
+        selection();
+        setCount(0);
+        setShowResetConfirm(false);
+    };
+
+    const toggleSound = () => {
+        selection();
+        const newState = !soundEnabled;
+        setSoundEnabled(newState);
+        showFeedback(newState ? 'Ses: Açık' : 'Ses: Kapalı');
+    };
+
+    const cycleHapticsMode = () => {
+        selection();
+        let nextMode = 'all';
+        let msg = 'Titreşim: Her Tıklamada';
+
+        if (hapticsMode === 'all') {
+            nextMode = 'target';
+            msg = 'Titreşim: Sadece Hedefte';
+        } else if (hapticsMode === 'target') {
+            nextMode = 'off';
+            msg = 'Titreşim: Kapalı';
+        }
+
+        setHapticsMode(nextMode);
+        showFeedback(msg);
+    };
 
     return (
         <motion.div
@@ -601,10 +711,7 @@ function EsmaDetailModal({ esma, count, setCount, onClose }) {
 
                         <motion.button
                             whileTap={{ scale: 0.92 }}
-                            onClick={() => {
-                                heavy();
-                                setCount(c => c + 1);
-                            }}
+                            onClick={handleIncrement}
                             className="relative w-48 h-48 rounded-full shadow-[0_20px_50px_rgba(0,0,0,0.5)] group z-20"
                             style={{
                                 background: 'radial-gradient(circle at 30% 30%, #2f855a, #064e3b, #000000)',
@@ -629,19 +736,112 @@ function EsmaDetailModal({ esma, count, setCount, onClose }) {
                                 <span className="absolute inset-0 bg-white/10 opacity-0 group-active:opacity-100 transition-opacity duration-300" />
                             </div>
                         </motion.button>
-
-                        <button
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                selection();
-                                setCount(0);
-                            }}
-                            className="absolute -right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 flex items-center justify-center text-white/40 hover:text-white transition-all z-30"
-                            title="Sıfırla"
-                        >
-                            <span className="text-[10px]">↺</span>
-                        </button>
                     </div>
+
+                    {/* Sound & Haptics Controls */}
+                    <div className="flex justify-center relative">
+                        {/* Feedback Toast Overlay (matches screenshot design) */}
+                        <AnimatePresence>
+                            {feedbackMessage && (
+                                <motion.div
+                                    initial={{ opacity: 0, y: -20, scale: 0.9 }}
+                                    animate={{ opacity: 1, y: -45, scale: 1 }}
+                                    exit={{ opacity: 0, scale: 0.9 }}
+                                    className="absolute left-1/2 -translate-x-1/2 w-max px-6 py-2 bg-islamic-gold rounded-full shadow-2xl z-[60] pointer-events-none"
+                                >
+                                    <span className="text-black text-sm font-bold">{feedbackMessage}</span>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+
+                        <div className="inline-flex items-center gap-1 bg-black/40 backdrop-blur-sm rounded-full p-1.5 border border-white/10">
+                            {/* Sound Toggle */}
+                            <button
+                                onClick={toggleSound}
+                                className={cn(
+                                    "p-2.5 rounded-full transition-all",
+                                    soundEnabled
+                                        ? "bg-islamic-gold/20 text-islamic-gold"
+                                        : "text-white/30 hover:text-white/50"
+                                )}
+                                title={soundEnabled ? "Ses Açık" : "Ses Kapalı"}
+                            >
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    {soundEnabled ? (
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.536 8.464a5 5 0 010 7.072M18.364 5.636a9 9 0 010 12.728M6 8h2l4-4v16l-4-4H6a2 2 0 01-2-2v-4a2 2 0 012-2z" />
+                                    ) : (
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" />
+                                    )}
+                                </svg>
+                            </button>
+
+                            {/* Haptics Toggle */}
+                            <button
+                                onClick={cycleHapticsMode}
+                                className={cn(
+                                    "p-2.5 rounded-full transition-all relative",
+                                    hapticsMode !== 'off'
+                                        ? "bg-islamic-gold/20 text-islamic-gold"
+                                        : "text-white/30 hover:text-white/50"
+                                )}
+                                title={hapticsMode === 'all' ? "Her Tıklamada" : hapticsMode === 'target' ? "Hedefe Ulaşınca" : "Titreşim Kapalı"}
+                            >
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                                </svg>
+                                {hapticsMode === 'target' && (
+                                    <span className="absolute -top-1 -right-1 w-3 h-3 bg-islamic-gold rounded-full flex items-center justify-center">
+                                        <span className="text-[6px] text-black font-bold">T</span>
+                                    </span>
+                                )}
+                            </button>
+
+                            {/* Reset */}
+                            <button
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleReset();
+                                }}
+                                className="p-2.5 rounded-full text-white/30 hover:text-white/50 transition-all"
+                                title="Sıfırla"
+                            >
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* Reset Confirmation Dialog - Refined: Less intrusive */}
+                    <AnimatePresence>
+                        {showResetConfirm && (
+                            <motion.div
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: 10 }}
+                                className="absolute bottom-32 left-8 right-8 bg-[#0a2e1f]/95 backdrop-blur-md border border-islamic-gold/20 rounded-2xl p-6 text-center z-50 shadow-2xl"
+                                onClick={(e) => e.stopPropagation()}
+                            >
+                                <div className="space-y-4">
+                                    <p className="text-white text-sm font-medium">Sayacı sıfırlamak istediğinizden emin misiniz?</p>
+                                    <div className="flex gap-3 justify-center">
+                                        <button
+                                            onClick={() => setShowResetConfirm(false)}
+                                            className="flex-1 px-4 py-2.5 rounded-xl bg-white/10 text-white/70 hover:bg-white/20 transition-colors text-xs font-bold uppercase tracking-wider"
+                                        >
+                                            İptal
+                                        </button>
+                                        <button
+                                            onClick={confirmReset}
+                                            className="flex-1 px-4 py-2.5 rounded-xl bg-red-500/80 text-white hover:bg-red-500 transition-colors text-xs font-bold uppercase tracking-wider shadow-lg shadow-red-500/20"
+                                        >
+                                            Sıfırla
+                                        </button>
+                                    </div>
+                                </div>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
 
                     <div className="bg-white/5 backdrop-blur-md rounded-2xl border border-white/10 p-5 shadow-lg relative overflow-hidden group">
                         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
@@ -667,3 +867,4 @@ function EsmaDetailModal({ esma, count, setCount, onClose }) {
         </motion.div>
     );
 }
+

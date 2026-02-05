@@ -121,7 +121,7 @@ export default function Murakabe() {
         if (isAnimating || isCompleted || !currentQuestion) return;
 
         setIsAnimating(true);
-        heavy();
+        selection();
 
         // Store answer
         const newAnswers = { ...answers, [currentQuestion.id]: answer };
