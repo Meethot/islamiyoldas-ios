@@ -1,21 +1,76 @@
-import React, { useCallback, useState, useEffect } from 'react';
+import React, { useCallback } from 'react';
+import { Haptics, ImpactStyle } from '@capacitor/haptics';
+import { Capacitor } from '@capacitor/core';
 
 export const useHaptics = () => {
-    const vibrate = useCallback((pattern = 50) => {
+    const vibrate = useCallback(async (pattern = 50) => {
+        // Native Haptics (iOS/Android)
+        if (Capacitor.isNativePlatform()) {
+            try {
+                if (typeof pattern === 'number') {
+                    if (pattern >= 100) await Haptics.impact({ style: ImpactStyle.Heavy });
+                    else if (pattern >= 40) await Haptics.impact({ style: ImpactStyle.Medium });
+                    else await Haptics.impact({ style: ImpactStyle.Light });
+                } else {
+                    await Haptics.vibrate();
+                }
+                return;
+            } catch (e) {
+                console.error('Native haptics error:', e);
+            }
+        }
+
+        // Web Fallback
         if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
             navigator.vibrate(pattern);
         }
     }, []);
 
-    const selection = () => vibrate(10);
-    const success = () => vibrate([10, 30, 10]);
-    const warning = () => vibrate([100, 50, 100]);
-    const error = () => vibrate([50, 100, 50, 100, 50]);
-    const heavy = () => vibrate(70);
-    const medium = () => vibrate(40);
-    const impactMedium = medium; // Alias for consistency
+    const selection = () => {
+        if (Capacitor.isNativePlatform()) Haptics.selectionStart();
+        vibrate(10);
+    };
 
-    return { vibrate, selection, success, warning, error, heavy, medium, impactMedium };
+    const success = () => {
+        if (Capacitor.isNativePlatform()) Haptics.notification({ type: 'SUCCESS' });
+        vibrate([10, 30, 10]);
+    };
+
+    const warning = () => {
+        if (Capacitor.isNativePlatform()) Haptics.notification({ type: 'WARNING' });
+        vibrate([100, 50, 100]);
+    };
+
+    const error = () => {
+        if (Capacitor.isNativePlatform()) Haptics.notification({ type: 'ERROR' });
+        vibrate([50, 100, 50, 100, 50]);
+    };
+
+    const heavy = () => {
+        if (Capacitor.isNativePlatform()) Haptics.impact({ style: ImpactStyle.Heavy });
+        else vibrate(70);
+    };
+
+    const medium = () => {
+        if (Capacitor.isNativePlatform()) Haptics.impact({ style: ImpactStyle.Heavy }); // Upgrading medium to heavy for "stronger" feel
+        else vibrate(50);
+    };
+
+    const targetReached = async () => {
+        if (Capacitor.isNativePlatform()) {
+            // Double heavy pulse for target reach
+            await Haptics.impact({ style: ImpactStyle.Heavy });
+            setTimeout(async () => {
+                await Haptics.impact({ style: ImpactStyle.Heavy });
+            }, 150);
+        } else {
+            vibrate([100, 50, 100]);
+        }
+    };
+
+    const impactMedium = medium;
+
+    return { vibrate, selection, success, warning, error, heavy, medium, targetReached, impactMedium };
 };
 
 export const useIsMobile = () => {

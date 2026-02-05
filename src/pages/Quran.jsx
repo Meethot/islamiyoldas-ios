@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import {
-    BookOpen, Search, Play, Pause, SkipBack, SkipForward, Volume2, VolumeX,
+    BookOpen, Search, Play, Pause, SkipBack, SkipForward,
     ChevronDown, ChevronUp, Bookmark, BookmarkCheck, Share2, X, Loader2, Trash2
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -62,7 +62,7 @@ export default function Quran() {
     const [audioProgress, setAudioProgress] = useState(0);
     const [currentTime, setCurrentTime] = useState(0);
     const [duration, setDuration] = useState(0);
-    const [volume, setVolume] = useState(1);
+    const [volume, setVolume] = useState(1.0);
     const [showVolumeSlider, setShowVolumeSlider] = useState(false);
     const [isAudioLoading, setIsAudioLoading] = useState(false);
 
@@ -713,55 +713,6 @@ export default function Quran() {
                                 >
                                     <X size={18} />
                                 </button>
-                                <div className="relative flex items-center justify-center">
-                                    <AnimatePresence>
-                                        {showVolumeSlider && (
-                                            <motion.div
-                                                initial={{ opacity: 0, height: 0, scale: 0.9 }}
-                                                animate={{ opacity: 1, height: 140, scale: 1 }}
-                                                exit={{ opacity: 0, height: 0, scale: 0.9 }}
-                                                className="absolute bottom-full mb-0 left-0 w-10 bg-[#032e18]/95 backdrop-blur-xl border border-islamic-gold/20 rounded-t-full shadow-2xl z-50 flex flex-col items-center justify-end overflow-hidden origin-bottom pb-1"
-                                            >
-                                                <div className="relative w-full h-full group flex flex-col items-center">
-                                                    {/* Background Track */}
-                                                    <div className="absolute inset-x-3 bottom-0 top-3 bg-white/10 rounded-full" />
-
-                                                    {/* Active Volume Level (Gold Fill) */}
-                                                    <div
-                                                        className="absolute bottom-0 inset-x-3 bg-islamic-gold transition-all duration-75 ease-out rounded-b-full rounded-t-sm"
-                                                        style={{ height: `${volume * 100}%`, maxHeight: 'calc(100% - 12px)' }}
-                                                    />
-
-                                                    {/* Invisible Input for Touch Interaction */}
-                                                    <input
-                                                        type="range"
-                                                        min="0"
-                                                        max="1"
-                                                        step="0.01"
-                                                        value={volume}
-                                                        onChange={handleVolumeChange}
-                                                        onTouchEnd={() => setShowVolumeSlider(false)}
-                                                        onMouseUp={() => setShowVolumeSlider(false)}
-                                                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20 touch-none"
-                                                        style={{ appearance: 'slider-vertical' }}
-                                                    />
-                                                </div>
-                                            </motion.div>
-                                        )}
-                                    </AnimatePresence>
-                                    <button
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            setShowVolumeSlider(!showVolumeSlider);
-                                        }}
-                                        className={cn(
-                                            "w-10 h-10 flex items-center justify-center rounded-full transition-all border border-white/5 relative z-50",
-                                            isMuted ? "bg-red-500/20 text-red-400" : "bg-white/5 text-white/30 hover:bg-white/10 hover:text-white"
-                                        )}
-                                    >
-                                        {isMuted ? <VolumeX size={18} /> : <Volume2 size={18} />}
-                                    </button>
-                                </div>
                             </div>
                         </div>
                     </motion.div>

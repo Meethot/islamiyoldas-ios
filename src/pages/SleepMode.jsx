@@ -1,12 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
-import { Moon, Volume2, VolumeX, Play, Pause, Heart, ChevronLeft, CloudRain, Repeat, BookOpen } from 'lucide-react';
+import { Moon, Play, Pause, Heart, ChevronLeft, CloudRain, Repeat, BookOpen } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { getAppDate } from '@/lib/testDate';
-import { registerPlugin } from '@capacitor/core';
-
-const VolumeControl = registerPlugin('VolumeControl');
 
 // Background Mode Helper (Cordova Plugin)
 const BackgroundMode = {
@@ -44,17 +41,14 @@ export default function SleepMode() {
     // Audio State
     const [currentTime, setCurrentTime] = useState(0);
     const [duration, setDuration] = useState(0);
-    const [volume, setVolume] = useState(0.8);
-    const [ambientVolume, setAmbientVolume] = useState(0.4);
+    const [volume, setVolume] = useState(1.0);
+    const [ambientVolume, setAmbientVolume] = useState(1.0);
 
     const getTodayKey = () => `sleep_forgiven_${getAppDate().toISOString().split('T')[0]}`;
 
     const [forgiven, setForgiven] = useState(() => {
         return localStorage.getItem(getTodayKey()) === 'true';
     });
-
-    // Ref to prevent feedback loops between system and app volume
-    const isManualChanging = React.useRef(false);
 
     // Persistent Audio Objects
     const mulkAudio = React.useMemo(() => new Audio(), []);
@@ -77,11 +71,6 @@ export default function SleepMode() {
     useEffect(() => {
         rainAudio.volume = ambientVolume;
     }, [ambientVolume, rainAudio]);
-
-    // Sync volume changes to Audio object
-    useEffect(() => {
-        mulkAudio.volume = volume;
-    }, [volume, mulkAudio]);
 
     // Fetch Mulk Audio from API
     useEffect(() => {
@@ -121,63 +110,10 @@ export default function SleepMode() {
         fetchMulkAudio();
     }, [mulkAudio]); // Volume handled separately to avoid re-fetching
 
-    // Initial Volume Sync and Watcher
+    // Sync volume changes
     useEffect(() => {
-        let isPluginAvailable = true;
-
-        // Get initial system volume
-        VolumeControl.getVolume()
-            .then(res => {
-                console.log("VolumeControl: Initial volume:", res.value);
-                setVolume(res.value);
-            })
-            .catch(err => {
-                console.error("VolumeControl: Could not get initial volume:", err);
-                isPluginAvailable = false;
-            });
-
-        // Start watching for system volume changes
-        VolumeControl.startWatch()
-            .then(() => console.log("VolumeControl: Started watching"))
-            .catch(err => console.error("VolumeControl: startWatch failed:", err));
-
-        const listener = VolumeControl.addListener('volumeChange', (data) => {
-            console.log("VolumeControl: Volume changed naturally:", data.value);
-            // Only update if we are not manually changing the volume through the slider
-            if (!isManualChanging.current) {
-                setVolume(data.value);
-            }
-        });
-
-        return () => {
-            console.log("VolumeControl: Cleanup");
-            listener.remove();
-            VolumeControl.stopWatch().catch(() => { });
-        };
-    }, []);
-
-    const handleVolumeChange = (newVal) => {
-        if (!newVal && newVal !== 0) return;
-
-        isManualChanging.current = true;
-        setVolume(newVal);
-
-        // Use a small delay for syncing back to system to avoid rapid-fire issues
-        // and potential feedback loops if the OS notification comes back late
-        const syncToNative = () => {
-            VolumeControl.setVolume({ value: newVal })
-                .catch(err => console.error("VolumeControl: setVolume failed:", err));
-
-            // Allow system updates again after a reasonable gap
-            setTimeout(() => {
-                isManualChanging.current = false;
-            }, 300);
-        };
-
-        // Clear previous timeout if any to debounce
-        if (window._volumeSyncTimeout) clearTimeout(window._volumeSyncTimeout);
-        window._volumeSyncTimeout = setTimeout(syncToNative, 50);
-    };
+        mulkAudio.volume = volume;
+    }, [volume, mulkAudio]);
 
     // Handle Mulk Playback Ended
     useEffect(() => {
@@ -366,19 +302,6 @@ export default function SleepMode() {
                             </div>
                         </div>
 
-                        {/* Volume Control */}
-                        <div className="flex items-center gap-3 bg-white/5 p-3 rounded-2xl">
-                            <Volume2 size={14} className="text-gray-400" />
-                            <input
-                                type="range"
-                                min="0"
-                                max="1"
-                                step="0.01"
-                                value={volume}
-                                onChange={(e) => handleVolumeChange(parseFloat(e.target.value))}
-                                className="flex-1 h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-gray-400"
-                            />
-                        </div>
                     </div>
 
                     <div className="bg-white/5 border border-white/10 rounded-3xl p-6 flex flex-col gap-4">
@@ -410,19 +333,6 @@ export default function SleepMode() {
                             </Button>
                         </div>
 
-                        {/* Volume Control for Rain */}
-                        <div className="flex items-center gap-3 bg-white/5 p-3 rounded-2xl">
-                            <Volume2 size={14} className="text-gray-400" />
-                            <input
-                                type="range"
-                                min="0"
-                                max="1"
-                                step="0.01"
-                                value={ambientVolume}
-                                onChange={(e) => setAmbientVolume(parseFloat(e.target.value))}
-                                className="flex-1 h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-gray-400"
-                            />
-                        </div>
                     </div>
                 </div>
 

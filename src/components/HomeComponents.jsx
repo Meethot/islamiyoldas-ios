@@ -1272,7 +1272,10 @@ export const ReligiousCalendarWidget = memo(({ days }) => {
                 </div>
 
                 {/* COMPACT WIDGET */}
-                <Card className="glass-panel border-none p-5 relative overflow-hidden group active:scale-[0.98] transition-all duration-300">
+                <Card
+                    className="glass-panel border-none p-5 relative overflow-hidden group active:scale-[0.98] transition-all duration-300 cursor-pointer"
+                    onClick={() => { selection(); setShowModal(true); }}
+                >
                     <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-islamic-gold to-transparent" />
 
                     <div className="flex justify-between items-center relative z-10">
@@ -1292,8 +1295,7 @@ export const ReligiousCalendarWidget = memo(({ days }) => {
                         <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => { selection(); setShowModal(true); }}
-                            className="bg-islamic-green/10 dark:bg-islamic-gold/10 text-islamic-green dark:text-islamic-gold hover:bg-islamic-green/20 dark:hover:bg-islamic-gold/20 rounded-xl h-10 px-4 font-bold text-xs uppercase tracking-wide transition-colors"
+                            className="bg-islamic-green/10 dark:bg-islamic-gold/10 text-islamic-green dark:text-islamic-gold hover:bg-islamic-green/20 dark:hover:bg-islamic-gold/20 rounded-xl h-10 px-4 font-bold text-xs uppercase tracking-wide transition-colors pointer-events-none"
                         >
                             Tümünü Gör
                         </Button>

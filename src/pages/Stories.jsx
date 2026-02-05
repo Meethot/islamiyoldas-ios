@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Play, BookOpen, Clock, ChevronRight, X, Headphones, Volume2, Sparkles, Heart, VolumeX, SkipBack, SkipForward, Zap } from 'lucide-react';
+import { Play, BookOpen, Clock, ChevronRight, X, Headphones, Sparkles, Heart, SkipBack, SkipForward, Zap } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { AnimatePresence, motion, useDragControls } from 'framer-motion';
 
@@ -19,7 +19,7 @@ export default function Stories() {
     const [isPlaying, setIsPlaying] = useState(false);
     const [currentTime, setCurrentTime] = useState(0);
     const [duration, setDuration] = useState(0);
-    const [volume, setVolume] = useState(0.8);
+    const [volume, setVolume] = useState(1.0);
     const [isMuted, setIsMuted] = useState(false);
     const [showVolumeSlider, setShowVolumeSlider] = useState(false);
     const [isSpeeding, setIsSpeeding] = useState(false);
@@ -353,55 +353,10 @@ export default function Stories() {
                                             </Button>
                                         </div>
 
-                                        {/* Volume Control Row (Full Width) */}
-                                        <div className="flex items-center justify-center w-full px-2">
 
-                                            {/* Enhanced Volume Control */}
-                                            <div className="flex-1 bg-black/20 backdrop-blur-md rounded-full p-1.5 flex items-center gap-3 border border-white/5 transition-all hover:bg-black/30">
-                                                <Button
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    onClick={toggleMute}
-                                                    className="w-7 h-7 text-white/80 hover:text-white hover:bg-white/10 rounded-full shrink-0 ml-1"
-                                                >
-                                                    {isMuted || volume === 0 ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
-                                                </Button>
-
-                                                <div className="relative flex-1 h-6 flex items-center cursor-pointer group/volume">
-                                                    {/* Track Background */}
-                                                    <div className="absolute inset-x-0 h-1.5 bg-white/10 rounded-full overflow-hidden">
-                                                        {/* Active Fill */}
-                                                        <div
-                                                            className="h-full bg-gradient-to-r from-islamic-gold/80 to-islamic-gold rounded-full"
-                                                            style={{ width: `${volume * 100}%` }}
-                                                        />
-                                                    </div>
-
-                                                    {/* Enhanced Thumb */}
-                                                    <div
-                                                        className="absolute w-4 h-4 bg-white rounded-full shadow-lg border-2 border-islamic-gold cursor-grab active:cursor-grabbing hover:scale-110 transition-transform"
-                                                        style={{ left: `${volume * 100}%`, transform: 'translateX(-50%)' }}
-                                                    />
-
-                                                    {/* Real Input */}
-                                                    <input
-                                                        type="range"
-                                                        min="0"
-                                                        max="1"
-                                                        step="0.01"
-                                                        value={volume}
-                                                        onChange={handleVolumeChange}
-                                                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20"
-                                                    />
-                                                </div>
-                                            </div>
-                                        </div>
 
                                     </div>
-                                    {/* Decoration */}
-                                    <div className="absolute -top-10 -right-10 p-4 opacity-[0.03] rotate-12 pointer-events-none">
-                                        <Volume2 size={240} />
-                                    </div>
+
                                     <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-t from-[#033a1f]/80 to-transparent pointer-events-none" />
                                 </div>
 
