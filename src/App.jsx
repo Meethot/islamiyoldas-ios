@@ -31,8 +31,8 @@ function App() {
   const onboardingComplete = localStorage.getItem('onboardingComplete') === 'true';
 
   useEffect(() => {
-    // Splash Timer
-    const timer = setTimeout(() => setShowSplash(false), 2500);
+    // Splash Timer - Switched to match new SplashScreen animation duration (~3s total)
+    const timer = setTimeout(() => setShowSplash(false), 3000);
     return () => clearTimeout(timer);
   }, []);
 

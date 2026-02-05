@@ -89,7 +89,7 @@ export default function Dhikr() {
     };
 
     const reset = () => {
-        if (confirm(`${activePreset.name} sayacını sıfırlamak istediğinize emin misiniz?`)) {
+        if (confirm(`Zikirmatik sayacını sıfırlamak istediğinize emin misiniz?`)) {
             setCount(0);
             localStorage.setItem(`dhikr_count_${activePreset.id}`, '0');
         }

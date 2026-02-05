@@ -1,10 +1,49 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Heart, MessageCircle, ChevronLeft, Sparkles, Send, X, Clock, Check, AlertCircle, Trash2, History, Users } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Haptics, ImpactStyle } from '@capacitor/haptics';
+import { Capacitor } from '@capacitor/core';
+
+// ========== WEB AUDIO API - INSTANT SOUND ==========
+// Uses AudioContext for true zero-latency, overlapping sound playback
+const SOUND_URL = 'https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3';
+let audioContext = null;
+let audioBuffer = null;
+
+// Initialize Web Audio API and preload sound
+async function initAudio() {
+    if (audioContext) return;
+    try {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const response = await fetch(SOUND_URL);
+        const arrayBuffer = await response.arrayBuffer();
+        audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+    } catch (e) {
+        console.log('[Audio] Web Audio API init failed:', e);
+    }
+}
+initAudio();
+
+// Play sound instantly - unlimited overlapping sounds
+function playClickSound() {
+    if (!audioContext || !audioBuffer) {
+        initAudio();
+        return;
+    }
+    if (audioContext.state === 'suspended') {
+        audioContext.resume();
+    }
+    const source = audioContext.createBufferSource();
+    source.buffer = audioBuffer;
+    source.connect(audioContext.destination);
+    source.start(0);
+}
+// ====================================================
+
 
 // ========== SIMULATION CONFIG ==========
 // Set to true to test: 1 minute = 1 hour (fast simulation)
@@ -82,6 +121,22 @@ function runSimulationEngine(requests) {
 }
 // ========================================
 
+// ========== HAPTICS HELPER ==========
+async function triggerHaptics() {
+    try {
+        if (Capacitor.isNativePlatform()) {
+            // Use Capacitor Haptics for native platforms (iOS + Android)
+            await Haptics.impact({ style: ImpactStyle.Medium });
+        } else if ('vibrate' in navigator) {
+            // Fallback for web browsers that support vibration
+            navigator.vibrate(50);
+        }
+    } catch (error) {
+        console.log('[Haptics] Not available:', error);
+    }
+}
+// ====================================
+
 export default function DuaKosesi() {
     const navigate = useNavigate();
     const [showForm, setShowForm] = useState(false);
@@ -105,14 +160,18 @@ export default function DuaKosesi() {
         return saved ? JSON.parse(saved) : [];
     });
 
-    const aminSound = React.useMemo(() => new Audio('https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3'), []);
+    const handleAmin = async (id) => {
+        const dua = duas.find(d => d.id === id);
+        if (!dua || dua.amined) return;
 
-    const handleAmin = (id) => {
+        // Trigger native haptics and sound
+        triggerHaptics();
+        playClickSound();
+
+
+        // Update state
         const updated = duas.map(d => {
-            if (d.id === id && !d.amined) {
-                if ("vibrate" in navigator) navigator.vibrate(50);
-                aminSound.currentTime = 0;
-                aminSound.play().catch(() => { });
+            if (d.id === id) {
                 return { ...d, count: d.count + 1, amined: true };
             }
             return d;
@@ -126,6 +185,7 @@ export default function DuaKosesi() {
         });
         localStorage.setItem('duaKosesiCount', JSON.stringify(persistData));
     };
+
 
     const handleSubmitRequest = (text) => {
         const newRequest = {

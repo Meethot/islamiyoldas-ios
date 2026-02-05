@@ -64,10 +64,10 @@ export default function AppLayout() {
                             <h1 className="text-2xl font-serif font-bold text-islamic-green dark:text-islamic-gold animate-in fade-in slide-in-from-left duration-700">
                                 {(() => {
                                     const hour = new Date().getHours();
-                                    if (hour >= 5 && hour < 11) return t('greeting.morning') + " 🌅";
-                                    if (hour >= 11 && hour < 17) return t('greeting.afternoon') + " ☀️";
-                                    if (hour >= 17 && hour < 22) return t('greeting.evening') + " 🌇";
-                                    return t('greeting.night') + " 🌙";
+                                    if (hour >= 5 && hour < 11) return t('greeting.morning');
+                                    if (hour >= 11 && hour < 17) return t('greeting.afternoon');
+                                    if (hour >= 17 && hour < 22) return t('greeting.evening');
+                                    return t('greeting.night');
                                 })()}
                             </h1>
                         </div>

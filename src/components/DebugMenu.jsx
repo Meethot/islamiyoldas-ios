@@ -88,6 +88,31 @@ const DebugMenu = () => {
         setLastAction('📊 Week data filled (7-day streak + 5 prayers)');
     };
 
+    const fillPlus10 = () => {
+        const stored = localStorage.getItem('tubaAgaci_data');
+        let tubaData = {
+            currentStreak: 1,
+            totalWateredDays: 0,
+            lastWateredDate: getTodayString()
+        };
+
+        if (stored) {
+            try {
+                tubaData = JSON.parse(stored);
+            } catch (e) {
+                console.error('Failed to parse tuba data', e);
+            }
+        }
+
+        tubaData.totalWateredDays += 10;
+        localStorage.setItem('tubaAgaci_data', JSON.stringify(tubaData));
+
+        // Dispatch update event for Home components to react
+        window.dispatchEvent(new Event('prayerStatusChanged'));
+
+        setLastAction(`🌳 Tuba growth increased by +10 (Total: ${tubaData.totalWateredDays})`);
+    };
+
     const clearAllData = () => {
         const keysToKeep = ['onboardingComplete', 'user_language'];
         const allKeys = [];
@@ -179,6 +204,7 @@ const DebugMenu = () => {
             items: [
                 { label: 'Corrupt Storage', icon: AlertTriangle, action: corruptStorage, color: 'bg-red-500' },
                 { label: 'Fill Week Data', icon: CheckCircle2, action: fillWeekData, color: 'bg-green-500' },
+                { label: 'Fill +10', icon: Database, action: fillPlus10, color: 'bg-emerald-500' },
                 { label: 'Clear All Data', icon: Trash2, action: clearAllData, color: 'bg-red-700' },
             ]
         },

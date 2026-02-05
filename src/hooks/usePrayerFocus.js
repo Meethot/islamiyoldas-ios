@@ -57,11 +57,16 @@ export function usePrayerFocus(prayerTimes, completedPrayers) {
                 // Check if prayer is already completed
                 const isCompleted = completedPrayers.includes(foundPrayer.name);
 
-                // Check if prayer is explicitly dismissed for today
+                // Check if prayer is explicitly dismissed for today (Legacy fallback)
                 const dismissalKey = `popup_dismissed_${todayStr}_${foundPrayer.name}`;
                 const isDismissed = localStorage.getItem(dismissalKey);
 
-                if (!isCompleted && !isDismissed) {
+                // Check if prayer is currently snoozed
+                const snoozeUntilKey = `popup_snooze_until_${todayStr}_${foundPrayer.name}`;
+                const snoozeUntil = localStorage.getItem(snoozeUntilKey);
+                const isSnoozed = snoozeUntil && Date.now() < parseInt(snoozeUntil, 10);
+
+                if (!isCompleted && !isDismissed && !isSnoozed) {
                     setActivePrayer(foundPrayer);
                     setShouldShowOverlay(true);
                 } else {
@@ -81,23 +86,29 @@ export function usePrayerFocus(prayerTimes, completedPrayers) {
         const interval = setInterval(checkPrayerTime, 60000);
 
         return () => clearInterval(interval);
-    }, [prayerTimes, completedPrayers]);
+    }, [prayerTimes, completedPrayers, isFocusModeEnabled]);
 
     // Snooze / Dismiss for the day
     const snooze = (prayerName) => {
         const todayStr = getTodayString();
-        const dismissalKey = `popup_dismissed_${todayStr}_${prayerName}`;
+        const snoozeUntilKey = `popup_snooze_until_${todayStr}_${prayerName}`;
 
-        localStorage.setItem(dismissalKey, 'true');
+        // Set snooze for 10 minutes from now
+        const tenMinutesLater = Date.now() + 10 * 60 * 1000;
+        localStorage.setItem(snoozeUntilKey, tenMinutesLater.toString());
+
         setShouldShowOverlay(false);
     };
 
-    // Clear snooze (when prayer is completed) - effectively same as snooze/dismiss + marks done in parent
+    // Clear snooze (when prayer is completed)
     const clearSnooze = (prayerName) => {
         const todayStr = getTodayString();
         const dismissalKey = `popup_dismissed_${todayStr}_${prayerName}`;
+        const snoozeUntilKey = `popup_snooze_until_${todayStr}_${prayerName}`;
 
+        // Mark as dismissed for the day (since it's done)
         localStorage.setItem(dismissalKey, 'true');
+        localStorage.removeItem(snoozeUntilKey);
         setShouldShowOverlay(false);
     };
 

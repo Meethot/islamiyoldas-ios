@@ -1,31 +1,112 @@
-import React from 'react';
-import { Moon } from 'lucide-react';
+import { motion, AnimatePresence } from "framer-motion";
+import { useState, useEffect } from "react";
+import logo from "../assets/logo.png";
 
 export default function SplashScreen() {
+    const [progress, setProgress] = useState(0);
+    const [isVisible, setIsVisible] = useState(true);
+
+    useEffect(() => {
+        // Force scroll to top on refresh
+        window.scrollTo(0, 0);
+
+        // Simulation of loading progress
+        const interval = setInterval(() => {
+            setProgress((prev) => {
+                if (prev >= 100) {
+                    clearInterval(interval);
+                    window.scrollTo(0, 0); // Scroll to top before hiding
+                    setTimeout(() => setIsVisible(false), 500);
+                    return 100;
+                }
+                return prev + 1;
+            });
+        }, 20); // Total ~2 seconds
+
+        return () => clearInterval(interval);
+    }, []);
+
     return (
-        <div className="fixed inset-0 z-[999] bg-[#044d29] flex flex-col items-center justify-center animate-out fade-out duration-1000 delay-[2000ms]">
-            <div className="relative">
-                {/* Background Glow */}
-                <div className="absolute inset-0 bg-islamic-gold/20 blur-3xl rounded-full scale-150 animate-pulse" />
+        <AnimatePresence>
+            {isVisible && (
+                <motion.div
+                    initial={{ opacity: 1 }}
+                    exit={{ opacity: 0, transition: { duration: 0.8, ease: "easeInOut" } }}
+                    className="fixed inset-0 z-[9999] bg-[#021a0f] flex flex-col items-center justify-center overflow-hidden"
+                >
+                    {/* Background Subtle Radial Glow */}
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-[120vh] bg-islamic-green/15 blur-[120px] rounded-full -z-10" />
+                    <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-islamic-green/10 via-transparent to-transparent -z-10" />
 
-                {/* Center Logo/Icon */}
-                <div className="relative animate-in zoom-in-0 duration-1000 ease-out">
-                    <div className="w-32 h-32 rounded-full border-2 border-islamic-gold/30 flex items-center justify-center bg-white/5 backdrop-blur-sm shadow-2xl">
-                        <Moon className="w-16 h-16 text-islamic-gold fill-current animate-pulse-slow" />
+                    <div className="flex flex-col items-center w-full max-w-[280px] px-6">
+                        {/* Logo with Glow */}
+                        <motion.div
+                            initial={{ scale: 0.8, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            transition={{ duration: 1, ease: "easeOut" }}
+                            className="relative mb-8"
+                        >
+                            <div className="absolute inset-0 bg-islamic-green/20 blur-2xl rounded-full scale-150 animate-pulse" />
+                            <img
+                                src={logo}
+                                alt="İslami Yoldaş Logo"
+                                className="relative z-10 w-24 h-24 sm:w-28 sm:h-28 object-contain drop-shadow-[0_0_20px_rgba(16,185,129,0.4)]"
+                            />
+                        </motion.div>
+
+                        {/* Title */}
+                        <motion.h1
+                            initial={{ y: 20, opacity: 0 }}
+                            animate={{ y: 0, opacity: 1 }}
+                            transition={{ delay: 0.3, duration: 0.8 }}
+                            className="text-2xl sm:text-3xl font-bold text-white mb-2 tracking-tight text-center"
+                        >
+                            İslami Yoldaş
+                        </motion.h1>
+
+                        {/* Subtitle */}
+                        <motion.p
+                            initial={{ y: 10, opacity: 0 }}
+                            animate={{ y: 0, opacity: 1 }}
+                            transition={{ delay: 0.5, duration: 0.8 }}
+                            className="text-[9px] sm:text-[10px] text-islamic-green font-bold tracking-[0.3em] uppercase mb-12 opacity-80 text-center"
+                        >
+                            PREMIUM MANEVİ ASİSTAN
+                        </motion.p>
+
+                        {/* Loading Bar Container */}
+                        <div className="w-full h-[2px] bg-white/5 rounded-full overflow-hidden relative">
+                            {/* Animated Progress Bar */}
+                            <motion.div
+                                initial={{ width: "0%" }}
+                                animate={{ width: `${progress}%` }}
+                                className="absolute top-0 left-0 h-full bg-islamic-green shadow-[0_0_10px_rgba(16,185,129,0.8)]"
+                            />
+                        </div>
+
+                        {/* Animated Percentage */}
+                        <motion.span
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            className="text-[9px] sm:text-[10px] text-gray-500 mt-3 font-mono"
+                        >
+                            {progress}%
+                        </motion.span>
                     </div>
-                </div>
-            </div>
 
-            {/* App Name */}
-            <div className="mt-8 text-center animate-in slide-in-from-bottom-4 duration-1000 delay-300">
-                <h1 className="text-3xl font-serif font-bold text-white tracking-widest uppercase">
-                    İslami Yoldaş
-                </h1>
-                <div className="w-12 h-1 bg-islamic-gold mx-auto mt-2 rounded-full" />
-                <p className="text-emerald-100/40 text-[10px] uppercase font-bold tracking-[0.3em] mt-4">
-                    Manevi Yolculuğun Başlıyor
-                </p>
-            </div>
-        </div>
+                    {/* Footer text - Optimized for safe areas */}
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 1, duration: 1 }}
+                        className="absolute bottom-12 left-1/2 -translate-x-1/2 w-full text-center px-4"
+                    >
+                        <p className="text-[9px] sm:text-[10px] text-gray-700 tracking-widest uppercase font-medium">
+                            Ümmet için ❤️ ile yapıldı
+                        </p>
+                    </motion.div>
+                </motion.div>
+            )}
+        </AnimatePresence>
     );
 }

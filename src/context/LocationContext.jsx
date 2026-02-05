@@ -108,13 +108,40 @@ export function LocationProvider({ children }) {
     const refreshLocation = useCallback(async () => {
         const status = await checkPermissions();
 
+        // If already granted, just get position
         if (status === 'granted') {
+            // Cache the granted status
+            localStorage.setItem('location_permission_granted', 'true');
             return await getCurrentPosition();
-        } else if (status === 'prompt') {
-            const newStatus = await requestPermissions();
-            if (newStatus === 'granted') {
-                return await getCurrentPosition();
+        }
+
+        // If denied, don't ask again
+        if (status === 'denied') {
+            setLoading(false);
+            setError('Konum izni verilmedi');
+            return null;
+        }
+
+        // Status is 'prompt' - check if we previously had permission
+        // (iOS can return 'prompt' even when permission was previously granted)
+        const wasGranted = localStorage.getItem('location_permission_granted') === 'true';
+
+        if (wasGranted) {
+            // Try to get position directly - permission might still be valid
+            try {
+                const result = await getCurrentPosition();
+                if (result) return result;
+            } catch (e) {
+                // Permission was revoked, clear cache
+                localStorage.removeItem('location_permission_granted');
             }
+        }
+
+        // Only request permissions if we never had them
+        const newStatus = await requestPermissions();
+        if (newStatus === 'granted') {
+            localStorage.setItem('location_permission_granted', 'true');
+            return await getCurrentPosition();
         }
 
         setLoading(false);
@@ -137,12 +164,25 @@ export function LocationProvider({ children }) {
                 }
             }
 
-            // Then request fresh location
-            await refreshLocation();
+            // Check if permission was previously granted
+            const wasGranted = localStorage.getItem('location_permission_granted') === 'true';
+
+            if (wasGranted && cached) {
+                // We have cached data and permission was granted before
+                // Try to refresh silently without prompting
+                const status = await checkPermissions();
+                if (status === 'granted') {
+                    await getCurrentPosition();
+                }
+                setLoading(false);
+            } else {
+                // Fresh start - need to request location
+                await refreshLocation();
+            }
         };
 
         initLocation();
-    }, [refreshLocation]);
+    }, []); // Remove refreshLocation from deps to prevent re-running
 
     const value = {
         location,

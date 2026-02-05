@@ -14,6 +14,9 @@ import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useHaptics } from '@/hooks/useMobile';
 import { getAppDate, getTodayString } from '@/lib/testDate';
+import { Haptics, ImpactStyle } from '@capacitor/haptics';
+import { Capacitor } from '@capacitor/core';
+import { playAminSound } from '@/services/WidgetDataService';
 import PrayerRewardModal from './PrayerRewardModal';
 import { PRAYER_CONTENT } from '@/data/hadithData';
 
@@ -77,6 +80,9 @@ export const WeeklyStreakWidget = memo(({ tubaData, setTubaData }) => {
     const [alreadyWateredMessage, setAlreadyWateredMessage] = useState(false);
     const [showWeeklyCelebration, setShowWeeklyCelebration] = useState(false);
     const { selection, success, impactMedium } = useHaptics();
+
+    // Sound effect for button press (same as Dhikr)
+    const clickSoundRef = useRef(new Audio('https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3'));
 
     // Destructure Tuba Data
     const { currentStreak, totalWateredDays, lastWateredDate } = tubaData;
@@ -259,7 +265,24 @@ export const WeeklyStreakWidget = memo(({ tubaData, setTubaData }) => {
             lastWateredDate: todayStr
         };
 
-        selection();
+        // Haptic feedback - use Capacitor native haptics
+        if (Capacitor.isNativePlatform()) {
+            try {
+                Haptics.impact({ style: ImpactStyle.Medium });
+            } catch (e) {
+                // Fallback to web vibration
+                if ('vibrate' in navigator) navigator.vibrate(50);
+            }
+        } else if ('vibrate' in navigator) {
+            navigator.vibrate(50);
+        }
+
+        // Sound feedback
+        if (clickSoundRef.current) {
+            clickSoundRef.current.currentTime = 0;
+            clickSoundRef.current.play().catch(() => { });
+        }
+
         setIsWatering(true);
 
         setTimeout(() => {

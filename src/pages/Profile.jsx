@@ -242,13 +242,13 @@ export default function Profile() {
 
     return (
         <motion.div
-            className="space-y-6 p-5 pb-24 overflow-x-hidden"
+            className="space-y-6 px-5 pt-2 pb-24 overflow-x-hidden"
             initial="hidden"
             animate="visible"
             variants={containerVariants}
         >
             {/* Header Area */}
-            <motion.div variants={itemVariants} className="relative pt-6 px-4">
+            <motion.div variants={itemVariants} className="relative pt-2 px-4">
                 <div className="flex justify-between items-center mb-6">
                     <h1 className="text-3xl font-serif font-bold text-islamic-green dark:text-islamic-gold">{t('title')}</h1>
                 </div>

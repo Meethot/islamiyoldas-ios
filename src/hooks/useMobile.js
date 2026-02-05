@@ -13,8 +13,9 @@ export const useHaptics = () => {
     const error = () => vibrate([50, 100, 50, 100, 50]);
     const heavy = () => vibrate(70);
     const medium = () => vibrate(40);
+    const impactMedium = medium; // Alias for consistency
 
-    return { vibrate, selection, success, warning, error, heavy, medium };
+    return { vibrate, selection, success, warning, error, heavy, medium, impactMedium };
 };
 
 export const useIsMobile = () => {
