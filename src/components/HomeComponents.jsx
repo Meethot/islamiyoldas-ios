@@ -1196,81 +1196,96 @@ export const PrayerCountdownWidget = memo(({ loading, city, nextPrayerInfo, pray
                     onClick={handleCardClick}
                 >
                     <CardContent className="p-0">
-                        {/* Main Countdown Row */}
-                        <div className="flex items-stretch">
-                            <div className="bg-islamic-green/5 dark:bg-black/20 p-5 flex items-center justify-center min-w-[90px]">
+                        {/* Main Countdown Row - Clean Design */}
+                        <div className="flex items-center gap-4 p-4">
+                            {/* Left: Icon */}
+                            <div className="flex-shrink-0">
                                 {loading ? (
-                                    <div className="w-12 h-12 rounded-full shimmer" />
+                                    <div className="w-14 h-14 rounded-full shimmer" />
                                 ) : (
                                     <div className="relative">
                                         <div className={cn(
-                                            "w-12 h-12 rounded-full border-4 flex items-center justify-center shadow-inner bg-white/5",
+                                            "w-14 h-14 rounded-full border-[3px] flex items-center justify-center shadow-lg",
                                             isAutoMode
-                                                ? "border-islamic-gold border-t-transparent animate-spin-slow"
-                                                : "border-islamic-gold"
+                                                ? "border-islamic-gold border-t-transparent animate-spin-slow bg-islamic-gold/5"
+                                                : "border-islamic-gold bg-islamic-gold/10"
                                         )}>
-                                            <DisplayIcon className="w-5 h-5 text-islamic-green dark:text-islamic-gold" />
+                                            <DisplayIcon className={cn(
+                                                "w-6 h-6",
+                                                isAutoMode
+                                                    ? "text-islamic-green dark:text-islamic-gold"
+                                                    : "text-islamic-gold"
+                                            )} />
                                         </div>
                                         {alarmSet && (
-                                            <div className="absolute -top-1 -right-1 bg-islamic-gold text-[8px] font-bold text-black w-5 h-5 rounded-full flex items-center justify-center border-2 border-[#fdfaf5] dark:border-[#032e18]">
+                                            <div className="absolute -top-0.5 -right-0.5 bg-islamic-gold text-black w-5 h-5 rounded-full flex items-center justify-center border-2 border-[#fdfaf5] dark:border-[#032e18] shadow-md">
                                                 <Bell size={10} fill="currentColor" />
                                             </div>
                                         )}
                                     </div>
                                 )}
                             </div>
-                            <div className="p-5 flex-1 flex flex-col justify-center relative">
+
+                            {/* Center: Prayer Info */}
+                            <div className="flex-1 min-w-0">
                                 {loading ? (
-                                    <div className="space-y-3 w-full">
-                                        <div className="h-2 w-20 rounded shimmer" />
-                                        <div className="h-8 w-32 rounded shimmer" />
+                                    <div className="space-y-2">
+                                        <div className="h-3 w-16 rounded shimmer" />
+                                        <div className="h-7 w-24 rounded shimmer" />
                                     </div>
                                 ) : (
-                                    <div className="flex items-center justify-between w-full">
-                                        <div>
-                                            <p className="text-gray-500 dark:text-emerald-100/50 text-[10px] uppercase font-bold tracking-widest mb-1 flex items-center gap-2">
-                                                {isAutoMode ? 'Sıradaki Vakit' : 'Seçilen Vakit'} ({city})
-                                                {!isAutoMode && (
-                                                    <span className="bg-islamic-gold/20 text-islamic-gold px-1.5 py-0.5 rounded text-[8px]">
-                                                        Manuel
-                                                    </span>
-                                                )}
-                                            </p>
-                                            <div className="flex items-baseline gap-3">
-                                                <h2 className="text-2xl font-bold text-islamic-green dark:text-islamic-gold font-serif">
-                                                    {displayName}
-                                                </h2>
-                                                <span className="text-lg font-mono text-gray-600 dark:text-gray-300 font-medium">
-                                                    {displayTime}
+                                    <>
+                                        {/* Title Row */}
+                                        <div className="flex items-center gap-2 mb-0.5">
+                                            <span className="text-[11px] text-gray-500 dark:text-gray-400 font-medium">
+                                                {isAutoMode ? 'Sıradaki' : 'Takip Edilen'}
+                                            </span>
+                                            {!isAutoMode && (
+                                                <span className="bg-islamic-gold text-black text-[9px] font-bold px-1.5 py-0.5 rounded-full">
+                                                    ✎
                                                 </span>
-                                            </div>
-                                            {alarmSet && (
-                                                <p className="text-[10px] text-islamic-gold font-bold flex items-center gap-1 mt-1">
-                                                    <Bell size={10} fill="currentColor" /> {alarmTime}'a kuruldu ({selectedMinutes === 0 ? 'Vaktinde' : `${selectedMinutes} dk önce`})
-                                                </p>
                                             )}
                                         </div>
-                                        <div className="text-right flex flex-col items-end gap-2">
-                                            <div className="flex items-center gap-2">
-                                                <Button
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    className={cn(
-                                                        "h-8 w-8 rounded-full",
-                                                        alarmSet ? "text-islamic-gold bg-islamic-gold/10" : "text-gray-400 hover:text-islamic-gold"
-                                                    )}
-                                                    onClick={(e) => { e.stopPropagation(); setShowReminderOptions(true); }}
-                                                >
-                                                    <Bell size={16} fill={alarmSet ? "currentColor" : "none"} />
-                                                </Button>
-                                                <div className="text-2xl tabular-nums font-bold tracking-tight text-islamic-green dark:text-islamic-gold bg-islamic-green/5 dark:bg-white/5 px-3 py-1 rounded-xl border border-islamic-green/10 dark:border-white/5">
-                                                    {displayCountdown || '00:00:00'}
-                                                </div>
-                                            </div>
+                                        {/* Prayer Name & Time */}
+                                        <div className="flex items-baseline gap-2">
+                                            <h2 className="text-[22px] font-bold text-islamic-green dark:text-islamic-gold font-serif leading-tight">
+                                                {displayName}
+                                            </h2>
+                                            <span className="text-sm text-gray-500 dark:text-gray-400 font-mono">
+                                                {displayTime}
+                                            </span>
                                         </div>
-                                    </div>
+                                        {/* City - Subtle */}
+                                        <p className="text-[10px] text-gray-500 dark:text-gray-400 mt-0.5 font-medium">
+                                            {city}
+                                        </p>
+                                    </>
                                 )}
                             </div>
+
+                            {/* Right: Countdown & Bell - Same Row */}
+                            {!loading && (
+                                <div className="flex items-center gap-2">
+                                    {/* Alarm Button */}
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className={cn(
+                                            "h-10 w-10 rounded-full",
+                                            alarmSet
+                                                ? "text-islamic-gold bg-islamic-gold/10"
+                                                : "text-gray-400 hover:text-islamic-gold hover:bg-islamic-gold/5"
+                                        )}
+                                        onClick={(e) => { e.stopPropagation(); setShowReminderOptions(true); }}
+                                    >
+                                        <Bell size={18} fill={alarmSet ? "currentColor" : "none"} />
+                                    </Button>
+                                    {/* Countdown Timer */}
+                                    <div className="text-[22px] tabular-nums font-bold tracking-tight text-islamic-green dark:text-islamic-gold bg-black/5 dark:bg-white/5 px-3 py-1.5 rounded-xl">
+                                        {displayCountdown || '00:00:00'}
+                                    </div>
+                                </div>
+                            )}
                         </div>
 
                         {/* Expand Indicator */}
