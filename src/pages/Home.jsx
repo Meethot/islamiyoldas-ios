@@ -96,6 +96,7 @@ export default function Home() {
     const [showAllEsma, setShowAllEsma] = useState(false);
     const [esmaCounts, setEsmaCounts] = useState(() => safeGetStorage('esma_counts', {})); // Stores count for each Esma: { "Allah": 5, "Rahman": 10 }
     const [sharing, setSharing] = useState(false);
+    const [debugOverlay, setDebugOverlay] = useState(false); // Debug: Force show overlay
 
     // Prayer Focus Detection (Blur Mode)
     const { activePrayer, shouldShowOverlay, snooze, clearSnooze } = usePrayerFocus(
@@ -124,6 +125,13 @@ export default function Home() {
         window.addEventListener('prayerStatusChanged', handleStatusChange);
         return () => window.removeEventListener('prayerStatusChanged', handleStatusChange);
     }, [currentDateKey]);
+
+    // Debug: Listen for debug overlay trigger
+    useEffect(() => {
+        const handleDebugOverlay = () => setDebugOverlay(true);
+        window.addEventListener('debugShowPrayerOverlay', handleDebugOverlay);
+        return () => window.removeEventListener('debugShowPrayerOverlay', handleDebugOverlay);
+    }, []);
 
     // Midnight Transition Detection (Check every minute)
     useEffect(() => {
@@ -379,11 +387,11 @@ export default function Home() {
 
             {/* Prayer Time Blur Mode Overlay */}
             <PrayerTimeOverlay
-                isOpen={shouldShowOverlay}
-                prayer={activePrayer}
-                onPray={handlePrayNow}
-                onSnooze={handleSnooze}
-                onDismiss={handleOverlayDismiss}
+                isOpen={shouldShowOverlay || debugOverlay}
+                prayer={activePrayer || { name: 'Öğle', time: '12:30', icon: null }}
+                onPray={(name) => { handlePrayNow(name); setDebugOverlay(false); }}
+                onSnooze={(name) => { handleSnooze(name); setDebugOverlay(false); }}
+                onDismiss={() => { handleOverlayDismiss(); setDebugOverlay(false); }}
             />
 
             {/* Share Modal */}

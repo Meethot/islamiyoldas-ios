@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     Bug, X, Clock, Trash2, Database, Volume2, Calendar,
-    FastForward, AlertTriangle, CheckCircle2, RefreshCcw, Navigation, Bell
+    FastForward, AlertTriangle, CheckCircle2, RefreshCcw, Navigation, Bell, List
 } from 'lucide-react';
 import { LocalNotifications } from '@capacitor/local-notifications';
 import { Button } from '@/components/ui/button';
@@ -175,12 +175,72 @@ const DebugMenu = () => {
         }
     };
 
+    // 10 saniye sonra ezan bildirimi test
+    const test10SecEzan = async () => {
+        try {
+            let permStatus = await LocalNotifications.checkPermissions();
+            if (permStatus.display !== 'granted') {
+                permStatus = await LocalNotifications.requestPermissions();
+            }
+
+            if (permStatus.display === 'granted') {
+                const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+                const isAndroid = /Android/.test(navigator.userAgent);
+
+                await LocalNotifications.schedule({
+                    notifications: [
+                        {
+                            title: "🕌 Ezan Vakti",
+                            body: "Öğle Namazı Vakti Girdi - TEST",
+                            id: Math.floor(Math.random() * 100000),
+                            schedule: { at: new Date(Date.now() + 10000), allowWhileIdle: true },
+                            sound: isAndroid ? 'ezan' : 'ezan.caf',
+                            channelId: 'ezan_vakti',
+                            attachments: null,
+                            actionTypeId: "",
+                            extra: null,
+                            interruptionLevel: 'timeSensitive'
+                        }
+                    ]
+                });
+                setLastAction('🕌 Ezan bildirimi 10sn sonra gelecek!');
+                alert("Ezan bildirimi kuruldu! 10 saniye içinde gelecek. Ekranı kilitleyin.");
+            } else {
+                setLastAction('❌ Notification permission denied');
+            }
+        } catch (error) {
+            setLastAction('❌ Ezan test error: ' + error.message);
+        }
+    };
+
     const testVibration = () => {
         if ('vibrate' in navigator) {
             navigator.vibrate([100, 50, 100, 50, 200]);
             setLastAction('📳 Vibration triggered');
         } else {
             setLastAction('❌ Vibration not supported');
+        }
+    };
+
+    const listPendingNotifications = async () => {
+        try {
+            const pending = await LocalNotifications.getPending();
+            if (pending.notifications.length === 0) {
+                alert('Kuyrukta bekleyen bildirim yok.');
+                setLastAction('📋 No pending notifications');
+                return;
+            }
+
+            const list = pending.notifications.map(n => {
+                const date = n.schedule?.at ? new Date(n.schedule.at).toLocaleString('tr-TR') : 'Hemen';
+                return `ID: ${n.id}\nBaşlık: ${n.title}\nZaman: ${date}\nSes: ${n.sound || 'Sessiz'}`;
+            }).join('\n\n---\n\n');
+
+            console.log('Pending Notifications:', pending.notifications);
+            alert(`Bekleyen Bildirimler (${pending.notifications.length}):\n\n${list}`);
+            setLastAction(`📋 Listed ${pending.notifications.length} notifications`);
+        } catch (error) {
+            setLastAction('❌ List error: ' + error.message);
         }
     };
 
@@ -212,7 +272,9 @@ const DebugMenu = () => {
             group: '🔔 Notifications',
             items: [
                 { label: 'Test Adhan Sound', icon: Volume2, action: testAdhanSound, color: 'bg-amber-500' },
+                { label: '10s Ezan Test', icon: Bell, action: test10SecEzan, color: 'bg-green-600' },
                 { label: '5s Notification', icon: Bell, action: test5SecNotification, color: 'bg-red-500' },
+                { label: 'Pending List', icon: List, action: listPendingNotifications, color: 'bg-blue-600' },
                 { label: 'Test Vibration', icon: Database, action: testVibration, color: 'bg-purple-500' },
             ]
         },
@@ -220,6 +282,17 @@ const DebugMenu = () => {
             group: '🕋 Qibla Finder',
             items: [
                 { label: 'Force Align', icon: Navigation, action: toggleQiblaDebug, color: 'bg-emerald-600' },
+            ]
+        },
+        {
+            group: '🕌 Prayer Overlay',
+            items: [
+                {
+                    label: 'Show Overlay', icon: Bell, action: () => {
+                        window.dispatchEvent(new CustomEvent('debugShowPrayerOverlay'));
+                        setLastAction('🕌 Prayer overlay triggered');
+                    }, color: 'bg-islamic-gold'
+                },
             ]
         }
     ];

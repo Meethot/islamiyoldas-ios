@@ -107,10 +107,12 @@ export const PrayerTimesProvider = ({ children }) => {
     const initializeNotifications = async () => {
         if (!Capacitor.isNativePlatform()) return;
         try {
-            // Request permissions
+            // Request permissions (Robust display and sound request)
             const permStatus = await LocalNotifications.checkPermissions();
-            if (permStatus.display !== 'granted') {
-                await LocalNotifications.requestPermissions();
+            if (permStatus.display !== 'granted' || permStatus.sound !== 'granted') {
+                await LocalNotifications.requestPermissions({
+                    permissions: ['display', 'sound', 'badge']
+                });
             }
 
             // Create Channel for Custom Sound
@@ -119,7 +121,7 @@ export const PrayerTimesProvider = ({ children }) => {
                 name: 'Ezan Vakti',
                 importance: 5, // Importance.HIGH
                 description: 'Ezan vakti bildirimleri',
-                sound: 'ezan.mp3',
+                sound: Capacitor.getPlatform() === 'android' ? 'ezan' : 'ezan.caf',
                 visibility: 1,
                 vibration: true
             });
@@ -236,9 +238,10 @@ export const PrayerTimesProvider = ({ children }) => {
                     body: `${p.name} Vakti Girdi`,
                     id: p.id,
                     schedule: { at: date, allowWhileIdle: true },
-                    sound: settings.vibrateOnly ? null : (Capacitor.getPlatform() === 'android' ? 'ezan' : 'ezan.mp3'),
+                    sound: settings.vibrateOnly ? null : (Capacitor.getPlatform() === 'android' ? 'ezan' : 'ezan.caf'),
                     channelId: 'ezan_vakti',
-                    smallIcon: 'ic_stat_icon_config_sample' // Default resource
+                    smallIcon: 'ic_stat_icon_config_sample',
+                    interruptionLevel: 'timeSensitive' // Ensures better sound delivery on iOS
                 };
             });
 
@@ -370,7 +373,7 @@ export const PrayerTimesProvider = ({ children }) => {
                     title: 'Hayırlı Cumalar 🌹',
                     body: FRIDAY_MESSAGES[i % FRIDAY_MESSAGES.length],
                     schedule: { at: nextFriday, allowWhileIdle: true },
-                    sound: settings.vibrateOnly ? null : 'beep.wav',
+                    sound: settings.vibrateOnly ? null : (Capacitor.getPlatform() === 'android' ? 'beep' : 'beep.caf'),
                     smallIcon: 'ic_stat_icon_config_sample'
                 });
             }

@@ -4,6 +4,7 @@ import { X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useHaptics } from '@/hooks/useMobile';
+import { KaabaIcon } from '@/components/icons/KaabaIcon';
 
 /**
  * PrayerRewardModal
@@ -17,7 +18,7 @@ import { useHaptics } from '@/hooks/useMobile';
  * @param {string} prayerName - Name of completed prayer (e.g., "Fajr")
  */
 export default function PrayerRewardModal({ isOpen, onClose, content, prayerName }) {
-    const { success } = useHaptics();
+    const { light } = useHaptics();
 
     // Body Scroll Lock
     useEffect(() => {
@@ -32,7 +33,7 @@ export default function PrayerRewardModal({ isOpen, onClose, content, prayerName
     }, [isOpen]);
 
     const handleClose = () => {
-        success(); // Gentle haptic feedback
+        light(); // Gentle haptic feedback (was success/heavy)
         onClose();
     };
 
@@ -84,9 +85,9 @@ export default function PrayerRewardModal({ isOpen, onClose, content, prayerName
                                     initial={{ scale: 0 }}
                                     animate={{ scale: 1 }}
                                     transition={{ delay: 0.3, duration: 0.6, type: 'spring', bounce: 0.3 }}
-                                    className="w-20 h-20 mx-auto mb-4 bg-islamic-gold/20 dark:bg-islamic-gold/10 rounded-full flex items-center justify-center"
+                                    className="w-20 h-20 mx-auto mb-4 bg-islamic-gold/20 dark:bg-islamic-gold/10 rounded-full flex items-center justify-center relative overflow-hidden shrink-0 z-10"
                                 >
-                                    <span className="text-5xl">🤲</span>
+                                    <KaabaIcon className="w-10 h-10 text-islamic-gold drop-shadow-sm" strokeWidth={1.5} />
                                 </motion.div>
 
                                 {/* Main title */}
@@ -98,6 +99,8 @@ export default function PrayerRewardModal({ isOpen, onClose, content, prayerName
                                 >
                                     Allah Kabul Etsin
                                 </motion.h2>
+
+
 
                                 <motion.p
                                     initial={{ opacity: 0 }}

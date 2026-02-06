@@ -1,4 +1,4 @@
-import React, { memo, useMemo, useState, useRef, useEffect, Fragment } from 'react';
+import React, { memo, useMemo, useState, useRef, useEffect, Fragment, useCallback } from 'react';
 import { usePrayerTimes } from '@/context/PrayerTimesContext';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -6,7 +6,7 @@ import {
     CheckCircle2, ChevronRight, ChevronDown, Share2, Star, Sparkles, Check,
     Loader2, Moon, Sun, Sunrise, Sunset, Wind, MessageCircle, X, Download, Heart,
     Sprout, Leaf, TreeDeciduous, CalendarDays, Droplet, Trees, Flower2, Search,
-    SortAsc, SortDesc, Flame, Trophy, Bell
+    SortAsc, SortDesc, Flame, Trophy, Bell, Trash2
 } from 'lucide-react';
 import { LocalNotifications } from '@capacitor/local-notifications';
 import { ALL_ESMA } from '@/data/esmaData';
@@ -951,7 +951,10 @@ export const PrayerCountdownWidget = memo(({ loading, city, nextPrayerInfo, pray
     const [alarmTime, setAlarmTime] = useState(null);
     const [selectedMinutes, setSelectedMinutes] = useState(null);
     const [alarmId, setAlarmId] = useState(null);
+    const [selectedPrayerForReminder, setSelectedPrayerForReminder] = useState(null); // Which prayer's reminder modal is open
+    const [prayerReminders, setPrayerReminders] = useState({}); // { 'sabah': { mins: 15, id: 123, time: '06:20' }, ... }
     const { selection } = useHaptics();
+    const { settings } = usePrayerTimes();
 
     // Filter to show only the 5 main prayers (exclude Sunrise for UI)
     const mainPrayers = useMemo(() => {
@@ -1047,6 +1050,37 @@ export const PrayerCountdownWidget = memo(({ loading, city, nextPrayerInfo, pray
         }
     }, [nextPrayerInfo?.name, nextPrayerInfo?.date]);
 
+    // Load all prayer reminders from localStorage
+    useEffect(() => {
+        if (!mainPrayers || mainPrayers.length === 0) return;
+
+        const reminders = {};
+        const prayerDate = getTodayString();
+
+        mainPrayers.forEach(prayer => {
+            const prayerKey = prayer.name.toLowerCase();
+
+            // Check all possible minute values (15, 30, 45)
+            [15, 30, 45].forEach(mins => {
+                const key = `prayer_reminder_${prayer.name}_${prayerDate}_${mins}`;
+                const savedMins = localStorage.getItem(key + '_mins');
+                const savedId = localStorage.getItem(key + '_id');
+                const savedTime = localStorage.getItem(key);
+
+                if (savedMins && savedId) {
+                    // Only keep the most recent one (last set)
+                    reminders[prayerKey] = {
+                        mins: parseInt(savedMins),
+                        id: parseInt(savedId),
+                        time: savedTime
+                    };
+                }
+            });
+        });
+
+        setPrayerReminders(reminders);
+    }, [mainPrayers]);
+
     const handleSetReminder = async (minutesBefore) => {
         setShowReminderOptions(false);
         try {
@@ -1095,14 +1129,13 @@ export const PrayerCountdownWidget = memo(({ loading, city, nextPrayerInfo, pray
                     body: `${displayedPrayer.name} vaktine ${minutesBefore === 0 ? 'girdi' : `${minutesBefore} dakika kaldı`}.`,
                     id: id,
                     schedule: { at: triggerDate, allowWhileIdle: true },
-                    sound: 'beep.wav',
-                    actionTypeId: "",
-                    extra: null
+                    sound: settings.vibrateOnly ? null : (Capacitor.getPlatform() === 'android' ? 'beep' : 'beep.caf'),
+                    channelId: 'ezan_vakti', // Re-using same channel
+                    interruptionLevel: 'timeSensitive' // Ensures better delivery
                 }]
             });
-
             const prayerDate = getTodayString();
-            const key = `reminder_${displayedPrayer.name}_${prayerDate}`;
+            const key = `main_reminder_${displayedPrayer.name}_${prayerDate}`; // UNIQUE PREFIX for main system
             const timeStrFormatted = triggerDate.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
 
             localStorage.setItem(key, timeStrFormatted);
@@ -1127,7 +1160,7 @@ export const PrayerCountdownWidget = memo(({ loading, city, nextPrayerInfo, pray
                 await LocalNotifications.cancel({ notifications: [{ id: parseInt(alarmId) }] });
             }
             const prayerDate = getTodayString();
-            const key = `reminder_${displayedPrayer?.name}_${prayerDate}`;
+            const key = `main_reminder_${displayedPrayer?.name}_${prayerDate}`; // UNIQUE PREFIX for main system
             localStorage.removeItem(key);
             localStorage.removeItem(key + '_mins');
             localStorage.removeItem(key + '_id');
@@ -1141,6 +1174,133 @@ export const PrayerCountdownWidget = memo(({ loading, city, nextPrayerInfo, pray
             if (navigator.vibrate) navigator.vibrate([50]);
         } catch (error) {
             console.error('Remove reminder error:', error);
+        }
+    };
+
+    // New: Set reminder for specific prayer
+    const handleSetPrayerReminder = async (prayer, minutesBefore) => {
+        setSelectedPrayerForReminder(null); // Close modal
+        try {
+            const perm = await LocalNotifications.checkPermissions();
+            if (perm.display !== 'granted') {
+                const req = await LocalNotifications.requestPermissions();
+                if (req.display !== 'granted') return;
+            }
+
+            const timeStr = prayer.time;
+            let hours, mins;
+            if (timeStr.includes('AM') || timeStr.includes('PM')) {
+                const match = timeStr.match(/(\d+):(\d+)\s*(AM|PM)/i);
+                if (match) {
+                    hours = parseInt(match[1]);
+                    mins = parseInt(match[2]);
+                    if (match[3].toUpperCase() === 'PM' && hours !== 12) hours += 12;
+                    if (match[3].toUpperCase() === 'AM' && hours === 12) hours = 0;
+                }
+            } else {
+                [hours, mins] = timeStr.split(':').map(Number);
+            }
+
+            let targetDate = new Date();
+            targetDate.setHours(hours, mins, 0, 0);
+
+            const now = new Date();
+            if (targetDate <= now) {
+                targetDate.setDate(targetDate.getDate() + 1);
+            }
+
+            const triggerDate = new Date(targetDate.getTime() - (minutesBefore * 60000));
+
+            if (triggerDate <= now && minutesBefore !== 0) {
+                alert('Vakte çok az kalmış, bu süre için alarm kurulamaz.');
+                return;
+            }
+
+            const id = Math.floor(Math.random() * 2147483647);
+
+            await LocalNotifications.schedule({
+                notifications: [{
+                    title: "Vakit Yaklaşıyor!",
+                    body: `${prayer.name} vaktine ${minutesBefore === 0 ? 'girdi' : `${minutesBefore} dakika kaldı`}.`,
+                    id: id,
+                    schedule: { at: triggerDate, allowWhileIdle: true },
+                    sound: settings.vibrateOnly ? null : (Capacitor.getPlatform() === 'android' ? 'beep' : 'beep.caf'),
+                    channelId: 'ezan_vakti',
+                    interruptionLevel: 'timeSensitive'
+                }]
+            });
+
+            const prayerDate = getTodayString();
+            const prayerKey = prayer.name.toLowerCase();
+
+            // IMPORTANT: Clear ALL old reminder keys for this prayer first
+            const existingReminder = prayerReminders[prayerKey];
+            if (existingReminder?.id) {
+                try {
+                    await LocalNotifications.cancel({ notifications: [{ id: existingReminder.id }] });
+                } catch (e) {
+                    console.log('Could not cancel old notification:', e);
+                }
+            }
+
+            // Clear all possible old localStorage keys for this prayer
+            [15, 30, 45].forEach(mins => {
+                const oldKey = `prayer_reminder_${prayer.name}_${prayerDate}_${mins}`;
+                localStorage.removeItem(oldKey);
+                localStorage.removeItem(oldKey + '_mins');
+                localStorage.removeItem(oldKey + '_id');
+            });
+
+            // Now set the new reminder
+            const key = `prayer_reminder_${prayer.name}_${prayerDate}_${minutesBefore}`;
+            const timeStrFormatted = triggerDate.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
+
+            localStorage.setItem(key, timeStrFormatted);
+            localStorage.setItem(key + '_mins', minutesBefore.toString());
+            localStorage.setItem(key + '_id', id.toString());
+
+            // Update state
+            setPrayerReminders(prev => ({
+                ...prev,
+                [prayerKey]: { mins: minutesBefore, id, time: timeStrFormatted }
+            }));
+
+            if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+
+        } catch (error) {
+            console.error('Prayer reminder error:', error);
+        }
+    };
+
+    // Remove prayer reminder
+    const handleRemovePrayerReminder = async (prayer) => {
+        try {
+            const prayerKey = prayer.name.toLowerCase();
+            const reminder = prayerReminders[prayerKey];
+
+            if (reminder?.id) {
+                await LocalNotifications.cancel({ notifications: [{ id: reminder.id }] });
+            }
+
+            const prayerDate = getTodayString();
+
+            // Remove all possible reminders for this prayer (15, 30, 45 min)
+            [15, 30, 45].forEach(mins => {
+                const key = `prayer_reminder_${prayer.name}_${prayerDate}_${mins}`;
+                localStorage.removeItem(key);
+                localStorage.removeItem(key + '_mins');
+                localStorage.removeItem(key + '_id');
+            });
+
+            setPrayerReminders(prev => {
+                const updated = { ...prev };
+                delete updated[prayerKey];
+                return updated;
+            });
+
+            if (navigator.vibrate) navigator.vibrate(50);
+        } catch (error) {
+            console.error('Remove prayer reminder error:', error);
         }
     };
 
@@ -1171,15 +1331,11 @@ export const PrayerCountdownWidget = memo(({ loading, city, nextPrayerInfo, pray
         setIsExpanded(!isExpanded);
     };
 
-    const handlePrayerSelect = (prayer) => {
+    // Stable callback - prevents recreations (React optimization)
+    const handlePrayerSelect = useCallback((prayer) => {
         selection();
-        if (selectedPrayerId === prayer.id) {
-            // Deselect = go back to auto mode
-            setSelectedPrayerId(null);
-        } else {
-            setSelectedPrayerId(prayer.id);
-        }
-    };
+        setSelectedPrayerId(prayer.id);
+    }, [selection]); // Only recreated if selection changes
 
     // Determine what to show
     const displayName = displayedPrayer?.name || nextPrayerInfo?.name || '-';
@@ -1303,11 +1459,12 @@ export const PrayerCountdownWidget = memo(({ loading, city, nextPrayerInfo, pray
                         <AnimatePresence>
                             {isExpanded && !loading && mainPrayers.length > 0 && (
                                 <motion.div
-                                    initial={{ height: 0, opacity: 0 }}
-                                    animate={{ height: 'auto', opacity: 1 }}
-                                    exit={{ height: 0, opacity: 0 }}
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    exit={{ opacity: 0 }}
                                     transition={{ duration: 0.3, ease: 'easeInOut' }}
                                     className="overflow-hidden"
+                                    style={{ overflow: 'hidden' }}
                                 >
                                     <div className="p-4 pt-2 space-y-2 bg-gradient-to-b from-islamic-green/5 dark:from-black/10 to-transparent">
                                         {/* Auto Mode Button */}
@@ -1327,28 +1484,27 @@ export const PrayerCountdownWidget = memo(({ loading, city, nextPrayerInfo, pray
                                             const isNext = !selectedPrayerId && nextPrayerInfo?.name === prayer.name;
                                             const isPast = isPastPrayer(prayer.time) && !isNext && !isSelected;
                                             const IconComponent = prayer.icon;
+                                            const prayerKey = prayer.name.toLowerCase();
+                                            const hasReminder = !!prayerReminders[prayerKey];
 
                                             return (
-                                                <motion.button
+                                                <button
                                                     key={prayer.id}
-                                                    initial={{ opacity: 0, x: -20 }}
-                                                    animate={{ opacity: 1, x: 0 }}
-                                                    transition={{ delay: index * 0.05 }}
                                                     onClick={(e) => { e.stopPropagation(); handlePrayerSelect(prayer); }}
                                                     className={cn(
-                                                        "w-full flex items-center justify-between p-3 rounded-2xl transition-all active:scale-[0.98]",
+                                                        "w-full flex items-center justify-between p-3 rounded-2xl",
                                                         isSelected
                                                             ? "bg-islamic-gold/20 border-2 border-islamic-gold shadow-[0_0_20px_rgba(212,175,55,0.25)]"
                                                             : isNext
                                                                 ? "bg-islamic-gold/10 border border-islamic-gold/30 shadow-[0_0_15px_rgba(212,175,55,0.15)]"
                                                                 : isPast
-                                                                    ? "opacity-40 hover:opacity-60"
-                                                                    : "bg-white/5 dark:bg-white/5 hover:bg-white/10 border border-transparent hover:border-islamic-gold/20"
+                                                                    ? "opacity-40"
+                                                                    : "bg-white/5 dark:bg-white/5 border border-transparent"
                                                     )}
                                                 >
                                                     <div className="flex items-center gap-3">
                                                         <div className={cn(
-                                                            "w-10 h-10 rounded-xl flex items-center justify-center transition-colors",
+                                                            "w-10 h-10 rounded-xl flex items-center justify-center",
                                                             isSelected
                                                                 ? "bg-islamic-gold text-black"
                                                                 : isNext
@@ -1382,17 +1538,37 @@ export const PrayerCountdownWidget = memo(({ loading, city, nextPrayerInfo, pray
                                                             </p>
                                                         </div>
                                                     </div>
-                                                    <div className={cn(
-                                                        "text-lg font-mono font-bold tabular-nums",
-                                                        isSelected || isNext
-                                                            ? "text-islamic-gold"
-                                                            : isPast
-                                                                ? "text-gray-400 line-through"
-                                                                : "text-gray-700 dark:text-white/80"
-                                                    )}>
-                                                        {prayer.time}
+                                                    <div className="flex items-center gap-3">
+                                                        {/* Bell icon for reminder */}
+                                                        {!isPast && (
+                                                            <button
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    setSelectedPrayerForReminder(prayer);
+                                                                }}
+                                                                className={cn(
+                                                                    "w-8 h-8 rounded-lg flex items-center justify-center",
+                                                                    "transition-colors duration-150",
+                                                                    hasReminder
+                                                                        ? "bg-islamic-gold/20 text-islamic-gold"
+                                                                        : "bg-white/5 text-gray-400 hover:text-islamic-gold hover:bg-white/10"
+                                                                )}
+                                                            >
+                                                                <Bell size={16} fill={hasReminder ? "currentColor" : "none"} className="transition-none" />
+                                                            </button>
+                                                        )}
+                                                        <div className={cn(
+                                                            "text-lg font-mono font-bold tabular-nums",
+                                                            isSelected || isNext
+                                                                ? "text-islamic-gold"
+                                                                : isPast
+                                                                    ? "text-gray-400 line-through"
+                                                                    : "text-gray-700 dark:text-white/80"
+                                                        )}>
+                                                            {prayer.time}
+                                                        </div>
                                                     </div>
-                                                </motion.button>
+                                                </button>
                                             );
                                         })}
                                     </div>
@@ -1440,7 +1616,6 @@ export const PrayerCountdownWidget = memo(({ loading, city, nextPrayerInfo, pray
                                 </div>
                                 <div className="p-4 space-y-2 max-h-[60vh] overflow-y-auto">
                                     {[
-                                        { label: 'Tam Vaktinde', val: 0, icon: Check },
                                         { label: '15 Dakika Önce', val: 15, icon: Bell },
                                         { label: '30 Dakika Önce', val: 30, icon: Bell },
                                         { label: '45 Dakika Önce', val: 45, icon: Bell },
@@ -1481,8 +1656,102 @@ export const PrayerCountdownWidget = memo(({ loading, city, nextPrayerInfo, pray
                                             onClick={handleRemoveReminder}
                                             className="w-full mt-4 flex items-center justify-center gap-2 py-3 text-red-500 dark:text-fuchsia-400 text-xs font-bold hover:bg-red-50 dark:hover:bg-red-900/10 rounded-xl transition-colors border border-red-100 dark:border-red-900/20"
                                         >
-                                            <Bell size={14} className="animate-pulse" />
-                                            Hatırlatıcıyı Kapat (İptal Et)
+                                            <Trash2 size={14} />
+                                            Hatırlatıcıyı Sıfırla (Kapat)
+                                        </button>
+                                    )}
+                                </div>
+                            </div>
+                        </motion.div>
+                    </>
+                )}
+            </AnimatePresence>
+
+            {/* Prayer-Specific Reminder Modal */}
+            <AnimatePresence>
+                {selectedPrayerForReminder && (
+                    <>
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.15, ease: 'easeOut' }}
+                            className="fixed inset-0 z-[100] bg-black/60"
+                            onClick={() => setSelectedPrayerForReminder(null)}
+                        />
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: 10 }}
+                            transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                            className="fixed inset-0 z-[101] flex items-center justify-center p-4 pointer-events-none"
+                        >
+                            <div className="w-full max-w-sm bg-[#fdfaf5] dark:bg-[#044d29] rounded-[2rem] shadow-2xl overflow-hidden border border-white/10 pointer-events-auto">
+                                <div className="p-6 pb-2 border-b border-gray-100 dark:border-white/5 flex justify-between items-center bg-white/50 dark:bg-black/20">
+                                    <div>
+                                        <h3 className="text-lg font-bold font-serif text-gray-800 dark:text-white">Hatırlatıcı Kur</h3>
+                                        <p className="text-xs text-gray-500 dark:text-emerald-100/60 font-medium">
+                                            {selectedPrayerForReminder.name} vakti için
+                                        </p>
+                                    </div>
+                                    <Button size="icon" variant="ghost" className="h-8 w-8 rounded-full bg-black/5 dark:bg-white/10" onClick={() => setSelectedPrayerForReminder(null)}>
+                                        <X size={16} />
+                                    </Button>
+                                </div>
+                                <div className="p-4 space-y-2 max-h-[60vh] overflow-y-auto">
+                                    {[
+                                        { label: '15 Dakika Önce', val: 15, icon: Bell },
+                                        { label: '30 Dakika Önce', val: 30, icon: Bell },
+                                        { label: '45 Dakika Önce', val: 45, icon: Bell },
+                                    ].map((opt) => {
+                                        const currentReminder = prayerReminders[selectedPrayerForReminder.name.toLowerCase()];
+                                        const isSelected = currentReminder?.mins === opt.val;
+                                        return (
+                                            <button
+                                                key={opt.val}
+                                                onClick={() => handleSetPrayerReminder(selectedPrayerForReminder, opt.val)}
+                                                className={cn(
+                                                    "w-full text-left px-4 py-3.5 text-sm font-bold rounded-2xl flex items-center justify-between group border",
+                                                    "transition-colors duration-150",
+                                                    isSelected
+                                                        ? "bg-islamic-gold/10 border-islamic-gold text-islamic-green dark:text-islamic-gold"
+                                                        : "hover:bg-islamic-gold/10 dark:hover:bg-white/5 text-gray-700 dark:text-white border-transparent hover:border-islamic-gold/30"
+                                                )}
+                                            >
+                                                <span className="flex items-center gap-3">
+                                                    <div className={cn(
+                                                        "w-8 h-8 rounded-full flex items-center justify-center transition-colors duration-150",
+                                                        isSelected
+                                                            ? "bg-islamic-gold text-white"
+                                                            : "bg-islamic-green/10 dark:bg-emerald-500/10 text-islamic-green dark:text-emerald-400 group-hover:bg-islamic-gold group-hover:text-white"
+                                                    )}>
+                                                        {isSelected ? <Check size={14} /> : <opt.icon size={14} />}
+                                                    </div>
+                                                    <div className="flex flex-col">
+                                                        <span>{opt.label}</span>
+                                                        {isSelected && <span className="text-[10px] opacity-70">Zaten Seçili</span>}
+                                                    </div>
+                                                </span>
+                                                <ChevronRight size={16} className="opacity-50" />
+                                            </button>
+                                        );
+                                    })}
+
+                                    {/* Remove reminder button */}
+                                    {prayerReminders[selectedPrayerForReminder.name.toLowerCase()] && (
+                                        <button
+                                            onClick={() => {
+                                                handleRemovePrayerReminder(selectedPrayerForReminder);
+                                                setSelectedPrayerForReminder(null);
+                                            }}
+                                            className="w-full text-left px-4 py-3.5 text-sm font-bold rounded-2xl transition-all flex items-center justify-between group active:scale-98 border border-red-200 dark:border-red-900/30 bg-red-50 dark:bg-red-950/20 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-950/40 mt-4"
+                                        >
+                                            <span className="flex items-center gap-3">
+                                                <div className="w-8 h-8 rounded-full flex items-center justify-center bg-red-100 dark:bg-red-900/30">
+                                                    <Trash2 size={14} />
+                                                </div>
+                                                <span>Hatırlatıcıyı Kaldır</span>
+                                            </span>
                                         </button>
                                     )}
                                 </div>

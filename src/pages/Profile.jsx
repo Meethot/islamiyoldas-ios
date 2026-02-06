@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import {
     User, Settings, Shield, Bell, HelpCircle, RefreshCw,
     ChevronRight, LogOut, Heart, Crown, Check, Moon, Sun, Download, Trash2, X,
-    BookOpen, Box, Landmark, Camera, Pen, Share2, UserPlus, Globe, Bug
+    BookOpen, Box, Landmark, Camera, Pen, Share2, UserPlus, Globe, Bug, Ticket, Gift
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
@@ -103,7 +103,33 @@ export default function Profile() {
 
     // Calculator State
     const [showCalculator, setShowCalculator] = useState(false);
+
     const [calcData, setCalcData] = useState({ birthDate: '', startDate: '', gender: 'Erkek' });
+
+    // Promo Code State
+    const [showPromoModal, setShowPromoModal] = useState(false);
+    const [promoCode, setPromoCode] = useState('');
+    const VALID_CODES = ['MOBI2025', 'TEKNOFIST', 'MEKKE', 'MEDINE', 'RAMAZAN', 'ALLAHKABULETSIN', 'KABE'];
+
+    const handlePromoSubmit = () => {
+        const code = promoCode.trim().toUpperCase();
+        if (VALID_CODES.includes(code)) {
+            success();
+            setIsPremium(true);
+            localStorage.setItem('isPremium', 'true');
+            setShowPromoModal(false);
+            setPromoCode('');
+            alert("Tebrikler! Premium özellikler başarıyla aktifleştirildi. 🌟");
+            window.confetti({
+                particleCount: 100,
+                spread: 70,
+                origin: { y: 0.6 }
+            });
+        } else {
+            heavy();
+            alert("Hatalı veya süresi dolmuş promosyon kodu.");
+        }
+    };
 
     // Load Data
     useEffect(() => {
@@ -476,13 +502,24 @@ export default function Profile() {
                                 <p className="text-[10px] text-gray-400 font-medium">{t('language.subtitle')}</p>
                             </div>
                         </div>
-                        <div className="flex items-center gap-3">
-                            <span className="text-sm font-medium text-gray-500 dark:text-gray-400 flex items-center gap-2">
-                                <span className="text-lg">{LANGUAGES.find(l => l.code === i18n.language)?.flag}</span>
-                                {LANGUAGES.find(l => l.code === i18n.language)?.label}
-                            </span>
-                            <ChevronRight className="w-5 h-5 text-gray-300" />
+
+                    </div>
+
+                    {/* Promo Code */}
+                    <div
+                        className="p-5 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-white/5 transition-colors cursor-pointer group"
+                        onClick={() => setShowPromoModal(true)}
+                    >
+                        <div className="flex items-center gap-4">
+                            <div className="p-3 bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400 rounded-2xl group-hover:scale-110 transition-transform">
+                                <Ticket size={20} />
+                            </div>
+                            <div className="text-left">
+                                <p className="text-sm font-bold text-gray-900 dark:text-white">Promosyon Kodu</p>
+                                <p className="text-[10px] text-gray-400 font-medium">Hediye kodu kullan</p>
+                            </div>
                         </div>
+                        <ChevronRight className="w-5 h-5 text-gray-300 group-hover:translate-x-1 transition-transform" />
                     </div>
 
                     {/* Report Bug */}
@@ -681,6 +718,55 @@ export default function Profile() {
                 )}
             </AnimatePresence>
 
+            {/* Promo Code Modal */}
+            <AnimatePresence>
+                {showPromoModal && (
+                    <motion.div
+                        initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+                        onClick={() => setShowPromoModal(false)}
+                    >
+                        <motion.div
+                            initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }}
+                            onClick={(e) => e.stopPropagation()}
+                            className="bg-white dark:bg-[#032e18] w-full max-w-sm rounded-[2.5rem] p-6 shadow-2xl border dark:border-white/10"
+                        >
+                            <div className="flex justify-between items-center mb-6">
+                                <h3 className="text-xl font-bold font-serif text-islamic-green dark:text-islamic-gold flex items-center gap-2">
+                                    <Gift className="w-6 h-6" /> Promosyon Kodu
+                                </h3>
+                                <Button size="icon" variant="ghost" onClick={() => setShowPromoModal(false)}><X className="w-5 h-5" /></Button>
+                            </div>
+
+                            <div className="space-y-4">
+                                {/* <p className="text-sm text-gray-600 dark:text-gray-300 text-center">
+                                    Youtuber veya Influencer'lardan aldığınız kodu aşağıya girerek Premium özellikleri ücretsiz açabilirsiniz.
+                                </p> */}
+
+                                <div className="space-y-2">
+                                    <label className="text-xs font-bold text-gray-500 uppercase ml-1">KOD GİRİNİZ</label>
+                                    <input
+                                        type="text"
+                                        value={promoCode}
+                                        onChange={(e) => setPromoCode(e.target.value)}
+                                        placeholder="MOBI2025"
+                                        className="w-full p-4 bg-gray-50 dark:bg-white/5 border-2 border-gray-200 dark:border-white/10 rounded-xl text-lg font-bold text-center tracking-widest uppercase focus:outline-none focus:border-islamic-gold transition-colors"
+                                    />
+                                </div>
+
+                                <Button
+                                    onClick={handlePromoSubmit}
+                                    disabled={!promoCode.trim()}
+                                    className="w-full h-12 bg-islamic-gold hover:bg-islamic-gold/90 text-[#032e18] font-bold text-base rounded-xl shadow-lg shadow-islamic-gold/20 active:scale-95 transition-all"
+                                >
+                                    Kodu Kullan
+                                </Button>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
             <div className="text-center pb-8 opacity-30">
                 <p className="text-[10px] font-black uppercase tracking-[0.3em]">{t('app_name')}</p>
                 <p className="text-[9px]">{t('version')}</p>
@@ -768,7 +854,7 @@ export default function Profile() {
                     </motion.div>
                 )}
             </AnimatePresence>
-        </motion.div>
+        </motion.div >
     );
 }
 

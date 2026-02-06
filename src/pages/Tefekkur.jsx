@@ -70,12 +70,12 @@ export default function Tefekkur() {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-b from-[#022c22] via-[#064e3b] to-[#000000] relative overflow-hidden flex flex-col">
+        <div className="h-[100dvh] bg-gradient-to-b from-[#022c22] via-[#064e3b] to-[#000000] relative overflow-hidden flex flex-col">
             {/* Ambient Glow */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-emerald-500/10 rounded-full blur-[150px] pointer-events-none" />
 
             {/* Header */}
-            <header className="relative z-10 flex items-center justify-between px-4 py-6 border-b border-white/5">
+            <header className="relative z-10 flex items-center justify-between px-4 py-4 border-b border-white/5">
                 <button onClick={handleBack} className="p-2 rounded-full hover:bg-white/5 transition-colors text-white/70">
                     <ChevronLeft className="w-6 h-6" />
                 </button>
@@ -89,11 +89,11 @@ export default function Tefekkur() {
             </header>
 
             {/* Content */}
-            <main className="flex-1 flex flex-col items-center justify-center relative z-10 p-6">
+            <main className="flex-1 flex flex-col items-center justify-start relative z-10 pt-2 p-6">
 
                 {/* Breathing Circle - Extracted from Murakabe */}
                 <motion.div
-                    className="relative w-64 h-64 flex items-center justify-center mb-12"
+                    className="relative w-56 h-56 flex items-center justify-center mb-2"
                     animate={active ? {
                         scale: [1, 1.2, 1.2, 0.9, 1],
                     } : {}}
@@ -114,7 +114,7 @@ export default function Tefekkur() {
 
                     {/* Main Circle */}
                     <motion.div
-                        className="relative w-48 h-48 rounded-full bg-gradient-to-br from-emerald-500/20 via-teal-600/20 to-emerald-800/20 backdrop-blur-sm border border-white/10 shadow-[0_0_50px_rgba(16,185,129,0.2)] flex items-center justify-center"
+                        className="relative w-40 h-40 rounded-full bg-gradient-to-br from-emerald-500/20 via-teal-600/20 to-emerald-800/20 backdrop-blur-sm border border-white/10 shadow-[0_0_50px_rgba(16,185,129,0.2)] flex items-center justify-center"
                         animate={active ? {
                             boxShadow: [
                                 '0 0 50px rgba(16,185,129,0.2)',
@@ -146,7 +146,7 @@ export default function Tefekkur() {
                 </motion.div>
 
                 {/* Controls / Info */}
-                <div className="text-center space-y-8 max-w-xs mx-auto w-full">
+                <div className="text-center space-y-4 max-w-xs mx-auto w-full">
                     <AnimatePresence mode="wait">
                         {!active && !completed ? (
                             <motion.div

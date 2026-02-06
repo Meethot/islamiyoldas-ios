@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import confetti from 'canvas-confetti';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Target, CheckCircle2, Plus, Minus, TrendingUp, Sparkles, Settings, BookOpen, Calendar, Eye, X, Calculator, Scale, Heart, AlertCircle } from 'lucide-react';
+import { Target, CheckCircle2, Plus, Minus, TrendingUp, Sparkles, Settings, BookOpen, Calendar, Eye, X, Calculator, Scale, Heart, AlertCircle, Edit2, Save } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useHaptics } from '@/hooks/useMobile';
@@ -59,6 +60,10 @@ export default function Tracking() {
     const [manualGoal, setManualGoal] = useState(100);
     const [birthDate, setBirthDate] = useState('');
     const [pubertyAge, setPubertyAge] = useState(15);
+
+    // Edit Modal State
+    const [editingPrayer, setEditingPrayer] = useState(null); // { key: 'sabah', label: 'Sabah', value: 120 }
+    const [editValue, setEditValue] = useState('');
 
     // Load initial data
     useEffect(() => {
@@ -161,6 +166,9 @@ export default function Tracking() {
 
     const updateCount = (key, delta) => {
         const newCounts = { ...qadaCounts, [key]: Math.max(0, qadaCounts[key] + delta) };
+        const newTotal = Object.values(newCounts).reduce((a, b) => a + b, 0);
+        const newProgress = Math.min((newTotal / goal) * 100, 100);
+
         setQadaCounts(newCounts);
         localStorage.setItem('qadaCounts', JSON.stringify(newCounts));
 
@@ -168,6 +176,39 @@ export default function Tracking() {
             setShowCelebration(true);
             setTimeout(() => setShowCelebration(false), 2000);
         }
+
+        // Trigger confetti if we just hit 100%
+        if (newProgress === 100 && progress < 100) {
+            triggerCelebration();
+        }
+    };
+
+    const triggerCelebration = () => {
+        const end = Date.now() + 3000;
+        const colors = ['#D4AF37', '#10B981', '#ffffff'];
+
+        (function frame() {
+            confetti({
+                particleCount: 3,
+                angle: 60,
+                spread: 55,
+                origin: { x: 0 },
+                colors: colors,
+                zIndex: 9999 // High z-index to show over modals
+            });
+            confetti({
+                particleCount: 3,
+                angle: 120,
+                spread: 55,
+                origin: { x: 1 },
+                colors: colors,
+                zIndex: 9999
+            });
+
+            if (Date.now() < end) {
+                requestAnimationFrame(frame);
+            }
+        }());
     };
 
     // Goal Calculation Logic
@@ -205,21 +246,100 @@ export default function Tracking() {
         selection();
     };
 
+    const openEditModal = (prayer) => {
+        selection();
+        setEditingPrayer(prayer);
+        setEditValue(qadaCounts[prayer.key].toString());
+    };
+
+    const handleEditSave = () => {
+        if (!editingPrayer) return;
+        const newValue = parseInt(editValue, 10);
+        if (isNaN(newValue) || newValue < 0) return;
+
+        const newCounts = { ...qadaCounts, [editingPrayer.key]: newValue };
+        setQadaCounts(newCounts);
+        localStorage.setItem('qadaCounts', JSON.stringify(newCounts));
+
+        // Recalculate progress/confetti logic if needed (optional)
+        const newTotal = Object.values(newCounts).reduce((a, b) => a + b, 0);
+        const newProgress = Math.min((newTotal / goal) * 100, 100);
+        if (newProgress === 100 && progress < 100) triggerCelebration();
+
+        setEditingPrayer(null);
+        selection();
+    };
+
     // Circular Progress Component for Kaza
     const CircularProgress = ({ value }) => {
-        const radius = 60;
+        const radius = 70; // Increased size slightly
         const circumference = 2 * Math.PI * radius;
         const offset = circumference - (value / 100) * circumference;
 
         return (
-            <div className="relative flex items-center justify-center w-40 h-40">
-                <svg className="w-full h-full -rotate-90">
-                    <circle cx="80" cy="80" r={radius} fill="transparent" stroke="rgba(255,255,255,0.1)" strokeWidth="12" />
-                    <circle cx="80" cy="80" r={radius} fill="transparent" stroke="#D4AF37" strokeWidth="12" strokeDasharray={circumference} strokeDashoffset={offset} strokeLinecap="round" className="transition-all duration-1000 ease-out" />
+            <div className="relative flex items-center justify-center w-48 h-48">
+                {/* Glow Filter Definition */}
+                <svg style={{ position: 'absolute', width: 0, height: 0 }}>
+                    <defs>
+                        <linearGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" stopColor="#D4AF37" />
+                            <stop offset="50%" stopColor="#FCD34D" />
+                            <stop offset="100%" stopColor="#D4AF37" />
+                        </linearGradient>
+                        <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+                            <feGaussianBlur stdDeviation="4" result="coloredBlur" />
+                            <feMerge>
+                                <feMergeNode in="coloredBlur" />
+                                <feMergeNode in="SourceGraphic" />
+                            </feMerge>
+                        </filter>
+                    </defs>
                 </svg>
-                <div className="absolute flex flex-col items-center">
-                    <span className="text-3xl font-bold text-white">{value.toFixed(0)}%</span>
-                    <span className="text-[10px] text-emerald-100/60 uppercase tracking-widest font-bold">İlerleme</span>
+
+                <svg className="w-full h-full -rotate-90 drop-shadow-xl">
+                    {/* Background Circle */}
+                    <circle
+                        cx="96" cy="96" r={radius}
+                        fill="transparent"
+                        stroke="rgba(255,255,255,0.05)"
+                        strokeWidth="12"
+                    />
+
+                    {/* Progress Circle with Gradient & Glow */}
+                    <circle
+                        cx="96" cy="96" r={radius}
+                        fill="transparent"
+                        stroke="url(#progressGradient)"
+                        strokeWidth="12"
+                        strokeDasharray={circumference}
+                        strokeDashoffset={offset}
+                        strokeLinecap="round"
+                        filter="url(#glow)"
+                        className="transition-all duration-1000 ease-out"
+                    />
+                </svg>
+
+                {/* Inner Content */}
+                <div className="absolute flex flex-col items-center justify-center">
+                    <div className="relative">
+                        <span className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-br from-white to-islamic-gold drop-shadow-sm">
+                            {value.toFixed(0)}%
+                        </span>
+                    </div>
+                    <span className="text-[10px] text-emerald-100/80 uppercase tracking-[0.2em] font-bold mt-1 shadow-black/20 text-shadow-sm">
+                        İlerleme
+                    </span>
+
+                    {/* Tiny decorative dots */}
+                    {value >= 100 && (
+                        <motion.div
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1 }}
+                            className="absolute -top-6 text-islamic-gold"
+                        >
+                            <Sparkles size={20} className="animate-pulse" />
+                        </motion.div>
+                    )}
                 </div>
             </div>
         );
@@ -310,23 +430,22 @@ export default function Tracking() {
                             <div className="relative z-10 flex flex-col items-center">
                                 <CircularProgress value={progress} />
                                 <div className="mt-6 text-center">
-                                    <h3 className="text-xl font-serif font-bold italic mb-2">"Sabreden zafere erer."</h3>
+                                    <h3 className="text-lg font-serif font-bold italic mb-2 text-center text-balance text-emerald-100/90">
+                                        "Rabbim! Beni ve soyumdan gelecekleri namazı dosdoğru kılanlardan eyle."
+                                        <span className="block text-xs font-sans font-normal not-italic text-emerald-100/50 mt-1 opacity-70">(İbrahim Suresi, 40. Ayet)</span>
+                                    </h3>
                                     <p className="text-emerald-100/60 text-sm">Hedef: {goal} Namaz | Ödenen: {totalPaid}</p>
                                 </div>
                                 <div className="w-full h-px bg-white/10 my-6" />
-                                <div className="grid grid-cols-2 w-full gap-4">
-                                    <div className="bg-white/5 rounded-2xl p-4 text-center">
-                                        <p className="text-[10px] text-emerald-100/60 uppercase font-bold mb-1">Kalan</p>
-                                        <p className="text-xl font-bold text-islamic-gold">{Math.max(0, goal - totalPaid)}</p>
-                                    </div>
-                                    <div className="bg-white/5 rounded-2xl p-4 text-center">
-                                        <p className="text-[10px] text-emerald-100/60 uppercase font-bold mb-1">Motivasyon</p>
-                                        <p className="text-[10px] italic">Yola Devam!</p>
+                                <div className="flex justify-center w-full">
+                                    <div className="bg-white/5 rounded-2xl p-4 flex items-center justify-center gap-2 min-w-[200px] shadow-lg shadow-black/10 border border-white/5">
+                                        <p className="text-sm text-emerald-100/60 uppercase font-bold tracking-wider">Kalan:</p>
+                                        <p className="text-2xl font-black text-islamic-gold">{Math.max(0, goal - totalPaid)}</p>
                                     </div>
                                 </div>
                                 <Button
                                     variant="ghost"
-                                    className="mt-4 text-white/70 hover:text-white hover:bg-white/5 text-xs"
+                                    className="mt-6 text-white/50 hover:text-white hover:bg-white/5 text-xs transition-colors"
                                     onClick={() => {
                                         selection();
                                         setManualGoal(goal);
@@ -349,7 +468,20 @@ export default function Tracking() {
                                     <div key={prayer.key} className="glass-panel p-4 rounded-3xl flex flex-col gap-3">
                                         <div className="flex justify-between items-start">
                                             <span className="text-[11px] font-bold text-gray-400 dark:text-emerald-100/40 uppercase tracking-widest">{prayer.label}</span>
-                                            <span className="text-xl font-black text-islamic-green dark:text-islamic-gold">{qadaCounts[prayer.key]}</span>
+                                            <div className="flex items-center gap-2">
+                                                <button
+                                                    onClick={() => openEditModal(prayer)}
+                                                    className="p-1 hover:bg-gray-100 dark:hover:bg-white/10 rounded-full transition-colors text-gray-400 hover:text-islamic-gold"
+                                                >
+                                                    <Edit2 size={14} />
+                                                </button>
+                                                <span
+                                                    className="text-xl font-black text-islamic-green dark:text-islamic-gold cursor-pointer"
+                                                    onClick={() => openEditModal(prayer)}
+                                                >
+                                                    {qadaCounts[prayer.key]}
+                                                </span>
+                                            </div>
                                         </div>
                                         <div className="flex gap-2">
                                             <button
@@ -383,6 +515,69 @@ export default function Tracking() {
                         className="-mx-5 -mt-6"
                     >
                         <MurakabeTab />
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* Kaza Edit Modal */}
+            <AnimatePresence>
+                {editingPrayer && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+                        onClick={() => setEditingPrayer(null)}
+                    >
+                        <motion.div
+                            initial={{ scale: 0.9, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.9, opacity: 0 }}
+                            onClick={(e) => e.stopPropagation()}
+                            className="bg-white dark:bg-[#032e18] w-[90%] max-w-sm rounded-[2rem] shadow-2xl border dark:border-white/10 overflow-hidden"
+                        >
+                            <div className="p-6">
+                                <div className="flex justify-between items-center mb-6">
+                                    <h3 className="text-lg font-bold font-serif text-islamic-green dark:text-islamic-gold flex items-center gap-2">
+                                        <Edit2 className="w-5 h-5" />
+                                        {editingPrayer.label} Düzenle
+                                    </h3>
+                                    <button
+                                        onClick={() => setEditingPrayer(null)}
+                                        className="p-2 hover:bg-gray-100 dark:hover:bg-white/5 rounded-full transition-colors"
+                                    >
+                                        <X className="w-5 h-5" />
+                                    </button>
+                                </div>
+
+                                <div className="space-y-4">
+                                    <div>
+                                        <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
+                                            Kaza Borç Sayısı
+                                        </label>
+                                        <input
+                                            type="number"
+                                            min="0"
+                                            value={editValue}
+                                            onChange={(e) => {
+                                                const val = e.target.value.replace(/[^0-9]/g, '');
+                                                setEditValue(val);
+                                            }}
+                                            className="w-full p-4 bg-gray-50 dark:bg-white/5 border-2 border-gray-200 dark:border-white/10 rounded-xl text-2xl font-black text-center text-islamic-green dark:text-islamic-gold focus:outline-none focus:border-islamic-gold"
+                                            autoFocus
+                                        />
+                                    </div>
+
+                                    <Button
+                                        onClick={handleEditSave}
+                                        className="w-full h-12 bg-islamic-gold hover:bg-islamic-gold/90 text-[#032e18] font-bold text-base rounded-xl shadow-lg shadow-islamic-gold/20 active:scale-95 transition-all"
+                                    >
+                                        <Save className="w-4 h-4 mr-2" />
+                                        Kaydet
+                                    </Button>
+                                </div>
+                            </div>
+                        </motion.div>
                     </motion.div>
                 )}
             </AnimatePresence>
@@ -463,8 +658,15 @@ export default function Tracking() {
                                                 </label>
                                                 <input
                                                     type="number"
+                                                    min="1"
                                                     value={manualGoal}
-                                                    onChange={(e) => setManualGoal(e.target.value)}
+                                                    onKeyDown={(e) => {
+                                                        if (['-', '+', 'e', 'E', '.'].includes(e.key)) e.preventDefault();
+                                                    }}
+                                                    onChange={(e) => {
+                                                        const val = e.target.value.replace(/[^0-9]/g, '');
+                                                        setManualGoal(val);
+                                                    }}
                                                     className="w-full p-4 bg-gray-50 dark:bg-white/5 border-2 border-gray-200 dark:border-white/10 rounded-xl text-lg font-bold text-islamic-green dark:text-islamic-gold focus:outline-none focus:border-islamic-gold"
                                                     placeholder="100"
                                                 />
@@ -488,8 +690,18 @@ export default function Tracking() {
                                                 </label>
                                                 <input
                                                     type="date"
+                                                    max={new Date().toISOString().split('T')[0]}
+                                                    min="1900-01-01"
                                                     value={birthDate}
-                                                    onChange={(e) => setBirthDate(e.target.value)}
+                                                    onChange={(e) => {
+                                                        const val = e.target.value;
+                                                        // Prevent years with more than 4 digits
+                                                        if (val) {
+                                                            const year = val.split('-')[0];
+                                                            if (year.length > 4) return;
+                                                        }
+                                                        setBirthDate(val);
+                                                    }}
                                                     className="w-full p-4 bg-gray-50 dark:bg-white/5 border-2 border-gray-200 dark:border-white/10 rounded-xl text-base dark:text-white focus:outline-none focus:border-islamic-gold min-h-[50px]"
                                                 />
                                             </div>

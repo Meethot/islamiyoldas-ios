@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { getTodayString } from '@/lib/testDate';
 import { usePrayerTimes } from '@/context/PrayerTimesContext';
+import { LocalNotifications } from '@capacitor/local-notifications';
+import { Capacitor } from '@capacitor/core';
 
 /**
  * usePrayerFocus Hook
@@ -89,13 +91,34 @@ export function usePrayerFocus(prayerTimes, completedPrayers) {
     }, [prayerTimes, completedPrayers, isFocusModeEnabled]);
 
     // Snooze / Dismiss for the day
-    const snooze = (prayerName) => {
+    const snooze = async (prayerName) => {
         const todayStr = getTodayString();
         const snoozeUntilKey = `popup_snooze_until_${todayStr}_${prayerName}`;
 
         // Set snooze for 10 minutes from now
         const tenMinutesLater = Date.now() + 10 * 60 * 1000;
         localStorage.setItem(snoozeUntilKey, tenMinutesLater.toString());
+
+        // Schedule a real system notification for 10 minutes later
+        if (Capacitor.isNativePlatform()) {
+            try {
+                const notificationId = Math.floor(Math.random() * 2147483647);
+                await LocalNotifications.schedule({
+                    notifications: [{
+                        title: 'Namaz Vakti Hatırlatması',
+                        body: `${prayerName} namazını kılmayı unutma! 🕌`,
+                        id: notificationId,
+                        schedule: { at: new Date(tenMinutesLater), allowWhileIdle: true },
+                        sound: Capacitor.getPlatform() === 'android' ? 'beep' : 'beep.caf',
+                        channelId: 'ezan_vakti',
+                        smallIcon: 'ic_stat_icon_config_sample',
+                        interruptionLevel: 'timeSensitive'
+                    }]
+                });
+            } catch (error) {
+                console.error('Snooze notification error:', error);
+            }
+        }
 
         setShouldShowOverlay(false);
     };

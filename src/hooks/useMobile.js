@@ -52,8 +52,13 @@ export const useHaptics = () => {
     };
 
     const medium = () => {
-        if (Capacitor.isNativePlatform()) Haptics.impact({ style: ImpactStyle.Heavy }); // Upgrading medium to heavy for "stronger" feel
+        if (Capacitor.isNativePlatform()) Haptics.impact({ style: ImpactStyle.Medium });
         else vibrate(50);
+    };
+
+    const light = () => {
+        if (Capacitor.isNativePlatform()) Haptics.impact({ style: ImpactStyle.Light });
+        else vibrate(20);
     };
 
     const targetReached = async () => {
@@ -70,7 +75,7 @@ export const useHaptics = () => {
 
     const impactMedium = medium;
 
-    return { vibrate, selection, success, warning, error, heavy, medium, targetReached, impactMedium };
+    return { vibrate, selection, success, warning, error, heavy, medium, light, targetReached, impactMedium };
 };
 
 export const useIsMobile = () => {

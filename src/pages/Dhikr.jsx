@@ -298,7 +298,7 @@ export default function Dhikr() {
                 </div>
 
                 {/* Cumulative Counter Card - Balanced distance */}
-                <div className="mt-10 group relative">
+                <div className="mt-40 group relative">
                     <div className="bg-white/5 backdrop-blur-xl px-8 py-4 rounded-3xl border border-white/10 flex items-center justify-between gap-5 transition-all hover:bg-white/10 hover:border-islamic-gold/30 hover:scale-105 shadow-xl">
                         <div className="flex items-center gap-5">
                             <div className="p-3 bg-islamic-gold/10 rounded-2xl border border-islamic-gold/20">
@@ -347,19 +347,25 @@ export default function Dhikr() {
             </div>
 
             {/* Bottom Quote / Inspiration */}
-            <footer className="mt-auto text-center pb-6 z-10 px-10">
+            <footer className="mt-4 text-center pb-6 z-10 px-10">
                 <div className="relative inline-block px-12">
-                    <div className="absolute top-0 left-0 w-8 h-[1px] bg-gradient-to-r from-transparent to-islamic-gold/40" />
-                    <div className="absolute top-0 right-0 w-8 h-[1px] bg-gradient-to-l from-transparent to-islamic-gold/40" />
-                    <p className="text-islamic-gold/70 italic font-serif text-sm pt-4 leading-relaxed">
-                        "Ey iman edenler! Allah’ı çokça zikredin ve O’nu sabah akşam tespih edin."
-                    </p>
-                    <p className="text-[9px] text-white/20 mt-3 font-bold uppercase tracking-[0.2em] font-sans">AHZAB SURESİ, 41-42</p>
+                    <div className="relative py-4 flex flex-col items-center">
+                        <div className="absolute top-0 left-0 w-10 h-[1px] bg-gradient-to-r from-transparent to-islamic-gold/40" />
+                        <div className="absolute top-0 right-0 w-10 h-[1px] bg-gradient-to-l from-transparent to-islamic-gold/40" />
+
+                        <p className="text-islamic-gold/80 italic font-serif text-sm leading-relaxed px-2">
+                            "Ey iman edenler! Allah'ı çokça zikredin ve O'nu sabah akşam tespih edin."
+                        </p>
+
+                        <div className="absolute bottom-0 left-0 w-10 h-[1px] bg-gradient-to-r from-transparent to-islamic-gold/40" />
+                        <div className="absolute bottom-0 right-0 w-10 h-[1px] bg-gradient-to-l from-transparent to-islamic-gold/40" />
+                    </div>
+                    <p className="text-[9px] text-white/20 mt-4 font-bold uppercase tracking-[0.2em] font-sans">AHZAB SURESİ, 41-42</p>
                 </div>
             </footer>
 
             {/* Haptic Mode Feedback Message */}
-            <div className="fixed bottom-24 left-1/2 -translate-x-1/2 z-50 pointer-events-none">
+            <div className="fixed bottom-32 left-1/2 -translate-x-1/2 z-50 pointer-events-none">
                 <div className={cn(
                     "bg-islamic-gold/90 text-[#021a0f] px-6 py-2 rounded-full font-bold text-xs shadow-2xl transition-all duration-500 transform translate-y-4 opacity-0 border border-white/20",
                     hapticMessage && "translate-y-0 opacity-100"
