@@ -319,7 +319,7 @@ export default function Home() {
 
 
 
-            <PrayerCountdownWidget loading={loadingPrayers} city={city} nextPrayerInfo={nextPrayerInfo} />
+            <PrayerCountdownWidget loading={loadingPrayers} city={city} nextPrayerInfo={nextPrayerInfo} prayerTimes={prayerTimes} />
 
             <motion.div variants={itemVariants} className="grid grid-cols-3 gap-2">
                 <QuickAction
