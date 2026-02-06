@@ -6,6 +6,18 @@
     "StatusBar": {
       "overlaysWebView": true,
       "style": "Dark"
+    },
+    "LocalNotifications": {
+      "smallIcon": "ic_stat_icon",
+      "iconColor": "#D4AF37",
+      "sound": "beep.wav"
+    },
+    "PushNotifications": {
+      "presentationOptions": [
+        "badge",
+        "sound",
+        "alert"
+      ]
     }
   }
 }

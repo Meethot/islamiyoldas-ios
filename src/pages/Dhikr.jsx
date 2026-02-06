@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { RotateCcw, Volume2, VolumeX, Smartphone, Settings, Heart, Star, Sparkles, Edit3, X, Check, Trash2 } from 'lucide-react';
-// Eğer lib/utils.js oluşturmadıysan aşağıdaki importu silip cn fonksiyonunu bu dosyanın içine de yazabilirsin.
 import { cn } from '../lib/utils';
+import { useHaptics } from '../hooks/useMobile';
 
 const DHIKR_PRESETS = [
     { id: 'subhanallah', name: 'Sübhanallah', arabic: 'سُبْحَانَ اللَّهِ', meaning: 'Allah noksan sıfatlardan uzaktır', defaultTarget: 33 },
@@ -26,7 +26,55 @@ export default function Dhikr() {
     const [hapticMessage, setHapticMessage] = useState('');
     const [showTotalResetConfirm, setShowTotalResetConfirm] = useState(false);
 
-    const clickSound = useRef(new Audio('https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3'));
+    const haptics = useHaptics();
+
+    // Web Audio API Context and Buffer
+    const audioContextRef = useRef(null);
+    const audioBufferRef = useRef(null);
+
+    useEffect(() => {
+        // Initialize Audio Context on user interaction to comply with autoplay policies
+        const initAudio = async () => {
+            try {
+                if (!audioContextRef.current) {
+                    audioContextRef.current = new (window.AudioContext || window.webkitAudioContext)();
+                }
+
+                if (!audioBufferRef.current) {
+                    const response = await fetch('https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3');
+                    const arrayBuffer = await response.arrayBuffer();
+                    const audioBuffer = await audioContextRef.current.decodeAudioData(arrayBuffer);
+                    audioBufferRef.current = audioBuffer;
+                }
+            } catch (error) {
+                console.error("Audio init error:", error);
+            }
+        };
+
+        // Trigger loading immediately
+        initAudio();
+
+        return () => {
+            if (audioContextRef.current) {
+                audioContextRef.current.close();
+            }
+        };
+    }, []);
+
+    const playClickSound = () => {
+        if (!soundEnabled || !audioContextRef.current || !audioBufferRef.current) return;
+
+        // Resume context if suspended (browser autoplay policy)
+        if (audioContextRef.current.state === 'suspended') {
+            audioContextRef.current.resume();
+        }
+
+        // Create a new buffer source for every click -> Zero Latency, Perfect Concurrency
+        const source = audioContextRef.current.createBufferSource();
+        source.buffer = audioBufferRef.current;
+        source.connect(audioContextRef.current.destination);
+        source.start(0);
+    };
 
     useEffect(() => {
         if (hapticMessage) {
@@ -47,6 +95,7 @@ export default function Dhikr() {
     const increment = () => {
         const newCount = count + 1;
         const newTotal = totalCount + 1;
+        const isTargetReached = newCount > 0 && newCount % target === 0;
 
         setCount(newCount);
         setTotalCount(newTotal);
@@ -55,26 +104,23 @@ export default function Dhikr() {
         localStorage.setItem('totalDhikrOverall', newTotal.toString());
 
         // Haptic feedback
-        if ("vibrate" in navigator) {
-            if (hapticsMode === 'all') {
-                navigator.vibrate(newCount % target === 0 ? 150 : 40);
-            } else if (hapticsMode === 'target' && newCount % target === 0) {
-                navigator.vibrate(150);
+        if (hapticsMode !== 'off') {
+            if (isTargetReached) {
+                haptics.targetReached();
+            } else if (hapticsMode === 'all') {
+                haptics.medium();
             }
         }
 
-        // Sound feedback
-        if (soundEnabled) {
-            clickSound.current.currentTime = 0;
-            clickSound.current.play().catch(() => { });
-        }
+        // Sound feedback using Web Audio API
+        playClickSound();
 
         // Animation trigger
         setIsRipple(true);
         setTimeout(() => setIsRipple(false), 300);
 
         // Feedback on target reach
-        if (newCount > 0 && newCount % target === 0) {
+        if (isTargetReached) {
             setCelebrating(true);
             setTimeout(() => setCelebrating(false), 2000);
         }
@@ -384,6 +430,6 @@ export default function Dhikr() {
                     scrollbar-width: none;
                 }
             `}</style>
-        </div >
+        </div>
     );
 }

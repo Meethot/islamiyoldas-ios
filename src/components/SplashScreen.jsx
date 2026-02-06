@@ -38,7 +38,7 @@ export default function SplashScreen() {
                     <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-[120vh] bg-islamic-green/15 blur-[120px] rounded-full -z-10" />
                     <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-islamic-green/10 via-transparent to-transparent -z-10" />
 
-                    <div className="flex flex-col items-center w-full max-w-[280px] px-6">
+                    <div className="flex flex-col items-center w-full max-w-[340px] px-6">
                         {/* Logo with Glow */}
                         <motion.div
                             initial={{ scale: 0.8, opacity: 0 }}
@@ -50,7 +50,7 @@ export default function SplashScreen() {
                             <img
                                 src={logo}
                                 alt="İslami Yoldaş Logo"
-                                className="relative z-10 w-24 h-24 sm:w-28 sm:h-28 object-contain drop-shadow-[0_0_20px_rgba(16,185,129,0.4)]"
+                                className="relative z-10 w-32 h-32 sm:w-40 sm:h-40 object-cover rounded-[2rem] overflow-hidden"
                             />
                         </motion.div>
 
@@ -59,7 +59,7 @@ export default function SplashScreen() {
                             initial={{ y: 20, opacity: 0 }}
                             animate={{ y: 0, opacity: 1 }}
                             transition={{ delay: 0.3, duration: 0.8 }}
-                            className="text-2xl sm:text-3xl font-bold text-white mb-2 tracking-tight text-center"
+                            className="text-4xl sm:text-5xl font-extrabold text-white mb-3 tracking-tight text-center"
                         >
                             İslami Yoldaş
                         </motion.h1>
@@ -69,7 +69,7 @@ export default function SplashScreen() {
                             initial={{ y: 10, opacity: 0 }}
                             animate={{ y: 0, opacity: 1 }}
                             transition={{ delay: 0.5, duration: 0.8 }}
-                            className="text-[9px] sm:text-[10px] text-islamic-green font-bold tracking-[0.3em] uppercase mb-12 opacity-80 text-center"
+                            className="text-[11px] sm:text-[12px] text-islamic-green font-bold tracking-[0.4em] uppercase mb-14 opacity-90 text-center"
                         >
                             PREMIUM MANEVİ ASİSTAN
                         </motion.p>
@@ -79,8 +79,11 @@ export default function SplashScreen() {
                             {/* Animated Progress Bar */}
                             <motion.div
                                 initial={{ width: "0%" }}
-                                animate={{ width: `${progress}%` }}
-                                className="absolute top-0 left-0 h-full bg-islamic-green shadow-[0_0_10px_rgba(16,185,129,0.8)]"
+                                animate={{
+                                    width: `${progress}%`,
+                                    filter: `brightness(${1 + (progress / 100)}) opacity(${0.6 + (progress / 250)})`
+                                }}
+                                className="absolute top-0 left-0 h-full bg-islamic-gold shadow-[0_0_15px_rgba(212,175,55,0.8)]"
                             />
                         </div>
 
@@ -88,7 +91,7 @@ export default function SplashScreen() {
                         <motion.span
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
-                            className="text-[9px] sm:text-[10px] text-gray-500 mt-3 font-mono"
+                            className="text-[9px] sm:text-[10px] text-islamic-gold/60 mt-3 font-mono font-bold"
                         >
                             {progress}%
                         </motion.span>
@@ -101,7 +104,7 @@ export default function SplashScreen() {
                         transition={{ delay: 1, duration: 1 }}
                         className="absolute bottom-12 left-1/2 -translate-x-1/2 w-full text-center px-4"
                     >
-                        <p className="text-[9px] sm:text-[10px] text-gray-700 tracking-widest uppercase font-medium">
+                        <p className="text-[10px] sm:text-[11px] text-gray-700 tracking-widest uppercase font-medium">
                             Ümmet için ❤️ ile yapıldı
                         </p>
                     </motion.div>

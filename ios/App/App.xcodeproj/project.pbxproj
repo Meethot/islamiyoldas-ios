@@ -72,7 +72,18 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		E47CC6A22F34FFB7001653B3 /* IslamiYoldasWidgets */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (E47CC6B22F34FFB8001653B3 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = IslamiYoldasWidgets; sourceTree = "<group>"; };
+		E47CC6A22F34FFB7001653B3 /* IslamiYoldasWidgets */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				E47CC6B22F34FFB8001653B3 /* PBXFileSystemSynchronizedBuildFileExceptionSet */,
+			);
+			explicitFileTypes = {
+			};
+			explicitFolders = (
+			);
+			path = IslamiYoldasWidgets;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
