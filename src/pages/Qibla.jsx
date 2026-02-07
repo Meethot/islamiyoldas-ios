@@ -1,18 +1,19 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-    Compass, Info, X, RefreshCw, Star,
-    Loader2, Smartphone, MapPin, Navigation2, Vibrate
+    Compass as CompassIcon, Info, X, Star,
+    Loader2, Smartphone, MapPin, Navigation2, Vibrate, Map as MapIcon
 } from 'lucide-react';
 import { useLocation } from '@/context/LocationContext';
 import { useHaptics } from '@/hooks/useMobile';
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
+import { CapgoCompass as Compass } from '@capgo/capacitor-compass'; // Native Compass Plugin
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 
 // MECCA Constants
 const MECCA = { lat: 21.4225, lng: 39.8262 };
-const DEFAULT_ALIGNMENT_THRESHOLD = 5;
+const DEFAULT_ALIGNMENT_THRESHOLD = 3.5;
 
 // --- Helpers ---
 const calculateDistance = (lat1, lon1, lat2, lon2) => {
@@ -49,8 +50,7 @@ const KaabaEthereal = ({ isAligned }) => (
 );
 
 const BackgroundAtmosphere = () => (
-    <div className="absolute inset-0 z-0 bg-[#00100a]"> {/* Deepest Green Black */}
-        {/* Islamic Green Glow */}
+    <div className="absolute inset-0 z-0 bg-[#00100a]">
         <motion.div
             animate={{
                 scale: [1, 1.2, 1],
@@ -59,7 +59,6 @@ const BackgroundAtmosphere = () => (
             transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
             className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-emerald-900/40 rounded-full blur-[150px] pointer-events-none"
         />
-        {/* Golden Warmth from bottom */}
         <motion.div
             animate={{
                 opacity: [0.05, 0.1, 0.05]
@@ -67,14 +66,13 @@ const BackgroundAtmosphere = () => (
             transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
             className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 w-[600px] h-[600px] bg-amber-600/20 rounded-full blur-[120px] pointer-events-none"
         />
-        {/* Grainy texture overlay */}
         <div className="absolute inset-0 opacity-[0.04] pointer-events-none" style={{ backgroundImage: "url('https://www.transparenttextures.com/patterns/dark-leather.png')" }} />
     </div>
 );
 
 const CompassTicks = () => {
     const ticks = [];
-    for (let i = 0; i < 360; i += 2) { // Every 2 degrees
+    for (let i = 0; i < 360; i += 2) {
         const isMajor = i % 90 === 0;
         const isMedium = i % 30 === 0;
         const height = isMajor ? 8 : (isMedium ? 5 : 2);
@@ -96,18 +94,35 @@ const CompassTicks = () => {
 
 export default function Qibla() {
     const { selection, success } = useHaptics();
-    const { latitude, longitude, loading: locationLoading, error: locationError, hasLocation, refreshLocation } = useLocation();
+    const { latitude, longitude, loading: locationLoading, error: locationError, hasLocation } = useLocation();
 
-    const [heading, setHeading] = useState(0);
-    const [qiblaAngle, setQiblaAngle] = useState(0);
+    // State
+    const [heading, setHeading] = useState(0); // True North Heading
+    const [qiblaAngle, setQiblaAngle] = useState(0); // Angle relative to True North
     const [isAligned, setIsAligned] = useState(false);
+    const [degreeDiff, setDegreeDiff] = useState(180); // Difference for display
     const [showInfo, setShowInfo] = useState(false);
-    const [status, setStatus] = useState('loading');
+    const [status, setStatus] = useState('loading'); // loading, calculating, active
     const [debugAligned, setDebugAligned] = useState(false);
     const [hapticEnabled, setHapticEnabled] = useState(true);
 
+    // Refs for accessing state inside listeners without re-renders
+    const qiblaAngleRef = useRef(0);
+    const isAlignedRef = useRef(false);
     const lastHapticRef = useRef(0);
+    const lastHeadingRef = useRef(0);
+    const mountedRef = useRef(true);
 
+    // Update refs when state changes
+    useEffect(() => { qiblaAngleRef.current = qiblaAngle; }, [qiblaAngle]);
+    useEffect(() => { isAlignedRef.current = isAligned; }, [isAligned]);
+
+    useEffect(() => {
+        mountedRef.current = true;
+        return () => { mountedRef.current = false; };
+    }, []);
+
+    // Calculate Qibla Angle relative to TRUE NORTH
     const getQiblaAngle = useCallback((lat, lng) => {
         const dL = (MECCA.lng - lng) * (Math.PI / 180);
         const phi1 = lat * (Math.PI / 180);
@@ -117,49 +132,111 @@ export default function Qibla() {
         return ((Math.atan2(y, x) * (180 / Math.PI)) + 360) % 360;
     }, []);
 
+    // Initial Setup
     useEffect(() => {
         if (locationLoading) return;
+
         if (hasLocation && latitude && longitude) {
-            setQiblaAngle(getQiblaAngle(latitude, longitude));
+            setStatus('calculating');
+            const trueQibla = getQiblaAngle(latitude, longitude);
+            setQiblaAngle(trueQibla);
             setStatus('active');
         } else if (locationError) {
-            setQiblaAngle(getQiblaAngle(41.0082, 28.9784));
+            const defaultLat = 41.0082;
+            const defaultLng = 28.9784;
+            setQiblaAngle(getQiblaAngle(defaultLat, defaultLng));
             setStatus('active');
         }
     }, [latitude, longitude, locationLoading, locationError, hasLocation, getQiblaAngle]);
 
+
+    // --- NATIVE COMPASS IMPLEMENTATION ---
     useEffect(() => {
-        const handleMotion = (e) => {
-            let h = e.webkitCompassHeading || (360 - e.alpha) || 0;
-            const effectiveHeading = debugAligned ? qiblaAngle : h;
-            setHeading(effectiveHeading);
+        if (status !== 'active') return;
 
-            const diff = Math.abs(effectiveHeading - qiblaAngle);
-            const aligned = diff < DEFAULT_ALIGNMENT_THRESHOLD || diff > (360 - DEFAULT_ALIGNMENT_THRESHOLD);
+        const startCompass = async () => {
+            await new Promise(resolve => setTimeout(resolve, 300));
+            if (!mountedRef.current) return;
 
-            if (aligned && !isAligned) {
-                setIsAligned(true);
-                success();
-            } else if (!aligned && isAligned) {
-                setIsAligned(false);
-            }
-        };
-
-        const setup = async () => {
-            if (typeof DeviceOrientationEvent?.requestPermission === 'function') {
+            try {
+                // Permission Flow (Blind try for Android, Proper check for iOS)
                 try {
-                    const res = await DeviceOrientationEvent.requestPermission();
-                    if (res === 'granted') window.addEventListener('deviceorientation', handleMotion);
-                } catch (e) { }
-            } else {
-                window.addEventListener('deviceorientation', handleMotion);
+                    const perm = await Compass.checkPermissions();
+                    if (perm.compass !== 'granted') await Compass.requestPermissions();
+                } catch (e) { console.warn("Perm check skipped", e); }
+
+                // Cleanup
+                await Compass.removeAllListeners();
+
+                // Setup Listener
+                await Compass.addListener('headingChange', (data) => {
+                    if (!mountedRef.current) return;
+
+                    let rawHeading = data.value;
+                    rawHeading = (rawHeading + 360) % 360;
+
+                    if (debugAligned) rawHeading = qiblaAngleRef.current;
+
+                    // --- Dynamic Algorithm ---
+                    const current = lastHeadingRef.current;
+                    let diff = rawHeading - current;
+
+                    while (diff > 180) diff -= 360;
+                    while (diff < -180) diff += 360;
+
+                    // Adaptive Physics
+                    const absDiff = Math.abs(diff);
+                    let dynamicAlpha = absDiff > 15 ? 1.0 : (absDiff > 5 ? 0.5 : 0.1);
+
+                    const smoothed = current + diff * dynamicAlpha;
+                    const normalizedSmoothed = (smoothed + 360) % 360;
+
+                    lastHeadingRef.current = normalizedSmoothed;
+
+                    // Update main Heading State
+                    setHeading(normalizedSmoothed);
+
+                    // --- Calculate Degree Difference for UI ---
+                    const targetAngle = qiblaAngleRef.current;
+                    let angleDiff = targetAngle - normalizedSmoothed;
+                    while (angleDiff > 180) angleDiff -= 360;
+                    while (angleDiff < -180) angleDiff += 360;
+
+                    const absAngleDiff = Math.abs(angleDiff);
+                    setDegreeDiff(absAngleDiff); // For visual display
+
+                    // Check Alignment
+                    const isNowAligned = absAngleDiff < DEFAULT_ALIGNMENT_THRESHOLD;
+
+                    if (isNowAligned && !isAlignedRef.current) {
+                        setIsAligned(true);
+                        success();
+                    } else if (!isNowAligned && isAlignedRef.current) {
+                        setIsAligned(false);
+                    }
+                });
+
+                // Start Engine (30ms = ~33FPS, preventing overload)
+                await Compass.startListening({
+                    minInterval: 30,
+                    minHeadingChange: 0.1
+                });
+
+            } catch (e) {
+                console.error("Compass Error", e);
             }
         };
 
-        if (status === 'active') setup();
-        return () => window.removeEventListener('deviceorientation', handleMotion);
-    }, [status, qiblaAngle, isAligned, success, debugAligned]);
+        startCompass();
 
+        return () => {
+            Compass.stopListening();
+            Compass.removeAllListeners();
+        };
+    }, [status, success]);
+
+
+    // Haptic Feedback Loop
     useEffect(() => {
         if (isAligned && hapticEnabled) {
             const now = Date.now();
@@ -176,8 +253,18 @@ export default function Qibla() {
         return () => window.removeEventListener('qiblaDebugToggle', handleDebug);
     }, []);
 
+    const openMap = () => {
+        if (latitude && longitude) {
+            const url = `https://www.google.com/maps/dir/?api=1&origin=${latitude},${longitude}&destination=${MECCA.lat},${MECCA.lng}&travelmode=walking`;
+            window.open(url, '_system');
+        }
+    };
+
     return (
-        <div className="relative flex flex-col h-full w-full text-emerald-50 overflow-hidden font-sans bg-[#022c22]">
+        <div
+            className="relative flex flex-col h-full w-full text-emerald-50 overflow-hidden font-sans bg-[#022c22]"
+            style={{ touchAction: 'none' }}
+        >
             <BackgroundAtmosphere />
 
             {/* Header */}
@@ -196,41 +283,36 @@ export default function Qibla() {
                     </h1>
                 </div>
                 <div className="flex items-center gap-3">
-                    <button
-                        onClick={() => {
-                            setHapticEnabled(!hapticEnabled);
-                            selection();
-                        }}
-                        className={cn(
-                            "p-3 rounded-full border backdrop-blur-3xl transition-all active:scale-95",
-                            hapticEnabled
-                                ? "bg-emerald-900/30 border-emerald-500/20 text-amber-400"
-                                : "bg-white/[0.03] border-white/10 text-emerald-100/30"
+                    <button onClick={() => { setHapticEnabled(!hapticEnabled); selection(); }}
+                        className={cn("p-3 rounded-full border backdrop-blur-3xl transition-all active:scale-95",
+                            hapticEnabled ? "bg-emerald-900/30 border-emerald-500/20 text-amber-400" : "bg-white/[0.03] border-white/10 text-emerald-100/30"
                         )}
                     >
                         <Vibrate className={cn("w-6 h-6", !hapticEnabled && "opacity-40")} />
                     </button>
 
-                    <button
-                        onClick={() => { selection(); setShowInfo(true); }}
-                        className="group relative p-3 rounded-full bg-emerald-900/30 border border-emerald-500/20 backdrop-blur-3xl active:scale-95 transition-all"
+                    <button onClick={() => { selection(); setShowInfo(true); }}
+                        className="p-3 rounded-full bg-emerald-900/30 border border-emerald-500/20 backdrop-blur-3xl active:scale-95 transition-all text-emerald-100/60 hover:text-amber-400"
                     >
-                        <Info className="w-6 h-6 text-emerald-100/60 group-hover:text-amber-400 transition-colors" />
+                        <Info className="w-6 h-6" />
+                    </button>
+
+                    <button onClick={() => { selection(); openMap(); }}
+                        className="p-3 rounded-full bg-emerald-900/30 border border-emerald-500/20 backdrop-blur-3xl active:scale-95 transition-all text-emerald-100/60 hover:text-amber-400"
+                    >
+                        <MapIcon className="w-6 h-6" />
                     </button>
                 </div>
             </header>
 
-            <main className="relative z-10 flex-1 flex flex-col items-center justify-center p-6 gap-16">
-                {status === 'loading' ? (
+            <main className="relative z-10 flex-1 flex flex-col items-center justify-center p-6 gap-10">
+                {(status === 'loading' || status === 'calculating') ? (
                     <div className="flex flex-col items-center gap-6">
-                        <div className="relative">
-                            <div className="w-24 h-24 border-2 border-emerald-500/10 rounded-full" />
-                            <Loader2 className="absolute inset-0 w-24 h-24 text-amber-400/40 animate-spin" strokeWidth={1} />
-                        </div>
-                        <p className="text-sm tracking-[0.3em] font-medium text-emerald-100/30 uppercase">Yolculuk Hazırlanıyor</p>
+                        <Loader2 className="w-12 h-12 text-amber-400 animate-spin" />
+                        <p className="text-sm tracking-widest text-emerald-100/50">HESAPLANIYOR...</p>
                     </div>
                 ) : (
-                    <div className="relative flex flex-col items-center gap-12">
+                    <div className="relative flex flex-col items-center gap-10">
                         {/* THE COMPASS */}
                         <div className="relative w-80 h-80 flex items-center justify-center">
                             {/* Alignment Waves */}
@@ -246,178 +328,108 @@ export default function Qibla() {
                                                 className="absolute inset-0 border border-amber-400/30 rounded-full blur-sm"
                                             />
                                         ))}
-                                        <motion.div
-                                            initial={{ opacity: 0 }} animate={{ opacity: 0.15 }} exit={{ opacity: 0 }}
-                                            className="absolute -inset-10 bg-amber-400 rounded-full blur-[80px] pointer-events-none"
-                                        />
                                     </>
                                 )}
                             </AnimatePresence>
 
-                            {/* Rotating Compass Disk */}
+                            {/* Rotating Compass Tick Layer */}
                             <motion.div
-                                animate={{ rotate: qiblaAngle - heading }}
-                                transition={{ type: "spring", stiffness: 35, damping: 20 }} // Snappier response
-                                className="relative w-72 h-72 flex items-center justify-center"
+                                animate={{ rotate: -heading }}
+                                transition={{ ease: "linear", duration: 0.1 }}
+                                className="absolute inset-0 flex items-center justify-center"
                             >
-                                {/* Degree Ticks Ring */}
-                                <svg className="absolute inset-0 w-full h-full p-1" viewBox="0 0 100 100">
+                                <svg className="w-72 h-72 p-1" viewBox="0 0 100 100">
                                     <CompassTicks />
-                                    {/* Cardinal Points - Turkish */}
-                                    <text x="50" y="18" fontSize="6" fill="#10b981" textAnchor="middle" className="font-bold" style={{ filter: 'drop-shadow(0px 0px 4px rgba(0,0,0,0.8))' }}>K</text>
+                                    <text x="50" y="18" fontSize="6" fill="white" textAnchor="middle" className="font-bold">K</text>
                                     <text x="82" y="52" fontSize="5" fill="white" textAnchor="middle" opacity="0.6">D</text>
                                     <text x="50" y="86" fontSize="5" fill="white" textAnchor="middle" opacity="0.6">G</text>
                                     <text x="18" y="52" fontSize="5" fill="white" textAnchor="middle" opacity="0.6">B</text>
                                 </svg>
-
-                                {/* Center Stage sphere */}
-                                <motion.div
-                                    className={cn(
-                                        "w-48 h-48 rounded-full flex items-center justify-center transition-all duration-1000 relative",
-                                        isAligned ? "bg-amber-400/[0.05] shadow-[0_0_50px_rgba(251,191,36,0.1)]" : "bg-emerald-900/[0.1]"
-                                    )}
-                                >
-                                    <KaabaEthereal isAligned={isAligned} />
-
-                                    {/* GOLDEN ARROW - ALWAYS VISIBLE */}
-                                    <motion.div
-                                        initial={{ opacity: 0, scale: 0.8 }}
-                                        animate={{ opacity: 1, scale: 1 }}
-                                        className="absolute inset-0 flex items-center justify-center pointer-events-none"
-                                        style={{ transform: `rotate(${qiblaAngle - heading}deg)` }}
-                                    >
-                                        {/* Arrow Shaft (Gradient Fade) */}
-                                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-[130px] w-1.5 h-24 bg-gradient-to-t from-transparent via-amber-400 to-amber-300 opacity-60 rounded-full blur-[1px]" />
-
-                                        {/* PRIMARY ARROW HEAD */}
-                                        <div className="absolute top-0 -translate-y-6 drop-shadow-[0_0_15px_rgba(251,191,36,0.6)]">
-                                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
-                                                <path d="M12 2L3 19L12 15L21 19L12 2Z" fill="#FBBF24" stroke="#78350F" strokeWidth="0.5" />
-                                                <path d="M12 2L12 15L21 19L12 2Z" fill="#D97706" />
-                                            </svg>
-                                        </div>
-
-                                        {/* Pulsing Target Ring at the tip */}
-                                        <div className="absolute top-0 -translate-y-6 w-10 h-10 border-2 border-amber-400/30 rounded-full animate-ping" />
-                                    </motion.div>
-                                </motion.div>
                             </motion.div>
 
-                            {/* Fixed HUD Overlay (Static Center Marker) */}
-                            <div className="absolute pointer-events-none w-2 h-2 bg-white/20 rounded-full z-30 mix-blend-overlay" />
+                            {/* Kaaba (Center) */}
+                            <div className="relative w-72 h-72 flex items-center justify-center pointer-events-none">
+                                <motion.div className={cn("transition-all duration-1000", isAligned ? "scale-110" : "scale-100")}>
+                                    <KaabaEthereal isAligned={isAligned} />
+                                </motion.div>
+                            </div>
+
+                            {/* Arrow */}
+                            <motion.div
+                                animate={{ rotate: qiblaAngle - heading }}
+                                transition={{ ease: "linear", duration: 0.1 }}
+                                className="absolute inset-0 flex items-center justify-center pointer-events-none"
+                            >
+                                <div className="absolute top-[20px] left-1/2 -translate-x-1/2 w-1.5 h-[100px] bg-gradient-to-t from-transparent via-amber-400/60 to-amber-400 rounded-full" />
+                                <div className="absolute top-0 drop-shadow-[0_0_15px_rgba(251,191,36,0.6)]">
+                                    <svg width="36" height="36" viewBox="0 0 24 24" fill="none">
+                                        <path d="M12 2L3 19L12 15L21 19L12 2Z" fill="#FBBF24" stroke="#78350F" strokeWidth="0.5" />
+                                        <path d="M12 2L12 15L21 19L12 2Z" fill="#D97706" />
+                                    </svg>
+                                </div>
+                            </motion.div>
                         </div>
 
-                        {/* Status Message */}
-                        <div className="text-center space-y-4 max-w-xs z-20">
-                            <motion.h2
-                                key={isAligned ? 'al' : 'se'}
-                                initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }}
-                                className={cn(
-                                    "text-3xl font-serif tracking-tight transition-colors duration-1000 drop-shadow-lg",
-                                    isAligned ? "text-amber-300" : "text-emerald-100"
-                                )}
-                            >
-                                {isAligned ? "Kıble Bulundu" : "Kıbleyi Arayın"}
-                            </motion.h2>
-
-                            <motion.div
-                                animate={{ opacity: [0.5, 0.9, 0.5] }}
-                                transition={{ duration: 3, repeat: Infinity }}
-                                className="flex items-start justify-center gap-2"
-                            >
-                                {!isAligned && <div className="w-1.5 h-1.5 bg-amber-400 rounded-full animate-pulse mt-1.5 shrink-0" />}
-                                <p className="text-[11px] uppercase tracking-[0.3em] text-emerald-200/50 font-bold">
-                                    {isAligned ? "Sükunetle namaza niyet edin" : "Yüzünüzü ve kalbinizi Kabe'ye çevirin."}
-                                </p>
-                            </motion.div>
+                        {/* Dynamic Angle Indicator */}
+                        <div className="flex flex-col items-center justify-center gap-2 h-24">
+                            {isAligned ? (
+                                <motion.div
+                                    initial={{ opacity: 0, scale: 0.5 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    className="flex flex-col items-center"
+                                >
+                                    <h2 className="text-4xl font-serif text-amber-400 font-bold drop-shadow-lg">
+                                        KIBLE BULUNDU
+                                    </h2>
+                                    <p className="text-sm text-amber-200/60 tracking-[0.3em] mt-2">
+                                        ALLAH KABUL ETSİN
+                                    </p>
+                                </motion.div>
+                            ) : (
+                                <div className="flex flex-col items-center">
+                                    <div className="flex items-baseline gap-2">
+                                        <span className="text-5xl font-mono text-emerald-100 font-light">
+                                            {Math.round(degreeDiff)}
+                                        </span>
+                                        <span className="text-xl text-emerald-400">°</span>
+                                    </div>
+                                    <p className="text-xs text-emerald-500/50 uppercase tracking-widest mt-1">
+                                        Hizalamaya Kalan
+                                    </p>
+                                </div>
+                            )}
                         </div>
                     </div>
                 )}
             </main>
 
-            {/* Footer */}
-            <footer className="relative z-20 px-10 pb-16 flex flex-col items-center gap-8">
+            <footer className="relative z-20 px-10 pb-16 flex flex-col items-center">
                 {latitude && (
-                    <motion.div
-                        initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-                        className="flex flex-col items-center gap-2 group"
-                    >
-                        <div className="flex items-center gap-3 py-3 px-6 rounded-2xl bg-emerald-950/40 border border-emerald-500/10 backdrop-blur-xl">
-                            <MapPin className="w-4 h-4 text-emerald-400" />
-                            <span className="text-[11px] tracking-[0.2em] font-medium text-emerald-100/60 uppercase">
-                                Mesafe: <span className="text-amber-300 font-bold tracking-normal ml-1">{calculateDistance(latitude, longitude, MECCA.lat, MECCA.lng)} KM</span>
-                            </span>
-                        </div>
-                    </motion.div>
-                )}
-
-                <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="max-w-sm text-center space-y-4"
-                >
-                    {/* Arabic Verse - Gold Styled */}
-                    <p className="text-2xl font-serif text-transparent bg-clip-text bg-gradient-to-b from-amber-200 to-amber-500 leading-relaxed dir-rtl mb-2">
-                        فَوَلِّ وَجْهَكَ شَطْرَ الْمَسْجِدِ الْحَرَامِ
-                    </p>
-
-                    <p className="text-base font-serif italic text-emerald-100/70 leading-relaxed px-6">
-                        "Yüzünüzü Mescid-i Haram tarafına çevirin."
-                    </p>
-
-                    <div className="flex items-center justify-center gap-4">
-                        <div className="h-px w-8 bg-emerald-500/10" />
-                        <span className="text-[10px] uppercase tracking-[0.4em] text-amber-500/40 font-black">Bakara, 144</span>
-                        <div className="h-px w-8 bg-emerald-500/10" />
+                    <div className="flex items-center gap-2 py-2 px-4 rounded-full bg-emerald-950/40 border border-emerald-500/10">
+                        <MapPin className="w-3 h-3 text-emerald-400" />
+                        <span className="text-[10px] tracking-widest text-emerald-100/60">
+                            MESAFE: <span className="text-amber-400">{calculateDistance(latitude, longitude, MECCA.lat, MECCA.lng)} KM</span>
+                        </span>
                     </div>
-                </motion.div>
+                )}
             </footer>
 
-            {/* Premium Info Panel */}
             <AnimatePresence>
                 {showInfo && (
                     <motion.div
                         initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
                         className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-3xl flex items-center justify-center p-8"
                     >
-                        <motion.div
-                            initial={{ scale: 0.95, y: 20 }} animate={{ scale: 1, y: 0 }}
-                            className="bg-[#022c22] border border-emerald-500/20 p-10 rounded-[3rem] max-w-sm relative text-center shadow-2xl overflow-hidden"
-                        >
-                            <div className="absolute top-0 right-0 w-40 h-40 bg-emerald-500/10 rounded-full blur-[60px] -mr-10 -mt-10" />
-
-                            <button onClick={() => setShowInfo(false)} className="absolute top-8 right-8 text-emerald-500/40 hover:text-emerald-400 transition-colors">
-                                <X className="w-8 h-8" strokeWidth={1.5} />
-                            </button>
-
-                            <div className="w-20 h-20 bg-emerald-950 rounded-3xl flex items-center justify-center mx-auto mb-8 border border-emerald-500/20 shadow-xl">
-                                <Compass className="w-10 h-10 text-amber-400" strokeWidth={1.5} />
-                            </div>
-
-                            <h3 className="text-2xl font-serif text-white mb-6 tracking-wide">Pusula Rehberi</h3>
-
-                            <div className="space-y-6 text-left mb-10">
-                                {[
-                                    { t: "Cihazı yere paralel ve düz tutun.", i: Smartphone },
-                                    { t: "Altın ok yönünü takip edin.", i: Navigation2 },
-                                    { t: "Kabe simgesi parlayınca durun.", i: Star }
-                                ].map((item, i) => (
-                                    <div key={i} className="flex gap-4 items-center bg-emerald-950/30 p-3 rounded-2xl border border-emerald-500/5">
-                                        <div className="bg-emerald-900/50 p-2 rounded-lg text-amber-400">
-                                            <item.i className="w-4 h-4" />
-                                        </div>
-                                        <p className="text-[13px] text-emerald-100/70 font-medium">{item.t}</p>
-                                    </div>
-                                ))}
-                            </div>
-
-                            <Button
-                                onClick={() => setShowInfo(false)}
-                                className="w-full h-16 rounded-2xl bg-amber-500 hover:bg-amber-400 text-emerald-950 hover:text-emerald-950 transition-all font-bold uppercase tracking-wider text-sm shadow-lg shadow-amber-900/20"
-                            >
-                                Anladım
-                            </Button>
-                        </motion.div>
+                        <div className="bg-[#022c22] p-8 rounded-3xl border border-emerald-500/20 max-w-sm w-full text-center">
+                            <CompassIcon className="w-12 h-12 text-amber-400 mx-auto mb-4" />
+                            <h3 className="text-xl text-white font-serif mb-4">Pusula ve Harita</h3>
+                            <p className="text-sm text-emerald-100/60 mb-6">
+                                En doğru sonuç için açıyı 0 dereceye getirmeye çalışın.
+                                <br /><br />
+                                Metal eşyalar pusulayı etkileyebilir. Emin olmak için <strong>Harita butonunu</strong> kullanabilirsiniz.
+                            </p>
+                            <Button onClick={() => setShowInfo(false)} className="w-full bg-emerald-800 hover:bg-emerald-700">Tamam</Button>
+                        </div>
                     </motion.div>
                 )}
             </AnimatePresence>
