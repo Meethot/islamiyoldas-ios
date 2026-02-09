@@ -673,7 +673,7 @@ export default function Quran() {
                         initial={{ y: 100 }}
                         animate={{ y: 0 }}
                         exit={{ y: 100 }}
-                        className="fixed bottom-24 left-4 right-4 z-50 max-w-sm mx-auto"
+                        className="fixed bottom-32 left-4 right-4 z-50 max-w-sm mx-auto"
                     >
                         <div className="bg-[#032e18]/95 backdrop-blur-2xl border border-white/10 rounded-[2.5rem] p-3 pl-3 pr-5 flex items-center gap-4 shadow-[0_20px_50px_rgba(0,0,0,0.5)] border-t-white/20">
                             {/* Play/Pause Button */}

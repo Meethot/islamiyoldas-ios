@@ -221,12 +221,17 @@ export default function ShareCard({
 
                         {/* ARABIC TEXT - Centered & Dominant */}
                         <div className="flex-1 flex items-center justify-center relative z-10 w-full"
-                            style={{ padding: '48px 64px' }}>
-                            <p className={`${currentTheme.accentColor} font-arabic text-center`}
+                            style={{ padding: '32px 64px' }}>
+                            <p className={`${currentTheme.accentColor} font-arabic text-center w-full`}
+                                dir="rtl"
+                                lang="ar"
                                 style={{
-                                    fontSize: '88px',
-                                    lineHeight: '1.8',
-                                    textShadow: '0 4px 30px rgba(0,0,0,0.3)'
+                                    fontSize: '70px',
+                                    lineHeight: '1.6',
+                                    textShadow: '0 4px 30px rgba(0,0,0,0.3)',
+                                    whiteSpace: 'pre-wrap',
+                                    wordWrap: 'break-word',
+                                    textWrap: 'balance'
                                 }}>
                                 {data.arabic}
                             </p>
