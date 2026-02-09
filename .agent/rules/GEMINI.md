@@ -25,6 +25,9 @@ Agent activated → Check frontmatter "skills:" → Read SKILL.md (INDEX) → Re
     - ✅ Activate: Read Rules → Check Frontmatter → Load SKILL.md → Apply All.
 2. **Forbidden:** Never skip reading agent rules or skill instructions. "Read → Understand → Apply" is mandatory.
 
+### 3. Sensor Data Quality Protocol
+> **MANDATORY:** All raw sensor data (magnetometer, accelerometer, gyroscope) MUST be processed through a Low-Pass Filter (LPF) or Kalman Filter before use in navigation logic to ensure signal stability and noise reduction.
+
 ---
 
 ## 📥 REQUEST CLASSIFIER (STEP 1)

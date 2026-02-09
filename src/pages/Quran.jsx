@@ -12,6 +12,7 @@ import { useHaptics } from '@/hooks/useMobile';
 import { fetchChapters, fetchSurahAudio } from '@/services/quranApi';
 import { safeGetStorage, safeSetStorage } from '@/utils/storageHelper';
 import { getSurahSummary } from '@/data/surahSummaries';
+import { App } from '@capacitor/app';
 
 // Background Mode Helper (Cordova Plugin)
 const BackgroundMode = {
@@ -75,6 +76,30 @@ export default function Quran() {
             return updated;
         });
     };
+
+    // Auto-Resume Audio on App Foreground
+    // This fixes "ses gitti" when switching apps
+    useEffect(() => {
+        const handleResume = async () => {
+            if (currentlyPlaying && isPlaying && audio.paused) {
+                console.log("App resumed, forcing audio play...");
+                try {
+                    await audio.play();
+                    setIsAudioPlaying(true);
+                } catch (e) {
+                    console.warn("Resume failed", e);
+                }
+            }
+        };
+
+        const listener = App.addListener('appStateChange', state => {
+            if (state.isActive) handleResume();
+        });
+
+        return () => {
+            listener.then(f => f.remove());
+        };
+    }, [currentlyPlaying, isPlaying, audio]);
 
     // Fetch all 114 surahs on mount
     useEffect(() => {

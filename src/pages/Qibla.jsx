@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     Compass as CompassIcon, Info, X, Star,
-    Loader2, Smartphone, MapPin, Navigation2, Vibrate, Map as MapIcon
+    Loader2, Smartphone, MapPin, Navigation2, Vibrate, Map as MapIcon, RotateCcw
 } from 'lucide-react';
 import { useLocation } from '@/context/LocationContext';
 import { useHaptics } from '@/hooks/useMobile';
@@ -10,22 +10,10 @@ import { Haptics, ImpactStyle } from '@capacitor/haptics';
 import { CapgoCompass as Compass } from '@capgo/capacitor-compass'; // Native Compass Plugin
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
+import { calculateGeodesicAzimuth, getDetailedDeclination, lowPassFilter, calculateGeodesicDistance } from '../utils/qiblaLogic';
 
-// MECCA Constants
-const MECCA = { lat: 21.4225, lng: 39.8262 };
 const DEFAULT_ALIGNMENT_THRESHOLD = 3.5;
-
-// --- Helpers ---
-const calculateDistance = (lat1, lon1, lat2, lon2) => {
-    const R = 6371;
-    const dLat = (lat2 - lat1) * (Math.PI / 180);
-    const dLon = (lon2 - lon1) * (Math.PI / 180);
-    const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-        Math.cos(lat1 * (Math.PI / 180)) * Math.cos(lat2 * (Math.PI / 180)) *
-        Math.sin(dLon / 2) * Math.sin(dLon / 2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    return (R * c).toLocaleString('tr-TR', { maximumFractionDigits: 0 });
-};
+const MECCA = { lat: 21.4225, lng: 39.8262 }; // Needed for map link
 
 // --- Subcomponents ---
 
@@ -105,6 +93,8 @@ export default function Qibla() {
     const [status, setStatus] = useState('loading'); // loading, calculating, active
     const [debugAligned, setDebugAligned] = useState(false);
     const [hapticEnabled, setHapticEnabled] = useState(true);
+    const [declination, setDeclination] = useState(0);
+    const [distanceKM, setDistanceKM] = useState(0);
 
     // Refs for accessing state inside listeners without re-renders
     const qiblaAngleRef = useRef(0);
@@ -112,24 +102,16 @@ export default function Qibla() {
     const lastHapticRef = useRef(0);
     const lastHeadingRef = useRef(0);
     const mountedRef = useRef(true);
+    const declinationRef = useRef(0);
 
     // Update refs when state changes
     useEffect(() => { qiblaAngleRef.current = qiblaAngle; }, [qiblaAngle]);
     useEffect(() => { isAlignedRef.current = isAligned; }, [isAligned]);
+    useEffect(() => { declinationRef.current = declination; }, [declination]);
 
     useEffect(() => {
         mountedRef.current = true;
         return () => { mountedRef.current = false; };
-    }, []);
-
-    // Calculate Qibla Angle relative to TRUE NORTH
-    const getQiblaAngle = useCallback((lat, lng) => {
-        const dL = (MECCA.lng - lng) * (Math.PI / 180);
-        const phi1 = lat * (Math.PI / 180);
-        const phi2 = MECCA.lat * (Math.PI / 180);
-        const y = Math.sin(dL);
-        const x = Math.cos(phi1) * Math.tan(phi2) - Math.sin(phi1) * Math.cos(dL);
-        return ((Math.atan2(y, x) * (180 / Math.PI)) + 360) % 360;
     }, []);
 
     // Initial Setup
@@ -138,16 +120,25 @@ export default function Qibla() {
 
         if (hasLocation && latitude && longitude) {
             setStatus('calculating');
-            const trueQibla = getQiblaAngle(latitude, longitude);
+            // Scientific Logic Integration
+            const trueQibla = calculateGeodesicAzimuth(latitude, longitude);
+            const declInfo = getDetailedDeclination(latitude, longitude);
+            const dist = calculateGeodesicDistance(latitude, longitude);
+
             setQiblaAngle(trueQibla);
+            setDeclination(declInfo.declination);
+            setDistanceKM(Math.round(dist));
             setStatus('active');
         } else if (locationError) {
             const defaultLat = 41.0082;
             const defaultLng = 28.9784;
-            setQiblaAngle(getQiblaAngle(defaultLat, defaultLng));
+            // Default Fallback
+            setQiblaAngle(calculateGeodesicAzimuth(defaultLat, defaultLng));
+            setDeclination(getDetailedDeclination(defaultLat, defaultLng).declination);
+            setDistanceKM(calculateGeodesicDistance(defaultLat, defaultLng));
             setStatus('active');
         }
-    }, [latitude, longitude, locationLoading, locationError, hasLocation, getQiblaAngle]);
+    }, [latitude, longitude, locationLoading, locationError, hasLocation]);
 
 
     // --- NATIVE COMPASS IMPLEMENTATION ---
@@ -172,33 +163,33 @@ export default function Qibla() {
                 await Compass.addListener('headingChange', (data) => {
                     if (!mountedRef.current) return;
 
-                    let rawHeading = data.value;
-                    rawHeading = (rawHeading + 360) % 360;
+                    // NATIVE PLUGIN RETURNS *MAGNETIC* HEADING USUALLY
+                    // WE MUST CORRECT TO TRUE NORTH USING WMM2025 DECLINATION
+                    let magneticHeading = data.value;
+                    let trueHeading = magneticHeading + declinationRef.current;
+                    trueHeading = (trueHeading + 360) % 360;
 
-                    if (debugAligned) rawHeading = qiblaAngleRef.current;
+                    if (debugAligned) trueHeading = qiblaAngleRef.current;
 
-                    // --- Dynamic Algorithm ---
                     const current = lastHeadingRef.current;
-                    let diff = rawHeading - current;
+                    let diff = trueHeading - current;
 
                     while (diff > 180) diff -= 360;
                     while (diff < -180) diff += 360;
 
-                    // Adaptive Physics
+                    // Adaptive Alpha for Low Pass Filter
                     const absDiff = Math.abs(diff);
-                    let dynamicAlpha = absDiff > 15 ? 1.0 : (absDiff > 5 ? 0.5 : 0.1);
+                    let alpha = absDiff > 15 ? 1.0 : (absDiff > 5 ? 0.5 : 0.1);
 
-                    const smoothed = current + diff * dynamicAlpha;
-                    const normalizedSmoothed = (smoothed + 360) % 360;
+                    // Apply Signal Processing
+                    const smoothed = lowPassFilter(trueHeading, current, alpha);
+                    lastHeadingRef.current = smoothed;
 
-                    lastHeadingRef.current = normalizedSmoothed;
-
-                    // Update main Heading State
-                    setHeading(normalizedSmoothed);
+                    setHeading(smoothed);
 
                     // --- Calculate Degree Difference for UI ---
                     const targetAngle = qiblaAngleRef.current;
-                    let angleDiff = targetAngle - normalizedSmoothed;
+                    let angleDiff = targetAngle - smoothed;
                     while (angleDiff > 180) angleDiff -= 360;
                     while (angleDiff < -180) angleDiff += 360;
 
@@ -216,7 +207,7 @@ export default function Qibla() {
                     }
                 });
 
-                // Start Engine (30ms = ~33FPS, preventing overload)
+                // Start Engine (30ms = ~33FPS)
                 await Compass.startListening({
                     minInterval: 30,
                     minHeadingChange: 0.1
@@ -408,7 +399,7 @@ export default function Qibla() {
                     <div className="flex items-center gap-2 py-2 px-4 rounded-full bg-emerald-950/40 border border-emerald-500/10">
                         <MapPin className="w-3 h-3 text-emerald-400" />
                         <span className="text-[10px] tracking-widest text-emerald-100/60">
-                            MESAFE: <span className="text-amber-400">{calculateDistance(latitude, longitude, MECCA.lat, MECCA.lng)} KM</span>
+                            MESAFE: <span className="text-amber-400">{Math.round(distanceKM).toLocaleString('tr-TR')} KM</span>
                         </span>
                     </div>
                 )}
