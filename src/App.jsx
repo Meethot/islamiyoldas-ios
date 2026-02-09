@@ -23,8 +23,11 @@ import NotificationSettings from './pages/settings/NotificationSettings';
 // AppearanceSettings removed - now handled as direct toggle in Profile
 import LocationSettings from './pages/settings/LocationSettings';
 import LegalSettings from './pages/settings/LegalSettings';
+import AiMentor from './pages/AiMentor';
 
 import ScrollToTop from './components/ScrollToTop';
+
+import SwipeBackHandler from './components/SwipeBackHandler';
 
 function App() {
   const [showSplash, setShowSplash] = useState(true);
@@ -40,33 +43,41 @@ function App() {
 
   return (
     <PrayerTimesProvider>
-      <Router>
-        <ScrollToTop />
-        <Routes>
-          <Route path="/onboarding" element={<Onboarding />} />
+      {/* Desktop Background / Outer Container */}
+      <div className="min-h-screen bg-gray-100 dark:bg-gray-900 flex justify-center items-center overflow-hidden font-sans">
+        {/* Mobile Device Container */}
+        <div className="w-full max-w-md h-[100dvh] bg-background relative shadow-2xl overflow-hidden sm:rounded-[2rem] sm:border-[8px] sm:border-gray-800 dark:sm:border-gray-800">
+          <Router>
+            <ScrollToTop />
+            <SwipeBackHandler />
+            <Routes>
+              <Route path="/onboarding" element={<Onboarding />} />
 
-          <Route element={<AppLayout />}>
-            <Route path="/" element={onboardingComplete ? <Home /> : <Navigate to="/onboarding" replace />} />
-            <Route path="/learn" element={<Learn />} />
-            <Route path="/stories" element={<Stories />} />
-            <Route path="/tracking" element={<Tracking />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/dhikr" element={<Dhikr />} />
-            <Route path="/tefekkur" element={<Tefekkur />} />
-            <Route path="/uyku" element={<SleepMode />} />
-            <Route path="/dua" element={<DuaKosesi />} />
-            <Route path="/quran" element={<Quran />} />
-            <Route path="/quran/:surahId" element={<SurahDetail />} />
-            <Route path="/qibla" element={<Qibla />} />
-            {/* /settings removed - Profile now handles settings navigation */}
-            <Route path="/settings/notifications" element={<NotificationSettings />} />
-            {/* /settings/appearance removed - now direct toggle in Profile */}
-            <Route path="/settings/location" element={<LocationSettings />} />
-            <Route path="/settings/legal" element={<LegalSettings />} />
-            <Route path="/legal/:type" element={<Legal />} />
-          </Route>
-        </Routes>
-      </Router>
+              <Route element={<AppLayout />}>
+                <Route path="/" element={onboardingComplete ? <Home /> : <Navigate to="/onboarding" replace />} />
+                <Route path="/learn" element={<Learn />} />
+                <Route path="/stories" element={<Stories />} />
+                <Route path="/tracking" element={<Tracking />} />
+                <Route path="/profile" element={<Profile />} />
+                <Route path="/dhikr" element={<Dhikr />} />
+                <Route path="/tefekkur" element={<Tefekkur />} />
+                <Route path="/uyku" element={<SleepMode />} />
+                <Route path="/dua" element={<DuaKosesi />} />
+                <Route path="/quran" element={<Quran />} />
+                <Route path="/quran/:surahId" element={<SurahDetail />} />
+                <Route path="/qibla" element={<Qibla />} />
+                <Route path="/ai-mentor" element={<AiMentor />} />
+                {/* /settings removed - Profile now handles settings navigation */}
+                <Route path="/settings/notifications" element={<NotificationSettings />} />
+                {/* /settings/appearance removed - now direct toggle in Profile */}
+                <Route path="/settings/location" element={<LocationSettings />} />
+                <Route path="/settings/legal" element={<LegalSettings />} />
+                <Route path="/legal/:type" element={<Legal />} />
+              </Route>
+            </Routes>
+          </Router>
+        </div>
+      </div>
     </PrayerTimesProvider>
   );
 }

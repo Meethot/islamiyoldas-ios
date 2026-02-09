@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
     Moon, Sunrise, Sun, Sunset, Sparkles, Star, Wind, MessageCircle, X, Download,
-    ChevronRight, Heart, Share2
+    ChevronRight, Heart, Share2, Bot
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -328,6 +328,8 @@ export default function Home() {
 
 
             <PrayerCountdownWidget loading={loadingPrayers} city={city} nextPrayerInfo={nextPrayerInfo} prayerTimes={prayerTimes} />
+
+
 
             <motion.div variants={itemVariants} className="grid grid-cols-3 gap-2">
                 <QuickAction

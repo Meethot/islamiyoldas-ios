@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Play, BookOpen, Clock, ChevronRight, X, Headphones, Sparkles, Heart, SkipBack, SkipForward, Zap } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { AnimatePresence, motion, useDragControls } from 'framer-motion';
+import StoryCard from '@/components/StoryCard';
 
 import { STORIES } from '@/data/spiritualData';
 
@@ -160,44 +161,11 @@ export default function Stories() {
             {/* Story Grid */}
             <div className="grid gap-5">
                 {(STORIES[activeCategory] || []).map((story) => (
-                    <Card
+                    <StoryCard
                         key={story.id}
-                        className="group overflow-hidden border-none shadow-[0_4px_20px_-5px_rgba(0,0,0,0.08)] rounded-[2rem] bg-white dark:bg-white/5 cursor-pointer hover:shadow-xl transition-all duration-300"
+                        story={story}
                         onClick={() => setSelectedStory(story)}
-                    >
-                        <div className="flex">
-                            <div className="flex-1 p-6 pr-2">
-                                <h3 className="text-xl font-serif font-bold text-gray-900 dark:text-white group-hover:text-islamic-green dark:group-hover:text-islamic-gold transition-colors mb-2">
-                                    {story.title}
-                                </h3>
-                                <p className="text-sm text-gray-400 line-clamp-2 leading-relaxed italic mb-4">
-                                    {story.content.substring(0, 80)}...
-                                </p>
-                                <div className="flex items-center gap-4">
-                                    <div className="flex items-center gap-1 text-[11px] font-bold text-gray-300">
-                                        <Clock className="w-3 h-3" /> {story.duration}
-                                    </div>
-                                    <div className="flex items-center gap-1 text-[11px] font-bold text-islamic-green dark:text-islamic-gold">
-                                        <BookOpen className="w-3 h-3" /> Oku
-                                    </div>
-                                    <div className="flex items-center gap-1 text-[11px] font-bold text-islamic-green dark:text-islamic-gold">
-                                        <Headphones className="w-3 h-3" /> Dinle
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="w-20 bg-islamic-green/5 dark:bg-islamic-gold/10 flex items-center justify-center group-hover:bg-islamic-gold/10 dark:group-hover:bg-islamic-gold/20 transition-colors">
-                                <Button
-                                    className="w-12 h-12 rounded-full bg-islamic-green dark:bg-islamic-gold hover:opacity-90 text-white dark:text-[#032e18] shadow-lg transition-transform group-hover:scale-110"
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        setSelectedStory(story);
-                                    }}
-                                >
-                                    <Play className="w-5 h-5 fill-current" />
-                                </Button>
-                            </div>
-                        </div>
-                    </Card>
+                    />
                 ))}
             </div>
 

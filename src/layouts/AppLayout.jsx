@@ -1,7 +1,7 @@
 import { Capacitor } from '@capacitor/core';
 import React, { useRef, useEffect } from 'react';
 import { Outlet, NavLink, useLocation, useNavigate } from 'react-router-dom';
-import { Home, BookOpen, Target, User, Heart, Star } from 'lucide-react';
+import { Home, BookOpen, Target, User, Heart, Star, Brain, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useHaptics } from '@/hooks/useMobile';
 import { useUser } from '@/context/UserContext';
@@ -44,15 +44,15 @@ export default function AppLayout() {
     }, [pathname]);
 
     return (
-        <div className="min-h-screen bg-[#FAFAF5] dark:bg-[#032e18] font-sans selection:bg-islamic-gold/30">
-            {/* Mobile-First Container */}
+        <div className="h-full bg-[#FAFAF5] dark:bg-[#032e18] font-sans selection:bg-islamic-gold/30">
+            {/* Mobile-First Container (Simplified for Global Wrapper) */}
             <div className={cn(
-                "max-w-md mx-auto min-h-screen flex flex-col shadow-2xl relative parchment-texture",
+                "h-full flex flex-col relative parchment-texture",
                 pathname === '/qibla' ? "bg-[#010a05]" : "bg-[#FBF9F4] dark:bg-[#032e18]"
             )}>
 
                 {/* Top Bar (Dynamic Greeting) */}
-                {pathname !== '/qibla' && (
+                {pathname !== '/qibla' && pathname !== '/ai-mentor' && (
                     <header className={cn(
                         "px-6 pb-2 flex justify-between items-center bg-[#FBF9F4]/80 dark:bg-[#032e18]/80 backdrop-blur-md sticky top-0 z-40 border-b border-amber-100/50 dark:border-white/5",
                         isIOS ? "pt-[env(safe-area-inset-top,2rem)]" : "header-safe-padding"
@@ -71,36 +71,53 @@ export default function AppLayout() {
                                 })()}
                             </h1>
                         </div>
-                        <button
-                            onClick={() => {
-                                selection();
-                                navigate('/profile');
-                            }}
-                            className="p-2.5 bg-islamic-green/5 dark:bg-white/5 hover:bg-islamic-green/10 dark:hover:bg-white/10 rounded-2xl transition-all active:scale-95 group border border-transparent hover:border-islamic-green/20"
-                        >
-                            <div className="text-2xl flex items-center justify-center">
-                                <AvatarIcon id={headerAvatarId} size={28} className="text-islamic-green dark:text-islamic-gold" />
-                            </div>
-                        </button>
+                        <div className="flex items-center gap-3">
+                            <button
+                                onClick={() => {
+                                    selection();
+                                    navigate('/ai-mentor');
+                                }}
+                                className="relative p-2.5 rounded-2xl transition-all active:scale-95 group border border-indigo-500/20 bg-gradient-to-br from-indigo-500/10 to-purple-600/10 dark:from-indigo-400/10 dark:to-purple-400/10 hover:from-indigo-500/20 hover:to-purple-600/20"
+                            >
+                                <div className="absolute -top-1 -right-1 bg-indigo-600 text-[8px] font-black text-white px-1.5 py-0.5 rounded-full shadow-sm z-10 border border-white dark:border-[#032e18]">
+                                    AI
+                                </div>
+                                <div className="absolute inset-0 bg-indigo-500/5 rounded-2xl animate-pulse" />
+                                <Brain size={24} className="text-indigo-600 dark:text-indigo-300 drop-shadow-sm" />
+                            </button>
+
+                            <button
+                                onClick={() => {
+                                    selection();
+                                    navigate('/profile');
+                                }}
+                                className="p-2.5 bg-islamic-green/5 dark:bg-white/5 hover:bg-islamic-green/10 dark:hover:bg-white/10 rounded-2xl transition-all active:scale-95 group border border-transparent hover:border-islamic-green/20"
+                            >
+                                <div className="text-2xl flex items-center justify-center">
+                                    <AvatarIcon id={headerAvatarId} size={28} className="text-islamic-green dark:text-islamic-gold" />
+                                </div>
+                            </button>
+                        </div>
                     </header>
                 )}
 
-                {/* Main Content Area */}
                 <main
                     ref={mainContentRef}
-                    className="flex-1 pb-40 pb-safe overflow-y-auto scroll-smooth"
+                    className="flex-1 pb-40 pb-safe overflow-y-auto scroll-smooth scrollbar-hide overscroll-none"
                 >
                     <Outlet />
                 </main>
 
                 {/* Bottom Navigation */}
-                <nav className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md bg-[#FBF9F4]/90 dark:bg-[#032e18]/90 backdrop-blur-xl border-t border-amber-100/50 dark:border-white/5 flex justify-around items-center px-4 py-2 pb-safe z-50 shadow-[0_-8px_20px_-6px_rgba(0,0,0,0.1)]">
-                    <NavLinkItem to="/" icon={Home} label={tNav('nav.home')} onClick={selection} />
-                    <NavLinkItem to="/learn" icon={BookOpen} label={tNav('nav.learn')} onClick={selection} />
-                    <NavLinkItem to="/stories" icon={Heart} label={tNav('nav.stories')} onClick={selection} />
-                    <NavLinkItem to="/tracking" icon={Target} label={tNav('nav.worship')} onClick={selection} />
-                    <NavLinkItem to="/profile" icon={User} label={tNav('nav.profile')} onClick={selection} />
-                </nav>
+                {pathname !== '/ai-mentor' && (
+                    <nav className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md bg-[#FBF9F4]/90 dark:bg-[#032e18]/90 backdrop-blur-xl border-t border-amber-100/50 dark:border-white/5 flex justify-around items-center px-4 py-2 pb-safe z-50 shadow-[0_-8px_20px_-6px_rgba(0,0,0,0.1)]">
+                        <NavLinkItem to="/" icon={Home} label={tNav('nav.home')} onClick={selection} />
+                        <NavLinkItem to="/learn" icon={BookOpen} label={tNav('nav.learn')} onClick={selection} />
+                        <NavLinkItem to="/stories" icon={Heart} label={tNav('nav.stories')} onClick={selection} />
+                        <NavLinkItem to="/tracking" icon={Target} label={tNav('nav.worship')} onClick={selection} />
+                        <NavLinkItem to="/profile" icon={User} label={tNav('nav.profile')} onClick={selection} />
+                    </nav>
+                )}
 
                 {/* Debug Menu (Developer Tools) */}
                 <DebugMenu />
