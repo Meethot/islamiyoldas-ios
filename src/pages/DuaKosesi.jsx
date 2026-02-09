@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
 import { Capacitor } from '@capacitor/core';
+import { addPrayer, getApprovedPrayers, incrementAmin } from '@/services/prayerService';
 
 // ========== WEB AUDIO API - INSTANT SOUND ==========
 // Uses AudioContext for true zero-latency, overlapping sound playback
@@ -44,83 +45,6 @@ function playClickSound() {
 }
 // ====================================================
 
-
-// ========== SIMULATION CONFIG ==========
-// Set to true to test: 1 minute = 1 hour (fast simulation)
-// Set to false for production: real time delays
-const IS_TEST_MODE = true;
-
-// Time constants
-const ONE_HOUR_MS = IS_TEST_MODE ? 60 * 1000 : 60 * 60 * 1000; // 1 min or 1 hour
-const APPROVAL_DELAY_MS = 3 * ONE_HOUR_MS; // 3 hours (or 3 mins in test mode)
-const THREE_DAYS_MS = 3 * 24 * ONE_HOUR_MS; // Duration for likes to continue
-
-const LIKES_PER_DAY_MIN = 30;
-const LIKES_PER_DAY_MAX = 50;
-// ========================================
-
-const INITIAL_DUAS = [
-    { id: 1, text: "Annem çok hasta, şifa bekliyoruz. Dualarınızda ona da yer ayırır mısınız?", count: 128 },
-    { id: 2, text: "Üzerimde çok büyük bir borç yükü var, hayırlı bir kapı açılması için dua bekliyorum.", count: 84 },
-    { id: 3, text: "Yarın çok kritik bir sınavım var, zihin açıklığı için dua eder misiniz?", count: 215 },
-    { id: 4, text: "Ruhum çok daralıyor, iç huzur ve inşirah için dualarınıza talibim.", count: 156 },
-    { id: 5, text: "Evladım hayırlı bir yola girsin, kötü alışkanlıklardan kurtulsun diye dua bekliyorum.", count: 312 },
-    { id: 6, text: "Yalnızlık ve kimsesizlik hissinden kurtulmak için kalpten bir dua istiyorum.", count: 97 }
-];
-
-// ========== SIMULATION ENGINE ==========
-function runSimulationEngine(requests) {
-    if (!requests || requests.length === 0) return requests;
-
-    const now = Date.now();
-    let hasChanges = false;
-
-    const updated = requests.map(request => {
-        const requestDate = new Date(request.date).getTime();
-        const timeSinceCreation = now - requestDate;
-        let updatedRequest = { ...request };
-
-        // Rule 1: Auto-approve after 3 hours
-        if (request.status === 'pending' && timeSinceCreation >= APPROVAL_DELAY_MS) {
-            updatedRequest.status = 'approved';
-            updatedRequest.approvedAt = now;
-            updatedRequest.aminCount = updatedRequest.aminCount || 0;
-            hasChanges = true;
-        }
-
-        // Rule 2: Add fake amin counts for approved prayers
-        if (updatedRequest.status === 'approved') {
-            const approvedAt = updatedRequest.approvedAt || requestDate + APPROVAL_DELAY_MS;
-            const timeSinceApproval = now - approvedAt;
-
-            // Only add likes for 3 days after approval
-            if (timeSinceApproval < THREE_DAYS_MS && timeSinceApproval >= 0) {
-                // Calculate expected likes based on time passed
-                const hoursPassed = timeSinceApproval / ONE_HOUR_MS;
-                const avgLikesPerHour = ((LIKES_PER_DAY_MIN + LIKES_PER_DAY_MAX) / 2) / 24;
-
-                // Add some randomness using a seeded approach based on request id
-                const seed = request.id % 100;
-                const randomMultiplier = 0.8 + (seed / 100) * 0.4; // 0.8 to 1.2
-
-                const expectedLikes = Math.floor(hoursPassed * avgLikesPerHour * randomMultiplier);
-                const currentAmin = updatedRequest.aminCount || 0;
-
-                // Only increase, never decrease
-                if (expectedLikes > currentAmin) {
-                    updatedRequest.aminCount = expectedLikes;
-                    hasChanges = true;
-                }
-            }
-        }
-
-        return updatedRequest;
-    });
-
-    return { updated, hasChanges };
-}
-// ========================================
-
 // ========== HAPTICS HELPER ==========
 async function triggerHaptics() {
     try {
@@ -137,6 +61,17 @@ async function triggerHaptics() {
 }
 // ====================================
 
+// ========== SIMULATION DATA ==========
+const INITIAL_DUAS = [
+    { id: 1, text: "Annem çok hasta, şifa bekliyoruz. Dualarınızda ona da yer ayırır mısınız?", count: 128 },
+    { id: 2, text: "Üzerimde çok büyük bir borç yükü var, hayırlı bir kapı açılması için dua bekliyorum.", count: 84 },
+    { id: 3, text: "Yarın çok kritik bir sınavım var, zihin açıklığı için dua eder misiniz?", count: 215 },
+    { id: 4, text: "Ruhum çok daralıyor, iç huzur ve inşirah için dualarınıza talibim.", count: 156 },
+    { id: 5, text: "Evladım hayırlı bir yola girsin, kötü alışkanlıklardan kurtulsun diye dua bekliyorum.", count: 312 },
+    { id: 6, text: "Yalnızlık ve kimsesizlik hissinden kurtulmak için kalpten bir dua istiyorum.", count: 97 }
+];
+// ======================================
+
 export default function DuaKosesi() {
     const navigate = useNavigate();
     const [showForm, setShowForm] = useState(false);
@@ -144,91 +79,107 @@ export default function DuaKosesi() {
     const [showSuccess, setShowSuccess] = useState(false);
     const [showDeleteToast, setShowDeleteToast] = useState(false);
 
-    // Load duas from localStorage
-    const [duas, setDuas] = useState(() => {
-        const saved = localStorage.getItem('duaKosesiCount');
+    // Live Data from Firestore
+    const [realDuas, setRealDuas] = useState([]);
+
+    // Fake Data (Simulated)
+    const [fakeDuas, setFakeDuas] = useState(() => {
+        const saved = localStorage.getItem('fakeDuasCounts');
         if (saved) {
             const parsed = JSON.parse(saved);
-            return INITIAL_DUAS.map(d => ({ ...d, count: parsed[d.id] || d.count, amined: parsed[`amin_${d.id}`] || false }));
+            return INITIAL_DUAS.map(d => ({
+                ...d,
+                count: parsed[d.id] || d.count
+            }));
         }
-        return INITIAL_DUAS.map(d => ({ ...d, amined: false }));
+        return INITIAL_DUAS;
     });
 
-    // Load my requests from localStorage
+    // Validate Real vs Fake existence
+    const allDuas = [...realDuas, ...fakeDuas];
+
+    // My Requests (Local History)
     const [myRequests, setMyRequests] = useState(() => {
         const saved = localStorage.getItem('myDuaRequests');
         return saved ? JSON.parse(saved) : [];
     });
 
-    const handleAmin = async (id) => {
-        const dua = duas.find(d => d.id === id);
-        if (!dua || dua.amined) return;
+    // Local tracking of "amined" prayers to prevent double clicks (per session/device)
+    const [aminedPrayers, setAminedPrayers] = useState(() => {
+        const saved = localStorage.getItem('aminedPrayers');
+        return saved ? JSON.parse(saved) : {};
+    });
 
-        // Trigger native haptics and sound
+    // Subscribe to real-time approved prayers
+    useEffect(() => {
+        const unsubscribe = getApprovedPrayers((data) => {
+            setRealDuas(data);
+        });
+        return () => unsubscribe();
+    }, []);
+
+    const handleAmin = async (id) => {
+        if (aminedPrayers[id]) return;
+
+        // Optimistically update UI
         triggerHaptics();
         playClickSound();
 
+        // Mark as amined locally
+        const newAmined = { ...aminedPrayers, [id]: true };
+        setAminedPrayers(newAmined);
+        localStorage.setItem('aminedPrayers', JSON.stringify(newAmined));
 
-        // Update state
-        const updated = duas.map(d => {
-            if (d.id === id) {
-                return { ...d, count: d.count + 1, amined: true };
-            }
-            return d;
-        });
-        setDuas(updated);
+        // If it's a real prayer (ID is string from Firebase), call service
+        if (typeof id === 'string') {
+            await incrementAmin(id);
+        } else {
+            // It's a fake prayer (ID is number), update local state only
+            const updatedFakes = fakeDuas.map(d => {
+                if (d.id === id) {
+                    return { ...d, count: d.count + 1 };
+                }
+                return d;
+            });
+            setFakeDuas(updatedFakes);
 
-        const persistData = {};
-        updated.forEach(d => {
-            persistData[d.id] = d.count;
-            persistData[`amin_${d.id}`] = d.amined;
-        });
-        localStorage.setItem('duaKosesiCount', JSON.stringify(persistData));
+            // Persist fake counts
+            const persistData = {};
+            updatedFakes.forEach(d => {
+                persistData[d.id] = d.count;
+            });
+            localStorage.setItem('fakeDuasCounts', JSON.stringify(persistData));
+        }
     };
 
+    const handleSubmitRequest = async (text) => {
+        try {
+            const id = await addPrayer(text);
 
-    const handleSubmitRequest = (text) => {
-        const newRequest = {
-            id: Date.now(),
-            text: text,
-            status: 'pending', // 'pending' | 'approved' | 'rejected'
-            date: new Date().toISOString(),
-            aminCount: 0,
-            approvedAt: null
-        };
+            // Add to local history
+            const newRequest = {
+                id: id,
+                text: text,
+                status: 'pending', // Initially pending
+                date: new Date().toISOString(),
+                aminCount: 0
+            };
 
-        const updated = [newRequest, ...myRequests];
-        setMyRequests(updated);
-        localStorage.setItem('myDuaRequests', JSON.stringify(updated));
+            const updated = [newRequest, ...myRequests];
+            setMyRequests(updated);
+            localStorage.setItem('myDuaRequests', JSON.stringify(updated));
 
-        setShowForm(false);
-        setShowSuccess(true);
-
-        // Hide success message after 3 seconds
-        setTimeout(() => setShowSuccess(false), 3000);
+            setShowForm(false);
+            setShowSuccess(true);
+            setTimeout(() => setShowSuccess(false), 4000);
+        } catch (error) {
+            console.error("Failed to submit prayer:", error);
+            alert("Dua gönderilirken bir hata oluştu. Lütfen tekrar deneyin.");
+        }
     };
-
-    // Run simulation engine on mount and periodically
-    useEffect(() => {
-        const runSimulation = () => {
-            const result = runSimulationEngine(myRequests);
-            if (result.hasChanges) {
-                setMyRequests(result.updated);
-                localStorage.setItem('myDuaRequests', JSON.stringify(result.updated));
-            }
-        };
-
-        // Run immediately on mount
-        runSimulation();
-
-        // Run every minute in test mode, every hour in production
-        const interval = IS_TEST_MODE ? 10 * 1000 : 60 * 60 * 1000; // 10 sec or 1 hour
-        const timer = setInterval(runSimulation, interval);
-
-        return () => clearInterval(timer);
-    }, [myRequests.length]); // Re-run when requests count changes
 
     const handleDeleteRequest = (id) => {
+        // Only deletes from local history, not from DB for now
         const updated = myRequests.filter(r => r.id !== id);
         setMyRequests(updated);
         localStorage.setItem('myDuaRequests', JSON.stringify(updated));
@@ -271,10 +222,6 @@ export default function DuaKosesi() {
                 <Button variant="ghost" size="icon" onClick={() => navigate(-1)} className="text-islamic-green dark:text-islamic-gold">
                     <ChevronLeft size={24} />
                 </Button>
-                <div>
-                    <h1 className="text-3xl font-serif font-bold text-islamic-green dark:text-islamic-gold">Dua Köşesi</h1>
-                    <p className="text-gray-400 dark:text-gray-500 text-sm mt-1">Birbirimize gıyaben dua edelim.</p>
-                </div>
             </header>
 
             {/* Success Toast */}
@@ -290,8 +237,8 @@ export default function DuaKosesi() {
                             <Check size={20} />
                         </div>
                         <div>
-                            <p className="font-bold">Duanız Gönderildi!</p>
-                            <p className="text-sm text-emerald-100">Onaylandıktan sonra yayınlanacak.</p>
+                            <p className="font-bold">Duanız Alındı!</p>
+                            <p className="text-sm text-emerald-100">Editör onayından sonra yayınlanacaktır.</p>
                         </div>
                     </motion.div>
                 )}
@@ -309,7 +256,7 @@ export default function DuaKosesi() {
                         <div className="p-2 bg-white/20 rounded-full">
                             <Trash2 size={18} />
                         </div>
-                        <p className="font-medium">Dua isteği silindi</p>
+                        <p className="font-medium">Dua isteği geçmişten silindi</p>
                     </motion.div>
                 )}
             </AnimatePresence>
@@ -326,43 +273,62 @@ export default function DuaKosesi() {
 
             {/* Prayer Feed */}
             <div className="space-y-4">
-                <h3 className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest px-1">Gelen Dua İstekleri</h3>
-                {duas.map((dua) => (
-                    <Card key={dua.id} className="rounded-[2.5rem] border-none shadow-sm dark:bg-white/5 overflow-hidden group">
-                        <CardContent className="p-8">
-                            <div className="flex items-start gap-4 mb-6">
-                                <div className="w-12 h-12 rounded-[1.25rem] bg-islamic-green/10 dark:bg-islamic-gold/10 flex items-center justify-center text-islamic-green dark:text-islamic-gold">
-                                    <Heart size={24} className={cn(dua.amined && "fill-current animate-pulse")} />
-                                </div>
-                                <div className="flex-1">
-                                    <p className="text-[10px] font-bold text-gray-400 dark:text-emerald-100/40 uppercase tracking-widest mb-2">Bir Kardeşin Diyor ki:</p>
-                                    <p className="text-gray-900 dark:text-white font-serif text-lg leading-relaxed italic">
-                                        "{dua.text}"
-                                    </p>
-                                </div>
-                            </div>
+                <div className="flex items-center justify-between px-1">
+                    <h3 className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">Gelen Dua İstekleri</h3>
+                    <div className="flex items-center gap-1.5">
+                        <span className="relative flex h-2 w-2">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                            <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+                        </span>
+                        <span className="text-[10px] font-bold text-red-500 uppercase tracking-widest">CANLI</span>
+                    </div>
+                </div>
 
-                            <div className="flex items-center justify-between pt-6 border-t border-gray-50 dark:border-white/5">
-                                <div className="flex items-center gap-2 text-gray-400 dark:text-gray-500">
-                                    <MessageCircle size={16} />
-                                    <span className="text-xs font-bold">{dua.count} Kişi Amin Dedi</span>
-                                </div>
-                                <Button
-                                    onClick={() => handleAmin(dua.id)}
-                                    disabled={dua.amined}
-                                    className={cn(
-                                        "rounded-full px-8 h-12 font-bold transition-all active:scale-95 shadow-lg",
-                                        dua.amined
-                                            ? "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20"
-                                            : "bg-islamic-green dark:bg-islamic-gold text-white dark:text-[#032e18] hover:opacity-90"
-                                    )}
-                                >
-                                    {dua.amined ? "Âmin" : "Âmin De"}
-                                </Button>
-                            </div>
-                        </CardContent>
-                    </Card>
-                ))}
+                {allDuas.length === 0 ? (
+                    <div className="text-center py-10 opacity-60">
+                        <p className="text-sm text-gray-400">Şu an yayında dua yok. İlk duayı sen iste!</p>
+                    </div>
+                ) : (
+                    allDuas.map((dua) => {
+                        const isAmined = !!aminedPrayers[dua.id];
+                        return (
+                            <Card key={dua.id} className="rounded-[2.5rem] border-none shadow-sm dark:bg-white/5 overflow-hidden group">
+                                <CardContent className="p-8">
+                                    <div className="flex items-start gap-4 mb-6">
+                                        <div className="w-12 h-12 rounded-[1.25rem] bg-islamic-green/10 dark:bg-islamic-gold/10 flex items-center justify-center text-islamic-green dark:text-islamic-gold">
+                                            <Heart size={24} className={cn(isAmined && "fill-current animate-pulse text-red-500 dark:text-red-500")} />
+                                        </div>
+                                        <div className="flex-1">
+                                            <p className="text-[10px] font-bold text-gray-400 dark:text-emerald-100/40 uppercase tracking-widest mb-2">Bir Kardeşin Diyor ki:</p>
+                                            <p className="text-gray-900 dark:text-white font-serif text-lg leading-relaxed italic">
+                                                "{dua.text}"
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex items-center justify-between pt-6 border-t border-gray-50 dark:border-white/5">
+                                        <div className="flex items-center gap-2 text-gray-400 dark:text-gray-500">
+                                            <MessageCircle size={16} />
+                                            <span className="text-xs font-bold">{dua.aminCount || dua.count || 0} Kişi Amin Dedi</span>
+                                        </div>
+                                        <Button
+                                            onClick={() => handleAmin(dua.id)}
+                                            disabled={isAmined}
+                                            className={cn(
+                                                "rounded-full px-8 h-12 font-bold transition-all active:scale-95 shadow-lg",
+                                                isAmined
+                                                    ? "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20"
+                                                    : "bg-islamic-green dark:bg-islamic-gold text-white dark:text-[#032e18] hover:opacity-90"
+                                            )}
+                                        >
+                                            {isAmined ? "Âmin Dedin" : "Âmin De"}
+                                        </Button>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        );
+                    })
+                )}
             </div>
 
             {/* Add Own Dua - Floating Action Style */}
@@ -417,15 +383,13 @@ function DuaIstegiFormu({ onSubmit, onCancel }) {
     const [text, setText] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
         if (text.trim().length < 10) return;
 
         setIsSubmitting(true);
-        // Simulate a small delay for better UX
-        setTimeout(() => {
-            onSubmit(text.trim());
-            setIsSubmitting(false);
-        }, 500);
+        await onSubmit(text.trim());
+        // Parent handles closing and state reset
+        setIsSubmitting(false);
     };
 
     return (
