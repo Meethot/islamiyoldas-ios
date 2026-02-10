@@ -22,6 +22,8 @@ import { shareProgress, shareInvite, shareVerse } from '@/lib/share';
 import PrayerTimeOverlay from '@/components/PrayerTimeOverlay';
 import { usePrayerFocus } from '@/hooks/usePrayerFocus';
 import { useTranslation } from 'react-i18next';
+import { Capacitor } from '@capacitor/core';
+import { AdMob } from '@capacitor-community/admob';
 
 // Static Constants moved outside to prevent re-creation
 const FRIDAY_CONTENT = {
@@ -103,6 +105,23 @@ export default function Home() {
         prayerTimes,
         completedPrayers
     );
+
+    // iOS ATT izleme izni — onboarding sonrası anasayfaya ilk gelişte 1 kez sor
+    useEffect(() => {
+        if (!Capacitor.isNativePlatform() || Capacitor.getPlatform() !== 'ios') return;
+        if (localStorage.getItem('att_requested')) return;
+
+        const timer = setTimeout(async () => {
+            try {
+                await AdMob.requestTrackingAuthorization();
+            } catch (e) {
+                console.warn('ATT request failed:', e);
+            }
+            localStorage.setItem('att_requested', 'true');
+        }, 2000);
+
+        return () => clearTimeout(timer);
+    }, []);
 
 
     const isFriday = getAppDate().getDay() === 5;

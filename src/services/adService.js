@@ -21,18 +21,6 @@ export async function initAdMob() {
     if (!IS_NATIVE || initialized) return;
 
     try {
-        // iOS 14+: App Tracking Transparency (IDFA) izni
-        if (Capacitor.getPlatform() === 'ios') {
-            try {
-                const trackingInfo = await AdMob.requestTrackingAuthorization();
-                console.log('ATT status:', trackingInfo.status);
-                // authorized → kişiselleştirilmiş reklam
-                // denied/notDetermined → genel reklam (yine de devam et)
-            } catch (attError) {
-                console.warn('ATT request failed, proceeding anyway:', attError);
-            }
-        }
-
         await AdMob.initialize({
             // ⚠️ Production'a geçerken false yap
             initializeForTesting: true,

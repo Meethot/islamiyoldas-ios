@@ -1781,10 +1781,18 @@ export const ReligiousCalendarWidget = memo(({ days }) => {
     const nextEvent = upcoming[0];
     if (!nextEvent) return null; // Or show empty state
 
-    const diff = Math.ceil((nextEvent.dateObj - now) / (1000 * 60 * 60 * 24));
+    // Normalize to local midnight to avoid timezone offset bugs
+    const todayMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const eventMidnight = new Date(nextEvent.dateObj.getUTCFullYear(), nextEvent.dateObj.getUTCMonth(), nextEvent.dateObj.getUTCDate());
+    const diff = Math.round((eventMidnight - todayMidnight) / (1000 * 60 * 60 * 24));
 
-    // Formatting Helpers
-    const formatDate = (date) => date.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long' });
+    // Formatting Helpers — use UTC values since dates are stored as YYYY-MM-DD (parsed as UTC)
+    const formatDate = (date) => {
+        const months = ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'];
+        return `${date.getUTCDate()} ${months[date.getUTCMonth()]}`;
+    };
+
+    const diffLabel = diff === 0 ? 'Bugün' : diff === 1 ? 'Yarın' : `${diff} Gün Kaldı`;
 
     // Body Scroll Lock
     useEffect(() => {
@@ -1824,7 +1832,7 @@ export const ReligiousCalendarWidget = memo(({ days }) => {
                                 {nextEvent.name}
                             </h4>
                             <p className="text-xs text-gray-500 dark:text-emerald-100/50 font-medium">
-                                {formatDate(nextEvent.dateObj)} • <span className="text-islamic-green dark:text-islamic-gold">{diff} Gün Kaldı</span>
+                                {formatDate(nextEvent.dateObj)} • <span className="text-islamic-green dark:text-islamic-gold">{diffLabel}</span>
                             </p>
                         </div>
 
@@ -1917,7 +1925,7 @@ export const ReligiousCalendarWidget = memo(({ days }) => {
                                                     </div>
 
                                                     <p className="text-sm font-medium text-gray-500 dark:text-emerald-100/50">
-                                                        {day.dateObj.toLocaleDateString('tr-TR', { weekday: 'long', day: 'numeric', month: 'long' })}
+                                                        {new Date(day.dateObj.getUTCFullYear(), day.dateObj.getUTCMonth(), day.dateObj.getUTCDate()).toLocaleDateString('tr-TR', { weekday: 'long', day: 'numeric', month: 'long' })}
                                                     </p>
                                                 </div>
                                             </motion.div>

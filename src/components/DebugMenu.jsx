@@ -114,21 +114,9 @@ const DebugMenu = () => {
     };
 
     const clearAllData = () => {
-        const keysToKeep = ['onboardingComplete', 'user_language'];
-        const allKeys = [];
-
-        for (let i = 0; i < localStorage.length; i++) {
-            const key = localStorage.key(i);
-            if (key && !keysToKeep.includes(key)) {
-                allKeys.push(key);
-            }
-        }
-
-        allKeys.forEach(key => localStorage.removeItem(key));
-
-        setLastAction('🗑️ All data cleared (keeping onboarding + language)');
-
-        setTimeout(() => window.location.reload(), 1000);
+        localStorage.clear();
+        setLastAction('🗑️ Tüm veriler silindi — sıfırdan başlanıyor...');
+        setTimeout(() => { window.location.href = '/onboarding'; }, 800);
     };
 
     // ===== NOTIFICATION & SOUND =====
