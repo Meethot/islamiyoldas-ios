@@ -2,8 +2,9 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     Compass as CompassIcon, Info, X, Star,
-    Loader2, Smartphone, MapPin, Navigation2, Vibrate, Map as MapIcon, RotateCcw
+    Loader2, Smartphone, MapPin, Navigation2, Vibrate, RotateCcw, ChevronLeft
 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { useLocation } from '@/context/LocationContext';
 import { useHaptics } from '@/hooks/useMobile';
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
@@ -13,7 +14,7 @@ import { Button } from '@/components/ui/button';
 import { calculateGeodesicAzimuth, getDetailedDeclination, lowPassFilter, calculateGeodesicDistance } from '../utils/qiblaLogic';
 
 const DEFAULT_ALIGNMENT_THRESHOLD = 3.5;
-const MECCA = { lat: 21.4225, lng: 39.8262 }; // Needed for map link
+
 
 // --- Subcomponents ---
 
@@ -81,6 +82,7 @@ const CompassTicks = () => {
 };
 
 export default function Qibla() {
+    const navigate = useNavigate();
     const { selection, success } = useHaptics();
     const { latitude, longitude, loading: locationLoading, error: locationError, hasLocation } = useLocation();
 
@@ -244,12 +246,7 @@ export default function Qibla() {
         return () => window.removeEventListener('qiblaDebugToggle', handleDebug);
     }, []);
 
-    const openMap = () => {
-        if (latitude && longitude) {
-            const url = `https://www.google.com/maps/dir/?api=1&origin=${latitude},${longitude}&destination=${MECCA.lat},${MECCA.lng}&travelmode=walking`;
-            window.open(url, '_system');
-        }
-    };
+
 
     return (
         <div
@@ -266,6 +263,12 @@ export default function Qibla() {
                         animate={{ opacity: 1, scale: 1 }}
                         className="flex items-center gap-2 mb-1"
                     >
+                        <button
+                            onClick={() => navigate(-1)}
+                            className="w-9 h-9 rounded-xl bg-emerald-900/40 hover:bg-emerald-800/60 flex items-center justify-center text-emerald-100/60 hover:text-amber-400 active:scale-90 transition-all border border-emerald-500/20"
+                        >
+                            <ChevronLeft size={18} />
+                        </button>
                         <div className="w-1.5 h-1.5 bg-amber-400 rounded-full animate-pulse" />
                         <span className="text-[10px] tracking-[0.6em] text-emerald-200/60 font-bold uppercase">Manevi Pusula</span>
                     </motion.div>
@@ -288,11 +291,6 @@ export default function Qibla() {
                         <Info className="w-6 h-6" />
                     </button>
 
-                    <button onClick={() => { selection(); openMap(); }}
-                        className="p-3 rounded-full bg-emerald-900/30 border border-emerald-500/20 backdrop-blur-3xl active:scale-95 transition-all text-emerald-100/60 hover:text-amber-400"
-                    >
-                        <MapIcon className="w-6 h-6" />
-                    </button>
                 </div>
             </header>
 
@@ -409,18 +407,76 @@ export default function Qibla() {
                 {showInfo && (
                     <motion.div
                         initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-3xl flex items-center justify-center p-8"
+                        className="fixed inset-0 z-[100] bg-black/90 backdrop-blur-2xl flex items-center justify-center p-6"
+                        onClick={() => setShowInfo(false)}
                     >
-                        <div className="bg-[#022c22] p-8 rounded-3xl border border-emerald-500/20 max-w-sm w-full text-center">
-                            <CompassIcon className="w-12 h-12 text-amber-400 mx-auto mb-4" />
-                            <h3 className="text-xl text-white font-serif mb-4">Pusula ve Harita</h3>
-                            <p className="text-sm text-emerald-100/60 mb-6">
-                                En doğru sonuç için açıyı 0 dereceye getirmeye çalışın.
-                                <br /><br />
-                                Metal eşyalar pusulayı etkileyebilir. Emin olmak için <strong>Harita butonunu</strong> kullanabilirsiniz.
-                            </p>
-                            <Button onClick={() => setShowInfo(false)} className="w-full bg-emerald-800 hover:bg-emerald-700">Tamam</Button>
-                        </div>
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                            transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+                            onClick={(e) => e.stopPropagation()}
+                            className="bg-gradient-to-b from-[#0a3d2e] to-[#021a0f] p-7 rounded-[2rem] border border-emerald-500/15 max-w-sm w-full shadow-2xl shadow-emerald-900/40"
+                        >
+                            {/* Header */}
+                            <div className="flex flex-col items-center mb-6">
+                                <div className="w-16 h-16 rounded-full bg-amber-400/10 border border-amber-400/20 flex items-center justify-center mb-4">
+                                    <span className="text-3xl">🕋</span>
+                                </div>
+                                <h3 className="text-xl text-white font-serif tracking-wide">Manevi Pusula</h3>
+                                <p className="text-[11px] tracking-[0.4em] text-amber-400/60 mt-1 uppercase">Kıble Yönü Rehberi</p>
+                            </div>
+
+                            {/* Tips */}
+                            <div className="space-y-3 mb-6">
+                                <div className="flex items-start gap-3 p-3 rounded-xl bg-white/[0.03] border border-white/[0.05]">
+                                    <span className="text-lg mt-0.5">🧭</span>
+                                    <div>
+                                        <p className="text-sm text-emerald-100/80 font-medium">Telefonunu düz tut</p>
+                                        <p className="text-xs text-emerald-100/40 mt-0.5">Yere paralel tuttuğunda en doğru sonucu alırsın.</p>
+                                    </div>
+                                </div>
+                                <div className="flex items-start gap-3 p-3 rounded-xl bg-white/[0.03] border border-white/[0.05]">
+                                    <span className="text-lg mt-0.5">🎯</span>
+                                    <div>
+                                        <p className="text-sm text-emerald-100/80 font-medium">Altın ok seni yönlendirir</p>
+                                        <p className="text-xs text-emerald-100/40 mt-0.5">Açı 0° olduğunda Kıble yönünü buldun demektir.</p>
+                                    </div>
+                                </div>
+                                <div className="flex items-start gap-3 p-3 rounded-xl bg-white/[0.03] border border-white/[0.05]">
+                                    <span className="text-lg mt-0.5">⚠️</span>
+                                    <div>
+                                        <p className="text-sm text-emerald-100/80 font-medium">Manyetik alanlardan uzak dur</p>
+                                        <p className="text-xs text-emerald-100/40 mt-0.5">Metal eşyalar, elektronik cihazlar ve arabalar pusulayı etkileyebilir.</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Distance Badge */}
+                            {distanceKM > 0 && (
+                                <div className="flex items-center justify-center gap-2 py-2.5 px-4 rounded-full bg-emerald-950/60 border border-emerald-500/10 mb-6">
+                                    <MapPin className="w-3.5 h-3.5 text-amber-400" />
+                                    <span className="text-xs tracking-wider text-emerald-100/50">
+                                        Kâbe'ye <span className="text-amber-400 font-semibold">{distanceKM.toLocaleString('tr-TR')} km</span> uzaktasın
+                                    </span>
+                                </div>
+                            )}
+
+                            {/* Hadith */}
+                            <div className="text-center mb-6 px-2">
+                                <p className="text-xs text-emerald-100/30 italic font-serif leading-relaxed">
+                                    "Nerede olursanız olun, yüzünüzü Mescid-i Haram'a doğru çevirin."
+                                </p>
+                                <p className="text-[10px] text-amber-400/40 mt-1.5">— Bakara Suresi, 144</p>
+                            </div>
+
+                            <Button
+                                onClick={() => setShowInfo(false)}
+                                className="w-full bg-gradient-to-r from-emerald-800 to-emerald-700 hover:from-emerald-700 hover:to-emerald-600 rounded-xl py-3 text-emerald-50 font-medium tracking-wide transition-all"
+                            >
+                                Anladım ✨
+                            </Button>
+                        </motion.div>
                     </motion.div>
                 )}
             </AnimatePresence>

@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { getSpiritualAdvice } from '@/services/AiMentorService';
 import AiPrescriptionCard from '@/components/AiPrescriptionCard';
-import SwipeablePage from '@/components/SwipeablePage';
+
 
 export default function AiMentor() {
     const navigate = useNavigate();
@@ -62,7 +62,7 @@ export default function AiMentor() {
     };
 
     return (
-        <SwipeablePage className="flex flex-col text-white">
+        <div className="fixed inset-0 flex flex-col bg-[#021a0f] text-white overflow-hidden">
             {/* Background Texture */}
             <div className="absolute inset-0 opacity-[0.03] pointer-events-none"
                 style={{
@@ -71,24 +71,29 @@ export default function AiMentor() {
             />
 
             {/* Header */}
-            <div className="pt-safe px-4 py-3 flex items-center gap-4 bg-[#032e18]/90 backdrop-blur-xl z-20 border-b border-white/5 shrink-0 shadow-sm">
-                <Button variant="ghost" size="icon" onClick={() => navigate(-1)} className="text-white/70 hover:text-white rounded-full hover:bg-white/5 -ml-2">
+            <div className="pt-safe px-4 py-3 relative flex items-center justify-center bg-[#032e18]/90 backdrop-blur-xl z-20 border-b border-white/5 shrink-0 shadow-sm min-h-[60px]">
+                {/* Back Button - absolute left */}
+                <Button variant="ghost" size="icon" onClick={() => navigate(-1)} className="absolute left-2 text-white/70 hover:text-white rounded-full hover:bg-white/5">
                     <ChevronLeft />
                 </Button>
-                <div className="flex-1">
+
+                {/* Centered Title */}
+                <div className="flex flex-col items-center">
                     <div className="flex items-center gap-2">
                         <span className="w-2 h-2 rounded-full bg-islamic-gold animate-pulse shadow-[0_0_10px_rgba(212,175,55,0.5)]" />
                         <h1 className="font-serif font-bold text-lg text-islamic-gold tracking-wide">Manevi Asistan</h1>
                     </div>
                     <p className="text-[10px] text-white/50 font-medium tracking-wider uppercase">Yapay Zeka Destekli Asistan</p>
                 </div>
-                <div className="p-2 bg-islamic-gold/10 rounded-full">
+
+                {/* Bot Icon - absolute right */}
+                <div className="absolute right-4 p-2 bg-islamic-gold/10 rounded-full">
                     <Bot size={20} className="text-islamic-gold" />
                 </div>
             </div>
 
             {/* Chat Area - Scrollable */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-6 scroll-smooth pb-0">
+            <div className="flex-1 overflow-y-auto overscroll-none p-4 space-y-6 scroll-smooth pb-0">
                 {messages.map((msg) => (
                     <motion.div
                         key={msg.id}
@@ -163,6 +168,6 @@ export default function AiMentor() {
                     </Button>
                 </div>
             </div>
-        </SwipeablePage>
+        </div>
     );
 }

@@ -25,19 +25,26 @@ import LocationSettings from './pages/settings/LocationSettings';
 import LegalSettings from './pages/settings/LegalSettings';
 import AiMentor from './pages/AiMentor';
 
+import { initAdMob } from './services/adService';
+import { isPremium } from './services/creditService';
+
 import ScrollToTop from './components/ScrollToTop';
 
 import SwipeBackHandler from './components/SwipeBackHandler';
+import InterstitialAdManager from './components/InterstitialAdManager';
 
 function App() {
   const [showSplash, setShowSplash] = useState(true);
   const onboardingComplete = localStorage.getItem('onboardingComplete') === 'true';
 
   useEffect(() => {
-    // Splash Timer - Switched to match new SplashScreen animation duration (~3s total)
+    // Splash Timer
     const timer = setTimeout(() => setShowSplash(false), 3000);
     return () => clearTimeout(timer);
   }, []);
+
+  // AdMob başlat
+  useEffect(() => { initAdMob(); }, []);
 
   if (showSplash) return <SplashScreen />;
 
@@ -50,6 +57,7 @@ function App() {
           <Router>
             <ScrollToTop />
             <SwipeBackHandler />
+            <InterstitialAdManager />
             <Routes>
               <Route path="/onboarding" element={<Onboarding />} />
 

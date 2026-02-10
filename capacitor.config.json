@@ -18,6 +18,10 @@
         "sound",
         "alert"
       ]
+    },
+    "AdMob": {
+      "androidAppId": "ca-app-pub-3345957146167395~5991457887",
+      "iosAppId": "ca-app-pub-3345957146167395~1644282671"
     }
   }
 }

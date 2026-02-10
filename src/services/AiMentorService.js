@@ -41,16 +41,26 @@ Output MUST be a valid JSON object only. Do not wrap in markdown blocks.
 {
   "advice": "Kullanıcıya hitaben yazılmış, 2-3 cümlelik şefkatli metin.",
   "recommendedZikr": {
-    "name": "Önerilen Esma veya Zikir",
+    "name": "Önerilen Esma-ül Hüsna ismi (ör: El-Ganî, Er-Rezzâk, El-Vedûd) veya genel zikir (ör: Sübhanallah, Estağfirullah). Tercihan 99 Esma-ül Hüsna isimlerinden birini seç.",
     "meaning": "Zikrin kısa anlamı",
     "count": 33
   },
   "quranRef": {
-    "surah": 94,
-    "verse": 5,
-    "reason": "Neden seçildiğine dair kısa not."
+    "surah": "Sure numarası (1-114 arası, kullanıcının durumuna UYGUN bir sure seç)",
+    "verse": "Ayet numarası (Kullanıcının derdine şifa olacak bir ayet seç)",
+    "reason": "Bu ayeti neden seçtiğine dair kısa not."
   }
 }
+
+KRİTİK: quranRef için HER SEFERINDE kullanıcının durumuna göre FARKLI ve ANLAMLI bir ayet seç! 
+Örnekler:
+- Rızık sıkıntısı → Talak 2-3, Hud 6, Zariyat 58
+- Korku/endişe → Bakara 286, Al-i İmran 139, Zumar 53
+- Hastalık → Şuara 80, İsra 82, Fussilet 44
+- Sabır → Bakara 153, Al-i İmran 200, Zümer 10
+- Şükür → İbrahim 7, Nahl 18, Lokman 12
+- Tövbe → Zümer 53, Tahrim 8, Nisa 110
+Aynı ayeti tekrar tekrar ÖNERMEkten KAÇIN.
 `;
 
     // Helper for API Call with Retry Logic & Model Fallback

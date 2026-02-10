@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { RotateCcw, Volume2, VolumeX, Smartphone, Settings, Heart, Star, Sparkles, Edit3, X, Check, Trash2 } from 'lucide-react';
+import { RotateCcw, Volume2, VolumeX, Smartphone, Settings, Heart, Star, Sparkles, Edit3, X, Check, Trash2, ChevronLeft } from 'lucide-react';
 import { cn } from '../lib/utils';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useHaptics } from '../hooks/useMobile';
 
 const DHIKR_PRESETS = [
@@ -13,11 +14,22 @@ const DHIKR_PRESETS = [
 ];
 
 export default function Dhikr() {
-    const [count, setCount] = useState(0);
+    const navigate = useNavigate();
+    const location = useLocation();
+
+    // Countdown mode from Manevi Asistan
+    const navState = location.state || {};
+    const isCountdownMode = navState.mode === 'countdown' && navState.targetCount > 0;
+    const countdownTarget = isCountdownMode ? navState.targetCount : 0;
+    const countdownName = navState.targetZikirName || '';
+    const countdownArabic = navState.zikirArabic || '';
+    const countdownMeaning = navState.zikirMeaning || '';
+
+    const [count, setCount] = useState(isCountdownMode ? countdownTarget : 0);
     const [totalCount, setTotalCount] = useState(() => parseInt(localStorage.getItem('totalDhikrOverall') || '0', 10));
-    const [activePreset, setActivePreset] = useState(DHIKR_PRESETS[2]); // Allahü Ekber
-    const [target, setTarget] = useState(33);
-    const [hapticsMode, setHapticsMode] = useState('all'); // 'all', 'target', 'off'
+    const [activePreset, setActivePreset] = useState(DHIKR_PRESETS[2]);
+    const [target, setTarget] = useState(isCountdownMode ? countdownTarget : 33);
+    const [hapticsMode, setHapticsMode] = useState('all');
     const [soundEnabled, setSoundEnabled] = useState(true);
     const [isRipple, setIsRipple] = useState(false);
     const [showTargetModal, setShowTargetModal] = useState(false);
@@ -25,6 +37,8 @@ export default function Dhikr() {
     const [celebrating, setCelebrating] = useState(false);
     const [hapticMessage, setHapticMessage] = useState('');
     const [showTotalResetConfirm, setShowTotalResetConfirm] = useState(false);
+    const [countdownCompleted, setCountdownCompleted] = useState(false);
+    const [countdownRounds, setCountdownRounds] = useState(0);
 
     const haptics = useHaptics();
 
@@ -84,6 +98,7 @@ export default function Dhikr() {
     }, [hapticMessage]);
 
     useEffect(() => {
+        if (isCountdownMode) return; // Skip localStorage restore in countdown mode
         const savedCount = localStorage.getItem(`dhikr_count_${activePreset.id}`) || '0';
         const savedTarget = localStorage.getItem(`dhikr_target_${activePreset.id}`) || activePreset.defaultTarget.toString();
 
@@ -93,36 +108,66 @@ export default function Dhikr() {
     }, [activePreset]);
 
     const increment = () => {
-        const newCount = count + 1;
-        const newTotal = totalCount + 1;
-        const isTargetReached = newCount > 0 && newCount % target === 0;
+        if (isCountdownMode) {
+            // COUNTDOWN MODE: Decrement (resets at 0 for next round)
+            const newCount = count - 1;
+            const newTotal = totalCount + 1;
 
-        setCount(newCount);
-        setTotalCount(newTotal);
+            setTotalCount(newTotal);
+            localStorage.setItem('totalDhikrOverall', newTotal.toString());
 
-        localStorage.setItem(`dhikr_count_${activePreset.id}`, newCount.toString());
-        localStorage.setItem('totalDhikrOverall', newTotal.toString());
-
-        // Haptic feedback
-        if (hapticsMode !== 'off') {
-            if (isTargetReached) {
-                haptics.targetReached();
-            } else if (hapticsMode === 'all') {
-                haptics.medium();
+            // Haptic feedback
+            if (hapticsMode !== 'off') {
+                if (newCount === 0) {
+                    haptics.targetReached();
+                } else if (hapticsMode === 'all') {
+                    haptics.medium();
+                }
             }
-        }
 
-        // Sound feedback using Web Audio API
-        playClickSound();
+            playClickSound();
 
-        // Animation trigger
-        setIsRipple(true);
-        setTimeout(() => setIsRipple(false), 300);
+            setIsRipple(true);
+            setTimeout(() => setIsRipple(false), 300);
 
-        // Feedback on target reach
-        if (isTargetReached) {
-            setCelebrating(true);
-            setTimeout(() => setCelebrating(false), 2000);
+            // Round complete! Reset to target and increment round
+            if (newCount === 0) {
+                setCount(countdownTarget); // restart from target
+                setCountdownRounds(prev => prev + 1);
+                setCelebrating(true);
+                setTimeout(() => setCelebrating(false), 3000);
+            } else {
+                setCount(newCount);
+            }
+        } else {
+            // STANDARD MODE: Increment
+            const newCount = count + 1;
+            const newTotal = totalCount + 1;
+            const isTargetReached = newCount > 0 && newCount % target === 0;
+
+            setCount(newCount);
+            setTotalCount(newTotal);
+
+            localStorage.setItem(`dhikr_count_${activePreset.id}`, newCount.toString());
+            localStorage.setItem('totalDhikrOverall', newTotal.toString());
+
+            if (hapticsMode !== 'off') {
+                if (isTargetReached) {
+                    haptics.targetReached();
+                } else if (hapticsMode === 'all') {
+                    haptics.medium();
+                }
+            }
+
+            playClickSound();
+
+            setIsRipple(true);
+            setTimeout(() => setIsRipple(false), 300);
+
+            if (isTargetReached) {
+                setCelebrating(true);
+                setTimeout(() => setCelebrating(false), 2000);
+            }
         }
     };
 
@@ -137,8 +182,14 @@ export default function Dhikr() {
 
     const reset = () => {
         if (confirm(`Zikirmatik sayacını sıfırlamak istediğinize emin misiniz?`)) {
-            setCount(0);
-            localStorage.setItem(`dhikr_count_${activePreset.id}`, '0');
+            if (isCountdownMode) {
+                setCount(countdownTarget);
+                setCountdownCompleted(false);
+                setCountdownRounds(0);
+            } else {
+                setCount(0);
+                localStorage.setItem(`dhikr_count_${activePreset.id}`, '0');
+            }
         }
     };
 
@@ -148,7 +199,9 @@ export default function Dhikr() {
         setShowTotalResetConfirm(false);
     };
 
-    const progress = (count % target) / target * 100;
+    const progress = isCountdownMode
+        ? ((countdownTarget - count) / countdownTarget) * 100
+        : (count % target) / target * 100;
     const radius = 85;
     const circumference = 2 * Math.PI * radius;
     const offset = circumference - (progress / 100) * circumference;
@@ -161,10 +214,16 @@ export default function Dhikr() {
 
             <header className="flex justify-between items-center z-10 mb-4 sticky top-0 bg-[#021a0f]/80 backdrop-blur-sm -mx-6 px-6 py-1 border-b border-white/5">
                 <div className="flex items-center gap-2">
+                    <button
+                        onClick={() => navigate(-1)}
+                        className="w-10 h-10 rounded-xl bg-white/5 hover:bg-white/10 flex items-center justify-center text-white/60 hover:text-white active:scale-90 transition-all border border-white/10"
+                    >
+                        <ChevronLeft size={20} />
+                    </button>
                     <div className="bg-islamic-gold/10 p-2 rounded-xl">
                         <Sparkles className="w-5 h-5 text-islamic-gold animate-pulse" />
                     </div>
-                    <h2 className="text-xl font-serif font-bold tracking-tight">Zikirmatik</h2>
+                    <h2 className="text-xl font-serif font-bold tracking-tight">{isCountdownMode ? countdownName : 'Zikirmatik'}</h2>
                 </div>
                 <div className="flex items-center gap-1 bg-black/20 p-1 rounded-2xl border border-white/10 backdrop-blur-md">
                     <button
@@ -208,19 +267,32 @@ export default function Dhikr() {
             <div className="flex-1 flex flex-col justify-start items-center z-10 relative mt-8">
                 {/* Visual Feedback Text - Balanced margin */}
                 <div className="text-center mb-6 animate-in fade-in zoom-in duration-700">
-                    <p className="text-islamic-gold font-serif text-4xl mb-2 opacity-95 drop-shadow-lg">{activePreset.arabic}</p>
-                    <p className="text-white/40 text-xs italic mb-4 font-normal tracking-wide">{activePreset.meaning}</p>
-
-                    {/* Interactive Target Indicator */}
-                    <button
-                        onClick={() => setShowTargetModal(true)}
-                        className="group flex items-center gap-3 bg-islamic-gold/5 hover:bg-islamic-gold/10 px-10 py-3.5 rounded-full border border-islamic-gold/40 transition-all mx-auto shadow-[0_0_20px_rgba(212,175,55,0.15)] active:scale-95"
-                    >
-                        <span className="text-islamic-gold font-bold text-xs uppercase tracking-[0.25em]"> Hedef: {target}</span>
-                        <div className="bg-islamic-gold/20 p-1.5 rounded-full">
-                            <Edit3 size={14} className="text-islamic-gold opacity-80" />
-                        </div>
-                    </button>
+                    {isCountdownMode ? (
+                        <>
+                            <p className="text-islamic-gold font-serif text-4xl mb-2 opacity-95 drop-shadow-lg" dir="rtl">{countdownArabic || countdownName}</p>
+                            {countdownArabic && (
+                                <p className="text-white font-bold text-lg mb-1 tracking-wide">{countdownName}</p>
+                            )}
+                            <p className="text-white/40 text-xs italic mb-4 font-normal tracking-wide">{countdownMeaning}</p>
+                            <div className="flex items-center justify-center gap-3 bg-islamic-gold/5 px-10 py-3.5 rounded-full border border-islamic-gold/40 mx-auto shadow-[0_0_20px_rgba(212,175,55,0.15)]">
+                                <span className="text-islamic-gold font-bold text-xs uppercase tracking-[0.25em]">Hedef: {countdownTarget} Adet</span>
+                            </div>
+                        </>
+                    ) : (
+                        <>
+                            <p className="text-islamic-gold font-serif text-4xl mb-2 opacity-95 drop-shadow-lg">{activePreset.arabic}</p>
+                            <p className="text-white/40 text-xs italic mb-4 font-normal tracking-wide">{activePreset.meaning}</p>
+                            <button
+                                onClick={() => setShowTargetModal(true)}
+                                className="group flex items-center gap-3 bg-islamic-gold/5 hover:bg-islamic-gold/10 px-10 py-3.5 rounded-full border border-islamic-gold/40 transition-all mx-auto shadow-[0_0_20px_rgba(212,175,55,0.15)] active:scale-95"
+                            >
+                                <span className="text-islamic-gold font-bold text-xs uppercase tracking-[0.25em]"> Hedef: {target}</span>
+                                <div className="bg-islamic-gold/20 p-1.5 rounded-full">
+                                    <Edit3 size={14} className="text-islamic-gold opacity-80" />
+                                </div>
+                            </button>
+                        </>
+                    )}
                 </div>
 
                 {/* The Button & Progress */}
@@ -280,15 +352,24 @@ export default function Dhikr() {
 
                         <span className={cn(
                             "text-7xl font-mono font-bold tracking-tighter transition-all duration-300 drop-shadow-2xl",
-                            celebrating ? "text-emerald-400 scale-110" : "text-white group-hover:text-islamic-gold"
+                            celebrating ? "text-emerald-400 scale-110" : "text-white group-hover:text-islamic-gold",
+                            countdownCompleted && "text-emerald-400"
                         )}>
-                            {count % target === 0 && count > 0 ? target : count % target}
+                            {isCountdownMode ? count : (count % target === 0 && count > 0 ? target : count % target)}
                         </span>
 
-                        <div className="flex flex-col items-center mt-2 opacity-40">
-                            <span className="text-[11px] font-bold uppercase tracking-[0.2em]">TUR</span>
-                            <span className="text-xl font-mono font-bold">{Math.floor(count / target) + 1}</span>
-                        </div>
+                        {isCountdownMode ? (
+                            <div className="flex flex-col items-center mt-2 opacity-40">
+                                {countdownRounds > 0 && (
+                                    <span className="text-[10px] font-bold text-islamic-gold/60 uppercase tracking-[0.15em]">{countdownRounds}. Tur Tamamlandı ✓</span>
+                                )}
+                            </div>
+                        ) : (
+                            <div className="flex flex-col items-center mt-2 opacity-40">
+                                <span className="text-[11px] font-bold uppercase tracking-[0.2em]">TUR</span>
+                                <span className="text-xl font-mono font-bold">{Math.floor(count / target) + 1}</span>
+                            </div>
+                        )}
                     </button>
 
                     {/* Decorative Stars */}
@@ -363,6 +444,9 @@ export default function Dhikr() {
                     <p className="text-[9px] text-white/20 mt-4 font-bold uppercase tracking-[0.2em] font-sans">AHZAB SURESİ, 41-42</p>
                 </div>
             </footer>
+
+            {/* Countdown Completed Overlay */}
+
 
             {/* Haptic Mode Feedback Message */}
             <div className="fixed bottom-32 left-1/2 -translate-x-1/2 z-50 pointer-events-none">

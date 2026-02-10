@@ -1,16 +1,46 @@
-import { fetchSurahContent, fetchChapters } from './quranApi';
+/**
+ * Verse Lookup Service
+ * Fetches verified verse text from Alquran.cloud API.
+ * Uses Diyanet Turkish translation.
+ */
 
-// Fallback Verse (Inshirah 5 - "For indeed, with hardship [will be] ease.")
 const FALLBACK_VERSE = {
     surahId: 94,
     verseNumber: 5,
-    arabic: "فَإِنَّ مَعَ ٱلْعُسْرِ يُسْرًا",
+    arabic: "فَإِنَّ مَعَ ٱلْعُسْرِ يُسْرًا",
     translation: "Elbette zorluğun yanında bir kolaylık vardır.",
     source: "İnşirah Suresi, 5. Ayet"
 };
 
+// Turkish surah names lookup
+const SURAH_NAMES = {
+    1: 'Fatiha', 2: 'Bakara', 3: 'Âl-i İmrân', 4: 'Nisâ', 5: 'Mâide',
+    6: 'En\'âm', 7: 'A\'râf', 8: 'Enfâl', 9: 'Tevbe', 10: 'Yûnus',
+    11: 'Hûd', 12: 'Yûsuf', 13: 'Ra\'d', 14: 'İbrâhîm', 15: 'Hicr',
+    16: 'Nahl', 17: 'İsrâ', 18: 'Kehf', 19: 'Meryem', 20: 'Tâ-Hâ',
+    21: 'Enbiyâ', 22: 'Hac', 23: 'Mü\'minûn', 24: 'Nûr', 25: 'Furkân',
+    26: 'Şuarâ', 27: 'Neml', 28: 'Kasas', 29: 'Ankebût', 30: 'Rûm',
+    31: 'Lokmân', 32: 'Secde', 33: 'Ahzâb', 34: 'Sebe', 35: 'Fâtır',
+    36: 'Yâsîn', 37: 'Sâffât', 38: 'Sâd', 39: 'Zümer', 40: 'Mü\'min',
+    41: 'Fussilet', 42: 'Şûrâ', 43: 'Zuhruf', 44: 'Duhân', 45: 'Câsiye',
+    46: 'Ahkâf', 47: 'Muhammed', 48: 'Fetih', 49: 'Hucurât', 50: 'Kâf',
+    51: 'Zâriyât', 52: 'Tûr', 53: 'Necm', 54: 'Kamer', 55: 'Rahmân',
+    56: 'Vâkıa', 57: 'Hadîd', 58: 'Mücâdele', 59: 'Haşr', 60: 'Mümtehine',
+    61: 'Saff', 62: 'Cum\'a', 63: 'Münâfikûn', 64: 'Teğâbün', 65: 'Talâk',
+    66: 'Tahrîm', 67: 'Mülk', 68: 'Kalem', 69: 'Hâkka', 70: 'Meâric',
+    71: 'Nûh', 72: 'Cin', 73: 'Müzzemmil', 74: 'Müddessir', 75: 'Kıyâmet',
+    76: 'İnsan', 77: 'Mürselât', 78: 'Nebe', 79: 'Nâziât', 80: 'Abese',
+    81: 'Tekvîr', 82: 'İnfitâr', 83: 'Mutaffifîn', 84: 'İnşikâk', 85: 'Bürûc',
+    86: 'Târık', 87: 'A\'lâ', 88: 'Gâşiye', 89: 'Fecr', 90: 'Beled',
+    91: 'Şems', 92: 'Leyl', 93: 'Duhâ', 94: 'İnşirâh', 95: 'Tîn',
+    96: 'Alak', 97: 'Kadir', 98: 'Beyyine', 99: 'Zilzâl', 100: 'Âdiyât',
+    101: 'Kâria', 102: 'Tekâsür', 103: 'Asr', 104: 'Hümeze', 105: 'Fîl',
+    106: 'Kureyş', 107: 'Mâûn', 108: 'Kevser', 109: 'Kâfirûn', 110: 'Nasr',
+    111: 'Tebbet', 112: 'İhlâs', 113: 'Felâk', 114: 'Nâs'
+};
+
 /**
- * Fetches the specific verse text ensuring authenticity.
+ * Fetches verse Arabic text + Turkish translation from Alquran.cloud API.
  * @param {Object} quranRef - { surah, verse } from AI
  */
 export async function getVerifiedVerse(quranRef) {
@@ -18,52 +48,47 @@ export async function getVerifiedVerse(quranRef) {
         return FALLBACK_VERSE;
     }
 
-    try {
-        // 1. Get Surah Name
-        const chapters = await fetchChapters();
-        const surahInfo = chapters.find(c => c.id === quranRef.surah);
-        const surahName = surahInfo ? surahInfo.nameTurkish : `Sure ${quranRef.surah}`;
+    const surah = parseInt(quranRef.surah);
+    const verse = parseInt(quranRef.verse);
 
-        // 2. Fetch Verse Content
-        // Our quranApi fetches by page or chapter. We might need to fetch the chapter and find the verse.
-        // Optimization: Check if we can fetch single verse? 
-        // quranApi.js has `fetchSurahContent`. It caches. 
-        // Let's fetch the chapter/page.
-
-        // Calculate page? No, just fetch content. API creates cache.
-        const content = await fetchSurahContent(quranRef.surah, 1, 'tr');
-        // Note: This fetches page 1. If verse is deep, might miss. 
-        // But for "Prescription", usually short surahs or popular verses provided.
-        // Better approach: Use quranApi to fetch SPECIFIC verse if possible, or iterate pages.
-        // For MVP: Assume popular verses are often in early pages or fetch all?
-        // Actually quranApi `fetchSurahContent` handles pagination.
-        // Let's assume we search in the first 50 verses (per page).
-
-        let targetVerse = content.verses.find(v => v.verseNumber === quranRef.verse);
-
-        if (!targetVerse && content.pagination.total_pages > 1) {
-            // If not in page 1, we might need more logic. 
-            // For strict safety, let's look at a simpler API or just fallback if not found quickly.
-            // Or, we can use quran.com API directly for single verse if quranApi doesn't support it yet.
-            // But let's verify with the existing `fetchSurahContent`.
-        }
-
-        if (targetVerse) {
-            return {
-                surahId: quranRef.surah,
-                verseNumber: quranRef.verse,
-                arabic: targetVerse.arabic,
-                translation: targetVerse.translation,
-                source: `${surahName}, ${quranRef.verse}. Ayet`
-            };
-        }
-
-        // If not found (e.g. verse 200 of Baqarah not in page 1), return Fallback for safety 
-        // rather than making user wait for 5 API calls. AI usually gives short/popular ones.
+    if (isNaN(surah) || isNaN(verse) || surah < 1 || surah > 114) {
         return FALLBACK_VERSE;
+    }
 
+    try {
+        // Fetch Arabic and Turkish translation in parallel
+        const [arabicRes, trRes] = await Promise.all([
+            fetch(`https://api.alquran.cloud/v1/ayah/${surah}:${verse}`),
+            fetch(`https://api.alquran.cloud/v1/ayah/${surah}:${verse}/tr.diyanet`)
+        ]);
+
+        if (!arabicRes.ok || !trRes.ok) {
+            return FALLBACK_VERSE;
+        }
+
+        const [arabicData, trData] = await Promise.all([
+            arabicRes.json(),
+            trRes.json()
+        ]);
+
+        const arabicText = arabicData.data?.text;
+        const turkishText = trData.data?.text;
+
+        if (!arabicText || !turkishText) {
+            return FALLBACK_VERSE;
+        }
+
+        const surahName = SURAH_NAMES[surah] || `Sure ${surah}`;
+
+        return {
+            surahId: surah,
+            verseNumber: verse,
+            arabic: arabicText,
+            translation: turkishText,
+            source: `${surahName} Suresi, ${verse}. Ayet`
+        };
     } catch (error) {
-        console.error("Verse Verification Failed:", error);
+        console.error("Verse Lookup Error:", error);
         return FALLBACK_VERSE;
     }
 }

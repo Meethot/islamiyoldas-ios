@@ -657,7 +657,7 @@ export const SURAH_SUMMARIES = [
         id: 110,
         title: 'Nasr Suresi',
         summary: 'Mekke\'nin fethini müjdeler. Peygamberimizin vefatının yaklaştığına işarettir.',
-        meaning: 'Allah\'ın yardımı ve fetih (Mekke\'nin fethi) geldiğinde; ve insanların bölük bölük Allah\'ın dinine girdiğini gördüğünde; Rabbini hamd ile tesbih et ve O\'ndan bağışlanma dile. Şüphesiz O, tevbeleri çok kabul edendir.'
+        meaning: 'Allah\'ın yardımı ve fetih (Mekke\'nin fethi) geldiğinde; ve insanların bölük bölük Allah\'ın dinine girdiğini gördüğünde; Rabbini hamd ile tesbih et ve O\'ndan bağışlanma dile. Şüphesiz O, tövbeleri çok kabul edendir.'
     },
     {
         id: 111,
