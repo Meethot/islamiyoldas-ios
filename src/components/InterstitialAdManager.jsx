@@ -1,6 +1,6 @@
 import { useEffect, useRef, useCallback } from 'react';
 import { useLocation } from 'react-router-dom';
-import { showInterstitialAd } from '@/services/adService';
+import { showInterstitialAd, ADS_ENABLED } from '@/services/adService';
 import { isPremium } from '@/services/creditService';
 
 // Reklam gösterilecek sayfalar (ana kanallar)
@@ -15,6 +15,8 @@ function getNextInterval(index) {
 }
 
 export default function InterstitialAdManager() {
+    // 🔴 Kill switch — no intervals created when ads disabled
+    if (!ADS_ENABLED) return null;
     const location = useLocation();
     const elapsedRef = useRef(0);
     const nextAdTimeRef = useRef(AD_INTERVALS[0]); // İlk reklam 30s

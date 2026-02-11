@@ -1,55 +1,102 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Star, Heart, X } from 'lucide-react';
 import { Capacitor } from '@capacitor/core';
 
-const STORAGE_KEY = 'review_prompt';
+const STORAGE_KEY = 'review_prompt_v2';
 const APP_STORE_ID = '6745498032';
-const SHOW_AFTER_OPENS = 3;
-const MAX_PER_DAY = 2;
-
-const todayStr = () => new Date().toISOString().slice(0, 10);
+const COOLDOWN_MS = 12 * 60 * 60 * 1000; // 12 saat
+const PASSIVE_TIMEOUT = 30 * 60 * 1000; // 30 dakika
 
 const getReviewData = () => {
     try {
         const raw = localStorage.getItem(STORAGE_KEY);
-        return raw ? JSON.parse(raw) : { opens: 0, reviewed: false, shownToday: 0, lastShownDate: null };
+        if (!raw) return { reviewed: false, lastDismissedAt: 0, appOpens: 0 };
+        return JSON.parse(raw);
     } catch {
-        return { opens: 0, reviewed: false, shownToday: 0, lastShownDate: null };
+        return { reviewed: false, lastDismissedAt: 0, appOpens: 0 };
     }
 };
 
 const saveReviewData = (data) => localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
 
+const isCooldownActive = () => {
+    const data = getReviewData();
+    if (data.reviewed) return true;
+    if (!data.lastDismissedAt) return false;
+    return Date.now() - data.lastDismissedAt < COOLDOWN_MS;
+};
+
+// Global trigger — bileşenler bunu çağırır
+export function triggerReviewPrompt(reason) {
+    if (isCooldownActive()) return;
+    window.dispatchEvent(new CustomEvent('reviewTrigger', { detail: { reason } }));
+}
+
 export default function ReviewPrompt() {
+    const location = useLocation();
     const [show, setShow] = useState(false);
+    const passiveTimerRef = useRef(null);
+    const pendingRef = useRef(false);
 
     useEffect(() => {
+        // App açılış sayacı
         const data = getReviewData();
-        data.opens = (data.opens || 0) + 1;
+        if (data.reviewed) return;
 
-        if (data.reviewed) { saveReviewData(data); return; }
-
-        const today = todayStr();
-        if (data.lastShownDate !== today) {
-            data.shownToday = 0;
-            data.lastShownDate = today;
-        }
-
-        if (data.opens >= SHOW_AFTER_OPENS && data.shownToday < MAX_PER_DAY) {
-            data.shownToday += 1;
-            saveReviewData(data);
-            const timer = setTimeout(() => setShow(true), 2500);
-            return () => clearTimeout(timer);
-        }
-
+        data.appOpens = (data.appOpens || 0) + 1;
         saveReviewData(data);
+
+        // 🔹 Tetikleyici 4: 3. app açılış
+        if (data.appOpens >= 3 && !isCooldownActive()) {
+            setTimeout(() => {
+                if (!isCooldownActive()) setShow(true);
+            }, 3000);
+        }
+
+        // reviewTrigger event listener
+        const handleTrigger = (e) => {
+            if (isCooldownActive()) return;
+            if (window.location.hash.includes('/dhikr')) {
+                pendingRef.current = true;
+                return;
+            }
+            setShow(true);
+        };
+
+        window.addEventListener('reviewTrigger', handleTrigger);
+
+        // 🔹 Tetikleyici 7: 30 dk passive fallback
+        const startPassiveTimer = () => {
+            if (passiveTimerRef.current) clearTimeout(passiveTimerRef.current);
+            passiveTimerRef.current = setTimeout(() => {
+                if (!isCooldownActive()) {
+                    setShow(true);
+                }
+            }, PASSIVE_TIMEOUT);
+        };
+
+        startPassiveTimer();
+
+        return () => {
+            window.removeEventListener('reviewTrigger', handleTrigger);
+            if (passiveTimerRef.current) clearTimeout(passiveTimerRef.current);
+        };
     }, []);
 
+    // Zikirmatik'te popup gösterme ama pending varsa sayfadan çıkınca göster
+    const isOnDhikr = location.pathname === '/dhikr';
+
+    useEffect(() => {
+        if (!isOnDhikr && pendingRef.current) {
+            pendingRef.current = false;
+            if (!isCooldownActive()) setShow(true);
+        }
+    }, [isOnDhikr]);
+
     const handleRate = () => {
-        const data = getReviewData();
-        data.reviewed = true;
-        saveReviewData(data);
+        saveReviewData({ ...getReviewData(), reviewed: true });
         setShow(false);
 
         if (Capacitor.isNativePlatform()) {
@@ -64,15 +111,14 @@ export default function ReviewPrompt() {
 
     const handleDismiss = () => {
         setShow(false);
-    };
-
-    const handleRemindLater = () => {
-        setShow(false);
+        const data = getReviewData();
+        data.lastDismissedAt = Date.now();
+        saveReviewData(data);
     };
 
     return (
         <AnimatePresence>
-            {show && (
+            {show && !isOnDhikr && (
                 <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
@@ -95,7 +141,6 @@ export default function ReviewPrompt() {
                             boxShadow: '0 30px 80px rgba(0,0,0,0.6), 0 0 60px rgba(212,175,55,0.08), inset 0 1px 0 rgba(255,255,255,0.06)',
                         }}
                     >
-                        {/* Close Button */}
                         <button
                             onClick={handleDismiss}
                             className="absolute top-4 right-4 z-10 w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-white/30 hover:text-white/60 transition-colors cursor-pointer"
@@ -103,12 +148,10 @@ export default function ReviewPrompt() {
                             <X size={16} />
                         </button>
 
-                        {/* Top Glow */}
                         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-40 h-40 rounded-full opacity-20"
                             style={{ background: 'radial-gradient(circle, rgba(212,175,55,0.5) 0%, transparent 70%)' }} />
 
                         <div className="relative p-7 pt-8 text-center">
-                            {/* Stars */}
                             <div className="flex items-center justify-center gap-1 mb-5">
                                 {[1, 2, 3, 4, 5].map(i => (
                                     <motion.div
@@ -127,25 +170,21 @@ export default function ReviewPrompt() {
                                 ))}
                             </div>
 
-                            {/* Title */}
                             <h2 className="text-xl font-serif font-bold text-white mb-2 tracking-wide">
                                 İslami Yoldaş'ı Beğendiniz mi?
                             </h2>
 
-                            {/* Ad-Free Badge */}
                             <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-400/15 mb-4">
                                 <Heart size={12} className="text-emerald-400" fill="currentColor" />
                                 <span className="text-[11px] font-bold text-emerald-400/90">%100 Reklamsız Deneyim</span>
                             </div>
 
-                            {/* Description */}
                             <p className="text-[13px] text-white/45 leading-relaxed mb-6">
                                 Size en iyi deneyimi sunmak için reklam koymadan,
-                                tamamen <span className="text-white/70 font-semibold">ücretsiz</span> bir uygulama geliştirdik.
+                                tamamen <span className="text-white/70 font-semibold">reklamsız</span> bir uygulama geliştirdik.
                                 Bizi desteklemek için değerlendirmeniz çok önemli! 🤲
                             </p>
 
-                            {/* Rate Button */}
                             <motion.button
                                 whileTap={{ scale: 0.95 }}
                                 onClick={handleRate}
@@ -159,9 +198,8 @@ export default function ReviewPrompt() {
                                 ⭐ Değerlendir
                             </motion.button>
 
-                            {/* Remind Later */}
                             <button
-                                onClick={handleRemindLater}
+                                onClick={handleDismiss}
                                 className="w-full py-3 rounded-2xl text-white/30 text-[13px] font-medium hover:text-white/50 transition-colors cursor-pointer"
                             >
                                 Daha Sonra Hatırlat

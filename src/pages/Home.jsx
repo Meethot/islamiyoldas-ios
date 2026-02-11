@@ -20,6 +20,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { shareProgress, shareInvite, shareVerse } from '@/lib/share';
 import PrayerTimeOverlay from '@/components/PrayerTimeOverlay';
+import { triggerReviewPrompt } from '@/components/ReviewPrompt';
 import { usePrayerFocus } from '@/hooks/usePrayerFocus';
 import { useTranslation } from 'react-i18next';
 import { Capacitor } from '@capacitor/core';
@@ -244,6 +245,7 @@ export default function Home() {
         setCompletedPrayers(next);
         window.dispatchEvent(new Event('prayerStatusChanged'));
         if (next.length === 5) success();
+        if (next.length >= 3) triggerReviewPrompt('prayers');
     }, [selection, success]);
 
     const revealDeed = useCallback(() => {
@@ -298,6 +300,7 @@ export default function Home() {
     const handleShare = useCallback(() => {
         selection();
         setShowShareModal(true);
+        triggerReviewPrompt('share');
     }, [selection]);
 
     const handleShowAllEsma = useCallback(() => {

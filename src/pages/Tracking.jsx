@@ -13,6 +13,7 @@ import Quran from './Quran';
 import MurakabeTab from '@/components/MurakabeTab';
 import { getDailyPrayersKey, getAppDate } from '@/lib/testDate';
 import { safeGetStorage } from '@/utils/storageHelper';
+import { triggerReviewPrompt } from '@/components/ReviewPrompt';
 
 const PRAYER_TYPES = [
     { key: 'sabah', label: 'Sabah' },
@@ -155,6 +156,8 @@ export default function Tracking() {
             if (next.length === 5 && !prev.includes(name)) {
                 recordDayComplete();
             }
+
+            if (next.length >= 3) triggerReviewPrompt('prayers');
 
             return next;
         });

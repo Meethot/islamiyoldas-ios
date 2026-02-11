@@ -1,10 +1,11 @@
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, Check, Flame, Moon, ChevronDown, Sparkles, X, AlertTriangle, Clock, RotateCcw } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useHaptics } from '@/hooks/useMobile';
 import { getAppDate, getTodayString } from '@/lib/testDate';
+import { triggerReviewPrompt } from '@/components/ReviewPrompt';
 
 const RAMAZAN_START = new Date(2026, 1, 19);
 const RAMAZAN_DAYS = 30;
@@ -402,6 +403,12 @@ export default function FastingTracker() {
     const [showTeravih, setShowTeravih] = useState(false);
     const [showResetConfirm, setShowResetConfirm] = useState(false);
     const [showTeravihReset, setShowTeravihReset] = useState(false);
+
+    // 30s sayfada kalma tetikleyicisi
+    useEffect(() => {
+        const t = setTimeout(() => triggerReviewPrompt('fasting_deep'), 20000);
+        return () => clearTimeout(t);
+    }, []);
 
     const resetRamazanData = useCallback(() => {
         setData(prev => {

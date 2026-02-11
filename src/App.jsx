@@ -1,39 +1,38 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Onboarding from './pages/Onboarding';
 import Home from './pages/Home';
-import Learn from './pages/Learn';
-import Tracking from './pages/Tracking';
-import Profile from './pages/Profile';
-import Stories from './pages/Stories';
-import Dhikr from './pages/Dhikr';
-import Qibla from './pages/Qibla';
-// Settings.jsx removed - Profile is now the settings hub
-import Legal from './pages/Legal';
 import AppLayout from './layouts/AppLayout';
 import SplashScreen from './components/SplashScreen';
-import Murakabe from './pages/Murakabe';
-import Tefekkur from './pages/Tefekkur';
-import SleepMode from './pages/SleepMode';
-import DuaKosesi from './pages/DuaKosesi';
-import Quran from './pages/Quran';
-import SurahDetail from './pages/SurahDetail';
 import { PrayerTimesProvider } from './context/PrayerTimesContext';
-import NotificationSettings from './pages/settings/NotificationSettings';
-// AppearanceSettings removed - now handled as direct toggle in Profile
-import LocationSettings from './pages/settings/LocationSettings';
-import LegalSettings from './pages/settings/LegalSettings';
-import AiMentor from './pages/AiMentor';
-import FastingTracker from './pages/FastingTracker';
 
 import { initAdMob } from './services/adService';
 import { isPremium } from './services/creditService';
 
 import ScrollToTop from './components/ScrollToTop';
-
 import SwipeBackHandler from './components/SwipeBackHandler';
 import InterstitialAdManager from './components/InterstitialAdManager';
 import ReviewPrompt from './components/ReviewPrompt';
+
+// Lazy-loaded pages — parsed only when navigated to
+const Learn = React.lazy(() => import('./pages/Learn'));
+const Tracking = React.lazy(() => import('./pages/Tracking'));
+const Profile = React.lazy(() => import('./pages/Profile'));
+const Stories = React.lazy(() => import('./pages/Stories'));
+const Dhikr = React.lazy(() => import('./pages/Dhikr'));
+const Qibla = React.lazy(() => import('./pages/Qibla'));
+const Legal = React.lazy(() => import('./pages/Legal'));
+const Murakabe = React.lazy(() => import('./pages/Murakabe'));
+const Tefekkur = React.lazy(() => import('./pages/Tefekkur'));
+const SleepMode = React.lazy(() => import('./pages/SleepMode'));
+const DuaKosesi = React.lazy(() => import('./pages/DuaKosesi'));
+const Quran = React.lazy(() => import('./pages/Quran'));
+const SurahDetail = React.lazy(() => import('./pages/SurahDetail'));
+const NotificationSettings = React.lazy(() => import('./pages/settings/NotificationSettings'));
+const LocationSettings = React.lazy(() => import('./pages/settings/LocationSettings'));
+const LegalSettings = React.lazy(() => import('./pages/settings/LegalSettings'));
+const AiMentor = React.lazy(() => import('./pages/AiMentor'));
+const FastingTracker = React.lazy(() => import('./pages/FastingTracker'));
 
 function App() {
   const [showSplash, setShowSplash] = useState(true);
@@ -61,32 +60,34 @@ function App() {
             <SwipeBackHandler />
             <InterstitialAdManager />
             <ReviewPrompt />
-            <Routes>
-              <Route path="/onboarding" element={<Onboarding />} />
+            <Suspense fallback={<div className="min-h-screen bg-background" />}>
+              <Routes>
+                <Route path="/onboarding" element={<Onboarding />} />
 
-              <Route element={<AppLayout />}>
-                <Route path="/" element={onboardingComplete ? <Home /> : <Navigate to="/onboarding" replace />} />
-                <Route path="/learn" element={<Learn />} />
-                <Route path="/stories" element={<Stories />} />
-                <Route path="/tracking" element={<Tracking />} />
-                <Route path="/profile" element={<Profile />} />
-                <Route path="/dhikr" element={<Dhikr />} />
-                <Route path="/tefekkur" element={<Tefekkur />} />
-                <Route path="/uyku" element={<SleepMode />} />
-                <Route path="/dua" element={<DuaKosesi />} />
-                <Route path="/quran" element={<Quran />} />
-                <Route path="/quran/:surahId" element={<SurahDetail />} />
-                <Route path="/qibla" element={<Qibla />} />
-                <Route path="/ai-mentor" element={<AiMentor />} />
-                <Route path="/oruc-takibi" element={<FastingTracker />} />
-                {/* /settings removed - Profile now handles settings navigation */}
-                <Route path="/settings/notifications" element={<NotificationSettings />} />
-                {/* /settings/appearance removed - now direct toggle in Profile */}
-                <Route path="/settings/location" element={<LocationSettings />} />
-                <Route path="/settings/legal" element={<LegalSettings />} />
-                <Route path="/legal/:type" element={<Legal />} />
-              </Route>
-            </Routes>
+                <Route element={<AppLayout />}>
+                  <Route path="/" element={onboardingComplete ? <Home /> : <Navigate to="/onboarding" replace />} />
+                  <Route path="/learn" element={<Learn />} />
+                  <Route path="/stories" element={<Stories />} />
+                  <Route path="/tracking" element={<Tracking />} />
+                  <Route path="/profile" element={<Profile />} />
+                  <Route path="/dhikr" element={<Dhikr />} />
+                  <Route path="/tefekkur" element={<Tefekkur />} />
+                  <Route path="/uyku" element={<SleepMode />} />
+                  <Route path="/dua" element={<DuaKosesi />} />
+                  <Route path="/quran" element={<Quran />} />
+                  <Route path="/quran/:surahId" element={<SurahDetail />} />
+                  <Route path="/qibla" element={<Qibla />} />
+                  <Route path="/ai-mentor" element={<AiMentor />} />
+                  <Route path="/oruc-takibi" element={<FastingTracker />} />
+                  {/* /settings removed - Profile now handles settings navigation */}
+                  <Route path="/settings/notifications" element={<NotificationSettings />} />
+                  {/* /settings/appearance removed - now direct toggle in Profile */}
+                  <Route path="/settings/location" element={<LocationSettings />} />
+                  <Route path="/settings/legal" element={<LegalSettings />} />
+                  <Route path="/legal/:type" element={<Legal />} />
+                </Route>
+              </Routes>
+            </Suspense>
           </Router>
         </div>
       </div>

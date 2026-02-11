@@ -2,7 +2,7 @@ import { Capacitor } from '@capacitor/core';
 import { AdMob, RewardAdPluginEvents, InterstitialAdPluginEvents, AdmobConsentStatus } from '@capacitor-community/admob';
 
 // 🔴 Reklamlar şu an kapalı — aktif etmek için true yap
-const ADS_ENABLED = false;
+export const ADS_ENABLED = false;
 
 const IS_NATIVE = Capacitor.isNativePlatform();
 

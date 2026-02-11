@@ -3,6 +3,7 @@ import { RotateCcw, Volume2, VolumeX, Smartphone, Settings, Heart, Star, Sparkle
 import { cn } from '../lib/utils';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useHaptics } from '../hooks/useMobile';
+import { triggerReviewPrompt } from '@/components/ReviewPrompt';
 
 const DHIKR_PRESETS = [
     { id: 'subhanallah', name: 'Sübhanallah', arabic: 'سُبْحَانَ اللَّهِ', meaning: 'Allah noksan sıfatlardan uzaktır', defaultTarget: 33 },
@@ -135,6 +136,7 @@ export default function Dhikr() {
                 setCount(countdownTarget); // restart from target
                 setCountdownRounds(prev => prev + 1);
                 setCelebrating(true);
+                triggerReviewPrompt('dhikr');
                 setTimeout(() => setCelebrating(false), 3000);
             } else {
                 setCount(newCount);
@@ -166,6 +168,7 @@ export default function Dhikr() {
 
             if (isTargetReached) {
                 setCelebrating(true);
+                triggerReviewPrompt('dhikr');
                 setTimeout(() => setCelebrating(false), 2000);
             }
         }

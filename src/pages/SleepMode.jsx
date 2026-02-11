@@ -1,9 +1,10 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Moon, Play, Pause, Heart, ChevronLeft, CloudRain, Repeat, BookOpen } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { getAppDate } from '@/lib/testDate';
+import { triggerReviewPrompt } from '@/components/ReviewPrompt';
 
 // Background Mode Helper (Cordova Plugin)
 const BackgroundMode = {
@@ -50,6 +51,12 @@ export default function SleepMode() {
         return localStorage.getItem(getTodayKey()) === 'true';
     });
 
+    // 30s sayfada kalma tetikleyicisi
+    useEffect(() => {
+        const t = setTimeout(() => triggerReviewPrompt('sleep_deep'), 20000);
+        return () => clearTimeout(t);
+    }, []);
+
     // Persistent Audio Objects
     const mulkAudio = React.useMemo(() => new Audio(), []);
     const rainAudio = React.useMemo(() => {
@@ -74,6 +81,14 @@ export default function SleepMode() {
 
     // Fetch Mulk Audio from API
     useEffect(() => {
+        const handleMetadata = () => {
+            setDuration(mulkAudio.duration);
+            setIsAudioLoading(false);
+        };
+        const handleTimeUpdate = () => {
+            setCurrentTime(mulkAudio.currentTime);
+        };
+
         const fetchMulkAudio = async () => {
             try {
                 // Recitation ID 7 is Mishary Rashid Alafasy
@@ -85,16 +100,8 @@ export default function SleepMode() {
                 mulkAudio.load();
                 mulkAudio.volume = volume;
 
-                // Listen for metadata to get duration
-                mulkAudio.addEventListener('loadedmetadata', () => {
-                    setDuration(mulkAudio.duration);
-                    setIsAudioLoading(false);
-                });
-
-                // Periodic time update
-                mulkAudio.addEventListener('timeupdate', () => {
-                    setCurrentTime(mulkAudio.currentTime);
-                });
+                mulkAudio.addEventListener('loadedmetadata', handleMetadata);
+                mulkAudio.addEventListener('timeupdate', handleTimeUpdate);
 
             } catch (error) {
                 console.error('Mulk audio fetch error:', error);
@@ -108,6 +115,11 @@ export default function SleepMode() {
         };
 
         fetchMulkAudio();
+
+        return () => {
+            mulkAudio.removeEventListener('loadedmetadata', handleMetadata);
+            mulkAudio.removeEventListener('timeupdate', handleTimeUpdate);
+        };
     }, [mulkAudio]); // Volume handled separately to avoid re-fetching
 
     // Sync volume changes
@@ -205,22 +217,25 @@ export default function SleepMode() {
         };
     }, [mulkAudio, rainAudio]);
 
+    const starsBackground = useMemo(() => (
+        <div className="absolute inset-0 opacity-20 pointer-events-none">
+            {Array.from({ length: 50 }, (_, i) => (
+                <div
+                    key={i}
+                    className="absolute w-0.5 h-0.5 bg-white rounded-full animate-pulse"
+                    style={{
+                        top: `${(i * 37 + 13) % 100}%`,
+                        left: `${(i * 53 + 7) % 100}%`,
+                        animationDelay: `${(i * 0.1) % 5}s`
+                    }}
+                />
+            ))}
+        </div>
+    ), []);
+
     return (
         <div className="min-h-screen bg-[#02150a] text-white p-5 flex flex-col relative overflow-hidden">
-            {/* Stars background mock */}
-            <div className="absolute inset-0 opacity-20 pointer-events-none">
-                {[...Array(50)].map((_, i) => (
-                    <div
-                        key={i}
-                        className="absolute w-0.5 h-0.5 bg-white rounded-full animate-pulse"
-                        style={{
-                            top: `${Math.random() * 100}%`,
-                            left: `${Math.random() * 100}%`,
-                            animationDelay: `${Math.random() * 5}s`
-                        }}
-                    />
-                ))}
-            </div>
+            {starsBackground}
 
             <header className="flex justify-between items-center z-10 mb-12">
                 <Button variant="ghost" onClick={() => navigate(-1)} className="text-white/40 hover:text-white">

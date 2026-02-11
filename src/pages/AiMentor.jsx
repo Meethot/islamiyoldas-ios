@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { getSpiritualAdvice } from '@/services/AiMentorService';
 import AiPrescriptionCard from '@/components/AiPrescriptionCard';
+import { triggerReviewPrompt } from '@/components/ReviewPrompt';
 
 
 export default function AiMentor() {
@@ -48,7 +49,15 @@ export default function AiMentor() {
                 data: adviceData,
                 isPrescription: true
             };
-            setMessages(prev => [...prev, aiMsg]);
+            setMessages(prev => {
+                const next = [...prev, aiMsg];
+                // 2. AI yanıtından 2sn sonra popup
+                const aiCount = next.filter(m => m.role === 'assistant' && m.id !== 'welcome').length;
+                if (aiCount >= 2) {
+                    setTimeout(() => triggerReviewPrompt('ai_chat'), 2000);
+                }
+                return next;
+            });
         } catch (error) {
             setMessages(prev => [...prev, {
                 id: Date.now() + 1,

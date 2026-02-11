@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     Bug, X, Clock, Trash2, Database, Volume2, Calendar,
-    FastForward, AlertTriangle, CheckCircle2, RefreshCcw, Navigation, Bell, List
+    FastForward, AlertTriangle, CheckCircle2, RefreshCcw, Navigation, Bell, List, RotateCcw
 } from 'lucide-react';
 import { LocalNotifications } from '@capacitor/local-notifications';
 import { Button } from '@/components/ui/button';
@@ -280,6 +280,17 @@ const DebugMenu = () => {
                         window.dispatchEvent(new CustomEvent('debugShowPrayerOverlay'));
                         setLastAction('🕌 Prayer overlay triggered');
                     }, color: 'bg-islamic-gold'
+                },
+            ]
+        },
+        {
+            group: '⭐ Review Prompt',
+            items: [
+                {
+                    label: 'Reset Cooldown', icon: RotateCcw, action: () => {
+                        localStorage.removeItem('review_prompt_v2');
+                        setLastAction('⭐ Review cooldown reset — triggers aktif');
+                    }, color: 'bg-yellow-600'
                 },
             ]
         }
