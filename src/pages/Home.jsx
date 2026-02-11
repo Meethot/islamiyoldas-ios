@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
     Moon, Sunrise, Sun, Sunset, Sparkles, Star, Wind, MessageCircle, X, Download,
@@ -6,7 +6,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
-import { GOOD_DEEDS } from '@/data/spiritualData';
+
 import { getDailyVerse } from '@/data/dailyVerses';
 import { getAppDate, getDailyPrayersKey, getTodayString } from '@/lib/testDate';
 import { safeGetStorage, safeSetStorage } from '@/utils/storageHelper';
@@ -27,17 +27,14 @@ import { Capacitor } from '@capacitor/core';
 import { AdMob } from '@capacitor-community/admob';
 
 // Static Constants moved outside to prevent re-creation
-const FRIDAY_CONTENT = {
-    text: "Güneşin üzerine doğduğu en hayırlı gün Cuma günüdür.",
-    source: "Hadis-i Şerif (Müslim)"
-};
+// FRIDAY_CONTENT is now dynamic - moved inside component to use t()
 
 const ESMA_UL_HUSNA = [
-    { name: 'Er-Rahman', meaning: 'Herkesi ve herşeyi kuşatan sınırsız merhamet sahibi.', ebced: 298, virtue: 'Dünya ve ahiret mutluluğu, rızık bolluğu için okunur.', calligraphy: 'الرَّحْمَنُ' },
-    { name: 'Er-Rahim', meaning: 'Kendisine inananlara özel merhameti olan.', ebced: 258, virtue: 'Maddi ve manevi rızık, hidayet ve şefkat için okunur.', calligraphy: 'الرَّحِيمُ' },
-    { name: 'El-Melik', meaning: 'Bütün kainatın mutlak sahibi ve hükümdarı.', ebced: 90, virtue: 'Maddi ve manevi güç, itibar ve söz sahibi olmak için okunur.', calligraphy: 'الْمَلِكُ' },
-    { name: 'El-Kuddüs', meaning: 'Bütün eksikliklerden münezzeh, mukaddes.', ebced: 170, virtue: 'Manevi temizlik, kalbin nurlanması ve korkulardan emin olmak için.', calligraphy: 'الْقُدُّوسُ' },
-    { name: 'Es-Selam', meaning: 'Esenlik veren, selamete çıkaran.', ebced: 131, virtue: 'Huzur, barış ve selamete ermek, hastalıklardan şifa bulmak için.', calligraphy: 'السَّلَامُ' },
+    { name: 'Er-Rahman', meaning: 'Herkesi ve herşeyi kuşatan sınırsız merhamet sahibi.', meaning_en: 'The Most Merciful, whose boundless mercy encompasses all.', ebced: 298, virtue: 'Dünya ve ahiret mutluluğu, rızık bolluğu için okunur.', virtue_en: 'For worldly and eternal happiness, abundance of sustenance.', calligraphy: 'الرَّحْمَنُ' },
+    { name: 'Er-Rahim', meaning: 'Kendisine inananlara özel merhameti olan.', meaning_en: 'The Especially Merciful to believers.', ebced: 258, virtue: 'Maddi ve manevi rızık, hidayet ve şefkat için okunur.', virtue_en: 'For material and spiritual sustenance, guidance and compassion.', calligraphy: 'الرَّحِيمُ' },
+    { name: 'El-Melik', meaning: 'Bütün kainatın mutlak sahibi ve hükümdarı.', meaning_en: 'The absolute Sovereign and Owner of all creation.', ebced: 90, virtue: 'Maddi ve manevi güç, itibar ve söz sahibi olmak için okunur.', virtue_en: 'For material and spiritual power, prestige and authority.', calligraphy: 'الْمَلِكُ' },
+    { name: 'El-Kuddüs', meaning: 'Bütün eksikliklerden münezzeh, mukaddes.', meaning_en: 'The Most Holy, free from all imperfections.', ebced: 170, virtue: 'Manevi temizlik, kalbin nurlanması ve korkulardan emin olmak için.', virtue_en: 'For spiritual purification, enlightenment of the heart and safety from fears.', calligraphy: 'الْقُدُّوسُ' },
+    { name: 'Es-Selam', meaning: 'Esenlik veren, selamete çıkaran.', meaning_en: 'The Source of Peace, who delivers to safety.', ebced: 131, virtue: 'Huzur, barış ve selamete ermek, hastalıklardan şifa bulmak için.', virtue_en: 'For peace, tranquility, safety and healing from illnesses.', calligraphy: 'السَّلَامُ' },
 ];
 
 const SHARE_THEMES = [
@@ -49,15 +46,15 @@ const SHARE_THEMES = [
 ];
 
 const RELIGIOUS_DAYS = [
-    { name: 'Miraç Kandili', date: '2026-01-15' },
-    { name: 'Berat Kandili', date: '2026-02-02' },
-    { name: 'Ramazan Başlangıcı', date: '2026-02-19' },
-    { name: 'Kadir Gecesi', date: '2026-03-16' },
-    { name: 'Ramazan Bayramı', date: '2026-03-20' }, // 1. Gün
-    { name: 'Kurban Bayramı', date: '2026-05-27' }, // 1. Gün
-    { name: 'Hicri Yılbaşı', date: '2026-06-16' },
-    { name: 'Aşure Günü', date: '2026-06-25' },
-    { name: 'Mevlid Kandili', date: '2026-08-24' },
+    { name: 'Miraç Kandili', name_en: 'Night of Ascension', date: '2026-01-15' },
+    { name: 'Berat Kandili', name_en: 'Night of Forgiveness', date: '2026-02-02' },
+    { name: 'Ramazan Başlangıcı', name_en: 'Start of Ramadan', date: '2026-02-19' },
+    { name: 'Kadir Gecesi', name_en: 'Night of Power', date: '2026-03-16' },
+    { name: 'Ramazan Bayramı', name_en: 'Eid al-Fitr', date: '2026-03-20' }, // 1. Gün
+    { name: 'Kurban Bayramı', name_en: 'Eid al-Adha', date: '2026-05-27' }, // 1. Gün
+    { name: 'Hicri Yılbaşı', name_en: 'Islamic New Year', date: '2026-06-16' },
+    { name: 'Aşure Günü', name_en: 'Day of Ashura', date: '2026-06-25' },
+    { name: 'Mevlid Kandili', name_en: 'Birth of the Prophet', date: '2026-08-24' },
 ];
 
 const containerVariants = {
@@ -76,13 +73,19 @@ const itemVariants = {
 };
 
 export default function Home() {
-    const { t } = useTranslation('home');
+    const { t, i18n } = useTranslation('home');
     const navigate = useNavigate();
     const { selection, success, heavy } = useHaptics();
     const { prayerTimes, loadingPrayers, nextPrayerInfo, city, country } = usePrayers();
 
     // Get today's verse using global test date system
-    const DAILY_VERSE = getDailyVerse();
+    const DAILY_VERSE = getDailyVerse(i18n.language);
+
+    // Dynamic FRIDAY_CONTENT using translations
+    const FRIDAY_CONTENT = useMemo(() => ({
+        text: t('friday.text'),
+        source: t('friday.source')
+    }), [t]);
 
     const [completedPrayers, setCompletedPrayers] = useState([]);
     const [tubaData, setTubaData] = useState({
@@ -136,7 +139,21 @@ export default function Home() {
     useEffect(() => {
         const loadPrayers = () => {
             const key = getDailyPrayersKey();
-            setCompletedPrayers(safeGetStorage(key, []));
+            const stored = safeGetStorage(key, []);
+            // Migration: convert old name-based data to id-based
+            const NAME_TO_ID = {
+                'Fajr': 'fajr', 'Dhuhr': 'dhuhr', 'Asr': 'asr', 'Maghrib': 'maghrib', 'Isha': 'isha',
+                'İmsak': 'fajr', 'Öğle': 'dhuhr', 'İkindi': 'asr', 'Akşam': 'maghrib', 'Yatsı': 'isha',
+            };
+            const validIds = ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'];
+            const needsMigration = stored.some(p => !validIds.includes(p));
+            if (needsMigration) {
+                const migrated = [...new Set(stored.map(p => NAME_TO_ID[p] || p).filter(p => validIds.includes(p)))];
+                localStorage.setItem(key, JSON.stringify(migrated));
+                setCompletedPrayers(migrated);
+            } else {
+                setCompletedPrayers(stored);
+            }
         };
 
         loadPrayers();
@@ -223,7 +240,8 @@ export default function Home() {
         const appToday = getAppDate();
         const startOfYear = new Date(appToday.getFullYear(), 0, 0);
         const dayOfYear = Math.floor((appToday - startOfYear) / (1000 * 60 * 60 * 24));
-        setCurrentDeed(GOOD_DEEDS[dayOfYear % GOOD_DEEDS.length]);
+        const deedItems = t('deed.items', { returnObjects: true });
+        setCurrentDeed(Array.isArray(deedItems) ? deedItems[dayOfYear % deedItems.length] : '');
 
         if (isFriday) {
             setActiveTheme(SHARE_THEMES.find(t => t.id === 'friday'));
@@ -236,11 +254,11 @@ export default function Home() {
 
 
 
-    const togglePrayer = useCallback((name) => {
+    const togglePrayer = useCallback((prayerId) => {
         selection();
         const key = getDailyPrayersKey();
         const stored = safeGetStorage(key, []);
-        const next = stored.includes(name) ? stored.filter(p => p !== name) : [...stored, name];
+        const next = stored.includes(prayerId) ? stored.filter(p => p !== prayerId) : [...stored, prayerId];
         localStorage.setItem(key, JSON.stringify(next));
         setCompletedPrayers(next);
         window.dispatchEvent(new Event('prayerStatusChanged'));
@@ -263,14 +281,14 @@ export default function Home() {
     }, [selection]);
 
     // Prayer Blur Mode Handlers
-    const handlePrayNow = useCallback((prayerName) => {
+    const handlePrayNow = useCallback((prayerId) => {
         // Read latest data directly from storage to prevent stale state overwrites
         const key = getDailyPrayersKey();
         const stored = safeGetStorage(key, []);
 
-        if (stored.includes(prayerName)) return;
+        if (stored.includes(prayerId)) return;
 
-        const next = [...stored, prayerName];
+        const next = [...stored, prayerId];
         setCompletedPrayers(next);
 
         localStorage.setItem(key, JSON.stringify(next));
@@ -281,7 +299,7 @@ export default function Home() {
         if (next.length === 5) success(); // All prayers completed!
 
         // Clear snooze for this prayer
-        clearSnooze(prayerName);
+        clearSnooze(prayerId);
     }, [success, clearSnooze]);
 
     const handleSnooze = useCallback((prayerName) => {
@@ -292,7 +310,7 @@ export default function Home() {
     const handleOverlayDismiss = useCallback(() => {
         // User dismissed without action - snooze for 10 minutes
         if (activePrayer) {
-            snooze(activePrayer.name);
+            snooze(activePrayer.id);
         }
     }, [activePrayer, snooze]);
 
@@ -383,8 +401,8 @@ export default function Home() {
                             <Moon size={24} />
                         </div>
                         <div>
-                            <h4 className="font-bold text-gray-900 dark:text-islamic-gold uppercase text-xs tracking-widest font-serif">Oruç Takibi</h4>
-                            <p className="text-[10px] text-gray-500 dark:text-emerald-100/40 font-medium opacity-80">Orucunu takip et, seriyi koru</p>
+                            <h4 className="font-bold text-gray-900 dark:text-islamic-gold uppercase text-xs tracking-widest font-serif">{t('quickAction.fasting')}</h4>
+                            <p className="text-[10px] text-gray-500 dark:text-emerald-100/40 font-medium opacity-80">{t('quickAction.fastingSub')}</p>
                         </div>
                     </div>
                     <ChevronRight size={16} className="text-islamic-gold group-hover:translate-x-1 transition-transform" />
@@ -450,7 +468,7 @@ export default function Home() {
                                     <div className="absolute top-4 left-1/2 -translate-x-1/2 opacity-20"><Heart className="w-12 h-12" /></div>
                                     <p className="font-serif text-xl leading-relaxed italic mb-4">"{isFriday ? FRIDAY_CONTENT.text : DAILY_VERSE.text}"</p>
                                     <p className="text-xs font-bold tracking-widest uppercase opacity-70">- {isFriday ? FRIDAY_CONTENT.source : DAILY_VERSE.source}</p>
-                                    {isFriday && <div className="mt-8 text-[10px] font-black uppercase tracking-[0.2em] border-t border-white/20 pt-4">Hayırlı Cumalar</div>}
+                                    {isFriday && <div className="mt-8 text-[10px] font-black uppercase tracking-[0.2em] border-t border-white/20 pt-4">{t('friday.message')}</div>}
                                 </div>
                                 <div className="space-y-4">
                                     <p className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest text-center">{t('theme_select')}</p>
@@ -575,7 +593,7 @@ if (typeof window !== 'undefined') {
 
 function EsmaDetailModal({ esma, count, setCount, onClose }) {
     const { selection, heavy, medium, targetReached } = useHaptics();
-    const { t } = useTranslation('home');
+    const { t, i18n } = useTranslation('home');
 
     // Sound and Haptics settings
     const [soundEnabled, setSoundEnabled] = useState(true);
@@ -705,7 +723,7 @@ function EsmaDetailModal({ esma, count, setCount, onClose }) {
                             {esma.name}
                         </h2>
                         <p className="text-white/60 text-sm font-light italic tracking-wide max-w-xs mx-auto">
-                            "{esma.meaning}"
+                            "{i18n.language === 'en' ? esma.meaning_en : esma.meaning}"
                         </p>
                     </div>
 
@@ -883,7 +901,7 @@ function EsmaDetailModal({ esma, count, setCount, onClose }) {
                             <span className="text-[10px] uppercase font-bold tracking-[0.2em]">{t('esma.virtue_title')}</span>
                         </div>
                         <p className="text-sm text-white/80 leading-relaxed font-light font-serif">
-                            {esma.virtue}
+                            {i18n.language === 'en' ? esma.virtue_en : esma.virtue}
                         </p>
                     </div>
 

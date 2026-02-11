@@ -6,35 +6,28 @@ import { cn } from '@/lib/utils';
 import { useHaptics } from '@/hooks/useMobile';
 import { getAppDate, getTodayString } from '@/lib/testDate';
 import { triggerReviewPrompt } from '@/components/ReviewPrompt';
+import { useTranslation } from 'react-i18next';
 
 const RAMAZAN_START = new Date(2026, 1, 19);
 const RAMAZAN_DAYS = 30;
 
 const ST = { PENDING: 'pending', FASTED: 'fasted', MISSED: 'missed', EXCUSED: 'excused' };
-const META = {
-    [ST.FASTED]: { label: 'Tutuldu', emoji: '✓', color: '#34d399' },
-    [ST.MISSED]: { label: 'Kaçırıldı', emoji: '✕', color: '#f87171' },
-    [ST.EXCUSED]: { label: 'Mazeretli', emoji: '!', color: '#fbbf24' },
-    [ST.PENDING]: { label: 'Bekliyor', emoji: '○', color: 'rgba(255,255,255,0.2)' },
+const META_KEYS = {
+    [ST.FASTED]: { labelKey: 'status.fasted', emoji: '✓', color: '#34d399' },
+    [ST.MISSED]: { labelKey: 'status.missed', emoji: '✕', color: '#f87171' },
+    [ST.EXCUSED]: { labelKey: 'status.excused', emoji: '!', color: '#fbbf24' },
+    [ST.PENDING]: { labelKey: 'status.pending', emoji: '○', color: 'rgba(255,255,255,0.2)' },
 };
 const CYCLE = [ST.FASTED, ST.MISSED, ST.EXCUSED, ST.PENDING];
 
 const MILESTONES = [
-    { d: 1, i: '🌱', t: 'İlk Adım' }, { d: 3, i: '🌿', t: 'Azim' },
-    { d: 7, i: '🌳', t: 'Bir Hafta' }, { d: 10, i: '⭐', t: 'Yıldız' },
-    { d: 15, i: '💎', t: 'Yarı Yol' }, { d: 20, i: '🔥', t: 'Alevli' },
-    { d: 25, i: '👑', t: 'Neredeyse!' }, { d: 30, i: '🏆', t: 'Tamamlandı!' },
+    { d: 1, i: '🌱', tKey: 'milestones.1' }, { d: 3, i: '🌿', tKey: 'milestones.3' },
+    { d: 7, i: '🌳', tKey: 'milestones.7' }, { d: 10, i: '⭐', tKey: 'milestones.10' },
+    { d: 15, i: '💎', tKey: 'milestones.15' }, { d: 20, i: '🔥', tKey: 'milestones.20' },
+    { d: 25, i: '👑', tKey: 'milestones.25' }, { d: 30, i: '🏆', tKey: 'milestones.30' },
 ];
 
-const HADITH = [
-    { text: "Oruç bir kalkandır.", src: "Buhârî" },
-    { text: "Her şeyin bir zekatı vardır, bedenin zekatı da oruçtur.", src: "İbn Mâce" },
-    { text: "Oruç tutun, sıhhat bulun.", src: "Taberânî" },
-    { text: "Oruçlu kimsenin ağız kokusu, Allah katında misk kokusundan daha güzeldir.", src: "Buhârî" },
-    { text: "Kim Ramazan orucunu iman ederek ve sevabını bekleyerek tutarsa, geçmiş günahları bağışlanır.", src: "Buhârî, Müslim" },
-    { text: "Oruç sabrın yarısıdır.", src: "Tirmizî" },
-    { text: "Cennette Reyyan adlı bir kapı vardır. Oradan ancak oruç tutanlar girecektir.", src: "Buhârî, Müslim" },
-];
+const HADITH_KEYS = [0, 1, 2, 3, 4, 5, 6];
 
 const load = () => { try { const r = localStorage.getItem('fasting_v3'); return r ? JSON.parse(r) : null; } catch { return null; } };
 const save = d => localStorage.setItem('fasting_v3', JSON.stringify(d));
@@ -74,6 +67,7 @@ const Atmosphere = () => (
 
 /* ─── Grand Circular Progress ─── */
 const GrandProgress = ({ fasted, total, todayFasted, onToggle, currentDay, streak }) => {
+    const { t } = useTranslation('fasting');
     const pct = total > 0 ? fasted / total : 0;
     const c = 130, r = 100;
     const circ = 2 * Math.PI * r, dash = pct * circ;
@@ -202,7 +196,7 @@ const GrandProgress = ({ fasted, total, todayFasted, onToggle, currentDay, strea
                             )}
                             <span className="text-[42px] font-black text-white tabular-nums leading-none">{fasted}</span>
                             <span className="text-[10px] text-white/20 font-semibold mt-1 uppercase tracking-[0.2em]">
-                                {fasted === 0 ? 'başla' : `/ ${total} gün`}
+                                {fasted === 0 ? t('start') : t('ofDays', { total })}
                             </span>
                         </motion.div>
                     </AnimatePresence>
@@ -212,13 +206,13 @@ const GrandProgress = ({ fasted, total, todayFasted, onToggle, currentDay, strea
             <div className="flex items-center gap-3 mt-4">
                 {currentDay && (
                     <div className="px-3.5 py-1.5 rounded-full bg-islamic-gold/12 border border-islamic-gold/20">
-                        <span className="text-[11px] font-bold text-islamic-gold">{currentDay}. Gün</span>
+                        <span className="text-[11px] font-bold text-islamic-gold">{t('day', { day: currentDay })}</span>
                     </div>
                 )}
                 {streak > 0 && (
                     <div className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-orange-500/12 border border-orange-400/20">
                         <Flame size={13} className="text-orange-400" />
-                        <span className="text-[11px] font-bold text-orange-400">{streak} Seri</span>
+                        <span className="text-[11px] font-bold text-orange-400">{t('streak', { count: streak })}</span>
                     </div>
                 )}
             </div>
@@ -227,177 +221,181 @@ const GrandProgress = ({ fasted, total, todayFasted, onToggle, currentDay, strea
 };
 
 /* ─── Ultra Premium Bottom Sheet ─── */
-const StatusSheet = ({ dayNum, current, onPick, onClose }) => (
-    <motion.div
-        initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-        className="fixed inset-0 z-[60] flex items-end justify-center bg-black/60 backdrop-blur-md"
-        onClick={onClose}
-    >
+const StatusSheet = ({ dayNum, current, onPick, onClose }) => {
+    const { t } = useTranslation('fasting');
+    return (
         <motion.div
-            initial={{ y: 400 }} animate={{ y: 0 }} exit={{ y: 400 }}
-            transition={{ type: 'spring', damping: 28, stiffness: 340 }}
-            drag="y"
-            dragConstraints={{ top: 0 }}
-            dragElastic={0.2}
-            onDragEnd={(_, info) => { if (info.offset.y > 100 || info.velocity.y > 500) onClose(); }}
-            className="w-full max-w-md rounded-t-[2.5rem] overflow-hidden border-t border-white/10"
-            style={{ background: 'linear-gradient(180deg, #0d4a30 0%, #032e18 100%)' }}
-            onClick={e => e.stopPropagation()}
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[60] flex items-end justify-center bg-black/60 backdrop-blur-md"
+            onClick={onClose}
         >
-            {/* Handle */}
-            <div className="pt-4 pb-2 flex justify-center">
-                <div className="w-10 h-1 rounded-full bg-white/25" />
-            </div>
-
-            {/* Header */}
-            <div className="px-6 pb-5 text-center">
-                <div className="flex items-center justify-center gap-3 mb-2">
-                    <div className="h-px w-8 bg-gradient-to-r from-transparent to-islamic-gold/30" />
-                    <Moon size={14} className="text-islamic-gold/60" />
-                    <div className="h-px w-8 bg-gradient-to-l from-transparent to-islamic-gold/30" />
+            <motion.div
+                initial={{ y: 400 }} animate={{ y: 0 }} exit={{ y: 400 }}
+                transition={{ type: 'spring', damping: 28, stiffness: 340 }}
+                drag="y"
+                dragConstraints={{ top: 0 }}
+                dragElastic={0.2}
+                onDragEnd={(_, info) => { if (info.offset.y > 100 || info.velocity.y > 500) onClose(); }}
+                className="w-full max-w-md rounded-t-[2.5rem] overflow-hidden border-t border-white/10"
+                style={{ background: 'linear-gradient(180deg, #0d4a30 0%, #032e18 100%)' }}
+                onClick={e => e.stopPropagation()}
+            >
+                {/* Handle */}
+                <div className="pt-4 pb-2 flex justify-center">
+                    <div className="w-10 h-1 rounded-full bg-white/25" />
                 </div>
-                <h3 className="text-lg font-serif font-bold text-white tracking-wide">
-                    Ramazan'ın {dayNum}. Günü
-                </h3>
-                <p className="text-[11px] text-white/30 mt-1 font-medium">Durumu güncelle</p>
-            </div>
 
-            {/* 2×2 Premium Buttons */}
-            <div className="grid grid-cols-2 gap-3.5 px-5 pb-32">
+                {/* Header */}
+                <div className="px-6 pb-5 text-center">
+                    <div className="flex items-center justify-center gap-3 mb-2">
+                        <div className="h-px w-8 bg-gradient-to-r from-transparent to-islamic-gold/30" />
+                        <Moon size={14} className="text-islamic-gold/60" />
+                        <div className="h-px w-8 bg-gradient-to-l from-transparent to-islamic-gold/30" />
+                    </div>
+                    <h3 className="text-lg font-serif font-bold text-white tracking-wide">
+                        Ramazan'ın {dayNum}. Günü
+                    </h3>
+                    <p className="text-[11px] text-white/30 mt-1 font-medium">{t('updateStatus')}</p>
+                </div>
 
-                {/* ── Tutuldu ── */}
-                <button
-                    onClick={() => onPick(ST.FASTED)}
-                    className={cn(
-                        "relative overflow-hidden rounded-[1.4rem] p-4 pt-5 flex flex-col items-center gap-3 cursor-pointer",
-                        "transition-all duration-200 active:scale-95",
-                        current === ST.FASTED
-                            ? "ring-2 ring-islamic-gold/60 ring-offset-2 ring-offset-[#0d4a30]"
-                            : ""
-                    )}
-                    style={{
-                        background: 'linear-gradient(145deg, rgba(16,185,129,0.22) 0%, rgba(5,150,105,0.12) 50%, rgba(4,120,87,0.08) 100%)',
-                        boxShadow: current === ST.FASTED
-                            ? '0 0 25px rgba(52,211,153,0.25), inset 0 1px 0 rgba(255,255,255,0.08)'
-                            : 'inset 0 1px 0 rgba(255,255,255,0.06), 0 2px 8px rgba(0,0,0,0.2)',
-                        border: '1px solid rgba(52,211,153,0.15)',
-                    }}
-                >
-                    <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'radial-gradient(circle at 50% 0%, rgba(52,211,153,0.5) 0%, transparent 60%)' }} />
-                    <div
-                        className="w-14 h-14 rounded-2xl flex items-center justify-center relative z-10"
+                {/* 2×2 Premium Buttons */}
+                <div className="grid grid-cols-2 gap-3.5 px-5 pb-32">
+
+                    {/* ── Tutuldu ── */}
+                    <button
+                        onClick={() => onPick(ST.FASTED)}
+                        className={cn(
+                            "relative overflow-hidden rounded-[1.4rem] p-4 pt-5 flex flex-col items-center gap-3 cursor-pointer",
+                            "transition-all duration-200 active:scale-95",
+                            current === ST.FASTED
+                                ? "ring-2 ring-islamic-gold/60 ring-offset-2 ring-offset-[#0d4a30]"
+                                : ""
+                        )}
                         style={{
-                            background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-                            boxShadow: '0 4px 15px rgba(16,185,129,0.35), inset 0 1px 0 rgba(255,255,255,0.2)',
+                            background: 'linear-gradient(145deg, rgba(16,185,129,0.22) 0%, rgba(5,150,105,0.12) 50%, rgba(4,120,87,0.08) 100%)',
+                            boxShadow: current === ST.FASTED
+                                ? '0 0 25px rgba(52,211,153,0.25), inset 0 1px 0 rgba(255,255,255,0.08)'
+                                : 'inset 0 1px 0 rgba(255,255,255,0.06), 0 2px 8px rgba(0,0,0,0.2)',
+                            border: '1px solid rgba(52,211,153,0.15)',
                         }}
                     >
-                        <Check size={26} className="text-white" strokeWidth={3} />
-                    </div>
-                    <span className={cn("text-[13px] font-bold relative z-10", current === ST.FASTED ? "text-emerald-300" : "text-white/70")}>Tutuldu</span>
-                </button>
+                        <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'radial-gradient(circle at 50% 0%, rgba(52,211,153,0.5) 0%, transparent 60%)' }} />
+                        <div
+                            className="w-14 h-14 rounded-2xl flex items-center justify-center relative z-10"
+                            style={{
+                                background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                                boxShadow: '0 4px 15px rgba(16,185,129,0.35), inset 0 1px 0 rgba(255,255,255,0.2)',
+                            }}
+                        >
+                            <Check size={26} className="text-white" strokeWidth={3} />
+                        </div>
+                        <span className={cn("text-[13px] font-bold relative z-10", current === ST.FASTED ? "text-emerald-300" : "text-white/70")}>{t('status.fasted')}</span>
+                    </button>
 
-                {/* ── Kaçırıldı ── */}
-                <button
-                    onClick={() => onPick(ST.MISSED)}
-                    className={cn(
-                        "relative overflow-hidden rounded-[1.4rem] p-4 pt-5 flex flex-col items-center gap-3 cursor-pointer",
-                        "transition-all duration-200 active:scale-95",
-                        current === ST.MISSED
-                            ? "ring-2 ring-islamic-gold/60 ring-offset-2 ring-offset-[#0d4a30]"
-                            : ""
-                    )}
-                    style={{
-                        background: 'linear-gradient(145deg, rgba(239,68,68,0.18) 0%, rgba(220,38,38,0.10) 50%, rgba(185,28,28,0.06) 100%)',
-                        boxShadow: current === ST.MISSED
-                            ? '0 0 25px rgba(248,113,113,0.2), inset 0 1px 0 rgba(255,255,255,0.08)'
-                            : 'inset 0 1px 0 rgba(255,255,255,0.06), 0 2px 8px rgba(0,0,0,0.2)',
-                        border: '1px solid rgba(248,113,113,0.12)',
-                    }}
-                >
-                    <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'radial-gradient(circle at 50% 0%, rgba(248,113,113,0.5) 0%, transparent 60%)' }} />
-                    <div
-                        className="w-14 h-14 rounded-2xl flex items-center justify-center relative z-10"
+                    {/* ── Kaçırıldı ── */}
+                    <button
+                        onClick={() => onPick(ST.MISSED)}
+                        className={cn(
+                            "relative overflow-hidden rounded-[1.4rem] p-4 pt-5 flex flex-col items-center gap-3 cursor-pointer",
+                            "transition-all duration-200 active:scale-95",
+                            current === ST.MISSED
+                                ? "ring-2 ring-islamic-gold/60 ring-offset-2 ring-offset-[#0d4a30]"
+                                : ""
+                        )}
                         style={{
-                            background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
-                            boxShadow: '0 4px 15px rgba(239,68,68,0.3), inset 0 1px 0 rgba(255,255,255,0.15)',
+                            background: 'linear-gradient(145deg, rgba(239,68,68,0.18) 0%, rgba(220,38,38,0.10) 50%, rgba(185,28,28,0.06) 100%)',
+                            boxShadow: current === ST.MISSED
+                                ? '0 0 25px rgba(248,113,113,0.2), inset 0 1px 0 rgba(255,255,255,0.08)'
+                                : 'inset 0 1px 0 rgba(255,255,255,0.06), 0 2px 8px rgba(0,0,0,0.2)',
+                            border: '1px solid rgba(248,113,113,0.12)',
                         }}
                     >
-                        <X size={26} className="text-white" strokeWidth={3} />
-                    </div>
-                    <span className={cn("text-[13px] font-bold relative z-10", current === ST.MISSED ? "text-red-300" : "text-white/70")}>Kaçırıldı</span>
-                </button>
+                        <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'radial-gradient(circle at 50% 0%, rgba(248,113,113,0.5) 0%, transparent 60%)' }} />
+                        <div
+                            className="w-14 h-14 rounded-2xl flex items-center justify-center relative z-10"
+                            style={{
+                                background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+                                boxShadow: '0 4px 15px rgba(239,68,68,0.3), inset 0 1px 0 rgba(255,255,255,0.15)',
+                            }}
+                        >
+                            <X size={26} className="text-white" strokeWidth={3} />
+                        </div>
+                        <span className={cn("text-[13px] font-bold relative z-10", current === ST.MISSED ? "text-red-300" : "text-white/70")}>{t('status.missed')}</span>
+                    </button>
 
-                {/* ── Mazeretli ── */}
-                <button
-                    onClick={() => onPick(ST.EXCUSED)}
-                    className={cn(
-                        "relative overflow-hidden rounded-[1.4rem] p-4 pt-5 flex flex-col items-center gap-3 cursor-pointer",
-                        "transition-all duration-200 active:scale-95",
-                        current === ST.EXCUSED
-                            ? "ring-2 ring-islamic-gold/60 ring-offset-2 ring-offset-[#0d4a30]"
-                            : ""
-                    )}
-                    style={{
-                        background: 'linear-gradient(145deg, rgba(245,158,11,0.18) 0%, rgba(217,119,6,0.10) 50%, rgba(180,83,9,0.06) 100%)',
-                        boxShadow: current === ST.EXCUSED
-                            ? '0 0 25px rgba(251,191,36,0.2), inset 0 1px 0 rgba(255,255,255,0.08)'
-                            : 'inset 0 1px 0 rgba(255,255,255,0.06), 0 2px 8px rgba(0,0,0,0.2)',
-                        border: '1px solid rgba(251,191,36,0.12)',
-                    }}
-                >
-                    <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'radial-gradient(circle at 50% 0%, rgba(251,191,36,0.5) 0%, transparent 60%)' }} />
-                    <div
-                        className="w-14 h-14 rounded-2xl flex items-center justify-center relative z-10"
+                    {/* ── Mazeretli ── */}
+                    <button
+                        onClick={() => onPick(ST.EXCUSED)}
+                        className={cn(
+                            "relative overflow-hidden rounded-[1.4rem] p-4 pt-5 flex flex-col items-center gap-3 cursor-pointer",
+                            "transition-all duration-200 active:scale-95",
+                            current === ST.EXCUSED
+                                ? "ring-2 ring-islamic-gold/60 ring-offset-2 ring-offset-[#0d4a30]"
+                                : ""
+                        )}
                         style={{
-                            background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
-                            boxShadow: '0 4px 15px rgba(245,158,11,0.3), inset 0 1px 0 rgba(255,255,255,0.2)',
+                            background: 'linear-gradient(145deg, rgba(245,158,11,0.18) 0%, rgba(217,119,6,0.10) 50%, rgba(180,83,9,0.06) 100%)',
+                            boxShadow: current === ST.EXCUSED
+                                ? '0 0 25px rgba(251,191,36,0.2), inset 0 1px 0 rgba(255,255,255,0.08)'
+                                : 'inset 0 1px 0 rgba(255,255,255,0.06), 0 2px 8px rgba(0,0,0,0.2)',
+                            border: '1px solid rgba(251,191,36,0.12)',
                         }}
                     >
-                        <AlertTriangle size={24} className="text-white" strokeWidth={2.5} />
-                    </div>
-                    <span className={cn("text-[13px] font-bold relative z-10", current === ST.EXCUSED ? "text-amber-300" : "text-white/70")}>Mazeretli</span>
-                </button>
+                        <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'radial-gradient(circle at 50% 0%, rgba(251,191,36,0.5) 0%, transparent 60%)' }} />
+                        <div
+                            className="w-14 h-14 rounded-2xl flex items-center justify-center relative z-10"
+                            style={{
+                                background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+                                boxShadow: '0 4px 15px rgba(245,158,11,0.3), inset 0 1px 0 rgba(255,255,255,0.2)',
+                            }}
+                        >
+                            <AlertTriangle size={24} className="text-white" strokeWidth={2.5} />
+                        </div>
+                        <span className={cn("text-[13px] font-bold relative z-10", current === ST.EXCUSED ? "text-amber-300" : "text-white/70")}>{t('status.excused')}</span>
+                    </button>
 
-                {/* ── Bekliyor ── */}
-                <button
-                    onClick={() => onPick(ST.PENDING)}
-                    className={cn(
-                        "relative overflow-hidden rounded-[1.4rem] p-4 pt-5 flex flex-col items-center gap-3 cursor-pointer",
-                        "transition-all duration-200 active:scale-95",
-                        current === ST.PENDING
-                            ? "ring-2 ring-islamic-gold/60 ring-offset-2 ring-offset-[#0d4a30]"
-                            : ""
-                    )}
-                    style={{
-                        background: 'linear-gradient(145deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.03) 50%, rgba(255,255,255,0.01) 100%)',
-                        boxShadow: current === ST.PENDING
-                            ? '0 0 25px rgba(212,175,55,0.15), inset 0 1px 0 rgba(255,255,255,0.08)'
-                            : 'inset 0 1px 0 rgba(255,255,255,0.06), 0 2px 8px rgba(0,0,0,0.2)',
-                        border: '1px solid rgba(255,255,255,0.08)',
-                    }}
-                >
-                    <div className="absolute inset-0 opacity-[0.02]" style={{ backgroundImage: 'radial-gradient(circle at 50% 0%, rgba(255,255,255,0.3) 0%, transparent 60%)' }} />
-                    <div
-                        className="w-14 h-14 rounded-2xl flex items-center justify-center relative z-10"
+                    {/* ── Bekliyor ── */}
+                    <button
+                        onClick={() => onPick(ST.PENDING)}
+                        className={cn(
+                            "relative overflow-hidden rounded-[1.4rem] p-4 pt-5 flex flex-col items-center gap-3 cursor-pointer",
+                            "transition-all duration-200 active:scale-95",
+                            current === ST.PENDING
+                                ? "ring-2 ring-islamic-gold/60 ring-offset-2 ring-offset-[#0d4a30]"
+                                : ""
+                        )}
                         style={{
-                            background: 'linear-gradient(135deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.06) 100%)',
-                            boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.1), 0 2px 8px rgba(0,0,0,0.15)',
+                            background: 'linear-gradient(145deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.03) 50%, rgba(255,255,255,0.01) 100%)',
+                            boxShadow: current === ST.PENDING
+                                ? '0 0 25px rgba(212,175,55,0.15), inset 0 1px 0 rgba(255,255,255,0.08)'
+                                : 'inset 0 1px 0 rgba(255,255,255,0.06), 0 2px 8px rgba(0,0,0,0.2)',
+                            border: '1px solid rgba(255,255,255,0.08)',
                         }}
                     >
-                        <Clock size={24} className="text-white/50" strokeWidth={2.5} />
-                    </div>
-                    <span className={cn("text-[13px] font-bold relative z-10", current === ST.PENDING ? "text-islamic-gold" : "text-white/40")}>Bekliyor</span>
-                </button>
-            </div>
+                        <div className="absolute inset-0 opacity-[0.02]" style={{ backgroundImage: 'radial-gradient(circle at 50% 0%, rgba(255,255,255,0.3) 0%, transparent 60%)' }} />
+                        <div
+                            className="w-14 h-14 rounded-2xl flex items-center justify-center relative z-10"
+                            style={{
+                                background: 'linear-gradient(135deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.06) 100%)',
+                                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.1), 0 2px 8px rgba(0,0,0,0.15)',
+                            }}
+                        >
+                            <Clock size={24} className="text-white/50" strokeWidth={2.5} />
+                        </div>
+                        <span className={cn("text-[13px] font-bold relative z-10", current === ST.PENDING ? "text-islamic-gold" : "text-white/40")}>{t('status.pending')}</span>
+                    </button>
+                </div>
+            </motion.div>
         </motion.div>
-    </motion.div>
-);
+    );
+};
 
 
 // ══════════════════════════════════════════════
 export default function FastingTracker() {
     const navigate = useNavigate();
     const { light, selection } = useHaptics();
+    const { t } = useTranslation('fasting');
     const [data, setData] = useState(getInit);
     const [pickerDay, setPickerDay] = useState(null);
     const [showTeravih, setShowTeravih] = useState(false);
@@ -436,7 +434,7 @@ export default function FastingTracker() {
     const dayIdx = Math.floor((todayLocal - RAMAZAN_START) / 86400000);
     const isRamazan = dayIdx >= 0 && dayIdx < RAMAZAN_DAYS;
     const currentDay = isRamazan ? dayIdx + 1 : null;
-    const hadith = HADITH[now.getDate() % HADITH.length];
+    const hadithIdx = HADITH_KEYS[now.getDate() % HADITH_KEYS.length];
 
     const grid = useMemo(() => Array.from({ length: RAMAZAN_DAYS }, (_, i) => {
         const d = new Date(RAMAZAN_START);
@@ -527,12 +525,12 @@ export default function FastingTracker() {
                         <div className="bg-islamic-gold/10 p-2 rounded-xl border border-islamic-gold/15">
                             <Moon className="w-5 h-5 text-islamic-gold" />
                         </div>
-                        <h1 className="text-lg font-serif font-bold text-islamic-gold tracking-wide">Oruç Takibi</h1>
+                        <h1 className="text-lg font-serif font-bold text-islamic-gold tracking-wide">{t('title')}</h1>
                     </div>
                     {milestone && (
                         <div className="flex items-center gap-1.5 bg-islamic-gold/10 px-3 py-1.5 rounded-full border border-islamic-gold/20">
                             <span className="text-sm">{milestone.i}</span>
-                            <span className="text-[10px] font-bold text-islamic-gold">{milestone.t}</span>
+                            <span className="text-[10px] font-bold text-islamic-gold">{t(milestone.tKey)}</span>
                         </div>
                     )}
                 </div>
@@ -570,10 +568,10 @@ export default function FastingTracker() {
                         <div className="h-px w-10 bg-gradient-to-l from-transparent to-islamic-gold/30" />
                     </div>
                     <p className="text-islamic-gold/90 font-serif text-base italic leading-relaxed">
-                        "{hadith.text}"
+                        "{t(`hadith.${hadithIdx}.text`)}"
                     </p>
                     <p className="text-[10px] text-white/25 mt-2.5 font-semibold tracking-wider uppercase">
-                        — {hadith.src}
+                        — {t(`hadith.${hadithIdx}.src`)}
                     </p>
                 </motion.section>
 
@@ -585,10 +583,10 @@ export default function FastingTracker() {
                     className="mx-5 p-5 rounded-[1.8rem] bg-white/[0.04] border border-white/[0.06] backdrop-blur-xl shadow-xl shadow-black/10"
                 >
                     <div className="flex items-center justify-between mb-3">
-                        <span className="text-[10px] font-bold text-white/25 uppercase tracking-[0.2em]">Sonraki Hedef</span>
+                        <span className="text-[10px] font-bold text-white/25 uppercase tracking-[0.2em]">{t('nextGoal')}</span>
                         <div className="flex items-center gap-1.5">
                             <span className="text-base">{nextMs.i}</span>
-                            <span className="text-xs font-bold text-islamic-gold">{nextMs.t}</span>
+                            <span className="text-xs font-bold text-islamic-gold">{t(nextMs.tKey)}</span>
                         </div>
                     </div>
                     <div className="relative h-2.5 rounded-full bg-white/[0.06] overflow-hidden">
@@ -601,8 +599,8 @@ export default function FastingTracker() {
                         />
                     </div>
                     <div className="flex justify-between mt-1.5">
-                        <span className="text-[9px] text-white/15 tabular-nums font-medium">{stats.fasted} gün</span>
-                        <span className="text-[9px] text-white/15 tabular-nums font-medium">{nextMs.d} gün</span>
+                        <span className="text-[9px] text-white/15 tabular-nums font-medium">{stats.fasted} {t('days')}</span>
+                        <span className="text-[9px] text-white/15 tabular-nums font-medium">{nextMs.d} {t('days')}</span>
                     </div>
 
                     {/* Milestone ribbon */}
@@ -627,10 +625,10 @@ export default function FastingTracker() {
                     className="grid grid-cols-4 gap-2.5 mx-5 mt-5"
                 >
                     {[
-                        { n: stats.fasted, l: 'Tutuldu', c: 'text-emerald-400', bg: 'bg-emerald-500/10', bc: 'border-emerald-500/10' },
-                        { n: stats.missed, l: 'Kaçırıldı', c: 'text-red-400', bg: 'bg-red-500/8', bc: 'border-red-500/10' },
-                        { n: stats.excused, l: 'Mazeretli', c: 'text-amber-400', bg: 'bg-amber-500/8', bc: 'border-amber-500/10' },
-                        { n: stats.remaining, l: 'Kalan', c: 'text-white/30', bg: 'bg-white/[0.03]', bc: 'border-white/[0.05]' },
+                        { n: stats.fasted, l: t('status.fasted'), c: 'text-emerald-400', bg: 'bg-emerald-500/10', bc: 'border-emerald-500/10' },
+                        { n: stats.missed, l: t('status.missed'), c: 'text-red-400', bg: 'bg-red-500/8', bc: 'border-red-500/10' },
+                        { n: stats.excused, l: t('status.excused'), c: 'text-amber-400', bg: 'bg-amber-500/8', bc: 'border-amber-500/10' },
+                        { n: stats.remaining, l: t('status.remaining'), c: 'text-white/30', bg: 'bg-white/[0.03]', bc: 'border-white/[0.05]' },
                     ].map(s => (
                         <div key={s.l} className={cn("py-3.5 rounded-2xl text-center border", s.bg, s.bc)}>
                             <div className={cn("text-2xl font-black leading-none tabular-nums", s.c)}>{s.n}</div>
@@ -658,8 +656,8 @@ export default function FastingTracker() {
                             {/* Calendar Header */}
                             <div className="flex items-center justify-between mb-4 px-1">
                                 <div>
-                                    <h3 className="text-base font-bold text-white/85">Ramazan Takvimi</h3>
-                                    <p className="text-[11px] text-white/25 mt-0.5 font-medium">Şubat – Mart 2026</p>
+                                    <h3 className="text-base font-bold text-white/85">{t('calendarTitle')}</h3>
+                                    <p className="text-[11px] text-white/25 mt-0.5 font-medium">{t('calendarSubtitle')}</p>
                                 </div>
                                 <div className="flex items-center gap-2.5">
                                     <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-islamic-gold/10 border border-islamic-gold/15">
@@ -669,7 +667,7 @@ export default function FastingTracker() {
                                     <button
                                         onClick={(e) => { e.stopPropagation(); light(); setShowResetConfirm(true); }}
                                         className="w-9 h-9 rounded-xl bg-white/[0.04] hover:bg-red-500/15 border border-white/[0.06] hover:border-red-400/20 flex items-center justify-center transition-all active:scale-90 cursor-pointer"
-                                        title="Sıfırla"
+                                        title={t('reset')}
                                     >
                                         <RotateCcw size={16} className="text-white/30" />
                                     </button>
@@ -678,7 +676,7 @@ export default function FastingTracker() {
 
                             {/* Day Name Headers */}
                             <div className="grid grid-cols-7 gap-1 mb-1 px-0.5">
-                                {['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz'].map(d => (
+                                {(t('weekdays', { returnObjects: true }) || ['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz']).map(d => (
                                     <div key={d} className="flex items-center justify-center h-7">
                                         <span className="text-[10px] font-bold text-white/25 uppercase tracking-wider">{d}</span>
                                     </div>
@@ -733,9 +731,9 @@ export default function FastingTracker() {
                             {/* Legend */}
                             <div className="flex items-center justify-center gap-5 mt-3.5 pt-3 border-t border-white/[0.04]">
                                 {[
-                                    { c: '#34d399', l: 'Tutuldu' },
-                                    { c: '#f87171', l: 'Kaçırıldı' },
-                                    { c: '#fbbf24', l: 'Mazeretli' },
+                                    { c: '#34d399', l: t('status.fasted') },
+                                    { c: '#f87171', l: t('status.missed') },
+                                    { c: '#fbbf24', l: t('status.excused') },
                                 ].map(x => (
                                     <span key={x.l} className="flex items-center gap-1.5">
                                         <span className="w-2 h-2 rounded-full" style={{ backgroundColor: x.c, boxShadow: `0 0 4px ${x.c}40` }} />
@@ -776,23 +774,23 @@ export default function FastingTracker() {
                                         style={{ boxShadow: '0 0 30px rgba(239,68,68,0.15)' }}>
                                         <AlertTriangle size={28} className="text-red-400" />
                                     </div>
-                                    <h3 className="text-lg font-bold text-white mb-2">Oruç Verilerini Sıfırla</h3>
+                                    <h3 className="text-lg font-bold text-white mb-2">{t('resetTitle')}</h3>
                                     <p className="text-[13px] text-white/40 leading-relaxed mb-6">
-                                        Tüm oruç kayıtlarınız silinecek. Teravih kayıtları korunur. Bu işlem geri alınamaz.
+                                        {t('resetDesc')}
                                     </p>
                                     <div className="flex gap-3">
                                         <button
                                             onClick={() => setShowResetConfirm(false)}
                                             className="flex-1 py-3 rounded-xl bg-white/5 border border-white/10 text-white/60 text-sm font-semibold hover:bg-white/10 transition-all active:scale-95 cursor-pointer"
                                         >
-                                            İptal
+                                            {t('cancel')}
                                         </button>
                                         <button
                                             onClick={resetRamazanData}
                                             className="flex-1 py-3 rounded-xl bg-red-500/20 border border-red-400/30 text-red-400 text-sm font-bold hover:bg-red-500/30 transition-all active:scale-95 cursor-pointer"
                                             style={{ boxShadow: '0 0 20px rgba(239,68,68,0.1)' }}
                                         >
-                                            Sıfırla
+                                            {t('reset')}
                                         </button>
                                     </div>
                                 </div>
@@ -816,7 +814,7 @@ export default function FastingTracker() {
                             <div className="w-7 h-7 rounded-lg bg-emerald-500/15 flex items-center justify-center">
                                 <Sparkles size={14} className="text-emerald-400" />
                             </div>
-                            <h3 className="text-[10px] font-bold text-white/20 uppercase tracking-[0.25em]">Teravih Namazı</h3>
+                            <h3 className="text-[10px] font-bold text-white/20 uppercase tracking-[0.25em]">{t('teravihTitle')}</h3>
                         </div>
                         <div className="flex items-center gap-2.5">
                             <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-400/15">
@@ -826,7 +824,7 @@ export default function FastingTracker() {
                             <button
                                 onClick={(e) => { e.stopPropagation(); light(); setShowTeravihReset(true); }}
                                 className="w-9 h-9 rounded-xl bg-white/[0.04] hover:bg-red-500/15 border border-white/[0.06] hover:border-red-400/20 flex items-center justify-center transition-all active:scale-90 cursor-pointer"
-                                title="Teravih Sıfırla"
+                                title={t('teravihResetTooltip')}
                             >
                                 <RotateCcw size={16} className="text-white/30" />
                             </button>
@@ -852,7 +850,7 @@ export default function FastingTracker() {
 
                                         {/* Day Headers */}
                                         <div className="grid grid-cols-7 gap-1 mb-1 px-0.5">
-                                            {['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz'].map(d => (
+                                            {(t('weekdays', { returnObjects: true }) || ['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz']).map(d => (
                                                 <div key={d} className="flex items-center justify-center h-7">
                                                     <span className="text-[10px] font-bold text-white/25 uppercase tracking-wider">{d}</span>
                                                 </div>
@@ -906,8 +904,8 @@ export default function FastingTracker() {
                                         {/* Legend */}
                                         <div className="flex items-center justify-center gap-5 mt-3.5 pt-3 border-t border-white/[0.04]">
                                             {[
-                                                { c: '#34d399', l: 'Kılındı' },
-                                                { c: 'rgba(255,255,255,0.15)', l: 'Kılınmadı' },
+                                                { c: '#34d399', l: t('teravihLegend.done') },
+                                                { c: 'rgba(255,255,255,0.15)', l: t('teravihLegend.notDone') },
                                             ].map(x => (
                                                 <span key={x.l} className="flex items-center gap-1.5">
                                                     <span className="w-2 h-2 rounded-full" style={{ backgroundColor: x.c, boxShadow: x.c.startsWith('#') ? `0 0 4px ${x.c}40` : undefined }} />
@@ -951,23 +949,23 @@ export default function FastingTracker() {
                                         style={{ boxShadow: '0 0 30px rgba(52,211,153,0.15)' }}>
                                         <Sparkles size={28} className="text-emerald-400" />
                                     </div>
-                                    <h3 className="text-lg font-bold text-white mb-2">Teravih Verilerini Sıfırla</h3>
+                                    <h3 className="text-lg font-bold text-white mb-2">{t('teravihResetTitle')}</h3>
                                     <p className="text-[13px] text-white/40 leading-relaxed mb-6">
-                                        Tüm teravih namazı kayıtlarınız silinecek. Oruç kayıtları korunur. Bu işlem geri alınamaz.
+                                        {t('teravihResetDesc')}
                                     </p>
                                     <div className="flex gap-3">
                                         <button
                                             onClick={() => setShowTeravihReset(false)}
                                             className="flex-1 py-3 rounded-xl bg-white/5 border border-white/10 text-white/60 text-sm font-semibold hover:bg-white/10 transition-all active:scale-95 cursor-pointer"
                                         >
-                                            İptal
+                                            {t('cancel')}
                                         </button>
                                         <button
                                             onClick={resetTeravihData}
                                             className="flex-1 py-3 rounded-xl bg-red-500/20 border border-red-400/30 text-red-400 text-sm font-bold hover:bg-red-500/30 transition-all active:scale-95 cursor-pointer"
                                             style={{ boxShadow: '0 0 20px rgba(239,68,68,0.1)' }}
                                         >
-                                            Sıfırla
+                                            {t('reset')}
                                         </button>
                                     </div>
                                 </div>

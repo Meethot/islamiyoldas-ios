@@ -5,6 +5,7 @@ import { ChevronLeft, Wind, Heart, Sparkles, Clock, Play, RotateCcw } from 'luci
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useHaptics } from '@/hooks/useMobile';
+import { useTranslation } from 'react-i18next';
 
 const cardVariants = {
     enter: { opacity: 0, y: 50, scale: 0.95 },
@@ -12,9 +13,9 @@ const cardVariants = {
     exit: { opacity: 0, scale: 0.9, transition: { duration: 0.2 } }
 };
 const DURATIONS = [
-    { label: '1 dk', value: 60 },
-    { label: '3 dk', value: 180 },
-    { label: '5 dk', value: 300 }
+    { labelKey: 'dur1min', value: 60 },
+    { labelKey: 'dur3min', value: 180 },
+    { labelKey: 'dur5min', value: 300 }
 ];
 
 const formatTime = (seconds) => {
@@ -26,6 +27,7 @@ const formatTime = (seconds) => {
 export default function Tefekkur() {
     const navigate = useNavigate();
     const { selection } = useHaptics();
+    const { t } = useTranslation('tefekkur');
     const [phase, setPhase] = useState('inhale'); // inhale, hold, exhale
     const [timer, setTimer] = useState(0); // This was unused
     const [duration, setDuration] = useState(60); // Default 1 min
@@ -81,9 +83,9 @@ export default function Tefekkur() {
                 </button>
                 <div className="text-center">
                     <h1 className="text-lg font-serif font-bold text-islamic-gold tracking-wide">
-                        Ruhunu Dinlendir
+                        {t('headerTitle')}
                     </h1>
-                    <p className="text-xs text-white/40 mt-1">Rehberli Tefekkür & Nefes</p>
+                    <p className="text-xs text-white/40 mt-1">{t('headerSub')}</p>
                 </div>
                 <div className="w-10" /> {/* Spacer */}
             </header>
@@ -137,7 +139,7 @@ export default function Tefekkur() {
                                 exit={{ opacity: 0 }}
                                 className="text-2xl font-serif text-white font-medium tracking-widest"
                             >
-                                <BreathText />
+                                <BreathText t={t} />
                             </motion.span>
                         ) : (
                             <Wind className="w-16 h-16 text-emerald-200/50" />
@@ -157,8 +159,8 @@ export default function Tefekkur() {
                                 className="space-y-6"
                             >
                                 <p className="text-lg text-white/80 font-serif leading-relaxed">
-                                    "Kalpler ancak Allah'ı anmakla huzur bulur."
-                                    <span className="block text-sm text-islamic-gold mt-2 font-sans opacity-80">- Ra'd Suresi, 28</span>
+                                    {t('verse1')}
+                                    <span className="block text-sm text-islamic-gold mt-2 font-sans opacity-80">{t('verse1Source')}</span>
                                 </p>
 
                                 {/* Duration Selector */}
@@ -174,7 +176,7 @@ export default function Tefekkur() {
                                                     : "bg-white/5 text-white/60 border-white/10 hover:bg-white/10"
                                             )}
                                         >
-                                            {dur.label}
+                                            {t(dur.labelKey)}
                                         </button>
                                     ))}
                                 </div>
@@ -183,7 +185,7 @@ export default function Tefekkur() {
                                     onClick={() => { selection(); setActive(true); setCompleted(false); }}
                                     className="w-full h-14 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg flex items-center justify-center gap-2 text-lg font-bold transition-all hover:scale-105 active:scale-95"
                                 >
-                                    <Play className="w-5 h-5 fill-current" /> Başla
+                                    <Play className="w-5 h-5 fill-current" /> {t('start')}
                                 </Button>
                             </motion.div>
                         ) : completed ? (
@@ -206,20 +208,20 @@ export default function Tefekkur() {
 
                                         <div className="space-y-2">
                                             <h3 className="text-2xl font-serif font-bold text-white tracking-wide">
-                                                Maşallah
+                                                {t('mashallah')}
                                             </h3>
                                             <p className="text-white/60 text-sm font-medium">
-                                                Ruhunu ve bedenini dinlendirdin.
+                                                {t('completedMsg')}
                                             </p>
                                         </div>
 
                                         {/* Verse Card */}
                                         <div className="w-full p-6 rounded-2xl bg-black/20 border border-white/5 space-y-3">
                                             <p className="text-xl font-serif text-islamic-gold leading-relaxed">
-                                                "Elbette zorlukla beraber bir kolaylık vardır."
+                                                {t('verse2')}
                                             </p>
                                             <p className="text-xs text-white/40 uppercase tracking-widest font-sans">
-                                                İnşirah Suresi, 5-6
+                                                {t('verse2Source')}
                                             </p>
                                         </div>
 
@@ -230,13 +232,13 @@ export default function Tefekkur() {
                                                 onClick={() => { selection(); navigate('/'); }}
                                                 className="flex-1 h-12 rounded-xl border-white/10 bg-white/5 hover:bg-white/10 text-white/80 hover:text-white"
                                             >
-                                                Ana Sayfa
+                                                {t('home')}
                                             </Button>
                                             <Button
                                                 onClick={() => { selection(); setCompleted(false); setActive(false); setTimeLeft(duration); }}
                                                 className="flex-1 h-12 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg"
                                             >
-                                                <RotateCcw className="w-4 h-4 mr-2" /> Tekrar
+                                                <RotateCcw className="w-4 h-4 mr-2" /> {t('repeat')}
                                             </Button>
                                         </div>
                                     </div>
@@ -256,13 +258,13 @@ export default function Tefekkur() {
                                     </span>
                                 </div>
                                 <p className="text-white/60 text-sm animate-pulse">
-                                    Derin nefes al, arkana yaslan ve huzuru hisset.
+                                    {t('breatheHint')}
                                 </p>
                                 <Button
                                     onClick={() => { selection(); setActive(false); setTimeLeft(duration); }}
                                     className="w-full bg-white/10 hover:bg-white/20 text-white/90 font-medium"
                                 >
-                                    Bitir
+                                    {t('end')}
                                 </Button>
                             </motion.div>
                         )}
@@ -276,23 +278,23 @@ export default function Tefekkur() {
 
 // Separate component to handle text timing precisely if needed, 
 // for now using a simple cycler in main component is better but let's just make it visual.
-function BreathText() {
-    const [text, setText] = useState('Nefes Al');
+function BreathText({ t }) {
+    const [text, setText] = useState(t('inhale'));
 
     useEffect(() => {
         const runCycle = async () => {
             // Total 14s cycle: 4s Inhale, 4s Hold, 6s Exhale
             while (true) {
-                setText('Nefes Al');
+                setText(t('inhale'));
                 await new Promise(r => setTimeout(r, 4000));
-                setText('Tut');
+                setText(t('hold'));
                 await new Promise(r => setTimeout(r, 4000));
-                setText('Ver');
+                setText(t('exhale'));
                 await new Promise(r => setTimeout(r, 5000));
             }
         };
         runCycle();
-    }, []);
+    }, [t]);
 
     return <>{text}</>;
 }

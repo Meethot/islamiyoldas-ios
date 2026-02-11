@@ -14,27 +14,29 @@ import MurakabeTab from '@/components/MurakabeTab';
 import { getDailyPrayersKey, getAppDate } from '@/lib/testDate';
 import { safeGetStorage } from '@/utils/storageHelper';
 import { triggerReviewPrompt } from '@/components/ReviewPrompt';
+import { useTranslation } from 'react-i18next';
 
 const PRAYER_TYPES = [
-    { key: 'sabah', label: 'Sabah' },
-    { key: 'ogle', label: 'Öğle' },
-    { key: 'ikindi', label: 'İkindi' },
-    { key: 'aksam', label: 'Akşam' },
-    { key: 'yatsi', label: 'Yatsı' },
-    { key: 'vitir', label: 'Vitir' },
+    { key: 'sabah', labelKey: 'prayerTypes.sabah' },
+    { key: 'ogle', labelKey: 'prayerTypes.ogle' },
+    { key: 'ikindi', labelKey: 'prayerTypes.ikindi' },
+    { key: 'aksam', labelKey: 'prayerTypes.aksam' },
+    { key: 'yatsi', labelKey: 'prayerTypes.yatsi' },
+    { key: 'vitir', labelKey: 'prayerTypes.vitir' },
 ];
 
 const TABS = [
-    { id: 'namaz', label: 'Namaz', icon: Calendar },
-    { id: 'kuran', label: 'Kur\'an', icon: BookOpen },
-    { id: 'kaza', label: 'Kaza', icon: Target },
-    { id: 'murakabe', label: 'Murakabe', icon: Eye },
+    { id: 'namaz', labelKey: 'tabs.namaz', icon: Calendar },
+    { id: 'kuran', labelKey: 'tabs.quran', icon: BookOpen },
+    { id: 'kaza', labelKey: 'tabs.kaza', icon: Target },
+    { id: 'murakabe', labelKey: 'tabs.murakabe', icon: Eye },
 ];
 
 export default function Tracking() {
     const { selection, impactMedium } = useHaptics();
     const { prayerTimes, loadingPrayers } = usePrayers();
     const { currentStreak, longestStreak, recordDayComplete, getStreakMessage } = usePrayerStreak();
+    const { t } = useTranslation('tracking');
 
     // Tab State
     const [activeTab, setActiveTab] = useState('namaz');
@@ -69,7 +71,21 @@ export default function Tracking() {
     // Load initial data
     useEffect(() => {
         const prayerKey = getDailyPrayersKey();
-        setCompletedPrayers(safeGetStorage(prayerKey, []));
+        const stored = safeGetStorage(prayerKey, []);
+        // Migration: convert old name-based data to id-based
+        const NAME_TO_ID = {
+            'Fajr': 'fajr', 'Dhuhr': 'dhuhr', 'Asr': 'asr', 'Maghrib': 'maghrib', 'Isha': 'isha',
+            'İmsak': 'fajr', 'Öğle': 'dhuhr', 'İkindi': 'asr', 'Akşam': 'maghrib', 'Yatsı': 'isha',
+        };
+        const validIds = ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'];
+        const needsMigration = stored.some(p => !validIds.includes(p));
+        if (needsMigration) {
+            const migrated = [...new Set(stored.map(p => NAME_TO_ID[p] || p).filter(p => validIds.includes(p)))];
+            localStorage.setItem(prayerKey, JSON.stringify(migrated));
+            setCompletedPrayers(migrated);
+        } else {
+            setCompletedPrayers(stored);
+        }
 
         const savedQada = localStorage.getItem('qadaCounts');
         if (savedQada) setQadaCounts(JSON.parse(savedQada));
@@ -341,7 +357,7 @@ export default function Tracking() {
                         </span>
                     </div>
                     <span className="text-[10px] text-islamic-gold/50 uppercase tracking-[0.2em] font-bold mt-1">
-                        İlerleme
+                        {t('progress')}
                     </span>
 
                     {/* Tiny decorative dots */}
@@ -384,7 +400,7 @@ export default function Tracking() {
                             whileTap={{ scale: 0.95 }}
                         >
                             <Icon className={cn("w-5 h-5 mx-auto mb-1", isActive && "drop-shadow-md")} />
-                            <span className="text-[10px]">{tab.label}</span>
+                            <span className="text-[10px]">{t(tab.labelKey)}</span>
                         </motion.button>
                     );
                 })}
@@ -445,15 +461,15 @@ export default function Tracking() {
                                 <CircularProgress value={progress} />
                                 <div className="mt-6 text-center">
                                     <h3 className="text-lg font-serif font-bold italic mb-2 text-center text-balance text-emerald-100/90">
-                                        "Rabbim! Beni ve soyumdan gelecekleri namazı dosdoğru kılanlardan eyle."
-                                        <span className="block text-xs font-sans font-normal not-italic text-emerald-100/50 mt-1 opacity-70">(İbrahim Suresi, 40. Ayet)</span>
+                                        {t('kazaVerse')}
+                                        <span className="block text-xs font-sans font-normal not-italic text-emerald-100/50 mt-1 opacity-70">{t('kazaVerseSource')}</span>
                                     </h3>
-                                    <p className="text-emerald-100/60 text-sm">Hedef: {goal} Namaz | Ödenen: {totalPaid}</p>
+                                    <p className="text-emerald-100/60 text-sm">{t('target', { goal, paid: totalPaid })}</p>
                                 </div>
                                 <div className="w-full h-px bg-white/10 my-6" />
                                 <div className="flex justify-center w-full">
                                     <div className="bg-white/5 rounded-2xl p-4 flex items-center justify-center gap-2 min-w-[200px] shadow-lg shadow-black/10 border border-white/5">
-                                        <p className="text-sm text-emerald-100/60 uppercase font-bold tracking-wider">Kalan:</p>
+                                        <p className="text-sm text-emerald-100/60 uppercase font-bold tracking-wider">{t('remaining')}</p>
                                         <p className="text-2xl font-black text-islamic-gold">{Math.max(0, goal - totalPaid)}</p>
                                     </div>
                                 </div>
@@ -467,7 +483,7 @@ export default function Tracking() {
                                     }}
                                 >
                                     <Settings className="w-4 h-4 mr-2" />
-                                    Hedef Güncelle
+                                    {t('updateGoal')}
                                 </Button>
                             </div>
                         </Card>
@@ -475,13 +491,13 @@ export default function Tracking() {
                         <div className="space-y-4">
                             <h2 className="text-lg font-serif font-bold text-islamic-green dark:text-islamic-gold flex items-center gap-2 px-1">
                                 <Target className="w-5 h-5" />
-                                Kaza Namazlarım
+                                {t('kazaTitle')}
                             </h2>
                             <div className="grid grid-cols-2 gap-3">
                                 {PRAYER_TYPES.map((prayer) => (
                                     <div key={prayer.key} className="glass-panel p-4 rounded-3xl flex flex-col gap-3">
                                         <div className="flex justify-between items-start">
-                                            <span className="text-[11px] font-bold text-gray-400 dark:text-emerald-100/40 uppercase tracking-widest">{prayer.label}</span>
+                                            <span className="text-[11px] font-bold text-gray-400 dark:text-emerald-100/40 uppercase tracking-widest">{t(prayer.labelKey)}</span>
                                             <div className="flex items-center gap-2">
                                                 <button
                                                     onClick={() => openEditModal(prayer)}
@@ -554,7 +570,7 @@ export default function Tracking() {
                                 <div className="flex justify-between items-center mb-6">
                                     <h3 className="text-lg font-bold font-serif text-islamic-green dark:text-islamic-gold flex items-center gap-2">
                                         <Edit2 className="w-5 h-5" />
-                                        {editingPrayer.label} Düzenle
+                                        {t('editPrayer', { label: t(editingPrayer.labelKey) })}
                                     </h3>
                                     <button
                                         onClick={() => setEditingPrayer(null)}
@@ -567,7 +583,7 @@ export default function Tracking() {
                                 <div className="space-y-4">
                                     <div>
                                         <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
-                                            Kaza Borç Sayısı
+                                            {t('debtCount')}
                                         </label>
                                         <input
                                             type="number"
@@ -587,7 +603,7 @@ export default function Tracking() {
                                         className="w-full h-12 bg-islamic-gold hover:bg-islamic-gold/90 text-[#032e18] font-bold text-base rounded-xl shadow-lg shadow-islamic-gold/20 active:scale-95 transition-all"
                                     >
                                         <Save className="w-4 h-4 mr-2" />
-                                        Kaydet
+                                        {t('save')}
                                     </Button>
                                 </div>
                             </div>
@@ -619,7 +635,7 @@ export default function Tracking() {
                                     <div className="p-2 bg-islamic-gold/10 rounded-xl">
                                         <Calculator className="w-5 h-5 text-islamic-gold" />
                                     </div>
-                                    <h3 className="text-xl font-bold font-serif text-islamic-green dark:text-islamic-gold">Kaza Hedefi</h3>
+                                    <h3 className="text-xl font-bold font-serif text-islamic-green dark:text-islamic-gold">{t('goalTitle')}</h3>
                                 </div>
                                 <button
                                     onClick={() => setShowGoalModal(false)}
@@ -640,7 +656,7 @@ export default function Tracking() {
                                             : "bg-gray-100 dark:bg-white/5 text-gray-500 dark:text-gray-400"
                                     )}
                                 >
-                                    Manuel Giriş
+                                    {t('manualEntry')}
                                 </button>
                                 <button
                                     onClick={() => setGoalTab('auto')}
@@ -651,7 +667,7 @@ export default function Tracking() {
                                             : "bg-gray-100 dark:bg-white/5 text-gray-500 dark:text-gray-400"
                                     )}
                                 >
-                                    Otomatik Hesapla
+                                    {t('autoCalc')}
                                 </button>
                             </div>
 
@@ -668,7 +684,7 @@ export default function Tracking() {
                                         >
                                             <div>
                                                 <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
-                                                    Hedef (Gün)
+                                                    {t('goalDaysLabel')}
                                                 </label>
                                                 <input
                                                     type="number"
@@ -686,7 +702,7 @@ export default function Tracking() {
                                                 />
                                             </div>
                                             <p className="text-xs text-gray-500 dark:text-gray-400 italic">
-                                                Toplam kaza namaz hedefinizi gün olarak girin.
+                                                {t('goalHint')}
                                             </p>
                                         </motion.div>
                                     ) : (
@@ -700,7 +716,7 @@ export default function Tracking() {
                                             {/* Birth Date Input */}
                                             <div>
                                                 <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
-                                                    Doğum Tarihi
+                                                    {t('birthDate')}
                                                 </label>
                                                 <input
                                                     type="date"
@@ -723,7 +739,7 @@ export default function Tracking() {
                                             {/* Puberty Age Slider */}
                                             <div>
                                                 <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-4">
-                                                    Büluğ Çağı: <span className="text-islamic-gold text-lg ml-1">{pubertyAge} yaş</span>
+                                                    {t('pubertyAge')} <span className="text-islamic-gold text-lg ml-1">{t('pubertyAgeValue', { age: pubertyAge })}</span>
                                                 </label>
                                                 <input
                                                     type="range"
@@ -735,7 +751,7 @@ export default function Tracking() {
                                                 />
                                                 <div className="flex justify-between text-xs text-gray-400 mt-2 font-medium px-1">
                                                     <span>10</span>
-                                                    <span>14 (Ort)</span>
+                                                    <span>{t('pubertyAvg')}</span>
                                                     <span>18</span>
                                                 </div>
                                             </div>
@@ -749,11 +765,11 @@ export default function Tracking() {
                                                 >
                                                     {/* Same Summary UI */}
                                                     <p className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">
-                                                        Hesaplama Özeti
+                                                        {t('calcSummary')}
                                                     </p>
                                                     <div className="space-y-2 text-sm">
                                                         <div className="flex justify-between items-center">
-                                                            <span className="text-gray-600 dark:text-gray-400">Sorumluluk Başlangıcı:</span>
+                                                            <span className="text-gray-600 dark:text-gray-400">{t('responsibilityStart')}</span>
                                                             <span className="font-bold text-islamic-green dark:text-islamic-gold">
                                                                 {(() => {
                                                                     if (!birthDate) return '-';
@@ -765,21 +781,21 @@ export default function Tracking() {
                                                             </span>
                                                         </div>
                                                         <div className="flex justify-between items-center">
-                                                            <span className="text-gray-600 dark:text-gray-400">Geçen Süre:</span>
+                                                            <span className="text-gray-600 dark:text-gray-400">{t('elapsed')}</span>
                                                             <span className="font-bold text-islamic-green dark:text-islamic-gold">
                                                                 {(() => {
                                                                     const days = calculateMissedPrayers();
-                                                                    if (days === 0) return '0 gün';
+                                                                    if (days === 0) return t('elapsedDays', { days: 0 });
                                                                     const years = Math.floor(days / 365);
                                                                     const remainingDays = days % 365;
-                                                                    return `${years} yıl, ${remainingDays} gün`;
+                                                                    return t('elapsedValue', { years, days: remainingDays });
                                                                 })()}
                                                             </span>
                                                         </div>
                                                         <div className="flex justify-between items-center pt-3 border-t border-islamic-green/20 dark:border-islamic-gold/20 mt-1">
-                                                            <span className="font-bold text-gray-700 dark:text-gray-300">Tahmini Borç:</span>
+                                                            <span className="font-bold text-gray-700 dark:text-gray-300">{t('estimatedDebt')}</span>
                                                             <span className="font-black text-xl text-islamic-gold">
-                                                                {calculateMissedPrayers().toLocaleString('tr-TR')} gün
+                                                                {t('debtDays', { count: calculateMissedPrayers().toLocaleString('tr-TR') })}
                                                             </span>
                                                         </div>
                                                     </div>
@@ -789,7 +805,7 @@ export default function Tracking() {
                                             {!birthDate && (
                                                 <div className="p-4 bg-gray-50 dark:bg-white/5 rounded-2xl text-center border border-dashed border-gray-200 dark:border-white/10">
                                                     <p className="text-xs text-gray-500 dark:text-gray-400 italic">
-                                                        👆 Doğum tarihinizi seçin, borcunuzu otomatik hesaplayalım.
+                                                        {t('selectBirthHint')}
                                                     </p>
                                                 </div>
                                             )}
@@ -804,11 +820,11 @@ export default function Tracking() {
                                         disabled={goalTab === 'auto' && !birthDate}
                                         className="w-full h-14 bg-islamic-gold hover:bg-islamic-gold/90 text-[#032e18] font-bold text-lg rounded-2xl disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-islamic-gold/20 transition-all active:scale-95"
                                     >
-                                        {goalTab === 'manual' ? 'Hedefi Kaydet' : 'Borcu Kaydet'}
+                                        {goalTab === 'manual' ? t('saveGoal') : t('saveDebt')}
                                     </Button>
                                     {goalTab === 'auto' && birthDate && (
                                         <p className="text-[10px] text-center text-gray-400 mt-3">
-                                            Hesaplama yaklaşık değerdir. Küsüratlar yuvarlanmıştır.
+                                            {t('approxNote')}
                                         </p>
                                     )}
                                 </div>

@@ -13,6 +13,7 @@ import { fetchChapters, fetchSurahAudio } from '@/services/quranApi';
 import { safeGetStorage, safeSetStorage } from '@/utils/storageHelper';
 import { getSurahSummary } from '@/data/surahSummaries';
 import { App } from '@capacitor/app';
+import { useTranslation } from 'react-i18next';
 
 // Background Mode Helper (Cordova Plugin)
 const BackgroundMode = {
@@ -20,8 +21,8 @@ const BackgroundMode = {
         if (window.cordova?.plugins?.backgroundMode) {
             window.cordova.plugins.backgroundMode.enable();
             window.cordova.plugins.backgroundMode.setDefaults({
-                title: 'İslami Yoldaş',
-                text: `${surahName} Suresi dinleniyor`,
+                title: t('bgTitle'),
+                text: t('listeningTo', { name: surahName }),
                 icon: 'ic_launcher',
                 color: 'D4AF37',
                 resume: true,
@@ -41,7 +42,9 @@ const BOOKMARKS_KEY = 'quran_bookmarks';
 
 export default function Quran() {
     const navigate = useNavigate();
+    const { t, i18n } = useTranslation('quran');
     const { selection, success } = useHaptics();
+    const currentLang = i18n.language?.split('-')[0] || 'tr';
 
     // State
     const [surahs, setSurahs] = useState([]);
@@ -107,28 +110,31 @@ export default function Quran() {
             try {
                 setIsLoadingSurahs(true);
                 setSurahError(null);
-                const chapters = await fetchChapters('tr');
+                const chapters = await fetchChapters(currentLang);
                 // Map to UI format
                 setSurahs(chapters.map(ch => ({
                     id: ch.id,
-                    name: ch.nameTurkish || ch.name,
+                    name: currentLang === 'tr' ? (ch.translatedName || ch.name) : ch.name,
+                    nameSimple: ch.name,
                     arabic: ch.nameArabic,
                     ayahCount: ch.ayahCount,
-                    revelation: ch.revelation
+                    revelationPlace: ch.revelationPlace
                 })));
             } catch (err) {
                 console.error('Failed to fetch surahs:', err);
-                setSurahError('Sureler yüklenemedi. İnternet bağlantınızı kontrol edin.');
+                setSurahError(t('surahLoadError'));
             } finally {
                 setIsLoadingSurahs(false);
             }
         };
         loadSurahs();
-    }, []);
+    }, [currentLang]);
 
     const filteredSurahs = surahs.filter(surah =>
         surah.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        surah.arabic.includes(searchQuery)
+        surah.nameSimple.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        surah.arabic.includes(searchQuery) ||
+        String(surah.id) === searchQuery.trim()
     );
 
     const handleSurahSelect = (surah) => {
@@ -273,11 +279,11 @@ export default function Quran() {
                         </div>
                         <div>
                             <h1 className="text-2xl font-serif font-bold text-white">
-                                {selectedSurah ? selectedSurah.name : 'Kur\'an-ı Kerim'}
+                                {selectedSurah ? selectedSurah.name : t('pageTitle')}
                             </h1>
                             {selectedSurah && (
                                 <p className="text-xs text-white/70 font-medium">
-                                    {selectedSurah.ayahCount} Ayet • {selectedSurah.revelation}
+                                    {selectedSurah.ayahCount} {t('ayahCount', { count: selectedSurah.ayahCount }).split(' ').slice(1).join(' ')} • {t(`revelation.${selectedSurah.revelationPlace}`)}
                                 </p>
                             )}
                         </div>
@@ -303,7 +309,7 @@ export default function Quran() {
                         <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/50" />
                         <input
                             type="text"
-                            placeholder="Sure ara..."
+                            placeholder={t('searchPlaceholder')}
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             className="w-full pl-12 pr-4 py-3 bg-white/10 border border-white/20 rounded-2xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-islamic-gold backdrop-blur-sm"
@@ -324,7 +330,7 @@ export default function Quran() {
                             )}
                         >
                             <BookOpen className="w-4 h-4 inline-block mr-2" />
-                            Sureler
+                            {t('tabSurahs')}
                         </button>
                         <button
                             onClick={() => { selection(); setActiveTab('bookmarks'); }}
@@ -336,7 +342,7 @@ export default function Quran() {
                             )}
                         >
                             <Bookmark className="w-4 h-4 inline-block mr-2" />
-                            Kaydettiklerim
+                            {t('tabBookmarks')}
                             {bookmarks.length > 0 && (
                                 <span className="absolute -top-1 -right-1 w-5 h-5 bg-emerald-500 text-white text-xs rounded-full flex items-center justify-center">
                                     {bookmarks.length}
@@ -360,7 +366,7 @@ export default function Quran() {
                         {isLoadingSurahs && (
                             <div className="flex flex-col items-center justify-center py-20 gap-4">
                                 <Loader2 className="w-10 h-10 text-islamic-gold animate-spin" />
-                                <p className="text-sm text-gray-400">Kur'an yükleniyor...</p>
+                                <p className="text-sm text-gray-400">{t('loadingQuran')}</p>
                             </div>
                         )}
 
@@ -373,14 +379,14 @@ export default function Quran() {
                                     variant="outline"
                                     className="border-islamic-gold text-islamic-gold"
                                 >
-                                    Tekrar Dene
+                                    {t('retry')}
                                 </Button>
                             </div>
                         )}
 
                         {/* Surah Cards */}
                         {!isLoadingSurahs && !surahError && filteredSurahs.map((surah, index) => {
-                            const summaryData = getSurahSummary(surah.id);
+                            const summaryData = getSurahSummary(surah.id, currentLang);
                             return (
                                 <motion.div
                                     key={surah.id}
@@ -437,11 +443,11 @@ export default function Quran() {
 
                                                 <div className="flex items-center gap-3 mb-3">
                                                     <span className="text-[10px] uppercase tracking-[0.15em] font-extrabold text-islamic-green/60 dark:text-islamic-gold/60">
-                                                        {surah.revelation}
+                                                        {t(`revelation.${surah.revelationPlace}`)}
                                                     </span>
                                                     <div className="w-1 h-1 rounded-full bg-gray-300 dark:bg-gray-700" />
                                                     <span className="text-[11px] font-semibold text-gray-500 dark:text-gray-400">
-                                                        {surah.ayahCount} Ayet
+                                                        {t('ayahCount', { count: surah.ayahCount })}
                                                     </span>
                                                 </div>
 
@@ -462,7 +468,7 @@ export default function Quran() {
                         })}
                         {!isLoadingSurahs && !surahError && filteredSurahs.length === 0 && (
                             <div className="text-center py-12">
-                                <p className="text-gray-400">Sure bulunamadı</p>
+                                <p className="text-gray-400">{t('noResults')}</p>
                             </div>
                         )}
                     </motion.div>
@@ -484,9 +490,9 @@ export default function Quran() {
                                     <Bookmark className="w-10 h-10 text-islamic-gold/50" />
                                 </div>
                                 <div>
-                                    <h3 className="text-lg font-bold text-white mb-1">Henüz kayıt yok</h3>
+                                    <h3 className="text-lg font-bold text-white mb-1">{t('noBookmarks')}</h3>
                                     <p className="text-sm text-gray-400">
-                                        Ayetleri okurken kaydet butonuna basarak buraya ekleyebilirsiniz.
+                                        {t('noBookmarksHint')}
                                     </p>
                                 </div>
                             </div>
@@ -518,7 +524,7 @@ export default function Quran() {
                                                                 {bookmark.surahName}
                                                             </button>
                                                             <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">
-                                                                Ayat {bookmark.verseNumber}
+                                                                {t('ayat', { number: bookmark.verseNumber })}
                                                             </p>
                                                         </div>
                                                     </div>
@@ -620,7 +626,7 @@ export default function Quran() {
                         <div className="flex items-center justify-between gap-4">
                             <div className="flex-1">
                                 <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
-                                    Ses: [API'den kari seçimi gelecek]
+                                    {t('audioNote')}
                                 </p>
                                 <div className="h-1 bg-gray-200 dark:bg-white/10 rounded-full overflow-hidden">
                                     <div className="h-full bg-islamic-gold w-1/3" />
@@ -695,9 +701,9 @@ export default function Quran() {
                             <div className="flex-1 min-w-0 py-1">
                                 <div className="flex justify-between items-end mb-2">
                                     <div className="truncate mr-2">
-                                        <p className="text-[9px] text-islamic-gold font-black uppercase tracking-[0.2em] mb-1 opacity-80">Dinleniyor</p>
+                                        <p className="text-[9px] text-islamic-gold font-black uppercase tracking-[0.2em] mb-1 opacity-80">{t('nowPlaying')}</p>
                                         <h4 className="text-sm font-bold text-white truncate leading-none">
-                                            {currentlyPlaying.name} Suresi
+                                            {t('surahName', { name: currentlyPlaying.name })}
                                         </h4>
                                     </div>
                                     <div className="text-[10px] font-bold text-white/40 tabular-nums shrink-0">

@@ -1,0 +1,29 @@
+{
+    "spiritualCompass": "Spiritual Compass",
+    "qiblaDirection": "QIBLA",
+    "directionSuffix": "DIRECTION",
+    "calculating": "CALCULATING...",
+    "qiblaFound": "QIBLA FOUND",
+    "qiblaFoundSubtitle": "MAY ALLAH ACCEPT",
+    "degreesRemaining": "Degrees to Align",
+    "distance": "DISTANCE:",
+    "km": "KM",
+    "compassDirections": {
+        "north": "N",
+        "east": "E",
+        "south": "S",
+        "west": "W"
+    },
+    "infoTitle": "Spiritual Compass",
+    "infoSubtitle": "Qibla Direction Guide",
+    "tip1Title": "Hold your phone flat",
+    "tip1Desc": "You get the most accurate result when holding it parallel to the ground.",
+    "tip2Title": "The golden arrow guides you",
+    "tip2Desc": "When the angle reaches 0°, you've found the Qibla direction.",
+    "tip3Title": "Stay away from magnetic fields",
+    "tip3Desc": "Metal objects, electronic devices, and cars may affect the compass.",
+    "distanceToKaaba": "You are {{distance}} km away from the Kaaba",
+    "hadith": "\"Wherever you are, turn your face toward the Sacred Mosque.\"",
+    "hadithSource": "— Surah Al-Baqarah, 144",
+    "understood": "Got it ✨"
+}

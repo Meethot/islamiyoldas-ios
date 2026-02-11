@@ -3,7 +3,7 @@
         "home": "Home",
         "learn": "Learn",
         "stories": "Stories",
-        "worship": "Worship",
+        "worship": "Ibadah",
         "profile": "Profile"
     },
     "prayer": {
@@ -31,5 +31,26 @@
         "cancel": "Cancel",
         "back": "Back",
         "next": "Next"
+    },
+    "share": {
+        "card_not_found": "Share card not found. Please refresh the page.",
+        "progress_text": "I'm tracking my worship with Islamic Companion! {{streak}} Join too! 🤲\n\n📲 islamiccompanion.app/download",
+        "progress_streak": "🔥 {{count}} day streak!",
+        "progress_title": "My Spiritual Journey",
+        "progress_filename": "spiritual-journey.png",
+        "share_failed": "Sharing failed. Please try again.",
+        "invite_title": "I wanted to share this with you",
+        "invite_text": "I discovered Islamic Companion! A wonderful companion for spiritual growth. 🤲",
+        "link_copied": "Link copied to clipboard!",
+        "verse_friday": "Blessed Friday",
+        "verse_daily": "Verse of the Day",
+        "verse_text": "\"{{text}}\" - {{source}}\n\nIslamic Companion - Your Closest Companion on the Spiritual Path 🤲",
+        "verse_share_error": "An error occurred while sharing.",
+        "hidden_title": "Islamic Companion Share",
+        "hidden_filename": "share.png",
+        "app_title": "Islamic Companion",
+        "app_share_text": "I'm using this amazing app to learn prayer and refresh my religious knowledge. Try it too!",
+        "app_share_dialog": "Share App",
+        "app_link_copied": "Link copied! (Share menu only works on mobile devices)"
     }
 }

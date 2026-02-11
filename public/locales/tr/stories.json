@@ -1,0 +1,10 @@
+{
+    "categories": {
+        "prophets": "Peygamberler",
+        "companions": "Sahabeler",
+        "moral": "Kıssalar"
+    },
+    "nowListening": "Şuan Dinleniyor",
+    "normalSpeed": "Normal Hız",
+    "speedUp": "2x Hızlandır"
+}

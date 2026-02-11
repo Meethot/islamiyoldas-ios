@@ -13,6 +13,56 @@
         "share_title": "Cuma Mesajı Paylaş"
     },
     "verse_share_title": "Ayet Paylaş",
+    "verse": {
+        "fridayTitle": "Cuma Hatırlatması",
+        "dailyTitle": "Günün Ayeti",
+        "shareBtn": "Mesajı Paylaş"
+    },
+    "deed": {
+        "title": "Bugünün İyiliği",
+        "blurText": "İyilik her kapıyı açar...",
+        "reveal": "GÖR",
+        "items": [
+            "Yerdeki bir çöpü al.",
+            "Bir sokak hayvanına su ver.",
+            "Tanımadığın birine selam ver.",
+            "Bugün hiç şikayet etme.",
+            "Eski bir dostuna mesaj at.",
+            "Kuşlar için cama ekmek koy.",
+            "Sinirlendiginde susmayı seç.",
+            "Birine içten teşekkür et.",
+            "Asansörde kapıyı tut.",
+            "Aynaya bak ve şükret.",
+            "Bir arkadaşının derdini dinle.",
+            "İş arkadaşına kahve yap.",
+            "Yürüyen merdivende yol ver.",
+            "Bir bitkiyi sula.",
+            "Kötü söz söyleyene sus.",
+            "Yemeği yapana dua et.",
+            "Birinin güzel huyunu öv.",
+            "Sıranı başkasına ver.",
+            "Yatmadan önce herkesi affet.",
+            "Sabah uyanınca gülümse.",
+            "Bir esnafa 'Hayırlı İşler' de.",
+            "Çocuklara el salla.",
+            "Bugün sadece dinleyici ol.",
+            "Kalan yemeği hayvanlara ver.",
+            "Birine 'Seni seviyorum' de.",
+            "Hatalıysan özür dile.",
+            "Trafikte korna çalma.",
+            "Bir yetime başını okşa.",
+            "Gökyüzüne bakıp tefekkür et.",
+            "Komşuna hal hatır sor.",
+            "Bugün israf etme.",
+            "Kızdığın kişiye dua et.",
+            "Bir bilgi ya da hünerini öğret.",
+            "Yaşlı birine yardım et.",
+            "Bugün yalan söyleme.",
+            "Birine kapıyı aç.",
+            "Bugün öfkeni yut.",
+            "Yemeğini yavaş ye, şükret."
+        ]
+    },
     "theme_select": "Tema Seçin",
     "share_image": "Fotoğrafı Paylaş",
     "sharing": "Paylaşılıyor...",
@@ -48,6 +98,136 @@
     },
     "esma": {
         "virtue_title": "Fazileti & Sırrı",
-        "cycle": "{{count}}. Tur"
+        "cycle": "{{count}}. Tur",
+        "title": "Esma-ül Hüsna",
+        "showAll": "Hepsini Gör",
+        "swipe": "Kaydır",
+        "seeDetails": "Detayları Gör",
+        "modalTitle": "99 Esma-ül Hüsna",
+        "searchPlaceholder": "İsim veya anlam ara...",
+        "sortAsc": "A-Z Sırala",
+        "sortDesc": "Z-A Sırala",
+        "ebced": "Ebced",
+        "noResults": "Aradığınız isim bulunamadı...",
+        "close": "Kapat"
+    },
+    "tuba": {
+        "title": "Tuba Ağacı",
+        "days": [
+            "P",
+            "S",
+            "Ç",
+            "P",
+            "C",
+            "C",
+            "P"
+        ],
+        "daysCompleted": "{{count}} / 7 Gün Tamamlandı",
+        "streak": "🔥 {{count}} Gün Seri",
+        "total": "Toplam: {{count}}",
+        "goal": "Hedef: {{count}}",
+        "btnDone": "Bugün Verildi",
+        "btnWatering": "Sulanıyor...",
+        "btnWater": "Can Suyu Ver",
+        "toastAlready": "Bugünkü hakkını zaten doldurdun! Yarın tekrar gel 🌱",
+        "celebTitle": "Mübarek Olsun!",
+        "celebMsg": "Haftalık hedefini tamamladın.<br/>Tuba fidanın artık daha güçlü! ✨",
+        "stages": {
+            "seed": "Manevi Tohum",
+            "seedMeaning": "Potansiyel",
+            "sapling": "Körpe Fidan",
+            "saplingMeaning": "Büyüme",
+            "youngTree": "Genç Ağaç",
+            "youngTreeMeaning": "İstikrar",
+            "matureTree": "Köklü Çınar",
+            "matureTreeMeaning": "Sadakat",
+            "tuba": "Mübarek Tuba",
+            "tubaMeaning": "Bereket"
+        }
+    },
+    "calendar": {
+        "title": "Kutlu Zamanlar",
+        "next": "Sırada",
+        "showAll": "Tümünü Gör",
+        "approaching": "Yaklaşıyor",
+        "modalTitle": "2026 Kutlu Zamanlar",
+        "modalSubtitle": "Hicri 1447 - 1448",
+        "today": "Bugün",
+        "tomorrow": "Yarın",
+        "daysLeft": "{{count}} Gün Kaldı",
+        "months": [
+            "Ocak",
+            "Şubat",
+            "Mart",
+            "Nisan",
+            "Mayıs",
+            "Haziran",
+            "Temmuz",
+            "Ağustos",
+            "Eylül",
+            "Ekim",
+            "Kasım",
+            "Aralık"
+        ]
+    },
+    "fasting": {
+        "title": "Oruç Takibi",
+        "subtitle": "Orucunu takip et, seriyi koru",
+        "longest": "En yüksek: {{count}} gün",
+        "ramazanDay": "Ramazan'ın {{day}}. Günü",
+        "fasted": "Oruç Tutuldu ✓",
+        "fastToday": "Bugün Oruç",
+        "accepted": "Allah kabul etsin",
+        "markIt": "Oruç tuttuysan işaretle",
+        "daySeries": "gün seri",
+        "dayNames": [
+            "Pz",
+            "Pt",
+            "Sa",
+            "Ça",
+            "Pe",
+            "Cu",
+            "Ct"
+        ],
+        "rewards": [
+            "İlk adım atıldı!",
+            "Harika gidiyorsun!",
+            "Bir hafta tamamlandı!",
+            "Yarı yol, müthis!",
+            "Tam bir ay, masa Allah!"
+        ]
+    },
+    "quickAction": {
+        "fasting": "Oruç Takibi",
+        "fastingSub": "Orucunu takip et, seriyi koru"
+    },
+    "reminder": {
+        "title": "Hatırlatıcı Kur",
+        "forPrayer": "{{prayer}} vakti için",
+        "currentlySelected": "Şu an {{time}} seçili",
+        "onTime": "Tam Vaktinde",
+        "minutesBefore": "{{count}} Dakika Önce",
+        "alreadySelected": "Zaten Seçili",
+        "removeReminder": "Hatırlatıcıyı Kaldır",
+        "resetReminder": "Hatırlatıcıyı Sıfırla (Kapat)"
+    },
+    "header": {
+        "appName": "İslami Yoldaş"
+    },
+    "streak": {
+        "dayStreak": "Gün Seri",
+        "highest": "En yüksek: {{count}} gün",
+        "start": "Bugün başla!",
+        "firstStep": "İlk adım atıldı!",
+        "keepGoing": "Devam et!",
+        "doingGreat": "Harika gidiyorsun!",
+        "amazing": "Muhteşem!",
+        "legendary": "Efsane!"
+    },
+    "dailyWorship": {
+        "title": "GÜNLÜK İBADET",
+        "completed": "{{current}} / {{total}} Tamamlandı",
+        "allDoneTitle": "Elhamdülillah",
+        "allDoneSub": "Gün Tamamlandı 🤲"
     }
 }

@@ -1,0 +1,23 @@
+{
+    "aiMentor": {
+        "title": "Manevi Asistan",
+        "subtitle": "Yapay Zeka Destekli Asistan",
+        "welcomeMessage": "Selamün aleyküm güzel kardeşim. Ben senin Manevi Asistanınım. Kalbinde ne var, seni daraltan veya şükrettiren nedir? Bana anlat, sana Kuran ve Sünnet ışığında bir reçete hazırlayayım.",
+        "thinking": "Tefekkür ediliyor...",
+        "placeholder": "Derdim var, içim daralıyor...",
+        "errorPrefix": "Hata oluştu:"
+    },
+    "prescription": {
+        "title": "Manevi Reçete",
+        "adviceLabel": "Hekim Tavsiyesi",
+        "dhikrLabel": "Zikir Reçetesi",
+        "startDhikr": "Zikre Başla",
+        "verseLabel": "Şifa Ayeti",
+        "listen": "Dinle",
+        "pause": "Durakla",
+        "ebced": "Ebced",
+        "count": "Adet"
+    },
+    "comingSoon": "Çok Yakında! Bu dil hazırlanıyor. 🌍",
+    "connectionError": "Bağlantı hatası."
+}

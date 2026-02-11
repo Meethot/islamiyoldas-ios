@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { getAppDate } from '@/lib/testDate';
 import { triggerReviewPrompt } from '@/components/ReviewPrompt';
+import { useTranslation } from 'react-i18next';
 
 // Background Mode Helper (Cordova Plugin)
 const BackgroundMode = {
@@ -31,6 +32,7 @@ const BackgroundMode = {
 
 export default function SleepMode() {
     const navigate = useNavigate();
+    const { t } = useTranslation('sleep');
     const [isPlaying, setIsPlaying] = useState(false);
     const [ambientOn, setAmbientOn] = useState(false);
     const [audioUrl, setAudioUrl] = useState(null);
@@ -244,7 +246,7 @@ export default function SleepMode() {
                 </Button>
                 <div className="flex items-center gap-2 bg-white/5 px-4 py-2 rounded-full border border-white/10">
                     <Moon size={16} className="text-islamic-gold" />
-                    <span className="text-[10px] font-bold uppercase tracking-widest text-islamic-gold">Uyku Modu</span>
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-islamic-gold">{t('sleepMode')}</span>
                 </div>
             </header>
 
@@ -253,9 +255,9 @@ export default function SleepMode() {
                     <div className="w-32 h-32 rounded-full bg-gradient-to-b from-islamic-gold/20 to-transparent border border-islamic-gold/20 flex items-center justify-center mx-auto mb-6 shadow-[0_0_50px_rgba(212,175,55,0.1)]">
                         <Moon size={48} className="text-islamic-gold" />
                     </div>
-                    <h2 className="text-3xl font-serif font-bold text-islamic-gold">Huzurlu Uykular</h2>
+                    <h2 className="text-3xl font-serif font-bold text-islamic-gold">{t('title')}</h2>
                     <p className="text-gray-400 max-w-[250px] mx-auto text-sm leading-relaxed">
-                        Zihnini sakinleştir, kalbini ferahlat ve O'na (cc) sığınarak uyu.
+                        {t('subtitle')}
                     </p>
                 </div>
 
@@ -268,8 +270,8 @@ export default function SleepMode() {
                                     <BookOpen size={24} />
                                 </div>
                                 <div className="text-left">
-                                    <p className="text-sm font-bold">Mülk Suresi</p>
-                                    <p className="text-[10px] text-gray-400">Kabir azabından koruyucu</p>
+                                    <p className="text-sm font-bold">{t('mulkSurah')}</p>
+                                    <p className="text-[10px] text-gray-400">{t('mulkDesc')}</p>
                                 </div>
                             </div>
                             <div className="flex items-center gap-2">
@@ -281,7 +283,7 @@ export default function SleepMode() {
                                             ? "bg-islamic-gold text-[#02150a] border-islamic-gold shadow-islamic-gold/20"
                                             : "bg-white/5 text-gray-400 border-white/10 hover:bg-white/10 hover:text-white"
                                     )}
-                                    title="Döngü (Sürekli Çal)"
+                                    title={t('loopTitle')}
                                 >
                                     <Repeat size={20} />
                                 </Button>
@@ -326,9 +328,9 @@ export default function SleepMode() {
                                     <CloudRain size={24} />
                                 </div>
                                 <div className="text-left">
-                                    <p className="text-sm font-bold">Yağmur Sesi</p>
-                                    <p className="text-[10px] text-gray-400">Dinlendirici ambiyans</p>
-                                    {ambientError && <p className="text-[8px] text-red-400 mt-1">Hata: {ambientError}</p>}
+                                    <p className="text-sm font-bold">{t('rainSound')}</p>
+                                    <p className="text-[10px] text-gray-400">{t('rainDesc')}</p>
+                                    {ambientError && <p className="text-[8px] text-red-400 mt-1">{t('error')} {ambientError}</p>}
                                 </div>
                             </div>
                             <Button
@@ -356,7 +358,7 @@ export default function SleepMode() {
                     {forgiven ? (
                         <div className="bg-emerald-900/40 border border-emerald-500/30 p-6 rounded-3xl text-center animate-in zoom-in duration-500">
                             <Heart className="w-8 h-8 text-emerald-400 mx-auto mb-2 fill-emerald-400/20" />
-                            <p className="text-sm font-bold text-emerald-100">Kalbin hafifledi. Allah rahatlık versin.</p>
+                            <p className="text-sm font-bold text-emerald-100">{t('forgivenMsg')}</p>
                         </div>
                     ) : (
                         <Button
@@ -364,7 +366,7 @@ export default function SleepMode() {
                             className="w-full h-16 bg-white/5 hover:bg-white/10 border border-white/10 rounded-3xl font-bold gap-3"
                         >
                             <Heart size={20} className="text-pink-400" />
-                            Hakkımı Helal Ediyorum
+                            {t('forgiveBtn')}
                         </Button>
                     )}
                 </div>

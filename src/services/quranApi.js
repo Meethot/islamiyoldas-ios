@@ -9,11 +9,11 @@ const EDITIONS = {
     arabic: 'ara-quranuthmanihaf',
     transliteration: 'tur-latinalphabet1',
     translation_tr: 'tur-diyanetisleri', // Diyanet İşleri
-    translation_en: 'en-sahih' // Sahih International
+    translation_en: 'eng-ummmuhammad' // Sahih International (Umm Muhammad)
 };
 
 // Caching helper
-const CACHE_KEY_PREFIX = 'surah_content_v3_';
+const CACHE_KEY_PREFIX = 'surah_content_v4_';
 
 async function getCachedSurah(surahId, language) {
     const { value } = await Preferences.get({ key: `${CACHE_KEY_PREFIX}${surahId}_${language}` });
@@ -34,7 +34,7 @@ export async function fetchChapters(language = 'tr') {
     const response = await fetch(`${BASE_URL}/chapters?language=${language}`);
 
     if (!response.ok) {
-        throw new Error('Sureler yüklenemedi');
+        throw new Error('Failed to load surahs');
     }
 
     const data = await response.json();
@@ -42,9 +42,9 @@ export async function fetchChapters(language = 'tr') {
         id: ch.id,
         name: ch.name_simple,
         nameArabic: ch.name_arabic,
-        nameTurkish: ch.translated_name?.name || ch.name_simple,
+        translatedName: ch.translated_name?.name || ch.name_simple,
         ayahCount: ch.verses_count,
-        revelation: ch.revelation_place === 'makkah' ? 'Mekke' : 'Medine',
+        revelationPlace: ch.revelation_place,
         revelationOrder: ch.revelation_order
     }));
 }
@@ -86,7 +86,6 @@ export async function fetchSurahContent(surahId, page = 1, language = 'tr') {
 
     let translationEdition = EDITIONS.translation_tr;
     if (language === 'en') translationEdition = EDITIONS.translation_en;
-    if (language === 'de') translationEdition = EDITIONS.translation_de;
 
     try {
         // Fetch 3 sources in parallel
@@ -97,7 +96,7 @@ export async function fetchSurahContent(surahId, page = 1, language = 'tr') {
         ]);
 
         if (!arabicRes.ok || !translitRes.ok || !translationRes.ok) {
-            throw new Error('Ayet verileri çekilemedi');
+            throw new Error('Failed to fetch verse data');
         }
 
         const [arabicData, translitData, translationData] = await Promise.all([
@@ -107,9 +106,10 @@ export async function fetchSurahContent(surahId, page = 1, language = 'tr') {
         ]);
 
         const combinedData = arabicData.chapter.map((verse, index) => {
-            // Check for manual override data
-            const manualSurah = MANUAL_SURAH_DATA[surahId];
-            const manualVerse = manualSurah?.verses.find(v => v.verse_number === verse.verse);
+            // Manual override only for Turkish (data is hardcoded in Turkish)
+            const manualVerse = language === 'tr'
+                ? MANUAL_SURAH_DATA[surahId]?.verses.find(v => v.verse_number === verse.verse)
+                : null;
 
             return {
                 id: `${surahId}:${verse.verse}`,
@@ -150,7 +150,7 @@ export async function fetchChapterInfo(surahId, language = 'tr') {
     const response = await fetch(`${BASE_URL}/chapters/${surahId}?language=${language}`);
 
     if (!response.ok) {
-        throw new Error('Sure bilgisi yüklenemedi');
+        throw new Error('Failed to load surah info');
     }
 
     const data = await response.json();
@@ -160,9 +160,9 @@ export async function fetchChapterInfo(surahId, language = 'tr') {
         id: ch.id,
         name: ch.name_simple,
         nameArabic: ch.name_arabic,
-        nameTurkish: ch.translated_name?.name || ch.name_simple,
+        translatedName: ch.translated_name?.name || ch.name_simple,
         ayahCount: ch.verses_count,
-        revelation: ch.revelation_place === 'makkah' ? 'Mekke' : 'Medine',
+        revelationPlace: ch.revelation_place,
         revelationOrder: ch.revelation_order
     };
 }

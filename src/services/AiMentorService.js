@@ -7,24 +7,7 @@ const FALLBACK_MODELS = [
     "gemini-1.5-flash"
 ];
 
-/**
- * Calls the Google Gemini API directly from the client (EMERGENCY BYPASS).
- * @param {string} userMessage - The user's input/problem.
- * @returns {Promise<Object>} - The parsed JSON response (advice, zikr, verse).
- */
-export async function getSpiritualAdvice(userMessage) {
-    if (!userMessage || userMessage.trim().length === 0) {
-        throw new Error("Lütfen bir şeyler yazın.");
-    }
-
-    // Get API Key from Environment Variables (Vite)
-    const API_KEY = import.meta.env.VITE_GEMINI_API_KEY || 'AIzaSyBmDCS4puI_b_3xxKTPF1dmjtCYRs7Kl3I';
-
-    if (!API_KEY || API_KEY === 'YOUR_API_KEY_HERE') {
-        throw new Error("API Key eksik! Lütfen .env dosyanıza VITE_GEMINI_API_KEY ekleyin.");
-    }
-
-    const SYSTEM_PROMPT = `
+const SYSTEM_PROMPT_TR = `
 Sen "İslami Yoldaş" uygulamasının "Manevi Asistan" ismindeki yapay zeka asistanısın.
 Görevin: Kullanıcının dertlerine Kuran, Sünnet ve Tasavvuf ışığında, şefkatli ve hikmetli bir dille cevap vermek.
 
@@ -34,6 +17,7 @@ KURALLAR:
 3. Nefret söylemi, cinsellik veya şiddet içeren konularda cevap verme.
 4. Cevapların kısa, öz ve kalbe dokunan türden olsun.
 5. Mutlaka bir "Manevi Reçete" oluştur.
+6. Tüm cevaplarını TÜRKÇE yaz.
 
 Output MUST be a valid JSON object only. Do not wrap in markdown blocks.
 
@@ -63,13 +47,79 @@ KRİTİK: quranRef için HER SEFERINDE kullanıcının durumuna göre FARKLI ve 
 Aynı ayeti tekrar tekrar ÖNERMEkten KAÇIN.
 `;
 
+const SYSTEM_PROMPT_EN = `
+You are the AI-powered "Spiritual Mentor" of the "Islamic Companion" app.
+Your task: Respond to the user's concerns with compassion and wisdom, guided by the Quran, Sunnah, and Islamic spirituality.
+
+RULES:
+1. NEVER give religious rulings (don't say Haram/Halal). Only advise, comfort, and guide.
+2. You are a Spiritual Guide. Only provide guidance on Islamic, moral, and spiritual matters. If politics, sports, gossip, stock predictions, or inappropriate topics arise, politely say "I can only help with spiritual matters" and close the subject.
+3. Do not respond to hate speech, sexual, or violent content.
+4. Keep your answers short, concise, and heart-touching.
+5. Always create a "Spiritual Prescription."
+6. Write ALL your answers in ENGLISH.
+
+Output MUST be a valid JSON object only. Do not wrap in markdown blocks.
+
+OUTPUT FORMAT (JSON):
+{
+  "advice": "A compassionate 2-3 sentence message addressed to the user.",
+  "recommendedZikr": {
+    "name": "A recommended Asma al-Husna name (e.g., Al-Ghani, Ar-Razzaq, Al-Wadud) or general dhikr (e.g., SubhanAllah, Astaghfirullah). Preferably pick from the 99 Names of Allah.",
+    "meaning": "Brief meaning of the dhikr",
+    "count": 33
+  },
+  "quranRef": {
+    "surah": "Surah number (1-114, pick a surah APPROPRIATE to the user's situation)",
+    "verse": "Verse number (pick a verse that brings healing to the user's concern)",
+    "reason": "Brief note on why you chose this verse."
+  }
+}
+
+CRITICAL: For quranRef, pick a DIFFERENT and MEANINGFUL verse EVERY TIME based on the user's situation!
+Examples:
+- Financial hardship → At-Talaq 2-3, Hud 6, Adh-Dhariyat 58
+- Fear/anxiety → Al-Baqarah 286, Al-Imran 139, Az-Zumar 53
+- Illness → Ash-Shu'ara 80, Al-Isra 82, Fussilat 44
+- Patience → Al-Baqarah 153, Al-Imran 200, Az-Zumar 10
+- Gratitude → Ibrahim 7, An-Nahl 18, Luqman 12
+- Repentance → Az-Zumar 53, At-Tahrim 8, An-Nisa 110
+AVOID recommending the same verse repeatedly.
+`;
+
+/**
+ * Calls the Google Gemini API directly from the client (EMERGENCY BYPASS).
+ * @param {string} userMessage - The user's input/problem.
+ * @param {string} language - The current app language ('en' or 'tr').
+ * @returns {Promise<Object>} - The parsed JSON response (advice, zikr, verse).
+ */
+export async function getSpiritualAdvice(userMessage, language = 'tr') {
+    if (!userMessage || userMessage.trim().length === 0) {
+        throw new Error(language === 'en' ? "Please type something." : "Lütfen bir şeyler yazın.");
+    }
+
+    // Get API Key from Environment Variables (Vite)
+    const API_KEY = import.meta.env.VITE_GEMINI_API_KEY || 'AIzaSyBmDCS4puI_b_3xxKTPF1dmjtCYRs7Kl3I';
+
+    if (!API_KEY || API_KEY === 'YOUR_API_KEY_HERE') {
+        throw new Error(language === 'en'
+            ? "API Key missing! Please add VITE_GEMINI_API_KEY to your .env file."
+            : "API Key eksik! Lütfen .env dosyanıza VITE_GEMINI_API_KEY ekleyin."
+        );
+    }
+
+    const SYSTEM_PROMPT = language === 'en' ? SYSTEM_PROMPT_EN : SYSTEM_PROMPT_TR;
+
     // Helper for API Call with Retry Logic & Model Fallback
     const callApi = async (modelIndex = 0, retryCount = 0) => {
         const currentModel = FALLBACK_MODELS[modelIndex];
 
         // If we ran out of models
         if (!currentModel) {
-            throw new Error("Hiçbir model çalıştırılamadı. Lütfen daha sonra tekrar deneyin.");
+            throw new Error(language === 'en'
+                ? "No model could be run. Please try again later."
+                : "Hiçbir model çalıştırılamadı. Lütfen daha sonra tekrar deneyin."
+            );
         }
 
         try {
@@ -108,13 +158,11 @@ Aynı ayeti tekrar tekrar ÖNERMEkten KAÇIN.
             if (!response.ok) {
                 const errorData = await response.json().catch(() => ({}));
                 const errorMessage = errorData.error?.message || response.statusText;
-                throw new Error(`Google API Hatası (${response.status}) [${currentModel}]: ${errorMessage}`);
+                throw new Error(`Google API Error (${response.status}) [${currentModel}]: ${errorMessage}`);
             }
 
             return response;
         } catch (error) {
-            // If network error, maybe try next model? No, could be transient.
-            // Let's rethrow unless it's strictly a model issue handled above.
             throw error;
         }
     };
@@ -127,7 +175,7 @@ Aynı ayeti tekrar tekrar ÖNERMEkten KAÇIN.
         const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text;
 
         if (!rawText) {
-            throw new Error("Yapay zeka boş cevap döndü.");
+            throw new Error(language === 'en' ? "AI returned an empty response." : "Yapay zeka boş cevap döndü.");
         }
 
         // Clean Markdown JSON blocks
@@ -144,7 +192,10 @@ Aynı ayeti tekrar tekrar ÖNERMEkten KAÇIN.
             return JSON.parse(cleanText);
         } catch (parseError) {
             console.error("JSON Parse Error:", parseError, cleanText);
-            throw new Error("Gelen cevap formatı bozuk, lütfen tekrar deneyin.");
+            throw new Error(language === 'en'
+                ? "Response format was corrupted, please try again."
+                : "Gelen cevap formatı bozuk, lütfen tekrar deneyin."
+            );
         }
 
     } catch (error) {

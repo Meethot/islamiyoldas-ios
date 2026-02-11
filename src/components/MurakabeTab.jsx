@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils';
 import { useHaptics } from '@/hooks/useMobile';
 import { QUESTION_POOL } from '@/data/murakabeQuestions';
 import { getMurakabeKey } from '@/lib/testDate';
+import { useTranslation } from 'react-i18next';
 
 // Animation Variants
 const cardVariants = {
@@ -37,6 +38,8 @@ const cardVariants = {
 export default function MurakabeTab() {
     const navigate = useNavigate();
     const { selection, success, heavy } = useHaptics();
+    const { t, i18n } = useTranslation('murakabe');
+    const currentLang = i18n.language?.startsWith('en') ? 'en' : 'tr';
 
     // Randomly selected questions for the day (7 items)
     const [questions, setQuestions] = useState([]);
@@ -50,28 +53,19 @@ export default function MurakabeTab() {
 
     // Gift Ayahs - Themed spiritual rewards for completing Murakabe
     const giftAyahs = [
-        // RIZIK & BEREKET (Wealth/Provision)
-        { text: "Şüphesiz rızkı veren, sarsılmaz gücün sahibi olan Allah'tır.", source: "Zâriyat, 58" },
-        { text: "Kim Allah'tan sakınırsa, Allah ona bir çıkış yolu ihsan eder ve ona beklemediği yerden rızık verir.", source: "Talâk, 2-3" },
-        { text: "Yeryüzünde kımıldayan hiçbir canlı yoktur ki rızkı Allah'a ait olmasın.", source: "Hûd, 6" },
-
-        // ŞİFA & SAĞLIK (Health/Healing)
-        { text: "Hastalandığım zaman bana şifa veren O'dur.", source: "Şuarâ, 80" },
-        { text: "Biz Kur'an'dan, müminler için şifa ve rahmet olan şeyler indiriyoruz.", source: "İsrâ, 82" },
-
-        // AİLE & MUHABBET (Love/Family)
-        { text: "Kendileri ile huzur bulasınız diye sizin için türünüzden eşler yaratması ve aranıza sevgi ve merhamet koyması O'nun ayetlerindendir.", source: "Rûm, 21" },
-        { text: "Rabbimiz! Bize göz aydınlığı olacak eşler ve çocuklar bahşet.", source: "Furkân, 74" },
-
-        // FERAHLIK & UMUT (Relief/Hope)
-        { text: "Elbette zorluğun yanında bir kolaylık vardır. Gerçekten, zorlukla beraber bir kolaylık daha vardır.", source: "İnşirah, 5-6" },
-        { text: "Kalpler ancak Allah'ı anmakla huzur bulur.", source: "Ra'd, 28" },
-        { text: "Rabbin seni terk etmedi ve sana darılmadı.", source: "Duhâ, 3" },
-        { text: "Sabret! Senin sabrın ancak Allah'ın yardımı iledir.", source: "Nahl, 127" },
-
-        // BAŞARI & GAYRET (Success/Effort)
-        { text: "İnsan için ancak çalıştığının karşılığı vardır.", source: "Necm, 39" },
-        { text: "Allah, hiç kimseye gücünün yettiğinden fazlasını yüklemez.", source: "Bakara, 286" }
+        { text: { tr: "Şüphesiz rızkı veren, sarsılmaz gücün sahibi olan Allah'tır.", en: "Indeed, it is Allah who is the Provider, the Firm Possessor of Strength." }, source: { tr: "Zâriyat, 58", en: "Adh-Dhariyat, 58" } },
+        { text: { tr: "Kim Allah'tan sakınırsa, Allah ona bir çıkış yolu ihsan eder ve ona beklemediği yerden rızık verir.", en: "Whoever fears Allah, He will make a way out for him. And will provide for him from where he does not expect." }, source: { tr: "Talâk, 2-3", en: "At-Talaq, 2-3" } },
+        { text: { tr: "Yeryüzünde kımıldayan hiçbir canlı yoktur ki rızkı Allah'a ait olmasın.", en: "There is no creature on earth but that upon Allah is its provision." }, source: { tr: "Hûd, 6", en: "Hud, 6" } },
+        { text: { tr: "Hastalandığım zaman bana şifa veren O'dur.", en: "And when I am ill, it is He who cures me." }, source: { tr: "Şuarâ, 80", en: "Ash-Shu'ara, 80" } },
+        { text: { tr: "Biz Kur'an'dan, müminler için şifa ve rahmet olan şeyler indiriyoruz.", en: "We send down of the Quran that which is healing and mercy for the believers." }, source: { tr: "İsrâ, 82", en: "Al-Isra, 82" } },
+        { text: { tr: "Kendileri ile huzur bulasınız diye sizin için türünüzden eşler yaratması ve aranıza sevgi ve merhamet koyması O'nun ayetlerindendir.", en: "And of His signs is that He created for you from yourselves mates that you may find tranquility in them; and He placed between you affection and mercy." }, source: { tr: "Rûm, 21", en: "Ar-Rum, 21" } },
+        { text: { tr: "Rabbimiz! Bize göz aydınlığı olacak eşler ve çocuklar bahşet.", en: "Our Lord, grant us from among our spouses and offspring comfort to our eyes." }, source: { tr: "Furkân, 74", en: "Al-Furqan, 74" } },
+        { text: { tr: "Elbette zorluğun yanında bir kolaylık vardır. Gerçekten, zorlukla beraber bir kolaylık daha vardır.", en: "For indeed, with hardship will be ease. Indeed, with hardship will be ease." }, source: { tr: "İnşirah, 5-6", en: "Ash-Sharh, 5-6" } },
+        { text: { tr: "Kalpler ancak Allah'ı anmakla huzur bulur.", en: "Verily, in the remembrance of Allah do hearts find rest." }, source: { tr: "Ra'd, 28", en: "Ar-Ra'd, 28" } },
+        { text: { tr: "Rabbin seni terk etmedi ve sana darılmadı.", en: "Your Lord has not forsaken you, nor has He become displeased." }, source: { tr: "Duhâ, 3", en: "Ad-Duha, 3" } },
+        { text: { tr: "Sabret! Senin sabrın ancak Allah'ın yardımı iledir.", en: "Be patient, for your patience is only through Allah." }, source: { tr: "Nahl, 127", en: "An-Nahl, 127" } },
+        { text: { tr: "İnsan için ancak çalıştığının karşılığı vardır.", en: "And that there is not for man except that for which he strives." }, source: { tr: "Necm, 39", en: "An-Najm, 39" } },
+        { text: { tr: "Allah, hiç kimseye gücünün yettiğinden fazlasını yüklemez.", en: "Allah does not burden a soul beyond that it can bear." }, source: { tr: "Bakara, 286", en: "Al-Baqarah, 286" } }
     ];
 
     // Initial Shuffle on Mount & Check Storage
@@ -184,7 +178,7 @@ export default function MurakabeTab() {
             {/* Header */}
             <header className="relative z-10 text-center py-6 border-b border-white/5">
                 <h1 className="text-xl font-serif font-bold text-islamic-gold tracking-wide">
-                    Günün Muhasebesi
+                    {t('title')}
                 </h1>
                 {!isCompleted && questions.length > 0 && (
                     <p className="text-xs text-white/40 mt-1">
@@ -232,7 +226,7 @@ export default function MurakabeTab() {
 
                                 {/* Question */}
                                 <h2 className="text-xl font-serif text-amber-100 text-center leading-relaxed min-h-[80px] flex items-center justify-center">
-                                    {currentQuestion.text}
+                                    {typeof currentQuestion.text === 'object' ? currentQuestion.text[currentLang] : currentQuestion.text}
                                 </h2>
 
                                 {/* Decorative Line */}
@@ -249,7 +243,7 @@ export default function MurakabeTab() {
                                     )}
                                 >
                                     <X className="w-5 h-5 mr-2" />
-                                    Hayır
+                                    {t('no')}
                                 </Button>
                                 <Button
                                     onClick={() => handleAnswer(true)}
@@ -259,7 +253,7 @@ export default function MurakabeTab() {
                                     )}
                                 >
                                     <Check className="w-5 h-5 mr-2" />
-                                    Evet
+                                    {t('yes')}
                                 </Button>
                             </div>
                         </motion.div>
@@ -344,7 +338,7 @@ export default function MurakabeTab() {
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: 0.6, duration: 0.6 }}
                             >
-                                Elhamdülillah
+                                {t('elhamdulillah')}
                             </motion.h2>
 
                             {/* Spiritual Message - Staggered */}
@@ -354,7 +348,7 @@ export default function MurakabeTab() {
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: 0.9, duration: 0.6 }}
                             >
-                                Bugün kalbini yokladın, ruhun ferah olsun.
+                                {t('completionMsg')}
                             </motion.p>
 
                             {/* Daily Destiny (Ayah) Card */}
@@ -367,7 +361,7 @@ export default function MurakabeTab() {
                                 >
                                     {/* Intro Label */}
                                     <p className="text-sm text-islamic-gold/70 italic text-center mb-3 tracking-wide">
-                                        Bugünkü Nasibin...
+                                        {t('yourShare')}
                                     </p>
 
                                     {/* Decorative Line */}
@@ -379,12 +373,12 @@ export default function MurakabeTab() {
 
                                     {/* Ayah Text */}
                                     <p className="text-lg font-serif text-amber-100 text-center leading-relaxed mb-4">
-                                        "{selectedAyah.text}"
+                                        "{typeof selectedAyah.text === 'object' ? selectedAyah.text[currentLang] : selectedAyah.text}"
                                     </p>
 
                                     {/* Reference */}
                                     <p className="text-xs text-white/40 text-center tracking-wider">
-                                        — {selectedAyah.source}
+                                        — {typeof selectedAyah.source === 'object' ? selectedAyah.source[currentLang] : selectedAyah.source}
                                     </p>
                                 </motion.div>
                             )}
@@ -400,7 +394,7 @@ export default function MurakabeTab() {
                                     className="w-full h-14 rounded-2xl font-semibold text-base bg-white/10 border border-white/20 text-white hover:bg-white/20 backdrop-blur-md transition-all active:scale-95"
                                 >
                                     <Home className="w-4 h-4 mr-2" />
-                                    Ana Menüye Dön
+                                    {t('goHome')}
                                 </Button>
                             </motion.div>
                         </motion.div>

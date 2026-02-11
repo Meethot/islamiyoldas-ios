@@ -6,16 +6,18 @@ import { Button } from '@/components/ui/button';
 import { getSpiritualAdvice } from '@/services/AiMentorService';
 import AiPrescriptionCard from '@/components/AiPrescriptionCard';
 import { triggerReviewPrompt } from '@/components/ReviewPrompt';
+import { useTranslation } from 'react-i18next';
 
 
 export default function AiMentor() {
     const navigate = useNavigate();
+    const { t, i18n } = useTranslation('misc');
     const chatEndRef = useRef(null);
     const [messages, setMessages] = useState([
         {
             id: 'welcome',
             role: 'assistant',
-            text: 'Selamün aleyküm güzel kardeşim. Ben senin Manevi Asistanınım. Kalbinde ne var, seni daraltan veya şükrettiren nedir? Bana anlat, sana Kuran ve Sünnet ışığında bir reçete hazırlayayım.',
+            text: t('aiMentor.welcomeMessage'),
             isPrescription: false
         }
     ]);
@@ -40,7 +42,7 @@ export default function AiMentor() {
 
         try {
             // Call AI Service
-            const adviceData = await getSpiritualAdvice(userMsg.text);
+            const adviceData = await getSpiritualAdvice(userMsg.text, i18n.language);
 
             const aiMsg = {
                 id: Date.now() + 1,
@@ -62,7 +64,7 @@ export default function AiMentor() {
             setMessages(prev => [...prev, {
                 id: Date.now() + 1,
                 role: 'assistant',
-                text: `Hata oluştu: ${error.message || 'Bağlantı hatası.'}`,
+                text: `${t('aiMentor.errorPrefix')} ${error.message || t('aiMentor.connectionError')}`,
                 isPrescription: false
             }]);
         } finally {
@@ -90,9 +92,9 @@ export default function AiMentor() {
                 <div className="flex flex-col items-center">
                     <div className="flex items-center gap-2">
                         <span className="w-2 h-2 rounded-full bg-islamic-gold animate-pulse shadow-[0_0_10px_rgba(212,175,55,0.5)]" />
-                        <h1 className="font-serif font-bold text-lg text-islamic-gold tracking-wide">Manevi Asistan</h1>
+                        <h1 className="font-serif font-bold text-lg text-islamic-gold tracking-wide">{t('aiMentor.title')}</h1>
                     </div>
-                    <p className="text-[10px] text-white/50 font-medium tracking-wider uppercase">Yapay Zeka Destekli Asistan</p>
+                    <p className="text-[10px] text-white/50 font-medium tracking-wider uppercase">{t('aiMentor.subtitle')}</p>
                 </div>
 
                 {/* Bot Icon - absolute right */}
@@ -149,7 +151,7 @@ export default function AiMentor() {
                                     />
                                 ))}
                             </div>
-                            <span className="text-xs text-islamic-gold italic font-medium">Tefekkür ediliyor...</span>
+                            <span className="text-xs text-islamic-gold italic font-medium">{t('aiMentor.thinking')}</span>
                         </div>
                     </motion.div>
                 )}
@@ -163,7 +165,7 @@ export default function AiMentor() {
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
                         onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleSend()}
-                        placeholder="Derdim var, içim daralıyor..."
+                        placeholder={t('aiMentor.placeholder')}
                         className="w-full bg-transparent text-white placeholder-white/30 resize-none outline-none py-3 max-h-32 min-h-[50px] text-[15px] leading-relaxed scrollbar-hide"
                         rows={1}
                         style={{ minHeight: '52px' }}

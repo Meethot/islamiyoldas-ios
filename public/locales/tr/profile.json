@@ -1,6 +1,7 @@
 {
     "title": "Profil",
     "user": {
+        "default_name": "Mümin Kullanıcı",
         "streak_desc": "Yolculuğun {{count}}. gününde"
     },
     "premium": {
@@ -11,7 +12,7 @@
     "general_settings": "Genel Ayarlar",
     "notifications": {
         "title": "Bildirimler",
-        "subtitle": "Namaz vakti hatırlatıcıları"
+        "subtitle": "Ezan, ayet ve motivasyon"
     },
     "privacy": {
         "title": "Gizlilik & Güvenlik",
@@ -23,8 +24,12 @@
     },
     "appearance": {
         "title": "Görünüm",
-        "subtitle_dark": "Karanlık Mod",
-        "subtitle_light": "Aydınlık Mod"
+        "dark_active": "Gece modu aktif",
+        "light_active": "Gündüz modu aktif"
+    },
+    "location": {
+        "title": "Konum",
+        "subtitle": "GPS ve şehir ayarları"
     },
     "share": {
         "title": "İlerlemeyi Paylaş",
@@ -42,6 +47,37 @@
         "title": "Uygulama Dili",
         "subtitle": "Arayüz dilini değiştir"
     },
+    "promo": {
+        "title": "Promosyon Kodu",
+        "subtitle": "Hediye kodu kullan",
+        "label": "KOD GİRİNİZ",
+        "submit": "Kodu Kullan",
+        "success": "Tebrikler! Premium özellikler başarıyla aktifleştirildi. 🌟",
+        "invalid": "Hatalı veya süresi dolmuş promosyon kodu."
+    },
+    "report_bug": {
+        "title": "Hata Bildir",
+        "subtitle": "Uygulamada sorun mu var?",
+        "email_subject": "İslami Yoldaş - Hata Bildirimi",
+        "email_body": "Karşılaştığım sorun şudur:\n\n"
+    },
+    "legal": {
+        "title": "Yasal & Hakkımızda",
+        "subtitle": "Gizlilik, iletişim ve destek"
+    },
+    "delete_account": {
+        "title": "Hesabı Sil",
+        "confirm": "Hesabınız ve tüm verileriniz silinecektir. Bu işlem geri alınamaz. Emin misiniz?"
+    },
+    "avatar": {
+        "male": "Bey",
+        "female": "Hanım",
+        "beads": "Tesbih",
+        "tuba": "Tuba",
+        "quran": "Kuran",
+        "moon": "Hilal"
+    },
+    "coming_soon": "Yakında",
     "support": "Bizi Destekle",
     "reset": "Verileri Sıfırla",
     "modal": {

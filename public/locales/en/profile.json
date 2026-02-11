@@ -1,6 +1,7 @@
 {
     "title": "Profile",
     "user": {
+        "default_name": "Faithful User",
         "streak_desc": "Day {{count}} of the journey"
     },
     "premium": {
@@ -11,7 +12,7 @@
     "general_settings": "General Settings",
     "notifications": {
         "title": "Notifications",
-        "subtitle": "Prayer time reminders"
+        "subtitle": "Adhan, verse & motivation"
     },
     "privacy": {
         "title": "Privacy & Security",
@@ -23,8 +24,12 @@
     },
     "appearance": {
         "title": "Appearance",
-        "subtitle_dark": "Dark Mode",
-        "subtitle_light": "Light Mode"
+        "dark_active": "Dark mode active",
+        "light_active": "Light mode active"
+    },
+    "location": {
+        "title": "Location",
+        "subtitle": "GPS and city settings"
     },
     "share": {
         "title": "Share Progress",
@@ -42,6 +47,37 @@
         "title": "App Language",
         "subtitle": "Change interface language"
     },
+    "promo": {
+        "title": "Promo Code",
+        "subtitle": "Use a gift code",
+        "label": "ENTER CODE",
+        "submit": "Apply Code",
+        "success": "Congratulations! Premium features have been activated. 🌟",
+        "invalid": "Invalid or expired promo code."
+    },
+    "report_bug": {
+        "title": "Report Bug",
+        "subtitle": "Having issues with the app?",
+        "email_subject": "Islamic Companion - Bug Report",
+        "email_body": "The issue I encountered is:\n\n"
+    },
+    "legal": {
+        "title": "Legal & About",
+        "subtitle": "Privacy, contact and support"
+    },
+    "delete_account": {
+        "title": "Delete Account",
+        "confirm": "Your account and all data will be deleted. This cannot be undone. Are you sure?"
+    },
+    "avatar": {
+        "male": "Male",
+        "female": "Female",
+        "beads": "Beads",
+        "tuba": "Tuba",
+        "quran": "Quran",
+        "moon": "Crescent"
+    },
+    "coming_soon": "Coming Soon",
     "support": "Support Us",
     "reset": "Reset Data",
     "modal": {
@@ -49,6 +85,6 @@
         "lang_note": "Language change applies instantly."
     },
     "avatar_modal_title": "Select Profile Photo",
-    "app_name": "Spiritual Path",
+    "app_name": "Islamic Companion",
     "version": "Version 2.1.0 (Pro Max)"
 }

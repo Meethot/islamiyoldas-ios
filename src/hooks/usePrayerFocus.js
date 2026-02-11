@@ -10,8 +10,8 @@ import { Capacitor } from '@capacitor/core';
  * Detects when a prayer time is active and the prayer hasn't been completed yet.
  * Triggers the Prayer Time Overlay to gently remind users.
  * 
- * @param {Array} prayerTimes - Array of prayer objects { name, time }
- * @param {Array} completedPrayers - Array of completed prayer names
+ * @param {Array} prayerTimes - Array of prayer objects { id, name, time }
+ * @param {Array} completedPrayers - Array of completed prayer IDs (e.g. ['fajr', 'asr'])
  * @returns {Object} { activePrayer, shouldShowOverlay, snooze, clearSnooze }
  */
 export function usePrayerFocus(prayerTimes, completedPrayers) {
@@ -32,17 +32,31 @@ export function usePrayerFocus(prayerTimes, completedPrayers) {
             const currentTimeInMinutes = currentHour * 60 + currentMinute;
             const todayStr = getTodayString();
 
-            // Filter to only actual prayer times (exclude Güneş, İmsak)
-            const actualPrayers = prayerTimes.filter(p =>
-                !['Güneş', 'İmsak'].includes(p.name)
-            );
+            // Filter to only actual prayer times (exclude sunrise)
+            const actualPrayers = prayerTimes.filter(p => p.id !== 'sunrise');
 
             // Find current or next prayer
             let foundPrayer = null;
 
             for (const prayer of actualPrayers) {
-                // Parse prayer time (format: "HH:MM")
-                const [prayerHour, prayerMinute] = prayer.time.split(':').map(Number);
+                // Parse prayer time (format: "HH:MM" or "h:mm AM/PM")
+                let prayerHour, prayerMinute;
+                const timeStr = prayer.time;
+
+                if (timeStr.includes('AM') || timeStr.includes('PM')) {
+                    const match = timeStr.match(/(\d+):(\d+)\s*(AM|PM)/i);
+                    if (match) {
+                        prayerHour = parseInt(match[1]);
+                        prayerMinute = parseInt(match[2]);
+                        if (match[3].toUpperCase() === 'PM' && prayerHour !== 12) prayerHour += 12;
+                        if (match[3].toUpperCase() === 'AM' && prayerHour === 12) prayerHour = 0;
+                    }
+                } else {
+                    [prayerHour, prayerMinute] = timeStr.split(':').map(Number);
+                }
+
+                if (isNaN(prayerHour) || isNaN(prayerMinute)) continue;
+
                 const prayerTimeInMinutes = prayerHour * 60 + prayerMinute;
 
                 // Check if we're within the prayer time window (30 minutes)
@@ -56,15 +70,15 @@ export function usePrayerFocus(prayerTimes, completedPrayers) {
             }
 
             if (foundPrayer) {
-                // Check if prayer is already completed
-                const isCompleted = completedPrayers.includes(foundPrayer.name);
+                // Check if prayer is already completed (using prayer ID for language independence)
+                const isCompleted = completedPrayers.includes(foundPrayer.id);
 
-                // Check if prayer is explicitly dismissed for today (Legacy fallback)
-                const dismissalKey = `popup_dismissed_${todayStr}_${foundPrayer.name}`;
+                // Check if prayer is explicitly dismissed for today
+                const dismissalKey = `popup_dismissed_${todayStr}_${foundPrayer.id}`;
                 const isDismissed = localStorage.getItem(dismissalKey);
 
                 // Check if prayer is currently snoozed
-                const snoozeUntilKey = `popup_snooze_until_${todayStr}_${foundPrayer.name}`;
+                const snoozeUntilKey = `popup_snooze_until_${todayStr}_${foundPrayer.id}`;
                 const snoozeUntil = localStorage.getItem(snoozeUntilKey);
                 const isSnoozed = snoozeUntil && Date.now() < parseInt(snoozeUntil, 10);
 
@@ -90,10 +104,10 @@ export function usePrayerFocus(prayerTimes, completedPrayers) {
         return () => clearInterval(interval);
     }, [prayerTimes, completedPrayers, isFocusModeEnabled]);
 
-    // Snooze / Dismiss for the day
-    const snooze = async (prayerName) => {
+    // Snooze / Dismiss for the day (receives prayer ID)
+    const snooze = async (prayerId) => {
         const todayStr = getTodayString();
-        const snoozeUntilKey = `popup_snooze_until_${todayStr}_${prayerName}`;
+        const snoozeUntilKey = `popup_snooze_until_${todayStr}_${prayerId}`;
 
         // Set snooze for 10 minutes from now
         const tenMinutesLater = Date.now() + 10 * 60 * 1000;
@@ -105,8 +119,8 @@ export function usePrayerFocus(prayerTimes, completedPrayers) {
                 const notificationId = Math.floor(Math.random() * 2147483647);
                 await LocalNotifications.schedule({
                     notifications: [{
-                        title: 'Namaz Vakti Hatırlatması',
-                        body: `${prayerName} namazını kılmayı unutma! 🕌`,
+                        title: 'Prayer Time Reminder',
+                        body: `Don't forget to pray! 🕌`,
                         id: notificationId,
                         schedule: { at: new Date(tenMinutesLater), allowWhileIdle: true },
                         sound: Capacitor.getPlatform() === 'android' ? 'beep' : 'beep.caf',
@@ -123,11 +137,11 @@ export function usePrayerFocus(prayerTimes, completedPrayers) {
         setShouldShowOverlay(false);
     };
 
-    // Clear snooze (when prayer is completed)
-    const clearSnooze = (prayerName) => {
+    // Clear snooze (when prayer is completed, receives prayer ID)
+    const clearSnooze = (prayerId) => {
         const todayStr = getTodayString();
-        const dismissalKey = `popup_dismissed_${todayStr}_${prayerName}`;
-        const snoozeUntilKey = `popup_snooze_until_${todayStr}_${prayerName}`;
+        const dismissalKey = `popup_dismissed_${todayStr}_${prayerId}`;
+        const snoozeUntilKey = `popup_snooze_until_${todayStr}_${prayerId}`;
 
         // Mark as dismissed for the day (since it's done)
         localStorage.setItem(dismissalKey, 'true');

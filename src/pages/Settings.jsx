@@ -12,6 +12,7 @@ import { useHaptics } from '@/hooks/useMobile';
 import { usePrayerTimes } from '../context/PrayerTimesContext';
 import { useTheme } from '../context/ThemeContext';
 import { useLocation } from '../context/LocationContext';
+import { useTranslation } from 'react-i18next';
 
 import { Share } from '@capacitor/share';
 import { Capacitor } from '@capacitor/core';
@@ -28,6 +29,7 @@ const TURKEY_CITIES = [
 ];
 
 export default function Settings() {
+    const { t } = useTranslation('settings');
     const { isDarkMode, toggleTheme } = useTheme();
     const navigate = useNavigate();
     const { selection, success, medium } = useHaptics();
@@ -53,16 +55,16 @@ export default function Settings() {
         try {
             if (Capacitor.isNativePlatform()) {
                 await Share.share({
-                    title: 'İslami Yoldaş',
-                    text: 'Namaz öğrenmek ve dini bilgilerimi tazelemek için bu harika uygulamayı kullanıyorum. Sen de dene!',
+                    title: t('common:share.app_title'),
+                    text: t('common:share.app_share_text'),
                     url: 'https://islamiyoldas.app',
-                    dialogTitle: 'Uygulamayı Paylaş',
+                    dialogTitle: t('common:share.app_share_dialog'),
                 });
                 success();
             } else {
                 // Flash fallback for web
                 await navigator.clipboard.writeText('https://islamiyoldas.app');
-                alert('Bağlantı kopyalandı! (Paylaşım menüsü sadece mobil cihazlarda çalışır)');
+                alert(t('common:share.app_link_copied'));
                 success();
             }
         } catch (error) {
@@ -78,18 +80,18 @@ export default function Settings() {
                 <Button variant="ghost" size="icon" onClick={() => navigate(-1)} className="rounded-full dark:text-white">
                     <ArrowLeft size={24} />
                 </Button>
-                <h1 className="text-xl font-serif font-bold text-islamic-green dark:text-islamic-gold">Ayarlar</h1>
+                <h1 className="text-xl font-serif font-bold text-islamic-green dark:text-islamic-gold">{t('title')}</h1>
             </div>
 
             <div className="p-5 space-y-6">
                 {/* Appearance */}
                 <section className="space-y-3">
-                    <h3 className="px-2 text-[10px] font-bold text-gray-400 dark:text-emerald-100/40 uppercase tracking-widest">Görünüm</h3>
+                    <h3 className="px-2 text-[10px] font-bold text-gray-400 dark:text-emerald-100/40 uppercase tracking-widest">{t('appearance')}</h3>
                     <div className="bg-white dark:bg-white/5 rounded-[2rem] shadow-sm border dark:border-white/5 overflow-hidden">
                         <SettingsToggle
                             icon={isDarkMode ? Moon : Sun}
-                            label="Gece Modu"
-                            subtitle="Daha rahat bir okuma deneyimi"
+                            label={t('nightMode')}
+                            subtitle={t('nightModeSubtitle')}
                             active={isDarkMode}
                             onToggle={toggleTheme}
                         />
@@ -98,12 +100,12 @@ export default function Settings() {
 
                 {/* Notifications */}
                 <section className="space-y-3">
-                    <h3 className="px-2 text-[10px] font-bold text-gray-400 dark:text-emerald-100/40 uppercase tracking-widest">Bildirimler</h3>
+                    <h3 className="px-2 text-[10px] font-bold text-gray-400 dark:text-emerald-100/40 uppercase tracking-widest">{t('notifications')}</h3>
                     <div className="bg-white dark:bg-white/5 rounded-[2rem] shadow-sm border dark:border-white/5 overflow-hidden">
                         <SettingsToggle
                             icon={Bell}
-                            label="Ezan Vakti"
-                            subtitle="Vakit yaklaştığında haberdar et"
+                            label={t('adhanTime')}
+                            subtitle={t('adhanTimeSubtitle')}
                             active={prayerSettings.adhanEnabled}
                             onToggle={() => {
                                 selection();
@@ -113,8 +115,8 @@ export default function Settings() {
                         {prayerSettings.adhanEnabled && (
                             <SettingsToggle
                                 icon={Loader2} // Using Loader2 as placeholder for vibration/wave icon if needed, or keeping it simple
-                                label="Sadece Titreşim"
-                                subtitle="Ses çalma, sadece titret"
+                                label={t('vibrateOnly')}
+                                subtitle={t('vibrateOnlySubtitle')}
                                 active={prayerSettings.vibrateOnly}
                                 onToggle={() => {
                                     selection();
@@ -124,8 +126,8 @@ export default function Settings() {
                         )}
                         <SettingsToggle
                             icon={Info}
-                            label="Günün Ayeti"
-                            subtitle="Her gün yeni bir ilham"
+                            label={t('dailyVerse')}
+                            subtitle={t('dailyVerseSubtitle')}
                             active={prayerSettings.verseEnabled}
                             onToggle={() => {
                                 selection();
@@ -137,12 +139,12 @@ export default function Settings() {
 
                 {/* Prayer Motivation Settings */}
                 <section className="space-y-3">
-                    <h3 className="px-2 text-[10px] font-bold text-gray-400 dark:text-emerald-100/40 uppercase tracking-widest">Namaz Motivasyonu</h3>
+                    <h3 className="px-2 text-[10px] font-bold text-gray-400 dark:text-emerald-100/40 uppercase tracking-widest">{t('prayerMotivation')}</h3>
                     <div className="bg-white dark:bg-white/5 rounded-[2rem] shadow-sm border dark:border-white/5 overflow-hidden">
                         <SettingsToggle
                             icon={Moon}
-                            label="Namaz Modu"
-                            subtitle="Vakit girince huzurlu odaklanma modu"
+                            label={t('prayerMode')}
+                            subtitle={t('prayerModeSubtitle')}
                             active={prayerSettings.prayerFocusMode}
                             onToggle={() => {
                                 selection();
@@ -151,8 +153,8 @@ export default function Settings() {
                         />
                         <SettingsToggle
                             icon={Share2} // Gift icon would be better but using simple icon for now
-                            label="Manevi Ödüller"
-                            subtitle="Namaz sonrası hadis ve dualar"
+                            label={t('spiritualRewards')}
+                            subtitle={t('spiritualRewardsSubtitle')}
                             active={prayerSettings.spiritualRewards}
                             onToggle={() => {
                                 selection();
@@ -161,8 +163,8 @@ export default function Settings() {
                         />
                         <SettingsToggle
                             icon={MessageSquare}
-                            label="Cuma Mesajı"
-                            subtitle="Her Cuma manevi bir hatırlatma al"
+                            label={t('fridayMessage')}
+                            subtitle={t('fridayMessageSubtitle')}
                             active={prayerSettings.fridayMessage}
                             onToggle={() => {
                                 selection();
@@ -174,13 +176,13 @@ export default function Settings() {
 
                 {/* Location */}
                 <section className="space-y-3">
-                    <h3 className="px-2 text-[10px] font-bold text-gray-400 dark:text-emerald-100/40 uppercase tracking-widest">Konum</h3>
+                    <h3 className="px-2 text-[10px] font-bold text-gray-400 dark:text-emerald-100/40 uppercase tracking-widest">{t('location')}</h3>
                     <div className="bg-white dark:bg-white/5 rounded-[2rem] shadow-sm border dark:border-white/5 overflow-hidden">
                         {/* Auto Location Toggle */}
                         <SettingsToggle
                             icon={Crosshair}
-                            label="Otomatik Konum"
-                            subtitle="GPS ile konumunuz otomatik algılansın"
+                            label={t('autoLocation')}
+                            subtitle={t('autoLocationSubtitle')}
                             active={useAutoLocation}
                             onToggle={() => {
                                 selection();
@@ -197,8 +199,8 @@ export default function Settings() {
                                             <Loader2 className="w-5 h-5 text-amber-600 dark:text-amber-400 animate-spin" />
                                         </div>
                                         <div className="flex-1">
-                                            <p className="text-sm font-bold text-gray-900 dark:text-white">Konum Alınıyor...</p>
-                                            <p className="text-[10px] text-gray-400 dark:text-gray-500">GPS sinyali bekleniyor</p>
+                                            <p className="text-sm font-bold text-gray-900 dark:text-white">{t('gettingLocation')}</p>
+                                            <p className="text-[10px] text-gray-400 dark:text-gray-500">{t('waitingGPS')}</p>
                                         </div>
                                     </div>
                                 ) : hasLocation && latitude && longitude ? (
@@ -208,13 +210,13 @@ export default function Settings() {
                                         </div>
                                         <div className="flex-1">
                                             <div className="flex items-center gap-2">
-                                                <p className="text-sm font-bold text-emerald-600 dark:text-emerald-400">GPS Aktif</p>
+                                                <p className="text-sm font-bold text-emerald-600 dark:text-emerald-400">{t('gpsActive')}</p>
                                                 <span className="px-2 py-0.5 bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 text-[8px] font-black uppercase tracking-wider rounded-full">
-                                                    Canlı
+                                                    {t('live')}
                                                 </span>
                                             </div>
                                             <p className="text-[10px] text-gray-400 dark:text-gray-500">
-                                                Konumunuz otomatik olarak algılandı
+                                                {t('locationDetected')}
                                             </p>
                                         </div>
                                         <button
@@ -230,9 +232,9 @@ export default function Settings() {
                                             <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400" />
                                         </div>
                                         <div className="flex-1">
-                                            <p className="text-sm font-bold text-amber-600 dark:text-amber-400">Konum Alınamadı</p>
+                                            <p className="text-sm font-bold text-amber-600 dark:text-amber-400">{t('locationFailed')}</p>
                                             <p className="text-[10px] text-gray-400 dark:text-gray-500">
-                                                Varsayılan konum (İstanbul) kullanılıyor
+                                                {t('defaultLocation')}
                                             </p>
                                         </div>
                                         <button
@@ -257,7 +259,7 @@ export default function Settings() {
                                         <MapPin size={20} />
                                     </div>
                                     <div className="text-left">
-                                        <p className="text-[10px] text-gray-400 dark:text-gray-500 font-bold uppercase tracking-wider mb-1">Şehrin</p>
+                                        <p className="text-[10px] text-gray-400 dark:text-gray-500 font-bold uppercase tracking-wider mb-1">{t('yourCity')}</p>
                                         <p className="text-lg font-bold text-gray-900 dark:text-white leading-none">{city}</p>
                                     </div>
                                 </div>
@@ -267,33 +269,33 @@ export default function Settings() {
                     </div>
                     <p className="px-2 text-[9px] text-gray-400 dark:text-gray-500 italic">
                         {useAutoLocation
-                            ? "Namaz vakitleri GPS konumunuza göre otomatik hesaplanır."
-                            : "Ezan vakitleri seçtiğiniz şehre göre belirlenir."}
+                            ? t('autoLocationHint')
+                            : t('manualLocationHint')}
                     </p>
                 </section>
 
                 {/* About & Legal */}
                 <section className="space-y-3">
-                    <h3 className="px-2 text-[10px] font-bold text-gray-400 dark:text-emerald-100/40 uppercase tracking-widest">Yasal & Hakkımızda</h3>
+                    <h3 className="px-2 text-[10px] font-bold text-gray-400 dark:text-emerald-100/40 uppercase tracking-widest">{t('legalAbout')}</h3>
                     <div className="bg-white dark:bg-white/5 rounded-[2rem] shadow-sm border dark:border-white/5 overflow-hidden">
                         <SettingsLink
                             icon={Shield}
-                            label="Gizlilik Politikası"
+                            label={t('privacyPolicy')}
                             onClick={() => navigate('/legal/privacy')}
                         />
                         <SettingsLink
                             icon={HelpCircle}
-                            label="Hakkımızda"
+                            label={t('aboutUs')}
                             onClick={() => navigate('/legal/about')}
                         />
                         <SettingsLink
                             icon={Share2}
-                            label="Uygulamayı Paylaş"
+                            label={t('shareApp')}
                             onClick={handleShareApp}
                         />
                         <SettingsLink
                             icon={MessageSquare}
-                            label="Bize Ulaşın"
+                            label={t('contactUs')}
                             onClick={() => { }}
                         />
                     </div>
@@ -302,10 +304,10 @@ export default function Settings() {
                 {/* Version Info */}
                 <div className="py-10 text-center">
                     <p className="text-[10px] text-gray-300 dark:text-gray-600 font-bold uppercase tracking-[0.3em]">
-                        İslami Yoldaş v1.0.0
+                        {t('appName')}
                     </p>
                     <p className="text-[8px] text-gray-200 dark:text-gray-700 mt-2 italic">
-                        Maneviyat Yolunda Beraberiz
+                        {t('appSlogan')}
                     </p>
                 </div>
             </div>

@@ -5,6 +5,7 @@ import { Sparkles, ArrowRight, Play, Pause, Volume2, Loader2 } from 'lucide-reac
 import { Button } from '@/components/ui/button';
 import { getVerifiedVerse } from '@/services/VerseLookupService';
 import { ALL_ESMA } from '@/data/esmaData';
+import { useTranslation } from 'react-i18next';
 
 // Normalize Turkish/Arabic text for fuzzy matching
 function normalize(str) {
@@ -47,6 +48,8 @@ async function fetchVerseAudio(surah, verse) {
 
 export default function AiPrescriptionCard({ data }) {
     const navigate = useNavigate();
+    const { t, i18n } = useTranslation('misc');
+    const isEn = i18n.language === 'en';
     const [verseData, setVerseData] = useState(null);
     const [loadingVerse, setLoadingVerse] = useState(true);
     const [audioUrl, setAudioUrl] = useState(null);
@@ -64,7 +67,7 @@ export default function AiPrescriptionCard({ data }) {
             return {
                 name: esmaMatch.name,
                 arabic: esmaMatch.calligraphy,
-                meaning: esmaMatch.virtue || recommendedZikr.meaning,
+                meaning: isEn ? (esmaMatch.virtue_en || esmaMatch.virtue) : esmaMatch.virtue || recommendedZikr.meaning,
                 count: esmaMatch.ebced,
                 ebced: esmaMatch.ebced,
                 isEsma: true
@@ -85,7 +88,7 @@ export default function AiPrescriptionCard({ data }) {
         async function load() {
             if (quranRef) {
                 const [v, audio] = await Promise.all([
-                    getVerifiedVerse(quranRef),
+                    getVerifiedVerse(quranRef, i18n.language),
                     fetchVerseAudio(quranRef.surah, quranRef.verse)
                 ]);
                 setVerseData(v);
@@ -168,13 +171,13 @@ export default function AiPrescriptionCard({ data }) {
                     <div className="flex items-center gap-2 border-b border-white/10 pb-3">
                         <Sparkles className="w-5 h-5 text-islamic-gold" />
                         <h3 className="text-islamic-gold font-serif font-bold text-lg tracking-wide">
-                            Manevi Reçete
+                            {t('prescription.title')}
                         </h3>
                     </div>
 
                     {/* 1. Tavsiye Metni */}
                     <div className="space-y-1">
-                        <p className="text-[10px] text-gray-500 uppercase tracking-widest font-bold">Hekim Tavsiyesi</p>
+                        <p className="text-[10px] text-gray-500 uppercase tracking-widest font-bold">{t('prescription.adviceLabel')}</p>
                         <p className="text-white text-sm leading-relaxed">
                             {advice}
                         </p>
@@ -183,7 +186,7 @@ export default function AiPrescriptionCard({ data }) {
                     {/* 2. Zikir Reçetesi */}
                     {enrichedZikr && (
                         <div className="bg-islamic-gold/10 rounded-2xl p-4 border border-islamic-gold/20">
-                            <p className="text-[10px] text-islamic-gold/60 uppercase tracking-widest font-bold mb-3">📿 Zikir Reçetesi</p>
+                            <p className="text-[10px] text-islamic-gold/60 uppercase tracking-widest font-bold mb-3">📿 {t('prescription.dhikrLabel')}</p>
                             <div className="flex justify-between items-start mb-3">
                                 <div>
                                     {enrichedZikr.arabic && (
@@ -193,7 +196,7 @@ export default function AiPrescriptionCard({ data }) {
                                     <p className="text-xs text-white/60">{enrichedZikr.meaning}</p>
                                 </div>
                                 <div className="bg-islamic-gold text-[#032e18] px-2 py-1 rounded-lg text-xs font-bold whitespace-nowrap">
-                                    {enrichedZikr.count} {enrichedZikr.isEsma ? 'Ebced' : 'Adet'}
+                                    {enrichedZikr.count} {enrichedZikr.isEsma ? t('prescription.ebced') : t('prescription.count')}
                                 </div>
                             </div>
 
@@ -201,7 +204,7 @@ export default function AiPrescriptionCard({ data }) {
                                 onClick={handleStartDhikr}
                                 className="w-full bg-islamic-gold hover:bg-amber-400 text-[#032e18] font-bold rounded-xl h-10 gap-2"
                             >
-                                📿 Zikre Başla
+                                📿 {t('prescription.startDhikr')}
                                 <ArrowRight className="w-4 h-4" />
                             </Button>
                         </div>
@@ -209,7 +212,7 @@ export default function AiPrescriptionCard({ data }) {
 
                     {/* 3. Şifa Ayeti (Audio Verse) */}
                     <div className="bg-white/5 rounded-2xl p-4 border border-white/5">
-                        <p className="text-[10px] text-emerald-400/60 uppercase tracking-widest font-bold mb-3">📖 Şifa Ayeti</p>
+                        <p className="text-[10px] text-emerald-400/60 uppercase tracking-widest font-bold mb-3">📖 {t('prescription.verseLabel')}</p>
 
                         {loadingVerse ? (
                             <div className="h-20 animate-pulse bg-white/5 rounded-xl" />
@@ -242,7 +245,7 @@ export default function AiPrescriptionCard({ data }) {
                                             ) : (
                                                 <Volume2 className="w-3.5 h-3.5" />
                                             )}
-                                            {isPlaying ? 'Durakla' : 'Dinle'}
+                                            {isPlaying ? t('prescription.pause') : t('prescription.listen')}
                                         </button>
                                     )}
                                 </div>

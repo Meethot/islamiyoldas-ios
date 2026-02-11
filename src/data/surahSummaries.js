@@ -1,696 +1,238 @@
-export const SURAH_SUMMARIES = [
-    {
-        id: 1,
-        title: 'Fâtiha Suresi',
-        summary: 'Kur\'an\'ın açılış kapısıdır. Namazın her rekatında okunması vaciptir.',
-        meaning: 'Rahman ve Rahim olan Allah\'ın adıyla. Hamd, Alemlerin Rabbi, Rahman ve Rahim olan ve Din Gününün sahibi olan Allah\'a mahsustur. (Allahım!) Yalnız Sana ibadet ederiz ve yalnız Senden yardım dileriz. Bizi doğru yola, kendilerine nimet verdiklerinin yoluna ilet; gazaba uğrayanlarınkine ve sapıklarınkine değil.'
-    },
-    {
-        id: 2,
-        title: 'Bakara Suresi',
-        summary: 'Kur\'an\'ın en uzun suresidir. İçinde pek çok hukuki hüküm ve kıssa barındırır.',
-        meaning: 'Bu, kendisinde şüphe olmayan kitaptır; Allah\'a karşı gelmekten sakınanlar için yol göstericidir.'
-    },
-    {
-        id: 3,
-        title: 'Âl-i İmrân Suresi',
-        summary: 'Ehli kitap ile münasebetleri, Uhud Savaşı\'nı ve Hz. Meryem ile Hz. İsa\'nın doğumunu anlatır.',
-        meaning: 'Allah, kendisinden başka hiçbir ilah olmayandır. Hayy\'dır, Kayyum\'dur.'
-    },
-    {
-        id: 4,
-        title: 'Nisâ Suresi',
-        summary: 'Kadın hakları, miras hukuku ve aile hayatına dair önemli hükümler içerir.',
-        meaning: 'Ey insanlar! Sizi bir tek nefisten yaratan ve ondan da eşini yaratan Rabbinizden sakının.'
-    },
-    {
-        id: 5,
-        title: 'Mâide Suresi',
-        summary: 'Helal ve haram gıdalar, abdest, teyemmüm ve Hz. İsa\'nın mucizelerinden bahseder.',
-        meaning: 'Ey iman edenler! Akitlerinizi yerine getirin.'
-    },
-    {
-        id: 6,
-        title: 'En\'âm Suresi',
-        summary: 'Allah\'ın varlığı, birliği ve kainattaki delilleri üzerine odaklanır.',
-        meaning: 'Hamd, gökleri ve yeri yaratan, karanlıkları ve aydınlığı var eden Allah\'a mahsustur.'
-    },
-    {
-        id: 7,
-        title: 'A\'râf Suresi',
-        summary: 'Peygamberlerin kıssaları ve kıyamet sahneleri ile insanlığı uyarır.',
-        meaning: 'Bu, sana kalbinde bir sıkıntı olmamasını sağlamak ve müminlere öğüt vermek için indirilen bir kitaptır.'
-    },
-    {
-        id: 8,
-        title: 'Enfâl Suresi',
-        summary: 'Bedir Savaşı ve savaş ganimetleri ile ilgili hükümleri anlatır.',
-        meaning: 'Sana savaş ganimetlerini soruyorlar. De ki: Ganimetler Allah\'a ve Resulüne aittir.'
-    },
-    {
-        id: 9,
-        title: 'Tevbe Suresi',
-        summary: 'Tebük Seferi\'ni ve tövbenin önemini konu alır, başında Besmele bulunmaz.',
-        meaning: 'Allah ve Resulünden, kendileriyle antlaşma yapmış olduğunuz müşriklere bir ihtardır.'
-    },
-    {
-        id: 10,
-        title: 'Yûnus Suresi',
-        summary: 'Allah\'ın kudreti, vahyin hak oluşu ve Hz. Yunus\'un kavminin kurtuluşunu anlatır.',
-        meaning: 'Elif. Lâm. Râ. İşte bunlar hikmet dolu kitabın ayetleridir.'
-    },
-    {
-        id: 11,
-        title: 'Hûd Suresi',
-        summary: 'Peygamberlerin mücadelelerini ve Allah\'ın yardımını anlatır.',
-        meaning: 'Elif. Lâm. Râ. Bu, ayetleri sağlamlaştırılmış, sonra da her şeyi bilen ve her şeyden haberdar olan Allah tarafından açıklanmış bir kitaptır.'
-    },
-    {
-        id: 12,
-        title: 'Yusuf Suresi',
-        summary: 'Kur\'an\'daki "kıssaların en güzeli" olarak bilinen Hz. Yusuf\'un hayatını anlatır.',
-        meaning: 'Elif. Lâm. Râ. İşte bunlar, apaçık kitabın ayetleridir.'
-    },
-    {
-        id: 13,
-        title: 'Ra\'d Suresi',
-        summary: 'Tabiat olayları ve Allah\'ın kainattaki gücü üzerinden tevhidi anlatır.',
-        meaning: 'Elif. Lâm. Mîm. Râ. İşte bunlar kitabın ayetleridir.'
-    },
-    {
-        id: 14,
-        title: 'İbrâhim Suresi',
-        summary: 'İmanın temelini ve Hz. İbrahim\'in dualarını konu alır.',
-        meaning: 'Elif. Lâm. Râ. Bu, insanları Rablerinin izniyle karanlıklardan aydınlığa çıkarman için sana indirdiğimiz bir kitaptır.'
-    },
-    {
-        id: 15,
-        title: 'Hicr Suresi',
-        summary: 'Hicr halkını ve peygamberlerin tebliğlerini anlatır.',
-        meaning: 'Elif. Lâm. Râ. İşte bunlar kitabın ve apaçık Kur\'an\'ın ayetleridir.'
-    },
-    {
-        id: 16,
-        title: 'Nahl Suresi',
-        summary: 'Allah\'ın insanlara verdiği sayısız nimetten (arı, bal, bitkiler) bahseder.',
-        meaning: 'Allah\'ın emri gelecektir, artık onu acele istemeyin. O, müşriklerin ortak koştuklarından münezzehtir.'
-    },
-    {
-        id: 17,
-        title: 'İsrâ Suresi',
-        summary: 'Hz. Peygamber\'in İsra mucizesini ve ahlaki prensipleri konu alır.',
-        meaning: 'Bir gece, kendisine ayetlerimizden bazılarını göstermek için kulunu Mescid-i Haram\'dan çevresini mübarek kıldığımız Mescid-i Aksa\'ya götüren Allah noksan sıfatlardan münezzehtir.'
-    },
-    {
-        id: 18,
-        title: 'Kehf Suresi',
-        summary: 'Kehf ehli, Hz. Musa ile Hızır kıssası ve Zülkarneyn\'i anlatır.',
-        meaning: 'Hamd, kuluna kitabı indiren ve onda hiçbir eğrilik yapmayan Allah\'a mahsustur.'
-    },
-    {
-        id: 19,
-        title: 'Meryem Suresi',
-        summary: 'Hz. Meryem, Hz. Zekeriya ve Hz. İsa\'nın doğumunu anlatır.',
-        meaning: 'Kâf. Hâ. Yâ. Ayn. Sâd. Bu, Rabbinin kulu Zekeriya\'ya olan rahmetinin zikridir.'
-    },
-    {
-        id: 20,
-        title: 'Tâhâ Suresi',
-        summary: 'Hz. Musa\'nın peygamberlik görevine seçilmesini ve Firavun ile mücadelesini anlatır.',
-        meaning: 'Tâ. Hâ. Biz bu Kur\'an\'ı sana zahmet çekesin diye indirmedik.'
-    },
-    {
-        id: 21,
-        title: 'Enbiyâ Suresi',
-        summary: 'Pek çok peygamberin hayatından kesitler sunarak tevhid ve ahiret inancını vurgular.',
-        meaning: 'İnsanların hesaba çekilme vakti yaklaştı. Onlar ise hala gaflet içinde yüz çeviriyorlar.'
-    },
-    {
-        id: 22,
-        title: 'Hac Suresi',
-        summary: 'Hac ibadetinin önemini, kurbanı ve kıyamet dehşetini anlatır.',
-        meaning: 'Ey insanlar! Rabbinizden sakının. Şüphesiz kıyamet saatinin sarsıntısı çok büyük bir şeydir.'
-    },
-    {
-        id: 23,
-        title: 'Mü\'minûn Suresi',
-        summary: 'Müminlerin kurtuluşa ermesi için taşıması gereken ahlaki vasıfları anlatır.',
-        meaning: 'Müminler gerçekten kurtuluşa ermişlerdir.'
-    },
-    {
-        id: 24,
-        title: 'Nûr Suresi',
-        summary: 'Aile hayatı, iffet, tesettür ve toplumsal ahlak kurallarını konu alır.',
-        meaning: 'Bu; indirdiğimiz, hükümlerini farz kıldığımız ve öğüt almanız için içinde apaçık ayetler indirdiğimiz bir suredir.'
-    },
-    {
-        id: 25,
-        title: 'Furkân Suresi',
-        summary: 'Kur\'an\'ın hak ile batılı ayıran özelliği (Furkân) ve Peygamberin tebliği üzerinedir.',
-        meaning: 'Alemlere bir uyarıcı olsun diye kuluna Furkân\'ı indiren Allah ne yücedir!'
-    },
-    {
-        id: 26,
-        title: 'Şuarâ Suresi',
-        summary: 'Peygamberlerin tebliğ mücadelesini ve inkarcıların sonunu şiirsel bir dille anlatır.',
-        meaning: 'Tâ. Sîn. Mîm. Bunlar apaçık kitabın ayetleridir.'
-    },
-    {
-        id: 27,
-        title: 'Neml Suresi',
-        summary: 'Hz. Süleyman ve Sebe Melikesi kıssası ile tabiatın Allah\'a teslimiyetini anlatır.',
-        meaning: 'Tâ. Sîn. Bunlar Kur\'an\'ın, apaçık bir kitabın ayetleridir.'
-    },
-    {
-        id: 28,
-        title: 'Kasas Suresi',
-        summary: 'Hz. Musa\'nın doğumundan Firavun ile mücadelesine kadar olan hayat hikayesini anlatır.',
-        meaning: 'Tâ. Sîn. Mîm. Bunlar apaçık kitabın ayetleridir.'
-    },
-    {
-        id: 29,
-        title: 'Ankebût Suresi',
-        summary: 'İman edenlerin karşılaştığı zorlukları ve sahte tanrıların örümcek ağı gibi çürüklüğünü anlatır.',
-        meaning: 'Elif. Lâm. Mîm. İnsanlar, sadece "İman ettik" demeleriyle bıraklılacaklarını mı sandılar?'
-    },
-    {
-        id: 30,
-        title: 'Rûm Suresi',
-        summary: 'Bizans-Sasani savaşı üzerinden Allah\'ın kudretini ve geleceğe dair gayb haberlerini anlatır.',
-        meaning: 'Elif. Lâm. Mîm. Rumlar yenildi.'
-    },
-    {
-        id: 31,
-        title: 'Lokmân Suresi',
-        summary: 'Hz. Lokman\'ın oğluna verdiği hikmetli nasihatleri ve Allah\'ın birliğini anlatır.',
-        meaning: 'Elif. Lâm. Mîm. İşte bunlar hikmet dolu kitabın ayetleridir.'
-    },
-    {
-        id: 32,
-        title: 'Secde Suresi',
-        summary: 'İnsanın yaratılışı, öldükten sonra diriliş ve Allah\'a secde etmenin önemi üzerinedir.',
-        meaning: 'Elif. Lâm. Mîm. Kitabın indirilişi, alemlerin Rabbi tarafındandır; bunda hiçbir şüphe yoktur.'
-    },
-    {
-        id: 33,
-        title: 'Ahzâb Suresi',
-        summary: 'Hendek Savaşı\'nı, aile hayatını ve Hz. Peygamber\'in örnek ahlakını konu alır.',
-        meaning: 'Ey Peygamber! Allah\'tan sakın ve kafirlere, münafıklara itaat etme.'
-    },
-    {
-        id: 34,
-        title: 'Sebe Suresi',
-        summary: 'Sebe kavminin nankörlüğünü ve Hz. Davud ile Hz. Süleyman\'a verilen nimetleri anlatır.',
-        meaning: 'Hamd, göklerde ve yerde ne varsa hepsinin sahibi olan Allah\'a mahsustur.'
-    },
-    {
-        id: 35,
-        title: 'Fâtır Suresi',
-        summary: 'Göklerin ve yerin tek yaratıcısı olan Allah\'ın kudretini ve melekleri anlatır.',
-        meaning: 'Hamd, gökleri ve yeri yaratan, melekleri elçiler kılan Allah\'a mahsustur.'
-    },
-    {
-        id: 55,
-        title: 'Rahmân Suresi',
-        summary: 'Allah\'ın dünyada ve ahirette kullarına verdiği sayısız nimetleri şiirsel bir dille anlatır.',
-        meaning: 'Rahman, Kur\'an\'ı öğretti. İnsanı yarattı. Ona beyanı (açıklamayı) öğretti.'
-    },
-    {
-        id: 56,
-        title: 'Vâkıa Suresi',
-        summary: 'Kıyamet koptuğunda insanların üç sınıfa ayrılacağını ve cennet-cehennem hallerini anlatır.',
-        meaning: 'O büyük olay koptuğu zaman.'
-    },
-    {
-        id: 57,
-        title: 'Hadîd Suresi',
-        summary: 'Demirdeki güçten bahseder ve infakın önemini vurgular.',
-        meaning: 'Göklerde ve yerde ne varsa Allah\'ı tesbih eder.'
-    },
-    {
-        id: 58,
-        title: 'Mücâdele Suresi',
-        summary: 'Hakkını arayan kadının şikayetini ve gizli konuşmaların adabını anlatır.',
-        meaning: 'Kocası hakkında seninle tartışan kadının sözünü Allah işitmiştir.'
-    },
-    {
-        id: 59,
-        title: 'Haşr Suresi',
-        summary: 'Yahudi kabilelerinin sürgününü ve Allah\'ın güzel isimlerini (Esma-ül Hüsna) anlatır.',
-        meaning: 'Göklerde ve yerde ne varsa Allah\'ı tesbih eder.'
-    },
-    {
-        id: 60,
-        title: 'Mümtahine Suresi',
-        summary: 'Müminler ile inkarcıların münasebetlerini test eden hükümler içerir.',
-        meaning: 'Ey iman edenler! Benim de düşmanım sizin de düşmanınız olanları dost edinmeyin.'
-    },
-    {
-        id: 61,
-        title: 'Saff Suresi',
-        summary: 'Allah yolunda kenetlenmiş tuğlalar gibi saf tutan müminleri anlatır.',
-        meaning: 'Göklerde ve yerde ne varsa Allah\'ı tesbih eder.'
-    },
-    {
-        id: 62,
-        title: 'Cuma Suresi',
-        summary: 'Cuma namazının önemini ve ümmi bir topluma gönderilen peygamberi anlatır.',
-        meaning: 'Göklerde ve yerde ne varsa mülkün sahibi Allah\'ı tesbih eder.'
-    },
-    {
-        id: 63,
-        title: 'Münâfikûn Suresi',
-        summary: 'Münafıkların ikiyüzlülüğünü ve dünya meşgalesinin tehlikesini anlatır.',
-        meaning: 'Münafıklar sana geldikleri zaman "Şahadet ederiz ki sen Allah\'ın elçisisin" derler.'
-    },
-    {
-        id: 64,
-        title: 'Teğâbün Suresi',
-        summary: 'İnsanların aldanışını ve aile içindeki imtihanları konu alır.',
-        meaning: 'Göklerde ve yerde ne varsa Allah\'ı tesbih eder.'
-    },
-    {
-        id: 65,
-        title: 'Talâk Suresi',
-        summary: 'Boşanma hukuku, nafaka ve takvanın çıkış yolları açacağını anlatır.',
-        meaning: 'Ey Peygamber! Kadınları boşayacağınız zaman iddetlerini gözeterek boşayın.'
-    },
-    {
-        id: 66,
-        title: 'Tahrîm Suresi',
-        summary: 'Aile hayatındaki sırları ve Hz. Meryem ile Asiye\'yi örnek gösterir.',
-        meaning: 'Ey Peygamber! Eşlerinin rızasını arayarak Allah\'ın sana helal kıldığını niçin haram kılıyorsun?'
-    },
-    {
-        id: 36,
-        title: 'Yâsîn Suresi',
-        summary: 'Kur\'an\'ın kalbi olarak bilinir. Öldükten sonra dirilmeyi ve peygamberlik müessesesini anlatır.',
-        meaning: 'Yâ. Sîn. Hikmet dolu Kur\'an\'a andolsun ki, sen elbette gönderilen peygamberlerdensin.'
-    },
-    {
-        id: 37,
-        title: 'Sâffât Suresi',
-        summary: 'Saf saf dizilen melekleri, tevhid inancını ve Hz. İbrahim\'in sadakatini anlatır.',
-        meaning: 'Saf saf dizilenlere andolsun.'
-    },
-    {
-        id: 38,
-        title: 'Sâd Suresi',
-        summary: 'Hz. Davud, Hz. Süleyman ve Hz. Eyüp\'ün sabır ve şükür dolu hikayelerini konu alır.',
-        meaning: 'Sâd. Öğüt dolu Kur\'an\'a andolsun.'
-    },
-    {
-        id: 39,
-        title: 'Zümer Suresi',
-        summary: 'Dinle samimi bir yönelişin önemini ve mahşer günündeki gruplaşmaları anlatır.',
-        meaning: 'Kitabın indirilmesi, mutlak güç ve hikmet sahibi Allah tarafındandır.'
-    },
-    {
-        id: 40,
-        title: 'Mü\'min (Gâfir) Suresi',
-        summary: 'Allah\'ın affediciliğini ve Firavun\'un sarayındaki müminin mücadelesini anlatır.',
-        meaning: 'Hâ. Mîm. Kitabın indirilmesi, mutlak güç ve her şeyi bilen Allah tarafındandır.'
-    },
-    {
-        id: 41,
-        title: 'Fussilet Suresi',
-        summary: 'Kur\'an\'ın açıklanmış ayetlerini ve insanın kendi yaratılışına dair delilleri anlatır.',
-        meaning: 'Hâ. Mîm. Bu Kur\'an, Rahman ve Rahim olan Allah katından indirilmiştir.'
-    },
-    {
-        id: 42,
-        title: 'Şûrâ Suresi',
-        summary: 'Vahyin önemini ve Müslümanların işlerini istişare ile yürütmelerini emreder.',
-        meaning: 'Hâ. Mîm. Ayn. Sîn. Kâf. Mutlak güç ve hikmet sahibi olan Allah sana ve senden öncekilere böyle vahyeder.'
-    },
-    {
-        id: 43,
-        title: 'Zuhruf Suresi',
-        summary: 'Kur\'an\'ın altın ve zinetten daha değerli bir hidayet rehberi olduğunu anlatır.',
-        meaning: 'Hâ. Mîm. Apaçık kitaba andolsun.'
-    },
-    {
-        id: 44,
-        title: 'Duhân Suresi',
-        summary: 'Kur\'an\'ın mübarek bir gecede indirilmesini ve duman (duhân) alametini anlatır.',
-        meaning: 'Hâ. Mîm. Apaçık kitaba andolsun.'
-    },
-    {
-        id: 45,
-        title: 'Câsiye Suresi',
-        summary: 'Allah\'ın kainattaki delillerini ve diz çökenlerin mahşerdeki halini anlatır.',
-        meaning: 'Hâ. Mîm. Kitabın indirilmesi, mutlak güç ve hikmet sahibi Allah tarafındandır.'
-    },
-    {
-        id: 46,
-        title: 'Ahkâf Suresi',
-        summary: 'Ad kavminin helakini ve Kur\'an\'ın cinler tarafından dinlenmesini konu alır.',
-        meaning: 'Hâ. Mîm. Kitabın indirilmesi, mutlak güç ve hikmet sahibi Allah tarafındandır.'
-    },
-    {
-        id: 47,
-        title: 'Muhammed Suresi',
-        summary: 'Savaş hukuku, iman-küfür mücadelesi ve müminlerin zaferini anlatır.',
-        meaning: 'İnkar edenlerin ve Allah yolundan alıkoyanların amellerini Allah boşa çıkarır.'
-    },
-    {
-        id: 48,
-        title: 'Fetih Suresi',
-        summary: 'Hudeybiye Antlaşması\'nı ve müminlere müjdelenen kesin zaferi anlatır.',
-        meaning: 'Şüphesiz Biz sana apaçık bir fetih verdik.'
-    },
-    {
-        id: 49,
-        title: 'Hucurât Suresi',
-        summary: 'Sosyal hayat, edep, gıybetten kaçınma ve müminler arası kardeşliği anlatır.',
-        meaning: 'Ey iman edenler! Allah\'ın ve Resulünün önüne geçmeyin.'
-    },
-    {
-        id: 50,
-        title: 'Kâf Suresi',
-        summary: 'Ölüm gerçeğini, yeniden dirilişi ve insanın her sözünün kaydedildiğini anlatır.',
-        meaning: 'Kâf. Şanlı Kur\'an\'a andolsun.'
-    },
-    {
-        id: 51,
-        title: 'Zâriyât Suresi',
-        summary: 'Rızkın Allah\'tan geldiğini ve zekatın önemini rüzgarlar üzerinden anlatır.',
-        meaning: 'Tozutup savuran rüzgarlara andolsun.'
-    },
-    {
-        id: 52,
-        title: 'Tûr Suresi',
-        summary: 'Tûr dağına yeminle başlayan, ahiret hayatını ve müminlerin hallerini anlatan bir suredir.',
-        meaning: 'Tûr\'a andolsun. Yayılmış ince deri üzerine yazılmış kitaba andolsun.'
-    },
-    {
-        id: 53,
-        title: 'Necm Suresi',
-        summary: 'Hz. Peygamber\'in Mi\'raç mucizesini ve sadece çalışanın karşılığını alacağını anlatır.',
-        meaning: 'İndiği zaman yıldıza andolsun ki, arkadaşınız (Muhammed) sapmadı ve batıla inanmadı.'
-    },
-    {
-        id: 54,
-        title: 'Kamer Suresi',
-        summary: 'Kıyametin yakınlığını ve ayın yarılması mucizesini haber verir.',
-        meaning: 'Kıyamet yaklaştı ve ay yarıldı.'
-    },
-    {
-        id: 67,
-        title: 'Mülk Suresi',
-        summary: 'Kainattaki nizamı ve Allah\'ın mutlak hakimiyetini anlatır. Kabir azabından koruyucu olarak bilinir.',
-        meaning: 'Mutlak hükümranlık elinde olan Allah ne yücedir! O, her şeye hakkıyla gücü yetendir.'
-    },
-    {
-        id: 68,
-        title: 'Kalem Suresi',
-        summary: 'Hz. Peygamber\'in yüce ahlakını ve mürekkep ile kalem üzerine edilen yemini anlatır.',
-        meaning: 'Nûn. Kaleme ve onunla yazdıklarına andolsun.'
-    },
-    {
-        id: 69,
-        title: 'Hâkka Suresi',
-        summary: 'Kıyametin kesinliğini ve o gün insanların alacağı karşılıkları konu alır.',
-        meaning: 'O gerçekleşecek olan! Nedir o gerçekleşecek olan?'
-    },
-    {
-        id: 70,
-        title: 'Meâric Suresi',
-        summary: 'Meleklerin Allah\'a yükselme derecelerini ve kıyamet sahnelerini anlatır.',
-        meaning: 'Birisi, gerçekleşecek olan bir azabı sordu.'
-    },
-    {
-        id: 71,
-        title: 'Nûh Suresi',
-        summary: 'Hz. Nuh\'un kavmini tevhidi çağırmasını ve kavminin inkarcılığını anlatır.',
-        meaning: 'Şüphesiz Biz, Nuh\'u kavmine; kendilerine acıklı bir azap gelmeden önce onları uyar, diye gönderdik.'
-    },
-    {
-        id: 72,
-        title: 'Cinn Suresi',
-        summary: 'Cinlerin Kur\'an\'ı dinleyip Müslüman oluşlarını ve gayb bilgisini anlatır.',
-        meaning: 'De ki: Şüphesiz cinlerden bir grubun Kur\'an dinlediği bana vahyedildi.'
-    },
-    {
-        id: 73,
-        title: 'Müzzemmil Suresi',
-        summary: 'Hz. Peygamber\'e gece ibadetine kalkmasını ve ağır bir söze (vahye) hazırlanmasını emreder.',
-        meaning: 'Ey örtüsüne bürünen!'
-    },
-    {
-        id: 74,
-        title: 'Müddessir Suresi',
-        summary: 'Hz. Peygamber\'e gelen ilk emirlerden biridir, tebliğe kalkmasını emreder.',
-        meaning: 'Ey örtüsüne bürünen! Kalk ve uyar.'
-    },
-    {
-        id: 75,
-        title: 'Kıyâmet Suresi',
-        summary: 'Kıyamet gününün dehşetli sahnelerini ve insanın o günkü halini anlatır.',
-        meaning: 'Kıyamet gününe yemin ederim. Kendini kınayan nefse yemin ederim.'
-    },
-    {
-        id: 76,
-        title: 'İnsân Suresi',
-        summary: 'İnsanın yaratılışı ve cennet ehlinin mükafatlarını konu alır.',
-        meaning: 'İnsanın üzerinden, henüz anılan bir şey olmadığı uzun bir süre geçmedi mi?'
-    },
-    {
-        id: 77,
-        title: 'Mürselât Suresi',
-        summary: 'Kıyamet gerçeğini ve yalanlayanların hazin sonunu her ayette hatırlatır.',
-        meaning: 'Andolsun birbiri ardınca gönderilenlere.'
-    },
-    {
-        id: 78,
-        title: 'Nebe Suresi',
-        summary: 'Kıyamet haberi, öldükten sonra diriliş ve ahiret hayatının gerçekliğini anlatır.',
-        meaning: 'O büyük haberi birbirlerine mi soruyorlar?'
-    },
-    {
-        id: 79,
-        title: 'Naziât Suresi',
-        summary: 'Meleklerin can alışını, Hz. Musa ile Firavun kıssasını ve kıyameti anlatır.',
-        meaning: 'Andolsun çekip çıkaranlara.'
-    },
-    {
-        id: 80,
-        title: 'Abese Suresi',
-        summary: 'Hz. Peygamber\'in gözleri görmeyen İbn Ümmü Mektum\'a yaklaşımına dair uyarı içerir.',
-        meaning: 'Yüzünü ekşitti ve öteye döndü.'
-    },
-    {
-        id: 81,
-        title: 'Tekvîr Suresi',
-        summary: 'Kıyamet koptuğunda kainatta meydana gelecek müthiş değişimleri tasvir eder.',
-        meaning: 'Güneş dürüldüğü zaman, yıldızlar söndüğü zaman.'
-    },
-    {
-        id: 82,
-        title: 'İnfitâr Suresi',
-        summary: 'Gökyüzünün yarıldığı kıyamet gününü ve insanın amel defterini anlatır.',
-        meaning: 'Gök yarıldığı zaman, yıldızlar döküldüğü zaman.'
-    },
-    {
-        id: 83,
-        title: 'Mutaffifîn Suresi',
-        summary: 'Ölçü ve tartıda hile yapanları uyaran, iyilerin ve kötülerin sicilini anlatan suredir.',
-        meaning: 'Eksik ölçüp tartanların vay haline!'
-    },
-    {
-        id: 84,
-        title: 'İnşikâk Suresi',
-        summary: 'Göklerin parçalanışını ve amellerin sağdan veya soldan verilmesini anlatır.',
-        meaning: 'Gök yarıldığı ve Rabbine boyun eğdiği zaman.'
-    },
-    {
-        id: 85,
-        title: 'Burûc Suresi',
-        summary: 'İnananların ateşe atılmasını ve Allah\'ın koruyuculuğunu anlatır.',
-        meaning: 'Burçlar sahibi göğe andolsun.'
-    },
-    {
-        id: 86,
-        title: 'Târık Suresi',
-        summary: 'Gece çakan yıldız üzerine yeminle insanın yaratılışını ve Kur\'an\'ın değerini anlatır.',
-        meaning: 'Göğe ve Târık\'a andolsun.'
-    },
-    {
-        id: 87,
-        title: 'A\'lâ Suresi',
-        summary: 'Rabbini tesbih etmeyi emreden, insanın dünya hayatına düşkünlüğünü konu alan suredir.',
-        meaning: 'Yüce Rabbinin adını tesbih et.'
-    },
-    {
-        id: 88,
-        title: 'Gâşiye Suresi',
-        summary: 'İnsanları dehşetiyle bürüyen kıyameti ve ahretteki iki farklı grubu anlatır.',
-        meaning: 'O bürüyüp kaplayan kıyametin haberi sana geldi mi?'
-    },
-    {
-        id: 89,
-        title: 'Fecr Suresi',
-        summary: 'Tan vaktine yeminle Ad, Semud ve Firavun\'un akıbetini ve mutmain nefsi anlatır.',
-        meaning: 'Tan yerine andolsun. On geceye andolsun.'
-    },
-    {
-        id: 90,
-        title: 'Beled Suresi',
-        summary: 'Sarp yokuşu aşmayı ve Mekke şehrini anlatır.',
-        meaning: 'Bu şehre (Mekke\'ye) yemin ederim.'
-    },
-    {
-        id: 91,
-        title: 'Şems Suresi',
-        summary: 'Güneş ve ay üzerine yeminle nefsi temizleyenin kurtuluşa ereceğini anlatır.',
-        meaning: 'Güneşe ve onun aydınlığına andolsun.'
-    },
-    {
-        id: 92,
-        title: 'Leyl Suresi',
-        summary: 'Gece ve gündüz üzerine yeminle cömertlik ile cimriliğin farkını anlatır.',
-        meaning: 'Karanlığıyla bürüdüğü zaman geceye andolsun.'
-    },
-    {
-        id: 93,
-        title: 'Duhâ Suresi',
-        summary: 'Hz. Peygamber\'e gelen vahyin bir süre kesilmesinin ardından inen teselli suresidir.',
-        meaning: 'Kuşluk vaktine andolsun. Karanlığı çöktüğü zaman geceye andolsun.'
-    },
-    {
-        id: 94,
-        title: 'İnşirâh Suresi',
-        summary: 'Sıkıntıdan sonra ferahlığın geleceğini müjdeleyen, göğüs genişleten bir suredir.',
-        meaning: 'Biz senin göğsünü açıp genişletmedik mi?'
-    },
-    {
-        id: 95,
-        title: 'Tîn Suresi',
-        summary: 'İncir ve zeytin üzerine yeminle insanın en güzel biçimde yaratılışını anlatır.',
-        meaning: 'İncire ve zeytine andolsun.'
-    },
-    {
-        id: 96,
-        title: 'Alak Suresi',
-        summary: 'İlk inen "Oku!" emriyle başlayan, bilginin kaynağını ve insanın azgınlığını anlatan suredir.',
-        meaning: 'Yaratan Rabbinin adıyla oku!'
-    },
-    {
-        id: 97,
-        title: 'Kadir Suresi',
-        summary: 'Kur\'an\'ın indirildiği bin aydan daha hayırlı olan Kadir Gecesi\'ni anlatır.',
-        meaning: 'Şüphesiz Biz onu (Kur\'an\'ı) Kadir Gecesi\'nde indirdik.'
-    },
-    {
-        id: 98,
-        title: 'Beyyine Suresi',
-        summary: 'Apaçık delil gelmeden insanların ayrılığa düşmeyeceğini ve ehli kitabın durumunu anlatır.',
-        meaning: 'Kitap ehlinden inkar edenler ve müşrikler, kendilerine apaçık delil gelinceye kadar ayrılacak değillerdi.'
-    },
-    {
-        id: 99,
-        title: 'Zilzâl Suresi',
-        summary: 'Yer sarsıntısını ve zerre kadar hayır ya da şerrin karşılıksız kalmayacağını anlatır.',
-        meaning: 'Yer dehşetli bir sarsıntıyla sarsıldığı zaman.'
-    },
-    {
-        id: 100,
-        title: 'Âdiyât Suresi',
-        summary: 'Savaş atları üzerine yeminle insanın nankörlüğünü ve dünya hırsını anlatır.',
-        meaning: 'Soluk soluğa koşanlara andolsun.'
-    },
-    {
-        id: 101,
-        title: 'Kāria Suresi',
-        summary: 'İnsanların kelebekler gibi dağılacağı dehşetli kıyamet gününü anlatır.',
-        meaning: 'Kāria! Nedir o Kāria?'
-    },
-    {
-        id: 102,
-        title: 'Tekâsür Suresi',
-        summary: 'Çoklukla övünmekten dolayı insanların gerçeği ancak kabirde göreceğini anlatır.',
-        meaning: 'Çoklukla övünmek sizi oyaladı.'
-    },
-    {
-        id: 103,
-        title: 'Asr Suresi',
-        summary: 'Zaman üzerine yeminle insanın hüsranda olduğunu, ancak müminlerin kurtulacağını anlatır.',
-        meaning: 'Asr\'a andolsun ki, insan gerçekten ziyan içindedir.'
-    },
-    {
-        id: 104,
-        title: 'Hümeze Suresi',
-        summary: 'Arkadan çekiştirenlerin ve mal biriktirip sayanların akıbetini anlatır.',
-        meaning: 'Arkadan çekiştirmeyi, yüze karşı eğlenmeyi adet edinen herkesin vay haline!'
-    },
-    {
-        id: 105,
-        title: 'Fil Suresi',
-        summary: 'Kabe\'yi yıkmaya gelen Ebrehe\'nin ordusunun ebabil kuşlarıyla yok edilişini anlatır.',
-        meaning: 'Rabbinin, fil sahiplerine ne yaptığını görmedin mi? Onların tuzaklarını boşa çıkarmadı mı? Üzerlerine sürü sürü kuşlar gönderdi. Onlara çamurdan sertleşmiş taşlar atıyorlardı. Nihayet onları yenilmiş ekin yaprağı gibi yapıverdi.'
-    },
-    {
-        id: 106,
-        title: 'Kureyş Suresi',
-        summary: 'Kureyş kabilesine verilen güven ve nimetleri hatırlatır.',
-        meaning: 'Kureyş\'i ısındırıp alıştırdığı; onları kışın ve yazın yolculuğuna alıştırdığı için, Kureyş de, kendilerini besleyip açlıklarını gideren ve onları korkudan emin kılan bu Ev\'in (Kabe\'nin) Rabbine kulluk etsin.'
-    },
-    {
-        id: 107,
-        title: 'Maûn Suresi',
-        summary: 'Gösteriş yapanları ve yardıma engel olanları uyarır.',
-        meaning: 'Dini yalanlayanı gördün mü? İşte o, yetimi itip kakar; yoksulu doyurmaya teşvik etmez. Yazıklar olsun o namaz kılanlara ki; onlar namazlarını ciddiye almazlar. Onlar gösteriş yaparlar. Ufacık bir yardıma bile engel olurlar.'
-    },
-    {
-        id: 108,
-        title: 'Kevser Suresi',
-        summary: 'Kur\'an\'ın en kısa suresidir. Peygamberimize verilen bitmez tükenmez nimet anlatılır.',
-        meaning: 'Şüphesiz Biz sana Kevser\'i (bol nimeti) verdik. O halde, Rabbin için namaz kıl ve kurban kes. Asıl soyu kesik olan, şüphesiz sana kin besleyendir.'
-    },
-    {
-        id: 109,
-        title: 'Kâfirûn Suresi',
-        summary: 'İnançta taviz verilmeyeceğini, senin dinin sana, benimki bana ilkesini anlatır.',
-        meaning: 'De ki: Ey kâfirler! Ben sizin tapmakta olduğunuz şeylere tapmam. Siz de benim taptığıma tapıyor değilsiniz. Ben sizin taptıklarınıza tapacak değilim. Siz de benim taptığıma tapacak değilsiniz. Sizin dininiz size, benim dinim banadır.'
-    },
-    {
-        id: 110,
-        title: 'Nasr Suresi',
-        summary: 'Mekke\'nin fethini müjdeler. Peygamberimizin vefatının yaklaştığına işarettir.',
-        meaning: 'Allah\'ın yardımı ve fetih (Mekke\'nin fethi) geldiğinde; ve insanların bölük bölük Allah\'ın dinine girdiğini gördüğünde; Rabbini hamd ile tesbih et ve O\'ndan bağışlanma dile. Şüphesiz O, tövbeleri çok kabul edendir.'
-    },
-    {
-        id: 111,
-        title: 'Tebbet Suresi',
-        summary: 'Peygamberimizin amcası Ebu Leheb\'in inkarcılığını ve sonunu anlatır.',
-        meaning: 'Ebu Leheb\'in elleri kurusun! Kurudu da. Malı ve kazandıkları ona fayda vermedi. O, alevli bir ateşe girecektir. Odun taşıyıcısı olarak karısı da (ateşe girecek). Boynunda hurma lifinden bükülmüş bir ip olduğu halde.'
-    },
-    {
-        id: 112,
-        title: 'İhlâs Suresi',
-        summary: 'Allah\'ın birliğini en net anlatan suredir. Okumak, Kur\'an\'ın üçte birine denktir.',
-        meaning: 'De ki: O Allah tektir. Allah Samed\'dir (Her şey O\'na muhtaçtır, O hiçbir şeye muhtaç değildir). O, doğurmamış ve doğmamıştır. O\'nun hiçbir dengi yoktur.'
-    },
-    {
-        id: 113,
-        title: 'Felak Suresi',
-        summary: 'Büyüden, karanlıktan ve kıskançlıktan Allah\'a sığınmayı öğretir.',
-        meaning: 'De ki: Yarattığı şeylerin şerrinden, karanlığı çöktüğü zaman gecenin şerrinden, düğümlere üfleyen büyücülerin şerrinden ve haset ettiği zaman hasetçinin şerrinden sabahın Rabbine sığınırım.'
-    },
-    {
-        id: 114,
-        title: 'Nâs Suresi',
-        summary: 'İnsanların ve cinlerin sinsi vesveselerinden Allah\'a sığınmayı öğretir.',
-        meaning: 'De ki: İnsanların ve cinlerin şerrinden, insanların göğüslerine vesvese veren o sinsi vesvesecinin şerrinden; insanların Rabbine, insanların Melikine (Hükümdarına), insanların İlahına sığınırım.'
-    },
-    {
-        id: 255,
-        title: 'Ayetel Kürsi',
-        summary: 'Kur\'an\'ın en yüce ayetidir. Namazlardan sonra ve yatmadan önce okunur.',
-        meaning: 'Allah, O\'ndan başka ilah yoktur; O, Hayy\'dır (diridir), Kayyum\'dur (her şeyi ayakta tutandır)...'
-    }
+const SURAH_SUMMARIES_TR = [
+    { id: 1, summary: 'Kur\'an\'ın açılış kapısıdır. Namazın her rekatında okunması vaciptir.' },
+    { id: 2, summary: 'Kur\'an\'ın en uzun suresidir. İçinde pek çok hukuki hüküm ve kıssa barındırır.' },
+    { id: 3, summary: 'Ehli kitap ile münasebetleri, Uhud Savaşı\'nı ve Hz. Meryem ile Hz. İsa\'nın doğumunu anlatır.' },
+    { id: 4, summary: 'Kadın hakları, miras hukuku ve aile hayatına dair önemli hükümler içerir.' },
+    { id: 5, summary: 'Helal ve haram gıdalar, abdest, teyemmüm ve Hz. İsa\'nın mucizelerinden bahseder.' },
+    { id: 6, summary: 'Allah\'ın varlığı, birliği ve kainattaki delilleri üzerine odaklanır.' },
+    { id: 7, summary: 'Peygamberlerin kıssaları ve kıyamet sahneleri ile insanlığı uyarır.' },
+    { id: 8, summary: 'Bedir Savaşı ve savaş ganimetleri ile ilgili hükümleri anlatır.' },
+    { id: 9, summary: 'Tebük Seferi\'ni ve tövbenin önemini konu alır, başında Besmele bulunmaz.' },
+    { id: 10, summary: 'Allah\'ın kudreti, vahyin hak oluşu ve Hz. Yunus\'un kavminin kurtuluşunu anlatır.' },
+    { id: 11, summary: 'Peygamberlerin mücadelelerini ve Allah\'ın yardımını anlatır.' },
+    { id: 12, summary: 'Kur\'an\'daki "kıssaların en güzeli" olarak bilinen Hz. Yusuf\'un hayatını anlatır.' },
+    { id: 13, summary: 'Tabiat olayları ve Allah\'ın kainattaki gücü üzerinden tevhidi anlatır.' },
+    { id: 14, summary: 'İmanın temelini ve Hz. İbrahim\'in dualarını konu alır.' },
+    { id: 15, summary: 'Hicr halkını ve peygamberlerin tebliğlerini anlatır.' },
+    { id: 16, summary: 'Allah\'ın insanlara verdiği sayısız nimetten (arı, bal, bitkiler) bahseder.' },
+    { id: 17, summary: 'Hz. Peygamber\'in İsra mucizesini ve ahlaki prensipleri konu alır.' },
+    { id: 18, summary: 'Kehf ehli, Hz. Musa ile Hızır kıssası ve Zülkarneyn\'i anlatır.' },
+    { id: 19, summary: 'Hz. Meryem, Hz. Zekeriya ve Hz. İsa\'nın doğumunu anlatır.' },
+    { id: 20, summary: 'Hz. Musa\'nın peygamberlik görevine seçilmesini ve Firavun ile mücadelesini anlatır.' },
+    { id: 21, summary: 'Pek çok peygamberin hayatından kesitler sunarak tevhid ve ahiret inancını vurgular.' },
+    { id: 22, summary: 'Hac ibadetinin önemini, kurbanı ve kıyamet dehşetini anlatır.' },
+    { id: 23, summary: 'Müminlerin kurtuluşa ermesi için taşıması gereken ahlaki vasıfları anlatır.' },
+    { id: 24, summary: 'Aile hayatı, iffet, tesettür ve toplumsal ahlak kurallarını konu alır.' },
+    { id: 25, summary: 'Kur\'an\'ın hak ile batılı ayıran özelliği (Furkân) ve Peygamberin tebliği üzerinedir.' },
+    { id: 26, summary: 'Peygamberlerin tebliğ mücadelesini ve inkarcıların sonunu şiirsel bir dille anlatır.' },
+    { id: 27, summary: 'Hz. Süleyman ve Sebe Melikesi kıssası ile tabiatın Allah\'a teslimiyetini anlatır.' },
+    { id: 28, summary: 'Hz. Musa\'nın doğumundan Firavun ile mücadelesine kadar olan hayat hikayesini anlatır.' },
+    { id: 29, summary: 'İman edenlerin karşılaştığı zorlukları ve sahte tanrıların örümcek ağı gibi çürüklüğünü anlatır.' },
+    { id: 30, summary: 'Bizans-Sasani savaşı üzerinden Allah\'ın kudretini ve geleceğe dair gayb haberlerini anlatır.' },
+    { id: 31, summary: 'Hz. Lokman\'ın oğluna verdiği hikmetli nasihatleri ve Allah\'ın birliğini anlatır.' },
+    { id: 32, summary: 'İnsanın yaratılışı, öldükten sonra diriliş ve Allah\'a secde etmenin önemi üzerinedir.' },
+    { id: 33, summary: 'Hendek Savaşı\'nı, aile hayatını ve Hz. Peygamber\'in örnek ahlakını konu alır.' },
+    { id: 34, summary: 'Sebe kavminin nankörlüğünü ve Hz. Davud ile Hz. Süleyman\'a verilen nimetleri anlatır.' },
+    { id: 35, summary: 'Göklerin ve yerin tek yaratıcısı olan Allah\'ın kudretini ve melekleri anlatır.' },
+    { id: 36, summary: 'Kur\'an\'ın kalbi olarak bilinir. Öldükten sonra dirilmeyi ve peygamberlik müessesesini anlatır.' },
+    { id: 37, summary: 'Saf saf dizilen melekleri, tevhid inancını ve Hz. İbrahim\'in sadakatini anlatır.' },
+    { id: 38, summary: 'Hz. Davud, Hz. Süleyman ve Hz. Eyüp\'ün sabır ve şükür dolu hikayelerini konu alır.' },
+    { id: 39, summary: 'Dinle samimi bir yönelişin önemini ve mahşer günündeki gruplaşmaları anlatır.' },
+    { id: 40, summary: 'Allah\'ın affediciliğini ve Firavun\'un sarayındaki müminin mücadelesini anlatır.' },
+    { id: 41, summary: 'Kur\'an\'ın açıklanmış ayetlerini ve insanın kendi yaratılışına dair delilleri anlatır.' },
+    { id: 42, summary: 'Vahyin önemini ve Müslümanların işlerini istişare ile yürütmelerini emreder.' },
+    { id: 43, summary: 'Kur\'an\'ın altın ve zinetten daha değerli bir hidayet rehberi olduğunu anlatır.' },
+    { id: 44, summary: 'Kur\'an\'ın mübarek bir gecede indirilmesini ve duman (duhân) alametini anlatır.' },
+    { id: 45, summary: 'Allah\'ın kainattaki delillerini ve diz çökenlerin mahşerdeki halini anlatır.' },
+    { id: 46, summary: 'Ad kavminin helakini ve Kur\'an\'ın cinler tarafından dinlenmesini konu alır.' },
+    { id: 47, summary: 'Savaş hukuku, iman-küfür mücadelesi ve müminlerin zaferini anlatır.' },
+    { id: 48, summary: 'Hudeybiye Antlaşması\'nı ve müminlere müjdelenen kesin zaferi anlatır.' },
+    { id: 49, summary: 'Sosyal hayat, edep, gıybetten kaçınma ve müminler arası kardeşliği anlatır.' },
+    { id: 50, summary: 'Ölüm gerçeğini, yeniden dirilişi ve insanın her sözünün kaydedildiğini anlatır.' },
+    { id: 51, summary: 'Rızkın Allah\'tan geldiğini ve zekatın önemini rüzgarlar üzerinden anlatır.' },
+    { id: 52, summary: 'Tûr dağına yeminle başlayan, ahiret hayatını ve müminlerin hallerini anlatan bir suredir.' },
+    { id: 53, summary: 'Hz. Peygamber\'in Mi\'raç mucizesini ve sadece çalışanın karşılığını alacağını anlatır.' },
+    { id: 54, summary: 'Kıyametin yakınlığını ve ayın yarılması mucizesini haber verir.' },
+    { id: 55, summary: 'Allah\'ın dünyada ve ahirette kullarına verdiği sayısız nimetleri şiirsel bir dille anlatır.' },
+    { id: 56, summary: 'Kıyamet koptuğunda insanların üç sınıfa ayrılacağını ve cennet-cehennem hallerini anlatır.' },
+    { id: 57, summary: 'Demirdeki güçten bahseder ve infakın önemini vurgular.' },
+    { id: 58, summary: 'Hakkını arayan kadının şikayetini ve gizli konuşmaların adabını anlatır.' },
+    { id: 59, summary: 'Yahudi kabilelerinin sürgününü ve Allah\'ın güzel isimlerini (Esma-ül Hüsna) anlatır.' },
+    { id: 60, summary: 'Müminler ile inkarcıların münasebetlerini test eden hükümler içerir.' },
+    { id: 61, summary: 'Allah yolunda kenetlenmiş tuğlalar gibi saf tutan müminleri anlatır.' },
+    { id: 62, summary: 'Cuma namazının önemini ve ümmi bir topluma gönderilen peygamberi anlatır.' },
+    { id: 63, summary: 'Münafıkların ikiyüzlülüğünü ve dünya meşgalesinin tehlikesini anlatır.' },
+    { id: 64, summary: 'İnsanların aldanışını ve aile içindeki imtihanları konu alır.' },
+    { id: 65, summary: 'Boşanma hukuku, nafaka ve takvanın çıkış yolları açacağını anlatır.' },
+    { id: 66, summary: 'Aile hayatındaki sırları ve Hz. Meryem ile Asiye\'yi örnek gösterir.' },
+    { id: 67, summary: 'Kainattaki nizamı ve Allah\'ın mutlak hakimiyetini anlatır. Kabir azabından koruyucu olarak bilinir.' },
+    { id: 68, summary: 'Hz. Peygamber\'in yüce ahlakını ve mürekkep ile kalem üzerine edilen yemini anlatır.' },
+    { id: 69, summary: 'Kıyametin kesinliğini ve o gün insanların alacağı karşılıkları konu alır.' },
+    { id: 70, summary: 'Meleklerin Allah\'a yükselme derecelerini ve kıyamet sahnelerini anlatır.' },
+    { id: 71, summary: 'Hz. Nuh\'un kavmini tevhidi çağırmasını ve kavminin inkarcılığını anlatır.' },
+    { id: 72, summary: 'Cinlerin Kur\'an\'ı dinleyip Müslüman oluşlarını ve gayb bilgisini anlatır.' },
+    { id: 73, summary: 'Hz. Peygamber\'e gece ibadetine kalkmasını ve ağır bir söze (vahye) hazırlanmasını emreder.' },
+    { id: 74, summary: 'Hz. Peygamber\'e gelen ilk emirlerden biridir, tebliğe kalkmasını emreder.' },
+    { id: 75, summary: 'Kıyamet gününün dehşetli sahnelerini ve insanın o günkü halini anlatır.' },
+    { id: 76, summary: 'İnsanın yaratılışı ve cennet ehlinin mükafatlarını konu alır.' },
+    { id: 77, summary: 'Kıyamet gerçeğini ve yalanlayanların hazin sonunu her ayette hatırlatır.' },
+    { id: 78, summary: 'Kıyamet haberi, öldükten sonra diriliş ve ahiret hayatının gerçekliğini anlatır.' },
+    { id: 79, summary: 'Meleklerin can alışını, Hz. Musa ile Firavun kıssasını ve kıyameti anlatır.' },
+    { id: 80, summary: 'Hz. Peygamber\'in gözleri görmeyen İbn Ümmü Mektum\'a yaklaşımına dair uyarı içerir.' },
+    { id: 81, summary: 'Kıyamet koptuğunda kainatta meydana gelecek müthiş değişimleri tasvir eder.' },
+    { id: 82, summary: 'Gökyüzünün yarıldığı kıyamet gününü ve insanın amel defterini anlatır.' },
+    { id: 83, summary: 'Ölçü ve tartıda hile yapanları uyaran, iyilerin ve kötülerin sicilini anlatan suredir.' },
+    { id: 84, summary: 'Göklerin parçalanışını ve amellerin sağdan veya soldan verilmesini anlatır.' },
+    { id: 85, summary: 'İnananların ateşe atılmasını ve Allah\'ın koruyuculuğunu anlatır.' },
+    { id: 86, summary: 'Gece çakan yıldız üzerine yeminle insanın yaratılışını ve Kur\'an\'ın değerini anlatır.' },
+    { id: 87, summary: 'Rabbini tesbih etmeyi emreden, insanın dünya hayatına düşkünlüğünü konu alan suredir.' },
+    { id: 88, summary: 'İnsanları dehşetiyle bürüyen kıyameti ve ahretteki iki farklı grubu anlatır.' },
+    { id: 89, summary: 'Tan vaktine yeminle Ad, Semud ve Firavun\'un akıbetini ve mutmain nefsi anlatır.' },
+    { id: 90, summary: 'Sarp yokuşu aşmayı ve Mekke şehrini anlatır.' },
+    { id: 91, summary: 'Güneş ve ay üzerine yeminle nefsi temizleyenin kurtuluşa ereceğini anlatır.' },
+    { id: 92, summary: 'Gece ve gündüz üzerine yeminle cömertlik ile cimriliğin farkını anlatır.' },
+    { id: 93, summary: 'Hz. Peygamber\'e gelen vahyin bir süre kesilmesinin ardından inen teselli suresidir.' },
+    { id: 94, summary: 'Sıkıntıdan sonra ferahlığın geleceğini müjdeleyen, göğüs genişleten bir suredir.' },
+    { id: 95, summary: 'İncir ve zeytin üzerine yeminle insanın en güzel biçimde yaratılışını anlatır.' },
+    { id: 96, summary: 'İlk inen "Oku!" emriyle başlayan, bilginin kaynağını ve insanın azgınlığını anlatan suredir.' },
+    { id: 97, summary: 'Kur\'an\'ın indirildiği bin aydan daha hayırlı olan Kadir Gecesi\'ni anlatır.' },
+    { id: 98, summary: 'Apaçık delil gelmeden insanların ayrılığa düşmeyeceğini ve ehli kitabın durumunu anlatır.' },
+    { id: 99, summary: 'Yer sarsıntısını ve zerre kadar hayır ya da şerrin karşılıksız kalmayacağını anlatır.' },
+    { id: 100, summary: 'Savaş atları üzerine yeminle insanın nankörlüğünü ve dünya hırsını anlatır.' },
+    { id: 101, summary: 'İnsanların kelebekler gibi dağılacağı dehşetli kıyamet gününü anlatır.' },
+    { id: 102, summary: 'Çoklukla övünmekten dolayı insanların gerçeği ancak kabirde göreceğini anlatır.' },
+    { id: 103, summary: 'Zaman üzerine yeminle insanın hüsranda olduğunu, ancak müminlerin kurtulacağını anlatır.' },
+    { id: 104, summary: 'Arkadan çekiştirenlerin ve mal biriktirip sayanların akıbetini anlatır.' },
+    { id: 105, summary: 'Kabe\'yi yıkmaya gelen Ebrehe\'nin ordusunun ebabil kuşlarıyla yok edilişini anlatır.' },
+    { id: 106, summary: 'Kureyş kabilesine verilen güven ve nimetleri hatırlatır.' },
+    { id: 107, summary: 'Gösteriş yapanları ve yardıma engel olanları uyarır.' },
+    { id: 108, summary: 'Kur\'an\'ın en kısa suresidir. Peygamberimize verilen bitmez tükenmez nimet anlatılır.' },
+    { id: 109, summary: 'İnançta taviz verilmeyeceğini, senin dinin sana, benimki bana ilkesini anlatır.' },
+    { id: 110, summary: 'Mekke\'nin fethini müjdeler. Peygamberimizin vefatının yaklaştığına işarettir.' },
+    { id: 111, summary: 'Peygamberimizin amcası Ebu Leheb\'in inkarcılığını ve sonunu anlatır.' },
+    { id: 112, summary: 'Allah\'ın birliğini en net anlatan suredir. Okumak, Kur\'an\'ın üçte birine denktir.' },
+    { id: 113, summary: 'Büyüden, karanlıktan ve kıskançlıktan Allah\'a sığınmayı öğretir.' },
+    { id: 114, summary: 'İnsanların ve cinlerin sinsi vesveselerinden Allah\'a sığınmayı öğretir.' },
 ];
 
-export const getSurahSummary = (id) => {
-    return SURAH_SUMMARIES.find(s => s.id === id);
+const SURAH_SUMMARIES_EN = [
+    { id: 1, summary: 'The opening chapter of the Quran. Recited in every unit of prayer.' },
+    { id: 2, summary: 'The longest surah in the Quran. Contains many legal rulings and narratives.' },
+    { id: 3, summary: 'Discusses relations with People of the Book, the Battle of Uhud, and the birth of Maryam and Isa.' },
+    { id: 4, summary: 'Contains important rulings on women\'s rights, inheritance law, and family life.' },
+    { id: 5, summary: 'Addresses lawful and unlawful food, ablution, tayammum, and the miracles of Isa.' },
+    { id: 6, summary: 'Focuses on the existence and oneness of Allah through signs in the universe.' },
+    { id: 7, summary: 'Warns humanity through stories of the prophets and scenes of the Day of Judgment.' },
+    { id: 8, summary: 'Describes the Battle of Badr and the rulings on war spoils.' },
+    { id: 9, summary: 'Covers the Tabuk Expedition and the importance of repentance. The only surah without Bismillah.' },
+    { id: 10, summary: 'Describes Allah\'s power, the truth of revelation, and the salvation of Yunus\'s people.' },
+    { id: 11, summary: 'Narrates the struggles of the prophets and the aid of Allah.' },
+    { id: 12, summary: 'Known as the "best of stories" in the Quran, narrating the life of Prophet Yusuf.' },
+    { id: 13, summary: 'Explains monotheism through natural phenomena and Allah\'s power in the universe.' },
+    { id: 14, summary: 'Addresses the foundations of faith and the prayers of Prophet Ibrahim.' },
+    { id: 15, summary: 'Tells the story of the people of Hijr and the messages of the prophets.' },
+    { id: 16, summary: 'Describes countless blessings Allah has given to humanity — bees, honey, plants.' },
+    { id: 17, summary: 'Covers the Night Journey (Isra) of the Prophet and moral principles.' },
+    { id: 18, summary: 'Contains the stories of the Sleepers of the Cave, Musa and Khidr, and Dhul-Qarnayn.' },
+    { id: 19, summary: 'Narrates the births of Maryam, Zakariyya, and Isa (peace be upon them).' },
+    { id: 20, summary: 'Describes Musa\'s appointment as prophet and his struggle against Pharaoh.' },
+    { id: 21, summary: 'Presents episodes from many prophets\' lives, emphasizing monotheism and the afterlife.' },
+    { id: 22, summary: 'Explains the importance of Hajj pilgrimage, sacrifice, and the terror of the Day of Judgment.' },
+    { id: 23, summary: 'Describes the moral qualities believers must have to attain salvation.' },
+    { id: 24, summary: 'Addresses family life, chastity, modesty, and social moral codes.' },
+    { id: 25, summary: 'Highlights the Quran\'s role as the criterion (Furqan) between truth and falsehood.' },
+    { id: 26, summary: 'Poetically narrates the prophets\' struggles in spreading their message and the fate of deniers.' },
+    { id: 27, summary: 'Tells the story of Sulayman and the Queen of Sheba, and nature\'s submission to Allah.' },
+    { id: 28, summary: 'Narrates the life of Musa from birth to his struggle against Pharaoh.' },
+    { id: 29, summary: 'Describes the trials faced by believers and the fragility of false gods like a spider\'s web.' },
+    { id: 30, summary: 'Reveals Allah\'s power and unseen prophecies through the Byzantine-Sassanid war.' },
+    { id: 31, summary: 'Contains the wise advice of Luqman to his son and affirms the oneness of Allah.' },
+    { id: 32, summary: 'Discusses human creation, resurrection after death, and the importance of prostrating to Allah.' },
+    { id: 33, summary: 'Covers the Battle of the Trench, family life, and the exemplary character of the Prophet.' },
+    { id: 34, summary: 'Narrates the ingratitude of the people of Sheba and the blessings given to Dawud and Sulayman.' },
+    { id: 35, summary: 'Describes the power of Allah as the sole Creator of the heavens and earth, and the angels.' },
+    { id: 36, summary: 'Known as the "Heart of the Quran." Discusses resurrection and the institution of prophethood.' },
+    { id: 37, summary: 'Describes angels standing in ranks, monotheism, and the devotion of Prophet Ibrahim.' },
+    { id: 38, summary: 'Covers the stories of Dawud, Sulayman, and Ayyub filled with patience and gratitude.' },
+    { id: 39, summary: 'Emphasizes sincere devotion to faith and the groupings on the Day of Judgment.' },
+    { id: 40, summary: 'Describes Allah\'s forgiveness and the struggle of a believer in Pharaoh\'s palace.' },
+    { id: 41, summary: 'Explains the clearly revealed verses of the Quran and signs of creation within humans.' },
+    { id: 42, summary: 'Highlights the importance of revelation and commands Muslims to conduct affairs by consultation.' },
+    { id: 43, summary: 'Declares the Quran a guidance more valuable than gold and worldly ornaments.' },
+    { id: 44, summary: 'Describes the revelation of the Quran on a blessed night and the sign of smoke (Dukhan).' },
+    { id: 45, summary: 'Presents Allah\'s signs in the universe and the state of those who kneel on the Day of Judgment.' },
+    { id: 46, summary: 'Covers the destruction of the \'Ad people and the jinn listening to the Quran.' },
+    { id: 47, summary: 'Addresses the rules of war, the struggle between faith and disbelief, and the victory of believers.' },
+    { id: 48, summary: 'Describes the Treaty of Hudaybiyyah and the certain victory promised to believers.' },
+    { id: 49, summary: 'Addresses social conduct, manners, avoiding backbiting, and brotherhood among believers.' },
+    { id: 50, summary: 'Discusses the reality of death, resurrection, and the recording of every word spoken.' },
+    { id: 51, summary: 'Explains through winds that sustenance comes from Allah and emphasizes the importance of charity.' },
+    { id: 52, summary: 'Begins with an oath by Mount Tur, describing the afterlife and the state of believers.' },
+    { id: 53, summary: 'Describes the Prophet\'s Miraj (Ascension) and that one will only receive what one strives for.' },
+    { id: 54, summary: 'Reports the nearness of the Hour and the miracle of the splitting of the moon.' },
+    { id: 55, summary: 'Poetically describes the countless blessings Allah gives to His servants in this world and the next.' },
+    { id: 56, summary: 'Describes how people will be divided into three groups when the Day of Judgment comes.' },
+    { id: 57, summary: 'Speaks of the power in iron and emphasizes the importance of charitable spending.' },
+    { id: 58, summary: 'Addresses the complaint of a woman seeking justice and the etiquette of private conversations.' },
+    { id: 59, summary: 'Describes the exile of Jewish tribes and the Beautiful Names of Allah (Asma ul-Husna).' },
+    { id: 60, summary: 'Contains rulings that test the relationships between believers and disbelievers.' },
+    { id: 61, summary: 'Describes believers standing firm in Allah\'s path like bricks cemented in a wall.' },
+    { id: 62, summary: 'Explains the importance of Friday prayer and the prophet sent to an unlettered community.' },
+    { id: 63, summary: 'Exposes the hypocrisy of the hypocrites and the danger of worldly preoccupations.' },
+    { id: 64, summary: 'Addresses human self-deception and the trials within family life.' },
+    { id: 65, summary: 'Covers divorce law, maintenance, and how piety opens paths to way out.' },
+    { id: 66, summary: 'Discusses family secrets and presents Maryam and Asiya as role models.' },
+    { id: 67, summary: 'Describes the order in the universe and the absolute sovereignty of Allah. Known to protect from the torment of the grave.' },
+    { id: 68, summary: 'Praises the noble character of the Prophet and swears by the pen and ink.' },
+    { id: 69, summary: 'Addresses the certainty of the Day of Judgment and the rewards people will receive.' },
+    { id: 70, summary: 'Describes the ascending stairways of the angels to Allah and scenes of the Day of Judgment.' },
+    { id: 71, summary: 'Narrates Prophet Nuh\'s call to his people for monotheism and their denial.' },
+    { id: 72, summary: 'Describes how the jinn listened to the Quran and became Muslim, and the knowledge of the unseen.' },
+    { id: 73, summary: 'Commands the Prophet to rise for night prayer and prepare for a weighty revelation.' },
+    { id: 74, summary: 'One of the earliest commands to the Prophet, ordering him to rise and warn.' },
+    { id: 75, summary: 'Vividly describes the terrifying scenes of the Day of Resurrection.' },
+    { id: 76, summary: 'Discusses the creation of humans and the rewards of the people of Paradise.' },
+    { id: 77, summary: 'Reminds in every verse of the reality of the Day of Judgment and the fate of deniers.' },
+    { id: 78, summary: 'Describes the great news of the Day of Judgment, resurrection, and the reality of the afterlife.' },
+    { id: 79, summary: 'Describes the angels seizing souls, the story of Musa and Pharaoh, and the Day of Judgment.' },
+    { id: 80, summary: 'Contains a gentle admonition to the Prophet regarding his approach to a blind man, Ibn Umm Maktum.' },
+    { id: 81, summary: 'Depicts the tremendous cosmic changes that will occur when the Day of Judgment arrives.' },
+    { id: 82, summary: 'Describes the Day of Judgment when the sky splits open and the record of deeds is revealed.' },
+    { id: 83, summary: 'Warns those who cheat in weights and measures, and describes the records of the righteous and wicked.' },
+    { id: 84, summary: 'Describes the splitting of the heavens and deeds being given from the right or the left.' },
+    { id: 85, summary: 'Narrates the casting of believers into fire and Allah\'s protection of His servants.' },
+    { id: 86, summary: 'Swears by the night star to describe human creation and the value of the Quran.' },
+    { id: 87, summary: 'Commands glorifying the Lord and addresses human attachment to worldly life.' },
+    { id: 88, summary: 'Describes the overwhelming Day of Judgment and the two distinct groups in the afterlife.' },
+    { id: 89, summary: 'Swears by the dawn to recount the fates of \'Ad, Thamud, and Pharaoh, and the tranquil soul.' },
+    { id: 90, summary: 'Describes the steep path and the city of Makkah.' },
+    { id: 91, summary: 'Swears by the sun and moon that the one who purifies the soul will succeed.' },
+    { id: 92, summary: 'Swears by the night and day to contrast generosity with miserliness.' },
+    { id: 93, summary: 'A surah of consolation revealed after revelation paused for a time.' },
+    { id: 94, summary: 'Gives glad tidings that ease follows hardship and the chest is expanded.' },
+    { id: 95, summary: 'Swears by the fig and olive to affirm that humans were created in the finest form.' },
+    { id: 96, summary: 'The first revelation, beginning with "Read!" — addresses the source of knowledge and human transgression.' },
+    { id: 97, summary: 'Describes the Night of Qadr (Decree), which is better than a thousand months.' },
+    { id: 98, summary: 'Explains that people of the Book would not diverge until clear evidence came to them.' },
+    { id: 99, summary: 'Describes the earthquake and that not an atom\'s weight of good or evil goes unrewarded.' },
+    { id: 100, summary: 'Swears by war horses to describe human ingratitude and worldly greed.' },
+    { id: 101, summary: 'Describes the terrifying Day of Judgment when people scatter like moths.' },
+    { id: 102, summary: 'Warns that rivalry in worldly abundance distracts until the truth is seen in the grave.' },
+    { id: 103, summary: 'Swears by time that humanity is in loss, except the believers.' },
+    { id: 104, summary: 'Warns those who backbite and hoard wealth of their fate.' },
+    { id: 105, summary: 'Describes how Abraha\'s army was destroyed by flocks of birds when they tried to demolish the Kaaba.' },
+    { id: 106, summary: 'Reminds the Quraysh tribe of the security and blessings they were given.' },
+    { id: 107, summary: 'Warns those who show off in worship and refuse even small acts of kindness.' },
+    { id: 108, summary: 'The shortest surah of the Quran. Describes the boundless blessing given to the Prophet.' },
+    { id: 109, summary: 'Declares that there is no compromise in matters of faith: "To you your religion, to me mine."' },
+    { id: 110, summary: 'Heralds the conquest of Makkah and signals the approach of the Prophet\'s passing.' },
+    { id: 111, summary: 'Describes the disbelief and fate of Abu Lahab, the Prophet\'s uncle.' },
+    { id: 112, summary: 'The clearest declaration of Allah\'s oneness. Reciting it equals one-third of the Quran.' },
+    { id: 113, summary: 'Teaches seeking refuge in Allah from evil, darkness, and envy.' },
+    { id: 114, summary: 'Teaches seeking refuge in Allah from the whisperings of jinn and humans.' },
+];
+
+export const getSurahSummary = (id, language = 'tr') => {
+    const list = language === 'en' ? SURAH_SUMMARIES_EN : SURAH_SUMMARIES_TR;
+    return list.find(s => s.id === id);
 };

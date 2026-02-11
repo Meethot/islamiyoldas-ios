@@ -1,4 +1,5 @@
 import React, { memo, useMemo, useState, useRef, useEffect, Fragment, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { usePrayerTimes } from '@/context/PrayerTimesContext';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -80,6 +81,7 @@ export const WeeklyStreakWidget = memo(({ tubaData, setTubaData }) => {
     const [alreadyWateredMessage, setAlreadyWateredMessage] = useState(false);
     const [showWeeklyCelebration, setShowWeeklyCelebration] = useState(false);
     const { selection, success, impactMedium } = useHaptics();
+    const { t } = useTranslation('home');
 
     // Sound effect for button press (same as Dhikr)
     const clickSoundRef = useRef(new Audio('https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3'));
@@ -142,44 +144,44 @@ export const WeeklyStreakWidget = memo(({ tubaData, setTubaData }) => {
 
     // Determine Organic Growth Stage
     let StageIcon = Sprout;
-    let stageLabel = "Tohum";
-    let stageMeaning = "Potansiyel";
+    let stageLabel = t('tuba.stages.seed');
+    let stageMeaning = t('tuba.stages.seedMeaning');
     let growthColor = "text-emerald-400";
     let progress = 0;
     let nextMilestone = 3;
 
     if (growthProgress < 3) {
         StageIcon = Sprout;
-        stageLabel = "Manevi Tohum";
-        stageMeaning = "Potansiyel";
+        stageLabel = t('tuba.stages.seed');
+        stageMeaning = t('tuba.stages.seedMeaning');
         growthColor = "text-emerald-500 dark:text-emerald-300";
         nextMilestone = 3;
         progress = (growthProgress / 3) * 100;
     } else if (growthProgress >= 3 && growthProgress < 7) {
         StageIcon = Leaf;
-        stageLabel = "Körpe Fidan";
-        stageMeaning = "Büyüme";
+        stageLabel = t('tuba.stages.sapling');
+        stageMeaning = t('tuba.stages.saplingMeaning');
         growthColor = "text-emerald-600 dark:text-emerald-300";
         nextMilestone = 7;
         progress = ((growthProgress - 3) / (7 - 3)) * 100;
     } else if (growthProgress >= 7 && growthProgress < 21) {
         StageIcon = TreeDeciduous;
-        stageLabel = "Genç Ağaç";
-        stageMeaning = "İstikrar";
+        stageLabel = t('tuba.stages.youngTree');
+        stageMeaning = t('tuba.stages.youngTreeMeaning');
         growthColor = "text-islamic-green dark:text-emerald-200";
         nextMilestone = 21;
         progress = ((growthProgress - 7) / (21 - 7)) * 100;
     } else if (growthProgress >= 21 && growthProgress < 40) {
         StageIcon = Trees;
-        stageLabel = "Köklü Çınar";
-        stageMeaning = "Sadakat";
+        stageLabel = t('tuba.stages.matureTree');
+        stageMeaning = t('tuba.stages.matureTreeMeaning');
         growthColor = "text-teal-600 dark:text-teal-300";
         nextMilestone = 40;
         progress = ((growthProgress - 21) / (40 - 21)) * 100;
     } else if (growthProgress >= 40) {
         StageIcon = Flower2;
-        stageLabel = "Mübarek Tuba";
-        stageMeaning = "Bereket";
+        stageLabel = t('tuba.stages.tuba');
+        stageMeaning = t('tuba.stages.tubaMeaning');
         growthColor = "text-islamic-gold dark:text-islamic-gold";
         nextMilestone = 100;
         progress = Math.min(((growthProgress - 40) / (100 - 40)) * 100, 100);
@@ -333,7 +335,7 @@ export const WeeklyStreakWidget = memo(({ tubaData, setTubaData }) => {
                         {/* 7-Day Timeline */}
                         <div className="mb-6">
                             <div className="flex items-center justify-center gap-1.5 mb-2">
-                                {['P', 'S', 'Ç', 'P', 'C', 'C', 'P'].map((day, idx) => (
+                                {t('tuba.days', { returnObjects: true }).map((day, idx) => (
                                     <Fragment key={idx}>
                                         {/* Day Node */}
                                         <div
@@ -369,7 +371,7 @@ export const WeeklyStreakWidget = memo(({ tubaData, setTubaData }) => {
                                 ))}
                             </div>
                             <p className="text-center text-[9px] text-gray-400 dark:text-emerald-100/40 font-medium">
-                                {completedDays.filter(d => d).length} / 7 Gün Tamamlandı
+                                {t('tuba.daysCompleted', { count: completedDays.filter(d => d).length })}
                             </p>
                         </div>
 
@@ -383,12 +385,12 @@ export const WeeklyStreakWidget = memo(({ tubaData, setTubaData }) => {
                                     {/* Streak Badge */}
                                     {currentStreak > 0 && (
                                         <div className="flex items-center gap-1 bg-islamic-gold/10 px-2 py-0.5 rounded-full border border-islamic-gold/20">
-                                            <span className="text-[10px] font-bold text-islamic-gold">🔥 {currentStreak} Gün Seri</span>
+                                            <span className="text-[10px] font-bold text-islamic-gold">{t('tuba.streak', { count: currentStreak })}</span>
                                         </div>
                                     )}
                                 </div>
                                 <h3 className={cn("text-2xl font-bold font-serif mb-0.5 transition-colors duration-[1500ms] drop-shadow-sm", growthColor)}>
-                                    Tuba Ağacı
+                                    {t('tuba.title')}
                                 </h3>
                                 <p className="text-[11px] text-gray-400 dark:text-emerald-100/50 font-medium italic mb-3">
                                     {stageMeaning}
@@ -409,8 +411,8 @@ export const WeeklyStreakWidget = memo(({ tubaData, setTubaData }) => {
                                         />
                                     </div>
                                     <div className="flex justify-between mt-1.5 opacity-60">
-                                        <span className="text-[9px] font-bold">Toplam: {growthProgress}</span>
-                                        <span className="text-[9px]">Hedef: {nextMilestone}</span>
+                                        <span className="text-[9px] font-bold">{t('tuba.total', { count: growthProgress })}</span>
+                                        <span className="text-[9px]">{t('tuba.goal', { count: nextMilestone })}</span>
                                     </div>
                                 </div>
                             </div>
@@ -478,12 +480,12 @@ export const WeeklyStreakWidget = memo(({ tubaData, setTubaData }) => {
                             {isCompletedToday ? (
                                 <>
                                     <CheckCircle2 size={18} />
-                                    Bugün Verildi
+                                    {t('tuba.btnDone')}
                                 </>
                             ) : (
                                 <>
                                     <Droplet size={18} className={cn(isWatering && "animate-bounce")} />
-                                    {isWatering ? "Sulanıyor..." : "Can Suyu Ver"}
+                                    {isWatering ? t('tuba.btnWatering') : t('tuba.btnWater')}
                                 </>
                             )}
                         </motion.button>
@@ -549,7 +551,7 @@ export const WeeklyStreakWidget = memo(({ tubaData, setTubaData }) => {
                     >
                         <div className="bg-white/40 dark:bg-islamic-gold/10 backdrop-blur-2xl text-[#032e18] dark:text-islamic-gold px-6 py-4 rounded-[2rem] font-bold text-sm shadow-[0_8px_32px_0_rgba(0,0,0,0.1)] dark:shadow-[0_8px_32px_0_rgba(212,175,55,0.2)] border border-white/40 dark:border-islamic-gold/20 flex items-center gap-3">
                             <span className="text-xl">💧</span>
-                            <span className="tracking-tight">Bugünkü hakkını zaten doldurdun! Yarın tekrar gel 🌱</span>
+                            <span className="tracking-tight">{t('tuba.toastAlready')}</span>
                         </div>
                     </motion.div>
                 )}
@@ -585,10 +587,10 @@ export const WeeklyStreakWidget = memo(({ tubaData, setTubaData }) => {
                             </motion.div>
 
                             <h2 className="text-3xl font-bold font-serif text-islamic-green dark:text-islamic-gold mb-2">
-                                Mübarek Olsun!
+                                {t('tuba.celebTitle')}
                             </h2>
                             <p className="text-lg text-gray-600 dark:text-emerald-100/70 font-medium italic">
-                                Haftalık hedefini tamamladın.<br />Tuba fidanın artık daha güçlü! ✨
+                                <span dangerouslySetInnerHTML={{ __html: t('tuba.celebMsg') }} />
                             </p>
 
                             <motion.div
@@ -611,6 +613,7 @@ export const WeeklyStreakWidget = memo(({ tubaData, setTubaData }) => {
 
 // --- Verse Card ---
 export const VerseOfDayCard = memo(({ isFriday, verse, fridayContent, onShare }) => {
+    const { t } = useTranslation('home');
     return (
         <motion.div variants={itemVariants}>
             <Card className={cn(
@@ -631,11 +634,11 @@ export const VerseOfDayCard = memo(({ isFriday, verse, fridayContent, onShare })
                 </div>
                 <CardHeader className="relative z-10 pb-2 flex flex-row items-center justify-between">
                     <CardTitle className="text-islamic-gold text-sm tracking-widest uppercase font-serif font-bold">
-                        {isFriday ? "Cuma Hatırlatması" : "Günün Ayeti"}
+                        {isFriday ? t('verse.fridayTitle') : t('verse.dailyTitle')}
                     </CardTitle>
                     <button
                         onClick={onShare}
-                        aria-label="Ayet Paylaş"
+                        aria-label={t('verse_share_title')}
                         className="touch-target bg-white/10 hover:bg-white/20 rounded-full transition-all active:scale-95 backdrop-blur-sm"
                     >
                         <Share2 className="w-5 h-5 text-islamic-gold" />
@@ -653,7 +656,7 @@ export const VerseOfDayCard = memo(({ isFriday, verse, fridayContent, onShare })
                             className="w-full mt-6 bg-islamic-gold hover:bg-islamic-gold/90 text-[#0d2a2e] font-bold rounded-xl h-14 shadow-lg gap-2 active:scale-95 transition-transform"
                             onClick={onShare}
                         >
-                            <Sparkles className="w-5 h-5" /> Mesajı Paylaş
+                            <Sparkles className="w-5 h-5" /> {t('verse.shareBtn')}
                         </Button>
                     )}
                 </CardContent>
@@ -664,6 +667,7 @@ export const VerseOfDayCard = memo(({ isFriday, verse, fridayContent, onShare })
 
 // --- Daily Deed Card ---
 export const DailyDeedCard = memo(({ revealed, deed, onReveal }) => {
+    const { t } = useTranslation('home');
     return (
         <motion.div variants={itemVariants}>
             <Card
@@ -680,15 +684,15 @@ export const DailyDeedCard = memo(({ revealed, deed, onReveal }) => {
                             <Heart className={cn("w-7 h-7", revealed ? "fill-current" : "")} />
                         </div>
                         <div className="flex-1">
-                            <h4 className="text-xs font-bold font-serif text-gray-400 dark:text-emerald-100/60 uppercase tracking-widest mb-1">Bugünün İyiliği</h4>
+                            <h4 className="text-xs font-bold font-serif text-gray-400 dark:text-emerald-100/60 uppercase tracking-widest mb-1">{t('deed.title')}</h4>
                             {revealed ? (
                                 <p className="text-sm font-bold text-gray-900 dark:text-white leading-tight animate-in slide-in-from-left duration-500">
                                     {deed}
                                 </p>
                             ) : (
                                 <div className="flex items-center gap-2">
-                                    <p className="text-sm font-bold text-gray-300 dark:text-gray-600 blur-[2px] select-none">İyilik her kapıyı açar...</p>
-                                    <span className="text-[10px] bg-islamic-gold/20 text-islamic-gold px-2 py-0.5 rounded-full font-bold animate-pulse">GÖR</span>
+                                    <p className="text-sm font-bold text-gray-300 dark:text-gray-600 blur-[2px] select-none">{t('deed.blurText')}</p>
+                                    <span className="text-[10px] bg-islamic-gold/20 text-islamic-gold px-2 py-0.5 rounded-full font-bold animate-pulse">{t('deed.reveal')}</span>
                                 </div>
                             )}
                         </div>
@@ -702,18 +706,20 @@ export const DailyDeedCard = memo(({ revealed, deed, onReveal }) => {
 
 // --- Esma-ül Hüsna Widget ---
 export const EsmaUlHusnaWidget = memo(({ esmaList, onSelect, onShowAll }) => {
+    const { t, i18n } = useTranslation('home');
+    const isEn = i18n.language === 'en';
     return (
         <motion.div variants={itemVariants} className="space-y-4">
             <div className="flex justify-between items-end px-1">
-                <h3 className="text-sm font-bold font-serif text-gray-400 dark:text-emerald-100/60 uppercase tracking-widest">Esma-ül Hüsna</h3>
+                <h3 className="text-sm font-bold font-serif text-gray-400 dark:text-emerald-100/60 uppercase tracking-widest">{t('esma.title')}</h3>
                 <div className="flex items-center gap-3">
                     <button
                         onClick={onShowAll}
                         className="text-[10px] font-bold text-islamic-gold uppercase tracking-tighter hover:opacity-80 transition-opacity"
                     >
-                        Hepsini Gör
+                        {t('esma.showAll')}
                     </button>
-                    <span className="text-[10px] font-bold text-islamic-gold/60 uppercase tracking-tighter">Kaydır <span className="animate-pulse">→</span></span>
+                    <span className="text-[10px] font-bold text-islamic-gold/60 uppercase tracking-tighter">{t('esma.swipe')} <span className="animate-pulse">→</span></span>
                 </div>
             </div>
 
@@ -735,13 +741,13 @@ export const EsmaUlHusnaWidget = memo(({ esmaList, onSelect, onShowAll }) => {
                             {esma.name}
                         </h4>
                         <p className="text-[10px] text-gray-500 dark:text-emerald-100/40 font-medium line-clamp-2 mt-2 leading-relaxed opacity-90">
-                            {esma.meaning}
+                            {isEn ? esma.meaning_en : esma.meaning}
                         </p>
 
                         {/* Subtle Badge or Indicator */}
                         <div className="mt-4 flex items-center gap-1.5">
                             <div className="w-1.5 h-1.5 rounded-full bg-islamic-gold/40" />
-                            <span className="text-[8px] font-bold uppercase tracking-widest text-gray-400">Detayları Gör</span>
+                            <span className="text-[8px] font-bold uppercase tracking-widest text-gray-400">{t('esma.seeDetails')}</span>
                         </div>
                     </motion.div>
                 ))}
@@ -752,6 +758,8 @@ export const EsmaUlHusnaWidget = memo(({ esmaList, onSelect, onShowAll }) => {
 
 // --- All Esma Modal (Alphabetical & Searchable) ---
 export const AllEsmaModal = memo(({ isOpen, onClose, onSelect }) => {
+    const { t, i18n } = useTranslation('home');
+    const isEn = i18n.language === 'en';
     const [search, setSearch] = useState('');
     const [isAscending, setIsAscending] = useState(true);
     const { selection } = useHaptics();
@@ -761,15 +769,15 @@ export const AllEsmaModal = memo(({ isOpen, onClose, onSelect }) => {
         if (search) {
             list = list.filter(e =>
                 e.name.toLowerCase().includes(search.toLowerCase()) ||
-                e.meaning.toLowerCase().includes(search.toLowerCase())
+                (isEn ? e.meaning_en : e.meaning).toLowerCase().includes(search.toLowerCase())
             );
         }
         return list.sort((a, b) => {
             return isAscending
-                ? a.name.localeCompare(b.name, 'tr')
-                : b.name.localeCompare(a.name, 'tr');
+                ? a.name.localeCompare(b.name, isEn ? 'en' : 'tr')
+                : b.name.localeCompare(a.name, isEn ? 'en' : 'tr');
         });
-    }, [search, isAscending]);
+    }, [search, isAscending, isEn]);
 
     // Body Scroll Lock
     useEffect(() => {
@@ -793,7 +801,7 @@ export const AllEsmaModal = memo(({ isOpen, onClose, onSelect }) => {
             className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-xl flex flex-col pt-12"
         >
             <div className="flex items-center justify-between px-6 pb-4 border-b border-white/10">
-                <h2 className="text-xl font-serif font-bold text-islamic-gold">99 Esma-ül Hüsna</h2>
+                <h2 className="text-xl font-serif font-bold text-islamic-gold">{t('esma.modalTitle')}</h2>
                 <button
                     onClick={onClose}
                     className="p-2 hover:bg-white/10 rounded-full transition-colors"
@@ -807,7 +815,7 @@ export const AllEsmaModal = memo(({ isOpen, onClose, onSelect }) => {
                     <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                     <input
                         type="text"
-                        placeholder="İsim veya anlam ara..."
+                        placeholder={t('esma.searchPlaceholder')}
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                         className="w-full bg-white/5 border border-white/10 rounded-2xl py-3 pl-11 pr-4 text-white placeholder:text-gray-500 focus:outline-none focus:border-islamic-gold/50 transition-all"
@@ -820,7 +828,7 @@ export const AllEsmaModal = memo(({ isOpen, onClose, onSelect }) => {
                         className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-islamic-gold bg-islamic-gold/10 px-3 py-1.5 rounded-full border border-islamic-gold/20"
                     >
                         {isAscending ? <SortAsc className="w-3 h-3" /> : <SortDesc className="w-3 h-3" />}
-                        {isAscending ? 'A-Z Sırala' : 'Z-A Sırala'}
+                        {isAscending ? t('esma.sortAsc') : t('esma.sortDesc')}
                     </button>
                 </div>
             </div>
@@ -839,21 +847,21 @@ export const AllEsmaModal = memo(({ isOpen, onClose, onSelect }) => {
                                 {esma.name}
                             </h4>
                             <p className="text-[10px] text-gray-400 font-medium leading-relaxed mt-1 line-clamp-1">
-                                {esma.meaning}
+                                {isEn ? esma.meaning_en : esma.meaning}
                             </p>
                         </div>
                         <div className="text-right flex flex-col items-end">
                             <span className="text-2xl font-serif text-islamic-gold mb-1 group-hover:scale-110 transition-transform">
                                 {esma.calligraphy}
                             </span>
-                            <span className="text-[8px] font-black text-gray-500 uppercase tracking-[0.2em]">Ebced: {esma.ebced}</span>
+                            <span className="text-[8px] font-black text-gray-500 uppercase tracking-[0.2em]">{t('esma.ebced')}: {esma.ebced}</span>
                         </div>
                     </motion.div>
                 ))}
 
                 {filteredEsma.length === 0 && (
                     <div className="text-center py-12">
-                        <p className="text-gray-500 font-medium italic">Aradığınız isim bulunamadı...</p>
+                        <p className="text-gray-500 font-medium italic">{t('esma.noResults')}</p>
                     </div>
                 )}
             </div>
@@ -955,6 +963,7 @@ export const PrayerCountdownWidget = memo(({ loading, city, nextPrayerInfo, pray
     const [prayerReminders, setPrayerReminders] = useState({}); // { 'sabah': { mins: 15, id: 123, time: '06:20' }, ... }
     const { selection } = useHaptics();
     const { settings } = usePrayerTimes();
+    const { t } = useTranslation('home');
 
     // Filter to show only the 5 main prayers (exclude Sunrise for UI)
     const mainPrayers = useMemo(() => {
@@ -1599,14 +1608,14 @@ export const PrayerCountdownWidget = memo(({ loading, city, nextPrayerInfo, pray
                             <div className="w-full max-w-sm bg-[#fdfaf5] dark:bg-[#044d29] rounded-[2rem] shadow-2xl overflow-hidden border border-white/10 pointer-events-auto">
                                 <div className="p-6 pb-2 border-b border-gray-100 dark:border-white/5 flex justify-between items-center bg-white/50 dark:bg-black/20">
                                     <div>
-                                        <h3 className="text-lg font-bold font-serif text-gray-800 dark:text-white">Hatırlatıcı Kur</h3>
+                                        <h3 className="text-lg font-bold font-serif text-gray-800 dark:text-white">{t('reminder.title')}</h3>
                                         {alarmSet ? (
                                             <p className="text-[10px] text-islamic-gold font-bold mt-1">
-                                                Şu an {selectedMinutes === 0 ? 'Tam Vaktinde' : `${selectedMinutes} Dakika Önce`} seçili
+                                                {t('reminder.currentlySelected', { time: selectedMinutes === 0 ? t('reminder.onTime') : t('reminder.minutesBefore', { count: selectedMinutes }) })}
                                             </p>
                                         ) : (
                                             <p className="text-xs text-gray-500 dark:text-emerald-100/60 font-medium">
-                                                {nextPrayerInfo?.name} vakti için
+                                                {t('reminder.forPrayer', { prayer: nextPrayerInfo?.name })}
                                             </p>
                                         )}
                                     </div>
@@ -1616,9 +1625,9 @@ export const PrayerCountdownWidget = memo(({ loading, city, nextPrayerInfo, pray
                                 </div>
                                 <div className="p-4 space-y-2 max-h-[60vh] overflow-y-auto">
                                     {[
-                                        { label: '15 Dakika Önce', val: 15, icon: Bell },
-                                        { label: '30 Dakika Önce', val: 30, icon: Bell },
-                                        { label: '45 Dakika Önce', val: 45, icon: Bell },
+                                        { label: t('reminder.minutesBefore', { count: 15 }), val: 15, icon: Bell },
+                                        { label: t('reminder.minutesBefore', { count: 30 }), val: 30, icon: Bell },
+                                        { label: t('reminder.minutesBefore', { count: 45 }), val: 45, icon: Bell },
                                     ].map((opt) => {
                                         const isSelected = alarmSet && selectedMinutes === opt.val;
                                         return (
@@ -1643,7 +1652,7 @@ export const PrayerCountdownWidget = memo(({ loading, city, nextPrayerInfo, pray
                                                     </div>
                                                     <div className="flex flex-col">
                                                         <span>{opt.label}</span>
-                                                        {isSelected && <span className="text-[10px] opacity-70">Zaten Seçili</span>}
+                                                        {isSelected && <span className="text-[10px] opacity-70">{t('reminder.alreadySelected')}</span>}
                                                     </div>
                                                 </span>
                                                 <ChevronRight size={16} className={cn(isSelected ? "text-islamic-gold" : "text-gray-300 group-hover:text-islamic-gold")} />
@@ -1657,7 +1666,7 @@ export const PrayerCountdownWidget = memo(({ loading, city, nextPrayerInfo, pray
                                             className="w-full mt-4 flex items-center justify-center gap-2 py-3 text-red-500 dark:text-fuchsia-400 text-xs font-bold hover:bg-red-50 dark:hover:bg-red-900/10 rounded-xl transition-colors border border-red-100 dark:border-red-900/20"
                                         >
                                             <Trash2 size={14} />
-                                            Hatırlatıcıyı Sıfırla (Kapat)
+                                            {t('reminder.resetReminder')}
                                         </button>
                                     )}
                                 </div>
@@ -1689,9 +1698,9 @@ export const PrayerCountdownWidget = memo(({ loading, city, nextPrayerInfo, pray
                             <div className="w-full max-w-sm bg-[#fdfaf5] dark:bg-[#044d29] rounded-[2rem] shadow-2xl overflow-hidden border border-white/10 pointer-events-auto">
                                 <div className="p-6 pb-2 border-b border-gray-100 dark:border-white/5 flex justify-between items-center bg-white/50 dark:bg-black/20">
                                     <div>
-                                        <h3 className="text-lg font-bold font-serif text-gray-800 dark:text-white">Hatırlatıcı Kur</h3>
+                                        <h3 className="text-lg font-bold font-serif text-gray-800 dark:text-white">{t('reminder.title')}</h3>
                                         <p className="text-xs text-gray-500 dark:text-emerald-100/60 font-medium">
-                                            {selectedPrayerForReminder.name} vakti için
+                                            {t('reminder.forPrayer', { prayer: selectedPrayerForReminder.name })}
                                         </p>
                                     </div>
                                     <Button size="icon" variant="ghost" className="h-8 w-8 rounded-full bg-black/5 dark:bg-white/10" onClick={() => setSelectedPrayerForReminder(null)}>
@@ -1700,9 +1709,9 @@ export const PrayerCountdownWidget = memo(({ loading, city, nextPrayerInfo, pray
                                 </div>
                                 <div className="p-4 space-y-2 max-h-[60vh] overflow-y-auto">
                                     {[
-                                        { label: '15 Dakika Önce', val: 15, icon: Bell },
-                                        { label: '30 Dakika Önce', val: 30, icon: Bell },
-                                        { label: '45 Dakika Önce', val: 45, icon: Bell },
+                                        { label: t('reminder.minutesBefore', { count: 15 }), val: 15, icon: Bell },
+                                        { label: t('reminder.minutesBefore', { count: 30 }), val: 30, icon: Bell },
+                                        { label: t('reminder.minutesBefore', { count: 45 }), val: 45, icon: Bell },
                                     ].map((opt) => {
                                         const currentReminder = prayerReminders[selectedPrayerForReminder.name.toLowerCase()];
                                         const isSelected = currentReminder?.mins === opt.val;
@@ -1729,7 +1738,7 @@ export const PrayerCountdownWidget = memo(({ loading, city, nextPrayerInfo, pray
                                                     </div>
                                                     <div className="flex flex-col">
                                                         <span>{opt.label}</span>
-                                                        {isSelected && <span className="text-[10px] opacity-70">Zaten Seçili</span>}
+                                                        {isSelected && <span className="text-[10px] opacity-70">{t('reminder.alreadySelected')}</span>}
                                                     </div>
                                                 </span>
                                                 <ChevronRight size={16} className="opacity-50" />
@@ -1750,7 +1759,7 @@ export const PrayerCountdownWidget = memo(({ loading, city, nextPrayerInfo, pray
                                                 <div className="w-8 h-8 rounded-full flex items-center justify-center bg-red-100 dark:bg-red-900/30">
                                                     <Trash2 size={14} />
                                                 </div>
-                                                <span>Hatırlatıcıyı Kaldır</span>
+                                                <span>{t('reminder.removeReminder')}</span>
                                             </span>
                                         </button>
                                     )}
@@ -1770,6 +1779,8 @@ export const PrayerCountdownWidget = memo(({ loading, city, nextPrayerInfo, pray
 export const ReligiousCalendarWidget = memo(({ days }) => {
     const [showModal, setShowModal] = useState(false);
     const { selection, heavy } = useHaptics();
+    const { t, i18n } = useTranslation('home');
+    const isEn = i18n.language === 'en';
 
     // Data Parsing
     const now = new Date();
@@ -1786,13 +1797,12 @@ export const ReligiousCalendarWidget = memo(({ days }) => {
     const eventMidnight = new Date(nextEvent.dateObj.getUTCFullYear(), nextEvent.dateObj.getUTCMonth(), nextEvent.dateObj.getUTCDate());
     const diff = Math.round((eventMidnight - todayMidnight) / (1000 * 60 * 60 * 24));
 
-    // Formatting Helpers — use UTC values since dates are stored as YYYY-MM-DD (parsed as UTC)
+    const months = t('calendar.months', { returnObjects: true });
     const formatDate = (date) => {
-        const months = ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'];
         return `${date.getUTCDate()} ${months[date.getUTCMonth()]}`;
     };
 
-    const diffLabel = diff === 0 ? 'Bugün' : diff === 1 ? 'Yarın' : `${diff} Gün Kaldı`;
+    const diffLabel = diff === 0 ? t('calendar.today') : diff === 1 ? t('calendar.tomorrow') : t('calendar.daysLeft', { count: diff });
 
     // Body Scroll Lock
     useEffect(() => {
@@ -1811,7 +1821,7 @@ export const ReligiousCalendarWidget = memo(({ days }) => {
             <motion.div variants={itemVariants} className="space-y-2">
                 <div className="flex items-center justify-between px-2">
                     <h3 className="text-sm font-bold font-serif text-gray-400 dark:text-emerald-100/60 uppercase tracking-widest">
-                        Kutlu Zamanlar
+                        {t('calendar.title')}
                     </h3>
                 </div>
 
@@ -1826,10 +1836,10 @@ export const ReligiousCalendarWidget = memo(({ days }) => {
                         <div className="space-y-1">
                             <span className="text-[10px] font-bold text-islamic-gold uppercase tracking-wider flex items-center gap-1.5">
                                 <span className="w-1.5 h-1.5 rounded-full bg-islamic-gold animate-pulse" />
-                                Sırada
+                                {t('calendar.next')}
                             </span>
                             <h4 className="text-xl font-serif font-bold text-gray-800 dark:text-white leading-tight">
-                                {nextEvent.name}
+                                {isEn ? nextEvent.name_en : nextEvent.name}
                             </h4>
                             <p className="text-xs text-gray-500 dark:text-emerald-100/50 font-medium">
                                 {formatDate(nextEvent.dateObj)} • <span className="text-islamic-green dark:text-islamic-gold">{diffLabel}</span>
@@ -1841,7 +1851,7 @@ export const ReligiousCalendarWidget = memo(({ days }) => {
                             size="sm"
                             className="bg-islamic-green/10 dark:bg-islamic-gold/10 text-islamic-green dark:text-islamic-gold hover:bg-islamic-green/20 dark:hover:bg-islamic-gold/20 rounded-xl h-10 px-4 font-bold text-xs uppercase tracking-wide transition-colors pointer-events-none"
                         >
-                            Tümünü Gör
+                            {t('calendar.showAll')}
                         </Button>
                     </div>
                 </Card>
@@ -1869,10 +1879,10 @@ export const ReligiousCalendarWidget = memo(({ days }) => {
                             <div className="absolute top-0 left-0 right-0 p-6 z-20 flex justify-between items-start bg-gradient-to-b from-[#F9F8F3] dark:from-[#021a0f] to-transparent pointer-events-none">
                                 <div className="pointer-events-auto">
                                     <h2 className="text-2xl font-serif font-bold text-islamic-green dark:text-islamic-gold drop-shadow-sm">
-                                        2026 Kutlu Zamanlar
+                                        {t('calendar.modalTitle')}
                                     </h2>
                                     <p className="text-xs text-gray-500 dark:text-emerald-100/40 font-bold uppercase tracking-widest mt-1">
-                                        Hicri 1447 - 1448
+                                        {t('calendar.modalSubtitle')}
                                     </p>
                                 </div>
                                 <button
@@ -1915,17 +1925,17 @@ export const ReligiousCalendarWidget = memo(({ days }) => {
                                                             "text-lg font-serif font-bold transition-colors",
                                                             isFirst ? "text-islamic-green dark:text-islamic-gold" : "text-gray-700 dark:text-gray-300"
                                                         )}>
-                                                            {day.name}
+                                                            {isEn ? day.name_en : day.name}
                                                         </h4>
                                                         {isFirst && (
                                                             <span className="text-[9px] bg-islamic-gold/10 text-islamic-gold px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">
-                                                                Yaklaşıyor
+                                                                {t('calendar.approaching')}
                                                             </span>
                                                         )}
                                                     </div>
 
                                                     <p className="text-sm font-medium text-gray-500 dark:text-emerald-100/50">
-                                                        {new Date(day.dateObj.getUTCFullYear(), day.dateObj.getUTCMonth(), day.dateObj.getUTCDate()).toLocaleDateString('tr-TR', { weekday: 'long', day: 'numeric', month: 'long' })}
+                                                        {new Date(day.dateObj.getUTCFullYear(), day.dateObj.getUTCMonth(), day.dateObj.getUTCDate()).toLocaleDateString(isEn ? 'en-US' : 'tr-TR', { weekday: 'long', day: 'numeric', month: 'long' })}
                                                     </p>
                                                 </div>
                                             </motion.div>
@@ -2061,6 +2071,7 @@ const ProgressRing = memo(({ progress, isAllDone }) => {
 
 // --- Prayer Streak Badge ---
 export const PrayerStreakBadge = memo(({ currentStreak, longestStreak, message }) => {
+    const { t } = useTranslation('home');
     const hasStreak = currentStreak > 0;
     const isOnFire = currentStreak >= 7;
 
@@ -2123,12 +2134,12 @@ export const PrayerStreakBadge = memo(({ currentStreak, longestStreak, message }
                                 "text-sm font-bold",
                                 hasStreak ? "text-amber-600 dark:text-amber-300" : "text-gray-400"
                             )}>
-                                Gün Seri
+                                {t('streak.dayStreak')}
                             </span>
                         </div>
                         <p className="text-[10px] font-medium text-gray-500 dark:text-gray-400 flex items-center gap-1">
                             <Trophy className="w-3 h-3" />
-                            En yüksek: {longestStreak} gün
+                            {t('streak.highest', { count: longestStreak })}
                         </p>
                     </div>
                 </div>
@@ -2140,7 +2151,7 @@ export const PrayerStreakBadge = memo(({ currentStreak, longestStreak, message }
                         "text-[10px] font-bold uppercase tracking-wide mt-1",
                         hasStreak ? "text-islamic-gold" : "text-gray-400"
                     )}>
-                        {message?.text || 'Bugün başla!'}
+                        {message?.text || t('streak.start')}
                     </p>
                 </div>
             </div>
@@ -2159,20 +2170,23 @@ export const DailyPrayerChecklist = memo(({ prayerTimes, completedPrayers, loadi
     const [rewardContent, setRewardContent] = useState(null);
     const [completedPrayerName, setCompletedPrayerName] = useState('');
 
+    const { t } = useTranslation('home');
+
     // Calculate Progress
     const total = 5; // Fajr, Dhuhr, Asr, Maghrib, Isha
-    const current = completedPrayers.length;
-    const progress = (current / total) * 100;
-    const isAllDone = current === total;
+    const rawCurrent = completedPrayers.length;
+    const current = Math.min(rawCurrent, total);
+    const progress = Math.min((rawCurrent / total) * 100, 100);
+    const isAllDone = rawCurrent >= total;
 
     // Filter out sun/imsak for the checklist
     const prayers = useMemo(() =>
         prayerTimes?.filter(p => p.id !== 'sunrise') || [],
         [prayerTimes]);
 
-    const handleToggle = (name) => {
+    const handleToggle = (prayerId) => {
         // Haptic feedback logic
-        const wasCompleted = completedPrayers.includes(name);
+        const wasCompleted = completedPrayers.includes(prayerId);
 
         if (wasCompleted) {
             // Unchecking - just light feedback
@@ -2186,10 +2200,12 @@ export const DailyPrayerChecklist = memo(({ prayerTimes, completedPrayers, loadi
                 success();
             }
 
-            // Get spiritual reward content
-            const content = PRAYER_CONTENT.getRewardContent(name);
+            // Get spiritual reward content (uses ID for dua occasion matching)
+            const content = PRAYER_CONTENT.getRewardContent(prayerId);
             setRewardContent(content);
-            setCompletedPrayerName(name);
+            // Resolve prayer ID to localized display name for the modal
+            const displayName = prayers.find(p => p.id === prayerId)?.name || prayerId;
+            setCompletedPrayerName(displayName);
 
             // Show modal after brief delay for better UX - ONLY IF ENABLED
             const isRewardsEnabled = settings?.spiritualRewards ?? true;
@@ -2200,7 +2216,7 @@ export const DailyPrayerChecklist = memo(({ prayerTimes, completedPrayers, loadi
             }
         }
 
-        onToggle(name);
+        onToggle(prayerId);
     };
 
     return (
@@ -2272,12 +2288,12 @@ export const DailyPrayerChecklist = memo(({ prayerTimes, completedPrayers, loadi
                                 className="text-3xl font-serif font-bold tracking-wider mb-2 bg-gradient-to-r from-amber-200 via-yellow-300 via-amber-400 to-amber-200 bg-clip-text text-transparent drop-shadow-sm"
                                 style={{ backgroundSize: "200% 100%" }}
                             >
-                                Elhamdülillah
+                                {t('dailyWorship.allDoneTitle')}
                             </motion.h2>
 
                             {/* Subtitle */}
                             <p className="text-base font-serif italic text-amber-300/90 dark:text-amber-200/70 tracking-wide">
-                                Gün Tamamlandı 🤲
+                                {t('dailyWorship.allDoneSub')}
                             </p>
                         </motion.div>
 
@@ -2299,10 +2315,10 @@ export const DailyPrayerChecklist = memo(({ prayerTimes, completedPrayers, loadi
                     >
                         <motion.div layout>
                             <h3 className="text-[10px] font-bold font-serif text-gray-400 dark:text-emerald-100/40 uppercase tracking-[0.2em] mb-1">
-                                GÜNLÜK İBADET
+                                {t('dailyWorship.title')}
                             </h3>
                             <h2 className="text-2xl font-bold tracking-tight text-gray-800 dark:text-white">
-                                {current} / {total} Tamamlandı
+                                {t('dailyWorship.completed', { current, total })}
                             </h2>
                         </motion.div>
                         <ProgressRing progress={progress} isAllDone={isAllDone} />
@@ -2341,13 +2357,13 @@ export const DailyPrayerChecklist = memo(({ prayerTimes, completedPrayers, loadi
                 ) : (
                     <div className="divide-y divide-gray-100 dark:divide-white/5 relative z-10">
                         {prayers.map((prayer) => {
-                            const isDone = completedPrayers.includes(prayer.name);
+                            const isDone = completedPrayers.includes(prayer.id);
                             return (
                                 <motion.div
-                                    key={prayer.name}
+                                    key={prayer.id}
                                     initial={false}
                                     animate={{ backgroundColor: isDone ? "rgba(212, 175, 55, 0.05)" : "transparent" }}
-                                    onClick={() => handleToggle(prayer.name)}
+                                    onClick={() => handleToggle(prayer.id)}
                                     className="flex items-center justify-between p-5 cursor-pointer group active:scale-[0.99] transition-transform"
                                 >
                                     <div className="flex items-center gap-5">
@@ -2527,6 +2543,7 @@ const saveFastingData = (data) => {
 
 export const FastingTrackerWidget = memo(() => {
     const { selection, success } = useHaptics();
+    const { t } = useTranslation('home');
     const [data, setData] = useState(getFastingData);
     const today = getTodayString();
 
@@ -2583,13 +2600,15 @@ export const FastingTrackerWidget = memo(() => {
 
     // Streak'e göre ödül mesajı
     const reward = useMemo(() => {
+        const rewards = t('fasting.rewards', { returnObjects: true });
         const streak = calculateStreak(data.days);
-        let best = FASTING_REWARDS[0];
-        for (const r of FASTING_REWARDS) {
+        const rewardsList = FASTING_REWARDS.map((r, i) => ({ ...r, text: rewards[i] || r.text }));
+        let best = rewardsList[0];
+        for (const r of rewardsList) {
             if (streak >= r.min) best = r;
         }
         return streak > 0 ? best : null;
-    }, [data.days, calculateStreak]);
+    }, [data.days, calculateStreak, t]);
 
     const currentStreak = calculateStreak(data.days);
 
@@ -2597,11 +2616,11 @@ export const FastingTrackerWidget = memo(() => {
         <motion.div variants={itemVariants} className="space-y-2">
             <div className="flex items-center justify-between px-2">
                 <h3 className="text-sm font-bold font-serif text-gray-400 dark:text-emerald-100/60 uppercase tracking-widest">
-                    Oruç Takibi
+                    {t('fasting.title')}
                 </h3>
                 {currentStreak > 0 && (
                     <span className="text-[10px] font-bold text-islamic-gold flex items-center gap-1">
-                        <Flame size={12} /> En yüksek: {data.longestStreak} gün
+                        <Flame size={12} /> {t('fasting.longest', { count: data.longestStreak })}
                     </span>
                 )}
             </div>
@@ -2632,7 +2651,7 @@ export const FastingTrackerWidget = memo(() => {
                             <div className="min-w-0">
                                 {isRamazan && ramazanDay && (
                                     <span className="text-[10px] font-bold text-islamic-gold uppercase tracking-wider">
-                                        Ramazan'ın {ramazanDay}. Günü
+                                        {t('fasting.ramazanDay', { day: ramazanDay })}
                                     </span>
                                 )}
                                 <h4 className={cn(
@@ -2641,12 +2660,12 @@ export const FastingTrackerWidget = memo(() => {
                                         ? "text-islamic-gold"
                                         : "text-gray-800 dark:text-white"
                                 )}>
-                                    {isFastedToday ? 'Oruç Tutuldu ✓' : 'Bugün Oruç'}
+                                    {isFastedToday ? t('fasting.fasted') : t('fasting.fastToday')}
                                 </h4>
                                 <p className="text-[11px] text-gray-500 dark:text-emerald-100/40 font-medium">
                                     {isFastedToday
-                                        ? (reward ? `${reward.emoji} ${reward.text}` : 'Allah kabul etsin')
-                                        : 'Oruç tuttuysan işaretle'
+                                        ? (reward ? `${reward.emoji} ${reward.text}` : t('fasting.accepted'))
+                                        : t('fasting.markIt')
                                     }
                                 </p>
                             </div>
@@ -2657,7 +2676,7 @@ export const FastingTrackerWidget = memo(() => {
                             {currentStreak > 0 && (
                                 <div className="text-center">
                                     <div className="text-lg font-black text-islamic-gold leading-none">{currentStreak}</div>
-                                    <div className="text-[9px] font-bold text-gray-400 uppercase">gün seri</div>
+                                    <div className="text-[9px] font-bold text-gray-400 uppercase">{t('fasting.daySeries')}</div>
                                 </div>
                             )}
 
@@ -2688,7 +2707,7 @@ export const FastingTrackerWidget = memo(() => {
                                 const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
                                 const done = data.days.includes(key);
                                 const isToday = key === today;
-                                const dayNames = ['Pz', 'Pt', 'Sa', 'Ça', 'Pe', 'Cu', 'Ct'];
+                                const dayNames = t('fasting.dayNames', { returnObjects: true });
                                 return (
                                     <div key={key} className="flex flex-col items-center gap-1">
                                         <span className="text-[9px] font-medium text-gray-400">{dayNames[d.getDay()]}</span>

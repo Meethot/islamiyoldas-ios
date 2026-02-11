@@ -59,7 +59,7 @@ export default function AppLayout() {
                     )}>
                         <div className="flex flex-col">
                             <span className="text-[10px] font-bold tracking-widest text-gray-400 dark:text-emerald-100/40 uppercase mb-0.5">
-                                İslami Yoldaş
+                                {t('header.appName')}
                             </span>
                             <h1 className="text-2xl font-serif font-bold text-islamic-green dark:text-islamic-gold animate-in fade-in slide-in-from-left duration-700">
                                 {(() => {

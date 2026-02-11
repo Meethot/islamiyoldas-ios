@@ -1,11 +1,14 @@
 import { useState, useEffect, useCallback } from 'react';
 import { getTodayString, getAppDate } from '@/lib/testDate';
+import { useTranslation } from 'react-i18next';
 
 /**
  * Custom hook for managing prayer streak gamification
  * Tracks consecutive days of completing all 5 daily prayers
  */
 export function usePrayerStreak() {
+    const { t } = useTranslation('home');
+
     const [streakData, setStreakData] = useState(() => {
         try {
             const saved = localStorage.getItem('prayerStreak');
@@ -102,15 +105,15 @@ export function usePrayerStreak() {
     // Check if today is already completed
     const isTodayComplete = streakData.lastCompletedDate === getTodayString();
 
-    // Get motivational message based on streak
+    // Get motivational message based on streak (bilingual)
     const getStreakMessage = () => {
         const streak = streakData.currentStreak;
-        if (streak === 0) return { text: 'Bugün başla!', emoji: '🌱' };
-        if (streak === 1) return { text: 'İlk adım atıldı!', emoji: '✨' };
-        if (streak < 7) return { text: 'Devam et!', emoji: '🔥' };
-        if (streak < 30) return { text: 'Harika gidiyorsun!', emoji: '💪' };
-        if (streak < 100) return { text: 'Muhteşem!', emoji: '🏆' };
-        return { text: 'Efsane!', emoji: '👑' };
+        if (streak === 0) return { text: t('streak.start'), emoji: '🌱' };
+        if (streak === 1) return { text: t('streak.firstStep'), emoji: '✨' };
+        if (streak < 7) return { text: t('streak.keepGoing'), emoji: '🔥' };
+        if (streak < 30) return { text: t('streak.doingGreat'), emoji: '💪' };
+        if (streak < 100) return { text: t('streak.amazing'), emoji: '🏆' };
+        return { text: t('streak.legendary'), emoji: '👑' };
     };
 
     return {

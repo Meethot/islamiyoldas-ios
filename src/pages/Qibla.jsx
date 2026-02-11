@@ -12,6 +12,7 @@ import { CapgoCompass as Compass } from '@capgo/capacitor-compass'; // Native Co
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { calculateGeodesicAzimuth, getDetailedDeclination, lowPassFilter, calculateGeodesicDistance } from '../utils/qiblaLogic';
+import { useTranslation } from 'react-i18next';
 
 const DEFAULT_ALIGNMENT_THRESHOLD = 3.5;
 
@@ -85,6 +86,7 @@ export default function Qibla() {
     const navigate = useNavigate();
     const { selection, success } = useHaptics();
     const { latitude, longitude, loading: locationLoading, error: locationError, hasLocation } = useLocation();
+    const { t } = useTranslation('qibla');
 
     // State
     const [heading, setHeading] = useState(0); // True North Heading
@@ -270,10 +272,10 @@ export default function Qibla() {
                             <ChevronLeft size={18} />
                         </button>
                         <div className="w-1.5 h-1.5 bg-amber-400 rounded-full animate-pulse" />
-                        <span className="text-[10px] tracking-[0.6em] text-emerald-200/60 font-bold uppercase">Manevi Pusula</span>
+                        <span className="text-[10px] tracking-[0.6em] text-emerald-200/60 font-bold uppercase">{t('spiritualCompass')}</span>
                     </motion.div>
                     <h1 className="text-3xl font-serif text-white tracking-widest font-light">
-                        KIBLE <span className="text-amber-400 italic font-normal">YÖNÜ</span>
+                        {t('qiblaDirection')} <span className="text-amber-400 italic font-normal">{t('directionSuffix')}</span>
                     </h1>
                 </div>
                 <div className="flex items-center gap-3">
@@ -298,7 +300,7 @@ export default function Qibla() {
                 {(status === 'loading' || status === 'calculating') ? (
                     <div className="flex flex-col items-center gap-6">
                         <Loader2 className="w-12 h-12 text-amber-400 animate-spin" />
-                        <p className="text-sm tracking-widest text-emerald-100/50">HESAPLANIYOR...</p>
+                        <p className="text-sm tracking-widest text-emerald-100/50">{t('calculating')}</p>
                     </div>
                 ) : (
                     <div className="relative flex flex-col items-center gap-10">
@@ -329,10 +331,10 @@ export default function Qibla() {
                             >
                                 <svg className="w-72 h-72 p-1" viewBox="0 0 100 100">
                                     <CompassTicks />
-                                    <text x="50" y="18" fontSize="6" fill="white" textAnchor="middle" className="font-bold">K</text>
-                                    <text x="82" y="52" fontSize="5" fill="white" textAnchor="middle" opacity="0.6">D</text>
-                                    <text x="50" y="86" fontSize="5" fill="white" textAnchor="middle" opacity="0.6">G</text>
-                                    <text x="18" y="52" fontSize="5" fill="white" textAnchor="middle" opacity="0.6">B</text>
+                                    <text x="50" y="18" fontSize="6" fill="white" textAnchor="middle" className="font-bold">{t('compassDirections.north')}</text>
+                                    <text x="82" y="52" fontSize="5" fill="white" textAnchor="middle" opacity="0.6">{t('compassDirections.east')}</text>
+                                    <text x="50" y="86" fontSize="5" fill="white" textAnchor="middle" opacity="0.6">{t('compassDirections.south')}</text>
+                                    <text x="18" y="52" fontSize="5" fill="white" textAnchor="middle" opacity="0.6">{t('compassDirections.west')}</text>
                                 </svg>
                             </motion.div>
 
@@ -368,10 +370,10 @@ export default function Qibla() {
                                     className="flex flex-col items-center"
                                 >
                                     <h2 className="text-4xl font-serif text-amber-400 font-bold drop-shadow-lg">
-                                        KIBLE BULUNDU
+                                        {t('qiblaFound')}
                                     </h2>
                                     <p className="text-sm text-amber-200/60 tracking-[0.3em] mt-2">
-                                        ALLAH KABUL ETSİN
+                                        {t('qiblaFoundSubtitle')}
                                     </p>
                                 </motion.div>
                             ) : (
@@ -383,7 +385,7 @@ export default function Qibla() {
                                         <span className="text-xl text-emerald-400">°</span>
                                     </div>
                                     <p className="text-xs text-emerald-500/50 uppercase tracking-widest mt-1">
-                                        Hizalamaya Kalan
+                                        {t('degreesRemaining')}
                                     </p>
                                 </div>
                             )}
@@ -397,7 +399,7 @@ export default function Qibla() {
                     <div className="flex items-center gap-2 py-2 px-4 rounded-full bg-emerald-950/40 border border-emerald-500/10">
                         <MapPin className="w-3 h-3 text-emerald-400" />
                         <span className="text-[10px] tracking-widest text-emerald-100/60">
-                            MESAFE: <span className="text-amber-400">{Math.round(distanceKM).toLocaleString('tr-TR')} KM</span>
+                            {t('distance')} <span className="text-amber-400">{Math.round(distanceKM).toLocaleString('tr-TR')} {t('km')}</span>
                         </span>
                     </div>
                 )}
@@ -423,8 +425,8 @@ export default function Qibla() {
                                 <div className="w-16 h-16 rounded-full bg-amber-400/10 border border-amber-400/20 flex items-center justify-center mb-4">
                                     <span className="text-3xl">🕋</span>
                                 </div>
-                                <h3 className="text-xl text-white font-serif tracking-wide">Manevi Pusula</h3>
-                                <p className="text-[11px] tracking-[0.4em] text-amber-400/60 mt-1 uppercase">Kıble Yönü Rehberi</p>
+                                <h3 className="text-xl text-white font-serif tracking-wide">{t('infoTitle')}</h3>
+                                <p className="text-[11px] tracking-[0.4em] text-amber-400/60 mt-1 uppercase">{t('infoSubtitle')}</p>
                             </div>
 
                             {/* Tips */}
@@ -432,22 +434,22 @@ export default function Qibla() {
                                 <div className="flex items-start gap-3 p-3 rounded-xl bg-white/[0.03] border border-white/[0.05]">
                                     <span className="text-lg mt-0.5">🧭</span>
                                     <div>
-                                        <p className="text-sm text-emerald-100/80 font-medium">Telefonunu düz tut</p>
-                                        <p className="text-xs text-emerald-100/40 mt-0.5">Yere paralel tuttuğunda en doğru sonucu alırsın.</p>
+                                        <p className="text-sm text-emerald-100/80 font-medium">{t('tip1Title')}</p>
+                                        <p className="text-xs text-emerald-100/40 mt-0.5">{t('tip1Desc')}</p>
                                     </div>
                                 </div>
                                 <div className="flex items-start gap-3 p-3 rounded-xl bg-white/[0.03] border border-white/[0.05]">
                                     <span className="text-lg mt-0.5">🎯</span>
                                     <div>
-                                        <p className="text-sm text-emerald-100/80 font-medium">Altın ok seni yönlendirir</p>
-                                        <p className="text-xs text-emerald-100/40 mt-0.5">Açı 0° olduğunda Kıble yönünü buldun demektir.</p>
+                                        <p className="text-sm text-emerald-100/80 font-medium">{t('tip2Title')}</p>
+                                        <p className="text-xs text-emerald-100/40 mt-0.5">{t('tip2Desc')}</p>
                                     </div>
                                 </div>
                                 <div className="flex items-start gap-3 p-3 rounded-xl bg-white/[0.03] border border-white/[0.05]">
                                     <span className="text-lg mt-0.5">⚠️</span>
                                     <div>
-                                        <p className="text-sm text-emerald-100/80 font-medium">Manyetik alanlardan uzak dur</p>
-                                        <p className="text-xs text-emerald-100/40 mt-0.5">Metal eşyalar, elektronik cihazlar ve arabalar pusulayı etkileyebilir.</p>
+                                        <p className="text-sm text-emerald-100/80 font-medium">{t('tip3Title')}</p>
+                                        <p className="text-xs text-emerald-100/40 mt-0.5">{t('tip3Desc')}</p>
                                     </div>
                                 </div>
                             </div>
@@ -457,7 +459,7 @@ export default function Qibla() {
                                 <div className="flex items-center justify-center gap-2 py-2.5 px-4 rounded-full bg-emerald-950/60 border border-emerald-500/10 mb-6">
                                     <MapPin className="w-3.5 h-3.5 text-amber-400" />
                                     <span className="text-xs tracking-wider text-emerald-100/50">
-                                        Kâbe'ye <span className="text-amber-400 font-semibold">{distanceKM.toLocaleString('tr-TR')} km</span> uzaktasın
+                                        {t('distanceToKaaba', { distance: distanceKM.toLocaleString('tr-TR') })}
                                     </span>
                                 </div>
                             )}
@@ -465,16 +467,16 @@ export default function Qibla() {
                             {/* Hadith */}
                             <div className="text-center mb-6 px-2">
                                 <p className="text-xs text-emerald-100/30 italic font-serif leading-relaxed">
-                                    "Nerede olursanız olun, yüzünüzü Mescid-i Haram'a doğru çevirin."
+                                    {t('hadith')}
                                 </p>
-                                <p className="text-[10px] text-amber-400/40 mt-1.5">— Bakara Suresi, 144</p>
+                                <p className="text-[10px] text-amber-400/40 mt-1.5">{t('hadithSource')}</p>
                             </div>
 
                             <Button
                                 onClick={() => setShowInfo(false)}
                                 className="w-full bg-gradient-to-r from-emerald-800 to-emerald-700 hover:from-emerald-700 hover:to-emerald-600 rounded-xl py-3 text-emerald-50 font-medium tracking-wide transition-all"
                             >
-                                Anladım ✨
+                                {t('understood')}
                             </Button>
                         </motion.div>
                     </motion.div>

@@ -4,6 +4,7 @@ import { X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useHaptics } from '@/hooks/useMobile';
+import { useTranslation } from 'react-i18next';
 
 /**
  * PrayerTimeOverlay
@@ -12,13 +13,15 @@ import { useHaptics } from '@/hooks/useMobile';
  * Gently interrupts user to encourage prayer completion.
  * 
  * @param {boolean} isOpen - Controls overlay visibility
- * @param {object} prayer - Current prayer { name, time, icon }
- * @param {function} onPray - Callback when "Kılıyorum" is clicked
- * @param {function} onSnooze - Callback when "10 dk Sonra" is clicked
+ * @param {object} prayer - Current prayer { id, name, time, icon }
+ * @param {function} onPray - Callback when "I'm praying" is clicked (receives prayer.id)
+ * @param {function} onSnooze - Callback when "Remind later" is clicked (receives prayer.id)
  * @param {function} onDismiss - Callback when overlay is dismissed
  */
 export default function PrayerTimeOverlay({ isOpen, prayer, onPray, onSnooze, onDismiss }) {
     const { success, heavy } = useHaptics();
+    const { t, i18n } = useTranslation('home');
+    const isEn = i18n.language === 'en';
 
     if (!prayer) return null;
 
@@ -26,12 +29,12 @@ export default function PrayerTimeOverlay({ isOpen, prayer, onPray, onSnooze, on
 
     const handlePray = () => {
         success();
-        onPray(prayer.name);
+        onPray(prayer.id || prayer.name);
     };
 
     const handleSnooze = () => {
         heavy();
-        onSnooze(prayer.name);
+        onSnooze(prayer.id || prayer.name);
     };
 
     const handleDismiss = () => {
@@ -55,7 +58,7 @@ export default function PrayerTimeOverlay({ isOpen, prayer, onPray, onSnooze, on
                         <button
                             onClick={handleDismiss}
                             className="absolute top-6 right-6 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors backdrop-blur-sm z-10"
-                            aria-label="Kapat"
+                            aria-label={isEn ? 'Close' : 'Kapat'}
                         >
                             <X className="w-5 h-5 text-white" />
                         </button>
@@ -93,7 +96,7 @@ export default function PrayerTimeOverlay({ isOpen, prayer, onPray, onSnooze, on
                                     className="space-y-3"
                                 >
                                     <p className="text-sm font-bold text-white/70 uppercase tracking-widest">
-                                        Namaz Vakti
+                                        {isEn ? 'Prayer Time' : 'Namaz Vakti'}
                                     </p>
                                     <h1 className="text-5xl font-serif font-bold text-white drop-shadow-2xl">
                                         {prayer.name}
@@ -110,7 +113,10 @@ export default function PrayerTimeOverlay({ isOpen, prayer, onPray, onSnooze, on
                                     transition={{ delay: 0.8, duration: 0.7 }}
                                     className="text-white/90 italic font-serif text-lg leading-relaxed px-6"
                                 >
-                                    "Namazını kılmak ister misin?"
+                                    {isEn
+                                        ? '"Would you like to perform your prayer?"'
+                                        : '"Namazını kılmak ister misin?"'
+                                    }
                                 </motion.p>
 
                                 {/* Action Buttons */}
@@ -120,12 +126,12 @@ export default function PrayerTimeOverlay({ isOpen, prayer, onPray, onSnooze, on
                                     transition={{ delay: 1, duration: 0.7 }}
                                     className="flex flex-col gap-4 pt-6"
                                 >
-                                    {/* Primary: Kılıyorum */}
+                                    {/* Primary: I'm praying */}
                                     <Button
                                         onClick={handlePray}
                                         className="w-full h-16 text-xl font-bold bg-gradient-to-r from-islamic-green to-islamic-green/90 hover:from-islamic-green/90 hover:to-islamic-green text-white shadow-2xl shadow-islamic-green/50 hover:shadow-islamic-green/70 transition-all duration-300 rounded-2xl"
                                     >
-                                        Kılıyorum ✅
+                                        {isEn ? "I'm Praying ✅" : 'Kılıyorum ✅'}
                                     </Button>
 
                                     {/* Secondary: Snooze */}
@@ -134,7 +140,7 @@ export default function PrayerTimeOverlay({ isOpen, prayer, onPray, onSnooze, on
                                         variant="outline"
                                         className="w-full h-14 text-lg font-semibold bg-white/10 hover:bg-white/20 text-white border-2 border-white/30 hover:border-white/50 backdrop-blur-md transition-all duration-300 rounded-2xl"
                                     >
-                                        10 dk Sonra Hatırlat ⏰
+                                        {isEn ? 'Remind in 10 min ⏰' : '10 dk Sonra Hatırlat ⏰'}
                                     </Button>
                                 </motion.div>
 

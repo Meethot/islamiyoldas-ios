@@ -52,14 +52,69 @@ export const DAILY_VERSES = [
     { id: 50, text: "Allah sizinle beraberdir ve asla amellerinizi boşa çıkarmaz.", source: "Muhammed Suresi, 35" },
 ];
 
+// English translations of all 50 daily verses
+export const DAILY_VERSES_EN = [
+    { id: 1, text: "Indeed, prayer has been decreed upon the believers at specified times.", source: "An-Nisa, 103" },
+    { id: 2, text: "Those who remember Allah standing, sitting, and lying on their sides, and reflect on the creation of the heavens and the earth...", source: "Ali 'Imran, 191" },
+    { id: 3, text: "So remember Me; I will remember you. And be grateful to Me and do not deny Me.", source: "Al-Baqarah, 152" },
+    { id: 4, text: "Whoever does a good deed shall have ten times the like thereof.", source: "Al-An'am, 160" },
+    { id: 5, text: "Seek help through patience and prayer. Indeed, Allah is with the patient.", source: "Al-Baqarah, 153" },
+    { id: 6, text: "Indeed, the mercy of Allah is near to those who do good.", source: "Al-A'raf, 56" },
+    { id: 7, text: "Whoever puts their trust in Allah, He will be sufficient for them.", source: "At-Talaq, 3" },
+    { id: 8, text: "Seek your Lord's forgiveness, then turn to Him in repentance.", source: "Hud, 3" },
+    { id: 9, text: "O believers! Seek help through patience and prayer.", source: "Al-Baqarah, 153" },
+    { id: 10, text: "Allah does not burden a soul beyond that it can bear.", source: "Al-Baqarah, 286" },
+    { id: 11, text: "Call upon Me; I will respond to you.", source: "Ghafir, 60" },
+    { id: 12, text: "Whoever fears Allah, He will make for them a way out.", source: "At-Talaq, 2" },
+    { id: 13, text: "Allah intends for you ease and does not intend for you hardship.", source: "Al-Baqarah, 185" },
+    { id: 14, text: "Indeed, with hardship comes ease.", source: "Ash-Sharh, 6" },
+    { id: 15, text: "O you who believe! Remember Allah with much remembrance.", source: "Al-Ahzab, 41" },
+    { id: 16, text: "Verily, in the remembrance of Allah do hearts find rest.", source: "Ar-Ra'd, 28" },
+    { id: 17, text: "Whoever takes a step in the path of Allah, Allah gives them double the reward.", source: "Al-Baqarah, 261" },
+    { id: 18, text: "Allah is Forgiving and Merciful.", source: "Al-Baqarah, 173" },
+    { id: 19, text: "And the provision of your Lord is better and more lasting.", source: "Ta-Ha, 131" },
+    { id: 20, text: "He is the One who accepts repentance from His servants, pardons misdeeds, and knows what you do.", source: "Ash-Shura, 25" },
+    { id: 21, text: "Whoever believes in Allah and the Last Day should speak good or remain silent.", source: "Hadith (Bukhari)" },
+    { id: 22, text: "Say: The mercy of my Lord is better than what they accumulate.", source: "An-Naml, 62" },
+    { id: 23, text: "Allah is the Turner of hearts and eyes.", source: "An-Nur, 37" },
+    { id: 24, text: "O believers! Be patient, persevere, stay prepared, and be mindful of Allah.", source: "Ali 'Imran, 200" },
+    { id: 25, text: "He does not look at your appearance, but He looks at your hearts.", source: "Hadith (Muslim)" },
+    { id: 26, text: "Seeking knowledge is an obligation upon every Muslim.", source: "Hadith (Ibn Majah)" },
+    { id: 27, text: "Whoever says 'SubhanAllah' morning and evening, their reward will be like the foam of the sea.", source: "Hadith (Muslim)" },
+    { id: 28, text: "The best among you are those who are most beneficial to people.", source: "Hadith (Tabarani)" },
+    { id: 29, text: "A believer is the mirror of another believer.", source: "Hadith (Abu Dawud)" },
+    { id: 30, text: "Be mindful of Allah. Indeed, Allah knows what is in the hearts.", source: "Al-Baqarah, 235" },
+    { id: 31, text: "A good word is like a good tree whose root is firmly fixed and whose branches reach the sky.", source: "Ibrahim, 24" },
+    { id: 32, text: "Whoever relieves a Muslim of a worldly hardship, Allah will relieve them of a hardship on the Day of Judgment.", source: "Hadith (Muslim)" },
+    { id: 33, text: "Is the reward for good anything but good?", source: "Ar-Rahman, 60" },
+    { id: 34, text: "Show forgiveness, enjoin what is good, and turn away from the ignorant.", source: "Al-A'raf, 199" },
+    { id: 35, text: "They are those who spend in the way of Allah in prosperity and adversity.", source: "Ali 'Imran, 134" },
+    { id: 36, text: "Indeed, the most noble of you in the sight of Allah is the most righteous.", source: "Al-Hujurat, 13" },
+    { id: 37, text: "Call upon your Lord humbly and privately. Indeed, He does not like transgressors.", source: "Al-A'raf, 55" },
+    { id: 38, text: "They are those who, when affliction strikes them, patiently endure.", source: "Ash-Shura, 43" },
+    { id: 39, text: "The true believers are those whose hearts tremble when Allah is mentioned.", source: "Al-Anfal, 2" },
+    { id: 40, text: "Allah will surely give every doer of good their full reward.", source: "Ali 'Imran, 171" },
+    { id: 41, text: "Invite to the way of your Lord with wisdom and good instruction.", source: "An-Nahl, 125" },
+    { id: 42, text: "Remember the favor of Allah upon you so that you may succeed.", source: "Ali 'Imran, 103" },
+    { id: 43, text: "And indeed, you are of a great moral character.", source: "Al-Qalam, 4" },
+    { id: 44, text: "Whoever saves a life, it is as if they saved all of humanity.", source: "Al-Ma'idah, 32" },
+    { id: 45, text: "Glorify your Lord with praise at dawn and when the stars fade.", source: "At-Tur, 49" },
+    { id: 46, text: "We have certainly created man in the best of stature.", source: "At-Tin, 4" },
+    { id: 47, text: "Indeed, prayer prohibits immorality and wrongdoing.", source: "Al-Ankabut, 45" },
+    { id: 48, text: "My Lord, increase me in knowledge.", source: "Ta-Ha, 114" },
+    { id: 49, text: "Indeed, Allah is with those who are patient.", source: "Al-Anfal, 46" },
+    { id: 50, text: "Allah is with you and will never deprive you of your deeds.", source: "Muhammad, 35" },
+];
+
 import { getDayOfYear } from '@/lib/testDate';
 
 // Get a consistent verse for the day (same verse for all users on the same day)
 // Uses global test date system for testing day progression
-export const getDailyVerse = () => {
+export const getDailyVerse = (lang = 'tr') => {
     const dayOfYear = getDayOfYear();
+    const verses = lang === 'en' ? DAILY_VERSES_EN : DAILY_VERSES;
 
     // Use day of year to select verse (cycles through all 50 verses)
-    const verseIndex = Math.abs(dayOfYear) % DAILY_VERSES.length;
-    return DAILY_VERSES[verseIndex];
+    const verseIndex = Math.abs(dayOfYear) % verses.length;
+    return verses[verseIndex];
 };

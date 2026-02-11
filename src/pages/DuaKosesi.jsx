@@ -15,6 +15,7 @@ import { getAppDate, getTodayString } from '@/lib/testDate';
 import Swal from 'sweetalert2';
 import { getCredits, addCredit, spendCredits, isPremium, CREDIT_COSTS } from '@/services/creditService';
 import { initAdMob, showRewardedAd } from '@/services/adService';
+import { useTranslation } from 'react-i18next';
 
 
 
@@ -93,6 +94,7 @@ const INITIAL_DUAS = [
 
 export default function DuaKosesi() {
     const navigate = useNavigate();
+    const { t } = useTranslation('dua');
     const [showForm, setShowForm] = useState(false);
     const [showHistory, setShowHistory] = useState(false);
     const [showSuccess, setShowSuccess] = useState(false);
@@ -345,18 +347,18 @@ export default function DuaKosesi() {
 
         if (dailyCount >= 30) {
             Swal.fire({
-                title: '<span class="text-[#D4AF37] font-serif tracking-wide">Allah Kabul Etsin 🌹</span>',
+                title: `<span class="text-[#D4AF37] font-serif tracking-wide">${t('dailyLimitTitle')}</span>`,
                 html: `
             <div class="text-[#FFFDF5]/80 font-serif leading-relaxed">
-              <p class="mb-3 text-lg">Bugünlük dua paylaşım hakkınız doldu (30/30).</p>
-              <p class="text-sm opacity-70">Yarın yepyeni dualarla tekrar bekleriz.</p>
+              <p class="mb-3 text-lg">${t('dailyLimitMsg')}</p>
+              <p class="text-sm opacity-70">${t('dailyLimitSub')}</p>
             </div>
           `,
                 icon: 'info',
                 iconColor: '#D4AF37', // islamic-gold
                 background: '#032e18', // islamic-dark-green (Standard app background)
                 showConfirmButton: true,
-                confirmButtonText: 'Peki, Teşekkürler',
+                confirmButtonText: t('dailyLimitBtn'),
                 // User said "green button" looked off. Gold button on Dark Green bg looks premium.
                 // Using islamic-gold for action.
                 confirmButtonColor: '#D4AF37',
@@ -380,18 +382,18 @@ export default function DuaKosesi() {
 
         if (hasBlockedWord) {
             Swal.fire({
-                title: '<span class="text-[#D4AF37] font-serif tracking-wide">Lütfen Dikkat 🌹</span>',
+                title: `<span class="text-[#D4AF37] font-serif tracking-wide">${t('profanityTitle')}</span>`,
                 html: `
                     <div class="text-[#FFFDF5]/80 font-serif leading-relaxed">
-                        <p class="mb-3 text-lg">Lütfen üslubunuza dikkat ediniz.</p>
-                        <p class="text-sm opacity-70">Bu manevi bir platformdur. Kardeşlerinize dua ederken güzel sözler kullanınız.</p>
+                        <p class="mb-3 text-lg">${t('profanityMsg')}</p>
+                        <p class="text-sm opacity-70">${t('profanitySub')}</p>
                     </div>
                 `,
                 icon: 'warning',
                 iconColor: '#D4AF37',
                 background: '#032e18',
                 showConfirmButton: true,
-                confirmButtonText: 'Anladım',
+                confirmButtonText: t('profanityBtn'),
                 confirmButtonColor: '#D4AF37',
                 customClass: {
                     popup: 'rounded-[2rem] border border-[#D4AF37]/20 shadow-2xl',
@@ -444,7 +446,7 @@ export default function DuaKosesi() {
             setTimeout(() => setShowSuccess(false), 4000);
         } catch (error) {
             console.error("Failed to submit prayer:", error);
-            alert("Dua gönderilirken bir hata oluştu. Lütfen tekrar deneyin.");
+            alert(t('submitError'));
         }
     };
 
@@ -462,19 +464,19 @@ export default function DuaKosesi() {
             // Scenario 2: Approved Prayer -> Request Deletion
             if (request.status === 'approved') {
                 const result = await Swal.fire({
-                    title: '<span class="text-[#D4AF37] font-serif tracking-wide">Silme Talebi 🗑️</span>',
+                    title: `<span class="text-[#D4AF37] font-serif tracking-wide">${t('deleteRequestTitle')}</span>`,
                     html: `
                     <div class="text-[#FFFDF5]/80 font-serif leading-relaxed">
-                      <p class="mb-3">Bu dua şu an yayında.</p>
-                      <p class="text-sm opacity-70">Silinmesi için yöneticiye talep gönderilsin mi?</p>
+                      <p class="mb-3">${t('deleteRequestMsg')}</p>
+                      <p class="text-sm opacity-70">${t('deleteRequestSub')}</p>
                     </div>
                   `,
                     icon: 'warning',
                     iconColor: '#D4AF37',
                     background: '#032e18',
                     showCancelButton: true,
-                    confirmButtonText: 'Evet, Talep Gönder',
-                    cancelButtonText: 'Vazgeç',
+                    confirmButtonText: t('deleteRequestConfirm'),
+                    cancelButtonText: t('deleteRequestCancel'),
                     confirmButtonColor: '#d33', // Red for delete action
                     cancelButtonColor: '#374151',
                     customClass: {
@@ -496,8 +498,8 @@ export default function DuaKosesi() {
 
                     // Show success toast
                     Swal.fire({
-                        title: 'Talebiniz Alındı',
-                        text: 'Editör incelemesinden sonra dua silinecektir.',
+                        title: t('deleteRequestSuccess'),
+                        text: t('deleteRequestSuccessMsg'),
                         icon: 'success',
                         background: '#032e18',
                         color: '#FFFDF5',
@@ -532,7 +534,7 @@ export default function DuaKosesi() {
             setTimeout(() => setShowDeleteToast(false), 3000);
         } catch (error) {
             console.error("Failed to delete prayer:", error);
-            alert("Silme işlemi sırasında bir hata oluştu.");
+            alert(t('deleteError'));
         }
     };
 
@@ -577,7 +579,7 @@ export default function DuaKosesi() {
 
         } catch (error) {
             console.error("Failed to update prayer:", error);
-            alert("Dua güncellenirken bir hata oluştu.");
+            alert(t('updateError'));
         }
     };
 
@@ -587,35 +589,35 @@ export default function DuaKosesi() {
                 return (
                     <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-400 text-[10px] font-bold uppercase tracking-wider rounded-full">
                         <Clock size={12} />
-                        Onay Bekliyor
+                        {t('statusPending')}
                     </span>
                 );
             case 'approved':
                 return (
                     <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 text-[10px] font-bold uppercase tracking-wider rounded-full">
                         <Check size={12} />
-                        Yayında
+                        {t('statusApproved')}
                     </span>
                 );
             case 'rejected':
                 return (
                     <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-red-900/80 text-red-200 text-[10px] font-bold uppercase tracking-wider rounded-full border border-red-700/50 shadow-sm">
                         <AlertCircle size={12} />
-                        ONAYLANMADI
+                        {t('statusRejected')}
                     </span>
                 );
             case 'delete_requested':
                 return (
                     <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-yellow-900/40 text-yellow-500 text-[10px] font-bold uppercase tracking-wider rounded-full border border-yellow-700/30">
                         <History size={12} />
-                        SİLME TALEBİ ALINDI
+                        {t('statusDeleteRequested')}
                     </span>
                 );
             case 'deletion_approved':
                 return (
                     <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-gray-500/20 text-gray-400 text-[10px] font-bold uppercase tracking-wider rounded-full border border-gray-500/30">
                         <Trash2 size={12} />
-                        TALEBİNİZLE SİLİNDİ
+                        {t('statusDeletionApproved')}
                     </span>
                 );
         }
@@ -662,9 +664,9 @@ export default function DuaKosesi() {
                     <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-islamic-gold/10 to-transparent" />
                     <Sparkles className="mx-auto text-islamic-gold mb-4 opacity-50 group-hover:scale-110 transition-transform duration-700" size={32} />
                     <p className="font-serif italic text-emerald-50 text-xl leading-relaxed relative z-10">
-                        "Müminin mümin kardeşi için gıyabında yaptığı dua makbuldür."
+                        {t('headerQuote')}
                     </p>
-                    <p className="text-islamic-gold/60 text-xs mt-4 font-bold uppercase tracking-widest relative z-10">- Hadis-i Şerif</p>
+                    <p className="text-islamic-gold/60 text-xs mt-4 font-bold uppercase tracking-widest relative z-10">{t('headerSource')}</p>
                 </div>
 
                 {/* Success Toast */}
@@ -680,8 +682,8 @@ export default function DuaKosesi() {
                                 <Check size={20} />
                             </div>
                             <div>
-                                <p className="font-bold">Duanız Alındı!</p>
-                                <p className="text-sm text-emerald-100">Editör onayından sonra yayınlanacaktır.</p>
+                                <p className="font-bold">{t('successTitle')}</p>
+                                <p className="text-sm text-emerald-100">{t('successDesc')}</p>
                             </div>
                         </motion.div>
                     )}
@@ -699,7 +701,7 @@ export default function DuaKosesi() {
                             <div className="p-2 bg-white/20 rounded-full">
                                 <Trash2 size={18} />
                             </div>
-                            <p className="font-medium">Dua isteği geçmişten silindi</p>
+                            <p className="font-medium">{t('deleteToast')}</p>
                         </motion.div>
                     )}
                 </AnimatePresence>
@@ -707,18 +709,18 @@ export default function DuaKosesi() {
                 {/* Prayer Feed */}
                 <div className="space-y-4">
                     <div className="flex items-center justify-between px-1">
-                        <h3 className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">Gelen Dua İstekleri</h3>
+                        <h3 className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">{t('feedTitle')}</h3>
                         <button
                             onClick={refreshFeed}
                             className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-islamic-gold/10 hover:bg-islamic-gold/20 active:scale-95 transition-all"
                         >
                             <RefreshCw size={12} className="text-islamic-gold" />
-                            <span className="text-[10px] font-bold text-islamic-gold uppercase tracking-widest">Yenile</span>
+                            <span className="text-[10px] font-bold text-islamic-gold uppercase tracking-widest">{t('refresh')}</span>
                         </button>
                     </div>{
                         allDuas.length === 0 ? (
                             <div className="text-center py-10 opacity-60">
-                                <p className="text-sm text-gray-400">Şu an yayında dua yok. İlk duayı sen iste!</p>
+                                <p className="text-sm text-gray-400">{t('emptyFeed')}</p>
                             </div>
                         ) : (
                             allDuas.map((dua) => {
@@ -733,11 +735,11 @@ export default function DuaKosesi() {
                                                 <div className="flex-1">
                                                     <div className="flex items-center gap-2 mb-2">
                                                         <p className="text-[10px] font-bold text-gray-400 dark:text-emerald-100/40 uppercase tracking-widest">
-                                                            {dua.isSticky ? "Senin Duan" : "Bir Kardeşin Diyor ki:"}
+                                                            {dua.isSticky ? t('yourPrayer') : t('brotherSays')}
                                                         </p>
                                                         {dua.isSticky && (
                                                             <span className="flex items-center gap-1 px-2 py-0.5 bg-islamic-gold/20 text-islamic-gold text-[8px] font-black rounded-full uppercase tracking-tighter">
-                                                                📌 Sabitlendi
+                                                                {t('pinned')}
                                                             </span>
                                                         )}
                                                     </div>
@@ -750,7 +752,7 @@ export default function DuaKosesi() {
                                             <div className="flex items-center justify-between pt-6 border-t border-gray-50 dark:border-white/5">
                                                 <div className="flex items-center gap-2 text-gray-400 dark:text-gray-500">
                                                     <MessageCircle size={16} />
-                                                    <span className="text-xs font-bold">{dua.aminCount || dua.count || 0} Kişi Amin Dedi</span>
+                                                    <span className="text-xs font-bold">{t('peopleSaidAmin', { count: dua.aminCount || dua.count || 0 })}</span>
                                                 </div>
                                                 <Button
                                                     onClick={() => handleAmin(dua.id)}
@@ -762,7 +764,7 @@ export default function DuaKosesi() {
                                                             : "bg-islamic-green dark:bg-islamic-gold text-white dark:text-[#032e18] hover:opacity-90"
                                                     )}
                                                 >
-                                                    {isAmined ? "Âmin" : "Âmin"}
+                                                    {isAmined ? t('amin') : t('amin')}
                                                 </Button>
                                             </div>
                                         </CardContent>
@@ -775,7 +777,7 @@ export default function DuaKosesi() {
 
                 {/* Add Own Dua - Floating Action Style */}
                 <div className="bg-white dark:bg-white/5 border border-islamic-gold/20 p-6 rounded-[2.5rem] text-center shadow-lg space-y-3">
-                    <p className="text-sm font-bold text-gray-700 dark:text-emerald-100/80 mb-4">Sen de dua kardeşliğine katılmak ister misin?</p>
+                    <p className="text-sm font-bold text-gray-700 dark:text-emerald-100/80 mb-4">{t('joinQuestion')}</p>
 
                     {/* Kredi göstergesi */}
                     {!isPremium() && (
@@ -787,7 +789,7 @@ export default function DuaKosesi() {
                                     : "bg-red-500/10 text-red-400"
                             )}>
                                 <Coins size={14} />
-                                {credits} / {CREDIT_COSTS.POST_DUA} Kredi
+                                {credits} / {CREDIT_COSTS.POST_DUA} {t('credits')}
                             </div>
                         </div>
                     )}
@@ -796,25 +798,25 @@ export default function DuaKosesi() {
                         onClick={() => {
                             if (!isPremium() && credits < CREDIT_COSTS.POST_DUA) {
                                 Swal.fire({
-                                    title: '<span class="text-[#D4AF37] font-serif tracking-wide">Amin Kumbarası 🪙</span>',
+                                    title: `<span class="text-[#D4AF37] font-serif tracking-wide">${t('paywallTitle')}</span>`,
                                     html: `
                                         <div class="text-[#FFFDF5]/80 font-serif leading-relaxed">
-                                            <p class="mb-3 text-lg">Dua istemek için <strong class="text-[#D4AF37]">${CREDIT_COSTS.POST_DUA} kredi</strong> gerekli.</p>
+                                            <p class="mb-3 text-lg">${t('paywallCreditNeeded', { cost: CREDIT_COSTS.POST_DUA })}</p>
                                             <div class="w-full bg-white/10 rounded-full h-3 mb-3 overflow-hidden">
                                                 <div class="bg-gradient-to-r from-[#D4AF37] to-amber-400 h-full rounded-full transition-all" style="width: ${Math.min(100, (credits / CREDIT_COSTS.POST_DUA) * 100)}%"></div>
                                             </div>
-                                            <p class="text-sm opacity-90 mb-1">Mevcut kredin: <strong class="text-[#D4AF37]">${credits} 🪙</strong></p>
-                                            <p class="text-sm opacity-70">Her <strong>"Âmin"</strong> dediğinde <strong class="text-emerald-400">+1 kredi</strong> kazanırsın!</p>
-                                            <p class="text-xs opacity-50 mt-3">veya Premium üye ol, sınırsız dua iste ✨</p>
+                                            <p class="text-sm opacity-90 mb-1">${t('paywallCurrentCredit', { credits })}</p>
+                                            <p class="text-sm opacity-70">${t('paywallEarnHint')}</p>
+                                            <p class="text-xs opacity-50 mt-3">${t('paywallPremiumHint')}</p>
                                         </div>
                                     `,
                                     icon: 'info',
                                     iconColor: '#D4AF37',
                                     background: '#032e18',
                                     showConfirmButton: true,
-                                    confirmButtonText: '🤲 Âmin Diyerek Kazan',
+                                    confirmButtonText: t('paywallEarnBtn'),
                                     showDenyButton: true,
-                                    denyButtonText: `🎬 Reklam İzle (+${CREDIT_COSTS.AD_REWARD} Kredi)`,
+                                    denyButtonText: t('paywallAdBtn', { reward: CREDIT_COSTS.AD_REWARD }),
                                     denyButtonColor: '#059669',
                                     confirmButtonColor: '#D4AF37',
                                     customClass: {
@@ -832,12 +834,12 @@ export default function DuaKosesi() {
                                                 const newCreds = addCredit(CREDIT_COSTS.AD_REWARD);
                                                 setCredits(newCreds);
                                                 Swal.fire({
-                                                    title: '<span class="text-emerald-400 font-serif">Tebrikler! 🎉</span>',
-                                                    html: `<p class="text-[#FFFDF5]/80 font-serif">+${CREDIT_COSTS.AD_REWARD} kredi kazanıldı! Mevcut: <strong class="text-[#D4AF37]">${newCreds} 🪙</strong></p>`,
+                                                    title: `<span class="text-emerald-400 font-serif">${t('adSuccessTitle')}</span>`,
+                                                    html: `<p class="text-[#FFFDF5]/80 font-serif">${t('adSuccessMsg', { reward: CREDIT_COSTS.AD_REWARD, credits: newCreds })}</p>`,
                                                     icon: 'success',
                                                     iconColor: '#10b981',
                                                     background: '#032e18',
-                                                    confirmButtonText: 'Tamam',
+                                                    confirmButtonText: t('adSuccessBtn'),
                                                     confirmButtonColor: '#D4AF37',
                                                     customClass: {
                                                         popup: 'rounded-[2rem] border border-emerald-500/20 shadow-2xl',
@@ -849,12 +851,12 @@ export default function DuaKosesi() {
                                             }
                                         } catch {
                                             Swal.fire({
-                                                title: '<span class="text-red-400 font-serif">Reklam Yüklenemedi</span>',
-                                                html: '<p class="text-[#FFFDF5]/60 font-serif">Lütfen daha sonra tekrar deneyin.</p>',
+                                                title: `<span class="text-red-400 font-serif">${t('adFailTitle')}</span>`,
+                                                html: `<p class="text-[#FFFDF5]/60 font-serif">${t('adFailMsg')}</p>`,
                                                 icon: 'error',
                                                 iconColor: '#ef4444',
                                                 background: '#032e18',
-                                                confirmButtonText: 'Tamam',
+                                                confirmButtonText: t('adSuccessBtn'),
                                                 confirmButtonColor: '#D4AF37',
                                                 customClass: {
                                                     popup: 'rounded-[2rem] border border-red-500/20 shadow-2xl',
@@ -874,7 +876,7 @@ export default function DuaKosesi() {
                         className="w-full h-14 bg-transparent border-2 border-dashed border-islamic-gold text-islamic-gold rounded-2xl hover:bg-islamic-gold/5 font-bold gap-2"
                     >
                         <Send size={18} />
-                        Dua İsteği Gönder
+                        {t('sendRequest')}
                     </Button>
 
                     {/* Reklam İzle - Kredi Kazan */}
@@ -890,12 +892,12 @@ export default function DuaKosesi() {
                                         setShowCreditAnim(true);
                                         setTimeout(() => setShowCreditAnim(false), 1200);
                                         Swal.fire({
-                                            title: '<span class="text-emerald-400 font-serif">Tebrikler! 🎉</span>',
-                                            html: `<p class="text-[#FFFDF5]/80 font-serif">+${CREDIT_COSTS.AD_REWARD} kredi kazanıldı! Toplam: <strong class="text-[#D4AF37]">${newCreds} 🪙</strong></p>`,
+                                            title: `<span class="text-emerald-400 font-serif">${t('adSuccessTitle')}</span>`,
+                                            html: `<p class="text-[#FFFDF5]/80 font-serif">${t('adSuccessTotalMsg', { reward: CREDIT_COSTS.AD_REWARD, credits: newCreds })}</p>`,
                                             icon: 'success',
                                             iconColor: '#10b981',
                                             background: '#032e18',
-                                            confirmButtonText: 'Tamam',
+                                            confirmButtonText: t('adSuccessBtn'),
                                             confirmButtonColor: '#D4AF37',
                                             customClass: {
                                                 popup: 'rounded-[2rem] border border-emerald-500/20 shadow-2xl',
@@ -907,12 +909,12 @@ export default function DuaKosesi() {
                                     }
                                 } catch {
                                     Swal.fire({
-                                        title: '<span class="text-red-400 font-serif">Reklam Yüklenemedi</span>',
-                                        html: '<p class="text-[#FFFDF5]/60 font-serif">Lütfen daha sonra tekrar deneyin.</p>',
+                                        title: `<span class="text-red-400 font-serif">${t('adFailTitle')}</span>`,
+                                        html: `<p class="text-[#FFFDF5]/60 font-serif">${t('adFailMsg')}</p>`,
                                         icon: 'error',
                                         iconColor: '#ef4444',
                                         background: '#032e18',
-                                        confirmButtonText: 'Tamam',
+                                        confirmButtonText: t('adSuccessBtn'),
                                         confirmButtonColor: '#D4AF37',
                                         customClass: {
                                             popup: 'rounded-[2rem] border border-red-500/20 shadow-2xl',
@@ -928,7 +930,7 @@ export default function DuaKosesi() {
                             className="w-full h-12 bg-gradient-to-r from-emerald-600/20 to-emerald-700/20 border border-emerald-500/30 text-emerald-400 rounded-2xl font-bold gap-2 hover:from-emerald-600/30 hover:to-emerald-700/30 disabled:opacity-50 transition-all"
                         >
                             <Film size={16} />
-                            {isAdLoading ? 'Reklam Yükleniyor...' : `Reklam İzle → +${CREDIT_COSTS.AD_REWARD} Kredi`}
+                            {isAdLoading ? t('adLoading') : t('watchAd', { reward: CREDIT_COSTS.AD_REWARD })}
                         </Button>
                     )}
                     {
@@ -939,7 +941,7 @@ export default function DuaKosesi() {
                                 className="w-full h-12 text-gray-500 dark:text-gray-400 rounded-2xl font-medium gap-2 hover:bg-gray-100 dark:hover:bg-white/5"
                             >
                                 <History size={18} />
-                                Dua İsteklerim ({myRequests.length})
+                                {t('myRequests')} ({myRequests.length})
                             </Button>
                         )
                     }
@@ -949,6 +951,7 @@ export default function DuaKosesi() {
                 < AnimatePresence >
                     {showForm && (
                         <DuaIstegiFormu
+                            t={t}
                             initialText={editingPrayer ? editingPrayer.text : ''}
                             mode={editingPrayer ? 'edit' : 'create'}
                             onSubmit={editingPrayer ? handleUpdateRequest : handleSubmitRequest}
@@ -964,6 +967,7 @@ export default function DuaKosesi() {
                 < AnimatePresence >
                     {showHistory && (
                         <DuaIstekleriGecmisi
+                            t={t}
                             requests={myRequests}
                             onDelete={handleDeleteRequest}
                             onEdit={handleEditRequest}
@@ -978,7 +982,7 @@ export default function DuaKosesi() {
 }
 
 // Prayer Request Form Component
-function DuaIstegiFormu({ onSubmit, onCancel, initialText = '', mode = 'create' }) {
+function DuaIstegiFormu({ onSubmit, onCancel, initialText = '', mode = 'create', t }) {
     const [text, setText] = useState(initialText);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -1021,10 +1025,10 @@ function DuaIstegiFormu({ onSubmit, onCancel, initialText = '', mode = 'create' 
                     <div className="flex items-center justify-between">
                         <div>
                             <h2 className="text-2xl font-serif font-bold text-islamic-green dark:text-islamic-gold">
-                                {mode === 'edit' ? 'Duayı Düzenle' : 'Dua İsteği'}
+                                {mode === 'edit' ? t('formTitleEdit') : t('formTitleCreate')}
                             </h2>
                             <p className="text-sm text-gray-400 dark:text-gray-500">
-                                {mode === 'edit' ? 'Dua metninizi güncelleyin' : 'Kardeşlerinden dua iste'}
+                                {mode === 'edit' ? t('formSubEdit') : t('formSubCreate')}
                             </p>
                         </div>
                         <Button variant="ghost" size="icon" onClick={onCancel} className="rounded-full bg-gray-100 dark:bg-white/10">
@@ -1038,7 +1042,7 @@ function DuaIstegiFormu({ onSubmit, onCancel, initialText = '', mode = 'create' 
                     {/* Spiritual Message */}
                     <div className="bg-emerald-50 dark:bg-emerald-900/20 p-5 rounded-2xl border border-emerald-100 dark:border-emerald-500/10">
                         <p className="text-emerald-700 dark:text-emerald-300 text-sm leading-relaxed">
-                            💚 Dua istekleri, gizlilik ve edep çerçevesinde paylaşılır. İsim ve kişisel bilgi paylaşmayınız.
+                            {t('formPrivacyNote')}
                         </p>
                     </div>
 
@@ -1046,7 +1050,7 @@ function DuaIstegiFormu({ onSubmit, onCancel, initialText = '', mode = 'create' 
                     <div className="space-y-2">
                         <div className="flex justify-between items-end">
                             <label className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">
-                                Dua İsteğiniz
+                                {t('formLabel')}
                             </label>
                             <span className={cn(
                                 "text-[10px] font-bold tracking-widest",
@@ -1058,13 +1062,13 @@ function DuaIstegiFormu({ onSubmit, onCancel, initialText = '', mode = 'create' 
                         <textarea
                             value={text}
                             onChange={(e) => setText(e.target.value)}
-                            placeholder="Duanızı buraya yazın... (örn: Sağlık, huzur, bereket için dua istiyorum)"
+                            placeholder={t('formPlaceholder')}
                             rows={6}
                             maxLength={200}
                             className="w-full bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-2xl p-5 text-gray-900 dark:text-white placeholder:text-gray-400 focus:ring-2 focus:ring-islamic-green dark:focus:ring-islamic-gold focus:border-transparent transition-all resize-none font-serif text-lg leading-relaxed"
                         />
                         <div className="flex justify-between text-[11px] font-medium text-gray-400 dark:text-gray-500 px-1">
-                            <span>En az 10, en fazla 200 karakter</span>
+                            <span>{t('formCharLimit')}</span>
                         </div>
                     </div>
                 </div>
@@ -1079,12 +1083,12 @@ function DuaIstegiFormu({ onSubmit, onCancel, initialText = '', mode = 'create' 
                         {isSubmitting ? (
                             <>
                                 <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                {mode === 'edit' ? 'Güncelleniyor...' : 'Gönderiliyor...'}
+                                {mode === 'edit' ? t('formUpdating') : t('formSubmitting')}
                             </>
                         ) : (
                             <>
                                 <Send size={20} />
-                                {mode === 'edit' ? 'Güncelle' : 'Gönder'}
+                                {mode === 'edit' ? t('formUpdateBtn') : t('formSubmitBtn')}
                             </>
                         )}
                     </Button>
@@ -1093,7 +1097,7 @@ function DuaIstegiFormu({ onSubmit, onCancel, initialText = '', mode = 'create' 
                         variant="ghost"
                         className="w-full h-12 text-gray-500 dark:text-gray-400 rounded-2xl font-bold"
                     >
-                        Vazgeç
+                        {t('formCancel')}
                     </Button>
                 </div>
             </motion.div>
@@ -1102,7 +1106,7 @@ function DuaIstegiFormu({ onSubmit, onCancel, initialText = '', mode = 'create' 
 }
 
 // History Modal Component
-function DuaIstekleriGecmisi({ requests, onDelete, onEdit, onClose, getStatusBadge }) {
+function DuaIstekleriGecmisi({ requests, onDelete, onEdit, onClose, getStatusBadge, t }) {
     return (
         <motion.div
             initial={{ opacity: 0 }}
@@ -1130,8 +1134,8 @@ function DuaIstekleriGecmisi({ requests, onDelete, onEdit, onClose, getStatusBad
                     <div className="w-12 h-1.5 bg-gray-200 dark:bg-white/20 rounded-full mx-auto mb-4" />
                     <div className="flex items-center justify-between">
                         <div>
-                            <h2 className="text-2xl font-serif font-bold text-islamic-green dark:text-islamic-gold">Dua İsteklerim</h2>
-                            <p className="text-sm text-gray-400 dark:text-gray-500">{requests.length} istek</p>
+                            <h2 className="text-2xl font-serif font-bold text-islamic-green dark:text-islamic-gold">{t('historyTitle')}</h2>
+                            <p className="text-sm text-gray-400 dark:text-gray-500">{t('historyCount', { count: requests.length })}</p>
                         </div>
                         <Button variant="ghost" size="icon" onClick={onClose} className="rounded-full bg-gray-100 dark:bg-white/10">
                             <X size={20} />
@@ -1146,8 +1150,8 @@ function DuaIstekleriGecmisi({ requests, onDelete, onEdit, onClose, getStatusBad
                             <div className="w-20 h-20 mx-auto bg-gray-100 dark:bg-white/5 rounded-full flex items-center justify-center mb-6">
                                 <History className="w-10 h-10 text-gray-300 dark:text-gray-600" />
                             </div>
-                            <p className="text-gray-500 dark:text-gray-400 font-medium">Henüz bir dua isteğiniz yok</p>
-                            <p className="text-sm text-gray-400 dark:text-gray-500 mt-2">İlk dua isteğinizi gönderin!</p>
+                            <p className="text-gray-500 dark:text-gray-400 font-medium">{t('historyEmpty')}</p>
+                            <p className="text-sm text-gray-400 dark:text-gray-500 mt-2">{t('historyEmptyHint')}</p>
                         </div>
                     ) : (
                         <div className="space-y-4">
@@ -1182,7 +1186,7 @@ function DuaIstekleriGecmisi({ requests, onDelete, onEdit, onClose, getStatusBad
                                                         className="text-islamic-green dark:text-islamic-gold hover:bg-islamic-green/10 dark:hover:bg-islamic-gold/10 gap-2 h-9 px-4 rounded-xl"
                                                     >
                                                         <Pencil size={14} />
-                                                        Düzenle
+                                                        {t('historyEdit')}
                                                     </Button>
                                                 )}
                                                 <Button
@@ -1198,7 +1202,7 @@ function DuaIstekleriGecmisi({ requests, onDelete, onEdit, onClose, getStatusBad
                                                     )}
                                                 >
                                                     <Trash2 size={14} />
-                                                    {request.status === 'delete_requested' ? 'Talep İletildi' : 'Sil'}
+                                                    {request.status === 'delete_requested' ? t('historyDeleteRequested') : t('historyDelete')}
                                                 </Button>
                                             </div>
                                         </div>
@@ -1216,7 +1220,7 @@ function DuaIstekleriGecmisi({ requests, onDelete, onEdit, onClose, getStatusBad
                         variant="ghost"
                         className="w-full h-12 text-gray-500 dark:text-gray-400 rounded-2xl font-bold"
                     >
-                        Kapat
+                        {t('historyClose')}
                     </Button>
                 </div>
             </motion.div>

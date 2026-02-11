@@ -4,6 +4,7 @@ import { cn } from '../lib/utils';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useHaptics } from '../hooks/useMobile';
 import { triggerReviewPrompt } from '@/components/ReviewPrompt';
+import { useTranslation } from 'react-i18next';
 
 const DHIKR_PRESETS = [
     { id: 'subhanallah', name: 'Sübhanallah', arabic: 'سُبْحَانَ اللَّهِ', meaning: 'Allah noksan sıfatlardan uzaktır', defaultTarget: 33 },
@@ -17,6 +18,7 @@ const DHIKR_PRESETS = [
 export default function Dhikr() {
     const navigate = useNavigate();
     const location = useLocation();
+    const { t } = useTranslation('dhikr');
 
     // Countdown mode from Manevi Asistan
     const navState = location.state || {};
@@ -184,7 +186,7 @@ export default function Dhikr() {
     };
 
     const reset = () => {
-        if (confirm(`Zikirmatik sayacını sıfırlamak istediğinize emin misiniz?`)) {
+        if (confirm(t('confirmReset'))) {
             if (isCountdownMode) {
                 setCount(countdownTarget);
                 setCountdownCompleted(false);
@@ -226,7 +228,7 @@ export default function Dhikr() {
                     <div className="bg-islamic-gold/10 p-2 rounded-xl">
                         <Sparkles className="w-5 h-5 text-islamic-gold animate-pulse" />
                     </div>
-                    <h2 className="text-xl font-serif font-bold tracking-tight">{isCountdownMode ? countdownName : 'Zikirmatik'}</h2>
+                    <h2 className="text-xl font-serif font-bold tracking-tight">{isCountdownMode ? countdownName : t('title')}</h2>
                 </div>
                 <div className="flex items-center gap-1 bg-black/20 p-1 rounded-2xl border border-white/10 backdrop-blur-md">
                     <button
@@ -239,9 +241,9 @@ export default function Dhikr() {
                         onClick={() => {
                             const modes = ['all', 'target', 'off'];
                             const labels = {
-                                all: 'Titreşim: Her Tıklamada',
-                                target: 'Titreşim: Sadece Hedefte',
-                                off: 'Titreşim: Kapalı'
+                                all: t('vibration.everyClick'),
+                                target: t('vibration.targetOnly'),
+                                off: t('vibration.off')
                             };
                             const currentIndex = modes.indexOf(hapticsMode);
                             const nextMode = modes[(currentIndex + 1) % modes.length];
@@ -252,7 +254,7 @@ export default function Dhikr() {
                             "w-10 h-10 rounded-xl transition-all relative flex items-center justify-center",
                             hapticsMode !== 'off' ? "text-islamic-gold bg-white/5" : "text-white/20"
                         )}
-                        title={hapticsMode === 'all' ? 'Tüm Titreşimler Açık' : hapticsMode === 'target' ? 'Sadece Hedefte Titreşim' : 'Titreşim Kapalı'}
+                        title={hapticsMode === 'all' ? t('vibrationTooltip.all') : hapticsMode === 'target' ? t('vibrationTooltip.target') : t('vibrationTooltip.off')}
                     >
                         <Smartphone size={18} />
                         {hapticsMode === 'target' && (
@@ -278,18 +280,18 @@ export default function Dhikr() {
                             )}
                             <p className="text-white/40 text-xs italic mb-4 font-normal tracking-wide">{countdownMeaning}</p>
                             <div className="flex items-center justify-center gap-3 bg-islamic-gold/5 px-10 py-3.5 rounded-full border border-islamic-gold/40 mx-auto shadow-[0_0_20px_rgba(212,175,55,0.15)]">
-                                <span className="text-islamic-gold font-bold text-xs uppercase tracking-[0.25em]">Hedef: {countdownTarget} Adet</span>
+                                <span className="text-islamic-gold font-bold text-xs uppercase tracking-[0.25em]">{t('targetWithUnit', { count: countdownTarget })}</span>
                             </div>
                         </>
                     ) : (
                         <>
                             <p className="text-islamic-gold font-serif text-4xl mb-2 opacity-95 drop-shadow-lg">{activePreset.arabic}</p>
-                            <p className="text-white/40 text-xs italic mb-4 font-normal tracking-wide">{activePreset.meaning}</p>
+                            <p className="text-white/40 text-xs italic mb-4 font-normal tracking-wide">{t(`presets.${activePreset.id}.meaning`)}</p>
                             <button
                                 onClick={() => setShowTargetModal(true)}
                                 className="group flex items-center gap-3 bg-islamic-gold/5 hover:bg-islamic-gold/10 px-10 py-3.5 rounded-full border border-islamic-gold/40 transition-all mx-auto shadow-[0_0_20px_rgba(212,175,55,0.15)] active:scale-95"
                             >
-                                <span className="text-islamic-gold font-bold text-xs uppercase tracking-[0.25em]"> Hedef: {target}</span>
+                                <span className="text-islamic-gold font-bold text-xs uppercase tracking-[0.25em]"> {t('target', { count: target })}</span>
                                 <div className="bg-islamic-gold/20 p-1.5 rounded-full">
                                     <Edit3 size={14} className="text-islamic-gold opacity-80" />
                                 </div>
@@ -364,12 +366,12 @@ export default function Dhikr() {
                         {isCountdownMode ? (
                             <div className="flex flex-col items-center mt-2 opacity-40">
                                 {countdownRounds > 0 && (
-                                    <span className="text-[10px] font-bold text-islamic-gold/60 uppercase tracking-[0.15em]">{countdownRounds}. Tur Tamamlandı ✓</span>
+                                    <span className="text-[10px] font-bold text-islamic-gold/60 uppercase tracking-[0.15em]">{t('roundCompleted', { round: countdownRounds })}</span>
                                 )}
                             </div>
                         ) : (
                             <div className="flex flex-col items-center mt-2 opacity-40">
-                                <span className="text-[11px] font-bold uppercase tracking-[0.2em]">TUR</span>
+                                <span className="text-[11px] font-bold uppercase tracking-[0.2em]">{t('round')}</span>
                                 <span className="text-xl font-mono font-bold">{Math.floor(count / target) + 1}</span>
                             </div>
                         )}
@@ -389,7 +391,7 @@ export default function Dhikr() {
                                 <Star size={20} className="text-islamic-gold drop-shadow-[0_0_8px_rgba(212,175,55,0.5)]" />
                             </div>
                             <div className="text-left">
-                                <p className="text-[10px] font-bold text-white/30 uppercase tracking-[0.25em] leading-none mb-1">Toplam Zikir</p>
+                                <p className="text-[10px] font-bold text-white/30 uppercase tracking-[0.25em] leading-none mb-1">{t('totalDhikr')}</p>
                                 <p className="text-2xl font-mono font-bold text-islamic-gold tracking-tight">{totalCount.toLocaleString('tr-TR')}</p>
                             </div>
                         </div>
@@ -398,7 +400,7 @@ export default function Dhikr() {
                         <button
                             onClick={() => setShowTotalResetConfirm(true)}
                             className="p-2.5 bg-islamic-gold/5 hover:bg-islamic-gold/10 text-white/20 hover:text-islamic-gold rounded-xl transition-all active:scale-90 border border-transparent hover:border-islamic-gold/30"
-                            title="Tüm Zikirleri Sıfırla"
+                            title={t('resetAllTooltip')}
                         >
                             <RotateCcw size={18} />
                         </button>
@@ -409,19 +411,19 @@ export default function Dhikr() {
                         <div className="absolute inset-0 z-50 flex items-center justify-center animate-in fade-in zoom-in duration-200">
                             <div className="absolute inset-0 bg-[#021a0f]/95 rounded-3xl backdrop-blur-md" />
                             <div className="relative text-center px-4">
-                                <p className="text-[11px] text-white/80 font-bold uppercase tracking-wider mb-3">Tüm zikirleri sıfırla?</p>
+                                <p className="text-[11px] text-white/80 font-bold uppercase tracking-wider mb-3">{t('resetAllTitle')}</p>
                                 <div className="flex gap-2 justify-center">
                                     <button
                                         onClick={() => setShowTotalResetConfirm(false)}
                                         className="px-4 py-1.5 rounded-lg bg-white/10 text-white/60 text-[10px] font-bold uppercase transition-all"
                                     >
-                                        İPTAL
+                                        {t('cancel')}
                                     </button>
                                     <button
                                         onClick={resetTotal}
                                         className="px-4 py-1.5 rounded-lg bg-red-500 text-white text-[10px] font-bold uppercase transition-all shadow-lg shadow-red-500/20"
                                     >
-                                        SIFIRLA
+                                        {t('reset')}
                                     </button>
                                 </div>
                             </div>
@@ -438,13 +440,13 @@ export default function Dhikr() {
                         <div className="absolute top-0 right-0 w-10 h-[1px] bg-gradient-to-l from-transparent to-islamic-gold/40" />
 
                         <p className="text-islamic-gold/80 italic font-serif text-sm leading-relaxed px-2">
-                            "Ey iman edenler! Allah'ı çokça zikredin ve O'nu sabah akşam tespih edin."
+                            {t('footerVerse')}
                         </p>
 
                         <div className="absolute bottom-0 left-0 w-10 h-[1px] bg-gradient-to-r from-transparent to-islamic-gold/40" />
                         <div className="absolute bottom-0 right-0 w-10 h-[1px] bg-gradient-to-l from-transparent to-islamic-gold/40" />
                     </div>
-                    <p className="text-[9px] text-white/20 mt-4 font-bold uppercase tracking-[0.2em] font-sans">AHZAB SURESİ, 41-42</p>
+                    <p className="text-[9px] text-white/20 mt-4 font-bold uppercase tracking-[0.2em] font-sans">{t('footerVerseSource')}</p>
                 </div>
             </footer>
 
@@ -475,8 +477,8 @@ export default function Dhikr() {
                             <div className="w-16 h-16 bg-islamic-gold/10 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-islamic-gold/20">
                                 <Settings className="text-islamic-gold w-8 h-8" />
                             </div>
-                            <h3 className="text-2xl font-serif font-bold text-islamic-gold mb-2">Hedef Belirle</h3>
-                            <p className="text-white/40 text-sm">{activePreset.name} için kişisel hedefinizi girin.</p>
+                            <h3 className="text-2xl font-serif font-bold text-islamic-gold mb-2">{t('setTarget')}</h3>
+                            <p className="text-white/40 text-sm">{t('setTargetDesc', { name: activePreset.name })}</p>
                         </div>
 
                         <div className="relative mb-8">
@@ -506,7 +508,7 @@ export default function Dhikr() {
                             className="w-full h-16 rounded-2xl bg-islamic-gold hover:bg-amber-600 text-[#021a0f] text-lg font-bold shadow-lg shadow-islamic-gold/20 flex items-center justify-center gap-3"
                         >
                             <Check size={20} strokeWidth={3} />
-                            HEDEFİ KAYDET
+                            {t('saveTarget')}
                         </button>
                     </div>
                 </div>

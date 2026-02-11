@@ -5,6 +5,8 @@ import { ChevronRight, ChevronLeft, Droplets, BookOpen, Heart, Moon, PartyPopper
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useHaptics } from '@/hooks/useMobile';
+import { useTranslation } from 'react-i18next';
+import { GUIDES_EN } from '@/data/guidesEN';
 
 // Secde (sujood) ikonu - erkek namazı için
 const SecdeIcon = ({ className }) => (
@@ -16,11 +18,11 @@ const SecdeIcon = ({ className }) => (
 );
 
 const CATEGORIES = [
-    { id: 'abdest', label: 'Abdest', icon: Droplets },
-    { id: 'dualar', label: 'Dualar', icon: Heart },
-    { id: 'sureler', label: 'Sureler', icon: BookOpen },
-    { id: 'namazlar', label: 'Erkek Namazı', icon: SecdeIcon },
-    { id: 'kadinNamaz', label: 'Kadın Namazı', icon: SparklesIcon },
+    { id: 'abdest', labelKey: 'catAbdest', icon: Droplets },
+    { id: 'dualar', labelKey: 'catDualar', icon: Heart },
+    { id: 'sureler', labelKey: 'catSureler', icon: BookOpen },
+    { id: 'namazlar', labelKey: 'catErkekNamaz', icon: SecdeIcon },
+    { id: 'kadinNamaz', labelKey: 'catKadinNamaz', icon: SparklesIcon },
 ];
 
 const GUIDES = {
@@ -891,6 +893,7 @@ const CategoryButton = memo(({ cat, isSelected, onClick }) => (
 ));
 
 const GuideStepCard = memo(({ step }) => {
+    const { t } = useTranslation('learn');
     if (!step) return null;
     return (
         <Card className="border-none shadow-xl rounded-[2.5rem] bg-white dark:bg-white/5 overflow-hidden p-6 relative dark:text-white">
@@ -927,7 +930,7 @@ const GuideStepCard = memo(({ step }) => {
                 {/* Tips Section */}
                 <div className="bg-gray-50 dark:bg-white/5 rounded-3xl p-6 border dark:border-white/5 shadow-sm">
                     <h4 className="flex items-center gap-2 text-islamic-gold font-bold text-xs uppercase tracking-widest mb-4">
-                        <SparklesIcon size={14} /> İpucu
+                        <SparklesIcon size={14} /> {t('tipsTitle')}
                     </h4>
                     <ul className="space-y-3">
                         {step.tips.map((tip, idx) => (
@@ -948,8 +951,18 @@ export default function Learn() {
     const [currentStep, setCurrentStep] = useState(0);
     const [isComplete, setIsComplete] = useState(false);
     const { selection, success, heavy } = useHaptics();
+    const { t, i18n } = useTranslation('learn');
 
-    const guide = GUIDES[selectedCategory];
+    const isEn = i18n.language === 'en';
+    const activeGuides = { ...GUIDES };
+    if (isEn) {
+        if (GUIDES_EN.abdest) activeGuides.abdest = GUIDES_EN.abdest;
+        if (GUIDES_EN.dualar) activeGuides.dualar = GUIDES_EN.dualar;
+        if (GUIDES_EN.sureler) activeGuides.sureler = GUIDES_EN.sureler;
+        if (GUIDES_EN.namazlar) activeGuides.namazlar = GUIDES_EN.namazlar;
+        if (GUIDES_EN.kadinNamaz) activeGuides.kadinNamaz = GUIDES_EN.kadinNamaz;
+    }
+    const guide = activeGuides[selectedCategory];
     const step = guide?.steps[currentStep];
     const totalSteps = guide?.steps.length || 0;
 
@@ -1026,10 +1039,10 @@ export default function Learn() {
                         transition={{ delay: 0.5 }}
                     >
                         <p className="text-sm font-bold uppercase tracking-[0.3em] text-islamic-green/60 dark:text-islamic-gold/60 mb-2">
-                            Elhamdülillah
+                            {t('elhamdulillah')}
                         </p>
                         <h2 className="text-4xl font-serif font-bold text-islamic-green dark:text-islamic-gold mb-3">
-                            Maşallah!
+                            {t('mashallah')}
                         </h2>
                     </motion.div>
 
@@ -1041,7 +1054,7 @@ export default function Learn() {
                         className="text-gray-500 dark:text-emerald-100/50 mb-6 max-w-[280px] leading-relaxed"
                     >
                         <span className="font-semibold text-islamic-green dark:text-islamic-gold">{guide.title}</span>
-                        {' '}rehberini başarıyla tamamladın.
+                        {' '}{t('completionMsg')}
                     </motion.p>
 
                     {/* Stats badge */}
@@ -1053,12 +1066,12 @@ export default function Learn() {
                     >
                         <div className="text-center">
                             <span className="block text-2xl font-bold text-islamic-green dark:text-islamic-gold">{totalSteps}</span>
-                            <span className="text-[10px] uppercase tracking-wider text-gray-400 dark:text-emerald-100/30 font-medium">Adım</span>
+                            <span className="text-[10px] uppercase tracking-wider text-gray-400 dark:text-emerald-100/30 font-medium">{t('stepLabel')}</span>
                         </div>
                         <div className="w-px h-8 bg-islamic-green/10 dark:bg-islamic-gold/15" />
                         <div className="text-center">
                             <span className="block text-2xl font-bold text-islamic-green dark:text-islamic-gold">✓</span>
-                            <span className="text-[10px] uppercase tracking-wider text-gray-400 dark:text-emerald-100/30 font-medium">Tamam</span>
+                            <span className="text-[10px] uppercase tracking-wider text-gray-400 dark:text-emerald-100/30 font-medium">{t('done')}</span>
                         </div>
                     </motion.div>
 
@@ -1070,9 +1083,9 @@ export default function Learn() {
                         className="mb-10 max-w-[260px]"
                     >
                         <p className="text-[11px] italic text-gray-400 dark:text-emerald-100/30 leading-relaxed">
-                            "Namaz müminin miracıdır."
+                            {t('completionQuote')}
                         </p>
-                        <p className="text-[10px] text-gray-300 dark:text-emerald-100/20 mt-1">— Hadis-i Şerif</p>
+                        <p className="text-[10px] text-gray-300 dark:text-emerald-100/20 mt-1">{t('completionSource')}</p>
                     </motion.div>
 
                     {/* Buttons */}
@@ -1088,13 +1101,13 @@ export default function Learn() {
                             className="flex items-center justify-center gap-2 h-14 rounded-2xl font-bold text-sm bg-islamic-green dark:bg-islamic-gold text-white dark:text-[#032e18] shadow-xl shadow-islamic-green/20 dark:shadow-islamic-gold/20 active:opacity-90 transition-opacity"
                         >
                             <RotateCcw className="w-4.5 h-4.5" />
-                            Tekrar Başa Dön
+                            {t('restartBtn')}
                         </motion.button>
                         <button
                             onClick={() => setIsComplete(false)}
                             className="h-11 rounded-2xl text-sm font-medium text-gray-400 dark:text-emerald-100/30 hover:text-gray-600 dark:hover:text-emerald-100/50 transition-colors"
                         >
-                            Son Adıma Geri Dön
+                            {t('goBackBtn')}
                         </button>
                     </motion.div>
                 </div>
@@ -1122,7 +1135,7 @@ export default function Learn() {
                             whileTap={{ scale: 0.95 }}
                         >
                             <Icon className={cn("w-5 h-5 mx-auto mb-1", isActive && "drop-shadow-md")} />
-                            <span className="text-[9px] leading-tight block">{cat.label}</span>
+                            <span className="text-[9px] leading-tight block">{t(cat.labelKey)}</span>
                         </motion.button>
                     );
                 })}
@@ -1135,7 +1148,7 @@ export default function Learn() {
                         <Droplets className="w-4 h-4 text-islamic-gold" />
                         <span className="text-xs font-bold text-islamic-green dark:text-islamic-gold uppercase tracking-widest">{guide?.title}</span>
                     </div>
-                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Adım {currentStep + 1} / {totalSteps}</span>
+                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{t('stepProgress', { current: currentStep + 1, total: totalSteps })}</span>
                 </div>
 
                 <div className="w-full h-2 bg-gray-100 dark:bg-white/10 rounded-full overflow-hidden shadow-inner">
@@ -1171,7 +1184,7 @@ export default function Learn() {
                     disabled={currentStep === 0}
                     className="bg-white/80 dark:bg-white/10 backdrop-blur-md h-14 px-6 rounded-2xl border-gray-100 dark:border-white/10 text-gray-500 dark:text-white pointer-events-auto shadow-lg active:scale-95 disabled:opacity-30 font-bold text-sm"
                 >
-                    <ChevronLeft className="mr-1.5 h-4 w-4" /> Geri
+                    <ChevronLeft className="mr-1.5 h-4 w-4" /> {t('navBack')}
                 </Button>
 
                 <Button
@@ -1184,9 +1197,9 @@ export default function Learn() {
                     )}
                 >
                     {currentStep === totalSteps - 1 ? (
-                        <>Tamamla <CheckCircle2 className="ml-1.5 h-4 w-4" /></>
+                        <>{t('navComplete')} <CheckCircle2 className="ml-1.5 h-4 w-4" /></>
                     ) : (
-                        <>İleri <ChevronRight className="ml-1.5 h-4 w-4" /></>
+                        <>{t('navNext')} <ChevronRight className="ml-1.5 h-4 w-4" /></>
                     )}
                 </Button>
             </div>

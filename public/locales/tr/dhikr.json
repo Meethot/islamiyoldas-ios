@@ -1,0 +1,54 @@
+{
+    "title": "Zikirmatik",
+    "presets": {
+        "subhanallah": {
+            "name": "Sübhanallah",
+            "meaning": "Allah noksan sıfatlardan uzaktır"
+        },
+        "elhamdulillah": {
+            "name": "Elhamdülillah",
+            "meaning": "Hamd (şükür) Allah'adır"
+        },
+        "allahuekber": {
+            "name": "Allahü Ekber",
+            "meaning": "Allah en büyüktür"
+        },
+        "last": {
+            "name": "Lâ ilâhe illallah",
+            "meaning": "Allah'tan başka ilah yoktur"
+        },
+        "istigfar": {
+            "name": "Estağfirullah",
+            "meaning": "Allah'tan bağışlanma dilerim"
+        },
+        "salavat": {
+            "name": "Salavat",
+            "meaning": "Allah'ım, Efendimiz Muhammed'e rahmet et"
+        }
+    },
+    "vibration": {
+        "everyClick": "Titreşim: Her Tıklamada",
+        "targetOnly": "Titreşim: Sadece Hedefte",
+        "off": "Titreşim: Kapalı"
+    },
+    "vibrationTooltip": {
+        "all": "Tüm Titreşimler Açık",
+        "target": "Sadece Hedefte Titreşim",
+        "off": "Titreşim Kapalı"
+    },
+    "confirmReset": "Zikirmatik sayacını sıfırlamak istediğinize emin misiniz?",
+    "target": "Hedef: {{count}}",
+    "targetWithUnit": "Hedef: {{count}} Adet",
+    "round": "TUR",
+    "roundCompleted": "{{round}}. Tur Tamamlandı ✓",
+    "totalDhikr": "Toplam Zikir",
+    "resetAllTitle": "Tüm zikirleri sıfırla?",
+    "cancel": "İPTAL",
+    "reset": "SIFIRLA",
+    "setTarget": "Hedef Belirle",
+    "setTargetDesc": "{{name}} için kişisel hedefinizi girin.",
+    "saveTarget": "HEDEFİ KAYDET",
+    "resetAllTooltip": "Tüm Zikirleri Sıfırla",
+    "footerVerse": "\"Ey iman edenler! Allah'ı çokça zikredin ve O'nu sabah akşam tespih edin.\"",
+    "footerVerseSource": "AHZAB SURESİ, 41-42"
+}

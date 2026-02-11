@@ -13,6 +13,7 @@ import { useHaptics } from '@/hooks/useMobile';
 import { shareProgress, shareInvite } from '@/lib/share';
 import { useUser } from '@/context/UserContext';
 import { useTranslation } from 'react-i18next';
+import { handleLanguageChange } from '@/i18n';
 import { useTheme } from '@/context/ThemeContext';
 import AvatarIcon from '@/components/AvatarIcon';
 import ShareCard, { SHARE_THEMES } from '@/components/ShareCard';
@@ -26,12 +27,12 @@ export default function Profile() {
 
     // Constants
     const AVATAR_PRESETS = [
-        { id: 'male', label: 'Bey' },
-        { id: 'female', label: 'Hanım' },
-        { id: 'beads', label: 'Tesbih' },
-        { id: 'tuba', label: 'Tuba' },
-        { id: 'quran', label: 'Kuran' },
-        { id: 'moon', label: 'Hilal' }
+        { id: 'male', label: t('avatar.male') },
+        { id: 'female', label: t('avatar.female') },
+        { id: 'beads', label: t('avatar.beads') },
+        { id: 'tuba', label: t('avatar.tuba') },
+        { id: 'quran', label: t('avatar.quran') },
+        { id: 'moon', label: t('avatar.moon') }
     ];
 
     // Better mapping for the "Pro Max" feel:
@@ -83,7 +84,7 @@ export default function Profile() {
 
     const LANGUAGES = [
         { code: 'tr', label: 'Türkçe', native: 'Türkçe', flag: '🇹🇷', disabled: false },
-        { code: 'en', label: 'English', native: 'English', flag: '🇬🇧', disabled: true },
+        { code: 'en', label: 'English', native: 'English', flag: '🇬🇧', disabled: false },
         { code: 'de', label: 'Deutsch', native: 'Deutsch', flag: '🇩🇪', disabled: true },
         { code: 'ar', label: 'العربية', native: 'Arabic', flag: '🇸🇦', disabled: true }
     ];
@@ -92,13 +93,16 @@ export default function Profile() {
         selection();
 
         if (lang.disabled) {
-            // Show "Coming Soon" toast/alert
-            alert("Çok Yakında! Şu an sadece Türkçe hizmet veriyoruz. Diğer diller hazırlanıyor. 🌍");
+            alert(t('coming_soon') + '! 🌍');
             return;
         }
 
-        i18n.changeLanguage(lang.code);
-        setTimeout(() => setShowLangModal(false), 300);
+        if (lang.code === i18n.language) {
+            setShowLangModal(false);
+            return;
+        }
+
+        handleLanguageChange(lang.code);
     };
 
     // Calculator State
@@ -119,7 +123,7 @@ export default function Profile() {
             localStorage.setItem('isPremium', 'true');
             setShowPromoModal(false);
             setPromoCode('');
-            alert("Tebrikler! Premium özellikler başarıyla aktifleştirildi. 🌟");
+            alert(t('promo.success'));
             window.confetti({
                 particleCount: 100,
                 spread: 70,
@@ -127,7 +131,7 @@ export default function Profile() {
             });
         } else {
             heavy();
-            alert("Hatalı veya süresi dolmuş promosyon kodu.");
+            alert(t('promo.invalid'));
         }
     };
 
@@ -235,14 +239,14 @@ export default function Profile() {
 
     const deleteAccount = () => {
         heavy();
-        if (confirm('Hesabınız ve tüm verileriniz silinecektir. Bu işlem geri alınamaz. Emin misiniz?')) {
+        if (confirm(t('delete_account.confirm'))) {
             localStorage.clear();
             window.location.reload();
         }
     };
 
     const calculateQada = () => {
-        if (!calcData.birthDate || !calcData.startDate) return alert('Tarihleri doldurun');
+        if (!calcData.birthDate || !calcData.startDate) return alert('Please fill in the dates');
         // Simple mock calc for UX demo
         success();
         alert('Hesaplama simülasyonu tamamlandı.');
@@ -256,8 +260,8 @@ export default function Profile() {
     const handleReportBug = () => {
         selection();
         const email = "test@gmail.com";
-        const subject = encodeURIComponent("İslami Yoldaş - Hata Bildirimi");
-        const body = encodeURIComponent("Karşılaştığım sorun şudur:\n\n");
+        const subject = encodeURIComponent(t('report_bug.email_subject'));
+        const body = encodeURIComponent(t('report_bug.email_body'));
         window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
     };
 
@@ -312,7 +316,7 @@ export default function Profile() {
                         </div>
 
                         <h2 className={cn("text-2xl font-serif font-bold mb-1", isPremium ? "text-white" : "text-gray-900 dark:text-white")}>
-                            Mümin Kullanıcı
+                            {t('user.default_name')}
                         </h2>
                         <p className={cn("text-sm font-medium", isPremium ? "text-islamic-gold/80" : "text-stone-500 dark:text-gray-400")}>
                             {t('user.streak_desc', {
@@ -375,7 +379,7 @@ export default function Profile() {
                             </div>
                             <div className="text-left">
                                 <p className="text-sm font-bold text-stone-800 dark:text-white">{t('notifications.title')}</p>
-                                <p className="text-[10px] text-stone-500 dark:text-gray-400 font-medium">Ezan, ayet ve motivasyon</p>
+                                <p className="text-[10px] text-stone-500 dark:text-gray-400 font-medium">{t('notifications.subtitle')}</p>
                             </div>
                         </div>
                         <ChevronRight className="w-5 h-5 text-stone-400 dark:text-gray-300 group-hover:translate-x-1 transition-transform" />
@@ -392,7 +396,7 @@ export default function Profile() {
                             </div>
                             <div className="text-left">
                                 <p className="text-sm font-bold text-stone-800 dark:text-white">{t('appearance.title')}</p>
-                                <p className="text-[10px] text-stone-500 dark:text-gray-400 font-medium">{isDarkMode ? 'Gece modu aktif' : 'Gündüz modu aktif'}</p>
+                                <p className="text-[10px] text-stone-500 dark:text-gray-400 font-medium">{isDarkMode ? t('appearance.dark_active') : t('appearance.light_active')}</p>
                             </div>
                         </div>
                         {/* Sliding Toggle Switch */}
@@ -417,8 +421,8 @@ export default function Profile() {
                                 <Box size={20} />
                             </div>
                             <div className="text-left">
-                                <p className="text-sm font-bold text-stone-800 dark:text-white">Konum</p>
-                                <p className="text-[10px] text-stone-500 dark:text-gray-400 font-medium">GPS ve şehir ayarları</p>
+                                <p className="text-sm font-bold text-stone-800 dark:text-white">{t('location.title')}</p>
+                                <p className="text-[10px] text-stone-500 dark:text-gray-400 font-medium">{t('location.subtitle')}</p>
                             </div>
                         </div>
                         <ChevronRight className="w-5 h-5 text-stone-400 dark:text-gray-300 group-hover:translate-x-1 transition-transform" />
@@ -515,8 +519,8 @@ export default function Profile() {
                                 <Ticket size={20} />
                             </div>
                             <div className="text-left">
-                                <p className="text-sm font-bold text-stone-800 dark:text-white">Promosyon Kodu</p>
-                                <p className="text-[10px] text-stone-500 dark:text-gray-400 font-medium">Hediye kodu kullan</p>
+                                <p className="text-sm font-bold text-stone-800 dark:text-white">{t('promo.title')}</p>
+                                <p className="text-[10px] text-stone-500 dark:text-gray-400 font-medium">{t('promo.subtitle')}</p>
                             </div>
                         </div>
                         <ChevronRight className="w-5 h-5 text-stone-400 dark:text-gray-300 group-hover:translate-x-1 transition-transform" />
@@ -532,8 +536,8 @@ export default function Profile() {
                                 <Bug size={20} />
                             </div>
                             <div className="text-left">
-                                <p className="text-sm font-bold text-stone-800 dark:text-white">Hata Bildir</p>
-                                <p className="text-[10px] text-stone-500 dark:text-gray-400 font-medium">Uygulamada sorun mu var?</p>
+                                <p className="text-sm font-bold text-stone-800 dark:text-white">{t('report_bug.title')}</p>
+                                <p className="text-[10px] text-stone-500 dark:text-gray-400 font-medium">{t('report_bug.subtitle')}</p>
                             </div>
                         </div>
                         <ChevronRight className="w-5 h-5 text-stone-400 dark:text-gray-300 group-hover:translate-x-1 transition-transform" />
@@ -549,8 +553,8 @@ export default function Profile() {
                                 <HelpCircle size={20} />
                             </div>
                             <div className="text-left">
-                                <p className="text-sm font-bold text-stone-800 dark:text-white">Yasal & Hakkımızda</p>
-                                <p className="text-[10px] text-stone-500 dark:text-gray-400 font-medium">Gizlilik, iletişim ve destek</p>
+                                <p className="text-sm font-bold text-stone-800 dark:text-white">{t('legal.title')}</p>
+                                <p className="text-[10px] text-stone-500 dark:text-gray-400 font-medium">{t('legal.subtitle')}</p>
                             </div>
                         </div>
                         <ChevronRight className="w-5 h-5 text-stone-400 dark:text-gray-300 group-hover:translate-x-1 transition-transform" />
@@ -566,7 +570,7 @@ export default function Profile() {
                     onClick={deleteAccount}
                     className="w-full justify-between h-14 bg-red-50 dark:bg-red-900/10 rounded-[2rem] border border-red-100 dark:border-red-900/20 text-red-600 hover:bg-red-100 dark:hover:bg-red-900/30 px-6"
                 >
-                    <span className="flex items-center gap-3 font-bold text-sm"><Trash2 size={18} /> Hesabı Sil</span>
+                    <span className="flex items-center gap-3 font-bold text-sm"><Trash2 size={18} /> {t('delete_account.title')}</span>
                     <LogOut size={18} />
                 </Button>
             </motion.div>
@@ -614,7 +618,7 @@ export default function Profile() {
                                                     </span>
                                                     {lang.disabled && (
                                                         <span className="text-[10px] bg-gray-200 dark:bg-white/10 px-2 py-0.5 rounded-full text-gray-500 font-medium">
-                                                            Yakında
+                                                            {t('coming_soon')}
                                                         </span>
                                                     )}
                                                 </div>
@@ -733,7 +737,7 @@ export default function Profile() {
                         >
                             <div className="flex justify-between items-center mb-6">
                                 <h3 className="text-xl font-bold font-serif text-islamic-green dark:text-islamic-gold flex items-center gap-2">
-                                    <Gift className="w-6 h-6" /> Promosyon Kodu
+                                    <Gift className="w-6 h-6" /> {t('promo.title')}
                                 </h3>
                                 <Button size="icon" variant="ghost" onClick={() => setShowPromoModal(false)}><X className="w-5 h-5" /></Button>
                             </div>
@@ -744,7 +748,7 @@ export default function Profile() {
                                 </p> */}
 
                                 <div className="space-y-2">
-                                    <label className="text-xs font-bold text-gray-500 uppercase ml-1">KOD GİRİNİZ</label>
+                                    <label className="text-xs font-bold text-gray-500 uppercase ml-1">{t('promo.label')}</label>
                                     <input
                                         type="text"
                                         value={promoCode}
@@ -759,7 +763,7 @@ export default function Profile() {
                                     disabled={!promoCode.trim()}
                                     className="w-full h-12 bg-islamic-gold hover:bg-islamic-gold/90 text-[#032e18] font-bold text-base rounded-xl shadow-lg shadow-islamic-gold/20 active:scale-95 transition-all"
                                 >
-                                    Kodu Kullan
+                                    {t('promo.submit')}
                                 </Button>
                             </div>
                         </motion.div>

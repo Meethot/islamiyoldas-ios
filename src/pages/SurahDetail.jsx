@@ -259,7 +259,7 @@ export default function SurahDetail() {
             type: 'verse',
             arabic: verse.arabic,
             translation: verse.translation,
-            surah: surahInfo?.name || `Sure ${surahId}`,
+            surah: surahInfo?.name || `Surah ${surahId}`,
             verseNumber: verse.verseNumber
         });
         setActiveTheme(SHARE_THEMES.emerald);
@@ -271,8 +271,8 @@ export default function SurahDetail() {
         try {
             await shareHiddenElement(
                 'share-card',
-                `"${shareModalData.translation}"\n\n${surahInfo?.name || 'Kuran-ı Kerim'} ${shareModalData.verseNumber}. Ayet - İslami Yoldaş 🤲`,
-                'Ayet Paylaş'
+                `"${shareModalData.translation}"\n\n${surahInfo?.name || t('quran:pageTitle')} ${shareModalData.verseNumber}. ${t('quran:ayat', { number: '' }).trim()} - ${t('quran:bgTitle')} 🤲`,
+                t('quran:shareVerse')
             );
             setShareModalData(null);
         } catch (e) {
@@ -312,7 +312,7 @@ export default function SurahDetail() {
             if (isSameAudio && audio.currentTime > 0) {
                 audio.play();
                 setIsSurahPlaying(true);
-                BackgroundMode.enable(surahInfo?.name, `${surahInfo?.name} Suresi dinleniyor`);
+                BackgroundMode.enable(surahInfo?.name, t('quran:listeningTo', { name: surahInfo?.name }));
             } else {
                 try {
                     setIsSurahLoading(true);
@@ -335,7 +335,7 @@ export default function SurahDetail() {
                         setIsSurahPlaying(true);
                         setIsSurahLoading(false);
                         setDuration(audio.duration);
-                        BackgroundMode.enable(surahInfo?.name, `${surahInfo?.name} Suresi dinleniyor`);
+                        BackgroundMode.enable(surahInfo?.name, t('quran:listeningTo', { name: surahInfo?.name }));
                         audio.removeEventListener('canplay', onCanPlay);
                     };
 
@@ -484,7 +484,7 @@ export default function SurahDetail() {
                     >
                         <Loader2 className="w-12 h-12 text-islamic-gold mx-auto" />
                     </motion.div>
-                    <p className="text-gray-500 dark:text-gray-400">Ayetler yükleniyor...</p>
+                    <p className="text-gray-500 dark:text-gray-400">{t('quran:versesLoading')}</p>
                 </div>
             </div>
         );
@@ -502,10 +502,10 @@ export default function SurahDetail() {
                         </div>
                         <div>
                             <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
-                                {t('quran.connection_error', 'Bağlantı Hatası')}
+                                {t('quran.connection_error', 'Connection Error')}
                             </h2>
                             <p className="text-gray-500 dark:text-gray-400">
-                                {error.message || 'Bir hata oluştu'}
+                                {error.message || 'An error occurred'}
                             </p>
                         </div>
                         <div className="flex gap-3 justify-center">
@@ -515,14 +515,14 @@ export default function SurahDetail() {
                                 className="border-gray-200 dark:border-white/10"
                             >
                                 <ArrowLeft className="w-4 h-4 mr-2" />
-                                {t('quran.back', 'Geri')}
+                                {t('quran.back', 'Back')}
                             </Button>
                             <Button
                                 onClick={retry}
                                 className="bg-islamic-green hover:bg-islamic-green/90"
                             >
                                 <RefreshCw className="w-4 h-4 mr-2" />
-                                {t('quran.retry', 'Tekrar Dene')}
+                                {t('quran.retry', 'Retry')}
                             </Button>
                         </div>
                     </CardContent>
@@ -557,7 +557,7 @@ export default function SurahDetail() {
                                     {surahInfo?.name}
                                 </h1>
                                 <p className="text-xs text-white/70 font-medium">
-                                    {surahInfo?.ayahCount} Ayet • {surahInfo?.revelation}
+                                    {surahInfo?.ayahCount} {t('quran:ayahCount', { count: surahInfo?.ayahCount || 0 }).split(' ').slice(1).join(' ')} • {t(`quran:revelation.${surahInfo?.revelationPlace}`)}
                                 </p>
                             </div>
                         </div>
@@ -574,9 +574,9 @@ export default function SurahDetail() {
                         {isSurahLoading ? (
                             <Loader2 className="w-4 h-4 animate-spin" />
                         ) : isSurahPlaying ? (
-                            <><Pause size={18} fill="currentColor" /> Durdur</>
+                            <><Pause size={18} fill="currentColor" /> {t('quran:stop')}</>
                         ) : (
-                            <><Play size={18} fill="currentColor" className="ml-0.5" /> Dinle</>
+                            <><Play size={18} fill="currentColor" className="ml-0.5" /> {t('quran:listen')}</>
                         )}
                     </Button>
                     <p className="text-2xl font-arabic text-islamic-gold">
@@ -592,7 +592,7 @@ export default function SurahDetail() {
                             type="number"
                             inputMode="numeric"
                             pattern="[0-9]*"
-                            placeholder="Ayet Numarası (örn: 25)"
+                            placeholder={t('quran:verseNumber')}
                             value={jumpTarget}
                             onChange={(e) => setJumpTarget(e.target.value)}
                             onKeyDown={(e) => e.key === 'Enter' && handleJumpToVerse(e)}
@@ -666,7 +666,7 @@ export default function SurahDetail() {
                             {isFetchingNextPage ? (
                                 <>
                                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                                    {t('quran.loading', 'Yükleniyor...')}
+                                    {t('quran.loading', 'Loading...')}
                                 </>
                             ) : (
                                 <>
@@ -734,7 +734,7 @@ export default function SurahDetail() {
                         >
                             <div className="flex justify-between items-center mb-6">
                                 <h3 className="font-serif text-xl font-bold text-islamic-green dark:text-islamic-gold">
-                                    Ayet Paylaş
+                                    {t('quran:shareVerse')}
                                 </h3>
                                 <button
                                     onClick={() => setShareModalData(null)}
@@ -779,12 +779,12 @@ export default function SurahDetail() {
                                 {sharing ? (
                                     <>
                                         <Loader2 className="w-5 h-5 animate-spin mr-2" />
-                                        Hazırlanıyor...
+                                        {t('quran:preparing')}
                                     </>
                                 ) : (
                                     <>
                                         <Share2 className="w-5 h-5 mr-2" />
-                                        Paylaş
+                                        {t('quran:share')}
                                     </>
                                 )}
                             </Button>
@@ -832,9 +832,9 @@ export default function SurahDetail() {
                             <div className="flex-1 min-w-0 py-1">
                                 <div className="flex justify-between items-end mb-2">
                                     <div className="truncate mr-2">
-                                        <p className="text-[9px] text-islamic-gold font-black uppercase tracking-[0.2em] mb-1 opacity-80">Sure Dinleniyor</p>
+                                        <p className="text-[9px] text-islamic-gold font-black uppercase tracking-[0.2em] mb-1 opacity-80">{t('quran:nowPlaying')}</p>
                                         <h4 className="text-sm font-bold text-white truncate leading-none">
-                                            {surahInfo?.name} Suresi
+                                            {t('quran:surahName', { name: surahInfo?.name })}
                                         </h4>
                                     </div>
                                     <div className="text-[10px] font-bold text-white/40 tabular-nums shrink-0">

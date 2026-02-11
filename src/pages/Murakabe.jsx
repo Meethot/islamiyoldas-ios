@@ -5,6 +5,7 @@ import { Check, ChevronLeft, Scale, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useHaptics } from '@/hooks/useMobile';
+import { useTranslation } from 'react-i18next';
 import { QUESTION_POOL } from '@/data/murakabeQuestions';
 import { getMurakabeKey } from '@/lib/testDate';
 
@@ -37,6 +38,7 @@ const cardVariants = {
 export default function Murakabe() {
     const navigate = useNavigate();
     const { selection, success, heavy } = useHaptics();
+    const { t } = useTranslation('murakabe');
 
     // Randomly selected questions for the day (7 items)
     const [questions, setQuestions] = useState([]);
@@ -203,7 +205,7 @@ export default function Murakabe() {
                 </button>
                 <div className="text-center">
                     <h1 className="text-lg font-serif font-bold text-islamic-gold tracking-wide">
-                        Günün Muhasebesi
+                        {t('title')}
                     </h1>
                     {!isCompleted && questions.length > 0 && (
                         <p className="text-xs text-white/40 mt-1">
@@ -375,7 +377,7 @@ export default function Murakabe() {
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: 0.9, duration: 0.6 }}
                             >
-                                Bugün kalbini yokladın, ruhun ferah olsun.
+                                {t('completionMsg')}
                             </motion.p>
 
                             {/* Daily Destiny (Ayah) Card */}
@@ -388,7 +390,7 @@ export default function Murakabe() {
                                 >
                                     {/* Intro Label */}
                                     <p className="text-sm text-islamic-gold/70 italic text-center mb-4 tracking-wide">
-                                        Bugünkü Nasibin...
+                                        {t('yourShare')}
                                     </p>
 
                                     {/* Decorative Line */}
@@ -420,7 +422,7 @@ export default function Murakabe() {
                                     onClick={handleFinish}
                                     className="w-full h-16 rounded-2xl font-semibold text-lg bg-black/30 border border-white/20 text-white hover:bg-black/50 backdrop-blur-md transition-all active:scale-95"
                                 >
-                                    Ana Sayfaya Dön
+                                    {t('goHome')}
                                 </Button>
                             </motion.div>
                         </motion.div>

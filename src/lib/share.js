@@ -1,32 +1,27 @@
 import html2canvas from 'html2canvas';
+import i18n from '../i18n';
+
+const t = (key, options) => i18n.t(`share.${key}`, { ns: 'common', ...options });
 
 /**
  * Captures a screenshot of the ShareCard component and shares it
- * @param {string} elementId - DOM element ID to capture (default: 'share-card')
- * @param {number} streak - Current streak count
- * @param {function} navigate - React Router navigate function (optional)
- * @returns {Promise<boolean>} - Success status
  */
 export async function shareProgress(elementId = 'share-card', streak = 0, navigate = null) {
     try {
-        // The share-card should always be present in the DOM (hidden)
         const element = document.getElementById(elementId);
 
         if (!element) {
             console.error(`Element with ID "${elementId}" not found`);
-            alert('Paylaşım kartı bulunamadı. Lütfen sayfayı yenileyin.');
+            alert(t('card_not_found'));
             return false;
         }
 
-        // Temporarily make visible for capture (off-screen position is fine)
         const originalStyle = element.style.cssText;
         element.style.left = '0';
         element.style.top = '0';
         element.style.position = 'fixed';
         element.style.zIndex = '-1';
 
-        // Capture screenshot with high quality
-        // Element is natively 1080x1920, so scale: 1 is standard, but 1.5 gives crisp text
         const canvas = await html2canvas(element, {
             backgroundColor: null,
             scale: 1.5,
@@ -43,42 +38,37 @@ export async function shareProgress(elementId = 'share-card', streak = 0, naviga
             allowTaint: true
         });
 
-        // Restore original position
         element.style.cssText = originalStyle;
 
-        // Convert to Blob
         const blob = await new Promise((resolve) => {
             canvas.toBlob(resolve, 'image/png', 1.0);
         });
 
-        // Prepare share data
-        const file = new File([blob], 'manevi-yolculuk.png', { type: 'image/png' });
-        const shareText = `İslami Yoldaş ile ibadetlerimi takip ediyorum! ${streak > 0 ? `🔥 ${streak} gün seri!` : ''} Sen de katıl! 🤲\n\n📲 islamiyoldas.app/download`;
+        const streakText = streak > 0 ? t('progress_streak', { count: streak }) : '';
+        const file = new File([blob], t('progress_filename'), { type: 'image/png' });
+        const shareText = t('progress_text', { streak: streakText });
 
         const shareData = {
             files: [file],
-            title: 'Manevi Yolculuğum',
+            title: t('progress_title'),
             text: shareText
         };
 
-        // Check if Web Share API is supported
         if (navigator.share && navigator.canShare && navigator.canShare(shareData)) {
             await navigator.share(shareData);
             return true;
         } else {
-            // Fallback: Download image
             const url = canvas.toDataURL('image/png');
             const link = document.createElement('a');
-            link.download = 'manevi-yolculuk.png';
+            link.download = t('progress_filename');
             link.href = url;
             link.click();
             return true;
         }
     } catch (error) {
         console.error('Share failed:', error);
-        // Don't show alert for user cancellation
         if (error.name !== 'AbortError') {
-            alert('Paylaşım başarısız oldu. Lütfen tekrar deneyin.');
+            alert(t('share_failed'));
         }
         return false;
     }
@@ -86,28 +76,22 @@ export async function shareProgress(elementId = 'share-card', streak = 0, naviga
 
 /**
  * Generates a referral link for inviting friends
- * @param {string} userId - User's unique ID (can be generated or from auth)
- * @returns {string} - Deep link URL
  */
 export function generateReferralLink(userId = 'default') {
-    // This will be a deep link that opens the app if installed
-    // Format: islami-yoldas://invite?ref=USER_ID
-    const baseUrl = 'https://islamiyoldas.com'; // Replace with your actual domain
-    const referralCode = btoa(userId).substring(0, 8); // Simple encoding
-
+    const baseUrl = 'https://islamiyoldas.com';
+    const referralCode = btoa(userId).substring(0, 8);
     return `${baseUrl}/invite?ref=${referralCode}`;
 }
 
 /**
  * Shares invitation link
- * @param {string} userId - User ID for tracking
  */
 export async function shareInvite(userId = 'default') {
     const link = generateReferralLink(userId);
 
     const shareData = {
-        title: 'Seninle paylaşmak istedim',
-        text: `İslami Yoldaş uygulamasını keşfettim! Ruhani gelişim için harika bir arkadaş. 🤲`,
+        title: t('invite_title'),
+        text: t('invite_text'),
         url: link
     };
 
@@ -116,9 +100,8 @@ export async function shareInvite(userId = 'default') {
             await navigator.share(shareData);
             return true;
         } else {
-            // Fallback: Copy to clipboard
             await navigator.clipboard.writeText(`${shareData.text}\n\n${link}`);
-            alert('Link panoya kopyalandı!');
+            alert(t('link_copied'));
             return true;
         }
     } catch (error) {
@@ -129,11 +112,6 @@ export async function shareInvite(userId = 'default') {
 
 /**
  * Captures a screenshot of a verse card and shares it
- * @param {string} elementId - DOM element ID to capture
- * @param {string} text - Verse text
- * @param {string} source - Verse source (e.g. "Bakara, 1")
- * @param {boolean} isFriday - Whether it's a Friday message
- * @returns {Promise<boolean>} - Success status
  */
 export async function shareVerse(elementId, text, source, isFriday = false) {
     try {
@@ -143,13 +121,9 @@ export async function shareVerse(elementId, text, source, isFriday = false) {
             return false;
         }
 
-        // Prepare capture
-        const originalStyle = element.style.cssText;
-        // Don't modify layout too much, just ensure it's captured correctly
-
         const canvas = await html2canvas(element, {
             backgroundColor: null,
-            scale: 2, // Higher scale for text clarity
+            scale: 2,
             logging: false,
             useCORS: true,
             allowTaint: true
@@ -159,11 +133,11 @@ export async function shareVerse(elementId, text, source, isFriday = false) {
             canvas.toBlob(resolve, 'image/png', 1.0);
         });
 
-        const fileName = isFriday ? 'cuma-mesaji.png' : 'gunun-ayeti.png';
+        const fileName = isFriday ? 'friday-message.png' : 'verse-of-the-day.png';
         const file = new File([blob], fileName, { type: 'image/png' });
 
-        const shareTitle = isFriday ? 'Hayırlı Cumalar' : 'Günün Ayeti';
-        const shareText = `"${text}" - ${source}\n\nİslami Yoldaş - Maneviyatta En Yakın Arkadaşın 🤲`;
+        const shareTitle = isFriday ? t('verse_friday') : t('verse_daily');
+        const shareText = t('verse_text', { text, source });
 
         const shareData = {
             files: [file],
@@ -185,22 +159,21 @@ export async function shareVerse(elementId, text, source, isFriday = false) {
     } catch (error) {
         console.error('Verse share failed:', error);
         if (error.name !== 'AbortError') {
-            alert('Paylaşım sırasında bir hata oluştu.');
+            alert(t('verse_share_error'));
         }
         return false;
     }
 }
 
 /**
- * Captures a specific hidden element (like ShareCard), temporarily moving it to viewport
- * @param {string} elementId - DOM ID
- * @param {string} shareText - Text to share
- * @param {string} title - Share title
+ * Captures a specific hidden element, temporarily moving it to viewport
  */
-export async function shareHiddenElement(elementId, shareText, title = 'İslami Yoldaş Paylaşımı') {
+export async function shareHiddenElement(elementId, shareText, title) {
     try {
         const element = document.getElementById(elementId);
         if (!element) return false;
+
+        const shareTitle = title || t('hidden_title');
 
         const originalStyle = element.style.cssText;
         element.style.left = '0';
@@ -220,11 +193,11 @@ export async function shareHiddenElement(elementId, shareText, title = 'İslami 
         element.style.cssText = originalStyle;
 
         const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png', 1.0));
-        const file = new File([blob], 'paylasim.png', { type: 'image/png' });
+        const file = new File([blob], t('hidden_filename'), { type: 'image/png' });
 
         const shareData = {
             files: [file],
-            title: title,
+            title: shareTitle,
             text: shareText
         };
 
@@ -234,7 +207,7 @@ export async function shareHiddenElement(elementId, shareText, title = 'İslami 
         } else {
             const url = canvas.toDataURL('image/png');
             const link = document.createElement('a');
-            link.download = 'paylasim.png';
+            link.download = t('hidden_filename');
             link.href = url;
             link.click();
             return true;
@@ -244,4 +217,3 @@ export async function shareHiddenElement(elementId, shareText, title = 'İslami 
         return false;
     }
 }
-

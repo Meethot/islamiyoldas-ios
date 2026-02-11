@@ -1,0 +1,81 @@
+{
+    "title": "Oruç Takibi",
+    "status": {
+        "fasted": "Tutuldu",
+        "missed": "Kaçırıldı",
+        "excused": "Mazeretli",
+        "pending": "Bekliyor",
+        "remaining": "Kalan"
+    },
+    "milestones": {
+        "1": "İlk Adım",
+        "3": "Azim",
+        "7": "Bir Hafta",
+        "10": "Yıldız",
+        "15": "Yarı Yol",
+        "20": "Alevli",
+        "25": "Neredeyse!",
+        "30": "Tamamlandı!"
+    },
+    "hadith": {
+        "0": {
+            "text": "Oruç bir kalkandır.",
+            "src": "Buhârî"
+        },
+        "1": {
+            "text": "Her şeyin bir zekatı vardır, bedenin zekatı da oruçtur.",
+            "src": "İbn Mâce"
+        },
+        "2": {
+            "text": "Oruç tutun, sıhhat bulun.",
+            "src": "Taberânî"
+        },
+        "3": {
+            "text": "Oruçlu kimsenin ağız kokusu, Allah katında misk kokusundan daha güzeldir.",
+            "src": "Buhârî"
+        },
+        "4": {
+            "text": "Kim Ramazan orucunu iman ederek ve sevabını bekleyerek tutarsa, geçmiş günahları bağışlanır.",
+            "src": "Buhârî, Müslim"
+        },
+        "5": {
+            "text": "Oruç sabrın yarısıdır.",
+            "src": "Tirmizî"
+        },
+        "6": {
+            "text": "Cennette Reyyan adlı bir kapı vardır. Oradan ancak oruç tutanlar girecektir.",
+            "src": "Buhârî, Müslim"
+        }
+    },
+    "start": "başla",
+    "ofDays": "/ {{total}} gün",
+    "day": "{{day}}. Gün",
+    "streak": "{{count}} Seri",
+    "ramazanDay": "Ramazan'ın {{day}}. Günü",
+    "updateStatus": "Durumu güncelle",
+    "nextGoal": "Sonraki Hedef",
+    "days": "gün",
+    "calendarTitle": "Ramazan Takvimi",
+    "calendarSubtitle": "Şubat – Mart 2026",
+    "reset": "Sıfırla",
+    "cancel": "İptal",
+    "resetTitle": "Oruç Verilerini Sıfırla",
+    "resetDesc": "Tüm oruç kayıtlarınız silinecek. Teravih kayıtları korunur. Bu işlem geri alınamaz.",
+    "teravihTitle": "Teravih Namazı",
+    "teravihResetTooltip": "Teravih Sıfırla",
+    "teravihResetTitle": "Teravih Verilerini Sıfırla",
+    "teravihResetDesc": "Tüm teravih namazı kayıtlarınız silinecek. Oruç kayıtları korunur. Bu işlem geri alınamaz.",
+    "teravihLegend": {
+        "done": "Kılındı",
+        "notDone": "Kılınmadı"
+    },
+    "weekdays": [
+        "Pzt",
+        "Sal",
+        "Çar",
+        "Per",
+        "Cum",
+        "Cmt",
+        "Paz"
+    ]
+}
