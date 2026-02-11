@@ -2001,19 +2001,26 @@ const PrayerConfetti = () => {
 
 
 const ProgressRing = memo(({ progress, isAllDone }) => {
+    // Dynamic gold intensity: muted at low progress → vibrant at high
+    const intensity = Math.min(progress / 100, 1);
+    const strokeColor = `rgba(${Math.round(160 + intensity * 52)}, ${Math.round(140 + intensity * 35)}, ${Math.round(30 + intensity * 25)}, ${(0.35 + intensity * 0.65).toFixed(2)})`;
+
     return (
         <div className="relative w-12 h-12 flex items-center justify-center">
             <svg className="w-full h-full -rotate-90" viewBox="0 0 50 50">
                 <circle
                     cx="25" cy="25" r="20"
-                    className="stroke-gray-200 dark:stroke-white/10 fill-none"
+                    fill="none"
+                    stroke="rgba(212, 175, 55, 0.08)"
                     strokeWidth="4"
                 />
                 <motion.circle
                     cx="25" cy="25" r="20"
+                    fill="none"
+                    stroke={isAllDone ? undefined : strokeColor}
                     className={cn(
-                        "fill-none transition-colors duration-500",
-                        isAllDone ? "stroke-islamic-gold" : "stroke-islamic-green"
+                        "transition-colors duration-500",
+                        isAllDone && "stroke-islamic-gold"
                     )}
                     strokeWidth="4"
                     strokeDasharray="125.6"
@@ -2042,7 +2049,7 @@ const ProgressRing = memo(({ progress, isAllDone }) => {
                         key="text"
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
-                        className="absolute text-[10px] font-bold text-islamic-green dark:text-islamic-gold"
+                        className="absolute text-[10px] font-bold text-islamic-gold"
                     >
                         {Math.round(progress)}%
                     </motion.span>

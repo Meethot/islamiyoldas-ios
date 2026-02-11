@@ -284,7 +284,7 @@ export default function Profile() {
                     "relative overflow-hidden rounded-[2.5rem] p-6 transition-all duration-500",
                     isPremium
                         ? "bg-gradient-to-br from-[#064e3b] to-[#022c22] border-2 border-islamic-gold shadow-[0_0_30px_rgba(212,175,55,0.15)]"
-                        : "bg-white dark:bg-white/5 border border-gray-100 dark:border-white/10 shadow-lg"
+                        : "bg-gradient-to-b from-white to-stone-50 dark:bg-white/5 dark:from-transparent dark:to-transparent border border-stone-200/80 dark:border-white/10 shadow-lg shadow-stone-200/50 dark:shadow-none"
                 )}>
                     {isPremium && (
                         <div className="absolute top-0 right-0 p-4">
@@ -298,7 +298,7 @@ export default function Profile() {
                         <div className="relative mb-4 group cursor-pointer" onClick={() => setShowAvatarModal(true)}>
                             <div className={cn(
                                 "w-28 h-28 rounded-full flex items-center justify-center p-1 transition-all duration-500",
-                                isPremium ? "bg-gradient-to-tr from-islamic-gold via-amber-200 to-islamic-gold animate-spin-slow" : "bg-gray-100 dark:bg-white/10"
+                                isPremium ? "bg-gradient-to-tr from-islamic-gold via-amber-200 to-islamic-gold animate-spin-slow" : "bg-gradient-to-br from-stone-100 to-stone-200 dark:bg-white/10"
                             )}>
                                 <div className="w-full h-full rounded-full bg-white dark:bg-[#032e18] flex items-center justify-center border-4 border-transparent overflow-hidden">
                                     <AvatarIcon id={selectedAvatar} size={48} className={isPremium ? "text-islamic-gold" : "text-gray-300"} />
@@ -314,7 +314,7 @@ export default function Profile() {
                         <h2 className={cn("text-2xl font-serif font-bold mb-1", isPremium ? "text-white" : "text-gray-900 dark:text-white")}>
                             Mümin Kullanıcı
                         </h2>
-                        <p className={cn("text-sm font-medium", isPremium ? "text-islamic-gold/80" : "text-gray-400")}>
+                        <p className={cn("text-sm font-medium", isPremium ? "text-islamic-gold/80" : "text-stone-500 dark:text-gray-400")}>
                             {t('user.streak_desc', {
                                 count: (() => {
                                     const start = new Date(userData.installDate || new Date());
@@ -361,44 +361,44 @@ export default function Profile() {
 
             {/* Settings Navigation (Drill-Down Pattern) */}
             <motion.div variants={itemVariants} className="px-4 space-y-4">
-                <h3 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest px-2">{t('personal_settings')}</h3>
-                <div className="bg-white dark:bg-white/5 rounded-[2rem] shadow-sm border border-gray-100 dark:border-white/5 overflow-hidden divide-y divide-gray-50 dark:divide-white/5">
+                <h3 className="text-[10px] font-bold text-stone-500 dark:text-gray-400 uppercase tracking-widest px-2">{t('personal_settings')}</h3>
+                <div className="bg-white dark:bg-white/5 rounded-[2rem] shadow-md shadow-stone-200/60 dark:shadow-none border border-stone-200/80 dark:border-white/5 overflow-hidden divide-y divide-stone-100 dark:divide-white/5">
 
                     {/* Notifications - Navigate to sub-page */}
                     <div
-                        className="p-5 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-white/5 transition-colors cursor-pointer group"
+                        className="p-5 flex items-center justify-between hover:bg-stone-50 dark:hover:bg-white/5 transition-colors cursor-pointer group"
                         onClick={() => { selection(); navigate('/settings/notifications'); }}
                     >
                         <div className="flex items-center gap-4">
-                            <div className="p-3 bg-islamic-green/10 text-islamic-green dark:bg-islamic-green/20 dark:text-islamic-gold rounded-2xl group-hover:scale-110 transition-transform">
+                            <div className="p-3 bg-emerald-100 text-emerald-700 dark:bg-islamic-green/20 dark:text-islamic-gold rounded-2xl group-hover:scale-110 transition-transform">
                                 <Bell size={20} />
                             </div>
                             <div className="text-left">
-                                <p className="text-sm font-bold text-gray-900 dark:text-white">{t('notifications.title')}</p>
-                                <p className="text-[10px] text-gray-400 font-medium">Ezan, ayet ve motivasyon</p>
+                                <p className="text-sm font-bold text-stone-800 dark:text-white">{t('notifications.title')}</p>
+                                <p className="text-[10px] text-stone-500 dark:text-gray-400 font-medium">Ezan, ayet ve motivasyon</p>
                             </div>
                         </div>
-                        <ChevronRight className="w-5 h-5 text-gray-300 group-hover:translate-x-1 transition-transform" />
+                        <ChevronRight className="w-5 h-5 text-stone-400 dark:text-gray-300 group-hover:translate-x-1 transition-transform" />
                     </div>
 
                     {/* Appearance - Direct Toggle (no sub-page needed) */}
                     <div
-                        className="p-5 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-white/5 transition-colors cursor-pointer group"
+                        className="p-5 flex items-center justify-between hover:bg-stone-50 dark:hover:bg-white/5 transition-colors cursor-pointer group"
                         onClick={() => { selection(); toggleTheme(); }}
                     >
                         <div className="flex items-center gap-4">
-                            <div className="p-3 bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 rounded-2xl group-hover:scale-110 transition-transform">
+                            <div className="p-3 bg-amber-100/80 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 rounded-2xl group-hover:scale-110 transition-transform">
                                 {isDarkMode ? <Moon size={20} /> : <Sun size={20} />}
                             </div>
                             <div className="text-left">
-                                <p className="text-sm font-bold text-gray-900 dark:text-white">{t('appearance.title')}</p>
-                                <p className="text-[10px] text-gray-400 font-medium">{isDarkMode ? 'Gece modu aktif' : 'Gündüz modu aktif'}</p>
+                                <p className="text-sm font-bold text-stone-800 dark:text-white">{t('appearance.title')}</p>
+                                <p className="text-[10px] text-stone-500 dark:text-gray-400 font-medium">{isDarkMode ? 'Gece modu aktif' : 'Gündüz modu aktif'}</p>
                             </div>
                         </div>
                         {/* Sliding Toggle Switch */}
                         <div className={cn(
                             "w-12 h-6 rounded-full p-1 transition-colors relative",
-                            isDarkMode ? "bg-islamic-green dark:bg-islamic-gold" : "bg-gray-200 dark:bg-white/10"
+                            isDarkMode ? "bg-islamic-green dark:bg-islamic-gold" : "bg-stone-300 dark:bg-white/10"
                         )}>
                             <div className={cn(
                                 "w-4 h-4 bg-white rounded-full shadow-sm transition-transform",
@@ -409,38 +409,38 @@ export default function Profile() {
 
                     {/* Location - Navigate to sub-page */}
                     <div
-                        className="p-5 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-white/5 transition-colors cursor-pointer group"
+                        className="p-5 flex items-center justify-between hover:bg-stone-50 dark:hover:bg-white/5 transition-colors cursor-pointer group"
                         onClick={() => { selection(); navigate('/settings/location'); }}
                     >
                         <div className="flex items-center gap-4">
-                            <div className="p-3 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 rounded-2xl group-hover:scale-110 transition-transform">
+                            <div className="p-3 bg-emerald-100/80 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 rounded-2xl group-hover:scale-110 transition-transform">
                                 <Box size={20} />
                             </div>
                             <div className="text-left">
-                                <p className="text-sm font-bold text-gray-900 dark:text-white">Konum</p>
-                                <p className="text-[10px] text-gray-400 font-medium">GPS ve şehir ayarları</p>
+                                <p className="text-sm font-bold text-stone-800 dark:text-white">Konum</p>
+                                <p className="text-[10px] text-stone-500 dark:text-gray-400 font-medium">GPS ve şehir ayarları</p>
                             </div>
                         </div>
-                        <ChevronRight className="w-5 h-5 text-gray-300 group-hover:translate-x-1 transition-transform" />
+                        <ChevronRight className="w-5 h-5 text-stone-400 dark:text-gray-300 group-hover:translate-x-1 transition-transform" />
                     </div>
 
                     {/* Privacy Modal Trigger - Keep as modal */}
-                    <div className="p-5 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-white/5 transition-colors cursor-pointer group" onClick={() => setShowPrivacyModal(true)}>
+                    <div className="p-5 flex items-center justify-between hover:bg-stone-50 dark:hover:bg-white/5 transition-colors cursor-pointer group" onClick={() => setShowPrivacyModal(true)}>
                         <div className="flex items-center gap-4">
-                            <div className="p-3 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-2xl group-hover:scale-110 transition-transform">
+                            <div className="p-3 bg-blue-100/80 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 rounded-2xl group-hover:scale-110 transition-transform">
                                 <Shield size={20} />
                             </div>
                             <div className="text-left">
-                                <p className="text-sm font-bold text-gray-900 dark:text-white">{t('privacy.title')}</p>
-                                <p className="text-[10px] text-gray-400 font-medium">{t('privacy.subtitle')}</p>
+                                <p className="text-sm font-bold text-stone-800 dark:text-white">{t('privacy.title')}</p>
+                                <p className="text-[10px] text-stone-500 dark:text-gray-400 font-medium">{t('privacy.subtitle')}</p>
                             </div>
                         </div>
-                        <ChevronRight className="w-5 h-5 text-gray-300 group-hover:translate-x-1 transition-transform" />
+                        <ChevronRight className="w-5 h-5 text-stone-400 dark:text-gray-300 group-hover:translate-x-1 transition-transform" />
                     </div>
 
                     {/* Share Progress */}
                     <div
-                        className="p-5 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-white/5 transition-colors cursor-pointer group"
+                        className="p-5 flex items-center justify-between hover:bg-stone-50 dark:hover:bg-white/5 transition-colors cursor-pointer group"
                         onClick={async () => {
                             selection();
                             heavy();
@@ -448,20 +448,20 @@ export default function Profile() {
                         }}
                     >
                         <div className="flex items-center gap-4">
-                            <div className="p-3 bg-islamic-gold/10 text-islamic-gold dark:bg-islamic-gold/20 rounded-2xl group-hover:scale-110 transition-transform">
+                            <div className="p-3 bg-amber-100 text-amber-700 dark:bg-islamic-gold/20 dark:text-islamic-gold rounded-2xl group-hover:scale-110 transition-transform">
                                 <Share2 size={20} />
                             </div>
                             <div className="text-left">
-                                <p className="text-sm font-bold text-gray-900 dark:text-white">{t('share.title')}</p>
-                                <p className="text-[10px] text-gray-400 font-medium">{t('share.subtitle')}</p>
+                                <p className="text-sm font-bold text-stone-800 dark:text-white">{t('share.title')}</p>
+                                <p className="text-[10px] text-stone-500 dark:text-gray-400 font-medium">{t('share.subtitle')}</p>
                             </div>
                         </div>
-                        <ChevronRight className="w-5 h-5 text-gray-300 group-hover:translate-x-1 transition-transform" />
+                        <ChevronRight className="w-5 h-5 text-stone-400 dark:text-gray-300 group-hover:translate-x-1 transition-transform" />
                     </div>
 
                     {/* Invite Friend */}
                     <div
-                        className="p-5 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-white/5 transition-colors cursor-pointer group"
+                        className="p-5 flex items-center justify-between hover:bg-stone-50 dark:hover:bg-white/5 transition-colors cursor-pointer group"
                         onClick={async () => {
                             selection();
                             const success = await shareInvite('user-' + Date.now());
@@ -469,15 +469,15 @@ export default function Profile() {
                         }}
                     >
                         <div className="flex items-center gap-4">
-                            <div className="p-3 bg-islamic-green/10 text-islamic-green dark:bg-islamic-green/20 dark:text-islamic-gold rounded-2xl group-hover:scale-110 transition-transform">
+                            <div className="p-3 bg-emerald-100 text-emerald-700 dark:bg-islamic-green/20 dark:text-islamic-gold rounded-2xl group-hover:scale-110 transition-transform">
                                 <UserPlus size={20} />
                             </div>
                             <div className="text-left">
-                                <p className="text-sm font-bold text-gray-900 dark:text-white">{t('invite.title')}</p>
-                                <p className="text-[10px] text-gray-400 font-medium">{t('invite.subtitle')}</p>
+                                <p className="text-sm font-bold text-stone-800 dark:text-white">{t('invite.title')}</p>
+                                <p className="text-[10px] text-stone-500 dark:text-gray-400 font-medium">{t('invite.subtitle')}</p>
                             </div>
                         </div>
-                        <ChevronRight className="w-5 h-5 text-gray-300 group-hover:translate-x-1 transition-transform" />
+                        <ChevronRight className="w-5 h-5 text-stone-400 dark:text-gray-300 group-hover:translate-x-1 transition-transform" />
                     </div>
 
                 </div>
@@ -485,21 +485,21 @@ export default function Profile() {
 
             {/* General Settings (New Section) */}
             <motion.div variants={itemVariants} className="px-4 space-y-4">
-                <h3 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest px-2">{t('general_settings')}</h3>
-                <div className="bg-white dark:bg-white/5 rounded-[2rem] shadow-sm border border-gray-100 dark:border-white/5 overflow-hidden divide-y divide-gray-50 dark:divide-white/5">
+                <h3 className="text-[10px] font-bold text-stone-500 dark:text-gray-400 uppercase tracking-widest px-2">{t('general_settings')}</h3>
+                <div className="bg-white dark:bg-white/5 rounded-[2rem] shadow-md shadow-stone-200/60 dark:shadow-none border border-stone-200/80 dark:border-white/5 overflow-hidden divide-y divide-stone-100 dark:divide-white/5">
 
                     {/* Language Selector */}
                     <div
-                        className="p-5 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-white/5 transition-colors cursor-pointer group"
+                        className="p-5 flex items-center justify-between hover:bg-stone-50 dark:hover:bg-white/5 transition-colors cursor-pointer group"
                         onClick={() => setShowLangModal(true)}
                     >
                         <div className="flex items-center gap-4">
-                            <div className="p-3 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded-2xl group-hover:scale-110 transition-transform">
+                            <div className="p-3 bg-indigo-100/80 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-400 rounded-2xl group-hover:scale-110 transition-transform">
                                 <Globe size={20} />
                             </div>
                             <div className="text-left">
-                                <p className="text-sm font-bold text-gray-900 dark:text-white">{t('language.title')}</p>
-                                <p className="text-[10px] text-gray-400 font-medium">{t('language.subtitle')}</p>
+                                <p className="text-sm font-bold text-stone-800 dark:text-white">{t('language.title')}</p>
+                                <p className="text-[10px] text-stone-500 dark:text-gray-400 font-medium">{t('language.subtitle')}</p>
                             </div>
                         </div>
 
@@ -507,53 +507,53 @@ export default function Profile() {
 
                     {/* Promo Code */}
                     <div
-                        className="p-5 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-white/5 transition-colors cursor-pointer group"
+                        className="p-5 flex items-center justify-between hover:bg-stone-50 dark:hover:bg-white/5 transition-colors cursor-pointer group"
                         onClick={() => setShowPromoModal(true)}
                     >
                         <div className="flex items-center gap-4">
-                            <div className="p-3 bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400 rounded-2xl group-hover:scale-110 transition-transform">
+                            <div className="p-3 bg-purple-100/80 dark:bg-purple-900/20 text-purple-700 dark:text-purple-400 rounded-2xl group-hover:scale-110 transition-transform">
                                 <Ticket size={20} />
                             </div>
                             <div className="text-left">
-                                <p className="text-sm font-bold text-gray-900 dark:text-white">Promosyon Kodu</p>
-                                <p className="text-[10px] text-gray-400 font-medium">Hediye kodu kullan</p>
+                                <p className="text-sm font-bold text-stone-800 dark:text-white">Promosyon Kodu</p>
+                                <p className="text-[10px] text-stone-500 dark:text-gray-400 font-medium">Hediye kodu kullan</p>
                             </div>
                         </div>
-                        <ChevronRight className="w-5 h-5 text-gray-300 group-hover:translate-x-1 transition-transform" />
+                        <ChevronRight className="w-5 h-5 text-stone-400 dark:text-gray-300 group-hover:translate-x-1 transition-transform" />
                     </div>
 
                     {/* Report Bug */}
                     <div
-                        className="p-5 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-white/5 transition-colors cursor-pointer group"
+                        className="p-5 flex items-center justify-between hover:bg-stone-50 dark:hover:bg-white/5 transition-colors cursor-pointer group"
                         onClick={handleReportBug}
                     >
                         <div className="flex items-center gap-4">
-                            <div className="p-3 bg-red-50 dark:bg-red-900/20 text-red-500 dark:text-red-400 rounded-2xl group-hover:scale-110 transition-transform">
+                            <div className="p-3 bg-red-100/80 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-2xl group-hover:scale-110 transition-transform">
                                 <Bug size={20} />
                             </div>
                             <div className="text-left">
-                                <p className="text-sm font-bold text-gray-900 dark:text-white">Hata Bildir</p>
-                                <p className="text-[10px] text-gray-400 font-medium">Uygulamada sorun mu var?</p>
+                                <p className="text-sm font-bold text-stone-800 dark:text-white">Hata Bildir</p>
+                                <p className="text-[10px] text-stone-500 dark:text-gray-400 font-medium">Uygulamada sorun mu var?</p>
                             </div>
                         </div>
-                        <ChevronRight className="w-5 h-5 text-gray-300 group-hover:translate-x-1 transition-transform" />
+                        <ChevronRight className="w-5 h-5 text-stone-400 dark:text-gray-300 group-hover:translate-x-1 transition-transform" />
                     </div>
 
                     {/* Legal & About - Navigate to sub-page */}
                     <div
-                        className="p-5 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-white/5 transition-colors cursor-pointer group"
+                        className="p-5 flex items-center justify-between hover:bg-stone-50 dark:hover:bg-white/5 transition-colors cursor-pointer group"
                         onClick={() => { selection(); navigate('/settings/legal'); }}
                     >
                         <div className="flex items-center gap-4">
-                            <div className="p-3 bg-gray-100 dark:bg-white/5 text-gray-500 dark:text-gray-400 rounded-2xl group-hover:scale-110 transition-transform">
+                            <div className="p-3 bg-stone-200/80 dark:bg-white/5 text-stone-600 dark:text-gray-400 rounded-2xl group-hover:scale-110 transition-transform">
                                 <HelpCircle size={20} />
                             </div>
                             <div className="text-left">
-                                <p className="text-sm font-bold text-gray-900 dark:text-white">Yasal & Hakkımızda</p>
-                                <p className="text-[10px] text-gray-400 font-medium">Gizlilik, iletişim ve destek</p>
+                                <p className="text-sm font-bold text-stone-800 dark:text-white">Yasal & Hakkımızda</p>
+                                <p className="text-[10px] text-stone-500 dark:text-gray-400 font-medium">Gizlilik, iletişim ve destek</p>
                             </div>
                         </div>
-                        <ChevronRight className="w-5 h-5 text-gray-300 group-hover:translate-x-1 transition-transform" />
+                        <ChevronRight className="w-5 h-5 text-stone-400 dark:text-gray-300 group-hover:translate-x-1 transition-transform" />
                     </div>
 
                 </div>

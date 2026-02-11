@@ -59,7 +59,7 @@
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
 	<key>NSUserTrackingUsageDescription</key>
-	<string>Size daha uygun reklamlar gösterebilmek ve uygulama deneyiminizi iyileştirmek için izin istiyoruz.</string>
+	<string>Size daha uygun hizmet ve uygulama deneyiminizi iyileştirmek için izin istiyoruz.</string>
 	<key>GADApplicationIdentifier</key>
 	<string>ca-app-pub-3345957146167395~1644282671</string>
 </dict>

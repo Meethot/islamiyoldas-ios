@@ -204,99 +204,109 @@ export const PrayerTimesProvider = ({ children }) => {
         }
     };
 
+    // iOS limit: 64 pending notifications
+    // Budget: 3 repeating verse + 1 repeating friday = 4 permanent
+    // Remaining: 60 slots / 5 prayers = 12 days of prayer notifications
+    const MAX_PRAYER_DAYS = 12;
+
     const scheduleDailyNotifications = useCallback(async (timings) => {
         if (!Capacitor.isNativePlatform()) return;
 
         try {
-            // clear existing
-            await LocalNotifications.cancel({ notifications: [{ id: 1 }, { id: 2 }, { id: 3 }, { id: 4 }, { id: 5 }] });
+            // Cancel all existing prayer notifications (IDs 1-60 for 12 days × 5 prayers)
+            const cancelIds = Array.from({ length: 60 }, (_, i) => ({ id: i + 1 }));
+            await LocalNotifications.cancel({ notifications: cancelIds });
 
             if (!settings.adhanEnabled) return;
 
             const prayers = [
-                { id: 1, name: 'Sabah Namazı', time: timings.Fajr },
-                { id: 2, name: 'Öğle Namazı', time: timings.Dhuhr },
-                { id: 3, name: 'İkindi Namazı', time: timings.Asr },
-                { id: 4, name: 'Akşam Namazı', time: timings.Maghrib },
-                { id: 5, name: 'Yatsı Namazı', time: timings.Isha }
+                { name: 'Sabah Namazı', time: timings.Fajr },
+                { name: 'Öğle Namazı', time: timings.Dhuhr },
+                { name: 'İkindi Namazı', time: timings.Asr },
+                { name: 'Akşam Namazı', time: timings.Maghrib },
+                { name: 'Yatsı Namazı', time: timings.Isha }
             ];
 
-            const notifications = prayers.map(p => {
-                const [h, m] = p.time.split(':').map(Number);
-                const date = new Date();
-                date.setHours(h);
-                date.setMinutes(m);
-                date.setSeconds(0);
+            const notifications = [];
+            const now = new Date();
 
-                // If time passed, schedule for tomorrow (Simple logic, ideal is to have full date support)
-                if (date < new Date()) {
-                    date.setDate(date.getDate() + 1);
-                }
+            // Schedule for next 12 days (max budget within iOS 64 limit)
+            for (let day = 0; day < MAX_PRAYER_DAYS; day++) {
+                prayers.forEach((p, idx) => {
+                    const [h, m] = p.time.split(':').map(Number);
+                    const date = new Date();
+                    date.setDate(date.getDate() + day);
+                    date.setHours(h, m, 0, 0);
 
-                return {
-                    title: 'Ezan Vakti',
-                    body: `${p.name} Vakti Girdi`,
-                    id: p.id,
-                    schedule: { at: date, allowWhileIdle: true },
-                    sound: settings.vibrateOnly ? null : (Capacitor.getPlatform() === 'android' ? 'ezan' : 'ezan.caf'),
-                    channelId: 'ezan_vakti',
-                    smallIcon: 'ic_stat_icon_config_sample',
-                    interruptionLevel: 'timeSensitive' // Ensures better sound delivery on iOS
-                };
-            });
+                    if (date <= now) return;
+
+                    const id = day * 5 + idx + 1; // IDs 1-60
+
+                    notifications.push({
+                        title: 'Ezan Vakti 🕌',
+                        body: `${p.name} vakti girdi. Haydi namaza!`,
+                        id,
+                        schedule: { at: date, allowWhileIdle: true },
+                        sound: settings.vibrateOnly ? null : (Capacitor.getPlatform() === 'android' ? 'ezan' : 'ezan.caf'),
+                        channelId: 'ezan_vakti',
+                        smallIcon: 'ic_stat_icon_config_sample',
+                        interruptionLevel: 'timeSensitive'
+                    });
+                });
+            }
 
             if (notifications.length > 0) {
+                console.log(`📿 Scheduling ${notifications.length} prayer notifications for next ${MAX_PRAYER_DAYS} days`);
                 await LocalNotifications.schedule({ notifications });
             }
         } catch (error) {
             console.error('Error scheduling notifications:', error);
         }
-    }, [settings.adhanEnabled, settings.vibrateOnly]); // Added dependencies
+    }, [settings.adhanEnabled, settings.vibrateOnly]);
 
     const scheduleVerseNotifications = useCallback(async () => {
         if (!Capacitor.isNativePlatform()) return;
 
         try {
-            // Cancel existing verse notifications (IDs 1001 and 1002)
-            await LocalNotifications.cancel({ notifications: [{ id: 1001 }, { id: 1002 }] });
+            // Cancel existing verse notifications (3 repeating IDs)
+            await LocalNotifications.cancel({ notifications: [{ id: 1001 }, { id: 1002 }, { id: 1003 }] });
 
             if (!settings.verseEnabled) return;
 
-            // Helper to get random verse
             const getRandomVerse = () => DAILY_VERSES[Math.floor(Math.random() * DAILY_VERSES.length)];
 
-            // Schedule for tomorrow if time passed
-            const getScheduleDate = (hour, minute) => {
-                const date = new Date();
-                date.setHours(hour, minute, 0, 0);
-                if (date < new Date()) {
-                    date.setDate(date.getDate() + 1);
-                }
-                return date;
-            };
-
-            const morningVerse = getRandomVerse();
-            const eveningVerse = getRandomVerse();
-
-            const notifications = [
-                {
-                    id: 1001,
-                    title: 'Günün Ayeti (Sabah)',
-                    body: morningVerse.text,
-                    schedule: { at: getScheduleDate(9, 0), allowWhileIdle: true },
-                    smallIcon: 'ic_stat_icon_config_sample',
-                    sound: null
-                },
-                {
-                    id: 1002,
-                    title: 'Günün Ayeti (Akşam)',
-                    body: eveningVerse.text,
-                    schedule: { at: getScheduleDate(21, 0), allowWhileIdle: true },
-                    smallIcon: 'ic_stat_icon_config_sample',
-                    sound: null
-                }
+            const verseSlots = [
+                { id: 1001, hour: 9, minute: 0, label: 'Sabah' },
+                { id: 1002, hour: 14, minute: 0, label: 'Öğleden Sonra' },
+                { id: 1003, hour: 21, minute: 0, label: 'Akşam' }
             ];
 
+            // Use 'every: day' for PERMANENT repeating notifications
+            const notifications = verseSlots.map(slot => {
+                const verse = getRandomVerse();
+                const scheduleDate = new Date();
+                scheduleDate.setHours(slot.hour, slot.minute, 0, 0);
+
+                // If time passed today, start from tomorrow
+                if (scheduleDate <= new Date()) {
+                    scheduleDate.setDate(scheduleDate.getDate() + 1);
+                }
+
+                return {
+                    id: slot.id,
+                    title: `Günün Ayeti (${slot.label}) 📖`,
+                    body: verse.text,
+                    schedule: {
+                        at: scheduleDate,
+                        every: 'day',
+                        allowWhileIdle: true
+                    },
+                    smallIcon: 'ic_stat_icon_config_sample',
+                    sound: null
+                };
+            });
+
+            console.log('📖 Scheduling 3 repeating daily verse notifications (permanent)');
             await LocalNotifications.schedule({ notifications });
 
         } catch (error) {
@@ -308,16 +318,8 @@ export const PrayerTimesProvider = ({ children }) => {
         if (!Capacitor.isNativePlatform()) return;
 
         try {
-            // Cancel existing Friday notifications (using a range of IDs)
-            // We'll use IDs 2000 to 2050 for Friday messages
-            const pending = await LocalNotifications.getPending();
-            const fridayIds = pending.notifications
-                .filter(n => n.id >= 2000 && n.id < 2050)
-                .map(n => ({ id: n.id }));
-
-            if (fridayIds.length > 0) {
-                await LocalNotifications.cancel({ notifications: fridayIds });
-            }
+            // Cancel existing Friday notification (single repeating ID)
+            await LocalNotifications.cancel({ notifications: [{ id: 2000 }] });
 
             if (!settings.fridayMessage) return;
 
@@ -326,60 +328,38 @@ export const PrayerTimesProvider = ({ children }) => {
                 "Cumanız Mübarek Olsun. Kalbiniz nur, eviniz huzur dolsun. 🤲",
                 "Ey Rabbimiz! Bizi sana boyun eğenlerden kıl. Hayırlı Cumalar.",
                 "Gönüller duada birleşince Cumalar güzelleşir. Hayırlı Cumalar 🕌",
-                "Allah'ım! Recep ve Şaban'ı bize mübarek kıl ve bizi Ramazan'a ulaştır. Hayırlı Cumalar.",
                 "Cuma gününün hayrı, bereketi üzerinize olsun. Selam ve dua ile... 🌹",
                 "Rabbim! Gönlümüzden geçen hayırlı duaları kabul eyle. Cumanız mübarek olsun.",
-                "Bugün duaların geri çevrilmediği o icabet saatine denk gelmeniz duasıyla. Hayırlı Cumalar.",
                 "Allah'ın rahmeti ve bereketi üzerinize olsun. Hayırlı, huzurlu Cumalar.",
                 "Ömrümüzün her anı Cuma bereketiyle dolsun. Dualarda buluşmak ümidiyle. 🤲"
             ];
 
-            const notifications = [];
+            // Find next Friday
             const now = new Date();
+            const nextFriday = new Date();
+            nextFriday.setHours(11, 30, 0, 0);
+            const dayOfWeek = now.getDay();
+            const daysUntilFriday = (5 + 7 - dayOfWeek) % 7;
+            nextFriday.setDate(now.getDate() + (daysUntilFriday === 0 && now > nextFriday ? 7 : daysUntilFriday));
 
-            // Schedule for the next 10 weeks
-            for (let i = 0; i < 10; i++) {
-                const nextFriday = new Date();
-                nextFriday.setHours(11, 30, 0, 0);
+            // Use 'every: week' for PERMANENT weekly repeating
+            const randomMessage = FRIDAY_MESSAGES[Math.floor(Math.random() * FRIDAY_MESSAGES.length)];
 
-                const dayOfWeek = now.getDay();
-                const daysUntilFriday = (5 + 7 - dayOfWeek) % 7;
-
-                // Calculate date for this iteration's Friday
-                if (i === 0) {
-                    if (dayOfWeek === 5 && now > nextFriday) {
-                        nextFriday.setDate(now.getDate() + 7);
-                    } else {
-                        nextFriday.setDate(now.getDate() + daysUntilFriday);
-                    }
-                } else {
-                    // For i > 0, calculate based on the first scheduled Friday
-                    const baseFriday = new Date();
-                    baseFriday.setHours(11, 30, 0, 0);
-                    let baseDaysToAdd = daysUntilFriday;
-                    if (dayOfWeek === 5 && now > baseFriday) {
-                        baseDaysToAdd += 7;
-                    }
-                    nextFriday.setDate(now.getDate() + baseDaysToAdd + (i * 7));
-                }
-
-                // Verify future check
-                if (nextFriday <= now) {
-                    nextFriday.setDate(nextFriday.getDate() + 7);
-                }
-
-                notifications.push({
-                    id: 2000 + i,
+            console.log('🕌 Scheduling 1 repeating weekly Friday notification (permanent)');
+            await LocalNotifications.schedule({
+                notifications: [{
+                    id: 2000,
                     title: 'Hayırlı Cumalar 🌹',
-                    body: FRIDAY_MESSAGES[i % FRIDAY_MESSAGES.length],
-                    schedule: { at: nextFriday, allowWhileIdle: true },
+                    body: randomMessage,
+                    schedule: {
+                        at: nextFriday,
+                        every: 'week',
+                        allowWhileIdle: true
+                    },
                     sound: settings.vibrateOnly ? null : (Capacitor.getPlatform() === 'android' ? 'beep' : 'beep.caf'),
                     smallIcon: 'ic_stat_icon_config_sample'
-                });
-            }
-
-            console.log(`Scheduling ${notifications.length} Friday messages`);
-            await LocalNotifications.schedule({ notifications });
+                }]
+            });
 
         } catch (error) {
             console.error('Error scheduling Friday message:', error);

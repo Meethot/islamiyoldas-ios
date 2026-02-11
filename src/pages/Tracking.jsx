@@ -275,22 +275,33 @@ export default function Tracking() {
 
     // Circular Progress Component for Kaza
     const CircularProgress = ({ value }) => {
-        const radius = 70; // Increased size slightly
+        const radius = 70;
         const circumference = 2 * Math.PI * radius;
         const offset = circumference - (value / 100) * circumference;
+
+        // Dynamic gold intensity based on progress
+        const intensity = Math.min(value / 100, 1);
+        const glowBlur = 2 + intensity * 6; // 2→8 blur
+        const opacity1 = 0.3 + intensity * 0.7; // 0.3→1.0
+        const bgStrokeOpacity = 0.03 + intensity * 0.04; // subtle bg boost
+
+        // Color stops: muted → vibrant gold
+        const startColor = `rgba(${Math.round(160 + intensity * 52)}, ${Math.round(140 + intensity * 35)}, ${Math.round(30 + intensity * 25)}, ${opacity1})`;
+        const midColor = `rgba(${Math.round(200 + intensity * 52)}, ${Math.round(180 + intensity * 31)}, ${Math.round(50 + intensity * 27)}, ${opacity1})`;
+        const endColor = `rgba(${Math.round(160 + intensity * 52)}, ${Math.round(140 + intensity * 35)}, ${Math.round(30 + intensity * 25)}, ${opacity1})`;
 
         return (
             <div className="relative flex items-center justify-center w-48 h-48">
                 {/* Glow Filter Definition */}
                 <svg style={{ position: 'absolute', width: 0, height: 0 }}>
                     <defs>
-                        <linearGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                            <stop offset="0%" stopColor="#D4AF37" />
-                            <stop offset="50%" stopColor="#FCD34D" />
-                            <stop offset="100%" stopColor="#D4AF37" />
+                        <linearGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stopColor={startColor} />
+                            <stop offset="50%" stopColor={midColor} />
+                            <stop offset="100%" stopColor={endColor} />
                         </linearGradient>
                         <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
-                            <feGaussianBlur stdDeviation="4" result="coloredBlur" />
+                            <feGaussianBlur stdDeviation={glowBlur} result="coloredBlur" />
                             <feMerge>
                                 <feMergeNode in="coloredBlur" />
                                 <feMergeNode in="SourceGraphic" />
@@ -304,11 +315,11 @@ export default function Tracking() {
                     <circle
                         cx="96" cy="96" r={radius}
                         fill="transparent"
-                        stroke="rgba(255,255,255,0.05)"
+                        stroke={`rgba(212, 175, 55, ${bgStrokeOpacity})`}
                         strokeWidth="12"
                     />
 
-                    {/* Progress Circle with Gradient & Glow */}
+                    {/* Progress Circle with Dynamic Gradient & Glow */}
                     <circle
                         cx="96" cy="96" r={radius}
                         fill="transparent"
@@ -325,11 +336,11 @@ export default function Tracking() {
                 {/* Inner Content */}
                 <div className="absolute flex flex-col items-center justify-center">
                     <div className="relative">
-                        <span className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-br from-white to-islamic-gold drop-shadow-sm">
+                        <span className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-br from-islamic-gold/70 to-islamic-gold drop-shadow-sm">
                             {value.toFixed(0)}%
                         </span>
                     </div>
-                    <span className="text-[10px] text-emerald-100/80 uppercase tracking-[0.2em] font-bold mt-1 shadow-black/20 text-shadow-sm">
+                    <span className="text-[10px] text-islamic-gold/50 uppercase tracking-[0.2em] font-bold mt-1">
                         İlerleme
                     </span>
 

@@ -140,22 +140,27 @@ export default function Stories() {
 
 
             {/* Category Selection */}
-            <div className="flex gap-2 overflow-x-auto pb-4 scrollbar-hide -mx-1 px-1">
-                {CATEGORIES.map((cat) => (
-                    <button
-                        key={cat.id}
-                        onClick={() => setActiveCategory(cat.id)}
-                        className={cn(
-                            "flex items-center gap-2 px-6 py-3 rounded-2xl border transition-all text-sm font-medium whitespace-nowrap shadow-sm",
-                            activeCategory === cat.id
-                                ? "bg-islamic-green dark:bg-islamic-gold text-white dark:text-[#032e18] border-islamic-green scale-105"
-                                : "bg-white dark:bg-white/5 text-gray-500 dark:text-gray-400 border-gray-100 dark:border-white/5"
-                        )}
-                    >
-                        <cat.icon size={16} className={activeCategory === cat.id ? "text-islamic-gold dark:text-[#032e18]" : "text-islamic-green dark:text-islamic-gold"} />
-                        {cat.label}
-                    </button>
-                ))}
+            <div className="glass-panel rounded-3xl p-2 grid grid-cols-3 gap-1">
+                {CATEGORIES.map((cat) => {
+                    const Icon = cat.icon;
+                    const isActive = activeCategory === cat.id;
+                    return (
+                        <motion.button
+                            key={cat.id}
+                            onClick={() => setActiveCategory(cat.id)}
+                            className={cn(
+                                "relative px-3 py-3 overflow-hidden rounded-2xl font-bold text-xs uppercase tracking-wider transition-all",
+                                isActive
+                                    ? "bg-islamic-green dark:bg-islamic-gold text-white dark:text-[#032e18] shadow-lg"
+                                    : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/5"
+                            )}
+                            whileTap={{ scale: 0.95 }}
+                        >
+                            <Icon className={cn("w-5 h-5 mx-auto mb-1", isActive && "drop-shadow-md")} />
+                            <span className="text-[10px]">{cat.label}</span>
+                        </motion.button>
+                    );
+                })}
             </div>
 
             {/* Story Grid */}

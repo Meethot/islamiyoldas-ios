@@ -1,17 +1,26 @@
 import React, { useState, useCallback, memo } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ChevronRight, ChevronLeft, Droplets, BookOpen, Heart, Moon, PartyPopper, CheckCircle2, RotateCcw, Sparkles as SparklesIcon } from 'lucide-react';
+import { ChevronRight, ChevronLeft, Droplets, BookOpen, Heart, Moon, PartyPopper, CheckCircle2, RotateCcw, Sparkles as SparklesIcon, Shield, Flower2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useHaptics } from '@/hooks/useMobile';
+
+// Secde (sujood) ikonu - erkek namazı için
+const SecdeIcon = ({ className }) => (
+    <svg viewBox="0 0 24 24" fill="currentColor" className={className}>
+        <circle cx="6" cy="14" r="2" />
+        <path d="M8 15c1.5 1 3 2 5 2h5c1 0 2-.5 2-1.5S19 14 18 14h-4l-2-2c-.5-.5-1.5-1-2.5-1H8v4z" />
+        <rect x="2" y="18" width="20" height="1.5" rx="0.75" />
+    </svg>
+);
 
 const CATEGORIES = [
     { id: 'abdest', label: 'Abdest', icon: Droplets },
     { id: 'dualar', label: 'Dualar', icon: Heart },
     { id: 'sureler', label: 'Sureler', icon: BookOpen },
-    { id: 'namazlar', label: 'Erkek Namazı', icon: Moon },
-    { id: 'kadinNamaz', label: 'Kadın Namazı', icon: Moon },
+    { id: 'namazlar', label: 'Erkek Namazı', icon: SecdeIcon },
+    { id: 'kadinNamaz', label: 'Kadın Namazı', icon: SparklesIcon },
 ];
 
 const GUIDES = {
@@ -651,216 +660,216 @@ const GUIDES = {
         steps: [
             {
                 title: '1. Niyet ve İftitah Tekbiri',
-                instruction: 'İpucu: Ayaklar 4 parmak açık. Eller kulak hizasına, baş parmak kulağa değecek şekilde kaldırılır. Avuç içleri Kabe\'ye bakar.',
-                arabic: 'نَوَيْتُ... اَللهُ اَكْبَرُ',
-                transcription: '"Niyet ettim Allah rızası için namaz kılmaya" denir. Sonra "Allâhu Ekber" diyerek eller bağlanır.',
+                instruction: 'Kıbleye dönülür. Ayaklar arasında 4 parmak boşluk bırakılır. Eller kulak hizasına kaldırılır, baş parmaklar kulak memelerine değer. Avuç içleri kıbleye bakar.',
+                arabic: 'نَوَيْتُ أَنْ أُصَلِّيَ... اَللهُ اَكْبَرُ',
+                transcription: '"Niyet ettim Allah rızası için (…) namazını kılmaya" denir. Sonra "Allâhu Ekber" diyerek tekbir alınır ve eller bağlanır.',
                 meaning: 'Allah en büyüktür.',
-                tips: ['Tekbir alırken ellerin içi kıbleye dönük olmalı.', 'Dünya işleri arkada bırakılır.']
+                tips: ['Tekbir alırken ellerin içi kıbleye dönük olmalı.', 'Niyet kalben yapılır, dil ile söylemek vacip değildir ama söylenebilir.', 'Hangi namazı kılıyorsanız onu niyet edin (örn: sabah namazının farzı).']
             },
             {
                 title: '2. Kıyam (Sübhaneke)',
-                instruction: 'İpucu: Eller göbek deliği altında bağlanır. Sağ el bileği kavrar. Gözler secde yerine bakar.',
-                arabic: 'سُبْحَانَكَ...',
-                transcription: 'Sübhânekellâhümme ve bi hamdik ve tebârakesmük ve teâlâ ceddük ve lâ ilâhe ğayrük.',
-                meaning: 'Allah\'ım! Sen eksik sıfatlardan pak ve uzaksın...',
-                tips: ['İlk rekatta Sübhaneke okunur.', 'Huşu içinde, kıpırdamadan durulur.']
+                instruction: 'Eller göbek altında bağlanır. Sağ elin küçük parmağı ve başparmağı sol bileği kavrar, diğer üç parmak üste konur. Gözler secde yerine bakar.',
+                arabic: 'سُبْحَانَكَ اللَّهُمَّ وَبِحَمْدِكَ وَتَبَارَكَ اسْمُكَ وَتَعَالَى جَدُّكَ وَلاَ إِلٰهَ غَيْرُكَ',
+                transcription: 'Sübhânekellâhümme ve bi hamdike ve tebârakesmüke ve teâlâ ceddüke ve lâ ilâhe ğayrük.',
+                meaning: 'Allah\'ım! Seni hamdinle tesbih ederim. Senin adın mübarektir. Senin şanın yücedir. Senden başka ilah yoktur.',
+                tips: ['Sübhaneke sadece birinci rekatta okunur.', 'Sessizce (gizli) okunur.', 'Bu duadan sonra Euzü Besmele çekilir.']
             },
             {
                 title: '3. Kıyam (Fatiha ve Sure)',
-                instruction: 'İpucu: Hareket edilmez. Sadece dudaklar kıpırdar.',
-                arabic: 'الْفَاتِحَة... سُورَة',
-                transcription: 'Euzü Besmele çekilir. Fatiha Suresi okunur, "Amin" denir. Ardından bir Zammı Sure (Örn: Kevser) okunur.',
-                meaning: 'Fatiha ve Sure ile Allah\'a munacaat edilir.',
-                tips: ['Besmele sadece Fatiha\'dan önce çekilir.', 'Zammı sure en az 3 ayet olmalıdır.']
+                instruction: 'Aynı duruşta kalınır. Hareket edilmez, sadece dudaklar kıpırdar.',
+                arabic: 'أَعُوذُ بِاللهِ مِنَ الشَّيْطَانِ الرَّجِيمِ ، بِسْمِ اللهِ الرَّحْمٰنِ الرَّحِيمِ ، الْفَاتِحَة... سُورَة',
+                transcription: 'Euzü Besmele çekilir. Fatiha okunur, sonunda "Âmîn" denir. Ardından bir Zamm-ı Sure okunur (Örn: Kevser Suresi).',
+                meaning: 'Fatiha ve sure ile Allah\'a yalvarılır.',
+                tips: ['Birinci rekatta Euzü + Besmele çekilir.', 'Zamm-ı sure en az 3 kısa ayet veya 1 uzun ayet olmalıdır.', 'Fatiha\'nın sonunda "Âmîn" sessizce söylenir.']
             },
             {
                 title: '4. Rükû',
-                instruction: 'İpucu: "Allahu Ekber" denir. Bel tam düz (90 derece). Parmaklar açık dizleri kavrar. Bacaklar ve kollar gergin.',
-                arabic: 'سُبْحَانَ رَبِّيَ الْعَظِيمِ',
-                transcription: '3 kere: "Sübhâne Rabbiyel Azîm"',
+                instruction: '"Allâhu Ekber" diyerek eğilinir. Sırt dümdüz (masa gibi), baş sırt hizasında. Parmaklar açık şekilde dizleri kavrar. Bacaklar ve kollar gergin.',
+                arabic: 'سُبْحَانَ رَبِّيَ الْعَظِيمِ',
+                transcription: 'En az 3 kere: "Sübhâne Rabbiyel Azîm"',
                 meaning: 'Büyük olan Rabbimi tenzih ederim.',
-                tips: ['Sırt düz olmalı, baş sırt hizasında durmalı.', 'Gözler iki ayak ucuna bakmalı.']
+                tips: ['Sırt ile baş aynı hizada, düz bir hat oluşturmalı.', 'Gözler ayak üstüne bakar.', 'Dizler bükülmez, gergin durur.']
             },
             {
                 title: '5. Doğrulma (Kavme)',
-                instruction: 'İpucu: Rükûdan tam doğrulunur. Vücut dimdik hale gelmeden secdeye gidilmez.',
-                arabic: 'سَمِعَ اللهُ لِمَنْ حَمِدَهُ... رَبَّنَا لَكَ الْحَمْدُ',
-                transcription: 'Doğrulurken: "Semiallahü limen hamideh". Dik duruşta: "Rabbena lekel hamd".',
-                meaning: 'Allah, kendisine hamd edeni işitti... Rabbimiz, hamd Sanadır.',
-                tips: ['Bu duruşa "Kavme" denir.', 'Acele etmeden tam doğrulmak gerekir (Tadil-i Erkan).']
+                instruction: '"Semiallâhü limen hamideh" diyerek doğrulunur. Tam dik durulur ve "Rabbenâ lekel hamd" denir.',
+                arabic: 'سَمِعَ اللهُ لِمَنْ حَمِدَهُ ، رَبَّنَا لَكَ الْحَمْدُ',
+                transcription: 'Doğrulurken: "Semiallâhü limen hamideh". Dik durunca: "Rabbenâ lekel hamd".',
+                meaning: 'Allah, kendisine hamd edeni işitti. Rabbimiz, hamd Sanadır.',
+                tips: ['Bu duruşa "Kavme" denir ve vaciptir.', 'Tam doğrulmadan secdeye gidilmez (Tadil-i Erkan).', 'Eller yanlara salınır, bağlanmaz.']
             },
             {
                 title: '6. Birinci Secde',
-                instruction: 'İpucu: "Allahu Ekber" ile gidilir. Önce dizler, sonra eller, sonra alın ve burun yere konur. Dirsekler havada, karın uyluktan uzak.',
-                arabic: 'سُبْحَانَ رَبِّيَ اْلاَعْلَى',
-                transcription: '3 kere: "Sübhâne Rabbiyel A\'lâ"',
+                instruction: '"Allâhu Ekber" diyerek secdeye gidilir. Sırasıyla: dizler, eller, burun ve alın yere konur. Dirsekler havada (yere değmez), karın uyluktan uzak tutulur.',
+                arabic: 'سُبْحَانَ رَبِّيَ الْأَعْلَى',
+                transcription: 'En az 3 kere: "Sübhâne Rabbiyel A\'lâ"',
                 meaning: 'Yüce olan Rabbimi tenzih ederim.',
-                tips: ['Alın ve burun tam yere değmeli.', 'Ayak parmakları kıbleye dönük ve yerde olmalı.']
+                tips: ['7 organ üzerinde secde edilir: alın+burun, iki el, iki diz, iki ayağın parmakları.', 'Ayak parmak uçları kıbleye dönük ve yere basılı olmalı.', 'Kollar yanlara açık, vücuttan ayrık tutulur.']
             },
             {
-                title: '7. İki Secde Arası Oturuş',
-                instruction: 'İpucu: "Allahu Ekber" ile oturulur. Sol ayak üzerine oturulur, sağ ayak dik (parmaklar kıbleye). Eller dizlerde.',
-                arabic: 'رَبِّ اغْفِرْ لِي',
-                transcription: 'Kısa bir an durulur (Sübhanallah diyecek kadar).',
-                meaning: 'Rabbim beni bağışla.',
-                tips: ['Bu oturuşa "Celse" denir.', 'Tam oturmadan ikinci secdeye gidilmez.']
+                title: '7. İki Secde Arası Oturuş (Celse)',
+                instruction: '"Allâhu Ekber" diyerek doğrulup oturulur. Sol ayak yatırılıp üzerine oturulur, sağ ayak dik tutulur (parmakları kıbleye). Eller dizlerin üzerine konur.',
+                arabic: 'رَبِّ اغْفِرْ لِي وَارْحَمْنِي',
+                transcription: '"Rabbiğfir lî verhamnî" — en az bir "Sübhânallah" diyecek kadar beklenir.',
+                meaning: 'Rabbim, beni bağışla ve bana merhamet et.',
+                tips: ['Bu oturuşa "Celse" denir ve vaciptir.', 'Oturmadan ikinci secdeye gidilmez.', 'Parmak uçları kıbleye dönük olmalıdır.']
             },
             {
                 title: '8. İkinci Secde',
-                instruction: 'İpucu: Tekrar "Allahu Ekber" ile kapanılır. İlk secde ile aynı pozisyon alınır.',
-                arabic: 'سُبْحَانَ رَبِّيَ اْلاَعْلَى',
-                transcription: '3 kere: "Sübhâne Rabbiyel A\'lâ"',
+                instruction: 'Tekrar "Allâhu Ekber" diyerek secdeye kapanılır. Birinci secdedeki pozisyon aynen alınır.',
+                arabic: 'سُبْحَانَ رَبِّيَ الْأَعْلَى',
+                transcription: 'En az 3 kere: "Sübhâne Rabbiyel A\'lâ"',
                 meaning: 'Yüce olan Rabbimi tenzih ederim.',
-                tips: ['Secde anı, kula Allah\'a en yakın andır.', 'Dua makamıdır.']
+                tips: ['Secde anı, kulun Allah\'a en yakın olduğu anıdır.', 'Bu makamda gönülden dua edilebilir.']
             },
             {
                 title: '9. İkinci Rekat (Kıyam)',
-                instruction: 'İpucu: "Allahu Ekber" ile ayağa kalkılır. Eller tekrar göbek altında bağlanır.',
-                arabic: 'الْفَاتِحَة... سُورَة',
-                transcription: 'Besmele, Fatiha ve Zammı Sure (Örn: İhlas) okunur. (Sübhaneke okunmaz).',
+                instruction: '"Allâhu Ekber" diyerek ayağa kalkılır. Eller göbek altında bağlanır, gözler secde yerine bakar.',
+                arabic: 'بِسْمِ اللهِ الرَّحْمٰنِ الرَّحِيمِ ، الْفَاتِحَة... سُورَة',
+                transcription: 'Sadece Besmele ile başlanır. Fatiha ve Zamm-ı Sure okunur (Örn: İhlas Suresi).',
                 meaning: 'Kur\'an kıraati.',
-                tips: ['İkinci rekatta Sübhaneke ve Euzü okunmaz.', 'Sadece Besmele ile başlanır.']
+                tips: ['İkinci rekatta Sübhaneke okunmaz.', 'Euzü (Euzübillah) çekilmez, sadece Besmele ile başlanır.', 'Zamm-ı sure birinci rekattan farklı olması müstehap.']
             },
             {
                 title: '10. Rükû ve Secdeler',
-                instruction: 'İpucu: İlk rekattaki gibi sırasıyla Rükû, Doğrulma ve iki Secde yapılır.',
-                arabic: '...',
-                transcription: 'Tesbihatlar aynen tekrarlanır (Sübhâne Rabbiyel Azîm / A\'lâ).',
-                meaning: 'Rabbim Tenzih ederim.',
-                tips: ['Acele etmeden, hakkını vererek yapılır.', 'Hareketler arasında sükunet sağlanır.']
+                instruction: 'Birinci rekattaki gibi sırasıyla: Rükû → Kavme → 1. Secde → Celse → 2. Secde yapılır.',
+                arabic: 'سُبْحَانَ رَبِّيَ الْعَظِيمِ ، سُبْحَانَ رَبِّيَ الْأَعْلَى',
+                transcription: 'Rükûda: "Sübhâne Rabbiyel Azîm" | Secdelerde: "Sübhâne Rabbiyel A\'lâ" (en az 3\'er kere).',
+                meaning: 'Rabbimi her haliyle tenzih ederim.',
+                tips: ['Hareketler arasında sükunet (tuma\'nine) sağlanır.', 'Acele etmeden, her pozisyonun hakkı verilir (Tadil-i Erkan).']
             },
             {
                 title: '11. Son Oturuş (Ettehiyyatü)',
-                instruction: 'İpucu: Sol ayak üzerine oturulur, sağ ayak dik. Eller dizlerde. Bakışlar kucağa.',
-                arabic: 'اَلتَّحِيَّاتُ...',
-                transcription: 'Ettehiyyatü duası okunur.',
-                meaning: 'Selam, rahmet ve bütün güzellikler Allah içindir...',
-                tips: ['Şehadet parmağı "La ilahe" derken kaldırılır.', 'Miraç hatırasıdır.']
+                instruction: 'İkinci secdeden sonra oturulur. Sol ayak yatırılıp üstüne oturulur, sağ ayak dik. Eller dizlerde. Bakışlar kucağa yönelir.',
+                arabic: 'اَلتَّحِيَّاتُ لِلّٰهِ وَالصَّلَوَاتُ وَالطَّيِّبَاتُ اَلسَّلَامُ عَلَيْكَ أَيُّهَا النَّبِيُّ وَرَحْمَةُ اللهِ وَبَرَكَاتُهُ اَلسَّلَامُ عَلَيْنَا وَعَلَى عِبَادِ اللهِ الصَّالِحِينَ أَشْهَدُ أَنْ لآ إِلٰهَ إِلَّا اللهُ وَأَشْهَدُ أَنَّ مُحَمَّداً عَبْدُهُ وَرَسُولُهُ',
+                transcription: 'Ettehiyyâtü lillâhi ves-salevâtü vet-tayyibât. Esselâmü aleyke eyyühen-nebiyyü ve rahmetullâhi ve berakâtüh. Esselâmü aleynâ ve alâ ibâdillâhis-sâlihîn. Eşhedü en lâ ilâhe illallâh ve eşhedü enne Muhammeden abdühû ve rasûlüh.',
+                meaning: 'Bütün tahiyyatlar, salavat ve tayyibat Allah içindir. Ey Peygamber! Selam, rahmet ve bereket sana olsun. Bize ve salih kullara selam olsun. Şehadet ederim ki Allah\'tan başka ilah yoktur ve Muhammed O\'nun kulu ve rasülüdür.',
+                tips: ['Şehadet cümlesinde "Lâ ilâhe" derken sağ elin şehadet parmağı kaldırılır.', '"\'İllallâh" denince indirilir.', 'Bu dua Hz. Peygamber\'in Miraç gecesinin hatırasıdır.']
             },
             {
                 title: '12. Salli, Barik ve Rabbena',
-                instruction: 'İpucu: Oturuş bozulmaz. Edeple durulur.',
-                arabic: 'اَللَّهُمَّ صَلِّ... رَبَّنَا',
-                transcription: 'Allahümme Salli, Barik ve Rabbena Atina/Rabbenağfirli duaları okunur.',
-                meaning: 'Peygamberimize salavat ve dua.',
-                tips: ['Namazın son dualarıdır.', 'Dünya ve ahiret iyiliği istenir.']
+                instruction: 'Oturuş bozulmaz. Sırasıyla Salli, Barik ve Rabbena duaları okunur.',
+                arabic: 'اَللّٰهُمَّ صَلِّ عَلَى مُحَمَّدٍ وَعَلَى آلِ مُحَمَّدٍ... اَللّٰهُمَّ بَارِكْ عَلَى مُحَمَّدٍ وَعَلَى آلِ مُحَمَّدٍ... رَبَّنَآ آتِنَا فِي الدُّنْيَا حَسَنَةً وَفِي الْآخِرَةِ حَسَنَةً وَقِنَا عَذَابَ النَّارِ',
+                transcription: 'Allahümme salli alâ Muhammedin ve alâ âli Muhammed... Allahümme bârik alâ Muhammedin ve alâ âli Muhammed... Rabbenâ âtinâ fid-dünyâ haseneten ve fil-âhirati haseneten ve kınâ azâben-nâr.',
+                meaning: 'Allah\'ım! Muhammed\'e ve ailesine rahmet/bereket eyle. Rabbimiz! Bize dünyada da ahirette de iyilik ver ve bizi cehennem azabından koru.',
+                tips: ['Son oturuşun vacip dualarıdır.', 'Rabbena\'dan sonra farklı dualar da eklenebilir.', 'Dua sırasında huşu ve edep korunur.']
             },
             {
                 title: '13. Selam',
-                instruction: 'İpucu: Önce sağ omuza, sonra sol omuza bakılır.',
-                arabic: 'اَلسَّلاَمُ عَلَيْكُمْ وَرَحْمَةُ اللهِ',
+                instruction: 'Başı önce sağ omuza, sonra sol omuza çevirerek selam verilir.',
+                arabic: 'اَلسَّلاَمُ عَلَيْكُمْ وَرَحْمَةُ اللهِ',
                 transcription: 'Sağa: "Esselâmü aleyküm ve rahmetullâh". Sola: "Esselâmü aleyküm ve rahmetullâh".',
                 meaning: 'Allah\'ın selamı ve rahmeti üzerinize olsun.',
-                tips: ['Meleklere ve cemaate niyet edilir.', 'Namaz tamamlanmış olur.']
+                tips: ['Sağa selamda sağ omuzdaki meleklere, sola selamda sol omuzdaki meleklere ve cemaate niyet edilir.', 'Namaz selamla tamamlanır, ellerinizi kaldırıp dua edebilirsiniz.']
             }
         ]
     },
     kadinNamaz: {
-        title: 'Kadın Namazı (Özel Haller)',
+        title: 'Kadın Namazı (2 Rekat Örnek)',
         steps: [
             {
                 title: '1. Niyet ve İftitah Tekbiri',
-                instruction: 'İpucu: Eller göğüs hizasına (omuz başlarına) hafifçe kaldırılır. Parmaklar bitişik, avuç içi kıbleye bakar.',
-                arabic: 'نَوَيْتُ... اَللهُ اَكْبَرُ',
-                transcription: '"Niyet ettim..." denir. "Allâhu Ekber" diyerek eller göğüs üstünde bağlanır.',
+                instruction: 'Kıbleye dönülür. Ayaklar bitişik tutulur. Eller omuz hizasına kadar kaldırılır (kulak hizasına değil). Parmaklar bitişik, avuç içleri kıbleye bakar.',
+                arabic: 'نَوَيْتُ أَنْ أُصَلِّيَ... اَللهُ اَكْبَرُ',
+                transcription: '"Niyet ettim Allah rızası için (…) namazını kılmaya" denir. Sonra "Allâhu Ekber" diyerek tekbir alınır ve eller göğüs üzerinde bağlanır.',
                 meaning: 'Allah en büyüktür.',
-                tips: ['Erkekler gibi kulaklara götürülmez.', 'Kollar vücuda daha yakın tutulur.']
+                tips: ['Erkeklerden farkı: Eller kulak hizasına değil, omuz hizasına kaldırılır.', 'Kollar vücuda yakın tutulur, yanlara açılmaz.', 'Tekbirden sonra eller göğüs üzerinde bağlanır (göbek altında değil).']
             },
             {
                 title: '2. Kıyam (Sübhaneke)',
-                instruction: 'İpucu: Eller göğüs üzerinde bağlanır. Sağ el solun üzerine konur (bilek kavranmaz, sadece üstüne konur). Ayaklar bitişik.',
-                arabic: 'سُبْحَانَكَ...',
-                transcription: 'Sübhânekellâhümme ve bi hamdik...',
-                meaning: 'Seni tenzih ederim Allah\'ım...',
-                tips: ['Vücut dik durur.', 'Gözler secde yerine bakar.']
+                instruction: 'Eller göğüs üzerinde bağlanır. Sağ el solun üzerine konur (bilek kavranmaz, sadece üstüne yerleştirilir). Ayaklar bitişik tutulur.',
+                arabic: 'سُبْحَانَكَ اللَّهُمَّ وَبِحَمْدِكَ وَتَبَارَكَ اسْمُكَ وَتَعَالَى جَدُّكَ وَلاَ إِلٰهَ غَيْرُكَ',
+                transcription: 'Sübhânekellâhümme ve bi hamdike ve tebârakesmüke ve teâlâ ceddüke ve lâ ilâhe ğayrük.',
+                meaning: 'Allah\'ım! Seni hamdinle tesbih ederim. Senin adın mübarektir. Senin şanın yücedir. Senden başka ilah yoktur.',
+                tips: ['Sübhaneke sadece birinci rekatta okunur.', 'Sessizce okunur, gözler secde yerine bakar.', 'Erkeklerden farkı: Sağ el sol eli kavramaz, sadece üstüne konur.']
             },
             {
                 title: '3. Kıyam (Fatiha ve Sure)',
-                instruction: 'İpucu: Eller göğüs üstünde bağlı, sükunetle durulur.',
-                arabic: 'الْفَاتِحَة... سُورَة',
-                transcription: 'Euzü Besmele, Fatiha ve Zammı Sure okunur.',
-                meaning: 'Kur\'an kıraati.',
-                tips: ['Kadınların sesi sadece kendi duyacağı kadar çıkar.', 'Gizli okunur.']
+                instruction: 'Eller göğüs üstünde bağlı kalır. Sükunetle, kıpırdamadan durulur.',
+                arabic: 'أَعُوذُ بِاللهِ مِنَ الشَّيْطَانِ الرَّجِيمِ ، بِسْمِ اللهِ الرَّحْمٰنِ الرَّحِيمِ ، الْفَاتِحَة... سُورَة',
+                transcription: 'Euzü Besmele çekilir. Fatiha okunur, sonunda "Âmîn" denir. Ardından bir Zamm-ı Sure okunur (Örn: Kevser Suresi).',
+                meaning: 'Fatiha ve sure ile Allah\'a yalvarılır.',
+                tips: ['Birinci rekatta Euzü + Besmele çekilir.', 'Ses sadece kendi duyacağı kadar çıkar (gizli okunur).', 'Zamm-ı sure en az 3 kısa ayet veya 1 uzun ayet olmalıdır.']
             },
             {
                 title: '4. Rükû',
-                instruction: 'İpucu: Az eğilinir (dümdüz olunmaz). Dizler hafif bükük. Eller dizlerin üzerine konur (kavranmaz).',
-                arabic: 'سُبْحَانَ رَبِّيَ الْعَظِيمِ',
-                transcription: '3 kere: "Sübhâne Rabbiyel Azîm"',
+                instruction: '"Allâhu Ekber" diyerek hafifçe eğilinir. Sırt dümdüz yapılmaz, erkeklere göre daha dik durulur. Dizler hafif bükük. Eller dizlerin üzerine konur (kavranmaz, sadece üstüne yerleştirilir).',
+                arabic: 'سُبْحَانَ رَبِّيَ الْعَظِيمِ',
+                transcription: 'En az 3 kere: "Sübhâne Rabbiyel Azîm"',
                 meaning: 'Büyük olan Rabbimi tenzih ederim.',
-                tips: ['Erkekler gibi sırt 90 derece yapılmaz.', 'Daha dik ve toplu bir duruş sergilenir.']
+                tips: ['Erkeklerden farkı: Sırt 90 derece yapılmaz, daha dik ve toplu durulur.', 'Parmaklar bitişik şekilde dizlere konur (erkeklerde açık ve kavrayarak).', 'Kollar vücuda yakın, dirsekler yanlara açılmaz.']
             },
             {
                 title: '5. Doğrulma (Kavme)',
-                instruction: 'İpucu: Rükûdan tam doğrulunur.',
-                arabic: 'سَمِعَ اللهُ لِمَنْ حَمِدَهُ... رَبَّنَا لَكَ الْحَمْدُ',
-                transcription: '"Semiallahü limen hamideh... Rabbena lekel hamd".',
-                meaning: 'Allah hamd edeni işitti.',
-                tips: ['Dik durulur, beklenir.']
+                instruction: '"Semiallâhü limen hamideh" diyerek doğrulunur. Tam dik durulur ve "Rabbenâ lekel hamd" denir.',
+                arabic: 'سَمِعَ اللهُ لِمَنْ حَمِدَهُ ، رَبَّنَا لَكَ الْحَمْدُ',
+                transcription: 'Doğrulurken: "Semiallâhü limen hamideh". Dik durunca: "Rabbenâ lekel hamd".',
+                meaning: 'Allah, kendisine hamd edeni işitti. Rabbimiz, hamd Sanadır.',
+                tips: ['Kavme vaciptir, tam doğrulmadan secdeye gidilmez.', 'Erkeklerle aynı şekilde uygulanır.', 'Eller yanlara salınır.']
             },
             {
                 title: '6. Birinci Secde',
-                instruction: 'İpucu: Kollar yere yapışık, karın bacaklara bitişik (küçülerek) secde edilir.',
-                arabic: 'سُبْحَانَ رَبِّيَ اْلاَعْلَى',
-                transcription: '3 kere: "Sübhâne Rabbiyel A\'lâ"',
+                instruction: '"Allâhu Ekber" diyerek secdeye gidilir. Kollar yere yapıştırılır (havada tutulmaz). Karın bacaklara bitişik, vücut toplanarak secde edilir.',
+                arabic: 'سُبْحَانَ رَبِّيَ الْأَعْلَى',
+                transcription: 'En az 3 kere: "Sübhâne Rabbiyel A\'lâ"',
                 meaning: 'Yüce olan Rabbimi tenzih ederim.',
-                tips: ['Dirsekler yere değer.', 'Mümkün olduğunca toplu ve kapalı durulur (Tessettüre en uygun hal).']
+                tips: ['Erkeklerden farkı: Dirsekler yere değer (erkeklerde havada).', 'Karın bacaklara yapışık, vücut mümkün olduğunca toplu tutulur.', 'Bu duruş tesettüre en uygun haldir.']
             },
             {
-                title: '7. İki Secde Arası Oturuş',
-                instruction: 'İpucu: Ayaklar sağ tarafa çıkarılır, yere oturulur.',
-                arabic: 'رَبِّ اغْفِرْ لِي',
-                transcription: 'Kısa bir an durulur.',
-                meaning: 'Rabbim bağışla.',
-                tips: ['Bu oturuşa "Teverrük" denir.', 'Erkekler gibi ayağın üstüne oturulmaz.']
+                title: '7. İki Secde Arası Oturuş (Celse)',
+                instruction: '"Allâhu Ekber" diyerek doğrulup oturulur. Her iki ayak sağ tarafa çıkarılır ve yere oturulur (Teverrük oturuşu). Eller dizlerin üzerine konur.',
+                arabic: 'رَبِّ اغْفِرْ لِي وَارْحَمْنِي',
+                transcription: '"Rabbiğfir lî verhamnî" — en az bir "Sübhânallah" diyecek kadar beklenir.',
+                meaning: 'Rabbim, beni bağışla ve bana merhamet et.',
+                tips: ['Erkeklerden farkı: Sol ayağın üzerine oturulmaz, ayaklar sağa çıkarılıp yere oturulur.', 'Bu kadınlara özel oturuş şekli "Teverrük" olarak adlandırılır.', 'Celse vaciptir, oturmadan ikinci secdeye gidilmez.']
             },
             {
                 title: '8. İkinci Secde',
-                instruction: 'İpucu: Tekrar kapanılır. Kollar yere yapışık.',
-                arabic: 'سُبْحَانَ رَبِّيَ اْلاَعْلَى',
-                transcription: '3 kere: "Sübhâne Rabbiyel A\'lâ"',
+                instruction: 'Tekrar "Allâhu Ekber" diyerek secdeye kapanılır. Birinci secdedeki pozisyon aynen alınır — kollar yere yapışık, vücut toplu.',
+                arabic: 'سُبْحَانَ رَبِّيَ الْأَعْلَى',
+                transcription: 'En az 3 kere: "Sübhâne Rabbiyel A\'lâ"',
                 meaning: 'Yüce olan Rabbimi tenzih ederim.',
-                tips: ['Alın ve burun yerde sabitlenir.']
+                tips: ['Alın ve burun yerde sabitlenir.', 'Secde anı, kulun Allah\'a en yakın olduğu andır.', 'Bu makamda gönülden dua edilebilir.']
             },
             {
                 title: '9. İkinci Rekat (Kıyam)',
-                instruction: 'İpucu: Ayağa kalkılır, eller göğüste bağlanır. Ayaklar bitişik.',
-                arabic: 'الْفَاتِحَة... سُورَة',
-                transcription: 'Besmele, Fatiha ve Zammı Sure okunur.',
-                meaning: 'Kıraat.',
-                tips: ['İkinci rekatta sadece Besmele çekilir.']
+                instruction: '"Allâhu Ekber" diyerek ayağa kalkılır. Eller göğüs üzerinde bağlanır. Ayaklar bitişik tutulur.',
+                arabic: 'بِسْمِ اللهِ الرَّحْمٰنِ الرَّحِيمِ ، الْفَاتِحَة... سُورَة',
+                transcription: 'Sadece Besmele ile başlanır. Fatiha ve Zamm-ı Sure okunur (Örn: İhlas Suresi).',
+                meaning: 'Kur\'an kıraati.',
+                tips: ['İkinci rekatta Sübhaneke okunmaz.', 'Euzü (Euzübillah) çekilmez, sadece Besmele ile başlanır.', 'Zamm-ı sure birinci rekattan farklı olması müstehap.']
             },
             {
                 title: '10. Rükû ve Secdeler',
-                instruction: 'İpucu: Rükû (hafif eğilme) ve Secdeler (kapalı duruş) tekrarlanır.',
-                arabic: '...',
-                transcription: 'Tesbihatlar aynen yapılır.',
-                meaning: 'Tesbih.',
-                tips: ['Tadil-i Erkana dikkat edilir.']
+                instruction: 'Birinci rekattaki gibi sırasıyla: Rükû (hafif eğilme) → Kavme → 1. Secde (toplu duruş) → Celse (Teverrük) → 2. Secde yapılır.',
+                arabic: 'سُبْحَانَ رَبِّيَ الْعَظِيمِ ، سُبْحَانَ رَبِّيَ الْأَعْلَى',
+                transcription: 'Rükûda: "Sübhâne Rabbiyel Azîm" | Secdelerde: "Sübhâne Rabbiyel A\'lâ" (en az 3\'er kere).',
+                meaning: 'Rabbimi her haliyle tenzih ederim.',
+                tips: ['Hareketler arasında sükunet (tuma\'nine) sağlanır.', 'Kadınlara özel duruşlar (toplu secde, hafif rükû, Teverrük oturuş) aynen korunur.']
             },
             {
                 title: '11. Son Oturuş (Ettehiyyatü)',
-                instruction: 'İpucu: Ayaklar sağa çıkarılır, yere oturulur. Eller dizler üzerinde.',
-                arabic: 'اَلتَّحِيَّاتُ...',
-                transcription: 'Ettehiyyatü okunur.',
-                meaning: 'Tahiyyat.',
-                tips: ['Bakışlar kucağa doğrudur.']
+                instruction: 'İkinci secdeden sonra oturulur. Ayaklar sağa çıkarılıp yere oturulur (Teverrük oturuşu). Eller dizler üzerinde, bakışlar kucağa yönelir.',
+                arabic: 'اَلتَّحِيَّاتُ لِلّٰهِ وَالصَّلَوَاتُ وَالطَّيِّبَاتُ اَلسَّلَامُ عَلَيْكَ أَيُّهَا النَّبِيُّ وَرَحْمَةُ اللهِ وَبَرَكَاتُهُ اَلسَّلَامُ عَلَيْنَا وَعَلَى عِبَادِ اللهِ الصَّالِحِينَ أَشْهَدُ أَنْ لآ إِلٰهَ إِلَّا اللهُ وَأَشْهَدُ أَنَّ مُحَمَّداً عَبْدُهُ وَرَسُولُهُ',
+                transcription: 'Ettehiyyâtü lillâhi ves-salevâtü vet-tayyibât. Esselâmü aleyke eyyühen-nebiyyü ve rahmetullâhi ve berakâtüh. Esselâmü aleynâ ve alâ ibâdillâhis-sâlihîn. Eşhedü en lâ ilâhe illallâh ve eşhedü enne Muhammeden abdühû ve rasûlüh.',
+                meaning: 'Bütün tahiyyatlar, salavat ve tayyibat Allah içindir. Ey Peygamber! Selam, rahmet ve bereket sana olsun. Şehadet ederim ki Allah\'tan başka ilah yoktur ve Muhammed O\'nun kulu ve rasülüdür.',
+                tips: ['Şehadet cümlesinde "Lâ ilâhe" derken şehadet parmağı kaldırılmaz (kadınlarda).', 'Bakışlar kucağa yönelir, sükunetle okunur.', 'Erkek-kadın farkı: Kadınlarda şehadet parmağı kaldirma konusunda farklı görüşler vardır.']
             },
             {
                 title: '12. Salli, Barik ve Rabbena',
-                instruction: 'İpucu: Oturuş aynı şekilde devam eder.',
-                arabic: 'اَللَّهُمَّ صَلِّ... رَبَّنَا',
-                transcription: 'Dualar okunur.',
-                meaning: 'Dua.',
-                tips: ['Samimiyetle dua edilir.']
+                instruction: 'Teverrük oturuşu devam eder. Sırasıyla Salli, Barik ve Rabbena duaları okunur.',
+                arabic: 'اَللّٰهُمَّ صَلِّ عَلَى مُحَمَّدٍ وَعَلَى آلِ مُحَمَّدٍ... اَللّٰهُمَّ بَارِكْ عَلَى مُحَمَّدٍ وَعَلَى آلِ مُحَمَّدٍ... رَبَّنَآ آتِنَا فِي الدُّنْيَا حَسَنَةً وَفِي الْآخِرَةِ حَسَنَةً وَقِنَا عَذَابَ النَّارِ',
+                transcription: 'Allahümme salli alâ Muhammedin ve alâ âli Muhammed... Allahümme bârik alâ Muhammedin ve alâ âli Muhammed... Rabbenâ âtinâ fid-dünyâ haseneten ve fil-âhirati haseneten ve kınâ azâben-nâr.',
+                meaning: 'Allah\'ım! Muhammed\'e ve ailesine rahmet/bereket eyle. Rabbimiz! Bize dünyada da ahirette de iyilik ver ve bizi cehennem azabından koru.',
+                tips: ['Son oturuşun vacip dualarıdır.', 'Rabbena\'dan sonra farklı dualar da eklenebilir.', 'Samimiyetle ve huşu içinde okunur.']
             },
             {
                 title: '13. Selam',
-                instruction: 'İpucu: Baş sağa ve sola çevrilir.',
-                arabic: 'اَلسَّلاَمُ عَلَيْكُمْ وَرَحْمَةُ اللهِ',
-                transcription: '"Esselâmü aleyküm ve rahmetullâh".',
-                meaning: 'Selam vermek.',
-                tips: ['Namaz bitiminde Allah\'a şükredilir.']
+                instruction: 'Başı önce sağ omuza, sonra sol omuza çevirerek selam verilir.',
+                arabic: 'اَلسَّلاَمُ عَلَيْكُمْ وَرَحْمَةُ اللهِ',
+                transcription: 'Sağa: "Esselâmü aleyküm ve rahmetullâh". Sola: "Esselâmü aleyküm ve rahmetullâh".',
+                meaning: 'Allah\'ın selamı ve rahmeti üzerinize olsun.',
+                tips: ['Sağa selamda sağ omuzdaki meleklere, sola selamda sol omuzdaki meleklere niyet edilir.', 'Namaz selamla tamamlanır, ellerinizi kaldırıp dua edebilirsiniz.']
             }
         ]
     },
@@ -974,52 +983,149 @@ export default function Learn() {
 
     if (isComplete) {
         return (
-            <motion.div
-                initial={{ scale: 0.9, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                className="flex flex-col items-center justify-center min-h-[60vh] text-center p-8 bg-white dark:bg-white/5 rounded-[3rem] shadow-xl m-2 border dark:border-white/10"
-            >
-                <div className="w-24 h-24 bg-islamic-green/10 dark:bg-islamic-gold/10 rounded-full flex items-center justify-center mb-6 relative">
-                    <PartyPopper className="w-12 h-12 text-islamic-green dark:text-islamic-gold animate-bounce" />
-                    <SparklesIcon className="absolute -top-2 -right-2 text-islamic-gold" />
+            <div className="relative min-h-[80vh] flex flex-col items-center justify-center p-6 m-2 overflow-hidden">
+                {/* Background glow */}
+                <div className="absolute inset-0 rounded-[3rem] overflow-hidden">
+                    <div className="absolute inset-0 bg-gradient-to-b from-islamic-green/5 via-islamic-green/[0.02] to-transparent dark:from-islamic-gold/10 dark:via-islamic-gold/5 dark:to-transparent" />
+                    <motion.div
+                        className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 rounded-full bg-islamic-green/10 dark:bg-islamic-gold/15 blur-3xl"
+                        animate={{ scale: [1, 1.2, 1], opacity: [0.4, 0.7, 0.4] }}
+                        transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+                    />
                 </div>
-                <h2 className="text-3xl font-serif font-bold text-islamic-green dark:text-islamic-gold mb-2">Maşallah!</h2>
-                <p className="text-gray-500 dark:text-emerald-100/40 mb-10 max-w-xs">{guide.title} başarıyla tamamlandı. Allah kabul etsin.</p>
-                <div className="grid gap-4 w-full max-w-xs">
-                    <Button onClick={reset} className="bg-islamic-green dark:bg-islamic-gold hover:opacity-90 text-white dark:text-[#032e18] h-14 rounded-2xl font-bold shadow-lg">
-                        <RotateCcw className="mr-2 w-5 h-5" /> Tekrar Başa Dön
-                    </Button>
-                    <Button variant="ghost" onClick={() => setIsComplete(false)} className="h-12 rounded-2xl dark:text-gray-400">
-                        Geri Dön
-                    </Button>
+
+                {/* Content */}
+                <div className="relative z-10 flex flex-col items-center text-center">
+                    {/* Animated checkmark circle */}
+                    <motion.div
+                        initial={{ scale: 0, rotate: -180 }}
+                        animate={{ scale: 1, rotate: 0 }}
+                        transition={{ type: 'spring', damping: 12, stiffness: 200, delay: 0.2 }}
+                        className="relative mb-8"
+                    >
+                        <div className="w-28 h-28 rounded-full bg-gradient-to-br from-islamic-green to-emerald-600 dark:from-islamic-gold dark:to-amber-500 flex items-center justify-center shadow-2xl shadow-islamic-green/30 dark:shadow-islamic-gold/30">
+                            <CheckCircle2 className="w-14 h-14 text-white dark:text-[#032e18]" strokeWidth={2.5} />
+                        </div>
+                        {/* Pulse rings */}
+                        <motion.div
+                            className="absolute inset-0 rounded-full border-2 border-islamic-green/40 dark:border-islamic-gold/40"
+                            animate={{ scale: [1, 1.5], opacity: [0.6, 0] }}
+                            transition={{ duration: 2, repeat: Infinity, ease: 'easeOut' }}
+                        />
+                        <motion.div
+                            className="absolute inset-0 rounded-full border border-islamic-green/20 dark:border-islamic-gold/20"
+                            animate={{ scale: [1, 1.8], opacity: [0.4, 0] }}
+                            transition={{ duration: 2, repeat: Infinity, ease: 'easeOut', delay: 0.3 }}
+                        />
+                    </motion.div>
+
+                    {/* Title */}
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.5 }}
+                    >
+                        <p className="text-sm font-bold uppercase tracking-[0.3em] text-islamic-green/60 dark:text-islamic-gold/60 mb-2">
+                            Elhamdülillah
+                        </p>
+                        <h2 className="text-4xl font-serif font-bold text-islamic-green dark:text-islamic-gold mb-3">
+                            Maşallah!
+                        </h2>
+                    </motion.div>
+
+                    {/* Description */}
+                    <motion.p
+                        initial={{ opacity: 0, y: 15 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.7 }}
+                        className="text-gray-500 dark:text-emerald-100/50 mb-6 max-w-[280px] leading-relaxed"
+                    >
+                        <span className="font-semibold text-islamic-green dark:text-islamic-gold">{guide.title}</span>
+                        {' '}rehberini başarıyla tamamladın.
+                    </motion.p>
+
+                    {/* Stats badge */}
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ delay: 0.9 }}
+                        className="flex items-center gap-4 bg-islamic-green/5 dark:bg-islamic-gold/10 border border-islamic-green/10 dark:border-islamic-gold/15 rounded-2xl px-6 py-3 mb-4"
+                    >
+                        <div className="text-center">
+                            <span className="block text-2xl font-bold text-islamic-green dark:text-islamic-gold">{totalSteps}</span>
+                            <span className="text-[10px] uppercase tracking-wider text-gray-400 dark:text-emerald-100/30 font-medium">Adım</span>
+                        </div>
+                        <div className="w-px h-8 bg-islamic-green/10 dark:bg-islamic-gold/15" />
+                        <div className="text-center">
+                            <span className="block text-2xl font-bold text-islamic-green dark:text-islamic-gold">✓</span>
+                            <span className="text-[10px] uppercase tracking-wider text-gray-400 dark:text-emerald-100/30 font-medium">Tamam</span>
+                        </div>
+                    </motion.div>
+
+                    {/* Spiritual quote */}
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 1.1 }}
+                        className="mb-10 max-w-[260px]"
+                    >
+                        <p className="text-[11px] italic text-gray-400 dark:text-emerald-100/30 leading-relaxed">
+                            "Namaz müminin miracıdır."
+                        </p>
+                        <p className="text-[10px] text-gray-300 dark:text-emerald-100/20 mt-1">— Hadis-i Şerif</p>
+                    </motion.div>
+
+                    {/* Buttons */}
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 1.2 }}
+                        className="grid gap-3 w-full max-w-[280px]"
+                    >
+                        <motion.button
+                            onClick={reset}
+                            whileTap={{ scale: 0.97 }}
+                            className="flex items-center justify-center gap-2 h-14 rounded-2xl font-bold text-sm bg-islamic-green dark:bg-islamic-gold text-white dark:text-[#032e18] shadow-xl shadow-islamic-green/20 dark:shadow-islamic-gold/20 active:opacity-90 transition-opacity"
+                        >
+                            <RotateCcw className="w-4.5 h-4.5" />
+                            Tekrar Başa Dön
+                        </motion.button>
+                        <button
+                            onClick={() => setIsComplete(false)}
+                            className="h-11 rounded-2xl text-sm font-medium text-gray-400 dark:text-emerald-100/30 hover:text-gray-600 dark:hover:text-emerald-100/50 transition-colors"
+                        >
+                            Son Adıma Geri Dön
+                        </button>
+                    </motion.div>
                 </div>
-            </motion.div>
+            </div>
         );
     }
 
     return (
         <div className="flex flex-col space-y-6 p-5 pb-32">
-            {/* Header Area */}
-            <div className="text-center space-y-4">
-                {/* Category Selection */}
-                <div className="relative">
-                    <div className="flex w-full overflow-x-auto whitespace-nowrap scrollbar-hide px-4 gap-3 py-2 scroll-smooth">
-                        {CATEGORIES.map((cat) => (
-                            <CategoryButton
-                                key={cat.id}
-                                cat={cat}
-                                isSelected={selectedCategory === cat.id}
-                                onClick={handleCategorySelect}
-                            />
-                        ))}
-                    </div>
-                    {/* Horizontal Scroll Indicator */}
-                    <div className="flex justify-end px-5 mt-1">
-                        <span className="text-[10px] font-bold text-islamic-gold/60 uppercase tracking-tighter">
-                            Sağa Kaydır <span className="animate-pulse">→</span>
-                        </span>
-                    </div>
-                </div>
+            {/* Category Selection */}
+            <div className="glass-panel rounded-3xl p-2 grid grid-cols-5 gap-1">
+                {CATEGORIES.map((cat) => {
+                    const Icon = cat.icon;
+                    const isActive = selectedCategory === cat.id;
+                    return (
+                        <motion.button
+                            key={cat.id}
+                            onClick={() => handleCategorySelect(cat.id)}
+                            className={cn(
+                                "relative px-2 py-3 overflow-hidden rounded-2xl font-bold text-xs uppercase tracking-wider transition-all",
+                                isActive
+                                    ? "bg-islamic-green dark:bg-islamic-gold text-white dark:text-[#032e18] shadow-lg"
+                                    : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/5"
+                            )}
+                            whileTap={{ scale: 0.95 }}
+                        >
+                            <Icon className={cn("w-5 h-5 mx-auto mb-1", isActive && "drop-shadow-md")} />
+                            <span className="text-[9px] leading-tight block">{cat.label}</span>
+                        </motion.button>
+                    );
+                })}
             </div>
 
             {/* Guide Title + Progress Bar */}
