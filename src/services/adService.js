@@ -1,6 +1,9 @@
 import { Capacitor } from '@capacitor/core';
 import { AdMob, RewardAdPluginEvents, InterstitialAdPluginEvents, AdmobConsentStatus } from '@capacitor-community/admob';
 
+// 🔴 Reklamlar şu an kapalı — aktif etmek için true yap
+const ADS_ENABLED = false;
+
 const IS_NATIVE = Capacitor.isNativePlatform();
 
 const AD_IDS = {
@@ -18,7 +21,7 @@ const AD_IDS = {
 let initialized = false;
 
 export async function initAdMob() {
-    if (!IS_NATIVE || initialized) return;
+    if (!ADS_ENABLED || !IS_NATIVE || initialized) return;
 
     try {
         await AdMob.initialize({
@@ -40,6 +43,7 @@ export async function initAdMob() {
 // ─── REWARDED AD (Amin Kumbarası: +5 kredi) ───
 
 export async function showRewardedAd() {
+    if (!ADS_ENABLED) return { rewarded: false, disabled: true };
     if (!IS_NATIVE) {
         console.log('[DEV] Rewarded reklam simülasyonu...');
         await new Promise(resolve => setTimeout(resolve, 2000));
@@ -98,6 +102,7 @@ export async function showRewardedAd() {
 // ─── INTERSTITIAL AD (30 saniye sonra otomatik, 5 saniyede atlanabilir) ───
 
 export async function showInterstitialAd() {
+    if (!ADS_ENABLED) return;
     if (!IS_NATIVE) {
         console.log('[DEV] Interstitial reklam simülasyonu...');
         return;

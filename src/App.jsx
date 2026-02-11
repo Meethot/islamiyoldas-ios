@@ -24,6 +24,7 @@ import NotificationSettings from './pages/settings/NotificationSettings';
 import LocationSettings from './pages/settings/LocationSettings';
 import LegalSettings from './pages/settings/LegalSettings';
 import AiMentor from './pages/AiMentor';
+import FastingTracker from './pages/FastingTracker';
 
 import { initAdMob } from './services/adService';
 import { isPremium } from './services/creditService';
@@ -32,6 +33,7 @@ import ScrollToTop from './components/ScrollToTop';
 
 import SwipeBackHandler from './components/SwipeBackHandler';
 import InterstitialAdManager from './components/InterstitialAdManager';
+import ReviewPrompt from './components/ReviewPrompt';
 
 function App() {
   const [showSplash, setShowSplash] = useState(true);
@@ -58,6 +60,7 @@ function App() {
             <ScrollToTop />
             <SwipeBackHandler />
             <InterstitialAdManager />
+            <ReviewPrompt />
             <Routes>
               <Route path="/onboarding" element={<Onboarding />} />
 
@@ -75,6 +78,7 @@ function App() {
                 <Route path="/quran/:surahId" element={<SurahDetail />} />
                 <Route path="/qibla" element={<Qibla />} />
                 <Route path="/ai-mentor" element={<AiMentor />} />
+                <Route path="/oruc-takibi" element={<FastingTracker />} />
                 {/* /settings removed - Profile now handles settings navigation */}
                 <Route path="/settings/notifications" element={<NotificationSettings />} />
                 {/* /settings/appearance removed - now direct toggle in Profile */}

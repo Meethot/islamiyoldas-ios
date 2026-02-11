@@ -373,15 +373,15 @@ export default function Home() {
             </motion.div>
 
 
-            <motion.div variants={itemVariants} className="px-1 cursor-pointer group" onClick={() => handleNavigate('/tefekkur')}>
+            <motion.div variants={itemVariants} className="px-1 cursor-pointer group" onClick={() => handleNavigate('/oruc-takibi')}>
                 <div className="glass-panel rounded-[2.5rem] p-6 flex items-center justify-between transition-all active:scale-95 group-hover:bg-white/60 dark:group-hover:bg-white/10">
                     <div className="flex items-center gap-4">
                         <div className="p-4 bg-islamic-green/10 dark:bg-islamic-gold/10 rounded-2xl text-islamic-green dark:text-islamic-gold">
-                            <Wind size={24} className="animate-pulse" />
+                            <Moon size={24} />
                         </div>
                         <div>
-                            <h4 className="font-bold text-gray-900 dark:text-islamic-gold uppercase text-xs tracking-widest font-serif">{t('widgets.breath.title')}</h4>
-                            <p className="text-[10px] text-gray-500 dark:text-emerald-100/40 font-medium opacity-80">{t('widgets.breath.subtitle')}</p>
+                            <h4 className="font-bold text-gray-900 dark:text-islamic-gold uppercase text-xs tracking-widest font-serif">Oruç Takibi</h4>
+                            <p className="text-[10px] text-gray-500 dark:text-emerald-100/40 font-medium opacity-80">Orucunu takip et, seriyi koru</p>
                         </div>
                     </div>
                     <ChevronRight size={16} className="text-islamic-gold group-hover:translate-x-1 transition-transform" />

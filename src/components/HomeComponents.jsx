@@ -2493,3 +2493,216 @@ export const LoadingPlaceholder = () => (
         ))}
     </div>
 );
+
+// --- Fasting Tracker Widget ---
+const FASTING_REWARDS = [
+    { min: 1, emoji: '🌱', text: 'İlk adım atıldı!' },
+    { min: 3, emoji: '🌿', text: 'Harika gidiyorsun!' },
+    { min: 7, emoji: '🌳', text: 'Bir hafta tamamlandı!' },
+    { min: 15, emoji: '⭐', text: 'Yarı yol, müthiş!' },
+    { min: 30, emoji: '🏆', text: 'Tam bir ay, masaAllah!' },
+];
+
+const RAMAZAN_START = new Date(2026, 1, 19); // Feb 19, 2026 local
+const RAMAZAN_END = new Date(2026, 2, 20);   // Mar 20, 2026 local (Bayram 1. gün)
+
+const getFastingData = () => {
+    try {
+        const raw = localStorage.getItem('fasting_data');
+        if (raw) return JSON.parse(raw);
+    } catch { }
+    return { days: [], streak: 0, longestStreak: 0 };
+};
+
+const saveFastingData = (data) => {
+    localStorage.setItem('fasting_data', JSON.stringify(data));
+};
+
+export const FastingTrackerWidget = memo(() => {
+    const { selection, success } = useHaptics();
+    const [data, setData] = useState(getFastingData);
+    const today = getTodayString();
+
+    const isFastedToday = data.days.includes(today);
+
+    // Ramazan bilgisi
+    const now = getAppDate();
+    const todayLocal = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const isRamazan = todayLocal >= RAMAZAN_START && todayLocal < RAMAZAN_END;
+    const ramazanDay = isRamazan
+        ? Math.floor((todayLocal - RAMAZAN_START) / (1000 * 60 * 60 * 24)) + 1
+        : null;
+
+    // Streak hesapla
+    const calculateStreak = useCallback((days) => {
+        if (days.length === 0) return 0;
+        const sorted = [...days].sort().reverse();
+        let streak = 0;
+        const check = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+        for (let i = 0; i < sorted.length; i++) {
+            const [y, m, d] = sorted[i].split('-').map(Number);
+            const dayDate = new Date(y, m - 1, d);
+            const diffDays = Math.round((check - dayDate) / (1000 * 60 * 60 * 24));
+
+            if (diffDays === i) {
+                streak++;
+            } else {
+                break;
+            }
+        }
+        return streak;
+    }, [now]);
+
+    const handleToggle = useCallback(() => {
+        setData(prev => {
+            let newDays;
+            if (prev.days.includes(today)) {
+                // Geri al
+                selection();
+                newDays = prev.days.filter(d => d !== today);
+            } else {
+                // İşaretle
+                success();
+                newDays = [...prev.days, today];
+            }
+            const streak = calculateStreak(newDays);
+            const longestStreak = Math.max(prev.longestStreak, streak);
+            const newData = { days: newDays, streak, longestStreak };
+            saveFastingData(newData);
+            return newData;
+        });
+    }, [today, selection, success, calculateStreak]);
+
+    // Streak'e göre ödül mesajı
+    const reward = useMemo(() => {
+        const streak = calculateStreak(data.days);
+        let best = FASTING_REWARDS[0];
+        for (const r of FASTING_REWARDS) {
+            if (streak >= r.min) best = r;
+        }
+        return streak > 0 ? best : null;
+    }, [data.days, calculateStreak]);
+
+    const currentStreak = calculateStreak(data.days);
+
+    return (
+        <motion.div variants={itemVariants} className="space-y-2">
+            <div className="flex items-center justify-between px-2">
+                <h3 className="text-sm font-bold font-serif text-gray-400 dark:text-emerald-100/60 uppercase tracking-widest">
+                    Oruç Takibi
+                </h3>
+                {currentStreak > 0 && (
+                    <span className="text-[10px] font-bold text-islamic-gold flex items-center gap-1">
+                        <Flame size={12} /> En yüksek: {data.longestStreak} gün
+                    </span>
+                )}
+            </div>
+
+            <Card className="glass-panel border-none overflow-hidden relative">
+                {/* İşaretlendiğinde altın glow */}
+                {isFastedToday && (
+                    <div className="absolute inset-0 bg-gradient-to-br from-islamic-gold/10 via-transparent to-islamic-gold/5 pointer-events-none" />
+                )}
+
+                <CardContent className="p-5 relative z-10">
+                    <div className="flex items-center justify-between">
+                        {/* Sol: Bilgi */}
+                        <div className="flex items-center gap-4 flex-1 min-w-0">
+                            <div className={cn(
+                                "w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 transition-all duration-300",
+                                isFastedToday
+                                    ? "bg-islamic-gold shadow-lg shadow-islamic-gold/30"
+                                    : "bg-islamic-green/10 dark:bg-white/5"
+                            )}>
+                                {isFastedToday ? (
+                                    <Check className="w-7 h-7 text-[#021a0f]" strokeWidth={3} />
+                                ) : (
+                                    <span className="text-2xl">🌙</span>
+                                )}
+                            </div>
+
+                            <div className="min-w-0">
+                                {isRamazan && ramazanDay && (
+                                    <span className="text-[10px] font-bold text-islamic-gold uppercase tracking-wider">
+                                        Ramazan'ın {ramazanDay}. Günü
+                                    </span>
+                                )}
+                                <h4 className={cn(
+                                    "font-bold text-base transition-colors duration-200",
+                                    isFastedToday
+                                        ? "text-islamic-gold"
+                                        : "text-gray-800 dark:text-white"
+                                )}>
+                                    {isFastedToday ? 'Oruç Tutuldu ✓' : 'Bugün Oruç'}
+                                </h4>
+                                <p className="text-[11px] text-gray-500 dark:text-emerald-100/40 font-medium">
+                                    {isFastedToday
+                                        ? (reward ? `${reward.emoji} ${reward.text}` : 'Allah kabul etsin')
+                                        : 'Oruç tuttuysan işaretle'
+                                    }
+                                </p>
+                            </div>
+                        </div>
+
+                        {/* Sağ: Toggle + Seri */}
+                        <div className="flex items-center gap-3 shrink-0">
+                            {currentStreak > 0 && (
+                                <div className="text-center">
+                                    <div className="text-lg font-black text-islamic-gold leading-none">{currentStreak}</div>
+                                    <div className="text-[9px] font-bold text-gray-400 uppercase">gün seri</div>
+                                </div>
+                            )}
+
+                            <button
+                                onClick={handleToggle}
+                                className={cn(
+                                    "w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-200 active:scale-90",
+                                    isFastedToday
+                                        ? "bg-islamic-gold/20 text-islamic-gold border-2 border-islamic-gold/40"
+                                        : "bg-islamic-green/10 dark:bg-white/10 text-islamic-green dark:text-islamic-gold border-2 border-transparent hover:border-islamic-gold/30"
+                                )}
+                            >
+                                {isFastedToday ? (
+                                    <Check size={22} strokeWidth={3} />
+                                ) : (
+                                    <Moon size={22} />
+                                )}
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* Son 7 gün mini takvim */}
+                    {currentStreak > 0 && (
+                        <div className="flex items-center gap-1.5 mt-4 pt-4 border-t border-white/5 justify-center">
+                            {Array.from({ length: 7 }).map((_, i) => {
+                                const d = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                                d.setDate(d.getDate() - (6 - i));
+                                const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+                                const done = data.days.includes(key);
+                                const isToday = key === today;
+                                const dayNames = ['Pz', 'Pt', 'Sa', 'Ça', 'Pe', 'Cu', 'Ct'];
+                                return (
+                                    <div key={key} className="flex flex-col items-center gap-1">
+                                        <span className="text-[9px] font-medium text-gray-400">{dayNames[d.getDay()]}</span>
+                                        <div className={cn(
+                                            "w-8 h-8 rounded-lg flex items-center justify-center text-[10px] font-bold transition-all",
+                                            done
+                                                ? "bg-islamic-gold text-[#021a0f]"
+                                                : isToday
+                                                    ? "bg-white/10 text-white border border-islamic-gold/30"
+                                                    : "bg-white/5 text-gray-500"
+                                        )}>
+                                            {d.getDate()}
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    )}
+                </CardContent>
+            </Card>
+        </motion.div>
+    );
+});
+
