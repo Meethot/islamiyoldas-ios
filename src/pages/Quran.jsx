@@ -312,7 +312,7 @@ export default function Quran() {
                             placeholder={t('searchPlaceholder')}
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className="w-full pl-12 pr-4 py-3 bg-white/10 border border-white/20 rounded-2xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-islamic-gold backdrop-blur-sm"
+                            className="w-full pl-12 pr-4 py-3 bg-[#0d2a18] border border-white/20 rounded-2xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-islamic-gold"
                         />
                     </div>
                 )}

@@ -52,5 +52,12 @@
         "app_share_text": "Namaz öğrenmek ve dini bilgilerimi tazelemek için bu harika uygulamayı kullanıyorum. Sen de dene!",
         "app_share_dialog": "Uygulamayı Paylaş",
         "app_link_copied": "Bağlantı kopyalandı! (Paylaşım menüsü sadece mobil cihazlarda çalışır)"
+    },
+    "review": {
+        "title": "İslami Yoldaş’ı Beğendiniz mi?",
+        "adFree": "%100 Reklamsız Deneyim",
+        "description": "Size en iyi deneyimi sunmak için reklam koymadan, tamamen reklamsız bir uygulama geliştirdik. Bizi desteklemek için değerlendirmeniz çok önemli! 🤲",
+        "rateButton": "Değerlendir",
+        "later": "Daha Sonra Hatırlat"
     }
 }

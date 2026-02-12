@@ -173,7 +173,13 @@ export default function Tracking() {
                 recordDayComplete();
             }
 
-            if (next.length >= 3) triggerReviewPrompt('prayers');
+
+            if (next.length >= 3) {
+                const visitKey = 'tracking_review_visits';
+                const visits = parseInt(localStorage.getItem(visitKey) || '0', 10) + 1;
+                localStorage.setItem(visitKey, String(visits));
+                if (visits >= 2) triggerReviewPrompt('prayers');
+            }
 
             return next;
         });

@@ -5,6 +5,8 @@ import logo from "../assets/logo.png";
 export default function SplashScreen() {
     const [progress, setProgress] = useState(0);
     const [isVisible, setIsVisible] = useState(true);
+    const lang = localStorage.getItem('i18nextLng') || 'tr';
+    const isEn = lang.startsWith('en');
 
     useEffect(() => {
         // Force scroll to top on refresh
@@ -61,7 +63,7 @@ export default function SplashScreen() {
                             transition={{ delay: 0.3, duration: 0.8 }}
                             className="text-4xl sm:text-5xl font-extrabold text-white mb-3 tracking-tight text-center"
                         >
-                            İslami Yoldaş
+                            {isEn ? 'Islamic Companion' : 'İslami Yoldaş'}
                         </motion.h1>
 
                         {/* Subtitle */}
@@ -71,7 +73,7 @@ export default function SplashScreen() {
                             transition={{ delay: 0.5, duration: 0.8 }}
                             className="text-[11px] sm:text-[12px] text-islamic-green font-bold tracking-[0.4em] uppercase mb-14 opacity-90 text-center"
                         >
-                            PREMIUM MANEVİ ASİSTAN
+                            {isEn ? 'PREMIUM ISLAMIC ASSISTANT' : 'PREMIUM MANEVİ ASİSTAN'}
                         </motion.p>
 
                         {/* Loading Bar Container */}
@@ -105,7 +107,7 @@ export default function SplashScreen() {
                         className="absolute bottom-12 left-1/2 -translate-x-1/2 w-full text-center px-4"
                     >
                         <p className="text-[10px] sm:text-[11px] text-gray-700 tracking-widest uppercase font-medium">
-                            Ümmet için ❤️ ile yapıldı
+                            {isEn ? 'Made with ❤️ for the Ummah' : 'Ümmet için ❤️ ile yapıldı'}
                         </p>
                     </motion.div>
                 </motion.div>

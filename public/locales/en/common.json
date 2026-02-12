@@ -52,5 +52,12 @@
         "app_share_text": "I'm using this amazing app to learn prayer and refresh my religious knowledge. Try it too!",
         "app_share_dialog": "Share App",
         "app_link_copied": "Link copied! (Share menu only works on mobile devices)"
+    },
+    "review": {
+        "title": "Do you enjoy Islamic Companion?",
+        "adFree": "100% Ad-Free Experience",
+        "description": "We developed a completely ad-free app to give you the best experience. Your review is very valuable to support us! 🤲",
+        "rateButton": "Rate Us",
+        "later": "Remind Me Later"
     }
 }

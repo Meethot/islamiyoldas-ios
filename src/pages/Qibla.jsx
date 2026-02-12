@@ -89,24 +89,32 @@ export default function Qibla() {
     const { t } = useTranslation('qibla');
 
     // State
-    const [heading, setHeading] = useState(0); // True North Heading
-    const [qiblaAngle, setQiblaAngle] = useState(0); // Angle relative to True North
+    const [qiblaAngle, setQiblaAngle] = useState(0);
     const [isAligned, setIsAligned] = useState(false);
-    const [degreeDiff, setDegreeDiff] = useState(180); // Difference for display
+    const [degreeDiff, setDegreeDiff] = useState(180);
+    const [turnDirection, setTurnDirection] = useState(null);
     const [showInfo, setShowInfo] = useState(false);
-    const [status, setStatus] = useState('loading'); // loading, calculating, active
+    const [status, setStatus] = useState('loading');
+    const [compassReady, setCompassReady] = useState(false); // True after first real reading
     const [debugAligned, setDebugAligned] = useState(false);
     const [hapticEnabled, setHapticEnabled] = useState(true);
     const [declination, setDeclination] = useState(0);
     const [distanceKM, setDistanceKM] = useState(0);
 
-    // Refs for accessing state inside listeners without re-renders
+    // Refs — direct DOM manipulation for 60fps smooth rotation
+    const compassRef = useRef(null);
+    const arrowRef = useRef(null);
     const qiblaAngleRef = useRef(0);
     const isAlignedRef = useRef(false);
     const lastHapticRef = useRef(0);
-    const lastHeadingRef = useRef(0);
+    const targetHeadingRef = useRef(0);
+    const displayHeadingRef = useRef(0);
     const mountedRef = useRef(true);
     const declinationRef = useRef(0);
+    const rafRef = useRef(null);
+    const lastUIUpdateRef = useRef(0);
+    const firstReadingRef = useRef(true); // Skip smoothing on first compass reading
+    const compassReadyTimeRef = useRef(0); // Warmup: ignore alignment for first 2s
 
     // Update refs when state changes
     useEffect(() => { qiblaAngleRef.current = qiblaAngle; }, [qiblaAngle]);
@@ -117,6 +125,77 @@ export default function Qibla() {
         mountedRef.current = true;
         return () => { mountedRef.current = false; };
     }, []);
+
+    // 60fps animation loop — interpolates display heading toward target heading
+    useEffect(() => {
+        const animate = () => {
+            if (!mountedRef.current) return;
+
+            const target = targetHeadingRef.current;
+            const current = displayHeadingRef.current;
+
+            // Shortest-path angular difference
+            let diff = target - current;
+            if (diff > 180) diff -= 360;
+            if (diff < -180) diff += 360;
+
+            // Smooth interpolation (lerp factor 0.12 = very smooth)
+            const lerp = 0.12;
+            const newHeading = Math.abs(diff) < 0.05
+                ? target
+                : (current + diff * lerp + 360) % 360;
+
+            displayHeadingRef.current = newHeading;
+
+            // Direct DOM transform — no React re-render
+            if (compassRef.current) {
+                compassRef.current.style.transform = `rotate(${-newHeading}deg)`;
+            }
+            if (arrowRef.current) {
+                arrowRef.current.style.transform = `rotate(${qiblaAngleRef.current - newHeading}deg)`;
+            }
+
+            // Throttled UI state updates (~10fps for degree display)
+            const now = performance.now();
+            if (now - lastUIUpdateRef.current > 100) {
+                lastUIUpdateRef.current = now;
+
+                // Warmup guard: don't update alignment/direction until 2s after first reading
+                const isWarmedUp = compassReadyTimeRef.current > 0 && (now - compassReadyTimeRef.current > 2000);
+
+                const targetAngle = qiblaAngleRef.current;
+                let angleDiff = targetAngle - newHeading;
+                if (angleDiff > 180) angleDiff -= 360;
+                if (angleDiff < -180) angleDiff += 360;
+                const absAngleDiff = Math.abs(angleDiff);
+
+                setDegreeDiff(absAngleDiff);
+
+                if (isWarmedUp) {
+                    // Direction
+                    if (absAngleDiff >= DEFAULT_ALIGNMENT_THRESHOLD) {
+                        setTurnDirection(angleDiff > 0 ? 'right' : 'left');
+                    } else {
+                        setTurnDirection(null);
+                    }
+
+                    // Alignment
+                    const isNowAligned = absAngleDiff < DEFAULT_ALIGNMENT_THRESHOLD;
+                    if (isNowAligned !== isAlignedRef.current) {
+                        setIsAligned(isNowAligned);
+                        if (isNowAligned) success();
+                    }
+                }
+            }
+
+            rafRef.current = requestAnimationFrame(animate);
+        };
+
+        rafRef.current = requestAnimationFrame(animate);
+        return () => {
+            if (rafRef.current) cancelAnimationFrame(rafRef.current);
+        };
+    }, [success]);
 
     // Initial Setup
     useEffect(() => {
@@ -154,67 +233,46 @@ export default function Qibla() {
             if (!mountedRef.current) return;
 
             try {
-                // Permission Flow (Blind try for Android, Proper check for iOS)
                 try {
                     const perm = await Compass.checkPermissions();
                     if (perm.compass !== 'granted') await Compass.requestPermissions();
                 } catch (e) { console.warn("Perm check skipped", e); }
 
-                // Cleanup
                 await Compass.removeAllListeners();
 
-                // Setup Listener
+                // Lightweight listener — only updates the target ref, no React state
                 await Compass.addListener('headingChange', (data) => {
                     if (!mountedRef.current) return;
 
-                    // NATIVE PLUGIN RETURNS *MAGNETIC* HEADING USUALLY
-                    // WE MUST CORRECT TO TRUE NORTH USING WMM2025 DECLINATION
-                    let magneticHeading = data.value;
-                    let trueHeading = magneticHeading + declinationRef.current;
-                    trueHeading = (trueHeading + 360) % 360;
-
+                    let trueHeading = (data.value + declinationRef.current + 360) % 360;
                     if (debugAligned) trueHeading = qiblaAngleRef.current;
 
-                    const current = lastHeadingRef.current;
-                    let diff = trueHeading - current;
-
-                    while (diff > 180) diff -= 360;
-                    while (diff < -180) diff += 360;
-
-                    // Adaptive Alpha for Low Pass Filter
-                    const absDiff = Math.abs(diff);
-                    let alpha = absDiff > 15 ? 1.0 : (absDiff > 5 ? 0.5 : 0.1);
-
-                    // Apply Signal Processing
-                    const smoothed = lowPassFilter(trueHeading, current, alpha);
-                    lastHeadingRef.current = smoothed;
-
-                    setHeading(smoothed);
-
-                    // --- Calculate Degree Difference for UI ---
-                    const targetAngle = qiblaAngleRef.current;
-                    let angleDiff = targetAngle - smoothed;
-                    while (angleDiff > 180) angleDiff -= 360;
-                    while (angleDiff < -180) angleDiff += 360;
-
-                    const absAngleDiff = Math.abs(angleDiff);
-                    setDegreeDiff(absAngleDiff); // For visual display
-
-                    // Check Alignment
-                    const isNowAligned = absAngleDiff < DEFAULT_ALIGNMENT_THRESHOLD;
-
-                    if (isNowAligned && !isAlignedRef.current) {
-                        setIsAligned(true);
-                        success();
-                    } else if (!isNowAligned && isAlignedRef.current) {
-                        setIsAligned(false);
+                    // First reading: jump directly, don't smooth from 0
+                    if (firstReadingRef.current) {
+                        firstReadingRef.current = false;
+                        targetHeadingRef.current = trueHeading;
+                        displayHeadingRef.current = trueHeading;
+                        compassReadyTimeRef.current = performance.now();
+                        setCompassReady(true);
+                        return;
                     }
+
+                    // Gentle low-pass filter on raw sensor data
+                    const current = targetHeadingRef.current;
+                    let diff = trueHeading - current;
+                    if (diff > 180) diff -= 360;
+                    if (diff < -180) diff += 360;
+
+                    // Soft alpha — never jump, always smooth
+                    const alpha = Math.min(0.15, 0.05 + Math.abs(diff) * 0.002);
+                    const smoothed = (current + alpha * diff + 360) % 360;
+
+                    targetHeadingRef.current = smoothed;
                 });
 
-                // Start Engine (30ms = ~33FPS)
                 await Compass.startListening({
-                    minInterval: 30,
-                    minHeadingChange: 0.1
+                    minInterval: 16,
+                    minHeadingChange: 0.05
                 });
 
             } catch (e) {
@@ -228,7 +286,7 @@ export default function Qibla() {
             Compass.stopListening();
             Compass.removeAllListeners();
         };
-    }, [status, success]);
+    }, [status]);
 
 
     // Haptic Feedback Loop
@@ -297,7 +355,7 @@ export default function Qibla() {
             </header>
 
             <main className="relative z-10 flex-1 flex flex-col items-center justify-center p-6 gap-10">
-                {(status === 'loading' || status === 'calculating') ? (
+                {(status === 'loading' || status === 'calculating' || (status === 'active' && !compassReady)) ? (
                     <div className="flex flex-col items-center gap-6">
                         <Loader2 className="w-12 h-12 text-amber-400 animate-spin" />
                         <p className="text-sm tracking-widest text-emerald-100/50">{t('calculating')}</p>
@@ -323,11 +381,11 @@ export default function Qibla() {
                                 )}
                             </AnimatePresence>
 
-                            {/* Rotating Compass Tick Layer */}
-                            <motion.div
-                                animate={{ rotate: -heading }}
-                                transition={{ ease: "linear", duration: 0.1 }}
-                                className="absolute inset-0 flex items-center justify-center"
+                            {/* Rotating Compass Tick Layer — direct DOM transform for 60fps */}
+                            <div
+                                ref={compassRef}
+                                className="absolute inset-0 flex items-center justify-center will-change-transform"
+                                style={{ transform: 'rotate(0deg)' }}
                             >
                                 <svg className="w-72 h-72 p-1" viewBox="0 0 100 100">
                                     <CompassTicks />
@@ -336,7 +394,7 @@ export default function Qibla() {
                                     <text x="50" y="86" fontSize="5" fill="white" textAnchor="middle" opacity="0.6">{t('compassDirections.south')}</text>
                                     <text x="18" y="52" fontSize="5" fill="white" textAnchor="middle" opacity="0.6">{t('compassDirections.west')}</text>
                                 </svg>
-                            </motion.div>
+                            </div>
 
                             {/* Kaaba (Center) */}
                             <div className="relative w-72 h-72 flex items-center justify-center pointer-events-none">
@@ -345,11 +403,11 @@ export default function Qibla() {
                                 </motion.div>
                             </div>
 
-                            {/* Arrow */}
-                            <motion.div
-                                animate={{ rotate: qiblaAngle - heading }}
-                                transition={{ ease: "linear", duration: 0.1 }}
-                                className="absolute inset-0 flex items-center justify-center pointer-events-none"
+                            {/* Arrow — direct DOM transform for 60fps */}
+                            <div
+                                ref={arrowRef}
+                                className="absolute inset-0 flex items-center justify-center pointer-events-none will-change-transform"
+                                style={{ transform: 'rotate(0deg)' }}
                             >
                                 <div className="absolute top-[20px] left-1/2 -translate-x-1/2 w-1.5 h-[100px] bg-gradient-to-t from-transparent via-amber-400/60 to-amber-400 rounded-full" />
                                 <div className="absolute top-0 drop-shadow-[0_0_15px_rgba(251,191,36,0.6)]">
@@ -358,7 +416,7 @@ export default function Qibla() {
                                         <path d="M12 2L12 15L21 19L12 2Z" fill="#D97706" />
                                     </svg>
                                 </div>
-                            </motion.div>
+                            </div>
                         </div>
 
                         {/* Dynamic Angle Indicator */}
@@ -378,11 +436,43 @@ export default function Qibla() {
                                 </motion.div>
                             ) : (
                                 <div className="flex flex-col items-center">
-                                    <div className="flex items-baseline gap-2">
-                                        <span className="text-5xl font-mono text-emerald-100 font-light">
-                                            {Math.round(degreeDiff)}
-                                        </span>
-                                        <span className="text-xl text-emerald-400">°</span>
+                                    <div className="flex items-center gap-5">
+                                        {/* Left arrow */}
+                                        <motion.div
+                                            animate={{
+                                                opacity: turnDirection === 'left' ? 1 : 0.08,
+                                                x: turnDirection === 'left' ? [0, -10, 0] : 0,
+                                                scale: turnDirection === 'left' ? [1, 1.15, 1] : 0.7
+                                            }}
+                                            transition={{ duration: 0.8, repeat: turnDirection === 'left' ? Infinity : 0 }}
+                                            className={turnDirection === 'left' ? 'drop-shadow-[0_0_12px_rgba(251,191,36,0.5)]' : ''}
+                                        >
+                                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
+                                                <path d="M15 4L7 12L15 20" stroke={turnDirection === 'left' ? '#FBBF24' : '#ffffff15'} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+                                            </svg>
+                                        </motion.div>
+
+                                        <div className="flex items-baseline gap-1">
+                                            <span className="text-5xl font-mono text-emerald-100 font-light">
+                                                {Math.round(degreeDiff)}
+                                            </span>
+                                            <span className="text-xl text-emerald-400">°</span>
+                                        </div>
+
+                                        {/* Right arrow */}
+                                        <motion.div
+                                            animate={{
+                                                opacity: turnDirection === 'right' ? 1 : 0.08,
+                                                x: turnDirection === 'right' ? [0, 10, 0] : 0,
+                                                scale: turnDirection === 'right' ? [1, 1.15, 1] : 0.7
+                                            }}
+                                            transition={{ duration: 0.8, repeat: turnDirection === 'right' ? Infinity : 0 }}
+                                            className={turnDirection === 'right' ? 'drop-shadow-[0_0_12px_rgba(251,191,36,0.5)]' : ''}
+                                        >
+                                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
+                                                <path d="M9 4L17 12L9 20" stroke={turnDirection === 'right' ? '#FBBF24' : '#ffffff15'} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+                                            </svg>
+                                        </motion.div>
                                     </div>
                                     <p className="text-xs text-emerald-500/50 uppercase tracking-widest mt-1">
                                         {t('degreesRemaining')}

@@ -3,6 +3,7 @@ import { useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Star, Heart, X } from 'lucide-react';
 import { Capacitor } from '@capacitor/core';
+import { useTranslation } from 'react-i18next';
 
 const STORAGE_KEY = 'review_prompt_v2';
 const APP_STORE_ID = '6745498032';
@@ -39,6 +40,7 @@ export default function ReviewPrompt() {
     const [show, setShow] = useState(false);
     const passiveTimerRef = useRef(null);
     const pendingRef = useRef(false);
+    const { t } = useTranslation('common');
 
     useEffect(() => {
         // App açılış sayacı
@@ -48,16 +50,19 @@ export default function ReviewPrompt() {
         data.appOpens = (data.appOpens || 0) + 1;
         saveReviewData(data);
 
-        // 🔹 Tetikleyici 4: 3. app açılış
-        if (data.appOpens >= 3 && !isCooldownActive()) {
+        // 🔹 Tetikleyici 4: 5. app açılış (onboarding tamamlanmışsa)
+        const onboardingDone = localStorage.getItem('onboardingComplete') === 'true';
+        if (data.appOpens >= 5 && !isCooldownActive() && onboardingDone) {
             setTimeout(() => {
                 if (!isCooldownActive()) setShow(true);
-            }, 3000);
+            }, 5000);
         }
 
         // reviewTrigger event listener
         const handleTrigger = (e) => {
             if (isCooldownActive()) return;
+            // Onboarding tamamlanmamışsa review gösterme
+            if (localStorage.getItem('onboardingComplete') !== 'true') return;
             if (window.location.hash.includes('/dhikr')) {
                 pendingRef.current = true;
                 return;
@@ -171,18 +176,16 @@ export default function ReviewPrompt() {
                             </div>
 
                             <h2 className="text-xl font-serif font-bold text-white mb-2 tracking-wide">
-                                İslami Yoldaş'ı Beğendiniz mi?
+                                {t('review.title', 'Do you enjoy Islamic Companion?')}
                             </h2>
 
                             <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-400/15 mb-4">
                                 <Heart size={12} className="text-emerald-400" fill="currentColor" />
-                                <span className="text-[11px] font-bold text-emerald-400/90">%100 Reklamsız Deneyim</span>
+                                <span className="text-[11px] font-bold text-emerald-400/90">{t('review.adFree', '100% Ad-Free Experience')}</span>
                             </div>
 
                             <p className="text-[13px] text-white/45 leading-relaxed mb-6">
-                                Size en iyi deneyimi sunmak için reklam koymadan,
-                                tamamen <span className="text-white/70 font-semibold">reklamsız</span> bir uygulama geliştirdik.
-                                Bizi desteklemek için değerlendirmeniz çok önemli! 🤲
+                                {t('review.description', 'We developed a completely ad-free app to give you the best experience. Your review is very valuable to support us! 🤲')}
                             </p>
 
                             <motion.button
@@ -195,14 +198,14 @@ export default function ReviewPrompt() {
                                     color: '#1a1a0a',
                                 }}
                             >
-                                ⭐ Değerlendir
+                                ⭐ {t('review.rateButton', 'Rate Us')}
                             </motion.button>
 
                             <button
                                 onClick={handleDismiss}
                                 className="w-full py-3 rounded-2xl text-white/30 text-[13px] font-medium hover:text-white/50 transition-colors cursor-pointer"
                             >
-                                Daha Sonra Hatırlat
+                                {t('review.later', 'Remind Me Later')}
                             </button>
                         </div>
                     </motion.div>
