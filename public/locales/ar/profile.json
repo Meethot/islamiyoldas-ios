@@ -1,90 +1,90 @@
 {
-    "title": "Profile",
+    "title": "الملف الشخصي",
     "user": {
-        "default_name": "Faithful User",
-        "streak_desc": "Day {{count}} of the journey"
+        "default_name": "مستخدم مؤمن",
+        "streak_desc": "اليوم {{count}} من الرحلة"
     },
     "premium": {
-        "banner_title": "Go Premium",
-        "banner_desc": "Ad-free experience and detailed stats."
+        "banner_title": "اشترك بريميوم",
+        "banner_desc": "تجربة بدون إعلانات وإحصائيات مفصّلة."
     },
-    "personal_settings": "Personal Settings",
-    "general_settings": "General Settings",
+    "personal_settings": "الإعدادات الشخصية",
+    "general_settings": "الإعدادات العامة",
     "notifications": {
-        "title": "Notifications",
-        "subtitle": "Adhan, verse & motivation"
+        "title": "الإشعارات",
+        "subtitle": "أذان، آيات وتحفيز"
     },
     "privacy": {
-        "title": "Privacy & Security",
-        "subtitle": "Data protection and lock",
-        "modal_title": "Data & Privacy",
-        "data_info": "Your data is stored <strong>only on this device</strong>. No data is sent to our servers.",
-        "download": "Download My Data",
-        "delete_all": "Delete All Data"
+        "title": "الخصوصية والأمان",
+        "subtitle": "حماية البيانات والقفل",
+        "modal_title": "البيانات والخصوصية",
+        "data_info": "بياناتك مخزّنة <strong>على هذا الجهاز فقط</strong>. لا يتم إرسال أي بيانات إلى خوادمنا.",
+        "download": "تحميل بياناتي",
+        "delete_all": "حذف جميع البيانات"
     },
     "appearance": {
-        "title": "Appearance",
-        "dark_active": "Dark mode active",
-        "light_active": "Light mode active"
+        "title": "المظهر",
+        "dark_active": "الوضع الداكن مفعّل",
+        "light_active": "الوضع الفاتح مفعّل"
     },
     "location": {
-        "title": "Location",
-        "subtitle": "GPS and city settings"
+        "title": "الموقع",
+        "subtitle": "إعدادات GPS والمدينة"
     },
     "share": {
-        "title": "Share Progress",
-        "subtitle": "Share Tuba Tree on social media"
+        "title": "مشاركة التقدّم",
+        "subtitle": "شارك شجرة طوبى على وسائل التواصل"
     },
     "invite": {
-        "title": "Invite Friend",
-        "subtitle": "Share app link with loved ones"
+        "title": "دعوة صديق",
+        "subtitle": "شارك رابط التطبيق مع أحبائك"
     },
     "calc": {
-        "title": "Calc Missed Prayers",
-        "subtitle": "Automatic calculation tool"
+        "title": "حساب الصلوات الفائتة",
+        "subtitle": "أداة حساب تلقائية"
     },
     "language": {
-        "title": "App Language",
-        "subtitle": "Change interface language"
+        "title": "لغة التطبيق",
+        "subtitle": "تغيير لغة الواجهة"
     },
     "promo": {
-        "title": "Promo Code",
-        "subtitle": "Use a gift code",
-        "label": "ENTER CODE",
-        "submit": "Apply Code",
-        "success": "Congratulations! Premium features have been activated. 🌟",
-        "invalid": "Invalid or expired promo code."
+        "title": "رمز ترويجي",
+        "subtitle": "استخدم رمز هدية",
+        "label": "أدخل الرمز",
+        "submit": "تطبيق الرمز",
+        "success": "تهانينا! تم تفعيل الميزات المتميزة. 🌟",
+        "invalid": "رمز ترويجي غير صالح أو منتهي الصلاحية."
     },
     "report_bug": {
-        "title": "Report Bug",
-        "subtitle": "Having issues with the app?",
-        "email_subject": "Islamic Companion - Bug Report",
-        "email_body": "The issue I encountered is:\n\n"
+        "title": "الإبلاغ عن خطأ",
+        "subtitle": "هل تواجه مشاكل في التطبيق؟",
+        "email_subject": "الرفيق الإسلامي - تقرير خطأ",
+        "email_body": "المشكلة التي واجهتها هي:\n\n"
     },
     "legal": {
-        "title": "Legal & About",
-        "subtitle": "Privacy, contact and support"
+        "title": "القانونية والمعلومات",
+        "subtitle": "الخصوصية، التواصل والدعم"
     },
     "delete_account": {
-        "title": "Delete Account",
-        "confirm": "Your account and all data will be deleted. This cannot be undone. Are you sure?"
+        "title": "حذف الحساب",
+        "confirm": "سيتم حذف حسابك وجميع بياناتك. لا يمكن التراجع عن هذا الإجراء. هل أنت متأكد؟"
     },
     "avatar": {
-        "male": "Male",
-        "female": "Female",
-        "beads": "Beads",
-        "tuba": "Tuba",
-        "quran": "Quran",
-        "moon": "Crescent"
+        "male": "ذكر",
+        "female": "أنثى",
+        "beads": "سبحة",
+        "tuba": "طوبى",
+        "quran": "قرآن",
+        "moon": "هلال"
     },
-    "coming_soon": "Coming Soon",
-    "support": "Support Us",
-    "reset": "Reset Data",
+    "coming_soon": "قريباً",
+    "support": "ادعمنا",
+    "reset": "إعادة تعيين البيانات",
     "modal": {
-        "select_lang": "Language Selection",
-        "lang_note": "Language change applies instantly."
+        "select_lang": "اختيار اللغة",
+        "lang_note": "يتم تطبيق تغيير اللغة فوراً."
     },
-    "avatar_modal_title": "Select Profile Photo",
-    "app_name": "Islamic Companion",
-    "version": "Version 2.1.0 (Pro Max)"
+    "avatar_modal_title": "اختيار صورة الملف الشخصي",
+    "app_name": "الرفيق الإسلامي",
+    "version": "الإصدار 2.1.0 (برو ماكس)"
 }

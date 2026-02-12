@@ -5,6 +5,8 @@
         "moral": "Parables"
     },
     "nowListening": "Now Listening",
+    "listenersCount": "{{count}} listeners",
+    "read": "Read",
     "normalSpeed": "Normal Speed",
     "speedUp": "2x Speed Up"
 }

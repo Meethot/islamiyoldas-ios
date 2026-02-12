@@ -4,7 +4,9 @@
         "companions": "Companions",
         "moral": "Parables"
     },
-    "nowListening": "Now Listening",
-    "normalSpeed": "Normal Speed",
-    "speedUp": "2x Speed Up"
+    "nowListening": "Nu aan het luisteren",
+    "listenersCount": "{{count}} luisteraars",
+    "read": "Lezen",
+    "normalSpeed": "Normale snelheid",
+    "speedUp": "2x Versnellen"
 }

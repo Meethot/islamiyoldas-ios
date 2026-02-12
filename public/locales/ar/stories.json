@@ -1,10 +1,12 @@
 {
     "categories": {
-        "prophets": "Prophets",
-        "companions": "Companions",
-        "moral": "Parables"
+        "prophets": "الأنبياء",
+        "companions": "الصحابة",
+        "moral": "أمثال وعبر"
     },
-    "nowListening": "Now Listening",
-    "normalSpeed": "Normal Speed",
-    "speedUp": "2x Speed Up"
+    "nowListening": "يُستمع الآن",
+    "listenersCount": "{{count}} شخص يستمع",
+    "read": "اقرأ",
+    "normalSpeed": "سرعة عادية",
+    "speedUp": "سرعة مضاعفة"
 }

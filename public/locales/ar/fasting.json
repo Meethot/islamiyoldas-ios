@@ -1,88 +1,88 @@
 {
-    "title": "Fasting Tracker",
+    "title": "متتبّع الصيام",
     "status": {
-        "fasted": "Fasted",
-        "missed": "Missed",
-        "excused": "Excused",
-        "pending": "Pending",
-        "remaining": "Remaining"
+        "fasted": "صائم",
+        "missed": "فائت",
+        "excused": "معذور",
+        "pending": "قيد الانتظار",
+        "remaining": "متبقي"
     },
     "milestones": {
-        "1": "First Step",
-        "3": "Dedication",
-        "7": "One Week",
-        "10": "Star",
-        "15": "Halfway",
-        "20": "On Fire",
-        "25": "Almost!",
-        "30": "Completed!"
+        "1": "الخطوة الأولى",
+        "3": "إصرار",
+        "7": "أسبوع كامل",
+        "10": "نجمة",
+        "15": "نصف المشوار",
+        "20": "حماس",
+        "25": "اقتربت!",
+        "30": "اكتمل!"
     },
     "hadith": {
         "0": {
-            "text": "Fasting is a shield.",
-            "src": "Bukhari"
+            "text": "الصيام جُنّة.",
+            "src": "البخاري"
         },
         "1": {
-            "text": "Everything has a zakat, and the zakat of the body is fasting.",
-            "src": "Ibn Majah"
+            "text": "لكل شيء زكاة، وزكاة الجسد الصوم.",
+            "src": "ابن ماجه"
         },
         "2": {
-            "text": "Fast and be healthy.",
-            "src": "Tabarani"
+            "text": "صوموا تصحّوا.",
+            "src": "الطبراني"
         },
         "3": {
-            "text": "The breath of a fasting person is sweeter to Allah than the fragrance of musk.",
-            "src": "Bukhari"
+            "text": "لخُلوف فم الصائم أطيب عند الله من ريح المسك.",
+            "src": "البخاري"
         },
         "4": {
-            "text": "Whoever fasts Ramadan with faith and seeking reward, his past sins will be forgiven.",
-            "src": "Bukhari, Muslim"
+            "text": "من صام رمضان إيماناً واحتساباً غُفر له ما تقدّم من ذنبه.",
+            "src": "البخاري، مسلم"
         },
         "5": {
-            "text": "Fasting is half of patience.",
-            "src": "Tirmidhi"
+            "text": "الصبر نصفه الصوم.",
+            "src": "الترمذي"
         },
         "6": {
-            "text": "There is a gate in Paradise called Ar-Rayyan, through which only those who fast will enter.",
-            "src": "Bukhari, Muslim"
+            "text": "إن في الجنة باباً يقال له الريّان، لا يدخله إلا الصائمون.",
+            "src": "البخاري، مسلم"
         }
     },
-    "start": "start",
-    "ofDays": "/ {{total}} days",
-    "day": "Day {{day}}",
-    "streak": "{{count}} Streak",
-    "ramazanDay": "Ramadan Day {{day}}",
-    "updateStatus": "Update status",
-    "nextGoal": "Next Goal",
-    "days": "days",
-    "calendarTitle": "Ramadan Calendar",
-    "calendarSubtitle": "February – March 2026",
-    "reset": "Reset",
-    "cancel": "Cancel",
-    "resetTitle": "Reset Fasting Data",
-    "resetDesc": "All your fasting records will be deleted. Tarawih records are preserved. This action cannot be undone.",
-    "teravihTitle": "Tarawih Prayer",
-    "teravihResetTooltip": "Reset Tarawih",
-    "teravihResetTitle": "Reset Tarawih Data",
-    "teravihResetDesc": "All your Tarawih prayer records will be deleted. Fasting records are preserved. This action cannot be undone.",
+    "start": "ابدأ",
+    "ofDays": "/ {{total}} يوم",
+    "day": "اليوم {{day}}",
+    "streak": "سلسلة {{count}}",
+    "ramazanDay": "اليوم {{day}} من رمضان",
+    "updateStatus": "تحديث الحالة",
+    "nextGoal": "الهدف التالي",
+    "days": "أيام",
+    "calendarTitle": "تقويم رمضان",
+    "calendarSubtitle": "فبراير – مارس ٢٠٢٦",
+    "reset": "إعادة تعيين",
+    "cancel": "إلغاء",
+    "resetTitle": "إعادة تعيين بيانات الصيام",
+    "resetDesc": "سيتم حذف جميع سجلات صيامك. سجلات التراويح محفوظة. لا يمكن التراجع عن هذا الإجراء.",
+    "teravihTitle": "صلاة التراويح",
+    "teravihResetTooltip": "إعادة تعيين التراويح",
+    "teravihResetTitle": "إعادة تعيين بيانات التراويح",
+    "teravihResetDesc": "سيتم حذف جميع سجلات صلاة التراويح. سجلات الصيام محفوظة. لا يمكن التراجع عن هذا الإجراء.",
     "teravihLegend": {
-        "done": "Performed",
-        "notDone": "Not Performed"
+        "done": "أُدّيت",
+        "notDone": "لم تُؤدَّ"
     },
     "weekdays": [
-        "Mon",
-        "Tue",
-        "Wed",
-        "Thu",
-        "Fri",
-        "Sat",
-        "Sun"
+        "ن",
+        "ث",
+        "ر",
+        "خ",
+        "ج",
+        "س",
+        "ح"
     ],
-    "sahurAlarm": "Suhoor Alarm",
-    "sahurImsakTime": "Fajr: {{time}}",
-    "sahurAlarmTitle": "⏰ Suhoor Time is Near!",
-    "sahurAlarmBody": "{{minutes}} minutes until Fajr. Time to wake up for Suhoor!",
-    "sahurCancel": "Cancel",
-    "sahurMin": "minutes",
-    "sahurAlarmSet": "🔔 Will ring {{minutes}} min before Fajr ({{time}})"
+    "sahurAlarm": "منبّه السحور",
+    "sahurImsakTime": "الفجر: {{time}}",
+    "sahurAlarmTitle": "⏰ اقترب وقت السحور!",
+    "sahurAlarmBody": "{{minutes}} دقيقة حتى الفجر. حان وقت الاستيقاظ للسحور!",
+    "sahurCancel": "إلغاء",
+    "sahurMin": "دقائق",
+    "sahurAlarmSet": "🔔 سيرنّ قبل الفجر بـ {{minutes}} دقيقة ({{time}})"
 }

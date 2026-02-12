@@ -9,6 +9,7 @@
 
 import { HADITH_DE, DUA_DE } from './hadithDE';
 import { HADITH_RU, DUA_RU } from './hadithRU';
+import { HADITH_AR } from './hadithAR';
 
 const _hadiths = [
     // Virtue of Prayer
@@ -237,8 +238,8 @@ const _duas = [
     { id: 12, arabic: "اللَّهُمَّ اهْدِنِي فِيمَنْ هَدَيْتَ", turkish: "Allah'ım! Hidayet verdiklerinle beraber bana da hidayet ver.", english: "O Allah! Guide me among those whom You have guided.", transliteration: "Allâhümmehdini fimen hedeyt", occasion: "after_witr" },
 ];
 
-// Merge German and Russian translations
-const mergedHadiths = _hadiths.map(h => ({ ...h, ...(HADITH_DE[h.id] || {}), ...(HADITH_RU[h.id] || {}) }));
+// Merge German, Russian and Arabic translations
+const mergedHadiths = _hadiths.map(h => ({ ...h, ...(HADITH_DE[h.id] || {}), ...(HADITH_RU[h.id] || {}), ...(HADITH_AR[h.id] || {}) }));
 const mergedDuas = _duas.map(d => ({ ...d, ...(DUA_DE[d.id] || {}), ...(DUA_RU[d.id] || {}) }));
 
 export const PRAYER_CONTENT = {

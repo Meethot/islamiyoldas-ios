@@ -4,7 +4,9 @@
         "companions": "Companions",
         "moral": "Parables"
     },
-    "nowListening": "Now Listening",
-    "normalSpeed": "Normal Speed",
-    "speedUp": "2x Speed Up"
+    "nowListening": "Sedang didengarkan",
+    "listenersCount": "{{count}} pendengar",
+    "read": "Baca",
+    "normalSpeed": "Kecepatan normal",
+    "speedUp": "2x Percepat"
 }

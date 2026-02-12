@@ -10,8 +10,9 @@ import { useTranslation } from 'react-i18next';
 import { STORIES } from '@/data/spiritualData';
 import { STORIES_DE } from '@/data/spiritualDataDE';
 import { STORIES_RU } from '@/data/spiritualDataRU';
+import { STORIES_AR } from '@/data/spiritualDataAR';
 
-const STORIES_MAP = { de: STORIES_DE, ru: STORIES_RU };
+const STORIES_MAP = { de: STORIES_DE, ru: STORIES_RU, ar: STORIES_AR };
 
 const CATEGORY_IDS = [
     { id: 'prophets', icon: BookOpen },

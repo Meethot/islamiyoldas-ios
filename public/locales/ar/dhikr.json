@@ -1,54 +1,54 @@
 {
-    "title": "Dhikr Counter",
+    "title": "عدّاد الأذكار",
     "presets": {
         "subhanallah": {
-            "name": "SubhanAllah",
-            "meaning": "Glory be to Allah"
+            "name": "سبحان الله",
+            "meaning": "تنزيه الله عن كل نقص"
         },
         "elhamdulillah": {
-            "name": "Alhamdulillah",
-            "meaning": "All praise is due to Allah"
+            "name": "الحمد لله",
+            "meaning": "الثناء والشكر لله"
         },
         "allahuekber": {
-            "name": "Allahu Akbar",
-            "meaning": "Allah is the Greatest"
+            "name": "الله أكبر",
+            "meaning": "الله أعظم من كل شيء"
         },
         "last": {
-            "name": "La ilaha illallah",
-            "meaning": "There is no god but Allah"
+            "name": "لا إله إلا الله",
+            "meaning": "لا معبود بحق إلا الله"
         },
         "istigfar": {
-            "name": "Astaghfirullah",
-            "meaning": "I seek forgiveness from Allah"
+            "name": "أستغفر الله",
+            "meaning": "أطلب المغفرة من الله"
         },
         "salavat": {
-            "name": "Salawat",
-            "meaning": "O Allah, send blessings upon our Prophet Muhammad"
+            "name": "الصلاة على النبي",
+            "meaning": "اللهم صلِّ وسلّم على نبينا محمد"
         }
     },
     "vibration": {
-        "everyClick": "Vibration: Every Click",
-        "targetOnly": "Vibration: Target Only",
-        "off": "Vibration: Off"
+        "everyClick": "الاهتزاز: كل ضغطة",
+        "targetOnly": "الاهتزاز: عند الهدف فقط",
+        "off": "الاهتزاز: مغلق"
     },
     "vibrationTooltip": {
-        "all": "All Vibrations On",
-        "target": "Vibration on Target Only",
-        "off": "Vibration Off"
+        "all": "جميع الاهتزازات مفعّلة",
+        "target": "اهتزاز عند الهدف فقط",
+        "off": "الاهتزاز مغلق"
     },
-    "confirmReset": "Are you sure you want to reset the dhikr counter?",
-    "target": "Target: {{count}}",
-    "targetWithUnit": "Target: {{count}} Times",
-    "round": "ROUND",
-    "roundCompleted": "Round {{round}} Completed ✓",
-    "totalDhikr": "Total Dhikr",
-    "resetAllTitle": "Reset all dhikr?",
-    "cancel": "CANCEL",
-    "reset": "RESET",
-    "setTarget": "Set Target",
-    "setTargetDesc": "Enter your personal target for {{name}}.",
-    "saveTarget": "SAVE TARGET",
-    "resetAllTooltip": "Reset All Dhikr",
-    "footerVerse": "\"O you who believe! Remember Allah with much remembrance, and glorify Him morning and evening.\"",
-    "footerVerseSource": "SURAH AL-AHZAB, 41-42"
+    "confirmReset": "هل تريد إعادة تعيين عدّاد الأذكار؟",
+    "target": "الهدف: {{count}}",
+    "targetWithUnit": "الهدف: {{count}} مرة",
+    "round": "جولة",
+    "roundCompleted": "الجولة {{round}} مكتملة ✓",
+    "totalDhikr": "إجمالي الأذكار",
+    "resetAllTitle": "إعادة تعيين جميع الأذكار؟",
+    "cancel": "إلغاء",
+    "reset": "إعادة تعيين",
+    "setTarget": "تعيين الهدف",
+    "setTargetDesc": "أدخل هدفك الشخصي لـ {{name}}.",
+    "saveTarget": "حفظ الهدف",
+    "resetAllTooltip": "إعادة تعيين جميع الأذكار",
+    "footerVerse": "\"يَا أَيُّهَا الَّذِينَ آمَنُوا اذْكُرُوا اللَّهَ ذِكْرًا كَثِيرًا * وَسَبِّحُوهُ بُكْرَةً وَأَصِيلًا\"",
+    "footerVerseSource": "سورة الأحزاب، ٤١-٤٢"
 }

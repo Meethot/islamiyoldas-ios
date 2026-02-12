@@ -5,6 +5,8 @@
         "moral": "Gleichnisse"
     },
     "nowListening": "Wird angehört",
+    "listenersCount": "{{count}} Hörer",
+    "read": "Lesen",
     "normalSpeed": "Normale Geschwindigkeit",
     "speedUp": "2x Beschleunigen"
 }

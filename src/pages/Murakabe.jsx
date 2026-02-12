@@ -38,7 +38,8 @@ const cardVariants = {
 export default function Murakabe() {
     const navigate = useNavigate();
     const { selection, success, heavy } = useHaptics();
-    const { t } = useTranslation('murakabe');
+    const { t, i18n } = useTranslation('murakabe');
+    const currentLang = i18n.language || 'tr';
 
     // Randomly selected questions for the day (7 items)
     const [questions, setQuestions] = useState([]);
@@ -50,30 +51,29 @@ export default function Murakabe() {
     const [savedScore, setSavedScore] = useState(null);
     const [selectedAyah, setSelectedAyah] = useState(null);
 
-    // Gift Ayahs - Themed spiritual rewards for completing Murakabe
     const giftAyahs = [
         // RIZIK & BEREKET (Wealth/Provision)
-        { text: "Şüphesiz rızkı veren, sarsılmaz gücün sahibi olan Allah'tır.", source: "Zâriyat, 58" },
-        { text: "Kim Allah'tan sakınırsa, Allah ona bir çıkış yolu ihsan eder ve ona beklemediği yerden rızık verir.", source: "Talâk, 2-3" },
-        { text: "Yeryüzünde kımıldayan hiçbir canlı yoktur ki rızkı Allah'a ait olmasın.", source: "Hûd, 6" },
+        { text: { tr: "Şüphesiz rızkı veren, sarsılmaz gücün sahibi olan Allah'tır.", en: "Indeed, it is Allah who is the Provider, the Firm Possessor of Strength.", ar: "إِنَّ اللَّهَ هُوَ الرَّزَّاقُ ذُو الْقُوَّةِ الْمَتِينُ." }, source: { tr: "Zâriyat, 58", en: "Adh-Dhariyat, 58", ar: "الذاريات، ٥٨" } },
+        { text: { tr: "Kim Allah'tan sakınırsa, Allah ona bir çıkış yolu ihsan eder ve ona beklemediği yerden rızık verir.", en: "Whoever fears Allah, He will make a way out for him. And will provide for him from where he does not expect.", ar: "وَمَن يَتَّقِ اللَّهَ يَجْعَل لَّهُ مَخْرَجًا وَيَرْزُقْهُ مِنْ حَيْثُ لَا يَحْتَسِبُ." }, source: { tr: "Talâk, 2-3", en: "At-Talaq, 2-3", ar: "الطلاق، ٢-٣" } },
+        { text: { tr: "Yeryüzünde kımıldayan hiçbir canlı yoktur ki rızkı Allah'a ait olmasın.", en: "There is no creature on earth but that upon Allah is its provision.", ar: "وَمَا مِن دَابَّةٍ فِي الْأَرْضِ إِلَّا عَلَى اللَّهِ رِزْقُهَا." }, source: { tr: "Hûd, 6", en: "Hud, 6", ar: "هود، ٦" } },
 
         // ŞİFA & SAĞLIK (Health/Healing)
-        { text: "Hastalandığım zaman bana şifa veren O'dur.", source: "Şuarâ, 80" },
-        { text: "Biz Kur'an'dan, müminler için şifa ve rahmet olan şeyler indiriyoruz.", source: "İsrâ, 82" },
+        { text: { tr: "Hastalandığım zaman bana şifa veren O'dur.", en: "And when I am ill, it is He who cures me.", ar: "وَإِذَا مَرِضْتُ فَهُوَ يَشْفِينِ." }, source: { tr: "Şuarâ, 80", en: "Ash-Shu'ara, 80", ar: "الشعراء، ٨٠" } },
+        { text: { tr: "Biz Kur'an'dan, müminler için şifa ve rahmet olan şeyler indiriyoruz.", en: "We send down of the Quran that which is healing and mercy for the believers.", ar: "وَنُنَزِّلُ مِنَ الْقُرْآنِ مَا هُوَ شِفَاءٌ وَرَحْمَةٌ لِّلْمُؤْمِنِينَ." }, source: { tr: "İsrâ, 82", en: "Al-Isra, 82", ar: "الإسراء، ٨٢" } },
 
         // AİLE & MUHABBET (Love/Family)
-        { text: "Kendileri ile huzur bulasınız diye sizin için türünüzden eşler yaratması ve aranıza sevgi ve merhamet koyması O'nun ayetlerindendir.", source: "Rûm, 21" },
-        { text: "Rabbimiz! Bize göz aydınlığı olacak eşler ve çocuklar bahşet.", source: "Furkân, 74" },
+        { text: { tr: "Kendileri ile huzur bulasınız diye sizin için türünüzden eşler yaratması ve aranıza sevgi ve merhamet koyması O'nun ayetlerindendir.", en: "And of His signs is that He created for you from yourselves mates that you may find tranquility in them; and He placed between you affection and mercy.", ar: "وَمِنْ آيَاتِهِ أَنْ خَلَقَ لَكُم مِّنْ أَنفُسِكُمْ أَزْوَاجًا لِّتَسْكُنُوا إِلَيْهَا وَجَعَلَ بَيْنَكُم مَّوَدَّةً وَرَحْمَةً." }, source: { tr: "Rûm, 21", en: "Ar-Rum, 21", ar: "الروم، ٢١" } },
+        { text: { tr: "Rabbimiz! Bize göz aydınlığı olacak eşler ve çocuklar bahşet.", en: "Our Lord, grant us from among our spouses and offspring comfort to our eyes.", ar: "رَبَّنَا هَبْ لَنَا مِنْ أَزْوَاجِنَا وَذُرِّيَّاتِنَا قُرَّةَ أَعْيُنٍ." }, source: { tr: "Furkân, 74", en: "Al-Furqan, 74", ar: "الفرقان، ٧٤" } },
 
         // FERAHLIK & UMUT (Relief/Hope)
-        { text: "Elbette zorluğun yanında bir kolaylık vardır. Gerçekten, zorlukla beraber bir kolaylık daha vardır.", source: "İnşirah, 5-6" },
-        { text: "Kalpler ancak Allah'ı anmakla huzur bulur.", source: "Ra'd, 28" },
-        { text: "Rabbin seni terk etmedi ve sana darılmadı.", source: "Duhâ, 3" },
-        { text: "Sabret! Senin sabrın ancak Allah'ın yardımı iledir.", source: "Nahl, 127" },
+        { text: { tr: "Elbette zorluğun yanında bir kolaylık vardır. Gerçekten, zorlukla beraber bir kolaylık daha vardır.", en: "For indeed, with hardship will be ease. Indeed, with hardship will be ease.", ar: "فَإِنَّ مَعَ الْعُسْرِ يُسْرًا. إِنَّ مَعَ الْعُسْرِ يُسْرًا." }, source: { tr: "İnşirah, 5-6", en: "Ash-Sharh, 5-6", ar: "الشرح، ٥-٦" } },
+        { text: { tr: "Kalpler ancak Allah'ı anmakla huzur bulur.", en: "Verily, in the remembrance of Allah do hearts find rest.", ar: "أَلَا بِذِكْرِ اللَّهِ تَطْمَئِنُّ الْقُلُوبُ." }, source: { tr: "Ra'd, 28", en: "Ar-Ra'd, 28", ar: "الرعد، ٢٨" } },
+        { text: { tr: "Rabbin seni terk etmedi ve sana darılmadı.", en: "Your Lord has not forsaken you, nor has He become displeased.", ar: "مَا وَدَّعَكَ رَبُّكَ وَمَا قَلَىٰ." }, source: { tr: "Duhâ, 3", en: "Ad-Duha, 3", ar: "الضحى، ٣" } },
+        { text: { tr: "Sabret! Senin sabrın ancak Allah'ın yardımı iledir.", en: "Be patient, for your patience is only through Allah.", ar: "وَاصْبِرْ وَمَا صَبْرُكَ إِلَّا بِاللَّهِ." }, source: { tr: "Nahl, 127", en: "An-Nahl, 127", ar: "النحل، ١٢٧" } },
 
         // BAŞARI & GAYRET (Success/Effort)
-        { text: "İnsan için ancak çalıştığının karşılığı vardır.", source: "Necm, 39" },
-        { text: "Allah, hiç kimseye gücünün yettiğinden fazlasını yüklemez.", source: "Bakara, 286" }
+        { text: { tr: "İnsan için ancak çalıştığının karşılığı vardır.", en: "And that there is not for man except that for which he strives.", ar: "وَأَن لَّيْسَ لِلْإِنسَانِ إِلَّا مَا سَعَىٰ." }, source: { tr: "Necm, 39", en: "An-Najm, 39", ar: "النجم، ٣٩" } },
+        { text: { tr: "Allah, hiç kimseye gücünün yettiğinden fazlasını yüklemez.", en: "Allah does not burden a soul beyond that it can bear.", ar: "لَا يُكَلِّفُ اللَّهُ نَفْسًا إِلَّا وُسْعَهَا." }, source: { tr: "Bakara, 286", en: "Al-Baqarah, 286", ar: "البقرة، ٢٨٦" } }
     ];
 
     // Initial Shuffle on Mount & Check Storage
@@ -255,7 +255,7 @@ export default function Murakabe() {
 
                                 {/* Question */}
                                 <h2 className="text-2xl font-serif text-amber-100 text-center leading-relaxed min-h-[100px] flex items-center justify-center">
-                                    {currentQuestion.text}
+                                    {typeof currentQuestion.text === 'object' ? (currentQuestion.text[currentLang] || currentQuestion.text.tr) : currentQuestion.text}
                                 </h2>
 
                                 {/* Decorative Line */}
@@ -272,7 +272,7 @@ export default function Murakabe() {
                                     )}
                                 >
                                     <X className="w-5 h-5 mr-2" />
-                                    Hayır
+                                    {t('no')}
                                 </Button>
                                 <Button
                                     onClick={() => handleAnswer(true)}
@@ -282,7 +282,7 @@ export default function Murakabe() {
                                     )}
                                 >
                                     <Check className="w-5 h-5 mr-2" />
-                                    Evet
+                                    {t('yes')}
                                 </Button>
                             </div>
                         </motion.div>
@@ -367,7 +367,7 @@ export default function Murakabe() {
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: 0.6, duration: 0.6 }}
                             >
-                                Elhamdülillah
+                                {t('elhamdulillah')}
                             </motion.h2>
 
                             {/* Spiritual Message - Staggered */}
@@ -402,12 +402,12 @@ export default function Murakabe() {
 
                                     {/* Ayah Text */}
                                     <p className="text-xl font-serif text-amber-100 text-center leading-relaxed mb-6">
-                                        "{selectedAyah.text}"
+                                        "{typeof selectedAyah.text === 'object' ? (selectedAyah.text[currentLang] || selectedAyah.text.tr) : selectedAyah.text}"
                                     </p>
 
                                     {/* Reference */}
                                     <p className="text-sm text-white/40 text-center tracking-wider">
-                                        — {selectedAyah.source}
+                                        — {typeof selectedAyah.source === 'object' ? (selectedAyah.source[currentLang] || selectedAyah.source.tr) : selectedAyah.source}
                                     </p>
                                 </motion.div>
                             )}

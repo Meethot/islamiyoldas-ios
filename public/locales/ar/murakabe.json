@@ -1,9 +1,9 @@
 {
-    "title": "Daily Self-Reflection",
-    "no": "No",
-    "yes": "Yes",
-    "elhamdulillah": "Alhamdulillah",
-    "completionMsg": "You reflected on your heart today, may your soul find peace.",
-    "yourShare": "Today's Gift...",
-    "goHome": "Go to Home"
+    "title": "المحاسبة اليومية",
+    "no": "لا",
+    "yes": "نعم",
+    "elhamdulillah": "الحمد لله",
+    "completionMsg": "لقد حاسبت نفسك اليوم، عسى أن تسكن روحك.",
+    "yourShare": "هدية اليوم...",
+    "goHome": "العودة للرئيسية"
 }

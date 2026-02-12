@@ -4,7 +4,9 @@
         "companions": "Companions",
         "moral": "Parables"
     },
-    "nowListening": "Now Listening",
-    "normalSpeed": "Normal Speed",
-    "speedUp": "2x Speed Up"
+    "nowListening": "İndi dinlənilir",
+    "listenersCount": "{{count}} dinləyici",
+    "read": "Oxu",
+    "normalSpeed": "Normal sürət",
+    "speedUp": "2x Sürətləndir"
 }

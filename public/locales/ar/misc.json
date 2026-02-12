@@ -1,23 +1,23 @@
 {
     "aiMentor": {
-        "title": "Spiritual Mentor",
-        "subtitle": "AI-Powered Assistant",
-        "welcomeMessage": "Peace be upon you, dear friend. I am your Spiritual Mentor. What's in your heart, what troubles you or what are you grateful for? Tell me, and I'll prepare a prescription for you based on the Quran and Sunnah.",
-        "thinking": "Contemplating...",
-        "placeholder": "I need help, my heart is heavy...",
-        "errorPrefix": "Error occurred:"
+        "title": "المرشد الروحاني",
+        "subtitle": "مساعد بالذكاء الاصطناعي",
+        "welcomeMessage": "السلام عليكم أخي الكريم. أنا مرشدك الروحاني. ما الذي في قلبك، ما الذي يقلقك أو ما الذي تحمد الله عليه؟ أخبرني وسأُعدّ لك وصفة روحانية من القرآن والسنّة.",
+        "thinking": "يتأمّل...",
+        "placeholder": "أحتاج مساعدة، قلبي ثقيل...",
+        "errorPrefix": "حدث خطأ:"
     },
     "prescription": {
-        "title": "Spiritual Prescription",
-        "adviceLabel": "Mentor's Advice",
-        "dhikrLabel": "Dhikr Prescription",
-        "startDhikr": "Start Dhikr",
-        "verseLabel": "Healing Verse",
-        "listen": "Listen",
-        "pause": "Pause",
-        "ebced": "Abjad",
-        "count": "Count"
+        "title": "الوصفة الروحانية",
+        "adviceLabel": "نصيحة المرشد",
+        "dhikrLabel": "وصفة الذكر",
+        "startDhikr": "ابدأ الذكر",
+        "verseLabel": "آية الشفاء",
+        "listen": "استمع",
+        "pause": "إيقاف مؤقت",
+        "ebced": "حساب الجُمَّل",
+        "count": "العدد"
     },
-    "comingSoon": "Coming Soon! This language is being prepared. 🌍",
-    "connectionError": "Connection error."
+    "comingSoon": "قريباً! هذه اللغة قيد الإعداد. 🌍",
+    "connectionError": "خطأ في الاتصال."
 }

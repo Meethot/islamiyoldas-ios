@@ -3,8 +3,10 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Play, BookOpen, Clock, Headphones } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useTranslation } from 'react-i18next';
 
 export default function StoryCard({ story, onClick }) {
+    const { t, i18n } = useTranslation('stories');
     // Deterministic Pseudo-Random Number Generator (PRNG)
     const getSyncedListenerCount = (id) => {
         // Time bucket: Changes every 30 seconds
@@ -51,8 +53,8 @@ export default function StoryCard({ story, onClick }) {
         return () => clearTimeout(timeout);
     }, [story.id]);
 
-    // Format number with dots (e.g. 1.204)
-    const formattedCount = new Intl.NumberFormat('tr-TR').format(listenerCount);
+    const locale = i18n.language === 'ar' ? 'ar-SA' : i18n.language === 'de' ? 'de-DE' : i18n.language === 'ru' ? 'ru-RU' : i18n.language === 'tr' ? 'tr-TR' : 'en-US';
+    const formattedCount = new Intl.NumberFormat(locale).format(listenerCount);
 
     return (
         <Card
@@ -72,12 +74,12 @@ export default function StoryCard({ story, onClick }) {
                             <Clock className="w-3 h-3" /> {story.duration}
                         </div>
                         <div className="flex items-center gap-1 text-[11px] font-bold text-islamic-green dark:text-islamic-gold">
-                            <BookOpen className="w-3 h-3" /> Oku
+                            <BookOpen className="w-3 h-3" /> {t('read')}
                         </div>
                         {/* Live Listener Indicator */}
                         <div className="flex items-center gap-1.5 text-[11px] font-bold text-amber-500 dark:text-amber-400 bg-amber-500/5 dark:bg-amber-400/10 px-2 py-0.5 rounded-full ring-1 ring-amber-500/20">
                             <Headphones className="w-3 h-3 animate-pulse" />
-                            <span>{formattedCount} kişi dinliyor</span>
+                            <span>{t('listenersCount', { count: formattedCount })}</span>
                         </div>
                     </div>
                 </div>

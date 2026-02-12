@@ -9,6 +9,7 @@ import { useTranslation } from 'react-i18next';
 import { GUIDES_EN } from '@/data/guidesEN';
 import { GUIDES_DE } from '@/data/guidesDE';
 import { GUIDES_RU } from '@/data/guidesRU';
+import { GUIDES_AR } from '@/data/guidesAR';
 
 // Secde (sujood) ikonu - erkek namazı için
 const SecdeIcon = ({ className }) => (
@@ -967,7 +968,7 @@ export default function Learn() {
     const lang = i18n.language;
 
     // Language-indexed guide overrides — add new languages here
-    const GUIDES_MAP = { en: GUIDES_EN, de: GUIDES_DE, ru: GUIDES_RU };
+    const GUIDES_MAP = { en: GUIDES_EN, de: GUIDES_DE, ru: GUIDES_RU, ar: GUIDES_AR };
     const langGuides = GUIDES_MAP[lang] || {};
     const activeGuides = { ...GUIDES, ...langGuides };
     const guide = activeGuides[selectedCategory];

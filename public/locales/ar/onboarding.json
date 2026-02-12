@@ -1,54 +1,54 @@
 {
     "steps": {
         "language": {
-            "title": "Select Language",
-            "subtitle": "Choose your preferred language",
-            "select": "Select your language"
+            "title": "اختر اللغة",
+            "subtitle": "اختر لغتك المفضّلة",
+            "select": "اختر لغتك"
         },
         "gender": {
-            "title": "Your Gender",
-            "male": "Male",
-            "female": "Female"
+            "title": "الجنس",
+            "male": "ذكر",
+            "female": "أنثى"
         },
         "age": {
-            "title": "Your Age Group",
-            "subtitle": "Tailored content for you",
-            "range1": "13 - 17 years",
-            "range2": "18 - 30 years",
-            "range3": "31 - 45 years",
-            "range4": "46+ years"
+            "title": "الفئة العمرية",
+            "subtitle": "محتوى مخصّص لك",
+            "range1": "١٣ - ١٧ سنة",
+            "range2": "١٨ - ٣٠ سنة",
+            "range3": "٣١ - ٤٥ سنة",
+            "range4": "+٤٦ سنة"
         },
         "prayerStatus": {
-            "title": "Prayer Status",
-            "subtitle": "Understanding your journey",
-            "regular": "Yes, I pray 5 times",
-            "occasional": "I pray occasionally",
-            "irregular": "I haven't started yet"
+            "title": "حالة الصلاة",
+            "subtitle": "لفهم رحلتك",
+            "regular": "نعم، أصلّي الخمس",
+            "occasional": "أصلّي أحياناً",
+            "irregular": "لم أبدأ بعد"
         },
         "quranLevel": {
-            "title": "Quran Knowledge",
-            "subtitle": "Set your learning level",
-            "advanced": "I read fluently",
-            "reading": "I read slowly",
-            "learning": "I know letters",
-            "none": "I want to learn"
+            "title": "معرفة القرآن",
+            "subtitle": "حدّد مستوى تعلّمك",
+            "advanced": "أقرأ بطلاقة",
+            "reading": "أقرأ ببطء",
+            "learning": "أعرف الحروف",
+            "none": "أريد أن أتعلّم"
         },
         "goal": {
-            "title": "Main Goal",
-            "subtitle": "How can we help you?",
-            "prayer": "Regular Prayers",
-            "quran": "Learn Quran",
-            "spirituality": "Strengthen Spirituality",
-            "knowledge": "Islamic Knowledge"
+            "title": "الهدف الرئيسي",
+            "subtitle": "كيف يمكننا مساعدتك؟",
+            "prayer": "المواظبة على الصلاة",
+            "quran": "تعلّم القرآن",
+            "spirituality": "تعزيز الروحانية",
+            "knowledge": "المعرفة الإسلامية"
         }
     },
     "welcome": {
-        "title": "Welcome",
-        "subtitle": "Let's personalize your experience"
+        "title": "أهلاً وسهلاً",
+        "subtitle": "دعنا نخصّص تجربتك"
     },
-    "progress": "Step {{current}} / {{total}}",
+    "progress": "الخطوة {{current}} / {{total}}",
     "buttons": {
-        "next": "Continue",
-        "start": "Start"
+        "next": "متابعة",
+        "start": "ابدأ"
     }
 }
