@@ -30,11 +30,11 @@ import { AdMob } from '@capacitor-community/admob';
 // FRIDAY_CONTENT is now dynamic - moved inside component to use t()
 
 const ESMA_UL_HUSNA = [
-    { name: 'Er-Rahman', meaning: 'Herkesi ve herşeyi kuşatan sınırsız merhamet sahibi.', meaning_en: 'The Most Merciful, whose boundless mercy encompasses all.', ebced: 298, virtue: 'Dünya ve ahiret mutluluğu, rızık bolluğu için okunur.', virtue_en: 'For worldly and eternal happiness, abundance of sustenance.', calligraphy: 'الرَّحْمَنُ' },
-    { name: 'Er-Rahim', meaning: 'Kendisine inananlara özel merhameti olan.', meaning_en: 'The Especially Merciful to believers.', ebced: 258, virtue: 'Maddi ve manevi rızık, hidayet ve şefkat için okunur.', virtue_en: 'For material and spiritual sustenance, guidance and compassion.', calligraphy: 'الرَّحِيمُ' },
-    { name: 'El-Melik', meaning: 'Bütün kainatın mutlak sahibi ve hükümdarı.', meaning_en: 'The absolute Sovereign and Owner of all creation.', ebced: 90, virtue: 'Maddi ve manevi güç, itibar ve söz sahibi olmak için okunur.', virtue_en: 'For material and spiritual power, prestige and authority.', calligraphy: 'الْمَلِكُ' },
-    { name: 'El-Kuddüs', meaning: 'Bütün eksikliklerden münezzeh, mukaddes.', meaning_en: 'The Most Holy, free from all imperfections.', ebced: 170, virtue: 'Manevi temizlik, kalbin nurlanması ve korkulardan emin olmak için.', virtue_en: 'For spiritual purification, enlightenment of the heart and safety from fears.', calligraphy: 'الْقُدُّوسُ' },
-    { name: 'Es-Selam', meaning: 'Esenlik veren, selamete çıkaran.', meaning_en: 'The Source of Peace, who delivers to safety.', ebced: 131, virtue: 'Huzur, barış ve selamete ermek, hastalıklardan şifa bulmak için.', virtue_en: 'For peace, tranquility, safety and healing from illnesses.', calligraphy: 'السَّلَامُ' },
+    { name: 'Er-Rahman', meaning: 'Herkesi ve herşeyi kuşatan sınırsız merhamet sahibi.', meaning_en: 'The Most Merciful, whose boundless mercy encompasses all.', meaning_de: 'Der Allerbarmer, der allen Geschöpfen in dieser Welt barmherzig ist.', ebced: 298, virtue: 'Dünya ve ahiret mutluluğu, rızık bolluğu için okunur.', virtue_en: 'For worldly and eternal happiness, abundance of sustenance.', virtue_de: 'Für Glückseligkeit im Diesseits und Jenseits, Fülle der Versorgung.', calligraphy: 'الرَّحْمَنُ' },
+    { name: 'Er-Rahim', meaning: 'Kendisine inananlara özel merhameti olan.', meaning_en: 'The Especially Merciful to believers.', meaning_de: 'Der besonders Barmherzige zu den Gläubigen im Jenseits.', ebced: 258, virtue: 'Maddi ve manevi rızık, hidayet ve şefkat için okunur.', virtue_en: 'For material and spiritual sustenance, guidance and compassion.', virtue_de: 'Für materielle und geistliche Versorgung, Rechtleitung und Mitgefühl.', calligraphy: 'الرَّحِيمُ' },
+    { name: 'El-Melik', meaning: 'Bütün kainatın mutlak sahibi ve hükümdarı.', meaning_en: 'The absolute Sovereign and Owner of all creation.', meaning_de: 'Der absolute Herrscher und Eigentümer der gesamten Schöpfung.', ebced: 90, virtue: 'Maddi ve manevi güç, itibar ve söz sahibi olmak için okunur.', virtue_en: 'For material and spiritual power, prestige and authority.', virtue_de: 'Für materielle und geistliche Kraft, Ansehen und Autorität.', calligraphy: 'الْمَلِكُ' },
+    { name: 'El-Kuddüs', meaning: 'Bütün eksikliklerden münezzeh, mukaddes.', meaning_en: 'The Most Holy, free from all imperfections.', meaning_de: 'Der Allheilige, frei von jeglicher Unvollkommenheit.', ebced: 170, virtue: 'Manevi temizlik, kalbin nurlanması ve korkulardan emin olmak için.', virtue_en: 'For spiritual purification, enlightenment of the heart and safety from fears.', virtue_de: 'Für geistliche Reinigung und Erleuchtung des Herzens.', calligraphy: 'الْقُدُّوسُ' },
+    { name: 'Es-Selam', meaning: 'Esenlik veren, selamete çıkaran.', meaning_en: 'The Source of Peace, who delivers to safety.', meaning_de: 'Die Quelle des Friedens, der Seine Diener in Sicherheit bringt.', ebced: 131, virtue: 'Huzur, barış ve selamete ermek, hastalıklardan şifa bulmak için.', virtue_en: 'For peace, tranquility, safety and healing from illnesses.', virtue_de: 'Für Frieden, Ruhe und Erreichen der Sicherheit.', calligraphy: 'السَّلَامُ' },
 ];
 
 const SHARE_THEMES = [
@@ -720,7 +720,7 @@ function EsmaDetailModal({ esma, count, setCount, onClose }) {
                             {esma.name}
                         </h2>
                         <p className="text-white/50 text-sm font-light italic tracking-wide max-w-xs mx-auto">
-                            "{i18n.language === 'en' ? esma.meaning_en : esma.meaning}"
+                            "{esma[`meaning_${i18n.language}`] || esma.meaning_en || esma.meaning}"
                         </p>
                     </div>
 
@@ -905,7 +905,7 @@ function EsmaDetailModal({ esma, count, setCount, onClose }) {
                             <span className="text-[10px] uppercase font-bold tracking-[0.2em]">{t('esma.virtue_title')}</span>
                         </div>
                         <p className="text-sm text-white/80 leading-relaxed font-light font-serif">
-                            {i18n.language === 'en' ? esma.virtue_en : esma.virtue}
+                            {esma[`virtue_${i18n.language}`] || esma.virtue_en || esma.virtue}
                         </p>
                     </div>
 

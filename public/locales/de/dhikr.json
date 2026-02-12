@@ -1,54 +1,54 @@
 {
-    "title": "Dhikr Counter",
+    "title": "Dhikr-Zähler",
     "presets": {
         "subhanallah": {
             "name": "SubhanAllah",
-            "meaning": "Glory be to Allah"
+            "meaning": "Gepriesen sei Allah"
         },
         "elhamdulillah": {
             "name": "Alhamdulillah",
-            "meaning": "All praise is due to Allah"
+            "meaning": "Alles Lob gebührt Allah"
         },
         "allahuekber": {
             "name": "Allahu Akbar",
-            "meaning": "Allah is the Greatest"
+            "meaning": "Allah ist der Größte"
         },
         "last": {
             "name": "La ilaha illallah",
-            "meaning": "There is no god but Allah"
+            "meaning": "Es gibt keinen Gott außer Allah"
         },
         "istigfar": {
             "name": "Astaghfirullah",
-            "meaning": "I seek forgiveness from Allah"
+            "meaning": "Ich bitte Allah um Vergebung"
         },
         "salavat": {
             "name": "Salawat",
-            "meaning": "O Allah, send blessings upon our Prophet Muhammad"
+            "meaning": "O Allah, segne unseren Propheten Muhammad"
         }
     },
     "vibration": {
-        "everyClick": "Vibration: Every Click",
-        "targetOnly": "Vibration: Target Only",
-        "off": "Vibration: Off"
+        "everyClick": "Vibration: Bei jedem Tippen",
+        "targetOnly": "Vibration: Nur beim Ziel",
+        "off": "Vibration: Aus"
     },
     "vibrationTooltip": {
-        "all": "All Vibrations On",
-        "target": "Vibration on Target Only",
-        "off": "Vibration Off"
+        "all": "Alle Vibrationen an",
+        "target": "Vibration nur beim Ziel",
+        "off": "Vibration aus"
     },
-    "confirmReset": "Are you sure you want to reset the dhikr counter?",
-    "target": "Target: {{count}}",
-    "targetWithUnit": "Target: {{count}} Times",
-    "round": "ROUND",
-    "roundCompleted": "Round {{round}} Completed ✓",
-    "totalDhikr": "Total Dhikr",
-    "resetAllTitle": "Reset all dhikr?",
-    "cancel": "CANCEL",
-    "reset": "RESET",
-    "setTarget": "Set Target",
-    "setTargetDesc": "Enter your personal target for {{name}}.",
-    "saveTarget": "SAVE TARGET",
-    "resetAllTooltip": "Reset All Dhikr",
-    "footerVerse": "\"O you who believe! Remember Allah with much remembrance, and glorify Him morning and evening.\"",
-    "footerVerseSource": "SURAH AL-AHZAB, 41-42"
+    "confirmReset": "Bist du sicher, dass du den Dhikr-Zähler zurücksetzen möchtest?",
+    "target": "Ziel: {{count}}",
+    "targetWithUnit": "Ziel: {{count}} Mal",
+    "round": "RUNDE",
+    "roundCompleted": "Runde {{round}} abgeschlossen ✓",
+    "totalDhikr": "Dhikr gesamt",
+    "resetAllTitle": "Alle Dhikr zurücksetzen?",
+    "cancel": "ABBRECHEN",
+    "reset": "ZURÜCKSETZEN",
+    "setTarget": "Ziel festlegen",
+    "setTargetDesc": "Gib dein persönliches Ziel für {{name}} ein.",
+    "saveTarget": "ZIEL SPEICHERN",
+    "resetAllTooltip": "Alle Dhikr zurücksetzen",
+    "footerVerse": "\"O ihr, die ihr glaubt! Gedenkt Allahs in häufigem Gedenken und preist Ihn morgens und abends.\"",
+    "footerVerseSource": "SURE AL-AHZAB, 41-42"
 }

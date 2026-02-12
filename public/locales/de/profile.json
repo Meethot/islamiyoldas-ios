@@ -1,90 +1,90 @@
 {
-    "title": "Profile",
+    "title": "Profil",
     "user": {
-        "default_name": "Faithful User",
-        "streak_desc": "Day {{count}} of the journey"
+        "default_name": "Gläubiger Nutzer",
+        "streak_desc": "Tag {{count}} der Reise"
     },
     "premium": {
-        "banner_title": "Go Premium",
-        "banner_desc": "Ad-free experience and detailed stats."
+        "banner_title": "Premium werden",
+        "banner_desc": "Werbefreies Erlebnis und detaillierte Statistiken."
     },
-    "personal_settings": "Personal Settings",
-    "general_settings": "General Settings",
+    "personal_settings": "Persönliche Einstellungen",
+    "general_settings": "Allgemeine Einstellungen",
     "notifications": {
-        "title": "Notifications",
-        "subtitle": "Adhan, verse & motivation"
+        "title": "Benachrichtigungen",
+        "subtitle": "Adhan, Vers & Motivation"
     },
     "privacy": {
-        "title": "Privacy & Security",
-        "subtitle": "Data protection and lock",
-        "modal_title": "Data & Privacy",
-        "data_info": "Your data is stored <strong>only on this device</strong>. No data is sent to our servers.",
-        "download": "Download My Data",
-        "delete_all": "Delete All Data"
+        "title": "Datenschutz & Sicherheit",
+        "subtitle": "Datenschutz und Sperre",
+        "modal_title": "Daten & Datenschutz",
+        "data_info": "Deine Daten werden <strong>nur auf diesem Gerät</strong> gespeichert. Es werden keine Daten an unsere Server gesendet.",
+        "download": "Meine Daten herunterladen",
+        "delete_all": "Alle Daten löschen"
     },
     "appearance": {
-        "title": "Appearance",
-        "dark_active": "Dark mode active",
-        "light_active": "Light mode active"
+        "title": "Erscheinungsbild",
+        "dark_active": "Dunkelmodus aktiv",
+        "light_active": "Hellmodus aktiv"
     },
     "location": {
-        "title": "Location",
-        "subtitle": "GPS and city settings"
+        "title": "Standort",
+        "subtitle": "GPS- und Stadteinstellungen"
     },
     "share": {
-        "title": "Share Progress",
-        "subtitle": "Share Tuba Tree on social media"
+        "title": "Fortschritt teilen",
+        "subtitle": "Tuba-Baum in sozialen Medien teilen"
     },
     "invite": {
-        "title": "Invite Friend",
-        "subtitle": "Share app link with loved ones"
+        "title": "Freund einladen",
+        "subtitle": "App-Link mit Liebsten teilen"
     },
     "calc": {
-        "title": "Calc Missed Prayers",
-        "subtitle": "Automatic calculation tool"
+        "title": "Versäumte Gebete berechnen",
+        "subtitle": "Automatisches Berechnungstool"
     },
     "language": {
-        "title": "App Language",
-        "subtitle": "Change interface language"
+        "title": "App-Sprache",
+        "subtitle": "Anzeigesprache ändern"
     },
     "promo": {
-        "title": "Promo Code",
-        "subtitle": "Use a gift code",
-        "label": "ENTER CODE",
-        "submit": "Apply Code",
-        "success": "Congratulations! Premium features have been activated. 🌟",
-        "invalid": "Invalid or expired promo code."
+        "title": "Promo-Code",
+        "subtitle": "Geschenkcode einlösen",
+        "label": "CODE EINGEBEN",
+        "submit": "Code einlösen",
+        "success": "Herzlichen Glückwunsch! Premium-Funktionen wurden aktiviert. 🌟",
+        "invalid": "Ungültiger oder abgelaufener Promo-Code."
     },
     "report_bug": {
-        "title": "Report Bug",
-        "subtitle": "Having issues with the app?",
-        "email_subject": "Islamic Companion - Bug Report",
-        "email_body": "The issue I encountered is:\n\n"
+        "title": "Fehler melden",
+        "subtitle": "Probleme mit der App?",
+        "email_subject": "Islamischer Begleiter – Fehlerbericht",
+        "email_body": "Das aufgetretene Problem ist:\n\n"
     },
     "legal": {
-        "title": "Legal & About",
-        "subtitle": "Privacy, contact and support"
+        "title": "Rechtliches & Über uns",
+        "subtitle": "Datenschutz, Kontakt und Support"
     },
     "delete_account": {
-        "title": "Delete Account",
-        "confirm": "Your account and all data will be deleted. This cannot be undone. Are you sure?"
+        "title": "Konto löschen",
+        "confirm": "Dein Konto und alle Daten werden gelöscht. Dies kann nicht rückgängig gemacht werden. Bist du sicher?"
     },
     "avatar": {
-        "male": "Male",
-        "female": "Female",
-        "beads": "Beads",
+        "male": "Männlich",
+        "female": "Weiblich",
+        "beads": "Gebetskette",
         "tuba": "Tuba",
         "quran": "Quran",
-        "moon": "Crescent"
+        "moon": "Halbmond"
     },
-    "coming_soon": "Coming Soon",
-    "support": "Support Us",
-    "reset": "Reset Data",
+    "coming_soon": "Demnächst verfügbar",
+    "support": "Unterstütze uns",
+    "reset": "Daten zurücksetzen",
     "modal": {
-        "select_lang": "Language Selection",
-        "lang_note": "Language change applies instantly."
+        "select_lang": "Sprachauswahl",
+        "lang_note": "Sprachwechsel wird sofort angewendet."
     },
-    "avatar_modal_title": "Select Profile Photo",
-    "app_name": "Islamic Companion",
+    "avatar_modal_title": "Profilfoto auswählen",
+    "app_name": "Islamischer Begleiter",
     "version": "Version 2.1.0 (Pro Max)"
 }

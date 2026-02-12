@@ -1,0 +1,45 @@
+// German translations for Prayer Hadiths & Duas
+// Keyed by id — merged into hadithData.js at export
+
+export const HADITH_DE = {
+    1: { text_de: 'Das Gebet ist die Säule der Religion. Wer es bewahrt, hat die Religion bewahrt; wer es unterlässt, hat die Religion zerstört.', source_de: 'Bayhaqi' },
+    2: { text_de: 'Der Unterschied zwischen einem Diener und Unglauben ist das Unterlassen des Gebets.', source_de: 'Muslim' },
+    3: { text_de: 'Das Gebet ist die Himmelfahrt (Mi\'radsch) des Gläubigen.', source_de: 'Hadith' },
+    4: { text_de: 'Die Belohnung des Gebets ist nur Allah bekannt.', source_de: 'Bukhari' },
+    5: { text_de: 'Die fünf täglichen Gebete sind eine Sühne für die dazwischen begangenen Sünden.', source_de: 'Muslim' },
+    6: { text_de: 'Am nächsten ist der Diener seinem Herrn, wenn er sich in der Niederwerfung befindet.', source_de: 'Muslim' },
+    7: { text_de: 'Wer das Fajr-Gebet verrichtet, steht unter dem Schutz Allahs.', source_de: 'Muslim' },
+    8: { text_de: 'Das Höllenfeuer wird denjenigen nicht berühren, der in den beiden Dunkelheiten betet (Fajr und Ischa).', source_de: 'Tirmidhi' },
+    9: { text_de: 'Das Gebet in der Gemeinschaft ist siebenundzwanzig Stufen besser als das einzeln verrichtete Gebet.', source_de: 'Bukhari' },
+    10: { text_de: 'Dem, der das Gebet pünktlich verrichtet, werden die Tore des Paradieses geöffnet.', source_de: 'Tirmidhi' },
+    11: { text_de: 'Die Allah liebste Tat ist die beständigste, auch wenn sie gering ist.', source_de: 'Bukhari' },
+    12: { text_de: 'Das pünktliche Verrichten des Gebets ist die Allah liebste Tat.', source_de: 'Bukhari & Muslim' },
+    13: { text_de: 'Wer die fünf täglichen Gebete verrichtet, wird von den kleinen Sünden dazwischen gereinigt.', source_de: 'Muslim' },
+    14: { text_de: 'Wer vierzig Tage lang mit dem ersten Takbir am Gebet teilnimmt, erhält zwei frohe Botschaften: Befreiung vom Höllenfeuer und Befreiung von Heuchelei.', source_de: 'Tirmidhi' },
+    15: { text_de: 'Dem, der seine Gebete ohne Faulheit verrichtet, wird am Tag des Gerichts ein großes Licht gegeben.', source_de: 'Tabarani' },
+    16: { text_de: 'Das Gebet ist die Ruhe des Herzens und das Licht der Augen.', source_de: 'Ahmad ibn Hanbal' },
+    17: { text_de: 'Einem Menschen wird von seinem Gebet nur so viel angerechnet, wie er davon verstanden hat.', source_de: 'Abu Dawud' },
+    18: { text_de: 'Wendet eure Herzen im Gebet zu Allah, denn das Gebet ist ein Zwiegespräch zwischen dem Diener und Allah.', source_de: 'Imam Al-Ghazali' },
+    19: { text_de: 'Wer im Gebet steht, flüstert mit seinem Herrn.', source_de: 'Bukhari' },
+    20: { text_de: 'Allah blickt auf euch, solange ihr im Gebet steht.', source_de: 'Tirmidhi' },
+    21: { text_de: 'Satan ist nichts so feindlich gesinnt wie dem Gebet.', source_de: 'Tirmidhi' },
+    22: { text_de: 'Das Licht des Auges liegt im Gebet, und der Frieden des Herzens liegt im Gedenken Allahs.', source_de: 'Hadith' },
+    23: { text_de: 'Wer das Gebet vernachlässigt, hat alles außer Allah vernachlässigt.', source_de: 'Imam Asch-Schafi\'i' },
+    24: { text_de: 'Das Gebet nimmt die Müdigkeit des Tages und bringt der Seele Erleichterung.', source_de: 'Hadith' },
+    25: { text_de: 'Wer das Fajr-Gebet verrichtet, ist an diesem Tag vor dem Übel Satans geschützt.', source_de: 'Tirmidhi' },
+};
+
+export const DUA_DE = {
+    1: { german: 'Unser Herr! Nimm es von uns an. Wahrlich, Du bist der Allhörende, der Allwissende.' },
+    2: { german: 'O Allah! Hilf mir, Deiner zu gedenken, Dir dankbar zu sein und Dir auf die schönste Weise zu dienen.' },
+    3: { german: 'O Allah! Ich suche Zuflucht bei Dir vor Unglaube und Armut.' },
+    4: { german: 'Gepriesen sei Allah. Alles Lob gebührt Allah. Allah ist der Größte.' },
+    5: { german: 'Es gibt keinen Gott außer Allah, Er ist einzig und hat keinen Teilhaber.' },
+    6: { german: 'O Allah! Entferne mich von meinen Sünden.' },
+    7: { german: 'Ich habe mein Gesicht Dem zugewandt, der die Himmel und die Erde erschaffen hat, und ich bete nichts anderes an als Ihn.' },
+    8: { german: 'Mein Herr! Mache mich und meine Nachkommen zu denjenigen, die das Gebet verrichten.' },
+    9: { german: 'O Allah! Ich bitte Dich um nützliches Wissen, reine Versorgung und angenommene Taten.' },
+    10: { german: 'O Allah! Ich habe meiner Seele großes Unrecht getan. Niemand vergibt Sünden außer Dir. Vergib mir und erbarme Dich meiner.' },
+    11: { german: 'Unser Herr! Gewähre uns Gutes in dieser Welt und Gutes im Jenseits und schütze uns vor der Strafe des Feuers.' },
+    12: { german: 'O Allah! Leite mich recht unter denen, die Du rechtgeleitet hast.' },
+};

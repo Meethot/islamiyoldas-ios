@@ -1,3 +1,5 @@
+import { ESMA_DE as _ESMA_DE } from './esmaDE';
+
 export const ALL_ESMA = [
     { id: 1, name: 'Allah', meaning: 'Her şeyin hakikî mâbudu, her şeyi yaratan.', meaning_en: 'The true God of all things, Creator of everything.', ebced: 66, virtue: 'Dua ve dileklerin kabulü için en büyük isimdir.', virtue_en: 'The greatest name for the acceptance of prayers and wishes.', calligraphy: 'اللّٰه' },
     { id: 2, name: 'Er-Rahmân', meaning: 'Dünyada bütün mahlûkata merhamet eden.', meaning_en: 'The Most Merciful to all creation in this world.', ebced: 298, virtue: 'Dünya ve ahiret saadeti, rızık bolluğu için.', virtue_en: 'For worldly and eternal happiness, abundance of sustenance.', calligraphy: 'الرَّحْمٰن' },
@@ -98,4 +100,8 @@ export const ALL_ESMA = [
     { id: 97, name: 'El-Vâris', meaning: 'Her şeyin gerçek sahibi.', meaning_en: 'The Inheritor, the true owner of all things.', ebced: 707, virtue: 'Hayırlı kazanç, mülk ve evlat için.', virtue_en: 'For blessed earnings, property and offspring.', calligraphy: 'الْوَارِث' },
     { id: 98, name: 'Er-Reşîd', meaning: 'Doğru yolu gösteren.', meaning_en: 'The Guide to the Right Path, who directs to truth.', ebced: 514, virtue: 'İşlerin yoluna girmesi, doğru karar vermek.', virtue_en: 'For setting affairs straight and making right decisions.', calligraphy: 'الرَّشِيد' },
     { id: 99, name: 'Es-Sabûr', meaning: 'Çok sabırlı olan.', meaning_en: 'The Most Patient, infinitely patient.', ebced: 298, virtue: 'Sabır kuvveti, hacetler için.', virtue_en: 'For patience strength and fulfilling needs.', calligraphy: 'الصَّبُور' }
-];
+].map(esma => {
+    // Merge German translations from esmaDE.js
+    const de = _ESMA_DE[esma.id];
+    return de ? { ...esma, ...de } : esma;
+});

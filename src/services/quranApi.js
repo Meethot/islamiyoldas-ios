@@ -9,11 +9,12 @@ const EDITIONS = {
     arabic: 'ara-quranuthmanihaf',
     transliteration: 'tur-latinalphabet1',
     translation_tr: 'tur-diyanetisleri', // Diyanet İşleri
-    translation_en: 'eng-ummmuhammad' // Sahih International (Umm Muhammad)
+    translation_en: 'eng-ummmuhammad', // Sahih International (Umm Muhammad)
+    translation_de: 'deu-aburidamuhammad' // Abu Rida Muhammad ibn Ahmad ibn Rassoul
 };
 
 // Caching helper
-const CACHE_KEY_PREFIX = 'surah_content_v4_';
+const CACHE_KEY_PREFIX = 'surah_content_v5_';
 
 async function getCachedSurah(surahId, language) {
     const { value } = await Preferences.get({ key: `${CACHE_KEY_PREFIX}${surahId}_${language}` });
@@ -86,6 +87,7 @@ export async function fetchSurahContent(surahId, page = 1, language = 'tr') {
 
     let translationEdition = EDITIONS.translation_tr;
     if (language === 'en') translationEdition = EDITIONS.translation_en;
+    if (language === 'de') translationEdition = EDITIONS.translation_de;
 
     try {
         // Fetch 3 sources in parallel

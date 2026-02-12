@@ -1,75 +1,75 @@
 {
     "nav": {
-        "home": "Home",
-        "learn": "Learn",
-        "stories": "Stories",
+        "home": "Startseite",
+        "learn": "Lernen",
+        "stories": "Geschichten",
         "worship": "Ibadah",
-        "profile": "Profile"
+        "profile": "Profil"
     },
     "prayer": {
         "fajr": "Fajr",
-        "sunrise": "Sunrise",
+        "sunrise": "Sonnenaufgang",
         "dhuhr": "Dhuhr",
         "asr": "Asr",
         "maghrib": "Maghrib",
         "isha": "Isha"
     },
     "quran": {
-        "bismillah_translation": "In the name of Allah, the Entirely Merciful, the Especially Merciful",
-        "sadaqallah": "Allah the Almighty has spoken the truth",
-        "next_surah": "Next Surah",
-        "load_more": "Load More Verses",
-        "connection_error": "Connection Error",
-        "retry": "Retry",
-        "back": "Back",
-        "loading": "Loading..."
+        "bismillah_translation": "Im Namen Allahs, des Allerbarmers, des Barmherzigen",
+        "sadaqallah": "Allah der Allmächtige hat die Wahrheit gesprochen",
+        "next_surah": "Nächste Sure",
+        "load_more": "Mehr Verse laden",
+        "connection_error": "Verbindungsfehler",
+        "retry": "Erneut versuchen",
+        "back": "Zurück",
+        "loading": "Wird geladen..."
     },
     "common": {
-        "loading": "Loading...",
-        "error": "An error occurred",
-        "save": "Save",
-        "cancel": "Cancel",
-        "back": "Back",
-        "next": "Next"
+        "loading": "Wird geladen...",
+        "error": "Ein Fehler ist aufgetreten",
+        "save": "Speichern",
+        "cancel": "Abbrechen",
+        "back": "Zurück",
+        "next": "Weiter"
     },
     "share": {
-        "card_not_found": "Share card not found. Please refresh the page.",
-        "progress_text": "I'm tracking my worship with Islamic Companion! {{streak}} Join too! 🤲\n\n📲 islamiccompanion.app/download",
-        "progress_streak": "🔥 {{count}} day streak!",
-        "progress_title": "My Spiritual Journey",
-        "progress_filename": "spiritual-journey.png",
-        "share_failed": "Sharing failed. Please try again.",
-        "invite_title": "I wanted to share this with you",
-        "invite_text": "I discovered Islamic Companion! A wonderful companion for spiritual growth. 🤲",
-        "link_copied": "Link copied to clipboard!",
-        "verse_friday": "Blessed Friday",
-        "verse_daily": "Verse of the Day",
-        "verse_text": "\"{{text}}\" - {{source}}\n\nIslamic Companion - Your Closest Companion on the Spiritual Path 🤲",
-        "verse_share_error": "An error occurred while sharing.",
-        "hidden_title": "Islamic Companion Share",
-        "hidden_filename": "share.png",
-        "app_title": "Islamic Companion",
-        "app_share_text": "I'm using this amazing app to learn prayer and refresh my religious knowledge. Try it too!",
-        "app_share_dialog": "Share App",
-        "app_link_copied": "Link copied! (Share menu only works on mobile devices)"
+        "card_not_found": "Teilenkarte nicht gefunden. Bitte aktualisiere die Seite.",
+        "progress_text": "Ich verfolge meine Ibadah mit Islamischer Begleiter! {{streak}} Mach auch mit! 🤲\n\n📲 islamiccompanion.app/download",
+        "progress_streak": "🔥 {{count}} Tage Serie!",
+        "progress_title": "Meine spirituelle Reise",
+        "progress_filename": "spirituelle-reise.png",
+        "share_failed": "Teilen fehlgeschlagen. Bitte versuche es erneut.",
+        "invite_title": "Das wollte ich mit dir teilen",
+        "invite_text": "Ich habe den Islamischen Begleiter entdeckt! Ein wunderbarer Wegbegleiter für spirituelles Wachstum. 🤲",
+        "link_copied": "Link in die Zwischenablage kopiert!",
+        "verse_friday": "Gesegneter Freitag",
+        "verse_daily": "Vers des Tages",
+        "verse_text": "\"{{text}}\" - {{source}}\n\nIslamischer Begleiter – Dein engster Begleiter auf dem spirituellen Weg 🤲",
+        "verse_share_error": "Beim Teilen ist ein Fehler aufgetreten.",
+        "hidden_title": "Islamischer Begleiter Teilen",
+        "hidden_filename": "teilen.png",
+        "app_title": "Islamischer Begleiter",
+        "app_share_text": "Ich nutze diese großartige App, um das Gebet zu lernen und mein religiöses Wissen aufzufrischen. Probiere es auch aus!",
+        "app_share_dialog": "App teilen",
+        "app_link_copied": "Link kopiert! (Das Teilen-Menü funktioniert nur auf Mobilgeräten)"
     },
     "review": {
-        "title": "Do you enjoy Islamic Companion?",
-        "adFree": "100% Ad-Free Experience",
-        "description": "We developed a completely ad-free app to give you the best experience. Your review is very valuable to support us! 🤲",
-        "rateButton": "Rate Us",
-        "later": "Remind Me Later"
+        "title": "Gefällt dir der Islamische Begleiter?",
+        "adFree": "100% werbefreies Erlebnis",
+        "description": "Wir haben eine komplett werbefreie App entwickelt, um dir das beste Erlebnis zu bieten. Deine Bewertung ist sehr wertvoll, um uns zu unterstützen! 🤲",
+        "rateButton": "Bewerten",
+        "later": "Später erinnern"
     },
     "splash": {
-        "title": "Islamic Companion",
-        "subtitle": "PREMIUM ISLAMIC ASSISTANT",
-        "footer": "Made with ❤️ for the Ummah"
+        "title": "Islamischer Begleiter",
+        "subtitle": "PREMIUM ISLAMISCHER ASSISTENT",
+        "footer": "Mit ❤️ für die Ummah gemacht"
     },
     "errors": {
-        "permissionDenied": "Location permission denied",
-        "usingCachedLocation": "Could not get current location, using last known position",
-        "locationUnavailable": "Location unavailable: ",
-        "unknownError": "Unknown error",
-        "permissionNotGranted": "Location permission not granted"
+        "permissionDenied": "Standortberechtigung verweigert",
+        "usingCachedLocation": "Aktueller Standort konnte nicht ermittelt werden, letzter bekannter Standort wird verwendet",
+        "locationUnavailable": "Standort nicht verfügbar: ",
+        "unknownError": "Unbekannter Fehler",
+        "permissionNotGranted": "Standortberechtigung nicht erteilt"
     }
 }

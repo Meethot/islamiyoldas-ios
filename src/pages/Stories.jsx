@@ -5,16 +5,23 @@ import { Play, BookOpen, Clock, ChevronRight, X, Headphones, Sparkles, Heart, Sk
 import { cn } from '@/lib/utils';
 import { AnimatePresence, motion, useDragControls } from 'framer-motion';
 import StoryCard from '@/components/StoryCard';
+import { useTranslation } from 'react-i18next';
 
 import { STORIES } from '@/data/spiritualData';
+import { STORIES_DE } from '@/data/spiritualDataDE';
 
-const CATEGORIES = [
-    { id: 'prophets', label: 'Peygamberler', icon: BookOpen },
-    { id: 'companions', label: 'Sahabeler', icon: Heart },
-    { id: 'moral', label: 'Kıssalar', icon: Sparkles },
+const STORIES_MAP = { de: STORIES_DE };
+
+const CATEGORY_IDS = [
+    { id: 'prophets', icon: BookOpen },
+    { id: 'companions', icon: Heart },
+    { id: 'moral', icon: Sparkles },
 ];
 
 export default function Stories() {
+    const { t, i18n } = useTranslation('stories');
+    const lang = i18n.language;
+    const activeStories = { ...STORIES, ...(STORIES_MAP[lang] || {}) };
     const [activeCategory, setActiveCategory] = useState('prophets');
     const [selectedStory, setSelectedStory] = useState(null);
     const [isPlaying, setIsPlaying] = useState(false);
@@ -105,7 +112,7 @@ export default function Stories() {
     };
 
     const handleNext = () => {
-        const currentStories = STORIES[activeCategory] || [];
+        const currentStories = activeStories[activeCategory] || [];
         const currentIndex = currentStories.findIndex(s => s.id === selectedStory.id);
         if (currentIndex !== -1 && currentIndex < currentStories.length - 1) {
             setSelectedStory(currentStories[currentIndex + 1]);
@@ -113,7 +120,7 @@ export default function Stories() {
     };
 
     const handlePrev = () => {
-        const currentStories = STORIES[activeCategory] || [];
+        const currentStories = activeStories[activeCategory] || [];
         const currentIndex = currentStories.findIndex(s => s.id === selectedStory.id);
         if (currentIndex > 0) {
             setSelectedStory(currentStories[currentIndex - 1]);
@@ -141,7 +148,7 @@ export default function Stories() {
 
             {/* Category Selection */}
             <div className="glass-panel rounded-3xl p-2 grid grid-cols-3 gap-1">
-                {CATEGORIES.map((cat) => {
+                {CATEGORY_IDS.map((cat) => {
                     const Icon = cat.icon;
                     const isActive = activeCategory === cat.id;
                     return (
@@ -157,7 +164,7 @@ export default function Stories() {
                             whileTap={{ scale: 0.95 }}
                         >
                             <Icon className={cn("w-5 h-5 mx-auto mb-1", isActive && "drop-shadow-md")} />
-                            <span className="text-[10px]">{cat.label}</span>
+                            <span className="text-[10px]">{t(`categories.${cat.id}`)}</span>
                         </motion.button>
                     );
                 })}
@@ -165,7 +172,7 @@ export default function Stories() {
 
             {/* Story Grid */}
             <div className="grid gap-5">
-                {(STORIES[activeCategory] || []).map((story) => (
+                {(activeStories[activeCategory] || []).map((story) => (
                     <StoryCard
                         key={story.id}
                         story={story}
@@ -215,7 +222,7 @@ export default function Stories() {
                                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
                                         <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
                                     </span>
-                                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Şuan Dinleniyor</span>
+                                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{t('nowListening')}</span>
                                 </div>
                                 <div className="w-10 flex justify-center">
                                     {/* Optional Handle Indicator */}
@@ -242,7 +249,7 @@ export default function Stories() {
                                             )}
                                             onClick={toggleSpeed}
                                         >
-                                            {isSpeeding ? "Normal Hız" : "2x Hızlandır"}
+                                            {isSpeeding ? t('normalSpeed') : t('speedUp')}
                                         </Button>
                                     </div>
 

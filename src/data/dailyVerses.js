@@ -106,13 +106,73 @@ export const DAILY_VERSES_EN = [
     { id: 50, text: "Allah is with you and will never deprive you of your deeds.", source: "Muhammad, 35" },
 ];
 
+// German translations of all 50 daily verses
+export const DAILY_VERSES_DE = [
+    { id: 1, text: "Wahrlich, das Gebet ist den Gläubigen zu bestimmten Zeiten vorgeschrieben.", source: "An-Nisa, 103" },
+    { id: 2, text: "Diejenigen, die Allahs gedenken im Stehen, Sitzen und auf ihren Seiten liegend und über die Schöpfung der Himmel und der Erde nachdenken...", source: "Ali Imran, 191" },
+    { id: 3, text: "So gedenket Meiner, damit Ich eurer gedenke. Und seid Mir dankbar und verleugnet Mich nicht.", source: "Al-Baqara, 152" },
+    { id: 4, text: "Wer eine gute Tat vollbringt, dem wird das Zehnfache davon zuteil.", source: "Al-An'am, 160" },
+    { id: 5, text: "Sucht Hilfe in der Geduld und im Gebet. Wahrlich, Allah ist mit den Geduldigen.", source: "Al-Baqara, 153" },
+    { id: 6, text: "Wahrlich, Allahs Barmherzigkeit ist denen nahe, die Gutes tun.", source: "Al-A'raf, 56" },
+    { id: 7, text: "Wer auf Allah vertraut, dem genügt Er.", source: "At-Talaq, 3" },
+    { id: 8, text: "Bittet euren Herrn um Vergebung und kehrt dann reumütig zu Ihm zurück.", source: "Hud, 3" },
+    { id: 9, text: "O ihr Gläubigen! Sucht Hilfe in der Geduld und im Gebet.", source: "Al-Baqara, 153" },
+    { id: 10, text: "Allah bürdet keiner Seele mehr auf, als sie zu tragen vermag.", source: "Al-Baqara, 286" },
+    { id: 11, text: "Ruft Mich an, Ich werde euch erhören.", source: "Ghafir, 60" },
+    { id: 12, text: "Wer Allah fürchtet, dem schafft Er einen Ausweg.", source: "At-Talaq, 2" },
+    { id: 13, text: "Allah will es euch leicht machen und will es euch nicht schwer machen.", source: "Al-Baqara, 185" },
+    { id: 14, text: "Wahrlich, mit der Erschwernis kommt die Erleichterung.", source: "Asch-Scharh, 6" },
+    { id: 15, text: "O ihr Gläubigen! Gedenket Allahs in häufigem Gedenken.", source: "Al-Ahzab, 41" },
+    { id: 16, text: "Wahrlich, im Gedenken Allahs finden die Herzen Ruhe.", source: "Ar-Ra'd, 28" },
+    { id: 17, text: "Wer einen Schritt auf dem Wege Allahs geht, dem gibt Allah die doppelte Belohnung.", source: "Al-Baqara, 261" },
+    { id: 18, text: "Allah ist vergebend und barmherzig.", source: "Al-Baqara, 173" },
+    { id: 19, text: "Und die Versorgung deines Herrn ist besser und beständiger.", source: "Ta-Ha, 131" },
+    { id: 20, text: "Er ist es, der die Reue Seiner Diener annimmt, die Missetaten verzeiht und weiß, was ihr tut.", source: "Asch-Schura, 25" },
+    { id: 21, text: "Wer an Allah und den Jüngsten Tag glaubt, der soll Gutes sprechen oder schweigen.", source: "Hadith (Bukhari)" },
+    { id: 22, text: "Sprich: Die Barmherzigkeit meines Herrn ist besser als das, was sie anhäufen.", source: "An-Naml, 62" },
+    { id: 23, text: "Allah ist der Wender der Herzen und der Augen.", source: "An-Nur, 37" },
+    { id: 24, text: "O ihr Gläubigen! Seid geduldig, wetteifert in Geduld, seid wachsam und fürchtet Allah.", source: "Ali Imran, 200" },
+    { id: 25, text: "Er schaut nicht auf euer Äußeres, sondern Er schaut auf eure Herzen.", source: "Hadith (Muslim)" },
+    { id: 26, text: "Das Streben nach Wissen ist eine Pflicht für jeden Muslim.", source: "Hadith (Ibn Madscha)" },
+    { id: 27, text: "Wer morgens und abends 'SubhanAllah' sagt, dessen Lohn wird so groß wie der Schaum des Meeres sein.", source: "Hadith (Muslim)" },
+    { id: 28, text: "Die Besten unter euch sind diejenigen, die den Menschen am nützlichsten sind.", source: "Hadith (Tabarani)" },
+    { id: 29, text: "Der Gläubige ist der Spiegel des Gläubigen.", source: "Hadith (Abu Dawud)" },
+    { id: 30, text: "Seid achtsam gegenüber Allah. Wahrlich, Allah weiß, was in den Herzen ist.", source: "Al-Baqara, 235" },
+    { id: 31, text: "Ein gutes Wort ist wie ein guter Baum, dessen Wurzel fest ist und dessen Zweige in den Himmel reichen.", source: "Ibrahim, 24" },
+    { id: 32, text: "Wer einem Muslim eine weltliche Not lindert, dem wird Allah am Tag des Gerichts eine Not lindern.", source: "Hadith (Muslim)" },
+    { id: 33, text: "Ist der Lohn für Gutes etwas anderes als Gutes?", source: "Ar-Rahman, 60" },
+    { id: 34, text: "Übe Nachsicht, gebiete das Rechte und wende dich von den Unwissenden ab.", source: "Al-A'raf, 199" },
+    { id: 35, text: "Sie sind diejenigen, die im Wohlstand und in der Not auf dem Wege Allahs spenden.", source: "Ali Imran, 134" },
+    { id: 36, text: "Wahrlich, der Edelste von euch bei Allah ist der Gottesfürchtigste.", source: "Al-Hudschurat, 13" },
+    { id: 37, text: "Ruft euren Herrn demütig und im Verborgenen an. Wahrlich, Er liebt die Übertreter nicht.", source: "Al-A'raf, 55" },
+    { id: 38, text: "Sie sind diejenigen, die, wenn sie ein Unglück trifft, geduldig ausharren.", source: "Asch-Schura, 43" },
+    { id: 39, text: "Die wahren Gläubigen sind jene, deren Herzen erbeben, wenn Allah erwähnt wird.", source: "Al-Anfal, 2" },
+    { id: 40, text: "Jedem, der Gutes tut, wird Allah gewiss seinen vollen Lohn geben.", source: "Ali Imran, 171" },
+    { id: 41, text: "Rufe zum Wege deines Herrn mit Weisheit und schöner Ermahnung.", source: "An-Nahl, 125" },
+    { id: 42, text: "Gedenket der Gnade Allahs über euch, auf dass ihr Erfolg haben möget.", source: "Ali Imran, 103" },
+    { id: 43, text: "Du besitzt wahrlich einen großartigen Charakter.", source: "Al-Qalam, 4" },
+    { id: 44, text: "Wer ein Leben rettet, ist, als hätte er die ganze Menschheit gerettet.", source: "Al-Ma'ida, 32" },
+    { id: 45, text: "Preise deinen Herrn im Morgengrauen und wenn die Sterne verblassen.", source: "At-Tur, 49" },
+    { id: 46, text: "Wir haben den Menschen gewiss in bester Gestalt erschaffen.", source: "At-Tin, 4" },
+    { id: 47, text: "Wahrlich, das Gebet hält von Schändlichkeit und Verwerflichem ab.", source: "Al-Ankabut, 45" },
+    { id: 48, text: "Mein Herr, mehre mein Wissen.", source: "Ta-Ha, 114" },
+    { id: 49, text: "Wahrlich, Allah ist mit den Geduldigen.", source: "Al-Anfal, 46" },
+    { id: 50, text: "Allah ist mit euch und wird euch eure Taten niemals schmälern.", source: "Muhammad, 35" },
+];
+
 import { getDayOfYear } from '@/lib/testDate';
+
+// Language → Verses lookup map (add new languages here)
+const VERSES_MAP = {
+    en: DAILY_VERSES_EN,
+    de: DAILY_VERSES_DE,
+};
 
 // Get a consistent verse for the day (same verse for all users on the same day)
 // Uses global test date system for testing day progression
 export const getDailyVerse = (lang = 'tr') => {
     const dayOfYear = getDayOfYear();
-    const verses = lang === 'en' ? DAILY_VERSES_EN : DAILY_VERSES;
+    const verses = VERSES_MAP[lang] || DAILY_VERSES;
 
     // Use day of year to select verse (cycles through all 50 verses)
     const verseIndex = Math.abs(dayOfYear) % verses.length;
