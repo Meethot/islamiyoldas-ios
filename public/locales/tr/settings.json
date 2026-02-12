@@ -17,6 +17,8 @@
     "spiritualRewardsSubtitle": "Namaz sonrası hadis ve dualar",
     "fridayMessage": "Cuma Mesajı",
     "fridayMessageSubtitle": "Her Cuma manevi bir hatırlatma al",
+    "dhikrReminder": "Zikir Hatırlatıcı",
+    "dhikrReminderSubtitle": "Günde bir kez zikir çekmeni hatırlat",
     "location": "Konum",
     "autoLocation": "Otomatik Konum",
     "autoLocationSubtitle": "GPS ile konumunuz otomatik algılansın",

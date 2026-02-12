@@ -3,6 +3,7 @@
     "qiblaDirection": "QIBLA",
     "directionSuffix": "DIRECTION",
     "calculating": "CALCULATING...",
+    "calculatingSubtitle": "Finding the most accurate direction for you",
     "qiblaFound": "QIBLA FOUND",
     "qiblaFoundSubtitle": "MAY ALLAH ACCEPT",
     "degreesRemaining": "Degrees to Align",

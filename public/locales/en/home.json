@@ -109,6 +109,7 @@
         "sortDesc": "Sort Z-A",
         "ebced": "Abjad",
         "noResults": "No name found matching your search...",
+        "remaining": "Left",
         "close": "Close"
     },
     "tuba": {
@@ -229,5 +230,14 @@
         "completed": "{{current}} / {{total}} Completed",
         "allDoneTitle": "Alhamdulillah",
         "allDoneSub": "Day Completed 🤲"
+    },
+    "prayerCard": {
+        "upcoming": "Upcoming",
+        "tracking": "Tracking",
+        "backToAuto": "← Back to Auto Mode (Track Next Prayer)",
+        "selected": "✓ Selected - Tracking",
+        "nextPrayer": "Next Prayer",
+        "passed": "Passed",
+        "tapToSelect": "Tap to select"
     }
 }

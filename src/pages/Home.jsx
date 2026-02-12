@@ -615,7 +615,7 @@ function EsmaDetailModal({ esma, count, setCount, onClose }) {
     const cycle = Math.floor(count / target);
 
     // Circular Progress Calculation
-    const radius = 60;
+    const radius = 85;
     const circumference = 2 * Math.PI * radius;
     const strokeDashoffset = circumference - progress * circumference;
 
@@ -701,87 +701,91 @@ function EsmaDetailModal({ esma, count, setCount, onClose }) {
                 }}
                 onClick={(e) => e.stopPropagation()}
             >
-                <div
-                    className="absolute inset-0 opacity-5 pointer-events-none"
-                    style={{
-                        backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
-                    }}
-                />
+                {/* Ambient Background Glow */}
+                <div className="absolute top-[-15%] right-[-15%] w-48 h-48 bg-islamic-gold/10 rounded-full blur-[80px] pointer-events-none" />
+                <div className="absolute bottom-[-10%] left-[-10%] w-56 h-56 bg-emerald-500/15 rounded-full blur-[100px] pointer-events-none" />
 
-                <div className="w-12 h-1.5 bg-white/20 rounded-full mx-auto mb-8 relative z-10" />
+                <div className="w-12 h-1.5 bg-white/20 rounded-full mx-auto mb-6 relative z-10" />
 
-                <div className="relative z-10 text-center space-y-8">
-                    <div className="space-y-3">
+                <div className="relative z-10 text-center space-y-5">
+                    <div className="space-y-2">
                         <motion.h1
                             initial={{ scale: 0.9, opacity: 0 }}
                             animate={{ scale: 1, opacity: 1 }}
-                            className="text-6xl font-serif text-transparent bg-clip-text bg-gradient-to-b from-islamic-gold via-amber-300 to-islamic-gold drop-shadow-[0_0_25px_rgba(212,175,55,0.4)] pb-2"
+                            className="text-5xl font-serif text-transparent bg-clip-text bg-gradient-to-b from-islamic-gold via-amber-300 to-islamic-gold drop-shadow-[0_0_25px_rgba(212,175,55,0.4)] pb-1"
                         >
                             {esma.calligraphy}
                         </motion.h1>
-                        <h2 className="text-3xl font-bold text-white tracking-widest uppercase font-serif">
+                        <h2 className="text-2xl font-bold text-white tracking-widest uppercase font-serif">
                             {esma.name}
                         </h2>
-                        <p className="text-white/60 text-sm font-light italic tracking-wide max-w-xs mx-auto">
+                        <p className="text-white/50 text-sm font-light italic tracking-wide max-w-xs mx-auto">
                             "{i18n.language === 'en' ? esma.meaning_en : esma.meaning}"
                         </p>
                     </div>
 
-                    <div className="flex justify-center gap-3">
-                        <div className="bg-white/5 backdrop-blur-sm border border-white/10 px-4 py-2 rounded-xl flex items-center gap-2">
-                            <span className="text-[10px] text-gray-400 uppercase tracking-wider">Ebced</span>
-                            <span className="text-lg font-bold text-islamic-gold">{esma.ebced}</span>
+                    {/* Ebced Badge */}
+                    <div className="flex justify-center">
+                        <div className="flex items-center gap-3 bg-islamic-gold/5 px-8 py-2.5 rounded-full border border-islamic-gold/30">
+                            <span className="text-islamic-gold font-bold text-xs uppercase tracking-[0.2em]">{t('esma.ebced')} {esma.ebced}</span>
                         </div>
                     </div>
 
-                    <div className="relative h-64 flex items-center justify-center my-6">
-                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                            <svg className="w-64 h-64 -rotate-90">
-                                <circle
-                                    cx="128" cy="128" r={radius}
-                                    stroke="currentColor"
-                                    strokeWidth="4"
-                                    fill="none"
-                                    className="text-white/5"
-                                />
-                                <motion.circle
-                                    cx="128" cy="128" r={radius}
-                                    stroke="currentColor"
-                                    strokeWidth="4"
-                                    fill="none"
-                                    className="text-islamic-gold drop-shadow-[0_0_10px_rgba(212,175,55,0.5)]"
-                                    strokeDasharray={circumference}
-                                    strokeLinecap="round"
-                                    initial={{ strokeDashoffset: circumference }}
-                                    animate={{ strokeDashoffset }}
-                                    transition={{ duration: 0.5 }}
-                                />
-                            </svg>
-                        </div>
+                    {/* Counter Ring with Countdown Inside */}
+                    <div className="relative w-72 h-72 flex items-center justify-center mx-auto">
+                        {/* SVG Progress Ring */}
+                        <svg className="absolute inset-0 w-full h-full -rotate-90 transform" viewBox="0 0 200 200">
+                            <circle cx="100" cy="100" r="85" stroke="currentColor" strokeWidth="8" fill="transparent" className="text-white/5" />
+                            <motion.circle
+                                cx="100" cy="100" r="85"
+                                stroke="currentColor"
+                                strokeWidth="8"
+                                fill="transparent"
+                                strokeDasharray={circumference}
+                                strokeLinecap="round"
+                                className="text-islamic-gold drop-shadow-[0_0_12px_rgba(212,175,55,0.5)]"
+                                initial={{ strokeDashoffset: circumference }}
+                                animate={{ strokeDashoffset }}
+                                transition={{ duration: 0.4, ease: 'easeOut' }}
+                            />
+                        </svg>
 
+                        {/* Main Counter Button */}
                         <motion.button
                             whileTap={{ scale: 0.92 }}
                             onClick={handleIncrement}
-                            className="relative w-48 h-48 rounded-full shadow-[0_20px_50px_rgba(0,0,0,0.5)] group z-20"
+                            className="relative w-52 h-52 rounded-full flex flex-col items-center justify-center group z-20 border border-white/10"
                             style={{
-                                background: 'radial-gradient(circle at 30% 30%, #2f855a, #064e3b, #000000)',
-                                boxShadow: 'inset 0 2px 15px rgba(255,255,255,0.2), 0 10px 20px rgba(0,0,0,0.4)',
+                                background: 'radial-gradient(circle at 35% 35%, rgba(255,255,255,0.08), rgba(0,0,0,0.3))',
+                                backdropFilter: 'blur(20px)',
+                                boxShadow: '0 0 60px rgba(0,0,0,0.4), inset 0 1px 10px rgba(255,255,255,0.1)',
                             }}
                         >
-                            <div className="absolute inset-0 rounded-full opacity-30 bg-gradient-to-tr from-white/20 to-transparent pointer-events-none" />
+                            {/* Glass highlight */}
+                            <div className="absolute inset-x-0 top-0 h-1/2 bg-white/5 rounded-t-full pointer-events-none" />
 
-                            <div className="flex flex-col items-center justify-center h-full">
-                                <motion.span
-                                    key={count}
-                                    initial={{ scale: 1.2, opacity: 0.5 }}
-                                    animate={{ scale: 1, opacity: 1 }}
-                                    className="text-6xl font-mono font-bold text-white drop-shadow-md tracking-tighter"
-                                >
-                                    {count}
-                                </motion.span>
-                                {cycle > 0 && <span className="text-[10px] text-white/40 uppercase tracking-widest mt-1">{t('esma.cycle', { count: cycle })}</span>}
-                            </div>
+                            {/* Countdown (remaining) */}
+                            <motion.span
+                                key={target - (count % target)}
+                                initial={{ scale: 1.3, opacity: 0.5 }}
+                                animate={{ scale: 1, opacity: 1 }}
+                                className={`text-7xl font-mono font-bold tracking-tighter drop-shadow-2xl ${(count % target) === 0 && count > 0 ? 'text-emerald-400' : 'text-white'
+                                    }`}
+                            >
+                                {(count % target) === 0 && count > 0 ? '✓' : target - (count % target)}
+                            </motion.span>
 
+                            {/* Label */}
+                            <span className="text-[10px] text-white/30 uppercase tracking-[0.2em] mt-1 font-bold">
+                                {(count % target) === 0 && count > 0 ? t('esma.cycle', { count: cycle }) : t('esma.remaining')}
+                            </span>
+
+                            {/* Cycle indicator */}
+                            {cycle > 0 && !((count % target) === 0 && count > 0) && (
+                                <span className="text-[9px] text-islamic-gold/50 uppercase tracking-widest mt-1">{t('esma.cycle', { count: cycle })}</span>
+                            )}
+
+                            {/* Tap ripple */}
                             <div className="absolute inset-0 rounded-full overflow-hidden">
                                 <span className="absolute inset-0 bg-white/10 opacity-0 group-active:opacity-100 transition-opacity duration-300" />
                             </div>

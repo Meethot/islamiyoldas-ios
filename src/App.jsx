@@ -4,7 +4,8 @@ import Onboarding from './pages/Onboarding';
 import Home from './pages/Home';
 import AppLayout from './layouts/AppLayout';
 import SplashScreen from './components/SplashScreen';
-import { PrayerTimesProvider } from './context/PrayerTimesContext';
+import { PrayerTimesProvider, usePrayerTimes } from './context/PrayerTimesContext';
+import { useLocation } from './context/LocationContext';
 
 import { initAdMob } from './services/adService';
 import { isPremium } from './services/creditService';
@@ -35,22 +36,46 @@ const AiMentor = React.lazy(() => import('./pages/AiMentor'));
 const FastingTracker = React.lazy(() => import('./pages/FastingTracker'));
 
 function App() {
+  return (
+    <PrayerTimesProvider>
+      <AppContent />
+    </PrayerTimesProvider>
+  );
+}
+
+function AppContent() {
   const [showSplash, setShowSplash] = useState(true);
   const onboardingComplete = localStorage.getItem('onboardingComplete') === 'true';
 
+  // Real data readiness signals
+  const { hasLocation, loading: locationLoading } = useLocation();
+  const { prayerTimes, loading: prayerLoading } = usePrayerTimes();
+
+  const locationReady = hasLocation && !locationLoading;
+  const prayerReady = !!prayerTimes && !prayerLoading;
+  const dataReady = locationReady && prayerReady;
+
+  // Dismiss when splash's internal progress completes (or via safety max)
   useEffect(() => {
-    // Splash Timer
-    const timer = setTimeout(() => setShowSplash(false), 3000);
+    if (!dataReady) return;
+    // Small delay for splash to fill to 100% visually
+    const timer = setTimeout(() => setShowSplash(false), 800);
     return () => clearTimeout(timer);
+  }, [dataReady]);
+
+  // Max safety: 8s
+  useEffect(() => {
+    const max = setTimeout(() => setShowSplash(false), 8000);
+    return () => clearTimeout(max);
   }, []);
 
-  // AdMob başlat
+  // AdMob init
   useEffect(() => { initAdMob(); }, []);
 
-  if (showSplash) return <SplashScreen />;
+  if (showSplash) return <SplashScreen dataReady={dataReady} />;
 
   return (
-    <PrayerTimesProvider>
+    <>
       {/* Desktop Background / Outer Container */}
       <div className="min-h-screen bg-gray-100 dark:bg-gray-900 flex justify-center items-center overflow-hidden font-sans">
         {/* Mobile Device Container */}
@@ -79,9 +104,7 @@ function App() {
                   <Route path="/qibla" element={<Qibla />} />
                   <Route path="/ai-mentor" element={<AiMentor />} />
                   <Route path="/oruc-takibi" element={<FastingTracker />} />
-                  {/* /settings removed - Profile now handles settings navigation */}
                   <Route path="/settings/notifications" element={<NotificationSettings />} />
-                  {/* /settings/appearance removed - now direct toggle in Profile */}
                   <Route path="/settings/location" element={<LocationSettings />} />
                   <Route path="/settings/legal" element={<LegalSettings />} />
                   <Route path="/legal/:type" element={<Legal />} />
@@ -91,7 +114,7 @@ function App() {
           </Router>
         </div>
       </div>
-    </PrayerTimesProvider>
+    </>
   );
 }
 

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     Bug, X, Clock, Trash2, Database, Volume2, Calendar,
-    FastForward, AlertTriangle, CheckCircle2, RefreshCcw, Navigation, Bell, List, RotateCcw
+    FastForward, AlertTriangle, CheckCircle2, RefreshCcw, Navigation, Bell, List, RotateCcw, AlarmClock
 } from 'lucide-react';
 import { LocalNotifications } from '@capacitor/local-notifications';
 import { Button } from '@/components/ui/button';
@@ -291,6 +291,52 @@ const DebugMenu = () => {
                         localStorage.removeItem('review_prompt_v2');
                         setLastAction('⭐ Review cooldown reset — triggers aktif');
                     }, color: 'bg-yellow-600'
+                },
+            ]
+        },
+        {
+            group: '🌙 Sahur Alarm',
+            items: [
+                {
+                    label: '10s Sahur Test', icon: AlarmClock, action: async () => {
+                        try {
+                            let permStatus = await LocalNotifications.checkPermissions();
+                            if (permStatus.display !== 'granted') {
+                                permStatus = await LocalNotifications.requestPermissions();
+                            }
+                            if (permStatus.display === 'granted') {
+                                await LocalNotifications.schedule({
+                                    notifications: [{
+                                        id: 4001,
+                                        title: '⏰ Sahur Vakti Yaklaşıyor!',
+                                        body: "İmsak'a 30 dakika kaldı. Sahura kalkma vakti! (TEST)",
+                                        schedule: { at: new Date(Date.now() + 10000), allowWhileIdle: true },
+                                        sound: /iPad|iPhone|iPod/.test(navigator.userAgent) ? 'sahur_alarm.caf' : 'sahur_alarm.mp3',
+                                        channelId: 'sahur_alarm',
+                                        interruptionLevel: 'timeSensitive',
+                                        extra: { type: 'sahur_alarm_test' }
+                                    }]
+                                });
+                                setLastAction('🌙 Sahur test bildirimi 10sn sonra gelecek!');
+                                alert('Sahur alarm testi kuruldu! 10 saniye içinde bildirim gelecek. Ekranı kilitleyin.');
+                            } else {
+                                setLastAction('❌ Bildirim izni reddedildi');
+                            }
+                        } catch (error) {
+                            setLastAction('❌ Sahur test error: ' + error.message);
+                        }
+                    }, color: 'bg-amber-600'
+                },
+                {
+                    label: 'Cancel Alarm', icon: AlarmClock, action: async () => {
+                        try {
+                            await LocalNotifications.cancel({ notifications: [{ id: 4000 }, { id: 4001 }] });
+                            localStorage.removeItem('sahurAlarm');
+                            setLastAction('🌙 Sahur alarmı iptal edildi');
+                        } catch (error) {
+                            setLastAction('❌ Cancel error: ' + error.message);
+                        }
+                    }, color: 'bg-red-600'
                 },
             ]
         }

@@ -120,7 +120,7 @@ export default function AppLayout() {
                 )}
 
                 {/* Debug Menu (Developer Tools) */}
-                {/* <DebugMenu /> */}
+                <DebugMenu />
             </div>
         </div>
     );

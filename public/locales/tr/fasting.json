@@ -77,5 +77,12 @@
         "Cum",
         "Cmt",
         "Paz"
-    ]
+    ],
+    "sahurAlarm": "Sahur Alarmı",
+    "sahurImsakTime": "İmsak: {{time}}",
+    "sahurAlarmTitle": "⏰ Sahur Vakti Yaklaşıyor!",
+    "sahurAlarmBody": "İmsak'a {{minutes}} dakika kaldı. Sahura kalkma vakti!",
+    "sahurCancel": "İptal",
+    "sahurMin": "dakika",
+    "sahurAlarmSet": "🔔 İmsak'tan {{minutes}} dk önce ({{time}}) çalacak"
 }

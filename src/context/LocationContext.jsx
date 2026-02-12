@@ -16,7 +16,10 @@ export function LocationProvider({ children }) {
     const [address, setAddress] = useState(null);
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [permissionStatus, setPermissionStatus] = useState('prompt'); // 'granted' | 'denied' | 'prompt'
+    const [permissionStatus, setPermissionStatus] = useState('prompt');
+
+    // Language helper — no i18n dependency needed here
+    const isEn = (localStorage.getItem('i18nextLng') || 'tr').startsWith('en');
 
     const checkPermissions = useCallback(async () => {
         try {
@@ -36,7 +39,7 @@ export function LocationProvider({ children }) {
             return status.location;
         } catch (err) {
             console.error('Permission request error:', err);
-            setError('Konum izni alınamadı');
+            setError(isEn ? 'Location permission denied' : 'Konum izni alınamadı');
             return 'denied';
         }
     }, []);
@@ -58,15 +61,16 @@ export function LocationProvider({ children }) {
         }
     }, []);
 
+    // Simple, fast position getter — no two-phase complexity
     const getCurrentPosition = useCallback(async () => {
-        setLoading(true);
         setError(null);
 
         try {
+            // Fast position: cell/wifi, 5s timeout, accepts 5-min cached readings
             const position = await Geolocation.getCurrentPosition({
-                enableHighAccuracy: true,
-                timeout: 10000,
-                maximumAge: 60000 // Cache for 1 minute
+                enableHighAccuracy: false,
+                timeout: 5000,
+                maximumAge: 300000
             });
 
             const coords = {
@@ -77,67 +81,78 @@ export function LocationProvider({ children }) {
             };
 
             setLocation(coords);
+            setLoading(false);
             localStorage.setItem('cached_location', JSON.stringify(coords));
 
-            // Fetch city name asynchronously
+            // Reverse geocode in background — never blocks
             getReverseGeocode(coords.latitude, coords.longitude);
+
+            // Background GPS refinement — fire and forget
+            Geolocation.getCurrentPosition({
+                enableHighAccuracy: true,
+                timeout: 10000,
+                maximumAge: 60000
+            }).then(accuratePos => {
+                const accurate = {
+                    latitude: accuratePos.coords.latitude,
+                    longitude: accuratePos.coords.longitude,
+                    accuracy: accuratePos.coords.accuracy,
+                    timestamp: accuratePos.timestamp
+                };
+                setLocation(accurate);
+                localStorage.setItem('cached_location', JSON.stringify(accurate));
+                getReverseGeocode(accurate.latitude, accurate.longitude);
+            }).catch(() => { /* silent — we already have a position */ });
 
             return coords;
         } catch (err) {
             console.error('Geolocation error:', err);
 
+            // Fallback to cached
             const cached = localStorage.getItem('cached_location');
             if (cached) {
                 const cachedCoords = JSON.parse(cached);
                 setLocation(cachedCoords);
-
                 const cachedAddr = localStorage.getItem('cached_address');
                 if (cachedAddr) setAddress(cachedAddr);
-
-                setError('Güncel konum alınamadı, son bilinen konum kullanılıyor');
+                setError(isEn ? 'Could not get current location, using last known position' : 'Güncel konum alınamadı, son bilinen konum kullanılıyor');
+                setLoading(false);
                 return cachedCoords;
             }
 
-            setError('Konum alınamadı: ' + (err.message || 'Bilinmeyen hata'));
-            return null;
-        } finally {
+            setError((isEn ? 'Location unavailable: ' : 'Konum alınamadı: ') + (err.message || (isEn ? 'Unknown error' : 'Bilinmeyen hata')));
             setLoading(false);
+            return null;
         }
     }, [getReverseGeocode]);
 
     const refreshLocation = useCallback(async () => {
+        setLoading(true);
         const status = await checkPermissions();
 
-        // If already granted, just get position
         if (status === 'granted') {
-            // Cache the granted status
             localStorage.setItem('location_permission_granted', 'true');
             return await getCurrentPosition();
         }
 
-        // If denied, don't ask again
         if (status === 'denied') {
             setLoading(false);
-            setError('Konum izni verilmedi');
+            setError(isEn ? 'Location permission not granted' : 'Konum izni verilmedi');
             return null;
         }
 
-        // Status is 'prompt' - check if we previously had permission
-        // (iOS can return 'prompt' even when permission was previously granted)
+        // Status is 'prompt' — check if we previously had permission
         const wasGranted = localStorage.getItem('location_permission_granted') === 'true';
-
         if (wasGranted) {
-            // Try to get position directly - permission might still be valid
             try {
                 const result = await getCurrentPosition();
                 if (result) return result;
-            } catch (e) {
-                // Permission was revoked, clear cache
+            } catch {
                 localStorage.removeItem('location_permission_granted');
             }
         }
 
-        // Only request permissions if we never had them
+        // Request permission
         const newStatus = await requestPermissions();
         if (newStatus === 'granted') {
             localStorage.setItem('location_permission_granted', 'true');
@@ -149,40 +164,40 @@ export function LocationProvider({ children }) {
         return null;
     }, [checkPermissions, requestPermissions, getCurrentPosition]);
 
-    // Auto-request location on mount
+    // Initialize location on mount
     useEffect(() => {
         const initLocation = async () => {
-            // First, try to load cached location immediately
+            // Step 1: Restore cached data immediately
             const cached = localStorage.getItem('cached_location');
             if (cached) {
                 try {
-                    setLocation(JSON.parse(cached));
+                    const cachedCoords = JSON.parse(cached);
+                    setLocation(cachedCoords);
                     const cachedAddr = localStorage.getItem('cached_address');
                     if (cachedAddr) setAddress(cachedAddr);
-                } catch (e) {
-                    // Invalid cache, ignore
+                    // Mark as NOT loading — we have usable data
+                    setLoading(false);
+                } catch {
+                    // Invalid cache
                 }
             }
 
-            // Check if permission was previously granted
+            // Step 2: Refresh with real GPS (may update coords)
             const wasGranted = localStorage.getItem('location_permission_granted') === 'true';
-
-            if (wasGranted && cached) {
-                // We have cached data and permission was granted before
-                // Try to refresh silently without prompting
+            if (wasGranted) {
+                // Permission already granted — refresh silently
                 const status = await checkPermissions();
                 if (status === 'granted') {
                     await getCurrentPosition();
                 }
-                setLoading(false);
             } else {
-                // Fresh start - need to request location
+                // Fresh install — need to request permission
                 await refreshLocation();
             }
         };
 
         initLocation();
-    }, []); // Remove refreshLocation from deps to prevent re-running
+    }, []);
 
     const value = {
         location,
@@ -191,7 +206,6 @@ export function LocationProvider({ children }) {
         loading,
         permissionStatus,
         refreshLocation,
-        // Convenience getters
         latitude: location?.latitude || null,
         longitude: location?.longitude || null,
         hasLocation: !!location,

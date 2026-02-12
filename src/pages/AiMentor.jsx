@@ -74,12 +74,7 @@ export default function AiMentor() {
 
     return (
         <div className="fixed inset-0 flex flex-col bg-[#021a0f] text-white overflow-hidden">
-            {/* Background Texture */}
-            <div className="absolute inset-0 opacity-[0.03] pointer-events-none"
-                style={{
-                    backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z' fill='%23D4AF37' fill-opacity='1' fill-rule='evenodd'/%3E%3C/svg%3E")`,
-                }}
-            />
+            {/* Background texture removed — clean */}
 
             {/* Header */}
             <div className="pt-safe px-4 py-3 relative flex items-center justify-center bg-[#032e18]/90 backdrop-blur-xl z-20 border-b border-white/5 shrink-0 shadow-sm min-h-[60px]">

@@ -1,12 +1,15 @@
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, Check, Flame, Moon, ChevronDown, Sparkles, X, AlertTriangle, Clock, RotateCcw } from 'lucide-react';
+import { ChevronLeft, Check, Flame, Moon, ChevronDown, Sparkles, X, AlertTriangle, Clock, RotateCcw, AlarmClock, Bell, BellOff } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useHaptics } from '@/hooks/useMobile';
 import { getAppDate, getTodayString } from '@/lib/testDate';
 import { triggerReviewPrompt } from '@/components/ReviewPrompt';
 import { useTranslation } from 'react-i18next';
+import { usePrayerTimes } from '@/context/PrayerTimesContext';
+import { LocalNotifications } from '@capacitor/local-notifications';
+import { Capacitor } from '@capacitor/core';
 
 const RAMAZAN_START = new Date(2026, 1, 19);
 const RAMAZAN_DAYS = 30;
@@ -402,6 +405,77 @@ export default function FastingTracker() {
     const [showResetConfirm, setShowResetConfirm] = useState(false);
     const [showTeravihReset, setShowTeravihReset] = useState(false);
 
+    // Sahur Alarm
+    const { prayerTimes: rawTimes } = usePrayerTimes();
+    const [sahurAlarm, setSahurAlarm] = useState(() => {
+        const saved = localStorage.getItem('sahurAlarm');
+        return saved ? JSON.parse(saved) : null; // { minutes: 15|30|45|60, scheduledAt: ISO string }
+    });
+
+    const imsakTime = useMemo(() => {
+        if (!rawTimes?.Fajr) return null;
+        const cleanTime = rawTimes.Fajr.split(' ')[0];
+        const [h, m] = cleanTime.split(':').map(Number);
+        if (isNaN(h) || isNaN(m)) return null;
+        return { hours: h, minutes: m, display: cleanTime };
+    }, [rawTimes]);
+
+    const scheduleSahurAlarm = useCallback(async (minutesBefore) => {
+        if (!imsakTime || !Capacitor.isNativePlatform()) {
+            // Save locally even on web for state
+            const alarm = { minutes: minutesBefore, scheduledAt: new Date().toISOString() };
+            setSahurAlarm(alarm);
+            localStorage.setItem('sahurAlarm', JSON.stringify(alarm));
+            light();
+            return;
+        }
+
+        try {
+            // Calculate alarm time: İmsak - minutesBefore
+            const now = new Date();
+            const alarmDate = new Date();
+            alarmDate.setHours(imsakTime.hours, imsakTime.minutes, 0, 0);
+            alarmDate.setMinutes(alarmDate.getMinutes() - minutesBefore);
+
+            // If alarm time already passed today, schedule for tomorrow
+            if (alarmDate <= now) {
+                alarmDate.setDate(alarmDate.getDate() + 1);
+            }
+
+            // Cancel any existing sahur alarm
+            await LocalNotifications.cancel({ notifications: [{ id: 4000 }] });
+
+            await LocalNotifications.schedule({
+                notifications: [{
+                    id: 4000,
+                    title: t('sahurAlarmTitle'),
+                    body: t('sahurAlarmBody', { minutes: minutesBefore }),
+                    schedule: { at: alarmDate, allowWhileIdle: true },
+                    sound: Capacitor.getPlatform() === 'ios' ? 'sahur_alarm.caf' : 'sahur_alarm.mp3',
+                    channelId: 'sahur_alarm',
+                    interruptionLevel: 'timeSensitive',
+                    extra: { type: 'sahur_alarm' }
+                }]
+            });
+
+            const alarm = { minutes: minutesBefore, scheduledAt: alarmDate.toISOString() };
+            setSahurAlarm(alarm);
+            localStorage.setItem('sahurAlarm', JSON.stringify(alarm));
+            light();
+        } catch (e) {
+            console.error('Sahur alarm scheduling error:', e);
+        }
+    }, [imsakTime, light, t]);
+
+    const cancelSahurAlarm = useCallback(async () => {
+        if (Capacitor.isNativePlatform()) {
+            try { await LocalNotifications.cancel({ notifications: [{ id: 4000 }] }); } catch (e) { }
+        }
+        setSahurAlarm(null);
+        localStorage.removeItem('sahurAlarm');
+        light();
+    }, [light]);
+
     // 30s sayfada kalma tetikleyicisi
     useEffect(() => {
         const t = setTimeout(() => triggerReviewPrompt('fasting_deep'), 20000);
@@ -513,7 +587,7 @@ export default function FastingTracker() {
     return (
         <div className="min-h-screen bg-gradient-to-b from-[#021a0f] via-[#032e18] to-[#021a0f] text-white relative overflow-hidden pb-28">
             <Atmosphere />
-            <IslamicPattern />
+            {/* Pattern removed — clean background */}
 
             {/* Header */}
             <header className="sticky top-0 z-30 backdrop-blur-xl bg-[#032e18]/85 border-b border-emerald-600/10">
@@ -918,6 +992,130 @@ export default function FastingTracker() {
                             </motion.div>
                         )}
                     </AnimatePresence>
+                </motion.section>
+
+                {/* ═══  Sahur Alarm  ═══ */}
+                <motion.section
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.4 }}
+                    className="mx-5 mt-5 mb-6"
+                >
+                    <div
+                        className="rounded-[1.6rem] border border-white/[0.06] overflow-hidden"
+                        style={{ background: 'linear-gradient(145deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.01) 100%)' }}
+                    >
+                        <div
+                            className="rounded-[1.5rem] p-5"
+                            style={{
+                                background: 'linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(0,0,0,0.05) 100%)',
+                                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.05), inset 0 -1px 0 rgba(0,0,0,0.1)',
+                            }}
+                        >
+                            {/* Header */}
+                            <div className="flex items-center justify-between mb-4">
+                                <div className="flex items-center gap-2.5">
+                                    <div className="w-8 h-8 rounded-xl bg-amber-500/15 flex items-center justify-center border border-amber-400/15">
+                                        <AlarmClock size={16} className="text-amber-400" />
+                                    </div>
+                                    <div>
+                                        <h3 className="text-sm font-bold text-white/85">{t('sahurAlarm')}</h3>
+                                        {imsakTime && (
+                                            <p className="text-[10px] text-white/30 mt-0.5">
+                                                {t('sahurImsakTime', { time: imsakTime.display })}
+                                            </p>
+                                        )}
+                                    </div>
+                                </div>
+                                {sahurAlarm && (
+                                    <button
+                                        onClick={cancelSahurAlarm}
+                                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-red-500/10 border border-red-400/15 active:scale-95 transition-all cursor-pointer"
+                                    >
+                                        <BellOff size={12} className="text-red-400" />
+                                        <span className="text-[10px] font-bold text-red-400">{t('sahurCancel')}</span>
+                                    </button>
+                                )}
+                            </div>
+
+                            {/* Time Selector Pills */}
+                            <div className="grid grid-cols-4 gap-2">
+                                {[15, 30, 45, 60].map(min => {
+                                    const isActive = sahurAlarm?.minutes === min;
+                                    return (
+                                        <button
+                                            key={min}
+                                            onClick={() => isActive ? cancelSahurAlarm() : scheduleSahurAlarm(min)}
+                                            className={cn(
+                                                "relative py-3.5 rounded-2xl flex flex-col items-center gap-1.5 transition-all active:scale-95 cursor-pointer overflow-hidden",
+                                                isActive
+                                                    ? "ring-2 ring-amber-400/60 ring-offset-1 ring-offset-transparent"
+                                                    : ""
+                                            )}
+                                            style={{
+                                                background: isActive
+                                                    ? 'linear-gradient(145deg, rgba(245,158,11,0.25) 0%, rgba(217,119,6,0.15) 100%)'
+                                                    : 'linear-gradient(145deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 100%)',
+                                                border: `1px solid ${isActive ? 'rgba(245,158,11,0.3)' : 'rgba(255,255,255,0.06)'}`,
+                                                boxShadow: isActive
+                                                    ? '0 0 20px rgba(245,158,11,0.15), inset 0 1px 0 rgba(255,255,255,0.1)'
+                                                    : 'inset 0 1px 0 rgba(255,255,255,0.04)',
+                                            }}
+                                        >
+                                            {isActive && (
+                                                <motion.div
+                                                    animate={{ opacity: [0.3, 0.6, 0.3] }}
+                                                    transition={{ duration: 2, repeat: Infinity }}
+                                                    className="absolute inset-0 bg-gradient-to-b from-amber-400/10 to-transparent"
+                                                />
+                                            )}
+                                            <Bell size={14} className={isActive ? 'text-amber-400' : 'text-white/25'} />
+                                            <span className={cn(
+                                                "text-lg font-black tabular-nums leading-none",
+                                                isActive ? 'text-amber-400' : 'text-white/50'
+                                            )}>{min}</span>
+                                            <span className={cn(
+                                                "text-[8px] font-bold uppercase tracking-wider",
+                                                isActive ? 'text-amber-400/70' : 'text-white/20'
+                                            )}>{t('sahurMin')}</span>
+                                        </button>
+                                    );
+                                })}
+                            </div>
+
+                            {/* Active Alarm Info */}
+                            <AnimatePresence>
+                                {sahurAlarm && imsakTime && (
+                                    <motion.div
+                                        initial={{ height: 0, opacity: 0 }}
+                                        animate={{ height: 'auto', opacity: 1 }}
+                                        exit={{ height: 0, opacity: 0 }}
+                                        className="overflow-hidden"
+                                    >
+                                        <div className="mt-3 pt-3 border-t border-white/[0.05] flex items-center justify-center gap-2">
+                                            <motion.div
+                                                animate={{ scale: [1, 1.2, 1] }}
+                                                transition={{ duration: 1.5, repeat: Infinity }}
+                                            >
+                                                <Bell size={12} className="text-amber-400" />
+                                            </motion.div>
+                                            <span className="text-[11px] text-amber-400/80 font-medium">
+                                                {t('sahurAlarmSet', {
+                                                    minutes: sahurAlarm.minutes,
+                                                    time: (() => {
+                                                        const d = new Date();
+                                                        d.setHours(imsakTime.hours, imsakTime.minutes, 0, 0);
+                                                        d.setMinutes(d.getMinutes() - sahurAlarm.minutes);
+                                                        return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+                                                    })()
+                                                })}
+                                            </span>
+                                        </div>
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
+                        </div>
+                    </div>
                 </motion.section>
 
                 {/* Teravih Reset Confirmation Modal */}

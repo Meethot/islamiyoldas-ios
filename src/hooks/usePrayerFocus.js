@@ -117,18 +117,19 @@ export function usePrayerFocus(prayerTimes, completedPrayers) {
         if (Capacitor.isNativePlatform()) {
             try {
                 const notificationId = Math.floor(Math.random() * 2147483647);
-                await LocalNotifications.schedule({
-                    notifications: [{
-                        title: 'Prayer Time Reminder',
-                        body: `Don't forget to pray! 🕌`,
-                        id: notificationId,
-                        schedule: { at: new Date(tenMinutesLater), allowWhileIdle: true },
-                        sound: Capacitor.getPlatform() === 'android' ? 'beep' : 'beep.caf',
-                        channelId: 'ezan_vakti',
-                        smallIcon: 'ic_stat_icon_config_sample',
-                        interruptionLevel: 'timeSensitive'
-                    }]
-                });
+                const isIOS = Capacitor.getPlatform() === 'ios';
+                const notif = {
+                    title: 'Prayer Time Reminder',
+                    body: `Don't forget to pray! 🕌`,
+                    id: notificationId,
+                    schedule: { at: new Date(tenMinutesLater), allowWhileIdle: true },
+                    sound: isIOS ? 'beep.caf' : 'beep.wav',
+                    channelId: 'ezan_vakti',
+                    smallIcon: 'ic_stat_icon_config_sample',
+                };
+                if (isIOS) notif.interruptionLevel = 'timeSensitive';
+
+                await LocalNotifications.schedule({ notifications: [notif] });
             } catch (error) {
                 console.error('Snooze notification error:', error);
             }

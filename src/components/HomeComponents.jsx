@@ -1403,7 +1403,7 @@ export const PrayerCountdownWidget = memo(({ loading, city, nextPrayerInfo, pray
                                         {/* Title Row */}
                                         <div className="flex items-center gap-2 mb-0.5">
                                             <span className="text-[11px] text-gray-500 dark:text-gray-400 font-medium">
-                                                {isAutoMode ? 'Sıradaki' : 'Takip Edilen'}
+                                                {isAutoMode ? t('prayerCard.upcoming') : t('prayerCard.tracking')}
                                             </span>
                                             {!isAutoMode && (
                                                 <span className="bg-islamic-gold text-black text-[9px] font-bold px-1.5 py-0.5 rounded-full">
@@ -1484,7 +1484,7 @@ export const PrayerCountdownWidget = memo(({ loading, city, nextPrayerInfo, pray
                                                 onClick={(e) => { e.stopPropagation(); setSelectedPrayerId(null); }}
                                                 className="w-full text-center py-2 text-xs font-bold text-islamic-gold bg-islamic-gold/10 rounded-xl border border-islamic-gold/20 hover:bg-islamic-gold/20 transition-all mb-2"
                                             >
-                                                ← Otomatik Moda Dön (Sıradaki Vakti Takip Et)
+                                                {t('prayerCard.backToAuto')}
                                             </motion.button>
                                         )}
 
@@ -1543,7 +1543,7 @@ export const PrayerCountdownWidget = memo(({ loading, city, nextPrayerInfo, pray
                                                                         ? "text-islamic-gold/70"
                                                                         : "text-gray-400"
                                                             )}>
-                                                                {isSelected ? '✓ Seçili - Takip Ediliyor' : isNext ? 'Sıradaki Vakit' : isPast ? 'Geçti' : 'Seçmek için tıkla'}
+                                                                {isSelected ? t('prayerCard.selected') : isNext ? t('prayerCard.nextPrayer') : isPast ? t('prayerCard.passed') : t('prayerCard.tapToSelect')}
                                                             </p>
                                                         </div>
                                                     </div>

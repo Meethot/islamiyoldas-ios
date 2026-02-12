@@ -3,6 +3,7 @@
     "qiblaDirection": "KIBLE",
     "directionSuffix": "YÖNÜ",
     "calculating": "HESAPLANIYOR...",
+    "calculatingSubtitle": "Sizin için en doğru yönü bulmak üzere çalışıyoruz",
     "qiblaFound": "KIBLE BULUNDU",
     "qiblaFoundSubtitle": "ALLAH KABUL ETSİN",
     "degreesRemaining": "Hizalamaya Kalan",

@@ -17,6 +17,7 @@
 		50B271D11FEDC1A000F3C39B /* public in Resources */ = {isa = PBXBuildFile; fileRef = 50B271D01FEDC1A000F3C39B /* public */; };
 		E44ECC572F36282700996C74 /* beep.caf in Resources */ = {isa = PBXBuildFile; fileRef = E44ECC552F36282700996C74 /* beep.caf */; };
 		E44ECC582F36282700996C74 /* ezan.caf in Resources */ = {isa = PBXBuildFile; fileRef = E44ECC562F36282700996C74 /* ezan.caf */; };
+		A11BCC592F3D000100996C74 /* sahur_alarm.caf in Resources */ = {isa = PBXBuildFile; fileRef = A11BCC5A2F3D000100996C74 /* sahur_alarm.caf */; };
 		E47CC69F2F34FFB7001653B3 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E47CC69E2F34FFB6001653B3 /* WidgetKit.framework */; };
 		E47CC6A12F34FFB7001653B3 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E47CC6A02F34FFB7001653B3 /* SwiftUI.framework */; };
 		E47CC6AE2F34FFB8001653B3 /* IslamiYoldasWidgetsExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = E47CC69C2F34FFB6001653B3 /* IslamiYoldasWidgetsExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -59,6 +60,7 @@
 		958DCC722DB07C7200EA8C5F /* debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = debug.xcconfig; path = ../debug.xcconfig; sourceTree = SOURCE_ROOT; };
 		E44ECC552F36282700996C74 /* beep.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = beep.caf; sourceTree = "<group>"; };
 		E44ECC562F36282700996C74 /* ezan.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = ezan.caf; sourceTree = "<group>"; };
+		A11BCC5A2F3D000100996C74 /* sahur_alarm.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = sahur_alarm.caf; sourceTree = "<group>"; };
 		E45500CD2F350B890003DDDB /* IslamiYoldasWidgetsExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = IslamiYoldasWidgetsExtension.entitlements; sourceTree = "<group>"; };
 		E47CC69C2F34FFB6001653B3 /* IslamiYoldasWidgetsExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = IslamiYoldasWidgetsExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		E47CC69E2F34FFB6001653B3 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
@@ -126,6 +128,7 @@
 			children = (
 				E44ECC552F36282700996C74 /* beep.caf */,
 				E44ECC562F36282700996C74 /* ezan.caf */,
+				A11BCC5A2F3D000100996C74 /* sahur_alarm.caf */,
 				50379B222058CBB4000EE86E /* capacitor.config.json */,
 				504EC3071FED79650016851F /* AppDelegate.swift */,
 				504EC30B1FED79650016851F /* Main.storyboard */,
@@ -244,6 +247,7 @@
 				504EC3121FED79650016851F /* LaunchScreen.storyboard in Resources */,
 				E44ECC572F36282700996C74 /* beep.caf in Resources */,
 				E44ECC582F36282700996C74 /* ezan.caf in Resources */,
+				A11BCC592F3D000100996C74 /* sahur_alarm.caf in Resources */,
 				50B271D11FEDC1A000F3C39B /* public in Resources */,
 				504EC30F1FED79650016851F /* Assets.xcassets in Resources */,
 				50379B232058CBB4000EE86E /* capacitor.config.json in Resources */,

@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect, useContext, useCallback, useMemo } from 'react';
+import React, { createContext, useState, useEffect, useContext, useCallback, useMemo, useRef } from 'react';
 import axios from 'axios';
 import { useTranslation } from 'react-i18next';
 import { LocalNotifications } from '@capacitor/local-notifications';
@@ -20,16 +20,18 @@ export const PrayerTimesProvider = ({ children }) => {
         verseEnabled: true,
         prayerFocusMode: true,
         spiritualRewards: true,
-        fridayMessage: true
+        fridayMessage: true,
+        dhikrReminder: true
     });
 
     const [loading, setLoading] = useState(true);
-    const [locationSource, setLocationSource] = useState('loading'); // 'gps' | 'fallback' | 'loading'
+    const [locationSource, setLocationSource] = useState('loading');
 
-    // Get location from global context
-    const { latitude, longitude, loading: locationLoading, hasLocation, error: locationError } = useLocation();
+    // Ref to track if initial schedule has been done
+    const initialScheduleDoneRef = useRef(false);
 
-    // Istanbul fallback coordinates
+    const { latitude, longitude, hasLocation } = useLocation();
+
     const FALLBACK_COORDS = { lat: 41.0082, lng: 28.9784 };
 
     // Initial Setup
@@ -40,21 +42,58 @@ export const PrayerTimesProvider = ({ children }) => {
         }
     }, []);
 
-    // Fetch prayer times when location changes
+    // Fetch prayer times immediately and re-fetch when location updates
     useEffect(() => {
-        if (!locationLoading) {
-            fetchPrayerTimes();
-        }
-    }, [latitude, longitude, locationLoading]);
+        fetchPrayerTimes();
+    }, [latitude, longitude, hasLocation]);
 
-    // Re-schedule when settings change
+    // Schedule notifications when prayer times or relevant settings change
     useEffect(() => {
-        if (prayerTimes) {
-            scheduleDailyNotifications(prayerTimes);
-        }
+        if (!prayerTimes) return;
+
+        scheduleDailyNotifications(prayerTimes);
+    }, [prayerTimes, settings.adhanEnabled, settings.vibrateOnly]);
+
+    // Schedule verse notifications when setting changes
+    useEffect(() => {
         scheduleVerseNotifications();
+    }, [settings.verseEnabled]);
+
+    // Schedule Friday message when setting changes
+    useEffect(() => {
         scheduleFridayMessage();
-    }, [settings, prayerTimes]); // Added prayerTimes dependency
+    }, [settings.fridayMessage, settings.vibrateOnly]);
+
+    // Schedule dhikr reminder when setting changes
+    useEffect(() => {
+        scheduleDhikrReminder();
+    }, [settings.dhikrReminder]);
+
+    // Re-schedule prayer notifications every time app becomes active (handles 12-day expiry)
+    useEffect(() => {
+        if (!Capacitor.isNativePlatform() || !prayerTimes) return;
+
+        const handleAppResume = () => {
+            console.log('📿 App resumed — refreshing prayer notification schedule');
+            scheduleDailyNotifications(prayerTimes);
+        };
+
+        // Capacitor App plugin fires 'resume' when app comes to foreground
+        const importApp = async () => {
+            try {
+                const { App } = await import('@capacitor/app');
+                App.addListener('resume', handleAppResume);
+                return () => App.removeAllListeners('resume');
+            } catch (e) {
+                console.warn('Could not add resume listener', e);
+            }
+        };
+
+        let cleanup;
+        importApp().then(fn => { cleanup = fn; });
+
+        return () => { if (cleanup) cleanup(); };
+    }, [prayerTimes, settings.adhanEnabled, settings.vibrateOnly]);
 
     const loadSettings = async () => {
         try {
@@ -64,6 +103,7 @@ export const PrayerTimesProvider = ({ children }) => {
             const { value: prayerFocusMode } = await Preferences.get({ key: 'prayerFocusMode' });
             const { value: spiritualRewards } = await Preferences.get({ key: 'spiritualRewards' });
             const { value: fridayMessage } = await Preferences.get({ key: 'fridayMessage' });
+            const { value: dhikrReminder } = await Preferences.get({ key: 'dhikrReminder' });
 
             setSettings({
                 adhanEnabled: adhanEnabled === null ? true : adhanEnabled === 'true',
@@ -71,7 +111,8 @@ export const PrayerTimesProvider = ({ children }) => {
                 verseEnabled: verseEnabled === null ? true : verseEnabled === 'true',
                 prayerFocusMode: prayerFocusMode === null ? true : prayerFocusMode === 'true',
                 spiritualRewards: spiritualRewards === null ? true : spiritualRewards === 'true',
-                fridayMessage: fridayMessage === null ? true : fridayMessage === 'true'
+                fridayMessage: fridayMessage === null ? true : fridayMessage === 'true',
+                dhikrReminder: dhikrReminder === null ? true : dhikrReminder === 'true'
             });
         } catch (error) {
             console.error('Error loading settings:', error);
@@ -81,23 +122,10 @@ export const PrayerTimesProvider = ({ children }) => {
     const updateSettings = useCallback(async (newSettings) => {
         setSettings(prev => ({ ...prev, ...newSettings }));
         try {
-            if (newSettings.adhanEnabled !== undefined) {
-                await Preferences.set({ key: 'adhanEnabled', value: String(newSettings.adhanEnabled) });
-            }
-            if (newSettings.vibrateOnly !== undefined) {
-                await Preferences.set({ key: 'vibrateOnly', value: String(newSettings.vibrateOnly) });
-            }
-            if (newSettings.verseEnabled !== undefined) {
-                await Preferences.set({ key: 'verseEnabled', value: String(newSettings.verseEnabled) });
-            }
-            if (newSettings.prayerFocusMode !== undefined) {
-                await Preferences.set({ key: 'prayerFocusMode', value: String(newSettings.prayerFocusMode) });
-            }
-            if (newSettings.spiritualRewards !== undefined) {
-                await Preferences.set({ key: 'spiritualRewards', value: String(newSettings.spiritualRewards) });
-            }
-            if (newSettings.fridayMessage !== undefined) {
-                await Preferences.set({ key: 'fridayMessage', value: String(newSettings.fridayMessage) });
+            for (const [key, value] of Object.entries(newSettings)) {
+                if (value !== undefined) {
+                    await Preferences.set({ key, value: String(value) });
+                }
             }
         } catch (error) {
             console.error('Error saving settings:', error);
@@ -107,24 +135,35 @@ export const PrayerTimesProvider = ({ children }) => {
     const initializeNotifications = async () => {
         if (!Capacitor.isNativePlatform()) return;
         try {
-            // Request permissions (Robust display and sound request)
             const permStatus = await LocalNotifications.checkPermissions();
-            if (permStatus.display !== 'granted' || permStatus.sound !== 'granted') {
-                await LocalNotifications.requestPermissions({
-                    permissions: ['display', 'sound', 'badge']
-                });
+            if (permStatus.display !== 'granted') {
+                await LocalNotifications.requestPermissions();
             }
 
-            // Create Channel for Custom Sound
-            await LocalNotifications.createChannel({
-                id: 'ezan_vakti',
-                name: 'Ezan Vakti',
-                importance: 5, // Importance.HIGH
-                description: 'Ezan vakti bildirimleri',
-                sound: Capacitor.getPlatform() === 'android' ? 'ezan' : 'ezan.caf',
-                visibility: 1,
-                vibration: true
-            });
+            // Android notification channel — sound is baked into the channel
+            // IMPORTANT: Once created, Android caches the channel. Changing sound requires
+            // the user to uninstall/reinstall or manually reset in system settings.
+            if (Capacitor.getPlatform() === 'android') {
+                await LocalNotifications.createChannel({
+                    id: 'ezan_vakti',
+                    name: 'Ezan Vakti',
+                    importance: 5,
+                    description: 'Ezan vakti bildirimleri',
+                    sound: 'ezan.mp3',
+                    visibility: 1,
+                    vibration: true
+                });
+
+                await LocalNotifications.createChannel({
+                    id: 'sahur_alarm',
+                    name: 'Sahur Alarmı',
+                    importance: 5,
+                    description: 'Sahur vakti alarm bildirimi',
+                    sound: 'sahur_alarm.mp3',
+                    visibility: 1,
+                    vibration: true
+                });
+            }
         } catch (error) {
             console.error('Notification initialization error:', error);
         }
@@ -132,17 +171,14 @@ export const PrayerTimesProvider = ({ children }) => {
 
     const { i18n } = useTranslation();
 
-    // ...
     const fetchPrayerTimes = useCallback(async () => {
         try {
             setLoading(true);
             const today = new Date();
             const dateStr = `${today.getDate()}-${today.getMonth() + 1}-${today.getFullYear()}`;
 
-            // Dynamic method: 13 (Diyanet) for TR, 3 (MWL) for others
             const method = i18n.language?.startsWith('tr') ? 13 : 3;
 
-            // Use GPS coordinates if available, otherwise fallback to Istanbul
             let lat, lng;
             if (hasLocation && latitude && longitude) {
                 lat = latitude;
@@ -154,19 +190,13 @@ export const PrayerTimesProvider = ({ children }) => {
                 setLocationSource('fallback');
             }
 
-            // Use coordinate-based API instead of city-based
             const response = await axios.get(`https://api.aladhan.com/v1/timings/${dateStr}`, {
-                params: {
-                    latitude: lat,
-                    longitude: lng,
-                    method: method
-                }
+                params: { latitude: lat, longitude: lng, method }
             });
 
             const timings = response.data.data.timings;
             setPrayerTimes(timings);
             findNextPrayer(timings);
-            // scheduleDailyNotifications called via effect
         } catch (error) {
             console.error('Error fetching prayer times:', error);
         } finally {
@@ -176,8 +206,6 @@ export const PrayerTimesProvider = ({ children }) => {
 
     const findNextPrayer = (timings) => {
         try {
-            // Simple logic to find next prayer based on current time
-            // This can be enhanced
             const now = new Date();
             const timeToMinutes = (time) => {
                 const [h, m] = time.split(':').map(Number);
@@ -195,9 +223,7 @@ export const PrayerTimesProvider = ({ children }) => {
             ];
 
             let next = prayers.find(p => timeToMinutes(p.time) > currentMinutes);
-            if (!next) {
-                next = prayers[0]; // Next day Fajr
-            }
+            if (!next) next = prayers[0];
             setNextPrayer(next);
         } catch (e) {
             console.error("Error calculating next prayer", e);
@@ -213,7 +239,7 @@ export const PrayerTimesProvider = ({ children }) => {
         if (!Capacitor.isNativePlatform()) return;
 
         try {
-            // Cancel all existing prayer notifications (IDs 1-60 for 12 days × 5 prayers)
+            // Cancel all existing prayer notifications (IDs 1-60)
             const cancelIds = Array.from({ length: 60 }, (_, i) => ({ id: i + 1 }));
             await LocalNotifications.cancel({ notifications: cancelIds });
 
@@ -227,13 +253,24 @@ export const PrayerTimesProvider = ({ children }) => {
                 { name: 'Yatsı Namazı', time: timings.Isha }
             ];
 
+            const isIOS = Capacitor.getPlatform() === 'ios';
+            const isAndroid = Capacitor.getPlatform() === 'android';
             const notifications = [];
             const now = new Date();
 
-            // Schedule for next 12 days (max budget within iOS 64 limit)
+            // Sound config:
+            // - Android: channel handles the sound, but we set it here too for redundancy
+            // - iOS: per-notification sound file (must be in app bundle root)
+            // - Vibrate-only: empty string = system default silent behavior
+            const soundValue = settings.vibrateOnly
+                ? ''
+                : (isIOS ? 'ezan.caf' : 'ezan.mp3');
+
             for (let day = 0; day < MAX_PRAYER_DAYS; day++) {
                 prayers.forEach((p, idx) => {
                     const [h, m] = p.time.split(':').map(Number);
+                    if (isNaN(h) || isNaN(m)) return; // Guard against malformed times
+
                     const date = new Date();
                     date.setDate(date.getDate() + day);
                     date.setHours(h, m, 0, 0);
@@ -242,16 +279,22 @@ export const PrayerTimesProvider = ({ children }) => {
 
                     const id = day * 5 + idx + 1; // IDs 1-60
 
-                    notifications.push({
+                    const notif = {
                         title: 'Ezan Vakti 🕌',
                         body: `${p.name} vakti girdi. Haydi namaza!`,
                         id,
                         schedule: { at: date, allowWhileIdle: true },
-                        sound: settings.vibrateOnly ? null : (Capacitor.getPlatform() === 'android' ? 'ezan' : 'ezan.caf'),
+                        sound: soundValue,
                         channelId: 'ezan_vakti',
                         smallIcon: 'ic_stat_icon_config_sample',
-                        interruptionLevel: 'timeSensitive'
-                    });
+                    };
+
+                    // iOS: time-sensitive ensures delivery even in Focus/DND mode
+                    if (isIOS) {
+                        notif.interruptionLevel = 'timeSensitive';
+                    }
+
+                    notifications.push(notif);
                 });
             }
 
@@ -268,7 +311,6 @@ export const PrayerTimesProvider = ({ children }) => {
         if (!Capacitor.isNativePlatform()) return;
 
         try {
-            // Cancel existing verse notifications (3 repeating IDs)
             await LocalNotifications.cancel({ notifications: [{ id: 1001 }, { id: 1002 }, { id: 1003 }] });
 
             if (!settings.verseEnabled) return;
@@ -281,13 +323,11 @@ export const PrayerTimesProvider = ({ children }) => {
                 { id: 1003, hour: 21, minute: 0, label: 'Akşam' }
             ];
 
-            // Use 'every: day' for PERMANENT repeating notifications
             const notifications = verseSlots.map(slot => {
                 const verse = getRandomVerse();
                 const scheduleDate = new Date();
                 scheduleDate.setHours(slot.hour, slot.minute, 0, 0);
 
-                // If time passed today, start from tomorrow
                 if (scheduleDate <= new Date()) {
                     scheduleDate.setDate(scheduleDate.getDate() + 1);
                 }
@@ -302,7 +342,7 @@ export const PrayerTimesProvider = ({ children }) => {
                         allowWhileIdle: true
                     },
                     smallIcon: 'ic_stat_icon_config_sample',
-                    sound: null
+                    sound: '' // Silent — no sound for verse notifications
                 };
             });
 
@@ -318,7 +358,6 @@ export const PrayerTimesProvider = ({ children }) => {
         if (!Capacitor.isNativePlatform()) return;
 
         try {
-            // Cancel existing Friday notification (single repeating ID)
             await LocalNotifications.cancel({ notifications: [{ id: 2000 }] });
 
             if (!settings.fridayMessage) return;
@@ -334,7 +373,6 @@ export const PrayerTimesProvider = ({ children }) => {
                 "Ömrümüzün her anı Cuma bereketiyle dolsun. Dualarda buluşmak ümidiyle. 🤲"
             ];
 
-            // Find next Friday
             const now = new Date();
             const nextFriday = new Date();
             nextFriday.setHours(11, 30, 0, 0);
@@ -342,8 +380,13 @@ export const PrayerTimesProvider = ({ children }) => {
             const daysUntilFriday = (5 + 7 - dayOfWeek) % 7;
             nextFriday.setDate(now.getDate() + (daysUntilFriday === 0 && now > nextFriday ? 7 : daysUntilFriday));
 
-            // Use 'every: week' for PERMANENT weekly repeating
             const randomMessage = FRIDAY_MESSAGES[Math.floor(Math.random() * FRIDAY_MESSAGES.length)];
+
+            const isIOS = Capacitor.getPlatform() === 'ios';
+            const isAndroid = Capacitor.getPlatform() === 'android';
+            const soundValue = settings.vibrateOnly
+                ? ''
+                : (isIOS ? 'beep.caf' : 'beep.wav');
 
             console.log('🕌 Scheduling 1 repeating weekly Friday notification (permanent)');
             await LocalNotifications.schedule({
@@ -356,7 +399,7 @@ export const PrayerTimesProvider = ({ children }) => {
                         every: 'week',
                         allowWhileIdle: true
                     },
-                    sound: settings.vibrateOnly ? null : (Capacitor.getPlatform() === 'android' ? 'beep' : 'beep.caf'),
+                    sound: soundValue,
                     smallIcon: 'ic_stat_icon_config_sample'
                 }]
             });
@@ -366,12 +409,60 @@ export const PrayerTimesProvider = ({ children }) => {
         }
     }, [settings.fridayMessage, settings.vibrateOnly]);
 
+    const scheduleDhikrReminder = useCallback(async () => {
+        if (!Capacitor.isNativePlatform()) return;
+
+        try {
+            await LocalNotifications.cancel({ notifications: [{ id: 3000 }] });
+
+            if (!settings.dhikrReminder) return;
+
+            const DHIKR_MESSAGES = [
+                "Kalpler ancak Allah'ı anmakla huzur bulur. Bugün zikrini yaptın mı? 📿",
+                "Bir dakika bile olsa zikret, kalbini nurlandır. Zikirmatik seni bekliyor 🤲",
+                "Her tesbih bir adım cennete… Bugünkü adımlarını attın mı? 📿",
+                "Dil Allah'ı zikrettiğinde kalp sükûnet bulur. Hadi zikredelim 🌿",
+                "Günün en bereketli anı: Allah'ı anma vakti. Zikirmatik'te buluşalım 📿",
+                "Zikir, ruhun gıdasıdır. Bugün ruhunu doyurdun mu? 🕊️",
+                "Sübhanallah, Elhamdülillah, Allahu Ekber… Üç kelimeyle huzur bul 📿",
+                "Kalbin paslanmasın, zikirle parıldasın. Haydi bir kaç dakika ayır 🌟",
+            ];
+
+            const scheduleDate = new Date();
+            scheduleDate.setHours(10, 0, 0, 0);
+            if (scheduleDate <= new Date()) {
+                scheduleDate.setDate(scheduleDate.getDate() + 1);
+            }
+
+            const randomMessage = DHIKR_MESSAGES[Math.floor(Math.random() * DHIKR_MESSAGES.length)];
+
+            console.log('📿 Scheduling daily dhikr reminder notification (permanent)');
+            await LocalNotifications.schedule({
+                notifications: [{
+                    id: 3000,
+                    title: 'Zikir Vakti 📿',
+                    body: randomMessage,
+                    schedule: {
+                        at: scheduleDate,
+                        every: 'day',
+                        allowWhileIdle: true
+                    },
+                    sound: '',
+                    smallIcon: 'ic_stat_icon_config_sample'
+                }]
+            });
+
+        } catch (error) {
+            console.error('Error scheduling dhikr reminder:', error);
+        }
+    }, [settings.dhikrReminder]);
+
     const value = useMemo(() => ({
         prayerTimes,
         nextPrayer,
         loading,
         settings,
-        locationSource, // 'gps' | 'fallback' | 'loading'
+        locationSource,
         updateSettings,
         fetchPrayerTimes
     }), [prayerTimes, nextPrayer, loading, settings, locationSource, updateSettings, fetchPrayerTimes]);

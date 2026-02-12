@@ -1,32 +1,67 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import logo from "../assets/logo.png";
 
-export default function SplashScreen() {
+export default function SplashScreen({ dataReady = false }) {
     const [progress, setProgress] = useState(0);
     const [isVisible, setIsVisible] = useState(true);
     const lang = localStorage.getItem('i18nextLng') || 'tr';
     const isEn = lang.startsWith('en');
+    const startTimeRef = useRef(Date.now());
+    const rafRef = useRef(null);
 
     useEffect(() => {
-        // Force scroll to top on refresh
         window.scrollTo(0, 0);
-
-        // Simulation of loading progress
-        const interval = setInterval(() => {
-            setProgress((prev) => {
-                if (prev >= 100) {
-                    clearInterval(interval);
-                    window.scrollTo(0, 0); // Scroll to top before hiding
-                    setTimeout(() => setIsVisible(false), 500);
-                    return 100;
-                }
-                return prev + 1;
-            });
-        }, 20); // Total ~2 seconds
-
-        return () => clearInterval(interval);
     }, []);
+
+    // Smooth continuous progress — never gets "stuck"
+    // When dataReady: accelerates to 100%
+    // When not ready: slowly fills to ~85%, never reaching 100
+    useEffect(() => {
+        const animate = () => {
+            const elapsed = (Date.now() - startTimeRef.current) / 1000;
+
+            setProgress(prev => {
+                if (prev >= 100) return 100;
+
+                if (dataReady) {
+                    // Smooth fill: faster when far from target, slower when close
+                    const step = Math.max(1.5, (100 - prev) * 0.12);
+                    return Math.min(prev + step, 100);
+                }
+
+                // Data not ready — smooth fill toward 85%
+                // Smooth fill: faster when far from target, slower when close
+                const targetMax = 85;
+                const timeBasedTarget = targetMax * (1 - Math.exp(-elapsed / 3));
+                const gap = Math.max(0, timeBasedTarget - prev);
+                const step = Math.max(0.15, gap * 0.06);
+                return Math.min(prev + step, targetMax + 0.5);
+            });
+
+            rafRef.current = requestAnimationFrame(animate);
+        };
+
+        rafRef.current = requestAnimationFrame(animate);
+        return () => { if (rafRef.current) cancelAnimationFrame(rafRef.current); };
+    }, [dataReady]);
+
+    // Exit when progress hits 100
+    useEffect(() => {
+        if (progress >= 99.5) {
+            window.scrollTo(0, 0);
+            const timer = setTimeout(() => setIsVisible(false), 300);
+            return () => clearTimeout(timer);
+        }
+    }, [progress]);
+
+    // Max 8s safety — force dismiss
+    useEffect(() => {
+        const max = setTimeout(() => setIsVisible(false), 8000);
+        return () => clearTimeout(max);
+    }, []);
+
+    const roundedProgress = Math.round(Math.min(progress, 100));
 
     return (
         <AnimatePresence>
@@ -78,28 +113,27 @@ export default function SplashScreen() {
 
                         {/* Loading Bar Container */}
                         <div className="w-full h-[2px] bg-white/5 rounded-full overflow-hidden relative">
-                            {/* Animated Progress Bar */}
                             <motion.div
-                                initial={{ width: "0%" }}
                                 animate={{
-                                    width: `${progress}%`,
-                                    filter: `brightness(${1 + (progress / 100)}) opacity(${0.6 + (progress / 250)})`
+                                    width: `${roundedProgress}%`,
+                                    filter: `brightness(${1 + (roundedProgress / 100)}) opacity(${0.6 + (roundedProgress / 250)})`
                                 }}
+                                transition={{ duration: 0.1, ease: "linear" }}
                                 className="absolute top-0 left-0 h-full bg-islamic-gold shadow-[0_0_15px_rgba(212,175,55,0.8)]"
                             />
                         </div>
 
-                        {/* Animated Percentage */}
+                        {/* Percentage */}
                         <motion.span
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             className="text-[9px] sm:text-[10px] text-islamic-gold/60 mt-3 font-mono font-bold"
                         >
-                            {progress}%
+                            {roundedProgress}%
                         </motion.span>
                     </div>
 
-                    {/* Footer text - Optimized for safe areas */}
+                    {/* Footer text */}
                     <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}

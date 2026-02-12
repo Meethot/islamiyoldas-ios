@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronLeft, Bell, Info, Moon, Share2, MessageSquare, Loader2 } from 'lucide-react';
+import { ChevronLeft, Bell, Info, Moon, Share2, MessageSquare, Loader2, Disc3 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 import { useHaptics } from '@/hooks/useMobile';
@@ -144,6 +144,16 @@ export default function NotificationSettings() {
                             onToggle={() => {
                                 selection();
                                 updateSettings({ fridayMessage: !prayerSettings.fridayMessage });
+                            }}
+                        />
+                        <SettingsToggle
+                            icon={Disc3}
+                            label={t('dhikrReminder')}
+                            subtitle={t('dhikrReminderSubtitle')}
+                            active={prayerSettings.dhikrReminder}
+                            onToggle={() => {
+                                selection();
+                                updateSettings({ dhikrReminder: !prayerSettings.dhikrReminder });
                             }}
                         />
                     </div>

@@ -109,6 +109,7 @@
         "sortDesc": "Z-A Sırala",
         "ebced": "Ebced",
         "noResults": "Aradığınız isim bulunamadı...",
+        "remaining": "Kalan",
         "close": "Kapat"
     },
     "tuba": {
@@ -229,5 +230,14 @@
         "completed": "{{current}} / {{total}} Tamamlandı",
         "allDoneTitle": "Elhamdülillah",
         "allDoneSub": "Gün Tamamlandı 🤲"
+    },
+    "prayerCard": {
+        "upcoming": "Sıradaki",
+        "tracking": "Takip Edilen",
+        "backToAuto": "← Otomatik Moda Dön (Sıradaki Vakti Takip Et)",
+        "selected": "✓ Seçili - Takip Ediliyor",
+        "nextPrayer": "Sıradaki Vakit",
+        "passed": "Geçti",
+        "tapToSelect": "Seçmek için tıkla"
     }
 }

@@ -16,6 +16,7 @@ import Swal from 'sweetalert2';
 import { getCredits, addCredit, spendCredits, isPremium, CREDIT_COSTS } from '@/services/creditService';
 import { initAdMob, showRewardedAd } from '@/services/adService';
 import { useTranslation } from 'react-i18next';
+import CreditPaywallModal from '@/components/CreditPaywallModal';
 
 
 
@@ -82,14 +83,57 @@ const BLOCKED_WORDS = [
     "manyak", "sapık"
 ];
 // =========================================
-const INITIAL_DUAS = [
+const ALL_DUAS_POOL = [
     { id: 1, text: "Annem çok hasta, şifa bekliyoruz. Dualarınızda ona da yer ayırır mısınız?", count: 128 },
     { id: 2, text: "Üzerimde çok büyük bir borç yükü var, hayırlı bir kapı açılması için dua bekliyorum.", count: 84 },
     { id: 3, text: "Yarın çok kritik bir sınavım var, zihin açıklığı için dua eder misiniz?", count: 215 },
     { id: 4, text: "Ruhum çok daralıyor, iç huzur ve inşirah için dualarınıza talibim.", count: 156 },
     { id: 5, text: "Evladım hayırlı bir yola girsin, kötü alışkanlıklardan kurtulsun diye dua bekliyorum.", count: 312 },
-    { id: 6, text: "Yalnızlık ve kimsesizlik hissinden kurtulmak için kalpten bir dua istiyorum.", count: 97 }
+    { id: 6, text: "Yalnızlık ve kimsesizlik hissinden kurtulmak için kalpten bir dua istiyorum.", count: 97 },
+    { id: 7, text: "Babam ameliyata girecek, başarılı geçmesi için dua eder misiniz?", count: 203 },
+    { id: 8, text: "Eşimle aramız çok bozuldu, aileme huzur vermesi için Allah'a yalvarıyorum.", count: 176 },
+    { id: 9, text: "İş bulamıyorum, hayırlı bir kapının açılması için dualarınızı bekliyorum.", count: 145 },
+    { id: 10, text: "Küçük kızım çok ağır hasta, şifa nasip etmesi için dua edin lütfen.", count: 387 },
+    { id: 11, text: "Borçlarımdan kurtulamıyorum, maddi sıkıntılarım için dua istiyorum.", count: 132 },
+    { id: 12, text: "Hayırlı bir eş nasip etmesi için dua ediyorum, siz de dua eder misiniz?", count: 267 },
+    { id: 13, text: "Depresyondayım, Allah'ın bana şifa ve huzur vermesi için dua edin.", count: 198 },
+    { id: 14, text: "Askerdeki oğlum için dua istiyorum, sağ salim dönmesi için.", count: 341 },
+    { id: 15, text: "Hamileliğim çok riskli, bebeğimin sağlıklı doğması için dua edin.", count: 276 },
+    { id: 16, text: "Sınavlara hazırlanıyorum, Allah zihin açıklığı ve başarı versin.", count: 189 },
+    { id: 17, text: "Çok zor günlerden geçiyorum, sabrım tükeniyor. Dua edin lütfen.", count: 154 },
+    { id: 18, text: "Kanser tedavisi görüyorum, şifa diliyorum. Dualarınıza ihtiyacım var.", count: 412 },
+    { id: 19, text: "Ailecek çok zor durumdayız, Allah yardımcımız olsun.", count: 167 },
+    { id: 20, text: "Gurbette çok yalnızım, Allah sabır ve güç versin.", count: 143 },
+    { id: 21, text: "Kardeşim yanlış yollara düştü, hidayet nasip etmesi için dua edin.", count: 234 },
+    { id: 22, text: "Namazlarıma düzen veremiyorum, Allah beni bu konuda güçlendirsin.", count: 178 },
+    { id: 23, text: "Ebeveynlerimin sağlığı için dua istiyorum, ikisi de yaşlı ve hasta.", count: 289 },
+    { id: 24, text: "Çocuğum okula uyum sağlayamıyor, hayırlısı olması için dua edin.", count: 112 },
+    { id: 25, text: "Kötü alışkanlıklarımdan kurtulmak istiyorum, bana dua edin.", count: 165 },
+    { id: 26, text: "Üniversite sınavına hazırlanıyorum, hayırlı bir sonuç için dua edin.", count: 298 },
+    { id: 27, text: "Ameliyat olacağım, Allah'tan sağlıklı bir şekilde atlatmayı diliyorum.", count: 223 },
+    { id: 28, text: "İşsiz kaldım, ailemle birlikte çok zordayız. Dua edin kardeşler.", count: 187 },
+    { id: 29, text: "Evliliğimin kurtulması için dua edin, çocuklarım var.", count: 201 },
+    { id: 30, text: "Hac'ca gidebilmek için dua ediyorum, nasip olması dileğiyle.", count: 356 },
+    { id: 31, text: "Allah bizi doğru yoldan ayırmasın, imanımızı güçlendirsin.", count: 445 },
+    { id: 32, text: "Vesveseden çok rahatsız oluyorum, Allah kurtarsın. Dua edin.", count: 134 },
+    { id: 33, text: "Gece uykularım çok bozuk, huzurlu uyumak için dua istiyorum.", count: 108 },
+    { id: 34, text: "Ablam yoğun bakımda, şifa vermesi için yalvarıyorum. Dua edin.", count: 378 },
+    { id: 35, text: "Mahkemem var, hakkımın teslim edilmesi için dua ediyorum.", count: 146 },
+    { id: 36, text: "Tövbelerimin kabul olması için dua edin, çok pişmanım.", count: 192 },
+    { id: 37, text: "Ailemle barışmak istiyorum, gönüllerin yumuşaması için dua edin.", count: 163 },
+    { id: 38, text: "Küçük oğlum engelli, onun ve bizim için sabır diliyorum.", count: 334 },
+    { id: 39, text: "Maddi manevi sıkıntılarımdan kurtulmak için dualarınıza ihtiyacım var.", count: 171 },
+    { id: 40, text: "Rızkımın bereketlenmesi için dua edin, çok dar geçiniyoruz.", count: 218 },
 ];
+
+function getRandomDuas(pool, count) {
+    const shuffled = [...pool];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled.slice(0, count);
+}
 // ======================================
 
 export default function DuaKosesi() {
@@ -103,6 +147,7 @@ export default function DuaKosesi() {
     const [credits, setCredits] = useState(() => getCredits());
     const [showCreditAnim, setShowCreditAnim] = useState(false);
     const [isAdLoading, setIsAdLoading] = useState(false);
+    const [showPaywall, setShowPaywall] = useState(false);
 
     // AdMob init
     useEffect(() => { initAdMob(); }, []);
@@ -159,17 +204,74 @@ export default function DuaKosesi() {
     const [freshSticky, setFreshSticky] = useState(null);
     const [refreshKey, setRefreshKey] = useState(0); // Increment to trigger re-fetch
 
-    // Fake Data (Simulated)
+    // Fake Data (Simulated) - each dua shown only once, never repeated
     const [fakeDuas, setFakeDuas] = useState(() => {
-        const saved = localStorage.getItem('fakeDuasCounts');
-        if (saved) {
-            const parsed = JSON.parse(saved);
-            return INITIAL_DUAS.map(d => ({
+        const savedCounts = localStorage.getItem('fakeDuasCounts');
+        const cachedSelection = localStorage.getItem('fakeDuasSelection');
+        const seenIdsRaw = localStorage.getItem('fakeDuasSeenIds');
+        let seenIds = [];
+
+        try { seenIds = seenIdsRaw ? JSON.parse(seenIdsRaw) : []; } catch (e) { seenIds = []; }
+
+        // If there's a valid cached set (user hasn't finished viewing these yet), show it
+        if (cachedSelection) {
+            try {
+                const { ids, timestamp } = JSON.parse(cachedSelection);
+                const now = new Date().getTime();
+                const twentyFourHours = 24 * 60 * 60 * 1000;
+
+                if (now - timestamp < twentyFourHours && Array.isArray(ids) && ids.length > 0) {
+                    const cachedDuas = ids
+                        .map(id => ALL_DUAS_POOL.find(d => d.id === id))
+                        .filter(Boolean);
+
+                    if (cachedDuas.length > 0) {
+                        if (savedCounts) {
+                            const parsed = JSON.parse(savedCounts);
+                            return cachedDuas.map(d => ({
+                                ...d,
+                                count: parsed[d.id] || d.count
+                            }));
+                        }
+                        return cachedDuas;
+                    }
+                }
+            } catch (e) {
+                console.error('Error parsing cached duas:', e);
+            }
+        }
+
+        // Cache expired or doesn't exist — pick NEW unseen duas
+        const seenSet = new Set(seenIds);
+        let available = ALL_DUAS_POOL.filter(d => !seenSet.has(d.id));
+
+        // If all duas have been seen, reset the cycle
+        if (available.length < 6) {
+            seenIds = [];
+            localStorage.setItem('fakeDuasSeenIds', JSON.stringify([]));
+            available = ALL_DUAS_POOL;
+        }
+
+        const randomSet = getRandomDuas(available, 6);
+
+        // Mark these as seen
+        const newSeenIds = [...seenIds, ...randomSet.map(d => d.id)];
+        localStorage.setItem('fakeDuasSeenIds', JSON.stringify(newSeenIds));
+
+        // Cache the selection for 24h
+        localStorage.setItem('fakeDuasSelection', JSON.stringify({
+            ids: randomSet.map(d => d.id),
+            timestamp: new Date().getTime()
+        }));
+
+        if (savedCounts) {
+            const parsed = JSON.parse(savedCounts);
+            return randomSet.map(d => ({
                 ...d,
                 count: parsed[d.id] || d.count
             }));
         }
-        return INITIAL_DUAS;
+        return randomSet;
     });
 
     // My Requests (Local History)
@@ -264,7 +366,7 @@ export default function DuaKosesi() {
         fetchRandom();
     }, [refreshKey]);
 
-    // Refresh feed function (callable from UI)
+    // Refresh feed function — only re-fetches Firestore data, fake duas stay cached for 24h
     const refreshFeed = useCallback(() => {
         setRefreshKey(prev => prev + 1);
     }, []);
@@ -710,13 +812,13 @@ export default function DuaKosesi() {
                 <div className="space-y-4">
                     <div className="flex items-center justify-between px-1">
                         <h3 className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">{t('feedTitle')}</h3>
-                        <button
-                            onClick={refreshFeed}
-                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-islamic-gold/10 hover:bg-islamic-gold/20 active:scale-95 transition-all"
-                        >
-                            <RefreshCw size={12} className="text-islamic-gold" />
-                            <span className="text-[10px] font-bold text-islamic-gold uppercase tracking-widest">{t('refresh')}</span>
-                        </button>
+                        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500/10">
+                            <span className="relative flex h-2 w-2">
+                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+                            </span>
+                            <span className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest">{t('live', 'Canlı')}</span>
+                        </div>
                     </div>{
                         allDuas.length === 0 ? (
                             <div className="text-center py-10 opacity-60">
@@ -779,96 +881,10 @@ export default function DuaKosesi() {
                 <div className="bg-white dark:bg-white/5 border border-islamic-gold/20 p-6 rounded-[2.5rem] text-center shadow-lg space-y-3">
                     <p className="text-sm font-bold text-gray-700 dark:text-emerald-100/80 mb-4">{t('joinQuestion')}</p>
 
-                    {/* Kredi göstergesi */}
-                    {!isPremium() && (
-                        <div className="flex items-center justify-center gap-2 mb-2">
-                            <div className={cn(
-                                "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all",
-                                credits >= CREDIT_COSTS.POST_DUA
-                                    ? "bg-islamic-gold/20 text-islamic-gold"
-                                    : "bg-red-500/10 text-red-400"
-                            )}>
-                                <Coins size={14} />
-                                {credits} / {CREDIT_COSTS.POST_DUA} {t('credits')}
-                            </div>
-                        </div>
-                    )}
-
                     <Button
                         onClick={() => {
                             if (!isPremium() && credits < CREDIT_COSTS.POST_DUA) {
-                                Swal.fire({
-                                    title: `<span class="text-[#D4AF37] font-serif tracking-wide">${t('paywallTitle')}</span>`,
-                                    html: `
-                                        <div class="text-[#FFFDF5]/80 font-serif leading-relaxed">
-                                            <p class="mb-3 text-lg">${t('paywallCreditNeeded', { cost: CREDIT_COSTS.POST_DUA })}</p>
-                                            <div class="w-full bg-white/10 rounded-full h-3 mb-3 overflow-hidden">
-                                                <div class="bg-gradient-to-r from-[#D4AF37] to-amber-400 h-full rounded-full transition-all" style="width: ${Math.min(100, (credits / CREDIT_COSTS.POST_DUA) * 100)}%"></div>
-                                            </div>
-                                            <p class="text-sm opacity-90 mb-1">${t('paywallCurrentCredit', { credits })}</p>
-                                            <p class="text-sm opacity-70">${t('paywallEarnHint')}</p>
-                                            <p class="text-xs opacity-50 mt-3">${t('paywallPremiumHint')}</p>
-                                        </div>
-                                    `,
-                                    icon: 'info',
-                                    iconColor: '#D4AF37',
-                                    background: '#032e18',
-                                    showConfirmButton: true,
-                                    confirmButtonText: t('paywallEarnBtn'),
-                                    showDenyButton: true,
-                                    denyButtonText: t('paywallAdBtn', { reward: CREDIT_COSTS.AD_REWARD }),
-                                    denyButtonColor: '#059669',
-                                    confirmButtonColor: '#D4AF37',
-                                    customClass: {
-                                        popup: 'rounded-[2rem] border border-[#D4AF37]/20 shadow-2xl',
-                                        confirmButton: 'rounded-full px-8 py-3 font-bold text-[#021a0f]',
-                                        denyButton: 'rounded-full px-8 py-3 font-bold'
-                                    },
-                                    backdrop: 'rgba(0,0,0,0.85)'
-                                }).then(async (result) => {
-                                    if (result.isDenied) {
-                                        setIsAdLoading(true);
-                                        try {
-                                            const adResult = await showRewardedAd();
-                                            if (adResult?.rewarded) {
-                                                const newCreds = addCredit(CREDIT_COSTS.AD_REWARD);
-                                                setCredits(newCreds);
-                                                Swal.fire({
-                                                    title: `<span class="text-emerald-400 font-serif">${t('adSuccessTitle')}</span>`,
-                                                    html: `<p class="text-[#FFFDF5]/80 font-serif">${t('adSuccessMsg', { reward: CREDIT_COSTS.AD_REWARD, credits: newCreds })}</p>`,
-                                                    icon: 'success',
-                                                    iconColor: '#10b981',
-                                                    background: '#032e18',
-                                                    confirmButtonText: t('adSuccessBtn'),
-                                                    confirmButtonColor: '#D4AF37',
-                                                    customClass: {
-                                                        popup: 'rounded-[2rem] border border-emerald-500/20 shadow-2xl',
-                                                        confirmButton: 'rounded-full px-8 py-3 font-bold text-[#021a0f]'
-                                                    },
-                                                    backdrop: 'rgba(0,0,0,0.85)',
-                                                    timer: 2500
-                                                });
-                                            }
-                                        } catch {
-                                            Swal.fire({
-                                                title: `<span class="text-red-400 font-serif">${t('adFailTitle')}</span>`,
-                                                html: `<p class="text-[#FFFDF5]/60 font-serif">${t('adFailMsg')}</p>`,
-                                                icon: 'error',
-                                                iconColor: '#ef4444',
-                                                background: '#032e18',
-                                                confirmButtonText: t('adSuccessBtn'),
-                                                confirmButtonColor: '#D4AF37',
-                                                customClass: {
-                                                    popup: 'rounded-[2rem] border border-red-500/20 shadow-2xl',
-                                                    confirmButton: 'rounded-full px-8 py-3 font-bold text-[#021a0f]'
-                                                },
-                                                backdrop: 'rgba(0,0,0,0.85)'
-                                            });
-                                        } finally {
-                                            setIsAdLoading(false);
-                                        }
-                                    }
-                                });
+                                setShowPaywall(true);
                                 return;
                             }
                             setShowForm(true);
@@ -976,6 +992,65 @@ export default function DuaKosesi() {
                         />
                     )}
                 </AnimatePresence >
+
+                {/* Credit Paywall Modal */}
+                <CreditPaywallModal
+                    isOpen={showPaywall}
+                    onClose={() => setShowPaywall(false)}
+                    credits={credits}
+                    cost={CREDIT_COSTS.POST_DUA}
+                    adReward={CREDIT_COSTS.AD_REWARD}
+                    onGoPremium={() => {
+                        setShowPaywall(false);
+                        navigate('/premium');
+                    }}
+                    onEarnAmin={() => {
+                        setShowPaywall(false);
+                    }}
+                    onWatchAd={async () => {
+                        setShowPaywall(false);
+                        setIsAdLoading(true);
+                        try {
+                            const adResult = await showRewardedAd();
+                            if (adResult?.rewarded) {
+                                const newCreds = addCredit(CREDIT_COSTS.AD_REWARD);
+                                setCredits(newCreds);
+                                Swal.fire({
+                                    title: `<span class="text-emerald-400 font-serif">${t('adSuccessTitle')}</span>`,
+                                    html: `<p class="text-[#FFFDF5]/80 font-serif">${t('adSuccessMsg', { reward: CREDIT_COSTS.AD_REWARD, credits: newCreds })}</p>`,
+                                    icon: 'success',
+                                    iconColor: '#10b981',
+                                    background: '#032e18',
+                                    confirmButtonText: t('adSuccessBtn'),
+                                    confirmButtonColor: '#D4AF37',
+                                    customClass: {
+                                        popup: 'rounded-[2rem] border border-emerald-500/20 shadow-2xl',
+                                        confirmButton: 'rounded-full px-8 py-3 font-bold text-[#021a0f]'
+                                    },
+                                    backdrop: 'rgba(0,0,0,0.85)',
+                                    timer: 2500
+                                });
+                            }
+                        } catch {
+                            Swal.fire({
+                                title: `<span class="text-red-400 font-serif">${t('adFailTitle')}</span>`,
+                                html: `<p class="text-[#FFFDF5]/60 font-serif">${t('adFailMsg')}</p>`,
+                                icon: 'error',
+                                iconColor: '#ef4444',
+                                background: '#032e18',
+                                confirmButtonText: t('adSuccessBtn'),
+                                confirmButtonColor: '#D4AF37',
+                                customClass: {
+                                    popup: 'rounded-[2rem] border border-red-500/20 shadow-2xl',
+                                    confirmButton: 'rounded-full px-8 py-3 font-bold text-[#021a0f]'
+                                },
+                                backdrop: 'rgba(0,0,0,0.85)'
+                            });
+                        } finally {
+                            setIsAdLoading(false);
+                        }
+                    }}
+                />
             </div >
         </div>
     );

@@ -534,8 +534,9 @@ export default function SurahDetail() {
     return (
         <div className="min-h-screen bg-gradient-to-b from-white to-gray-50 dark:from-[#032e18] dark:to-[#021a0f] pb-24">
             {/* Header */}
-            <div className="bg-islamic-green dark:bg-[#032e18] p-5 sticky top-0 z-40 border-b border-white/10 shadow-lg">
-                <div className="flex items-center gap-4">
+            <div className="bg-islamic-green dark:bg-[#032e18] px-4 py-3 sticky top-0 z-40 border-b border-white/10 shadow-lg">
+                {/* Row 1: Back + Surah Name + Arabic Name + Listen Button */}
+                <div className="flex items-center gap-3">
                     <Button
                         onClick={() => {
                             selection();
@@ -543,50 +544,38 @@ export default function SurahDetail() {
                         }}
                         variant="ghost"
                         size="icon"
-                        className="text-white hover:bg-white/10"
+                        className="text-white hover:bg-white/10 w-9 h-9 shrink-0"
                     >
                         <ArrowLeft className="w-5 h-5" />
                     </Button>
-                    <div className="flex-1">
-                        <div className="flex items-center gap-3">
-                            <div className="p-2 bg-white/10 rounded-xl backdrop-blur-sm">
-                                <BookOpen className="w-5 h-5 text-white" />
-                            </div>
-                            <div>
-                                <h1 className="text-xl font-serif font-bold text-white">
-                                    {surahInfo?.name}
-                                </h1>
-                                <p className="text-xs text-white/70 font-medium">
-                                    {surahInfo?.ayahCount} {t('quran:ayahCount', { count: surahInfo?.ayahCount || 0 }).split(' ').slice(1).join(' ')} • {t(`quran:revelation.${surahInfo?.revelationPlace}`)}
-                                </p>
-                            </div>
-                        </div>
+                    <div className="flex-1 min-w-0">
+                        <h1 className="text-lg font-serif font-bold text-white truncate leading-tight">
+                            {surahInfo?.name}
+                        </h1>
+                        <p className="text-[11px] text-white/60 font-medium">
+                            {surahInfo?.ayahCount} {t('quran:ayahCount', { count: surahInfo?.ayahCount || 0 }).split(' ').slice(1).join(' ')} • {t(`quran:revelation.${surahInfo?.revelationPlace}`)}
+                        </p>
                     </div>
-                </div>
-
-                {/* Audio and Title Row */}
-                <div className="flex items-center justify-between mt-4">
+                    <p className="text-xl font-arabic text-islamic-gold shrink-0">
+                        {surahInfo?.nameArabic}
+                    </p>
                     <Button
                         onClick={toggleSurahAudio}
                         disabled={isSurahLoading}
-                        className="bg-islamic-gold text-[#032e18] hover:bg-islamic-gold/90 h-10 px-4 rounded-xl shadow-lg shadow-islamic-gold/20 flex items-center gap-2 font-bold"
+                        className="bg-islamic-gold text-[#032e18] hover:bg-islamic-gold/90 h-9 px-3 rounded-xl shadow-lg shadow-islamic-gold/20 flex items-center gap-1.5 font-bold text-sm shrink-0"
                     >
                         {isSurahLoading ? (
                             <Loader2 className="w-4 h-4 animate-spin" />
                         ) : isSurahPlaying ? (
-                            <><Pause size={18} fill="currentColor" /> {t('quran:stop')}</>
+                            <><Pause size={16} fill="currentColor" /> {t('quran:stop')}</>
                         ) : (
-                            <><Play size={18} fill="currentColor" className="ml-0.5" /> {t('quran:listen')}</>
+                            <><Play size={16} fill="currentColor" className="ml-0.5" /> {t('quran:listen')}</>
                         )}
                     </Button>
-                    <p className="text-2xl font-arabic text-islamic-gold">
-                        {surahInfo?.nameArabic}
-                    </p>
                 </div>
 
-                {/* Jump to Verse Input */}
-                {/* Jump to Verse Input */}
-                <form onSubmit={handleJumpToVerse} className="mt-4 flex items-center gap-3">
+                {/* Row 2: Jump to Verse Input (compact) */}
+                <form onSubmit={handleJumpToVerse} className="mt-2 flex items-center gap-2">
                     <div className="relative flex-1">
                         <input
                             type="number"
@@ -596,16 +585,16 @@ export default function SurahDetail() {
                             value={jumpTarget}
                             onChange={(e) => setJumpTarget(e.target.value)}
                             onKeyDown={(e) => e.key === 'Enter' && handleJumpToVerse(e)}
-                            className="w-full bg-white/10 border border-white/10 rounded-2xl px-5 py-3 pl-5 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-islamic-gold/50 backdrop-blur-sm transition-all text-lg font-medium [&::-webkit-inner-spin-button]:appearance-none"
+                            className="w-full bg-white/10 border border-white/10 rounded-xl px-4 py-2 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-islamic-gold/50 backdrop-blur-sm transition-all text-base font-medium [&::-webkit-inner-spin-button]:appearance-none"
                         />
                     </div>
                     <Button
                         type="button"
                         onClick={handleJumpToVerse}
                         disabled={!jumpTarget}
-                        className="bg-islamic-gold text-[#032e18] hover:bg-islamic-gold/90 border-none rounded-2xl w-12 h-12 flex items-center justify-center shadow-lg shadow-islamic-gold/10 active:scale-95 transition-all"
+                        className="bg-islamic-gold text-[#032e18] hover:bg-islamic-gold/90 border-none rounded-xl w-10 h-10 flex items-center justify-center shadow-lg shadow-islamic-gold/10 active:scale-95 transition-all"
                     >
-                        <ChevronRight className="w-6 h-6" />
+                        <ChevronRight className="w-5 h-5" />
                     </Button>
                 </form>
             </div>

@@ -553,6 +553,14 @@ const GUIDES = {
                 transcription: 'Allahümme salli ve sellim alâ seyyidinâ Muhammedin ve alâ âlihî ve sahbihî ecmaîn.',
                 meaning: 'Allah’ım! Efendimiz Hz. Muhammed’e, ailesine ve bütün ashabına salat ve selam eyle.',
                 tips: ['Cuma günü 100 salavat okuyanın 80 yıllık günahı bağışlanır.', 'İhya, Beyhaki'],
+            },
+            {
+                title: 'Kelime-i Tevhid',
+                instruction: 'İmanın özü ve en faziletli zikir. Son sözü bu olan cennete girer.',
+                arabic: 'لاَ اِلَهَ اِلاَّ اللهُ مُحَمَّدٌ رَسُولُ اللهِ',
+                transcription: 'Lâ ilâhe illâllâh Muhammedün Rasûlullâh.',
+                meaning: 'Allah\u2019tan başka ilah yoktur, Muhammed Allah\u2019ın elçisidir.',
+                tips: ['Son sözü "Lâ ilâhe illâllâh" olan cennete girer. (Ebu Davud)', 'Zikirlerin en faziletlisi Kelime-i Tevhid\u2019dir. (Tirmizi)'],
             }
         ]
     },
@@ -950,6 +958,7 @@ export default function Learn() {
     const [selectedCategory, setSelectedCategory] = useState('abdest');
     const [currentStep, setCurrentStep] = useState(0);
     const [isComplete, setIsComplete] = useState(false);
+    const totalStepsRef = React.useRef(0);
     const { selection, success, heavy } = useHaptics();
     const { t, i18n } = useTranslation('learn');
 
@@ -965,21 +974,28 @@ export default function Learn() {
     const guide = activeGuides[selectedCategory];
     const step = guide?.steps[currentStep];
     const totalSteps = guide?.steps.length || 0;
+    totalStepsRef.current = totalSteps;
 
     const next = useCallback(() => {
         selection();
-        if (currentStep < totalSteps - 1) {
-            setCurrentStep(prev => prev + 1);
-        } else {
-            success();
-            setIsComplete(true);
-        }
-    }, [currentStep, totalSteps, selection, success]);
+        setCurrentStep(prev => {
+            if (prev < totalStepsRef.current - 1) {
+                return prev + 1;
+            } else {
+                // Schedule completion outside the setter
+                setTimeout(() => {
+                    success();
+                    setIsComplete(true);
+                }, 0);
+                return prev;
+            }
+        });
+    }, [selection, success]);
 
     const prev = useCallback(() => {
         selection();
-        if (currentStep > 0) setCurrentStep(prev => prev - 1);
-    }, [currentStep, selection]);
+        setCurrentStep(prev => Math.max(0, prev - 1));
+    }, [selection]);
 
     const reset = useCallback(() => {
         heavy();
@@ -1169,7 +1185,7 @@ export default function Learn() {
                         initial={{ x: 20, opacity: 0 }}
                         animate={{ x: 0, opacity: 1 }}
                         exit={{ x: -20, opacity: 0 }}
-                        transition={{ duration: 0.3 }}
+                        transition={{ duration: 0.15 }}
                     >
                         <GuideStepCard step={step} />
                     </motion.div>
