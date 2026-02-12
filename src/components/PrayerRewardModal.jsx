@@ -20,8 +20,8 @@ import { useTranslation } from 'react-i18next';
  */
 export default function PrayerRewardModal({ isOpen, onClose, content, prayerName }) {
     const { light } = useHaptics();
-    const { i18n } = useTranslation();
-    const isEn = i18n.language === 'en';
+    const { t, i18n } = useTranslation('home');
+    const lang = i18n.language;
 
     // Body Scroll Lock
     useEffect(() => {
@@ -78,7 +78,7 @@ export default function PrayerRewardModal({ isOpen, onClose, content, prayerName
                                 <button
                                     onClick={handleClose}
                                     className="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 dark:bg-black/10 dark:hover:bg-black/20 flex items-center justify-center transition-colors backdrop-blur-sm z-10"
-                                    aria-label={isEn ? 'Close' : 'Kapat'}
+                                    aria-label={t('prayerReward.close')}
                                 >
                                     <X className="w-4 h-4 text-gray-600 dark:text-gray-300" />
                                 </button>
@@ -100,7 +100,7 @@ export default function PrayerRewardModal({ isOpen, onClose, content, prayerName
                                     transition={{ delay: 0.4, duration: 0.6 }}
                                     className="text-2xl font-serif font-bold text-islamic-green dark:text-islamic-gold mb-2"
                                 >
-                                    {isEn ? 'May Allah Accept' : 'Allah Kabul Etsin'}
+                                    {t('prayerReward.mayAllahAccept')}
                                 </motion.h2>
 
 
@@ -111,10 +111,7 @@ export default function PrayerRewardModal({ isOpen, onClose, content, prayerName
                                     transition={{ delay: 0.5, duration: 0.6 }}
                                     className="text-sm text-gray-600 dark:text-gray-300 font-medium"
                                 >
-                                    {isEn
-                                        ? `Thank you for your ${prayerName} prayer 💚`
-                                        : `${prayerName} namazınız için teşekkürler 💚`
-                                    }
+                                    {t('prayerReward.thankYou', { prayerName })}
                                 </motion.p>
                             </div>
 
@@ -128,12 +125,12 @@ export default function PrayerRewardModal({ isOpen, onClose, content, prayerName
                                 >
                                     <div className="bg-white/50 dark:bg-black/20 rounded-2xl p-5 border border-white/30 dark:border-white/10">
                                         <p className="text-sm leading-relaxed text-gray-700 dark:text-gray-200 italic text-center font-serif">
-                                            "{isEn ? (hadith.textEn || hadith.text) : hadith.text}"
+                                            "{hadith[`text_${lang}`] || hadith.textEn || hadith.text}"
                                         </p>
                                         <div className="mt-3 flex items-center justify-center gap-2">
                                             <div className="h-px flex-1 bg-gray-300 dark:bg-white/10 max-w-[60px]" />
                                             <p className="text-xs text-islamic-green dark:text-islamic-gold font-bold uppercase tracking-wide">
-                                                {isEn ? (hadith.sourceEn || hadith.source) : hadith.source}
+                                                {hadith[`source_${lang}`] || hadith.sourceEn || hadith.source}
                                             </p>
                                             <div className="h-px flex-1 bg-gray-300 dark:bg-white/10 max-w-[60px]" />
                                         </div>
@@ -151,7 +148,7 @@ export default function PrayerRewardModal({ isOpen, onClose, content, prayerName
                                 >
                                     <div className="text-center">
                                         <p className="text-xs text-gray-500 dark:text-gray-400 font-bold uppercase tracking-widest mb-2">
-                                            {isEn ? 'Recommended Supplication' : 'Tavsiye Edilen Dua'}
+                                            {t('prayerReward.recommendedDua')}
                                         </p>
                                         {dua.arabic && (
                                             <p className="text-2xl font-arabic text-islamic-green dark:text-islamic-gold mb-2 leading-loose">
@@ -159,7 +156,7 @@ export default function PrayerRewardModal({ isOpen, onClose, content, prayerName
                                             </p>
                                         )}
                                         <p className="text-sm text-gray-600 dark:text-gray-300 italic">
-                                            {isEn ? (dua.english || dua.turkish) : dua.turkish}
+                                            {dua[lang] || dua.english || dua.turkish}
                                         </p>
                                     </div>
                                 </motion.div>
@@ -176,7 +173,7 @@ export default function PrayerRewardModal({ isOpen, onClose, content, prayerName
                                     onClick={handleClose}
                                     className="w-full bg-gradient-to-r from-islamic-green to-islamic-green/90 dark:from-islamic-gold dark:to-islamic-gold/90 text-white dark:text-[#032e18] hover:shadow-lg transition-all duration-300 rounded-2xl h-12 font-bold text-base"
                                 >
-                                    {isEn ? 'Amin 🌙' : 'Amin 🌙'}
+                                    {t('prayerReward.amin')}
                                 </Button>
                             </motion.div>
                         </div>

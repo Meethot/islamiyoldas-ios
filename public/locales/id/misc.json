@@ -1,0 +1,23 @@
+{
+    "aiMentor": {
+        "title": "Spiritual Mentor",
+        "subtitle": "AI-Powered Assistant",
+        "welcomeMessage": "Peace be upon you, dear friend. I am your Spiritual Mentor. What's in your heart, what troubles you or what are you grateful for? Tell me, and I'll prepare a prescription for you based on the Quran and Sunnah.",
+        "thinking": "Contemplating...",
+        "placeholder": "I need help, my heart is heavy...",
+        "errorPrefix": "Error occurred:"
+    },
+    "prescription": {
+        "title": "Spiritual Prescription",
+        "adviceLabel": "Mentor's Advice",
+        "dhikrLabel": "Dhikr Prescription",
+        "startDhikr": "Start Dhikr",
+        "verseLabel": "Healing Verse",
+        "listen": "Listen",
+        "pause": "Pause",
+        "ebced": "Abjad",
+        "count": "Count"
+    },
+    "comingSoon": "Coming Soon! This language is being prepared. 🌍",
+    "connectionError": "Connection error."
+}

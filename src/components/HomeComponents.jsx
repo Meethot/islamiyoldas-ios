@@ -707,7 +707,7 @@ export const DailyDeedCard = memo(({ revealed, deed, onReveal }) => {
 // --- Esma-ül Hüsna Widget ---
 export const EsmaUlHusnaWidget = memo(({ esmaList, onSelect, onShowAll }) => {
     const { t, i18n } = useTranslation('home');
-    const isEn = i18n.language === 'en';
+    const lang = i18n.language;
     return (
         <motion.div variants={itemVariants} className="space-y-4">
             <div className="flex justify-between items-end px-1">
@@ -741,7 +741,7 @@ export const EsmaUlHusnaWidget = memo(({ esmaList, onSelect, onShowAll }) => {
                             {esma.name}
                         </h4>
                         <p className="text-[10px] text-gray-500 dark:text-emerald-100/40 font-medium line-clamp-2 mt-2 leading-relaxed opacity-90">
-                            {isEn ? esma.meaning_en : esma.meaning}
+                            {esma[`meaning_${lang}`] || esma.meaning_en || esma.meaning}
                         </p>
 
                         {/* Subtle Badge or Indicator */}
@@ -759,7 +759,7 @@ export const EsmaUlHusnaWidget = memo(({ esmaList, onSelect, onShowAll }) => {
 // --- All Esma Modal (Alphabetical & Searchable) ---
 export const AllEsmaModal = memo(({ isOpen, onClose, onSelect }) => {
     const { t, i18n } = useTranslation('home');
-    const isEn = i18n.language === 'en';
+    const lang = i18n.language;
     const [search, setSearch] = useState('');
     const [isAscending, setIsAscending] = useState(true);
     const { selection } = useHaptics();
@@ -769,15 +769,15 @@ export const AllEsmaModal = memo(({ isOpen, onClose, onSelect }) => {
         if (search) {
             list = list.filter(e =>
                 e.name.toLowerCase().includes(search.toLowerCase()) ||
-                (isEn ? e.meaning_en : e.meaning).toLowerCase().includes(search.toLowerCase())
+                (e[`meaning_${lang}`] || e.meaning_en || e.meaning).toLowerCase().includes(search.toLowerCase())
             );
         }
         return list.sort((a, b) => {
             return isAscending
-                ? a.name.localeCompare(b.name, isEn ? 'en' : 'tr')
-                : b.name.localeCompare(a.name, isEn ? 'en' : 'tr');
+                ? a.name.localeCompare(b.name, lang)
+                : b.name.localeCompare(a.name, lang);
         });
-    }, [search, isAscending, isEn]);
+    }, [search, isAscending, lang]);
 
     // Body Scroll Lock
     useEffect(() => {
@@ -847,7 +847,7 @@ export const AllEsmaModal = memo(({ isOpen, onClose, onSelect }) => {
                                 {esma.name}
                             </h4>
                             <p className="text-[10px] text-gray-400 font-medium leading-relaxed mt-1 line-clamp-1">
-                                {isEn ? esma.meaning_en : esma.meaning}
+                                {esma[`meaning_${lang}`] || esma.meaning_en || esma.meaning}
                             </p>
                         </div>
                         <div className="text-right flex flex-col items-end">
@@ -1780,7 +1780,7 @@ export const ReligiousCalendarWidget = memo(({ days }) => {
     const [showModal, setShowModal] = useState(false);
     const { selection, heavy } = useHaptics();
     const { t, i18n } = useTranslation('home');
-    const isEn = i18n.language === 'en';
+    const lang = i18n.language;
 
     // Data Parsing
     const now = new Date();
@@ -1839,7 +1839,7 @@ export const ReligiousCalendarWidget = memo(({ days }) => {
                                 {t('calendar.next')}
                             </span>
                             <h4 className="text-xl font-serif font-bold text-gray-800 dark:text-white leading-tight">
-                                {isEn ? nextEvent.name_en : nextEvent.name}
+                                {nextEvent[`name_${lang}`] || nextEvent.name_en || nextEvent.name}
                             </h4>
                             <p className="text-xs text-gray-500 dark:text-emerald-100/50 font-medium">
                                 {formatDate(nextEvent.dateObj)} • <span className="text-islamic-green dark:text-islamic-gold">{diffLabel}</span>
@@ -1925,7 +1925,7 @@ export const ReligiousCalendarWidget = memo(({ days }) => {
                                                             "text-lg font-serif font-bold transition-colors",
                                                             isFirst ? "text-islamic-green dark:text-islamic-gold" : "text-gray-700 dark:text-gray-300"
                                                         )}>
-                                                            {isEn ? day.name_en : day.name}
+                                                            {day[`name_${lang}`] || day.name_en || day.name}
                                                         </h4>
                                                         {isFirst && (
                                                             <span className="text-[9px] bg-islamic-gold/10 text-islamic-gold px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">
@@ -1935,7 +1935,7 @@ export const ReligiousCalendarWidget = memo(({ days }) => {
                                                     </div>
 
                                                     <p className="text-sm font-medium text-gray-500 dark:text-emerald-100/50">
-                                                        {new Date(day.dateObj.getUTCFullYear(), day.dateObj.getUTCMonth(), day.dateObj.getUTCDate()).toLocaleDateString(isEn ? 'en-US' : 'tr-TR', { weekday: 'long', day: 'numeric', month: 'long' })}
+                                                        {new Date(day.dateObj.getUTCFullYear(), day.dateObj.getUTCMonth(), day.dateObj.getUTCDate()).toLocaleDateString(lang, { weekday: 'long', day: 'numeric', month: 'long' })}
                                                     </p>
                                                 </div>
                                             </motion.div>

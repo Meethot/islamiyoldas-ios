@@ -49,7 +49,7 @@ async function fetchVerseAudio(surah, verse) {
 export default function AiPrescriptionCard({ data }) {
     const navigate = useNavigate();
     const { t, i18n } = useTranslation('misc');
-    const isEn = i18n.language === 'en';
+    const lang = i18n.language;
     const [verseData, setVerseData] = useState(null);
     const [loadingVerse, setLoadingVerse] = useState(true);
     const [audioUrl, setAudioUrl] = useState(null);
@@ -67,7 +67,7 @@ export default function AiPrescriptionCard({ data }) {
             return {
                 name: esmaMatch.name,
                 arabic: esmaMatch.calligraphy,
-                meaning: isEn ? (esmaMatch.virtue_en || esmaMatch.virtue) : esmaMatch.virtue || recommendedZikr.meaning,
+                meaning: esmaMatch[`virtue_${lang}`] || esmaMatch.virtue_en || esmaMatch.virtue || recommendedZikr.meaning,
                 count: esmaMatch.ebced,
                 ebced: esmaMatch.ebced,
                 isEsma: true

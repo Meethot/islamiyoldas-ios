@@ -3,7 +3,7 @@ import { initReactI18next } from 'react-i18next';
 import HttpBackend from 'i18next-http-backend';
 import LanguageDetector from 'i18next-browser-languagedetector';
 
-export const supportedLngs = ['tr', 'en', 'ar'];
+export const supportedLngs = ['tr', 'en', 'de', 'ar', 'az', 'nl', 'fr', 'es', 'ru', 'id'];
 
 export const dir = (lang) => (lang === 'ar' ? 'rtl' : 'ltr');
 

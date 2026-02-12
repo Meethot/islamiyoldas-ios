@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { Geolocation } from '@capacitor/geolocation';
+import i18n from '@/i18n';
 
 const LocationContext = createContext(null);
 
@@ -17,9 +18,6 @@ export function LocationProvider({ children }) {
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(true);
     const [permissionStatus, setPermissionStatus] = useState('prompt');
-
-    // Language helper — no i18n dependency needed here
-    const isEn = (localStorage.getItem('i18nextLng') || 'tr').startsWith('en');
 
     const checkPermissions = useCallback(async () => {
         try {
@@ -39,7 +37,7 @@ export function LocationProvider({ children }) {
             return status.location;
         } catch (err) {
             console.error('Permission request error:', err);
-            setError(isEn ? 'Location permission denied' : 'Konum izni alınamadı');
+            setError(i18n.t('common:errors.permissionDenied'));
             return 'denied';
         }
     }, []);
@@ -115,12 +113,12 @@ export function LocationProvider({ children }) {
                 setLocation(cachedCoords);
                 const cachedAddr = localStorage.getItem('cached_address');
                 if (cachedAddr) setAddress(cachedAddr);
-                setError(isEn ? 'Could not get current location, using last known position' : 'Güncel konum alınamadı, son bilinen konum kullanılıyor');
+                setError(i18n.t('common:errors.usingCachedLocation'));
                 setLoading(false);
                 return cachedCoords;
             }
 
-            setError((isEn ? 'Location unavailable: ' : 'Konum alınamadı: ') + (err.message || (isEn ? 'Unknown error' : 'Bilinmeyen hata')));
+            setError(i18n.t('common:errors.locationUnavailable') + (err.message || i18n.t('common:errors.unknownError')));
             setLoading(false);
             return null;
         }
@@ -137,7 +135,7 @@ export function LocationProvider({ children }) {
 
         if (status === 'denied') {
             setLoading(false);
-            setError(isEn ? 'Location permission not granted' : 'Konum izni verilmedi');
+            setError(i18n.t('common:errors.permissionNotGranted'));
             return null;
         }
 

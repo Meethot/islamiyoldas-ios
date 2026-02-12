@@ -1,0 +1,10 @@
+{
+    "categories": {
+        "prophets": "Prophets",
+        "companions": "Companions",
+        "moral": "Parables"
+    },
+    "nowListening": "Now Listening",
+    "normalSpeed": "Normal Speed",
+    "speedUp": "2x Speed Up"
+}

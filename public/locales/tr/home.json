@@ -239,5 +239,19 @@
         "nextPrayer": "Sıradaki Vakit",
         "passed": "Geçti",
         "tapToSelect": "Seçmek için tıkla"
+    },
+    "prayerReward": {
+        "close": "Kapat",
+        "mayAllahAccept": "Allah Kabul Etsin",
+        "thankYou": "{{prayerName}} namazınız için teşekkürler 💚",
+        "recommendedDua": "Tavsiye Edilen Dua",
+        "amin": "Amin 🌙"
+    },
+    "prayerOverlay": {
+        "close": "Kapat",
+        "prayerTime": "Namaz Vakti",
+        "motivational": "\"Namazını kılmak ister misin?\"",
+        "praying": "Kılıyorum ✅",
+        "remindLater": "10 dk Sonra Hatırlat ⏰"
     }
 }

@@ -1,0 +1,54 @@
+{
+    "steps": {
+        "language": {
+            "title": "Select Language",
+            "subtitle": "Choose your preferred language",
+            "select": "Select your language"
+        },
+        "gender": {
+            "title": "Your Gender",
+            "male": "Male",
+            "female": "Female"
+        },
+        "age": {
+            "title": "Your Age Group",
+            "subtitle": "Tailored content for you",
+            "range1": "13 - 17 years",
+            "range2": "18 - 30 years",
+            "range3": "31 - 45 years",
+            "range4": "46+ years"
+        },
+        "prayerStatus": {
+            "title": "Prayer Status",
+            "subtitle": "Understanding your journey",
+            "regular": "Yes, I pray 5 times",
+            "occasional": "I pray occasionally",
+            "irregular": "I haven't started yet"
+        },
+        "quranLevel": {
+            "title": "Quran Knowledge",
+            "subtitle": "Set your learning level",
+            "advanced": "I read fluently",
+            "reading": "I read slowly",
+            "learning": "I know letters",
+            "none": "I want to learn"
+        },
+        "goal": {
+            "title": "Main Goal",
+            "subtitle": "How can we help you?",
+            "prayer": "Regular Prayers",
+            "quran": "Learn Quran",
+            "spirituality": "Strengthen Spirituality",
+            "knowledge": "Islamic Knowledge"
+        }
+    },
+    "welcome": {
+        "title": "Welcome",
+        "subtitle": "Let's personalize your experience"
+    },
+    "progress": "Step {{current}} / {{total}}",
+    "buttons": {
+        "next": "Continue",
+        "start": "Start"
+    }
+}

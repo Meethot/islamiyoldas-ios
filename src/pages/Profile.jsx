@@ -83,19 +83,20 @@ export default function Profile() {
     // Remove local state currentLang, use i18n.language instead
 
     const LANGUAGES = [
-        { code: 'tr', label: 'Türkçe', native: 'Türkçe', flag: '🇹🇷', disabled: false },
-        { code: 'en', label: 'English', native: 'English', flag: '🇬🇧', disabled: false },
-        { code: 'de', label: 'Deutsch', native: 'Deutsch', flag: '🇩🇪', disabled: true },
-        { code: 'ar', label: 'العربية', native: 'Arabic', flag: '🇸🇦', disabled: true }
+        { code: 'tr', label: 'Türkçe', native: 'Türkçe', flag: '🇹🇷' },
+        { code: 'en', label: 'English', native: 'English', flag: '🇬🇧' },
+        { code: 'de', label: 'Deutsch', native: 'Deutsch', flag: '🇩🇪' },
+        { code: 'ar', label: 'العربية', native: 'Arabic', flag: '🇸🇦' },
+        { code: 'az', label: 'Azərbaycanca', native: 'Azerbaijani', flag: '🇦🇿' },
+        { code: 'nl', label: 'Nederlands', native: 'Dutch', flag: '🇳🇱' },
+        { code: 'fr', label: 'Français', native: 'French', flag: '🇫🇷' },
+        { code: 'es', label: 'Español', native: 'Spanish', flag: '🇪🇸' },
+        { code: 'ru', label: 'Русский', native: 'Russian', flag: '🇷🇺' },
+        { code: 'id', label: 'Bahasa Indonesia', native: 'Indonesian', flag: '🇮🇩' }
     ];
 
     const handleLangSelect = (lang) => {
         selection();
-
-        if (lang.disabled) {
-            alert(t('coming_soon') + '! 🌍');
-            return;
-        }
 
         if (lang.code === i18n.language) {
             setShowLangModal(false);
@@ -602,8 +603,7 @@ export default function Profile() {
                                             "w-full flex items-center justify-between p-4 rounded-2xl border-2 transition-all active:scale-[0.98]",
                                             i18n.language === lang.code
                                                 ? "bg-islamic-gold/10 border-islamic-gold"
-                                                : "bg-gray-50 dark:bg-white/5 border-transparent hover:bg-gray-100 dark:hover:bg-white/10",
-                                            lang.disabled && "opacity-70"
+                                                : "bg-gray-50 dark:bg-white/5 border-transparent hover:bg-gray-100 dark:hover:bg-white/10"
                                         )}
                                     >
                                         <div className="flex items-center gap-4">
@@ -616,11 +616,6 @@ export default function Profile() {
                                                     )}>
                                                         {lang.label}
                                                     </span>
-                                                    {lang.disabled && (
-                                                        <span className="text-[10px] bg-gray-200 dark:bg-white/10 px-2 py-0.5 rounded-full text-gray-500 font-medium">
-                                                            {t('coming_soon')}
-                                                        </span>
-                                                    )}
                                                 </div>
                                                 <span className="text-xs text-gray-500 dark:text-gray-400">{lang.native}</span>
                                             </div>

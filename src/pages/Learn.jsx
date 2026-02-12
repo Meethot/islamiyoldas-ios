@@ -962,15 +962,12 @@ export default function Learn() {
     const { selection, success, heavy } = useHaptics();
     const { t, i18n } = useTranslation('learn');
 
-    const isEn = i18n.language === 'en';
-    const activeGuides = { ...GUIDES };
-    if (isEn) {
-        if (GUIDES_EN.abdest) activeGuides.abdest = GUIDES_EN.abdest;
-        if (GUIDES_EN.dualar) activeGuides.dualar = GUIDES_EN.dualar;
-        if (GUIDES_EN.sureler) activeGuides.sureler = GUIDES_EN.sureler;
-        if (GUIDES_EN.namazlar) activeGuides.namazlar = GUIDES_EN.namazlar;
-        if (GUIDES_EN.kadinNamaz) activeGuides.kadinNamaz = GUIDES_EN.kadinNamaz;
-    }
+    const lang = i18n.language;
+
+    // Language-indexed guide overrides — add new languages here
+    const GUIDES_MAP = { en: GUIDES_EN };
+    const langGuides = GUIDES_MAP[lang] || {};
+    const activeGuides = { ...GUIDES, ...langGuides };
     const guide = activeGuides[selectedCategory];
     const step = guide?.steps[currentStep];
     const totalSteps = guide?.steps.length || 0;

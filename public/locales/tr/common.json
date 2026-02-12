@@ -59,5 +59,17 @@
         "description": "Size en iyi deneyimi sunmak için reklam koymadan, tamamen reklamsız bir uygulama geliştirdik. Bizi desteklemek için değerlendirmeniz çok önemli! 🤲",
         "rateButton": "Değerlendir",
         "later": "Daha Sonra Hatırlat"
+    },
+    "splash": {
+        "title": "İslami Yoldaş",
+        "subtitle": "PREMIUM MANEVİ ASİSTAN",
+        "footer": "Ümmet için ❤️ ile yapıldı"
+    },
+    "errors": {
+        "permissionDenied": "Konum izni alınamadı",
+        "usingCachedLocation": "Güncel konum alınamadı, son bilinen konum kullanılıyor",
+        "locationUnavailable": "Konum alınamadı: ",
+        "unknownError": "Bilinmeyen hata",
+        "permissionNotGranted": "Konum izni verilmedi"
     }
 }

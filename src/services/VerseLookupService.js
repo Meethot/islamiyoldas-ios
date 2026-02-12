@@ -80,8 +80,15 @@ const SURAH_NAMES_EN = {
  * @param {string} language - 'en' or 'tr'
  */
 export async function getVerifiedVerse(quranRef, language = 'tr') {
-    const isEn = language === 'en';
-    const fallback = isEn ? FALLBACK_VERSE_EN : FALLBACK_VERSE_TR;
+    // Language-indexed maps for API editions and surah name sets
+    const EDITION_MAP = { tr: 'tr.diyanet', en: 'en.sahih' };
+    const NAMES_MAP = { tr: SURAH_NAMES_TR, en: SURAH_NAMES_EN };
+    const FALLBACK_MAP = { tr: FALLBACK_VERSE_TR, en: FALLBACK_VERSE_EN };
+
+    // Use exact language or fall back to English
+    const edition = EDITION_MAP[language] || 'en.sahih';
+    const surahNames = NAMES_MAP[language] || SURAH_NAMES_EN;
+    const fallback = FALLBACK_MAP[language] || FALLBACK_VERSE_EN;
 
     if (!quranRef || !quranRef.surah || !quranRef.verse) {
         return fallback;
@@ -94,13 +101,10 @@ export async function getVerifiedVerse(quranRef, language = 'tr') {
         return fallback;
     }
 
-    const translationEdition = isEn ? 'en.sahih' : 'tr.diyanet';
-    const surahNames = isEn ? SURAH_NAMES_EN : SURAH_NAMES_TR;
-
     try {
         const [arabicRes, translationRes] = await Promise.all([
             fetch(`https://api.alquran.cloud/v1/ayah/${surah}:${verse}`),
-            fetch(`https://api.alquran.cloud/v1/ayah/${surah}:${verse}/${translationEdition}`)
+            fetch(`https://api.alquran.cloud/v1/ayah/${surah}:${verse}/${edition}`)
         ]);
 
         if (!arabicRes.ok || !translationRes.ok) {
@@ -119,16 +123,20 @@ export async function getVerifiedVerse(quranRef, language = 'tr') {
             return fallback;
         }
 
-        const surahName = surahNames[surah] || (isEn ? `Surah ${surah}` : `Sure ${surah}`);
+        const surahName = surahNames[surah] || `Surah ${surah}`;
+
+        // Source format per language
+        const SOURCE_FORMAT = {
+            tr: `${surahName} Suresi, ${verse}. Ayet`,
+            en: `Surah ${surahName}, Verse ${verse}`
+        };
 
         return {
             surahId: surah,
             verseNumber: verse,
             arabic: arabicText,
             translation: translationText,
-            source: isEn
-                ? `Surah ${surahName}, Verse ${verse}`
-                : `${surahName} Suresi, ${verse}. Ayet`
+            source: SOURCE_FORMAT[language] || SOURCE_FORMAT.en
         };
     } catch (error) {
         console.error("Verse Lookup Error:", error);

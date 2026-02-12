@@ -1,12 +1,11 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect, useRef } from "react";
+import i18n from "@/i18n";
 import logo from "../assets/logo.png";
 
 export default function SplashScreen({ dataReady = false }) {
     const [progress, setProgress] = useState(0);
     const [isVisible, setIsVisible] = useState(true);
-    const lang = localStorage.getItem('i18nextLng') || 'tr';
-    const isEn = lang.startsWith('en');
     const startTimeRef = useRef(Date.now());
     const rafRef = useRef(null);
 
@@ -86,7 +85,7 @@ export default function SplashScreen({ dataReady = false }) {
                             <div className="absolute inset-0 bg-islamic-green/20 blur-2xl rounded-full scale-150 animate-pulse" />
                             <img
                                 src={logo}
-                                alt="İslami Yoldaş Logo"
+                                alt={i18n.t('common:splash.title')}
                                 className="relative z-10 w-32 h-32 sm:w-40 sm:h-40 object-cover rounded-[2rem] overflow-hidden"
                             />
                         </motion.div>
@@ -98,7 +97,7 @@ export default function SplashScreen({ dataReady = false }) {
                             transition={{ delay: 0.3, duration: 0.8 }}
                             className="text-4xl sm:text-5xl font-extrabold text-white mb-3 tracking-tight text-center"
                         >
-                            {isEn ? 'Islamic Companion' : 'İslami Yoldaş'}
+                            {i18n.t('common:splash.title')}
                         </motion.h1>
 
                         {/* Subtitle */}
@@ -108,7 +107,7 @@ export default function SplashScreen({ dataReady = false }) {
                             transition={{ delay: 0.5, duration: 0.8 }}
                             className="text-[11px] sm:text-[12px] text-islamic-green font-bold tracking-[0.4em] uppercase mb-14 opacity-90 text-center"
                         >
-                            {isEn ? 'PREMIUM ISLAMIC ASSISTANT' : 'PREMIUM MANEVİ ASİSTAN'}
+                            {i18n.t('common:splash.subtitle')}
                         </motion.p>
 
                         {/* Loading Bar Container */}
@@ -141,7 +140,7 @@ export default function SplashScreen({ dataReady = false }) {
                         className="absolute bottom-12 left-1/2 -translate-x-1/2 w-full text-center px-4"
                     >
                         <p className="text-[10px] sm:text-[11px] text-gray-700 tracking-widest uppercase font-medium">
-                            {isEn ? 'Made with ❤️ for the Ummah' : 'Ümmet için ❤️ ile yapıldı'}
+                            {i18n.t('common:splash.footer')}
                         </p>
                     </motion.div>
                 </motion.div>
