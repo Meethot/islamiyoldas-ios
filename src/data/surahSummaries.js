@@ -1,4 +1,5 @@
 import { SURAH_SUMMARIES_DE } from './surahSummariesDE';
+import { SURAH_SUMMARIES_RU } from './surahSummariesRU';
 
 const SURAH_SUMMARIES_TR = [
     { id: 1, summary: 'Kur\'an\'ın açılış kapısıdır. Namazın her rekatında okunması vaciptir.' },
@@ -234,7 +235,7 @@ const SURAH_SUMMARIES_EN = [
     { id: 114, summary: 'Teaches seeking refuge in Allah from the whisperings of jinn and humans.' },
 ];
 
-const SUMMARIES_MAP = { tr: SURAH_SUMMARIES_TR, en: SURAH_SUMMARIES_EN, de: SURAH_SUMMARIES_DE };
+const SUMMARIES_MAP = { tr: SURAH_SUMMARIES_TR, en: SURAH_SUMMARIES_EN, de: SURAH_SUMMARIES_DE, ru: SURAH_SUMMARIES_RU };
 
 export const getSurahSummary = (id, language = 'tr') => {
     const list = SUMMARIES_MAP[language] || SURAH_SUMMARIES_TR;

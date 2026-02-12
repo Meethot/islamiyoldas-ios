@@ -1,90 +1,90 @@
 {
-    "title": "Profile",
+    "title": "Профиль",
     "user": {
-        "default_name": "Faithful User",
-        "streak_desc": "Day {{count}} of the journey"
+        "default_name": "Верующий пользователь",
+        "streak_desc": "День {{count}} пути"
     },
     "premium": {
-        "banner_title": "Go Premium",
-        "banner_desc": "Ad-free experience and detailed stats."
+        "banner_title": "Премиум",
+        "banner_desc": "Без рекламы и подробная статистика."
     },
-    "personal_settings": "Personal Settings",
-    "general_settings": "General Settings",
+    "personal_settings": "Личные настройки",
+    "general_settings": "Общие настройки",
     "notifications": {
-        "title": "Notifications",
-        "subtitle": "Adhan, verse & motivation"
+        "title": "Уведомления",
+        "subtitle": "Азан, аят и мотивация"
     },
     "privacy": {
-        "title": "Privacy & Security",
-        "subtitle": "Data protection and lock",
-        "modal_title": "Data & Privacy",
-        "data_info": "Your data is stored <strong>only on this device</strong>. No data is sent to our servers.",
-        "download": "Download My Data",
-        "delete_all": "Delete All Data"
+        "title": "Конфиденциальность",
+        "subtitle": "Защита данных и блокировка",
+        "modal_title": "Данные и конфиденциальность",
+        "data_info": "Ваши данные хранятся <strong>только на этом устройстве</strong>. Никакие данные не отправляются на наши серверы.",
+        "download": "Скачать мои данные",
+        "delete_all": "Удалить все данные"
     },
     "appearance": {
-        "title": "Appearance",
-        "dark_active": "Dark mode active",
-        "light_active": "Light mode active"
+        "title": "Внешний вид",
+        "dark_active": "Тёмная тема активна",
+        "light_active": "Светлая тема активна"
     },
     "location": {
-        "title": "Location",
-        "subtitle": "GPS and city settings"
+        "title": "Местоположение",
+        "subtitle": "GPS и настройки города"
     },
     "share": {
-        "title": "Share Progress",
-        "subtitle": "Share Tuba Tree on social media"
+        "title": "Поделиться прогрессом",
+        "subtitle": "Поделитесь деревом Туба в соцсетях"
     },
     "invite": {
-        "title": "Invite Friend",
-        "subtitle": "Share app link with loved ones"
+        "title": "Пригласить друга",
+        "subtitle": "Поделитесь ссылкой с близкими"
     },
     "calc": {
-        "title": "Calc Missed Prayers",
-        "subtitle": "Automatic calculation tool"
+        "title": "Расчёт пропущенных намазов",
+        "subtitle": "Автоматический инструмент расчёта"
     },
     "language": {
-        "title": "App Language",
-        "subtitle": "Change interface language"
+        "title": "Язык приложения",
+        "subtitle": "Изменить язык интерфейса"
     },
     "promo": {
-        "title": "Promo Code",
-        "subtitle": "Use a gift code",
-        "label": "ENTER CODE",
-        "submit": "Apply Code",
-        "success": "Congratulations! Premium features have been activated. 🌟",
-        "invalid": "Invalid or expired promo code."
+        "title": "Промо-код",
+        "subtitle": "Использовать подарочный код",
+        "label": "ВВЕДИТЕ КОД",
+        "submit": "Применить код",
+        "success": "Поздравляем! Премиум-функции активированы. 🌟",
+        "invalid": "Недействительный или истёкший промо-код."
     },
     "report_bug": {
-        "title": "Report Bug",
-        "subtitle": "Having issues with the app?",
-        "email_subject": "Islamic Companion - Bug Report",
-        "email_body": "The issue I encountered is:\n\n"
+        "title": "Сообщить об ошибке",
+        "subtitle": "Проблемы с приложением?",
+        "email_subject": "Исламский Спутник — Отчёт об ошибке",
+        "email_body": "Обнаруженная мной проблема:\n\n"
     },
     "legal": {
-        "title": "Legal & About",
-        "subtitle": "Privacy, contact and support"
+        "title": "Правовая информация",
+        "subtitle": "Конфиденциальность, контакты и поддержка"
     },
     "delete_account": {
-        "title": "Delete Account",
-        "confirm": "Your account and all data will be deleted. This cannot be undone. Are you sure?"
+        "title": "Удалить аккаунт",
+        "confirm": "Ваш аккаунт и все данные будут удалены. Это действие нельзя отменить. Вы уверены?"
     },
     "avatar": {
-        "male": "Male",
-        "female": "Female",
-        "beads": "Beads",
-        "tuba": "Tuba",
-        "quran": "Quran",
-        "moon": "Crescent"
+        "male": "Мужской",
+        "female": "Женский",
+        "beads": "Чётки",
+        "tuba": "Туба",
+        "quran": "Коран",
+        "moon": "Полумесяц"
     },
-    "coming_soon": "Coming Soon",
-    "support": "Support Us",
-    "reset": "Reset Data",
+    "coming_soon": "Скоро",
+    "support": "Поддержать нас",
+    "reset": "Сбросить данные",
     "modal": {
-        "select_lang": "Language Selection",
-        "lang_note": "Language change applies instantly."
+        "select_lang": "Выбор языка",
+        "lang_note": "Изменение языка применяется мгновенно."
     },
-    "avatar_modal_title": "Select Profile Photo",
-    "app_name": "Islamic Companion",
-    "version": "Version 2.1.0 (Pro Max)"
+    "avatar_modal_title": "Выбрать фото профиля",
+    "app_name": "Исламский Спутник",
+    "version": "Версия 2.1.0 (Pro Max)"
 }

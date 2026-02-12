@@ -44,6 +44,8 @@
         "link_copied": "Link copied to clipboard!",
         "verse_friday": "Blessed Friday",
         "verse_daily": "Verse of the Day",
+        "verse_filename": "verse-of-the-day.png",
+        "friday_filename": "friday-message.png",
         "verse_text": "\"{{text}}\" - {{source}}\n\nIslamic Companion - Your Closest Companion on the Spiritual Path 🤲",
         "verse_share_error": "An error occurred while sharing.",
         "hidden_title": "Islamic Companion Share",

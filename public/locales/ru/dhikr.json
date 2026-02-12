@@ -1,54 +1,54 @@
 {
-    "title": "Dhikr Counter",
+    "title": "Счётчик зикра",
     "presets": {
         "subhanallah": {
-            "name": "SubhanAllah",
-            "meaning": "Glory be to Allah"
+            "name": "СубханАллах",
+            "meaning": "Пречист Аллах от всего несовершенного"
         },
         "elhamdulillah": {
-            "name": "Alhamdulillah",
-            "meaning": "All praise is due to Allah"
+            "name": "Альхамдулиллях",
+            "meaning": "Вся хвала Аллаху"
         },
         "allahuekber": {
-            "name": "Allahu Akbar",
-            "meaning": "Allah is the Greatest"
+            "name": "Аллаху Акбар",
+            "meaning": "Аллах Велик"
         },
         "last": {
-            "name": "La ilaha illallah",
-            "meaning": "There is no god but Allah"
+            "name": "Ля иляха илляЛлах",
+            "meaning": "Нет бога, кроме Аллаха"
         },
         "istigfar": {
-            "name": "Astaghfirullah",
-            "meaning": "I seek forgiveness from Allah"
+            "name": "АстагфируЛлах",
+            "meaning": "Прошу прощения у Аллаха"
         },
         "salavat": {
-            "name": "Salawat",
-            "meaning": "O Allah, send blessings upon our Prophet Muhammad"
+            "name": "Салават",
+            "meaning": "О Аллах, благослови нашего Пророка Мухаммада"
         }
     },
     "vibration": {
-        "everyClick": "Vibration: Every Click",
-        "targetOnly": "Vibration: Target Only",
-        "off": "Vibration: Off"
+        "everyClick": "Вибрация: каждый клик",
+        "targetOnly": "Вибрация: только по цели",
+        "off": "Вибрация: выкл."
     },
     "vibrationTooltip": {
-        "all": "All Vibrations On",
-        "target": "Vibration on Target Only",
-        "off": "Vibration Off"
+        "all": "Все вибрации включены",
+        "target": "Вибрация только по цели",
+        "off": "Вибрация выключена"
     },
-    "confirmReset": "Are you sure you want to reset the dhikr counter?",
-    "target": "Target: {{count}}",
-    "targetWithUnit": "Target: {{count}} Times",
-    "round": "ROUND",
-    "roundCompleted": "Round {{round}} Completed ✓",
-    "totalDhikr": "Total Dhikr",
-    "resetAllTitle": "Reset all dhikr?",
-    "cancel": "CANCEL",
-    "reset": "RESET",
-    "setTarget": "Set Target",
-    "setTargetDesc": "Enter your personal target for {{name}}.",
-    "saveTarget": "SAVE TARGET",
-    "resetAllTooltip": "Reset All Dhikr",
-    "footerVerse": "\"O you who believe! Remember Allah with much remembrance, and glorify Him morning and evening.\"",
-    "footerVerseSource": "SURAH AL-AHZAB, 41-42"
+    "confirmReset": "Вы уверены, что хотите сбросить счётчик зикра?",
+    "target": "Цель: {{count}}",
+    "targetWithUnit": "Цель: {{count}} раз",
+    "round": "КРУГ",
+    "roundCompleted": "Круг {{round}} завершён ✓",
+    "totalDhikr": "Всего зикра",
+    "resetAllTitle": "Сбросить весь зикр?",
+    "cancel": "ОТМЕНА",
+    "reset": "СБРОС",
+    "setTarget": "Установить цель",
+    "setTargetDesc": "Введите вашу личную цель для {{name}}.",
+    "saveTarget": "СОХРАНИТЬ ЦЕЛЬ",
+    "resetAllTooltip": "Сбросить весь зикр",
+    "footerVerse": "\"О вы, которые уверовали! Поминайте Аллаха часто и славьте Его утром и вечером.\"",
+    "footerVerseSource": "СУРА АЛЬ-АХЗАБ, 41-42"
 }

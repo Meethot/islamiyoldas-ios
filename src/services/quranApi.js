@@ -10,7 +10,8 @@ const EDITIONS = {
     transliteration: 'tur-latinalphabet1',
     translation_tr: 'tur-diyanetisleri', // Diyanet İşleri
     translation_en: 'eng-ummmuhammad', // Sahih International (Umm Muhammad)
-    translation_de: 'deu-aburidamuhammad' // Abu Rida Muhammad ibn Ahmad ibn Rassoul
+    translation_de: 'deu-aburidamuhammad', // Abu Rida Muhammad ibn Ahmad ibn Rassoul
+    translation_ru: 'rus-abuadel' // Abu Adel (concise, mobile-friendly)
 };
 
 // Caching helper
@@ -88,6 +89,7 @@ export async function fetchSurahContent(surahId, page = 1, language = 'tr') {
     let translationEdition = EDITIONS.translation_tr;
     if (language === 'en') translationEdition = EDITIONS.translation_en;
     if (language === 'de') translationEdition = EDITIONS.translation_de;
+    if (language === 'ru') translationEdition = EDITIONS.translation_ru;
 
     try {
         // Fetch 3 sources in parallel

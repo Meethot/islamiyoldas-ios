@@ -44,6 +44,8 @@
         "link_copied": "Link in die Zwischenablage kopiert!",
         "verse_friday": "Gesegneter Freitag",
         "verse_daily": "Vers des Tages",
+        "verse_filename": "vers-des-tages.png",
+        "friday_filename": "freitagsbotschaft.png",
         "verse_text": "\"{{text}}\" - {{source}}\n\nIslamischer Begleiter – Dein engster Begleiter auf dem spirituellen Weg 🤲",
         "verse_share_error": "Beim Teilen ist ein Fehler aufgetreten.",
         "hidden_title": "Islamischer Begleiter Teilen",

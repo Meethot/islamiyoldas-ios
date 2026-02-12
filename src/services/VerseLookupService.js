@@ -1,7 +1,7 @@
 /**
  * Verse Lookup Service
  * Fetches verified verse text from Alquran.cloud API.
- * Supports Turkish (Diyanet) and English (Sahih International) translations.
+ * Supports Turkish (Diyanet), English (Sahih International), German (Bubenheim) and Russian (Kuliev) translations.
  */
 
 const FALLBACK_VERSE_TR = {
@@ -18,6 +18,22 @@ const FALLBACK_VERSE_EN = {
     arabic: "فَإِنَّ مَعَ ٱلْعُسْرِ يُسْرًا",
     translation: "For indeed, with hardship comes ease.",
     source: "Surah Al-Inshirah, Verse 5"
+};
+
+const FALLBACK_VERSE_DE = {
+    surahId: 94,
+    verseNumber: 5,
+    arabic: "فَإِنَّ مَعَ ٱلْعُسْرِ يُسْرًا",
+    translation: "Wahrlich, mit der Schwierigkeit kommt die Erleichterung.",
+    source: "Sure Al-Inshirah, Vers 5"
+};
+
+const FALLBACK_VERSE_RU = {
+    surahId: 94,
+    verseNumber: 5,
+    arabic: "فَإِنَّ مَعَ ٱلْعُسْرِ يُسْرًا",
+    translation: "Поистине, с трудностью приходит облегчение.",
+    source: "Сура Аш-Шарх, аят 5"
 };
 
 // Turkish surah names lookup
@@ -74,16 +90,43 @@ const SURAH_NAMES_EN = {
     111: 'Al-Masad', 112: 'Al-Ikhlas', 113: 'Al-Falaq', 114: 'An-Nas'
 };
 
+// Russian surah names lookup
+const SURAH_NAMES_RU = {
+    1: 'Аль-Фатиха', 2: 'Аль-Бакара', 3: 'Аль Имран', 4: 'Ан-Ниса', 5: 'Аль-Маида',
+    6: 'Аль-Анам', 7: 'Аль-Араф', 8: 'Аль-Анфаль', 9: 'Ат-Тауба', 10: 'Юнус',
+    11: 'Худ', 12: 'Юсуф', 13: 'Ар-Раад', 14: 'Ибрахим', 15: 'Аль-Хиджр',
+    16: 'Ан-Нахль', 17: 'Аль-Исра', 18: 'Аль-Кахф', 19: 'Марьям', 20: 'Та-Ха',
+    21: 'Аль-Анбия', 22: 'Аль-Хадж', 23: 'Аль-Муминун', 24: 'Ан-Нур', 25: 'Аль-Фуркан',
+    26: 'Аш-Шуара', 27: 'Ан-Намль', 28: 'Аль-Касас', 29: 'Аль-Анкабут', 30: 'Ар-Рум',
+    31: 'Лукман', 32: 'Ас-Саджда', 33: 'Аль-Ахзаб', 34: 'Саба', 35: 'Фатыр',
+    36: 'Ясин', 37: 'Ас-Саффат', 38: 'Сад', 39: 'Аз-Зумар', 40: 'Гафир',
+    41: 'Фуссилат', 42: 'Аш-Шура', 43: 'Аз-Зухруф', 44: 'Ад-Духан', 45: 'Аль-Джасия',
+    46: 'Аль-Ахкаф', 47: 'Мухаммад', 48: 'Аль-Фатх', 49: 'Аль-Худжурат', 50: 'Каф',
+    51: 'Аз-Зарият', 52: 'Ат-Тур', 53: 'Ан-Наджм', 54: 'Аль-Камар', 55: 'Ар-Рахман',
+    56: 'Аль-Вакиа', 57: 'Аль-Хадид', 58: 'Аль-Муджадала', 59: 'Аль-Хашр', 60: 'Аль-Мумтахана',
+    61: 'Ас-Сафф', 62: 'Аль-Джума', 63: 'Аль-Мунафикун', 64: 'Ат-Тагабун', 65: 'Ат-Талак',
+    66: 'Ат-Тахрим', 67: 'Аль-Мульк', 68: 'Аль-Калям', 69: 'Аль-Хакка', 70: 'Аль-Мааридж',
+    71: 'Нух', 72: 'Аль-Джинн', 73: 'Аль-Муззаммиль', 74: 'Аль-Муддассир', 75: 'Аль-Кияма',
+    76: 'Аль-Инсан', 77: 'Аль-Мурсалят', 78: 'Ан-Наба', 79: 'Ан-Назиат', 80: 'Абаса',
+    81: 'Ат-Таквир', 82: 'Аль-Инфитар', 83: 'Аль-Мутаффифин', 84: 'Аль-Иншикак', 85: 'Аль-Бурудж',
+    86: 'Ат-Тарик', 87: 'Аль-Аля', 88: 'Аль-Гашия', 89: 'Аль-Фаджр', 90: 'Аль-Балад',
+    91: 'Аш-Шамс', 92: 'Аль-Лейль', 93: 'Ад-Духа', 94: 'Аш-Шарх', 95: 'Ат-Тин',
+    96: 'Аль-Алак', 97: 'Аль-Кадр', 98: 'Аль-Баййина', 99: 'Аз-Залзала', 100: 'Аль-Адият',
+    101: 'Аль-Кариа', 102: 'Ат-Такасур', 103: 'Аль-Аср', 104: 'Аль-Хумаза', 105: 'Аль-Филь',
+    106: 'Курайш', 107: 'Аль-Маун', 108: 'Аль-Каусар', 109: 'Аль-Кафирун', 110: 'Ан-Наср',
+    111: 'Аль-Масад', 112: 'Аль-Ихлас', 113: 'Аль-Фалак', 114: 'Ан-Нас'
+};
+
 /**
  * Fetches verse Arabic text + translation from Alquran.cloud API.
  * @param {Object} quranRef - { surah, verse } from AI
- * @param {string} language - 'en' or 'tr'
+ * @param {string} language - 'en', 'tr', 'de', or 'ru'
  */
 export async function getVerifiedVerse(quranRef, language = 'tr') {
     // Language-indexed maps for API editions and surah name sets
-    const EDITION_MAP = { tr: 'tr.diyanet', en: 'en.sahih' };
-    const NAMES_MAP = { tr: SURAH_NAMES_TR, en: SURAH_NAMES_EN };
-    const FALLBACK_MAP = { tr: FALLBACK_VERSE_TR, en: FALLBACK_VERSE_EN };
+    const EDITION_MAP = { tr: 'tr.diyanet', en: 'en.sahih', de: 'de.bubenheim', ru: 'ru.kuliev' };
+    const NAMES_MAP = { tr: SURAH_NAMES_TR, en: SURAH_NAMES_EN, ru: SURAH_NAMES_RU };
+    const FALLBACK_MAP = { tr: FALLBACK_VERSE_TR, en: FALLBACK_VERSE_EN, de: FALLBACK_VERSE_DE, ru: FALLBACK_VERSE_RU };
 
     // Use exact language or fall back to English
     const edition = EDITION_MAP[language] || 'en.sahih';
@@ -128,7 +171,9 @@ export async function getVerifiedVerse(quranRef, language = 'tr') {
         // Source format per language
         const SOURCE_FORMAT = {
             tr: `${surahName} Suresi, ${verse}. Ayet`,
-            en: `Surah ${surahName}, Verse ${verse}`
+            en: `Surah ${surahName}, Verse ${verse}`,
+            de: `Sure ${surahName}, Vers ${verse}`,
+            ru: `Сура ${surahName}, аят ${verse}`
         };
 
         return {

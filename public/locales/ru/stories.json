@@ -1,10 +1,10 @@
 {
     "categories": {
-        "prophets": "Prophets",
-        "companions": "Companions",
-        "moral": "Parables"
+        "prophets": "Пророки",
+        "companions": "Сподвижники",
+        "moral": "Притчи"
     },
-    "nowListening": "Now Listening",
-    "normalSpeed": "Normal Speed",
-    "speedUp": "2x Speed Up"
+    "nowListening": "Сейчас слушаем",
+    "normalSpeed": "Обычная скорость",
+    "speedUp": "Ускорить в 2 раза"
 }

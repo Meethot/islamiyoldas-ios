@@ -1,75 +1,77 @@
 {
     "nav": {
-        "home": "Home",
-        "learn": "Learn",
-        "stories": "Stories",
-        "worship": "Ibadah",
-        "profile": "Profile"
+        "home": "Главная",
+        "learn": "Обучение",
+        "stories": "Истории",
+        "worship": "Ибадат",
+        "profile": "Профиль"
     },
     "prayer": {
-        "fajr": "Fajr",
-        "sunrise": "Sunrise",
-        "dhuhr": "Dhuhr",
-        "asr": "Asr",
-        "maghrib": "Maghrib",
-        "isha": "Isha"
+        "fajr": "Фаджр",
+        "sunrise": "Восход",
+        "dhuhr": "Зухр",
+        "asr": "Аср",
+        "maghrib": "Магриб",
+        "isha": "Иша"
     },
     "quran": {
-        "bismillah_translation": "In the name of Allah, the Entirely Merciful, the Especially Merciful",
-        "sadaqallah": "Allah the Almighty has spoken the truth",
-        "next_surah": "Next Surah",
-        "load_more": "Load More Verses",
-        "connection_error": "Connection Error",
-        "retry": "Retry",
-        "back": "Back",
-        "loading": "Loading..."
+        "bismillah_translation": "Во имя Аллаха, Милостивого, Милосердного",
+        "sadaqallah": "Истину говорил Аллах Великий",
+        "next_surah": "Следующая сура",
+        "load_more": "Загрузить ещё аяты",
+        "connection_error": "Ошибка соединения",
+        "retry": "Повторить",
+        "back": "Назад",
+        "loading": "Загрузка..."
     },
     "common": {
-        "loading": "Loading...",
-        "error": "An error occurred",
-        "save": "Save",
-        "cancel": "Cancel",
-        "back": "Back",
-        "next": "Next"
+        "loading": "Загрузка...",
+        "error": "Произошла ошибка",
+        "save": "Сохранить",
+        "cancel": "Отмена",
+        "back": "Назад",
+        "next": "Далее"
     },
     "share": {
-        "card_not_found": "Share card not found. Please refresh the page.",
-        "progress_text": "I'm tracking my worship with Islamic Companion! {{streak}} Join too! 🤲\n\n📲 islamiccompanion.app/download",
-        "progress_streak": "🔥 {{count}} day streak!",
-        "progress_title": "My Spiritual Journey",
-        "progress_filename": "spiritual-journey.png",
-        "share_failed": "Sharing failed. Please try again.",
-        "invite_title": "I wanted to share this with you",
-        "invite_text": "I discovered Islamic Companion! A wonderful companion for spiritual growth. 🤲",
-        "link_copied": "Link copied to clipboard!",
-        "verse_friday": "Blessed Friday",
-        "verse_daily": "Verse of the Day",
-        "verse_text": "\"{{text}}\" - {{source}}\n\nIslamic Companion - Your Closest Companion on the Spiritual Path 🤲",
-        "verse_share_error": "An error occurred while sharing.",
-        "hidden_title": "Islamic Companion Share",
+        "card_not_found": "Карточка не найдена. Обновите страницу.",
+        "progress_text": "Я слежу за своим поклонением в Исламском Спутнике! {{streak}} Присоединяйся! 🤲\n\n📲 islamiccompanion.app/download",
+        "progress_streak": "🔥 {{count}} дней подряд!",
+        "progress_title": "Мой духовный путь",
+        "progress_filename": "duhovnyj-put.png",
+        "share_failed": "Не удалось поделиться. Попробуйте снова.",
+        "invite_title": "Хочу поделиться с тобой",
+        "invite_text": "Я нашёл приложение Исламский Спутник! Прекрасный помощник в духовном развитии. 🤲",
+        "link_copied": "Ссылка скопирована!",
+        "verse_friday": "Благословенная Джума",
+        "verse_daily": "Аят дня",
+        "verse_filename": "ayat-dnya.png",
+        "friday_filename": "pyatnichnoe-poslanie.png",
+        "verse_text": "\"{{text}}\" - {{source}}\n\nИсламский Спутник — ваш ближайший спутник на духовном пути 🤲",
+        "verse_share_error": "Ошибка при попытке поделиться.",
+        "hidden_title": "Исламский Спутник",
         "hidden_filename": "share.png",
-        "app_title": "Islamic Companion",
-        "app_share_text": "I'm using this amazing app to learn prayer and refresh my religious knowledge. Try it too!",
-        "app_share_dialog": "Share App",
-        "app_link_copied": "Link copied! (Share menu only works on mobile devices)"
+        "app_title": "Исламский Спутник",
+        "app_share_text": "Я пользуюсь этим замечательным приложением для обучения намазу и освежения религиозных знаний. Попробуй и ты!",
+        "app_share_dialog": "Поделиться приложением",
+        "app_link_copied": "Ссылка скопирована! (Меню «Поделиться» работает только на мобильных устройствах)"
     },
     "review": {
-        "title": "Do you enjoy Islamic Companion?",
-        "adFree": "100% Ad-Free Experience",
-        "description": "We developed a completely ad-free app to give you the best experience. Your review is very valuable to support us! 🤲",
-        "rateButton": "Rate Us",
-        "later": "Remind Me Later"
+        "title": "Вам нравится Исламский Спутник?",
+        "adFree": "100% Без рекламы",
+        "description": "Мы разработали полностью бесплатное приложение без рекламы, чтобы обеспечить вам лучший опыт. Ваш отзыв очень важен для нашей поддержки! 🤲",
+        "rateButton": "Оценить",
+        "later": "Напомнить позже"
     },
     "splash": {
-        "title": "Islamic Companion",
-        "subtitle": "PREMIUM ISLAMIC ASSISTANT",
-        "footer": "Made with ❤️ for the Ummah"
+        "title": "Исламский Спутник",
+        "subtitle": "ПРЕМИУМ ИСЛАМСКИЙ ПОМОЩНИК",
+        "footer": "Создано с ❤️ для Уммы"
     },
     "errors": {
-        "permissionDenied": "Location permission denied",
-        "usingCachedLocation": "Could not get current location, using last known position",
-        "locationUnavailable": "Location unavailable: ",
-        "unknownError": "Unknown error",
-        "permissionNotGranted": "Location permission not granted"
+        "permissionDenied": "Доступ к местоположению запрещён",
+        "usingCachedLocation": "Не удалось получить текущее местоположение, используется последнее известное",
+        "locationUnavailable": "Местоположение недоступно: ",
+        "unknownError": "Неизвестная ошибка",
+        "permissionNotGranted": "Разрешение на доступ к местоположению не предоставлено"
     }
 }

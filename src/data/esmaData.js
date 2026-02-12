@@ -1,4 +1,5 @@
 import { ESMA_DE as _ESMA_DE } from './esmaDE';
+import { ESMA_RU as _ESMA_RU } from './esmaRU';
 
 export const ALL_ESMA = [
     { id: 1, name: 'Allah', meaning: 'Her şeyin hakikî mâbudu, her şeyi yaratan.', meaning_en: 'The true God of all things, Creator of everything.', ebced: 66, virtue: 'Dua ve dileklerin kabulü için en büyük isimdir.', virtue_en: 'The greatest name for the acceptance of prayers and wishes.', calligraphy: 'اللّٰه' },
@@ -103,5 +104,7 @@ export const ALL_ESMA = [
 ].map(esma => {
     // Merge German translations from esmaDE.js
     const de = _ESMA_DE[esma.id];
-    return de ? { ...esma, ...de } : esma;
+    // Merge Russian translations from esmaRU.js
+    const ru = _ESMA_RU[esma.id];
+    return { ...esma, ...(de || {}), ...(ru || {}) };
 });

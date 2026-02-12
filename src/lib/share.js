@@ -133,7 +133,7 @@ export async function shareVerse(elementId, text, source, isFriday = false) {
             canvas.toBlob(resolve, 'image/png', 1.0);
         });
 
-        const fileName = isFriday ? 'friday-message.png' : 'verse-of-the-day.png';
+        const fileName = isFriday ? t('friday_filename') : t('verse_filename');
         const file = new File([blob], fileName, { type: 'image/png' });
 
         const shareTitle = isFriday ? t('verse_friday') : t('verse_daily');
