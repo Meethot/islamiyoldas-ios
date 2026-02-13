@@ -46,15 +46,15 @@ const SHARE_THEMES = [
 ];
 
 const RELIGIOUS_DAYS = [
-    { name: 'Miraç Kandili', name_en: 'Night of Ascension', date: '2026-01-15' },
-    { name: 'Berat Kandili', name_en: 'Night of Forgiveness', date: '2026-02-02' },
-    { name: 'Ramazan Başlangıcı', name_en: 'Start of Ramadan', date: '2026-02-19' },
-    { name: 'Kadir Gecesi', name_en: 'Night of Power', date: '2026-03-16' },
-    { name: 'Ramazan Bayramı', name_en: 'Eid al-Fitr', date: '2026-03-20' }, // 1. Gün
-    { name: 'Kurban Bayramı', name_en: 'Eid al-Adha', date: '2026-05-27' }, // 1. Gün
-    { name: 'Hicri Yılbaşı', name_en: 'Islamic New Year', date: '2026-06-16' },
-    { name: 'Aşure Günü', name_en: 'Day of Ashura', date: '2026-06-25' },
-    { name: 'Mevlid Kandili', name_en: 'Birth of the Prophet', date: '2026-08-24' },
+    { name: 'Miraç Kandili', name_en: 'Night of Ascension', name_de: 'Nacht der Himmelfahrt', name_ru: 'Ночь Вознесения', name_ar: 'ليلة الإسراء والمعراج', date: '2026-01-15' },
+    { name: 'Berat Kandili', name_en: 'Night of Forgiveness', name_de: 'Nacht der Vergebung', name_ru: 'Ночь Прощения', name_ar: 'ليلة البراءة', date: '2026-02-02' },
+    { name: 'Ramazan Başlangıcı', name_en: 'Start of Ramadan', name_de: 'Beginn des Ramadan', name_ru: 'Начало Рамадана', name_ar: 'بداية رمضان', date: '2026-02-19' },
+    { name: 'Kadir Gecesi', name_en: 'Night of Power', name_de: 'Nacht der Bestimmung', name_ru: 'Ночь Предопределения', name_ar: 'ليلة القدر', date: '2026-03-16' },
+    { name: 'Ramazan Bayramı', name_en: 'Eid al-Fitr', name_de: 'Fest des Fastenbrechens', name_ru: 'Ураза-байрам', name_ar: 'عيد الفطر', date: '2026-03-20' }, // 1. Gün
+    { name: 'Kurban Bayramı', name_en: 'Eid al-Adha', name_de: 'Opferfest', name_ru: 'Курбан-байрам', name_ar: 'عيد الأضحى', date: '2026-05-27' }, // 1. Gün
+    { name: 'Hicri Yılbaşı', name_en: 'Islamic New Year', name_de: 'Islamisches Neujahr', name_ru: 'Исламский Новый год', name_ar: 'رأس السنة الهجرية', date: '2026-06-16' },
+    { name: 'Aşure Günü', name_en: 'Day of Ashura', name_de: 'Tag von Aschura', name_ru: 'День Ашура', name_ar: 'يوم عاشوراء', date: '2026-06-25' },
+    { name: 'Mevlid Kandili', name_en: 'Birth of the Prophet', name_de: 'Geburtstag des Propheten', name_ru: 'Рождение Пророка', name_ar: 'المولد النبوي', date: '2026-08-24' },
 ];
 
 const containerVariants = {
@@ -720,7 +720,7 @@ function EsmaDetailModal({ esma, count, setCount, onClose }) {
                             {esma.name}
                         </h2>
                         <p className="text-white/50 text-sm font-light italic tracking-wide max-w-xs mx-auto">
-                            "{esma[`meaning_${i18n.language}`] || esma.meaning_en || esma.meaning}"
+                            "{esma[`meaning_${i18n.language}`] || esma.meaning}"
                         </p>
                     </div>
 
@@ -905,7 +905,7 @@ function EsmaDetailModal({ esma, count, setCount, onClose }) {
                             <span className="text-[10px] uppercase font-bold tracking-[0.2em]">{t('esma.virtue_title')}</span>
                         </div>
                         <p className="text-sm text-white/80 leading-relaxed font-light font-serif">
-                            {esma[`virtue_${i18n.language}`] || esma.virtue_en || esma.virtue}
+                            {esma[`virtue_${i18n.language}`] || esma.virtue}
                         </p>
                     </div>
 

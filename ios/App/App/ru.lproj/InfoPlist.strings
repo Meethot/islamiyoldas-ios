@@ -1,0 +1,8 @@
+/* Russian */
+"CFBundleDisplayName" = "Исламский Спутник";
+"CFBundleName" = "Исламский Спутник";
+"NSLocationAlwaysAndWhenInUseUsageDescription" = "Нам нужно ваше местоположение, чтобы уведомлять вас о времени намаза.";
+"NSLocationWhenInUseUsageDescription" = "Нам нужно ваше местоположение для расчёта времени намаза и направления Киблы.";
+"NSMotionUsageDescription" = "Нам нужен доступ к датчикам движения для точного определения направления Киблы.";
+"NSPhotoLibraryAddUsageDescription" = "Нам нужно ваше разрешение для сохранения контента в вашу фотогалерею.";
+"NSPrivacyTrackingUsageDescription" = "Мы запрашиваем разрешение для предоставления лучшего сервиса и улучшения вашего опыта в приложении.";

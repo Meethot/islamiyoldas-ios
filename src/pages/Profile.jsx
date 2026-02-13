@@ -78,33 +78,7 @@ export default function Profile() {
     const [shareTheme, setShareTheme] = useState('emerald');
     const [showShareModal, setShowShareModal] = useState(false);
 
-    // Language Settings
-    const [showLangModal, setShowLangModal] = useState(false);
-    // Remove local state currentLang, use i18n.language instead
 
-    const LANGUAGES = [
-        { code: 'tr', label: 'Türkçe', native: 'Türkçe', flag: '🇹🇷' },
-        { code: 'en', label: 'English', native: 'English', flag: '🇬🇧' },
-        { code: 'de', label: 'Deutsch', native: 'Deutsch', flag: '🇩🇪' },
-        { code: 'ar', label: 'العربية', native: 'Arabic', flag: '🇸🇦' },
-        { code: 'az', label: 'Azərbaycanca', native: 'Azerbaijani', flag: '🇦🇿' },
-        { code: 'nl', label: 'Nederlands', native: 'Dutch', flag: '🇳🇱' },
-        { code: 'fr', label: 'Français', native: 'French', flag: '🇫🇷' },
-        { code: 'es', label: 'Español', native: 'Spanish', flag: '🇪🇸' },
-        { code: 'ru', label: 'Русский', native: 'Russian', flag: '🇷🇺' },
-        { code: 'id', label: 'Bahasa Indonesia', native: 'Indonesian', flag: '🇮🇩' }
-    ];
-
-    const handleLangSelect = (lang) => {
-        selection();
-
-        if (lang.code === i18n.language) {
-            setShowLangModal(false);
-            return;
-        }
-
-        handleLanguageChange(lang.code);
-    };
 
     // Calculator State
     const [showCalculator, setShowCalculator] = useState(false);
@@ -496,7 +470,7 @@ export default function Profile() {
                     {/* Language Selector */}
                     <div
                         className="p-5 flex items-center justify-between hover:bg-stone-50 dark:hover:bg-white/5 transition-colors cursor-pointer group"
-                        onClick={() => setShowLangModal(true)}
+                        onClick={() => navigate('/settings/language')}
                     >
                         <div className="flex items-center gap-4">
                             <div className="p-3 bg-indigo-100/80 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-400 rounded-2xl group-hover:scale-110 transition-transform">
@@ -576,66 +550,6 @@ export default function Profile() {
                 </Button>
             </motion.div>
 
-            {/* Language Selection Modal */}
-            <AnimatePresence>
-                {showLangModal && (
-                    <motion.div
-                        initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm p-4"
-                        onClick={() => setShowLangModal(false)}
-                    >
-                        <motion.div
-                            initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }}
-                            onClick={(e) => e.stopPropagation()}
-                            className="bg-white dark:bg-[#021a0f] w-full max-w-sm rounded-[2.5rem] p-6 shadow-2xl border dark:border-white/10"
-                        >
-                            <div className="flex justify-between items-center mb-6">
-                                <h3 className="text-xl font-bold font-serif text-islamic-green dark:text-islamic-gold">{t('modal.select_lang')}</h3>
-                                <Button size="icon" variant="ghost" onClick={() => setShowLangModal(false)}><X className="w-5 h-5" /></Button>
-                            </div>
-
-                            <div className="space-y-3">
-                                {LANGUAGES.map((lang) => (
-                                    <button
-                                        key={lang.code}
-                                        onClick={() => handleLangSelect(lang)}
-                                        className={cn(
-                                            "w-full flex items-center justify-between p-4 rounded-2xl border-2 transition-all active:scale-[0.98]",
-                                            i18n.language === lang.code
-                                                ? "bg-islamic-gold/10 border-islamic-gold"
-                                                : "bg-gray-50 dark:bg-white/5 border-transparent hover:bg-gray-100 dark:hover:bg-white/10"
-                                        )}
-                                    >
-                                        <div className="flex items-center gap-4">
-                                            <span className="text-3xl">{lang.flag}</span>
-                                            <div className="text-left">
-                                                <div className="flex items-center gap-2">
-                                                    <span className={cn(
-                                                        "block font-bold text-lg",
-                                                        i18n.language === lang.code ? "text-islamic-gold" : "text-gray-900 dark:text-white"
-                                                    )}>
-                                                        {lang.label}
-                                                    </span>
-                                                </div>
-                                                <span className="text-xs text-gray-500 dark:text-gray-400">{lang.native}</span>
-                                            </div>
-                                        </div>
-                                        {i18n.language === lang.code && (
-                                            <div className="bg-islamic-gold text-[#021a0f] p-1 rounded-full">
-                                                <Check size={16} strokeWidth={3} />
-                                            </div>
-                                        )}
-                                    </button>
-                                ))}
-                            </div>
-
-                            <p className="text-center text-xs text-gray-400 mt-6 pt-4 border-t border-gray-100 dark:border-white/5">
-                                {t('modal.lang_note')}
-                            </p>
-                        </motion.div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
 
             {/* Privacy Modal */}
             <AnimatePresence>

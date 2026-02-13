@@ -102,6 +102,7 @@ export default function AppLayout() {
                 )}
 
                 <main
+                    id="main-scroll-container"
                     ref={mainContentRef}
                     className="flex-1 pb-40 pb-safe overflow-y-auto scroll-smooth scrollbar-hide overscroll-none"
                 >

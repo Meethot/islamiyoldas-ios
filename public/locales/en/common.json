@@ -73,5 +73,40 @@
         "locationUnavailable": "Location unavailable: ",
         "unknownError": "Unknown error",
         "permissionNotGranted": "Location permission not granted"
+    },
+    "error_boundary": {
+        "title": "Something went wrong",
+        "description": "The app encountered an unexpected error. Please try refreshing the page.",
+        "reload": "Restart",
+        "report": "Report Bug",
+        "reset": "Clear Cache & Reset",
+        "email_greeting": "Hello,\n\nI encountered an error in the app.",
+        "email_info_header": "--- ERROR DETAILS (please do not delete) ---",
+        "email_description_prompt": "Description (briefly describe what you were doing):"
+    },
+    "premium": {
+        "headline": "Unlock Your Full Spiritual Potential",
+        "subheadline": "Go Premium to unlock all features and elevate your worship experience.",
+        "testimonial_quote": "May Allah bless you, this app organized my prayers perfectly.",
+        "testimonial_author": "Ahmet",
+        "benefit_adfree": "100% Ad-Free Experience",
+        "benefit_quran": "Exclusive Quran Recitations",
+        "benefit_khatam": "Advanced Khatam Tracking",
+        "benefit_analytics": "Detailed Prayer Analytics",
+        "plan_monthly": "Monthly Plan",
+        "plan_monthly_desc": "Flexible payment option",
+        "plan_yearly": "Yearly Plan",
+        "plan_yearly_per_month": "Just 83.00 TL / Month",
+        "badge_best_value": "BEST VALUE - SAVE 60%",
+        "trial_included": "3-Day Free Trial Included",
+        "month": "month",
+        "year": "year",
+        "cta_trial": "START 3-DAY FREE TRIAL",
+        "cta_subscribe": "SUBSCRIBE NOW",
+        "disclaimer_yearly": "3 days free, then 999.99 TL/year. Cancel anytime.",
+        "disclaimer_monthly": "149.99 TL/month. Cancel anytime.",
+        "restore": "Restore Purchase",
+        "terms": "Terms of Service",
+        "privacy": "Privacy Policy"
     }
 }

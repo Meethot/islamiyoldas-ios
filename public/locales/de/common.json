@@ -73,5 +73,40 @@
         "locationUnavailable": "Standort nicht verfügbar: ",
         "unknownError": "Unbekannter Fehler",
         "permissionNotGranted": "Standortberechtigung nicht erteilt"
+    },
+    "error_boundary": {
+        "title": "Etwas ist schiefgelaufen",
+        "description": "Die App ist auf einen unerwarteten Fehler gestoßen. Bitte versuche die Seite neu zu laden.",
+        "reload": "Neu starten",
+        "report": "Fehler melden",
+        "reset": "Cache leeren & zurücksetzen",
+        "email_greeting": "Hallo,\n\nIch bin auf einen Fehler in der App gestoßen.",
+        "email_info_header": "--- FEHLERDETAILS (bitte nicht löschen) ---",
+        "email_description_prompt": "Beschreibung (beschreibe kurz, was du gemacht hast):"
+    },
+    "premium": {
+        "headline": "Entfalte Dein Spirituelles Potenzial",
+        "subheadline": "Werde Premium und schalte alle Funktionen frei, um dein Gebetserlebnis zu verbessern.",
+        "testimonial_quote": "Möge Allah euch segnen, diese App hat meine Gebete perfekt organisiert.",
+        "testimonial_author": "Ahmet",
+        "benefit_adfree": "100% Werbefreies Erlebnis",
+        "benefit_quran": "Exklusive Quran-Rezitationen",
+        "benefit_khatam": "Erweiterte Khatam-Verfolgung",
+        "benefit_analytics": "Detaillierte Gebetsanalysen",
+        "plan_monthly": "Monatsplan",
+        "plan_monthly_desc": "Flexible Zahlungsoption",
+        "plan_yearly": "Jahresplan",
+        "plan_yearly_per_month": "Nur 83,00 TL / Monat",
+        "badge_best_value": "BESTES ANGEBOT - 60% SPAREN",
+        "trial_included": "3 Tage kostenlose Testversion inklusive",
+        "month": "Monat",
+        "year": "Jahr",
+        "cta_trial": "3-TAGE-TESTVERSION STARTEN",
+        "cta_subscribe": "JETZT ABONNIEREN",
+        "disclaimer_yearly": "3 Tage kostenlos, dann 999,99 TL/Jahr. Jederzeit kündbar.",
+        "disclaimer_monthly": "149,99 TL/Monat. Jederzeit kündbar.",
+        "restore": "Kauf wiederherstellen",
+        "terms": "Nutzungsbedingungen",
+        "privacy": "Datenschutzrichtlinie"
     }
 }

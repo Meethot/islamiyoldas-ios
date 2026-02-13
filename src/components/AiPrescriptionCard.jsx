@@ -67,7 +67,7 @@ export default function AiPrescriptionCard({ data }) {
             return {
                 name: esmaMatch.name,
                 arabic: esmaMatch.calligraphy,
-                meaning: esmaMatch[`virtue_${lang}`] || esmaMatch.virtue_en || esmaMatch.virtue || recommendedZikr.meaning,
+                meaning: esmaMatch[`virtue_${lang}`] || esmaMatch.virtue || recommendedZikr.meaning,
                 count: esmaMatch.ebced,
                 ebced: esmaMatch.ebced,
                 isEsma: true

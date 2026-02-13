@@ -282,9 +282,14 @@ export default function Quran() {
                                 {selectedSurah ? selectedSurah.name : t('pageTitle')}
                             </h1>
                             {selectedSurah && (
-                                <p className="text-xs text-white/70 font-medium">
-                                    {selectedSurah.ayahCount} {t('ayahCount', { count: selectedSurah.ayahCount }).split(' ').slice(1).join(' ')} • {t(`revelation.${selectedSurah.revelationPlace}`)}
-                                </p>
+                                <>
+                                    <p className="text-xs text-white/70 font-medium">
+                                        {selectedSurah.ayahCount} {t('ayahCount', { count: selectedSurah.ayahCount }).split(' ').slice(1).join(' ')}
+                                    </p>
+                                    <p className="text-xs text-white/70 font-medium">
+                                        {t(`revelation.${selectedSurah.revelationPlace}`)}
+                                    </p>
+                                </>
                             )}
                         </div>
                     </div>

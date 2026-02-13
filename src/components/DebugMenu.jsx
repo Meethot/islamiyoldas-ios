@@ -10,21 +10,22 @@ import { advanceTestDay, resetTestDay, getTestDayOffset, getTodayString, getDail
 
 /**
  * DebugMenu - Hidden stress test dashboard for developers
- * 
- * Features:
- * - Time Travel: Simulate day changes
- * - Data Stress: Corrupt/fill/clear localStorage
- * - Notification Testing: Trigger sounds
- * 
- * Toggle: Set DEBUG_MODE = true to enable
  */
 
-// 🔧 TOGGLE THIS TO ENABLE/DISABLE DEBUG MENU
 const DEBUG_MODE = true;
+
+// Component that crashes on render to trigger ErrorBoundary
+function CrashTrigger({ shouldCrash }) {
+    if (shouldCrash) {
+        throw new Error('Debug crash test — bu bir test hatasıdır');
+    }
+    return null;
+}
 
 const DebugMenu = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [lastAction, setLastAction] = useState(null);
+    const [shouldCrash, setShouldCrash] = useState(false);
 
     if (!DEBUG_MODE) return null;
 
@@ -35,17 +36,11 @@ const DebugMenu = () => {
     };
 
     const triggerMidnight = () => {
-        // Dispatch custom event simulating midnight
         const newDateKey = getTodayString();
         window.dispatchEvent(new CustomEvent('midnightTrigger', { detail: { dateKey: newDateKey } }));
-
-        // Clear today's prayers to simulate fresh day
         const prayerKey = getDailyPrayersKey();
         localStorage.removeItem(prayerKey);
-
-        // Dispatch prayer status change
         window.dispatchEvent(new Event('prayerStatusChanged'));
-
         setLastAction('🌙 Midnight triggered, prayers reset');
     };
 
@@ -61,30 +56,22 @@ const DebugMenu = () => {
             { key: 'tubaAgaci_data', value: 'undefined' },
             { key: 'qadaCounts', value: '[null, null, "broken"' },
         ];
-
         corruptData.forEach(({ key, value }) => {
             localStorage.setItem(key, value);
         });
-
         setLastAction('💥 Storage corrupted (reload to test)');
     };
 
     const fillWeekData = () => {
-        // Mark last 7 days as complete for Tuba Tree
         const tubaData = {
             currentStreak: 7,
             totalWateredDays: 7,
             lastWateredDate: new Date().toISOString()
         };
         localStorage.setItem('tubaAgaci_data', JSON.stringify(tubaData));
-
-        // Mark all 5 prayers as complete
         const prayerKey = getDailyPrayersKey();
         localStorage.setItem(prayerKey, JSON.stringify(['Sabah', 'Öğle', 'İkindi', 'Akşam', 'Yatsı']));
-
-        // Dispatch update
         window.dispatchEvent(new Event('prayerStatusChanged'));
-
         setLastAction('📊 Week data filled (7-day streak + 5 prayers)');
     };
 
@@ -95,21 +82,12 @@ const DebugMenu = () => {
             totalWateredDays: 0,
             lastWateredDate: getTodayString()
         };
-
         if (stored) {
-            try {
-                tubaData = JSON.parse(stored);
-            } catch (e) {
-                console.error('Failed to parse tuba data', e);
-            }
+            try { tubaData = JSON.parse(stored); } catch (e) { console.error('Failed to parse tuba data', e); }
         }
-
         tubaData.totalWateredDays += 10;
         localStorage.setItem('tubaAgaci_data', JSON.stringify(tubaData));
-
-        // Dispatch update event for Home components to react
         window.dispatchEvent(new Event('prayerStatusChanged'));
-
         setLastAction(`🌳 Tuba growth increased by +10 (Total: ${tubaData.totalWateredDays})`);
     };
 
@@ -137,21 +115,15 @@ const DebugMenu = () => {
             if (permStatus.display !== 'granted') {
                 permStatus = await LocalNotifications.requestPermissions();
             }
-
             if (permStatus.display === 'granted') {
                 await LocalNotifications.schedule({
-                    notifications: [
-                        {
-                            title: "Test Başarılı",
-                            body: "Ekran kapalıyken bildirim geldi!",
-                            id: Math.floor(Math.random() * 100000),
-                            schedule: { at: new Date(Date.now() + 5000) },
-                            sound: null,
-                            attachments: null,
-                            actionTypeId: "",
-                            extra: null
-                        }
-                    ]
+                    notifications: [{
+                        title: "Test Başarılı",
+                        body: "Ekran kapalıyken bildirim geldi!",
+                        id: Math.floor(Math.random() * 100000),
+                        schedule: { at: new Date(Date.now() + 5000) },
+                        sound: null, attachments: null, actionTypeId: "", extra: null
+                    }]
                 });
                 setLastAction('⏰ Notification scheduled in 5s!');
                 alert("Bildirim kuruldu! Hemen ekranı kilitle.");
@@ -163,33 +135,25 @@ const DebugMenu = () => {
         }
     };
 
-    // 10 saniye sonra ezan bildirimi test
     const test10SecEzan = async () => {
         try {
             let permStatus = await LocalNotifications.checkPermissions();
             if (permStatus.display !== 'granted') {
                 permStatus = await LocalNotifications.requestPermissions();
             }
-
             if (permStatus.display === 'granted') {
                 const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-                const isAndroid = /Android/.test(navigator.userAgent);
-
                 await LocalNotifications.schedule({
-                    notifications: [
-                        {
-                            title: "🕌 Ezan Vakti",
-                            body: "Öğle Namazı Vakti Girdi - TEST",
-                            id: Math.floor(Math.random() * 100000),
-                            schedule: { at: new Date(Date.now() + 10000), allowWhileIdle: true },
-                            sound: isAndroid ? 'ezan' : 'ezan.caf',
-                            channelId: 'ezan_vakti',
-                            attachments: null,
-                            actionTypeId: "",
-                            extra: null,
-                            interruptionLevel: 'timeSensitive'
-                        }
-                    ]
+                    notifications: [{
+                        title: "🕌 Ezan Vakti",
+                        body: "Öğle Namazı Vakti Girdi - TEST",
+                        id: Math.floor(Math.random() * 100000),
+                        schedule: { at: new Date(Date.now() + 10000), allowWhileIdle: true },
+                        sound: isIOS ? 'ezan.caf' : 'ezan',
+                        channelId: 'ezan_vakti',
+                        attachments: null, actionTypeId: "", extra: null,
+                        interruptionLevel: 'timeSensitive'
+                    }]
                 });
                 setLastAction('🕌 Ezan bildirimi 10sn sonra gelecek!');
                 alert("Ezan bildirimi kuruldu! 10 saniye içinde gelecek. Ekranı kilitleyin.");
@@ -218,12 +182,10 @@ const DebugMenu = () => {
                 setLastAction('📋 No pending notifications');
                 return;
             }
-
             const list = pending.notifications.map(n => {
                 const date = n.schedule?.at ? new Date(n.schedule.at).toLocaleString('tr-TR') : 'Hemen';
                 return `ID: ${n.id}\nBaşlık: ${n.title}\nZaman: ${date}\nSes: ${n.sound || 'Sessiz'}`;
             }).join('\n\n---\n\n');
-
             console.log('Pending Notifications:', pending.notifications);
             alert(`Bekleyen Bildirimler (${pending.notifications.length}):\n\n${list}`);
             setLastAction(`📋 Listed ${pending.notifications.length} notifications`);
@@ -295,6 +257,17 @@ const DebugMenu = () => {
             ]
         },
         {
+            group: '💥 Error Testing',
+            items: [
+                {
+                    label: 'Crash App', icon: AlertTriangle, action: () => {
+                        setLastAction('💥 Crashing app...');
+                        setShouldCrash(true);
+                    }, color: 'bg-red-800'
+                },
+            ]
+        },
+        {
             group: '🌙 Sahur Alarm',
             items: [
                 {
@@ -344,6 +317,9 @@ const DebugMenu = () => {
 
     return (
         <>
+            {/* CrashTrigger — throws during render to trigger ErrorBoundary */}
+            <CrashTrigger shouldCrash={shouldCrash} />
+
             {/* Floating Trigger Button */}
             <motion.button
                 onClick={() => setIsOpen(!isOpen)}
@@ -424,3 +400,4 @@ const DebugMenu = () => {
 };
 
 export default DebugMenu;
+

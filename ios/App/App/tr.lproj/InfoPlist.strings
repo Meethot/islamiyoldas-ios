@@ -1,0 +1,8 @@
+/* Turkish */
+"CFBundleDisplayName" = "İslami Yoldaş";
+"CFBundleName" = "İslami Yoldaş";
+"NSLocationAlwaysAndWhenInUseUsageDescription" = "Namaz vakitlerini size bildirmek için konumunuza ihtiyacımız var.";
+"NSLocationWhenInUseUsageDescription" = "Namaz vakitlerini ve Kıble yönünü hesaplamak için konumunuza ihtiyacımız var.";
+"NSMotionUsageDescription" = "Kıble yönünü doğru hesaplamak için hareket sensörlerine erişmemiz gerekiyor.";
+"NSPhotoLibraryAddUsageDescription" = "Paylaştığınız içerikleri galerinize kaydedebilmek için izninize ihtiyacımız var.";
+"NSPrivacyTrackingUsageDescription" = "Size daha uygun hizmet ve uygulama deneyiminizi iyileştirmek için izin istiyoruz.";

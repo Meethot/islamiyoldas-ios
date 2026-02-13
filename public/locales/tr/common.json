@@ -73,5 +73,40 @@
         "locationUnavailable": "Konum alınamadı: ",
         "unknownError": "Bilinmeyen hata",
         "permissionNotGranted": "Konum izni verilmedi"
+    },
+    "error_boundary": {
+        "title": "Bir şeyler ters gitti",
+        "description": "Uygulama beklenmedik bir hatayla karşılaştı. Lütfen sayfayı yenilemeyi deneyin.",
+        "reload": "Yeniden Başlat",
+        "report": "Hatayı Bildir",
+        "reset": "Önbelleği Temizle ve Sıfırla",
+        "email_greeting": "Merhaba,\n\nUygulamada bir hata ile karşılaştım.",
+        "email_info_header": "--- HATA BİLGİLERİ (lütfen silmeyin) ---",
+        "email_description_prompt": "Açıklama (ne yaptığınızı kısaca yazın):"
+    },
+    "premium": {
+        "headline": "Manevi Potansiyelinizi Açığa Çıkarın",
+        "subheadline": "Premium ile tüm özelliklerin kilidini açın ve ibadet deneyiminizi zirveye taşıyın.",
+        "testimonial_quote": "Allah razı olsun, namazlarımı harika düzene soktu.",
+        "testimonial_author": "Ahmet",
+        "benefit_adfree": "%100 Reklamsız Deneyim",
+        "benefit_quran": "Özel Kur'an Tilavetleri",
+        "benefit_khatam": "Gelişmiş Hatim Takibi",
+        "benefit_analytics": "Detaylı İbadet Analizi",
+        "plan_monthly": "Aylık Plan",
+        "plan_monthly_desc": "Esnek ödeme seçeneği",
+        "plan_yearly": "Yıllık Plan",
+        "plan_yearly_per_month": "Aylık sadece 83,00 ₺",
+        "badge_best_value": "EN AVANTAJLI - %60 TASARRUF",
+        "trial_included": "3 Günlük Ücretsiz Deneme Dahil",
+        "month": "ay",
+        "year": "yıl",
+        "cta_trial": "3 GÜNLÜK ÜCRETSİZ DENEMEYİ BAŞLAT",
+        "cta_subscribe": "HEMEN ABONE OL",
+        "disclaimer_yearly": "3 gün ücretsiz, sonra 999,99 ₺/yıl. İstediğiniz zaman iptal edin.",
+        "disclaimer_monthly": "149,99 ₺/ay. İstediğiniz zaman iptal edin.",
+        "restore": "Satın Almayı Geri Yükle",
+        "terms": "Kullanım Koşulları",
+        "privacy": "Gizlilik Politikası"
     }
 }

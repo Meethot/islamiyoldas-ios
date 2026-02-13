@@ -1,6 +1,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { RefreshCcw, AlertTriangle } from 'lucide-react';
+import { RefreshCcw, AlertTriangle, Mail } from 'lucide-react';
+import i18n from '@/i18n';
 
 class ErrorBoundary extends React.Component {
     constructor(props) {
@@ -26,7 +27,41 @@ class ErrorBoundary extends React.Component {
         window.location.href = '/';
     }
 
+    handleReport = () => {
+        const t = (key) => i18n.t(`error_boundary.${key}`, { ns: 'common' });
+        const errorMsg = this.state.error?.toString() || 'Unknown error';
+        const stack = this.state.errorInfo?.componentStack || '';
+        const url = window.location.href;
+        const ua = navigator.userAgent;
+        const timestamp = new Date().toISOString();
+        const lang = i18n.language || 'tr';
+        const appVersion = localStorage.getItem('appVersion') || '-';
+
+        const subject = encodeURIComponent(`[Bug Report] ${errorMsg.substring(0, 80)}`);
+        const body = encodeURIComponent(
+            `${t('email_greeting')}
+
+${t('email_info_header')}
+Error: ${errorMsg}
+Page: ${url}
+Date: ${timestamp}
+Device: ${ua}
+Language: ${lang}
+Version: ${appVersion}
+Stack: ${stack.substring(0, 500)}
+--- ---
+
+${t('email_description_prompt')}
+
+`
+        );
+
+        window.location.href = `mailto:support@islamiyoldas.com?subject=${subject}&body=${body}`;
+    };
+
     render() {
+        const t = (key) => i18n.t(`error_boundary.${key}`, { ns: 'common' });
+
         if (this.state.hasError) {
             return (
                 <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-red-50 text-center dark:bg-[#032e18]">
@@ -36,11 +71,11 @@ class ErrorBoundary extends React.Component {
                         </div>
 
                         <h1 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
-                            Bir şeyler ters gitti
+                            {t('title')}
                         </h1>
 
                         <p className="text-sm text-gray-500 dark:text-gray-400 mb-6 leading-relaxed">
-                            Uygulama beklenmedik bir hatayla karşılaştı. Lütfen sayfayı yenilemeyi deneyin.
+                            {t('description')}
                         </p>
 
                         <div className="space-y-3 max-w-sm mx-auto">
@@ -49,14 +84,23 @@ class ErrorBoundary extends React.Component {
                                 className="w-full bg-red-600 hover:bg-red-700 text-white rounded-xl h-12"
                             >
                                 <RefreshCcw className="w-4 h-4 mr-2" />
-                                Yeniden Başlat
+                                {t('reload')}
+                            </Button>
+
+                            <Button
+                                onClick={this.handleReport}
+                                variant="outline"
+                                className="w-full rounded-xl h-12 border-amber-300 dark:border-amber-600/40 text-amber-700 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/20"
+                            >
+                                <Mail className="w-4 h-4 mr-2" />
+                                {t('report')}
                             </Button>
 
                             <button
                                 onClick={this.handleReset}
                                 className="text-xs text-gray-400 hover:text-red-500 underline"
                             >
-                                Önbelleği Temizle ve Sıfırla
+                                {t('reset')}
                             </button>
                         </div>
 

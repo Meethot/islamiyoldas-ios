@@ -4,7 +4,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import {
     BookOpen, ArrowLeft, Bookmark, BookmarkCheck, Share2, RefreshCw, WifiOff,
-    Loader2, ChevronDown, ChevronRight, X, Play, Pause, Volume2, VolumeX
+    Loader2, ChevronDown, ChevronRight, CornerDownLeft, X, Play, Pause, Volume2, VolumeX
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -553,7 +553,10 @@ export default function SurahDetail() {
                             {surahInfo?.name}
                         </h1>
                         <p className="text-[11px] text-white/60 font-medium">
-                            {surahInfo?.ayahCount} {t('quran:ayahCount', { count: surahInfo?.ayahCount || 0 }).split(' ').slice(1).join(' ')} • {t(`quran:revelation.${surahInfo?.revelationPlace}`)}
+                            {surahInfo?.ayahCount} {t('quran:ayahCount', { count: surahInfo?.ayahCount || 0 }).split(' ').slice(1).join(' ')}
+                        </p>
+                        <p className="text-[11px] text-white/60 font-medium">
+                            {t(`quran:revelation.${surahInfo?.revelationPlace}`)}
                         </p>
                     </div>
                     <p className="text-xl font-arabic text-islamic-gold shrink-0">
@@ -594,7 +597,7 @@ export default function SurahDetail() {
                         disabled={!jumpTarget}
                         className="bg-islamic-gold text-[#032e18] hover:bg-islamic-gold/90 border-none rounded-xl w-10 h-10 flex items-center justify-center shadow-lg shadow-islamic-gold/10 active:scale-95 transition-all"
                     >
-                        <ChevronRight className="w-5 h-5" />
+                        <CornerDownLeft className="w-6 h-6" />
                     </Button>
                 </form>
             </div>

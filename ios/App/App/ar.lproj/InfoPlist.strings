@@ -1,0 +1,8 @@
+/* Arabic */
+"CFBundleDisplayName" = "الرفيق الإسلامي";
+"CFBundleName" = "الرفيق الإسلامي";
+"NSLocationAlwaysAndWhenInUseUsageDescription" = "نحتاج إلى موقعك لإعلامك بأوقات الصلاة.";
+"NSLocationWhenInUseUsageDescription" = "نحتاج إلى موقعك لحساب أوقات الصلاة واتجاه القبلة.";
+"NSMotionUsageDescription" = "نحتاج إلى الوصول إلى مستشعرات الحركة لحساب اتجاه القبلة بدقة.";
+"NSPhotoLibraryAddUsageDescription" = "نحتاج إلى إذنك لحفظ المحتوى المشترك في مكتبة الصور الخاصة بك.";
+"NSPrivacyTrackingUsageDescription" = "نطلب الإذن لتقديم خدمة أفضل وتحسين تجربتك في التطبيق.";

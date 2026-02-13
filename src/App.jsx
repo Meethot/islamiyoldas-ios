@@ -32,8 +32,10 @@ const SurahDetail = React.lazy(() => import('./pages/SurahDetail'));
 const NotificationSettings = React.lazy(() => import('./pages/settings/NotificationSettings'));
 const LocationSettings = React.lazy(() => import('./pages/settings/LocationSettings'));
 const LegalSettings = React.lazy(() => import('./pages/settings/LegalSettings'));
+const LanguageSettings = React.lazy(() => import('./pages/settings/LanguageSettings'));
 const AiMentor = React.lazy(() => import('./pages/AiMentor'));
 const FastingTracker = React.lazy(() => import('./pages/FastingTracker'));
+const PremiumPaywall = React.lazy(() => import('./pages/PremiumPaywall'));
 
 function App() {
   return (
@@ -88,6 +90,7 @@ function AppContent() {
             <Suspense fallback={<div className="min-h-screen bg-background" />}>
               <Routes>
                 <Route path="/onboarding" element={<Onboarding />} />
+                <Route path="/premium" element={<PremiumPaywall />} />
 
                 <Route element={<AppLayout />}>
                   <Route path="/" element={onboardingComplete ? <Home /> : <Navigate to="/onboarding" replace />} />
@@ -106,6 +109,7 @@ function AppContent() {
                   <Route path="/oruc-takibi" element={<FastingTracker />} />
                   <Route path="/settings/notifications" element={<NotificationSettings />} />
                   <Route path="/settings/location" element={<LocationSettings />} />
+                  <Route path="/settings/language" element={<LanguageSettings />} />
                   <Route path="/settings/legal" element={<LegalSettings />} />
                   <Route path="/legal/:type" element={<Legal />} />
                 </Route>
