@@ -5,7 +5,13 @@
         "welcomeMessage": "Peace be upon you, dear friend. I am your Spiritual Mentor. What's in your heart, what troubles you or what are you grateful for? Tell me, and I'll prepare a prescription for you based on the Quran and Sunnah.",
         "thinking": "Contemplating...",
         "placeholder": "I need help, my heart is heavy...",
-        "errorPrefix": "Error occurred:"
+        "errorPrefix": "Error occurred:",
+        "freeQuota": "{{count}} question left today",
+        "unlockMore": "Unlock more",
+        "limitReachedBanner": "Daily limit reached",
+        "limitReachedPlaceholder": "Get Premium for 30 questions daily...",
+        "dailyLimitReached": "You've reached your daily limit. Come back tomorrow or get Premium for 30 questions per day.",
+        "premiumQuota": "{{count}} questions left"
     },
     "prescription": {
         "title": "Spiritual Prescription",

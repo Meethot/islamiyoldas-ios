@@ -1,23 +1,29 @@
 {
     "aiMentor": {
-        "title": "Spiritual Mentor",
-        "subtitle": "AI-Powered Assistant",
-        "welcomeMessage": "Peace be upon you, dear friend. I am your Spiritual Mentor. What's in your heart, what troubles you or what are you grateful for? Tell me, and I'll prepare a prescription for you based on the Quran and Sunnah.",
-        "thinking": "Contemplating...",
-        "placeholder": "I need help, my heart is heavy...",
-        "errorPrefix": "Error occurred:"
+        "title": "Mentor Spiritual",
+        "subtitle": "Asisten Berbasis AI",
+        "welcomeMessage": "Assalamu'alaikum, sahabat tercinta. Saya Mentor Spiritual Anda. Apa yang ada di hati Anda, apa yang mengganggu Anda atau apa yang Anda syukuri? Ceritakan, dan saya akan menyiapkan resep untuk Anda berdasarkan Al-Qur'an dan Sunnah.",
+        "thinking": "Merenungkan...",
+        "placeholder": "Saya butuh bantuan, hati saya berat...",
+        "errorPrefix": "Terjadi kesalahan:",
+        "freeQuota": "Sisa {{count}} pertanyaan hari ini",
+        "unlockMore": "Buka lebih banyak",
+        "limitReachedBanner": "Batas harian tercapai",
+        "limitReachedPlaceholder": "Dengan Premium 30 pertanyaan per hari...",
+        "dailyLimitReached": "Batas harian Anda telah tercapai. Kembali besok atau dapatkan Premium untuk 30 pertanyaan per hari.",
+        "premiumQuota": "{{count}} pertanyaan tersisa"
     },
     "prescription": {
-        "title": "Spiritual Prescription",
-        "adviceLabel": "Mentor's Advice",
-        "dhikrLabel": "Dhikr Prescription",
-        "startDhikr": "Start Dhikr",
-        "verseLabel": "Healing Verse",
-        "listen": "Listen",
-        "pause": "Pause",
+        "title": "Resep Spiritual",
+        "adviceLabel": "Nasihat Mentor",
+        "dhikrLabel": "Resep Dzikir",
+        "startDhikr": "Mulai Dzikir",
+        "verseLabel": "Ayat Penyembuh",
+        "listen": "Dengarkan",
+        "pause": "Jeda",
         "ebced": "Abjad",
-        "count": "Count"
+        "count": "Jumlah"
     },
-    "comingSoon": "Coming Soon! This language is being prepared. 🌍",
-    "connectionError": "Connection error."
+    "comingSoon": "Segera Hadir! Bahasa ini sedang disiapkan. 🌍",
+    "connectionError": "Kesalahan koneksi."
 }

@@ -1,23 +1,29 @@
 {
     "aiMentor": {
-        "title": "Spiritual Mentor",
-        "subtitle": "AI-Powered Assistant",
-        "welcomeMessage": "Peace be upon you, dear friend. I am your Spiritual Mentor. What's in your heart, what troubles you or what are you grateful for? Tell me, and I'll prepare a prescription for you based on the Quran and Sunnah.",
-        "thinking": "Contemplating...",
-        "placeholder": "I need help, my heart is heavy...",
-        "errorPrefix": "Error occurred:"
+        "title": "Mentor Spirituel",
+        "subtitle": "Assistant propulsé par l'IA",
+        "welcomeMessage": "Paix sur toi, cher ami. Je suis ton Mentor Spirituel. Qu'as-tu sur le cœur, qu'est-ce qui te préoccupe ou pour quoi es-tu reconnaissant ? Dis-le-moi, et je préparerai une ordonnance pour toi basée sur le Coran et la Sounna.",
+        "thinking": "En réflexion...",
+        "placeholder": "J'ai besoin d'aide, mon cœur est lourd...",
+        "errorPrefix": "Erreur survenue :",
+        "freeQuota": "{{count}} question restante aujourd'hui",
+        "unlockMore": "Débloquer plus",
+        "limitReachedBanner": "Limite quotidienne atteinte",
+        "limitReachedPlaceholder": "Avec Premium, 30 questions par jour...",
+        "dailyLimitReached": "Votre limite quotidienne est atteinte. Revenez demain ou obtenez Premium pour 30 questions par jour.",
+        "premiumQuota": "{{count}} questions restantes"
     },
     "prescription": {
-        "title": "Spiritual Prescription",
-        "adviceLabel": "Mentor's Advice",
-        "dhikrLabel": "Dhikr Prescription",
-        "startDhikr": "Start Dhikr",
-        "verseLabel": "Healing Verse",
-        "listen": "Listen",
+        "title": "Ordonnance Spirituelle",
+        "adviceLabel": "Conseil du Mentor",
+        "dhikrLabel": "Ordonnance de Dhikr",
+        "startDhikr": "Commencer le Dhikr",
+        "verseLabel": "Verset de Guérison",
+        "listen": "Écouter",
         "pause": "Pause",
         "ebced": "Abjad",
-        "count": "Count"
+        "count": "Nombre"
     },
-    "comingSoon": "Coming Soon! This language is being prepared. 🌍",
-    "connectionError": "Connection error."
+    "comingSoon": "Bientôt disponible ! Cette langue est en préparation. 🌍",
+    "connectionError": "Erreur de connexion."
 }

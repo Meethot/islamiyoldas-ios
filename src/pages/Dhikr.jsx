@@ -1,10 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { RotateCcw, Volume2, VolumeX, Smartphone, Settings, Heart, Star, Sparkles, Edit3, X, Check, Trash2, ChevronLeft } from 'lucide-react';
+import { RotateCcw, Volume2, VolumeX, Smartphone, Settings, Heart, Star, Sparkles, Edit3, X, Check, Trash2, ChevronLeft, Crown } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useHaptics } from '../hooks/useMobile';
 import { triggerReviewPrompt } from '@/components/ReviewPrompt';
 import { useTranslation } from 'react-i18next';
+import { isPremium } from '@/services/creditService';
+import { getAppDate } from '@/lib/testDate';
+import { AnimatePresence, motion } from 'framer-motion';
 
 const DHIKR_PRESETS = [
     { id: 'subhanallah', name: 'Sübhanallah', arabic: 'سُبْحَانَ اللَّهِ', meaning: 'Allah noksan sıfatlardan uzaktır', defaultTarget: 33 },
@@ -31,7 +34,8 @@ export default function Dhikr() {
     const [count, setCount] = useState(isCountdownMode ? countdownTarget : 0);
     const [totalCount, setTotalCount] = useState(() => parseInt(localStorage.getItem('totalDhikrOverall') || '0', 10));
     const [activePreset, setActivePreset] = useState(DHIKR_PRESETS[2]);
-    const [target, setTarget] = useState(isCountdownMode ? countdownTarget : 33);
+    const [target, setTarget] = useState(isCountdownMode ? countdownTarget : (isPremium() ? 33 : 33));
+    const [showDhikrLimit, setShowDhikrLimit] = useState(false);
     const [hapticsMode, setHapticsMode] = useState('all');
     const [soundEnabled, setSoundEnabled] = useState(true);
     const [isRipple, setIsRipple] = useState(false);
@@ -103,7 +107,9 @@ export default function Dhikr() {
     useEffect(() => {
         if (isCountdownMode) return; // Skip localStorage restore in countdown mode
         const savedCount = localStorage.getItem(`dhikr_count_${activePreset.id}`) || '0';
-        const savedTarget = localStorage.getItem(`dhikr_target_${activePreset.id}`) || activePreset.defaultTarget.toString();
+        const savedTarget = isPremium()
+            ? (localStorage.getItem(`dhikr_target_${activePreset.id}`) || activePreset.defaultTarget.toString())
+            : '33';
 
         setCount(parseInt(savedCount, 10));
         setTarget(parseInt(savedTarget, 10));
@@ -113,6 +119,21 @@ export default function Dhikr() {
     const increment = () => {
         if (isCountdownMode) {
             // COUNTDOWN MODE: Decrement (resets at 0 for next round)
+            // Daily dhikr limit for non-premium users (33 free per day)
+            if (!isPremium()) {
+                const stored = JSON.parse(localStorage.getItem('zikirmatik_daily_limit') || '{}');
+                const today = getAppDate().toISOString().slice(0, 10);
+                const dailyCount = stored.date === today ? (stored.count || 0) : 0;
+                if (dailyCount >= 33) {
+                    setShowDhikrLimit(true);
+                    return;
+                }
+                localStorage.setItem('zikirmatik_daily_limit', JSON.stringify({
+                    count: dailyCount + 1,
+                    date: today
+                }));
+            }
+
             const newCount = count - 1;
             const newTotal = totalCount + 1;
 
@@ -145,6 +166,21 @@ export default function Dhikr() {
             }
         } else {
             // STANDARD MODE: Increment
+            // Daily dhikr limit for non-premium users (33 free per day)
+            if (!isPremium()) {
+                const stored = JSON.parse(localStorage.getItem('zikirmatik_daily_limit') || '{}');
+                const today = getAppDate().toISOString().slice(0, 10);
+                const dailyCount = stored.date === today ? (stored.count || 0) : 0;
+                if (dailyCount >= 33) {
+                    setShowDhikrLimit(true);
+                    return;
+                }
+                localStorage.setItem('zikirmatik_daily_limit', JSON.stringify({
+                    count: dailyCount + 1,
+                    date: today
+                }));
+            }
+
             const newCount = count + 1;
             const newTotal = totalCount + 1;
             const isTargetReached = newCount > 0 && newCount % target === 0;
@@ -450,6 +486,82 @@ export default function Dhikr() {
                 </div>
             </footer>
 
+            {/* Daily Dhikr Limit Overlay */}
+            <AnimatePresence>
+                {showDhikrLimit && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 bg-black/30 backdrop-blur-md flex items-center justify-center z-[9999]"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <motion.div
+                            initial={{ scale: 0.85, y: 30 }}
+                            animate={{ scale: 1, y: 0 }}
+                            exit={{ scale: 0.85, y: 30 }}
+                            transition={{ type: 'spring', damping: 20, stiffness: 300 }}
+                            className="px-8 text-center"
+                        >
+                            <div className="flex justify-center mb-6">
+                                <div className="relative">
+                                    <svg width="96" height="96" viewBox="0 0 96 96" className="transform -rotate-90">
+                                        <circle cx="48" cy="48" r="42" fill="none" stroke="rgba(212,175,55,0.1)" strokeWidth="4" />
+                                        <motion.circle
+                                            cx="48" cy="48" r="42"
+                                            fill="none"
+                                            stroke="url(#goldGradZ)"
+                                            strokeWidth="4"
+                                            strokeLinecap="round"
+                                            strokeDasharray={2 * Math.PI * 42}
+                                            initial={{ strokeDashoffset: 2 * Math.PI * 42 }}
+                                            animate={{ strokeDashoffset: 0 }}
+                                            transition={{ duration: 1.2, ease: 'easeOut' }}
+                                        />
+                                        <defs>
+                                            <linearGradient id="goldGradZ" x1="0%" y1="0%" x2="100%" y2="100%">
+                                                <stop offset="0%" stopColor="#D4AF37" />
+                                                <stop offset="100%" stopColor="#F5D68A" />
+                                            </linearGradient>
+                                        </defs>
+                                    </svg>
+                                    <div className="absolute inset-0 flex flex-col items-center justify-center">
+                                        <span className="text-2xl font-black text-islamic-gold">33</span>
+                                        <span className="text-[9px] text-islamic-gold/50 font-bold uppercase tracking-widest">/ 33</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <h3 className="text-xl font-serif font-bold text-white mb-2 leading-tight">
+                                {t('dhikrLimit.title', { defaultValue: 'Günlük Zikir Hakkınız' })}<br />
+                                <span className="text-islamic-gold">{t('dhikrLimit.completed', { defaultValue: 'Tamamlandı' })}</span>
+                            </h3>
+
+                            <p className="text-[13px] text-white/45 leading-relaxed mb-8">
+                                {t('dhikrLimit.desc1', { defaultValue: 'Ücretsiz olarak günde' })} <span className="text-islamic-gold/80 font-semibold">{t('dhikrLimit.count', { count: 33, defaultValue: '33 zikir' })}</span> {t('dhikrLimit.desc2', { defaultValue: 'çekebilirsiniz.' })}<br />
+                                {t('dhikrLimit.desc3', { defaultValue: 'Sınırsız zikir için Premium\'a yükseltin.' })}
+                            </p>
+
+                            <motion.button
+                                whileTap={{ scale: 0.97 }}
+                                onClick={() => { setShowDhikrLimit(false); navigate('/premium'); }}
+                                className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-islamic-gold via-amber-400 to-islamic-gold text-[#0a2e1f] font-bold text-sm tracking-wide shadow-lg shadow-islamic-gold/20 flex items-center justify-center gap-2"
+                            >
+                                <Sparkles size={16} />
+                                {t('dhikrLimit.cta', { defaultValue: 'Sınırsız Zikir — Premium' })}
+                            </motion.button>
+
+                            <button
+                                onClick={() => setShowDhikrLimit(false)}
+                                className="w-full mt-4 py-2 text-white/25 text-xs font-medium hover:text-white/40 transition-colors"
+                            >
+                                {t('dhikrLimit.dismiss', { defaultValue: 'Yarın tekrar gel' })}
+                            </button>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
             {/* Countdown Completed Overlay */}
 
 
@@ -485,17 +597,26 @@ export default function Dhikr() {
                             <input
                                 type="number"
                                 value={tempTarget}
-                                onChange={(e) => setTempTarget(e.target.value)}
-                                className="w-full bg-black/30 border border-white/10 rounded-2xl py-5 px-6 text-4xl font-mono font-bold text-center text-islamic-gold focus:outline-none focus:border-islamic-gold/50 transition-all placeholder:opacity-20"
+                                onChange={(e) => isPremium() ? setTempTarget(e.target.value) : null}
+                                readOnly={!isPremium()}
+                                className={cn(
+                                    "w-full bg-black/30 border border-white/10 rounded-2xl py-5 px-6 text-4xl font-mono font-bold text-center text-islamic-gold focus:outline-none focus:border-islamic-gold/50 transition-all placeholder:opacity-20",
+                                    !isPremium() && "opacity-50 cursor-not-allowed"
+                                )}
                                 placeholder="33"
-                                autoFocus
+                                autoFocus={isPremium()}
                             />
                             <div className="mt-3 flex gap-2 justify-center">
                                 {[33, 99, 100, 313, 1000].map(v => (
                                     <button
                                         key={v}
-                                        onClick={() => setTempTarget(v.toString())}
-                                        className="text-[12px] font-bold bg-white/5 hover:bg-islamic-gold/20 hover:text-islamic-gold px-3 py-1 rounded-lg border border-white/5 transition-all"
+                                        onClick={() => isPremium() ? setTempTarget(v.toString()) : navigate('/premium')}
+                                        className={cn(
+                                            "text-[12px] font-bold px-3 py-1 rounded-lg border border-white/5 transition-all",
+                                            isPremium()
+                                                ? "bg-white/5 hover:bg-islamic-gold/20 hover:text-islamic-gold"
+                                                : "bg-white/5 opacity-50"
+                                        )}
                                     >
                                         {v}
                                     </button>
@@ -504,11 +625,14 @@ export default function Dhikr() {
                         </div>
 
                         <button
-                            onClick={handleSaveTarget}
+                            onClick={() => isPremium() ? handleSaveTarget() : navigate('/premium')}
                             className="w-full h-16 rounded-2xl bg-islamic-gold hover:bg-amber-600 text-[#021a0f] text-lg font-bold shadow-lg shadow-islamic-gold/20 flex items-center justify-center gap-3"
                         >
-                            <Check size={20} strokeWidth={3} />
-                            {t('saveTarget')}
+                            {isPremium() ? (
+                                <><Check size={20} strokeWidth={3} /> {t('saveTarget')}</>
+                            ) : (
+                                <><Crown size={20} fill="currentColor" /> Premium</>
+                            )}
                         </button>
                     </div>
                 </div>

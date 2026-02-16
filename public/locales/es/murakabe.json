@@ -1,9 +1,18 @@
 {
-    "title": "Daily Self-Reflection",
+    "title": "Autorreflexión Diaria",
     "no": "No",
-    "yes": "Yes",
+    "yes": "Sí",
     "elhamdulillah": "Alhamdulillah",
-    "completionMsg": "You reflected on your heart today, may your soul find peace.",
-    "yourShare": "Today's Gift...",
-    "goHome": "Go to Home"
+    "completionMsg": "Hoy reflexionaste sobre tu corazón, que tu alma encuentre paz.",
+    "yourShare": "El Regalo de Hoy...",
+    "goHome": "Ir al Inicio",
+    "premiumNotice": "Se requiere Premium para continuar",
+    "streakDays": "Días Seguidos",
+    "bestStreak": "Mejor",
+    "streakMsg0": "¡Vuelve mañana y comienza una racha! 🌱",
+    "streakMsg1": "¡Primer paso dado! ¡Sigue así! 🌿",
+    "streakMsg2": "¡Lo estás haciendo genial! ¡No pares! 🔥",
+    "streakMsg5": "¡Increíble! ¡Se está formando un hábito! ⭐",
+    "streakMsg10": "¡Disciplina perfecta! ¡Eres inspiración! 💎",
+    "streakMsg30": "¡Racha legendaria! ¡Felicidades! 🏆"
 }

@@ -722,32 +722,51 @@ export default function Profile() {
 
                             {/* Theme Grid */}
                             <div className="grid grid-cols-5 gap-3 mb-6">
-                                {Object.values(SHARE_THEMES).map((theme) => (
-                                    <button
-                                        key={theme.id}
-                                        onClick={() => {
-                                            selection();
-                                            setShareTheme(theme.id);
-                                        }}
-                                        className={cn(
-                                            "flex flex-col items-center gap-2 p-3 rounded-2xl border-2 transition-all",
-                                            shareTheme === theme.id
-                                                ? "border-islamic-green dark:border-islamic-gold scale-105"
-                                                : "border-transparent"
-                                        )}
-                                    >
-                                        <div className={cn(
-                                            "w-12 h-12 rounded-xl shadow-lg",
-                                            theme.preview
-                                        )} />
-                                        <span className="text-[10px] font-medium text-gray-600 dark:text-gray-400">
-                                            {theme.name}
-                                        </span>
-                                        {shareTheme === theme.id && (
-                                            <Check size={14} className="text-islamic-green dark:text-islamic-gold" />
-                                        )}
-                                    </button>
-                                ))}
+                                {Object.values(SHARE_THEMES).map((theme, index) => {
+                                    const isFree = index === 0;
+                                    const isLocked = !isFree && !isPremium;
+                                    return (
+                                        <button
+                                            key={theme.id}
+                                            onClick={() => {
+                                                selection();
+                                                if (isLocked) {
+                                                    navigate('/premium');
+                                                    return;
+                                                }
+                                                setShareTheme(theme.id);
+                                            }}
+                                            className={cn(
+                                                "flex flex-col items-center gap-2 p-3 rounded-2xl border-2 transition-all relative",
+                                                shareTheme === theme.id
+                                                    ? "border-islamic-green dark:border-islamic-gold scale-105"
+                                                    : "border-transparent"
+                                            )}
+                                        >
+                                            <div className="relative">
+                                                <div className={cn(
+                                                    "w-12 h-12 rounded-xl shadow-lg transition-opacity",
+                                                    theme.preview,
+                                                    isLocked && "opacity-50"
+                                                )} />
+                                                {isLocked && (
+                                                    <div className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-gradient-to-br from-islamic-gold to-amber-600 flex items-center justify-center shadow-md shadow-islamic-gold/30">
+                                                        <Crown size={10} className="text-white" fill="white" />
+                                                    </div>
+                                                )}
+                                            </div>
+                                            <span className={cn(
+                                                "text-[10px] font-medium",
+                                                isLocked ? "text-gray-400 dark:text-gray-500" : "text-gray-600 dark:text-gray-400"
+                                            )}>
+                                                {theme.name}
+                                            </span>
+                                            {shareTheme === theme.id && (
+                                                <Check size={14} className="text-islamic-green dark:text-islamic-gold" />
+                                            )}
+                                        </button>
+                                    );
+                                })}
                             </div>
 
                             {/* Share Button */}

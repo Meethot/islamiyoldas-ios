@@ -253,5 +253,15 @@
         "motivational": "\"Möchtest du dein Gebet verrichten?\"",
         "praying": "Ich bete ✅",
         "remindLater": "In 10 Min erinnern ⏰"
+    },
+    "dhikrLimit": {
+        "title": "Tägliches Dhikr-Limit",
+        "completed": "Erreicht",
+        "desc1": "Sie können täglich",
+        "count": "{{count}} Dhikr",
+        "desc2": "kostenlos ausführen.",
+        "desc3": "Wechseln Sie zu Premium für unbegrenztes Dhikr.",
+        "cta": "Unbegrenztes Dhikr — Premium",
+        "dismiss": "Komm morgen wieder"
     }
 }

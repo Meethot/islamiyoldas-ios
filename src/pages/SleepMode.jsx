@@ -1,11 +1,13 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
-import { Moon, Play, Pause, Heart, ChevronLeft, CloudRain, Repeat, BookOpen } from 'lucide-react';
+import { Moon, Play, Pause, Heart, ChevronLeft, CloudRain, Repeat, BookOpen, Sparkles } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { getAppDate } from '@/lib/testDate';
 import { triggerReviewPrompt } from '@/components/ReviewPrompt';
 import { useTranslation } from 'react-i18next';
+import { isPremium } from '@/services/creditService';
+import { AnimatePresence, motion } from 'framer-motion';
 
 // Background Mode Helper (Cordova Plugin)
 const BackgroundMode = {
@@ -40,6 +42,10 @@ export default function SleepMode() {
     const [isAmbientLoading, setIsAmbientLoading] = useState(false);
     const [ambientError, setAmbientError] = useState(null);
     const [isMulkLooping, setIsMulkLooping] = useState(false);
+    const [showPremiumGate, setShowPremiumGate] = useState(false);
+
+    // One-time free use tracking
+    const [sleepUsed, setSleepUsed] = useState(() => localStorage.getItem('sleep_mode_used') === 'true');
 
     // Audio State
     const [currentTime, setCurrentTime] = useState(0);
@@ -149,16 +155,34 @@ export default function SleepMode() {
         }
     }, []);
 
+    const checkPremiumGate = () => {
+        if (sleepUsed && !isPremium()) {
+            setShowPremiumGate(true);
+            return true;
+        }
+        return false;
+    };
+
+    const markSleepUsed = () => {
+        if (!isPremium()) {
+            setSleepUsed(true);
+            localStorage.setItem('sleep_mode_used', 'true');
+        }
+    };
+
     const toggleRain = () => {
         if (ambientOn) {
+            // Always allow pause
             rainAudio.pause();
             setAmbientOn(false);
             updateBackgroundMode(isPlaying, false);
         } else {
+            // Gate only play
+            if (checkPremiumGate()) return;
+
             setIsAmbientLoading(true);
             setAmbientError(null);
 
-            // Ensure source is set to RainyMood (stable, high quality, long)
             if (!rainAudio.src || !rainAudio.src.includes('rainymood')) {
                 rainAudio.src = 'https://media.rainymood.com/0.mp3';
             }
@@ -168,6 +192,7 @@ export default function SleepMode() {
                     setIsAmbientLoading(false);
                     setAmbientOn(true);
                     updateBackgroundMode(isPlaying, true);
+                    markSleepUsed();
                 })
                 .catch((e) => {
                     setAmbientError("Ses yüklenemedi. Lütfen internetinizi kontrol edin.");
@@ -185,14 +210,20 @@ export default function SleepMode() {
         if (isAudioLoading) return;
 
         if (isPlaying) {
+            // Always allow pause
             mulkAudio.pause();
+            setIsPlaying(false);
         } else {
+            // Gate only play
+            if (checkPremiumGate()) return;
             mulkAudio.play().catch(() => { });
+            setIsPlaying(true);
+            markSleepUsed();
         }
-        setIsPlaying(!isPlaying);
     };
 
     const handleSeek = (e) => {
+        if (checkPremiumGate()) return;
         const time = parseFloat(e.target.value);
         mulkAudio.currentTime = time;
         setCurrentTime(time);
@@ -276,7 +307,7 @@ export default function SleepMode() {
                             </div>
                             <div className="flex items-center gap-2">
                                 <Button
-                                    onClick={() => setIsMulkLooping(!isMulkLooping)}
+                                    onClick={() => { if (checkPremiumGate()) return; setIsMulkLooping(!isMulkLooping); }}
                                     className={cn(
                                         "w-12 h-12 rounded-full flex items-center justify-center transition-all border shadow-lg active:scale-95",
                                         isMulkLooping
@@ -373,6 +404,57 @@ export default function SleepMode() {
             </div>
 
             <div className="h-24"></div>
+
+            {/* Premium Gate Overlay */}
+            <AnimatePresence>
+                {showPremiumGate && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 bg-black/40 backdrop-blur-md flex items-center justify-center z-[9999]"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <motion.div
+                            initial={{ scale: 0.85, y: 30 }}
+                            animate={{ scale: 1, y: 0 }}
+                            exit={{ scale: 0.85, y: 30 }}
+                            transition={{ type: 'spring', damping: 20, stiffness: 300 }}
+                            className="px-8 text-center"
+                        >
+                            <div className="flex justify-center mb-6">
+                                <div className="w-20 h-20 rounded-full bg-gradient-to-b from-islamic-gold/20 to-transparent border border-islamic-gold/30 flex items-center justify-center">
+                                    <Moon size={36} className="text-islamic-gold" />
+                                </div>
+                            </div>
+
+                            <h3 className="text-xl font-serif font-bold text-white mb-2 leading-tight">
+                                {t('premiumGate.title', { defaultValue: 'Ücretsiz Deneme Kullanıldı' })}
+                            </h3>
+
+                            <p className="text-[13px] text-white/45 leading-relaxed mb-8">
+                                {t('premiumGate.desc', { defaultValue: 'Uyku modunu 1 kez ücretsiz denediniz. Sınırsız erişim için Premium\'a yükseltin.' })}
+                            </p>
+
+                            <motion.button
+                                whileTap={{ scale: 0.97 }}
+                                onClick={() => { setShowPremiumGate(false); navigate('/premium'); }}
+                                className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-islamic-gold via-amber-400 to-islamic-gold text-[#0a2e1f] font-bold text-sm tracking-wide shadow-lg shadow-islamic-gold/20 flex items-center justify-center gap-2"
+                            >
+                                <Sparkles size={16} />
+                                {t('premiumGate.cta', { defaultValue: 'Sınırsız Uyku Modu — Premium' })}
+                            </motion.button>
+
+                            <button
+                                onClick={() => setShowPremiumGate(false)}
+                                className="w-full mt-4 py-2 text-white/25 text-xs font-medium hover:text-white/40 transition-colors"
+                            >
+                                {t('premiumGate.dismiss', { defaultValue: 'Kapat' })}
+                            </button>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     );
 }

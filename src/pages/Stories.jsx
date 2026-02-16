@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Play, BookOpen, Clock, ChevronRight, X, Headphones, Sparkles, Heart, SkipBack, SkipForward, Zap } from 'lucide-react';
+import { Play, BookOpen, Clock, ChevronRight, X, Headphones, Sparkles, Heart, SkipBack, SkipForward, Zap, Crown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { AnimatePresence, motion, useDragControls } from 'framer-motion';
 import StoryCard from '@/components/StoryCard';
 import { useTranslation } from 'react-i18next';
+import { isPremium } from '@/services/creditService';
 
 import { STORIES } from '@/data/spiritualData';
 import { STORIES_DE } from '@/data/spiritualDataDE';
@@ -22,6 +24,7 @@ const CATEGORY_IDS = [
 
 export default function Stories() {
     const { t, i18n } = useTranslation('stories');
+    const navigate = useNavigate();
     const lang = i18n.language;
     const activeStories = { ...STORIES, ...(STORIES_MAP[lang] || {}) };
     const [activeCategory, setActiveCategory] = useState('prophets');
@@ -174,13 +177,28 @@ export default function Stories() {
 
             {/* Story Grid */}
             <div className="grid gap-5">
-                {(activeStories[activeCategory] || []).map((story) => (
-                    <StoryCard
-                        key={story.id}
-                        story={story}
-                        onClick={() => setSelectedStory(story)}
-                    />
-                ))}
+                {(activeStories[activeCategory] || []).map((story, index) => {
+                    const isFree = activeCategory === 'prophets' && index === 0;
+                    const isLocked = !isFree && !isPremium();
+                    return (
+                        <div key={story.id} className="relative">
+                            <div className={cn(isLocked && "opacity-60")}>
+                                <StoryCard
+                                    story={story}
+                                    onClick={() => {
+                                        if (isLocked) { navigate('/premium'); return; }
+                                        setSelectedStory(story);
+                                    }}
+                                />
+                            </div>
+                            {isLocked && (
+                                <div className="absolute top-3 right-3 flex items-center gap-1.5 bg-gradient-to-r from-islamic-gold to-amber-600 text-white text-[10px] font-bold px-2.5 py-1 rounded-full shadow-lg shadow-islamic-gold/30">
+                                    <Crown size={10} fill="white" /> Premium
+                                </div>
+                            )}
+                        </div>
+                    );
+                })}
             </div>
 
             {/* Deep Reading/Listening View (Mobile Simulation) */}

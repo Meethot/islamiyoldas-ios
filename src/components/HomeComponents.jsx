@@ -18,6 +18,8 @@ import { getAppDate, getTodayString } from '@/lib/testDate';
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
 import { Capacitor } from '@capacitor/core';
 import { playAminSound } from '@/services/WidgetDataService';
+import { isPremium } from '@/services/creditService';
+import { useNavigate } from 'react-router-dom';
 import PrayerRewardModal from './PrayerRewardModal';
 import { PRAYER_CONTENT } from '@/data/hadithData';
 
@@ -82,6 +84,8 @@ export const WeeklyStreakWidget = memo(({ tubaData, setTubaData }) => {
     const [showWeeklyCelebration, setShowWeeklyCelebration] = useState(false);
     const { selection, success, impactMedium } = useHaptics();
     const { t } = useTranslation('home');
+    const navigate = useNavigate();
+    const [showPremiumLock, setShowPremiumLock] = useState(false);
 
     // Sound effect for button press (same as Dhikr)
     const clickSoundRef = useRef(new Audio('https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3'));
@@ -237,6 +241,12 @@ export const WeeklyStreakWidget = memo(({ tubaData, setTubaData }) => {
         if (isCompletedToday) {
             setAlreadyWateredMessage(true);
             setTimeout(() => setAlreadyWateredMessage(false), 3000);
+            return;
+        }
+
+        // Premium gate: free on first day, premium required from day 2
+        if (totalWateredDays >= 1 && !isPremium()) {
+            navigate('/premium');
             return;
         }
 
@@ -481,6 +491,11 @@ export const WeeklyStreakWidget = memo(({ tubaData, setTubaData }) => {
                                 <>
                                     <CheckCircle2 size={18} />
                                     {t('tuba.btnDone')}
+                                </>
+                            ) : totalWateredDays >= 1 && !isPremium() ? (
+                                <>
+                                    <span className="text-base">👑</span>
+                                    {t('tuba.btnWater')}
                                 </>
                             ) : (
                                 <>
@@ -963,6 +978,7 @@ export const PrayerCountdownWidget = memo(({ loading, city, nextPrayerInfo, pray
     const [prayerReminders, setPrayerReminders] = useState({}); // { 'sabah': { mins: 15, id: 123, time: '06:20' }, ... }
     const { selection } = useHaptics();
     const { settings } = usePrayerTimes();
+    const navigate = useNavigate();
     const { t } = useTranslation('home');
 
     // Filter to show only the 5 main prayers (exclude Sunrise for UI)
@@ -1462,7 +1478,7 @@ export const PrayerCountdownWidget = memo(({ loading, city, nextPrayerInfo, pray
                                                 ? "text-islamic-gold bg-islamic-gold/10"
                                                 : "text-gray-400 hover:text-islamic-gold hover:bg-islamic-gold/5"
                                         )}
-                                        onClick={(e) => { e.stopPropagation(); setShowReminderOptions(true); }}
+                                        onClick={(e) => { e.stopPropagation(); if (!isPremium()) { navigate('/premium'); return; } setShowReminderOptions(true); }}
                                     >
                                         <Bell size={18} fill={alarmSet ? "currentColor" : "none"} />
                                     </Button>
@@ -1574,6 +1590,7 @@ export const PrayerCountdownWidget = memo(({ loading, city, nextPrayerInfo, pray
                                                             <button
                                                                 onClick={(e) => {
                                                                     e.stopPropagation();
+                                                                    if (!isPremium()) { navigate('/premium'); return; }
                                                                     setSelectedPrayerForReminder(prayer);
                                                                 }}
                                                                 className={cn(

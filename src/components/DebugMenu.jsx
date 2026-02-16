@@ -7,8 +7,8 @@ import {
 import { LocalNotifications } from '@capacitor/local-notifications';
 import { Button } from '@/components/ui/button';
 import { advanceTestDay, resetTestDay, getTestDayOffset, getTodayString, getDailyPrayersKey } from '@/lib/testDate';
-import { addCredit, getCredits } from '@/services/creditService';
-import { Coins } from 'lucide-react';
+import { addCredit, getCredits, isPremium } from '@/services/creditService';
+import { Coins, Crown } from 'lucide-react';
 
 /**
  * DebugMenu - Hidden stress test dashboard for developers
@@ -323,6 +323,13 @@ const DebugMenu = () => {
                         const newCreds = addCredit(50);
                         setLastAction(`💰 +50 kredi eklendi! Toplam: ${newCreds}`);
                     }, color: 'bg-yellow-600'
+                },
+                {
+                    label: isPremium() ? 'Premium: ON ✅' : 'Premium: OFF ❌', icon: Crown, action: () => {
+                        const current = isPremium();
+                        localStorage.setItem('aminKumbara_premium', (!current).toString());
+                        setLastAction(`👑 Premium: ${!current ? 'AKTİF' : 'KAPALI'}`);
+                    }, color: isPremium() ? 'bg-amber-500' : 'bg-gray-600'
                 },
             ]
         }

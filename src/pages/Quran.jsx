@@ -4,7 +4,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import {
     BookOpen, Search, Play, Pause, SkipBack, SkipForward,
-    ChevronDown, ChevronUp, Bookmark, BookmarkCheck, Share2, X, Loader2, Trash2
+    ChevronDown, ChevronUp, Bookmark, BookmarkCheck, Share2, X, Loader2, Trash2, ChevronLeft
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -13,6 +13,7 @@ import { fetchChapters, fetchSurahAudio } from '@/services/quranApi';
 import { safeGetStorage, safeSetStorage } from '@/utils/storageHelper';
 import { getSurahSummary } from '@/data/surahSummaries';
 import { App } from '@capacitor/app';
+import { isPremium } from '@/services/creditService';
 import { useTranslation } from 'react-i18next';
 
 // Background Mode Helper (Cordova Plugin)
@@ -178,6 +179,7 @@ export default function Quran() {
     const handlePlaySurah = async (e, surah) => {
         e.stopPropagation(); // Don't navigate to detail
         selection();
+        if (!isPremium()) { navigate('/premium'); return; }
 
         if (currentlyPlaying?.id === surah.id) {
             if (isAudioPlaying) {
@@ -274,6 +276,12 @@ export default function Quran() {
             <div className="bg-islamic-green dark:bg-[#032e18] p-5 sticky top-0 z-40 border-b border-white/10">
                 <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-3">
+                        <button
+                            onClick={() => navigate(-1)}
+                            className="p-2 -ml-2 rounded-xl hover:bg-white/10 active:bg-white/20 transition-colors"
+                        >
+                            <ChevronLeft className="w-6 h-6 text-white" />
+                        </button>
                         <div className="p-3 bg-white/10 rounded-2xl backdrop-blur-sm">
                             <BookOpen className="w-6 h-6 text-white" />
                         </div>

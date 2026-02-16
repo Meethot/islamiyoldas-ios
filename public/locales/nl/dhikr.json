@@ -50,5 +50,15 @@
     "saveTarget": "SAVE TARGET",
     "resetAllTooltip": "Reset All Dhikr",
     "footerVerse": "\"O you who believe! Remember Allah with much remembrance, and glorify Him morning and evening.\"",
-    "footerVerseSource": "SURAH AL-AHZAB, 41-42"
+    "footerVerseSource": "SURAH AL-AHZAB, 41-42",
+    "dhikrLimit": {
+        "title": "Dagelijks Dhikr-Limiet",
+        "completed": "Voltooid",
+        "desc1": "U kunt dagelijks",
+        "count": "{{count}} dhikr",
+        "desc2": "gratis uitvoeren.",
+        "desc3": "Upgrade naar Premium voor onbeperkte dhikr.",
+        "cta": "Onbeperkte Dhikr — Premium",
+        "dismiss": "Kom morgen terug"
+    }
 }

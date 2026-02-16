@@ -1,23 +1,29 @@
 {
     "aiMentor": {
-        "title": "Spiritual Mentor",
-        "subtitle": "AI-Powered Assistant",
-        "welcomeMessage": "Peace be upon you, dear friend. I am your Spiritual Mentor. What's in your heart, what troubles you or what are you grateful for? Tell me, and I'll prepare a prescription for you based on the Quran and Sunnah.",
-        "thinking": "Contemplating...",
-        "placeholder": "I need help, my heart is heavy...",
-        "errorPrefix": "Error occurred:"
+        "title": "Mənəvi Köməkçi",
+        "subtitle": "Süni Zəka ilə Dəstək",
+        "welcomeMessage": "Əssalamu ələykum, əziz qardaşım. Mən sənin Mənəvi Köməkçinəm. Qəlbində nə var, səni darıxdıran və ya şükür etdirən nədir? Mənə danış, sənə Quran və Sünnə işığında bir reçete hazırlayım.",
+        "thinking": "Təfəkkür edilir...",
+        "placeholder": "Kömək lazımdır, qəlbim ağırdır...",
+        "errorPrefix": "Xəta baş verdi:",
+        "freeQuota": "Bu gün {{count}} haqqın qaldı",
+        "unlockMore": "Daha çox aç",
+        "limitReachedBanner": "Günlük haqqın doldu",
+        "limitReachedPlaceholder": "Premium ilə gündə 30 sual soruşa bilərsən...",
+        "dailyLimitReached": "Günlük sual haqqınız doldu. Sabah yenidən gəlin və ya Premium ilə gündə 30 sual soruşun.",
+        "premiumQuota": "{{count}} haqqın qaldı"
     },
     "prescription": {
-        "title": "Spiritual Prescription",
-        "adviceLabel": "Mentor's Advice",
-        "dhikrLabel": "Dhikr Prescription",
-        "startDhikr": "Start Dhikr",
-        "verseLabel": "Healing Verse",
-        "listen": "Listen",
-        "pause": "Pause",
-        "ebced": "Abjad",
-        "count": "Count"
+        "title": "Mənəvi Reçete",
+        "adviceLabel": "Müəllim Tövsiyəsi",
+        "dhikrLabel": "Zikir Reçetesi",
+        "startDhikr": "Zikrə Başla",
+        "verseLabel": "Şəfa Ayəsi",
+        "listen": "Dinlə",
+        "pause": "Fasilə",
+        "ebced": "Əbcəd",
+        "count": "Say"
     },
-    "comingSoon": "Coming Soon! This language is being prepared. 🌍",
-    "connectionError": "Connection error."
+    "comingSoon": "Tezliklə! Bu dil hazırlanır. 🌍",
+    "connectionError": "Bağlantı xətası."
 }

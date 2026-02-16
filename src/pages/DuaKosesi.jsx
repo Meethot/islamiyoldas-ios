@@ -476,7 +476,7 @@ export default function DuaKosesi() {
             localStorage.setItem('lastPrayerDate', today);
         }
 
-        if (dailyCount >= 30) {
+        if (dailyCount >= 2) {
             Swal.fire({
                 title: `<span class="text-[#D4AF37] font-serif tracking-wide">${t('dailyLimitTitle')}</span>`,
                 html: `

@@ -1,11 +1,13 @@
 import React, { useState, useCallback, memo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ChevronRight, ChevronLeft, Droplets, BookOpen, Heart, Moon, PartyPopper, CheckCircle2, RotateCcw, Sparkles as SparklesIcon, Shield, Flower2 } from 'lucide-react';
+import { ChevronRight, ChevronLeft, Droplets, BookOpen, Heart, Moon, PartyPopper, CheckCircle2, RotateCcw, Sparkles as SparklesIcon, Shield, Flower2, Crown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useHaptics } from '@/hooks/useMobile';
 import { useTranslation } from 'react-i18next';
+import { isPremium } from '@/services/creditService';
 import { GUIDES_EN } from '@/data/guidesEN';
 import { GUIDES_DE } from '@/data/guidesDE';
 import { GUIDES_RU } from '@/data/guidesRU';
@@ -958,6 +960,7 @@ const GuideStepCard = memo(({ step }) => {
 });
 
 export default function Learn() {
+    const navigate = useNavigate();
     const [selectedCategory, setSelectedCategory] = useState('abdest');
     const [currentStep, setCurrentStep] = useState(0);
     const [isComplete, setIsComplete] = useState(false);
@@ -1135,21 +1138,33 @@ export default function Learn() {
         <div className="flex flex-col space-y-6 p-5 pb-32">
             {/* Category Selection */}
             <div className="glass-panel rounded-3xl p-2 grid grid-cols-5 gap-1">
-                {CATEGORIES.map((cat) => {
+                {CATEGORIES.map((cat, index) => {
                     const Icon = cat.icon;
                     const isActive = selectedCategory === cat.id;
+                    const isFree = index === 0;
+                    const isLocked = !isFree && !isPremium();
                     return (
                         <motion.button
                             key={cat.id}
-                            onClick={() => handleCategorySelect(cat.id)}
+                            onClick={() => {
+                                if (isLocked) { navigate('/premium'); return; }
+                                handleCategorySelect(cat.id);
+                            }}
                             className={cn(
                                 "relative px-2 py-3 overflow-hidden rounded-2xl font-bold text-xs uppercase tracking-wider transition-all",
                                 isActive
                                     ? "bg-islamic-green dark:bg-islamic-gold text-white dark:text-[#032e18] shadow-lg"
-                                    : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/5"
+                                    : isLocked
+                                        ? "text-gray-400 dark:text-gray-500 opacity-60"
+                                        : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/5"
                             )}
                             whileTap={{ scale: 0.95 }}
                         >
+                            {isLocked && (
+                                <div className="absolute top-1 right-1 w-4 h-4 rounded-full bg-gradient-to-br from-islamic-gold to-amber-600 flex items-center justify-center shadow-sm">
+                                    <Crown size={8} className="text-white" fill="white" />
+                                </div>
+                            )}
                             <Icon className={cn("w-5 h-5 mx-auto mb-1", isActive && "drop-shadow-md")} />
                             <span className="text-[9px] leading-tight block">{t(cat.labelKey)}</span>
                         </motion.button>

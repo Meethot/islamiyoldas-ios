@@ -36,6 +36,22 @@ const FALLBACK_VERSE_RU = {
     source: "Сура Аш-Шарх, аят 5"
 };
 
+const FALLBACK_VERSE_AR = {
+    surahId: 94,
+    verseNumber: 5,
+    arabic: "فَإِنَّ مَعَ ٱلْعُسْرِ يُسْرًا",
+    translation: "فإنّ مع العسر يسراً.",
+    source: "سورة الشرح، الآية 5"
+};
+
+const FALLBACK_VERSE_AZ = {
+    surahId: 94,
+    verseNumber: 5,
+    arabic: "فَإِنَّ مَعَ ٱلْعُسْرِ يُسْرًا",
+    translation: "Həqiqətən, hər çətinliklə birlikdə bir asanlıq vardır.",
+    source: "İnşirah surəsi, 5-ci ayə"
+};
+
 // Turkish surah names lookup
 const SURAH_NAMES_TR = {
     1: 'Fatiha', 2: 'Bakara', 3: 'Âl-i İmrân', 4: 'Nisâ', 5: 'Mâide',
@@ -117,6 +133,60 @@ const SURAH_NAMES_RU = {
     111: 'Аль-Масад', 112: 'Аль-Ихлас', 113: 'Аль-Фалак', 114: 'Ан-Нас'
 };
 
+// Arabic surah names lookup
+const SURAH_NAMES_AR = {
+    1: 'الفاتحة', 2: 'البقرة', 3: 'آل عمران', 4: 'النساء', 5: 'المائدة',
+    6: 'الأنعام', 7: 'الأعراف', 8: 'الأنفال', 9: 'التوبة', 10: 'يونس',
+    11: 'هود', 12: 'يوسف', 13: 'الرعد', 14: 'إبراهيم', 15: 'الحجر',
+    16: 'النحل', 17: 'الإسراء', 18: 'الكهف', 19: 'مريم', 20: 'طه',
+    21: 'الأنبياء', 22: 'الحج', 23: 'المؤمنون', 24: 'النور', 25: 'الفرقان',
+    26: 'الشعراء', 27: 'النمل', 28: 'القصص', 29: 'العنكبوت', 30: 'الروم',
+    31: 'لقمان', 32: 'السجدة', 33: 'الأحزاب', 34: 'سبأ', 35: 'فاطر',
+    36: 'يس', 37: 'الصافات', 38: 'ص', 39: 'الزمر', 40: 'غافر',
+    41: 'فصّلت', 42: 'الشورى', 43: 'الزخرف', 44: 'الدخان', 45: 'الجاثية',
+    46: 'الأحقاف', 47: 'محمد', 48: 'الفتح', 49: 'الحجرات', 50: 'ق',
+    51: 'الذاريات', 52: 'الطور', 53: 'النجم', 54: 'القمر', 55: 'الرحمن',
+    56: 'الواقعة', 57: 'الحديد', 58: 'المجادلة', 59: 'الحشر', 60: 'الممتحنة',
+    61: 'الصف', 62: 'الجمعة', 63: 'المنافقون', 64: 'التغابن', 65: 'الطلاق',
+    66: 'التحريم', 67: 'الملك', 68: 'القلم', 69: 'الحاقة', 70: 'المعارج',
+    71: 'نوح', 72: 'الجن', 73: 'المزمل', 74: 'المدثر', 75: 'القيامة',
+    76: 'الإنسان', 77: 'المرسلات', 78: 'النبأ', 79: 'النازعات', 80: 'عبس',
+    81: 'التكوير', 82: 'الانفطار', 83: 'المطففين', 84: 'الانشقاق', 85: 'البروج',
+    86: 'الطارق', 87: 'الأعلى', 88: 'الغاشية', 89: 'الفجر', 90: 'البلد',
+    91: 'الشمس', 92: 'الليل', 93: 'الضحى', 94: 'الشرح', 95: 'التين',
+    96: 'العلق', 97: 'القدر', 98: 'البيّنة', 99: 'الزلزلة', 100: 'العاديات',
+    101: 'القارعة', 102: 'التكاثر', 103: 'العصر', 104: 'الهمزة', 105: 'الفيل',
+    106: 'قريش', 107: 'الماعون', 108: 'الكوثر', 109: 'الكافرون', 110: 'النصر',
+    111: 'المسد', 112: 'الإخلاص', 113: 'الفلق', 114: 'الناس'
+};
+
+// Azerbaijani surah names lookup
+const SURAH_NAMES_AZ = {
+    1: 'Fatihə', 2: 'Bəqərə', 3: 'Ali İmran', 4: 'Nisa', 5: 'Maidə',
+    6: 'Ənam', 7: 'Əraf', 8: 'Ənfal', 9: 'Tövbə', 10: 'Yunus',
+    11: 'Hud', 12: 'Yusif', 13: 'Rəd', 14: 'İbrahim', 15: 'Hicr',
+    16: 'Nəhl', 17: 'İsra', 18: 'Kəhf', 19: 'Məryəm', 20: 'Taha',
+    21: 'Ənbiya', 22: 'Həcc', 23: 'Möminun', 24: 'Nur', 25: 'Furqan',
+    26: 'Şüəra', 27: 'Nəml', 28: 'Qəsəs', 29: 'Ənkəbut', 30: 'Rum',
+    31: 'Loqman', 32: 'Səcdə', 33: 'Əhzab', 34: 'Səba', 35: 'Fatir',
+    36: 'Yasin', 37: 'Saffat', 38: 'Sad', 39: 'Zumər', 40: 'Mömin',
+    41: 'Fussilət', 42: 'Şura', 43: 'Zuxruf', 44: 'Duxan', 45: 'Casiyə',
+    46: 'Əhqaf', 47: 'Muhəmməd', 48: 'Fəth', 49: 'Hucurat', 50: 'Qaf',
+    51: 'Zariyat', 52: 'Tur', 53: 'Nəcm', 54: 'Qəmər', 55: 'Rəhman',
+    56: 'Vaqiə', 57: 'Hədid', 58: 'Mücadilə', 59: 'Həşr', 60: 'Mumtəhinə',
+    61: 'Saff', 62: 'Cumə', 63: 'Munafiqun', 64: 'Təğabun', 65: 'Talaq',
+    66: 'Təhrim', 67: 'Mulk', 68: 'Qələm', 69: 'Haqqə', 70: 'Məaric',
+    71: 'Nuh', 72: 'Cinn', 73: 'Muzzəmmil', 74: 'Muddəssir', 75: 'Qiyamə',
+    76: 'İnsan', 77: 'Mursəlat', 78: 'Nəbə', 79: 'Naziat', 80: 'Əbəsə',
+    81: 'Təkvir', 82: 'İnfitar', 83: 'Mutəffifin', 84: 'İnşiqaq', 85: 'Buruc',
+    86: 'Tariq', 87: 'Əla', 88: 'Ğaşiyə', 89: 'Fəcr', 90: 'Bələd',
+    91: 'Şəms', 92: 'Leyl', 93: 'Zuha', 94: 'İnşirah', 95: 'Tin',
+    96: 'Ələq', 97: 'Qədr', 98: 'Bəyyinə', 99: 'Zəlzələ', 100: 'Adiyat',
+    101: 'Qariə', 102: 'Təkasur', 103: 'Əsr', 104: 'Huməzə', 105: 'Fil',
+    106: 'Qureyş', 107: 'Maun', 108: 'Kövsər', 109: 'Kafirun', 110: 'Nəsr',
+    111: 'Təbbət', 112: 'İxlas', 113: 'Fələq', 114: 'Nas'
+};
+
 /**
  * Fetches verse Arabic text + translation from Alquran.cloud API.
  * @param {Object} quranRef - { surah, verse } from AI
@@ -124,9 +194,9 @@ const SURAH_NAMES_RU = {
  */
 export async function getVerifiedVerse(quranRef, language = 'tr') {
     // Language-indexed maps for API editions and surah name sets
-    const EDITION_MAP = { tr: 'tr.diyanet', en: 'en.sahih', de: 'de.bubenheim', ru: 'ru.kuliev' };
-    const NAMES_MAP = { tr: SURAH_NAMES_TR, en: SURAH_NAMES_EN, ru: SURAH_NAMES_RU };
-    const FALLBACK_MAP = { tr: FALLBACK_VERSE_TR, en: FALLBACK_VERSE_EN, de: FALLBACK_VERSE_DE, ru: FALLBACK_VERSE_RU };
+    const EDITION_MAP = { tr: 'tr.diyanet', en: 'en.sahih', de: 'de.bubenheim', ru: 'ru.kuliev', ar: 'ar.muyassar', az: 'az.musayev' };
+    const NAMES_MAP = { tr: SURAH_NAMES_TR, en: SURAH_NAMES_EN, ru: SURAH_NAMES_RU, ar: SURAH_NAMES_AR, az: SURAH_NAMES_AZ };
+    const FALLBACK_MAP = { tr: FALLBACK_VERSE_TR, en: FALLBACK_VERSE_EN, de: FALLBACK_VERSE_DE, ru: FALLBACK_VERSE_RU, ar: FALLBACK_VERSE_AR, az: FALLBACK_VERSE_AZ };
 
     // Use exact language or fall back to English
     const edition = EDITION_MAP[language] || 'en.sahih';
@@ -173,7 +243,9 @@ export async function getVerifiedVerse(quranRef, language = 'tr') {
             tr: `${surahName} Suresi, ${verse}. Ayet`,
             en: `Surah ${surahName}, Verse ${verse}`,
             de: `Sure ${surahName}, Vers ${verse}`,
-            ru: `Сура ${surahName}, аят ${verse}`
+            ru: `Сура ${surahName}, аят ${verse}`,
+            ar: `سورة ${surahName}، الآية ${verse}`,
+            az: `${surahName} surəsi, ${verse}-ci ayə`
         };
 
         return {

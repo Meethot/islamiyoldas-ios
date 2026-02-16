@@ -5,7 +5,13 @@
         "welcomeMessage": "Friede sei mit dir, lieber Freund. Ich bin dein Spiritueller Mentor. Was liegt dir auf dem Herzen, was bedrückt dich oder wofür bist du dankbar? Erzähle es mir, und ich bereite eine Empfehlung für dich vor, basierend auf Quran und Sunnah.",
         "thinking": "Nachdenken...",
         "placeholder": "Ich brauche Hilfe, mein Herz ist schwer...",
-        "errorPrefix": "Fehler aufgetreten:"
+        "errorPrefix": "Fehler aufgetreten:",
+        "freeQuota": "Noch {{count}} Frage heute",
+        "unlockMore": "Mehr freischalten",
+        "limitReachedBanner": "Tageslimit erreicht",
+        "limitReachedPlaceholder": "Mit Premium 30 Fragen täglich...",
+        "dailyLimitReached": "Dein Tageslimit ist erreicht. Komm morgen wieder oder hole dir Premium für 30 Fragen pro Tag.",
+        "premiumQuota": "{{count}} Fragen übrig"
     },
     "prescription": {
         "title": "Spirituelle Empfehlung",

@@ -1,90 +1,90 @@
 {
-    "title": "Profile",
+    "title": "Profil",
     "user": {
-        "default_name": "Faithful User",
-        "streak_desc": "Day {{count}} of the journey"
+        "default_name": "Mömin İstifadəçi",
+        "streak_desc": "Yolçuluğun {{count}}. günündə"
     },
     "premium": {
-        "banner_title": "Go Premium",
-        "banner_desc": "Ad-free experience and detailed stats."
+        "banner_title": "Premiuma Keç",
+        "banner_desc": "Reklamsız təcrübə və ətraflı statistikalar."
     },
-    "personal_settings": "Personal Settings",
-    "general_settings": "General Settings",
+    "personal_settings": "Şəxsi Tənzimləmələr",
+    "general_settings": "Ümumi Tənzimləmələr",
     "notifications": {
-        "title": "Notifications",
-        "subtitle": "Adhan, verse & motivation"
+        "title": "Bildirişlər",
+        "subtitle": "Azan, ayə və motivasiya"
     },
     "privacy": {
-        "title": "Privacy & Security",
-        "subtitle": "Data protection and lock",
-        "modal_title": "Data & Privacy",
-        "data_info": "Your data is stored <strong>only on this device</strong>. No data is sent to our servers.",
-        "download": "Download My Data",
-        "delete_all": "Delete All Data"
+        "title": "Gizlilik & Təhlükəsizlik",
+        "subtitle": "Məlumat qorunması və kilit",
+        "modal_title": "Məlumat & Gizlilik",
+        "data_info": "Məlumatlarınız yalnız <strong>bu cihazda</strong> saxlanılır. Serverlərimizə heç bir məlumat göndərilmir.",
+        "download": "Məlumatlarımı Endir",
+        "delete_all": "Bütün Məlumatları Sil"
     },
     "appearance": {
-        "title": "Appearance",
-        "dark_active": "Dark mode active",
-        "light_active": "Light mode active"
+        "title": "Görünüş",
+        "dark_active": "Gecə rejimi aktiv",
+        "light_active": "Gündüz rejimi aktiv"
     },
     "location": {
-        "title": "Location",
-        "subtitle": "GPS and city settings"
+        "title": "Məkan",
+        "subtitle": "GPS və şəhər tənzimləmələri"
     },
     "share": {
-        "title": "Share Progress",
-        "subtitle": "Share Tuba Tree on social media"
+        "title": "İrəliləyişi Paylaş",
+        "subtitle": "Tuba Ağacını sosial şəbəkədə paylaş"
     },
     "invite": {
-        "title": "Invite Friend",
-        "subtitle": "Share app link with loved ones"
+        "title": "Dost Dəvət Et",
+        "subtitle": "Sevdiklərinlə tətbiq linkini paylaş"
     },
     "calc": {
-        "title": "Calc Missed Prayers",
-        "subtitle": "Automatic calculation tool"
+        "title": "Qəza Borcunu Hesabla",
+        "subtitle": "Avtomatik hesablama aləti"
     },
     "language": {
-        "title": "App Language",
-        "subtitle": "Change interface language"
+        "title": "Tətbiq Dili",
+        "subtitle": "İnterfeys dilini dəyişdir"
     },
     "promo": {
-        "title": "Promo Code",
-        "subtitle": "Use a gift code",
-        "label": "ENTER CODE",
-        "submit": "Apply Code",
-        "success": "Congratulations! Premium features have been activated. 🌟",
-        "invalid": "Invalid or expired promo code."
+        "title": "Promosyon Kodu",
+        "subtitle": "Hədiyyə kodu istifadə et",
+        "label": "KOD DAXİL EDİN",
+        "submit": "Kodu İstifadə Et",
+        "success": "Təbriklər! Premium xüsusiyyətlər uğurla aktivləşdirildi. 🌟",
+        "invalid": "Yanlış və ya vaxtı keçmiş promosyon kodu."
     },
     "report_bug": {
-        "title": "Report Bug",
-        "subtitle": "Having issues with the app?",
-        "email_subject": "Islamic Companion - Bug Report",
-        "email_body": "The issue I encountered is:\n\n"
+        "title": "Xəta Bildir",
+        "subtitle": "Tətbiqdə problem var?",
+        "email_subject": "İslami Yoldaş - Xəta Bildirimi",
+        "email_body": "Qarşılaşdığım problem budur:\n\n"
     },
     "legal": {
-        "title": "Legal & About",
-        "subtitle": "Privacy, contact and support"
+        "title": "Hüquqi & Haqqımızda",
+        "subtitle": "Gizlilik, əlaqə və dəstək"
     },
     "delete_account": {
-        "title": "Delete Account",
-        "confirm": "Your account and all data will be deleted. This cannot be undone. Are you sure?"
+        "title": "Hesabı Sil",
+        "confirm": "Hesabınız və bütün məlumatlarınız silinəcək. Bu əməliyyat geri qaytarıla bilməz. Əminsiniz?"
     },
     "avatar": {
-        "male": "Male",
-        "female": "Female",
-        "beads": "Beads",
+        "male": "Bəy",
+        "female": "Xanım",
+        "beads": "Təsbeh",
         "tuba": "Tuba",
         "quran": "Quran",
-        "moon": "Crescent"
+        "moon": "Hilal"
     },
-    "coming_soon": "Coming Soon",
-    "support": "Support Us",
-    "reset": "Reset Data",
+    "coming_soon": "Tezliklə",
+    "support": "Bizi Dəstəklə",
+    "reset": "Məlumatları Sıfırla",
     "modal": {
-        "select_lang": "Language Selection",
-        "lang_note": "Language change applies instantly."
+        "select_lang": "Dil Seçimi",
+        "lang_note": "Dil dəyişikliyi dərhal tətbiq olunur."
     },
-    "avatar_modal_title": "Select Profile Photo",
-    "app_name": "Islamic Companion",
-    "version": "Version 2.1.0 (Pro Max)"
+    "avatar_modal_title": "Profil Şəkli Seç",
+    "app_name": "İslami Yoldaş",
+    "version": "Versiya 2.1.0 (Pro Max)"
 }

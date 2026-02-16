@@ -13,6 +13,7 @@ const LANGUAGES = [
     { code: 'de', label: 'Deutsch', native: 'Deutsch', flag: '🇩🇪', beta: true },
     { code: 'ar', label: 'العربية', native: 'Arabic', flag: '🇸🇦', beta: true },
     { code: 'ru', label: 'Русский', native: 'Russian', flag: '🇷🇺', beta: true },
+    { code: 'az', label: 'Azərbaycanca', native: 'Azerbaijani', flag: '🇦🇿', beta: true },
 ];
 
 export default function LanguageSettings() {

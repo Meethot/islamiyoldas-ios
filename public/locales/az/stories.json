@@ -1,12 +1,12 @@
 {
     "categories": {
-        "prophets": "Prophets",
-        "companions": "Companions",
-        "moral": "Parables"
+        "prophets": "Peyğəmbərlər",
+        "companions": "Səhabələr",
+        "moral": "Qissələr"
     },
-    "nowListening": "İndi dinlənilir",
-    "listenersCount": "{{count}} dinləyici",
+    "nowListening": "İndi Dinlənilir",
+    "listenersCount": "{{count}} nəfər dinləyir",
     "read": "Oxu",
-    "normalSpeed": "Normal sürət",
+    "normalSpeed": "Normal Sürət",
     "speedUp": "2x Sürətləndir"
 }

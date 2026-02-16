@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import confetti from 'canvas-confetti';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Target, CheckCircle2, Plus, Minus, TrendingUp, Sparkles, Settings, BookOpen, Calendar, Eye, X, Calculator, Scale, Heart, AlertCircle, Edit2, Save } from 'lucide-react';
+import { Target, CheckCircle2, Plus, Minus, TrendingUp, Sparkles, Settings, BookOpen, Calendar, Eye, X, Calculator, Scale, Heart, AlertCircle, Edit2, Save, Crown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useHaptics } from '@/hooks/useMobile';
@@ -15,6 +16,7 @@ import { getDailyPrayersKey, getAppDate } from '@/lib/testDate';
 import { safeGetStorage } from '@/utils/storageHelper';
 import { triggerReviewPrompt } from '@/components/ReviewPrompt';
 import { useTranslation } from 'react-i18next';
+import { isPremium } from '@/services/creditService';
 
 const PRAYER_TYPES = [
     { key: 'sabah', labelKey: 'prayerTypes.sabah' },
@@ -33,6 +35,7 @@ const TABS = [
 ];
 
 export default function Tracking() {
+    const navigate = useNavigate();
     const { selection, impactMedium } = useHaptics();
     const { prayerTimes, loadingPrayers } = usePrayers();
     const { currentStreak, longestStreak, recordDayComplete, getStreakMessage } = usePrayerStreak();
@@ -484,12 +487,22 @@ export default function Tracking() {
                                     className="mt-6 text-white/50 hover:text-white hover:bg-white/5 text-xs transition-colors"
                                     onClick={() => {
                                         selection();
+                                        if (!isPremium()) { navigate('/premium'); return; }
                                         setManualGoal(goal);
                                         setShowGoalModal(true);
                                     }}
                                 >
-                                    <Settings className="w-4 h-4 mr-2" />
-                                    {t('updateGoal')}
+                                    {!isPremium() ? (
+                                        <div className="flex items-center gap-1.5 bg-gradient-to-r from-islamic-gold to-amber-600 text-white text-[10px] font-bold px-3 py-1.5 rounded-full shadow-lg shadow-islamic-gold/30">
+                                            <Crown size={12} fill="white" />
+                                            <span>{t('updateGoal')}</span>
+                                        </div>
+                                    ) : (
+                                        <>
+                                            <Settings className="w-4 h-4 mr-2" />
+                                            {t('updateGoal')}
+                                        </>
+                                    )}
                                 </Button>
                             </div>
                         </Card>

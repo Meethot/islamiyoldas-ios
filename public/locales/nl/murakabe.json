@@ -1,9 +1,18 @@
 {
-    "title": "Daily Self-Reflection",
-    "no": "No",
-    "yes": "Yes",
+    "title": "Dagelijkse Zelfreflectie",
+    "no": "Nee",
+    "yes": "Ja",
     "elhamdulillah": "Alhamdulillah",
-    "completionMsg": "You reflected on your heart today, may your soul find peace.",
-    "yourShare": "Today's Gift...",
-    "goHome": "Go to Home"
+    "completionMsg": "Je hebt vandaag over je hart nagedacht, moge je ziel rust vinden.",
+    "yourShare": "Het Geschenk van Vandaag...",
+    "goHome": "Naar Startpagina",
+    "premiumNotice": "Premium vereist om door te gaan",
+    "streakDays": "Dagen Reeks",
+    "bestStreak": "Beste",
+    "streakMsg0": "Kom morgen terug, start een reeks! 🌱",
+    "streakMsg1": "Eerste stap gezet! Ga door! 🌿",
+    "streakMsg2": "Je doet het geweldig! Niet stoppen! 🔥",
+    "streakMsg5": "Fantastisch! Een gewoonte vormt zich! ⭐",
+    "streakMsg10": "Perfecte discipline! Je inspireert! 💎",
+    "streakMsg30": "Legendarische reeks! Gefeliciteerd! 🏆"
 }

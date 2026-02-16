@@ -253,5 +253,15 @@
         "motivational": "\"Namazını kılmak ister misin?\"",
         "praying": "Kılıyorum ✅",
         "remindLater": "10 dk Sonra Hatırlat ⏰"
+    },
+    "dhikrLimit": {
+        "title": "Günlük Zikir Hakkınız",
+        "completed": "Tamamlandı",
+        "desc1": "Ücretsiz olarak günde",
+        "count": "{{count}} zikir",
+        "desc2": "çekebilirsiniz.",
+        "desc3": "Sınırsız zikir için Premium'a yükseltin.",
+        "cta": "Sınırsız Zikir — Premium",
+        "dismiss": "Yarın tekrar gel"
     }
 }

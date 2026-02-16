@@ -1,23 +1,29 @@
 {
     "aiMentor": {
-        "title": "Spiritual Mentor",
-        "subtitle": "AI-Powered Assistant",
-        "welcomeMessage": "Peace be upon you, dear friend. I am your Spiritual Mentor. What's in your heart, what troubles you or what are you grateful for? Tell me, and I'll prepare a prescription for you based on the Quran and Sunnah.",
-        "thinking": "Contemplating...",
-        "placeholder": "I need help, my heart is heavy...",
-        "errorPrefix": "Error occurred:"
+        "title": "Spirituele Mentor",
+        "subtitle": "AI-aangedreven Assistent",
+        "welcomeMessage": "Vrede zij met u, beste vriend. Ik ben uw Spirituele Mentor. Wat zit er in uw hart, wat maakt u onrustig of waar bent u dankbaar voor? Vertel het mij, en ik zal een recept voor u voorbereiden op basis van de Koran en de Soenna.",
+        "thinking": "Overwegen...",
+        "placeholder": "Ik heb hulp nodig, mijn hart is zwaar...",
+        "errorPrefix": "Fout opgetreden:",
+        "freeQuota": "Nog {{count}} vraag vandaag",
+        "unlockMore": "Meer ontgrendelen",
+        "limitReachedBanner": "Dagelijkse limiet bereikt",
+        "limitReachedPlaceholder": "Met Premium 30 vragen per dag...",
+        "dailyLimitReached": "Je dagelijkse limiet is bereikt. Kom morgen terug of krijg Premium voor 30 vragen per dag.",
+        "premiumQuota": "{{count}} vragen over"
     },
     "prescription": {
-        "title": "Spiritual Prescription",
-        "adviceLabel": "Mentor's Advice",
-        "dhikrLabel": "Dhikr Prescription",
+        "title": "Spiritueel Recept",
+        "adviceLabel": "Advies van de Mentor",
+        "dhikrLabel": "Dhikr Recept",
         "startDhikr": "Start Dhikr",
-        "verseLabel": "Healing Verse",
-        "listen": "Listen",
-        "pause": "Pause",
+        "verseLabel": "Genezend Vers",
+        "listen": "Luisteren",
+        "pause": "Pauze",
         "ebced": "Abjad",
-        "count": "Count"
+        "count": "Aantal"
     },
-    "comingSoon": "Coming Soon! This language is being prepared. 🌍",
-    "connectionError": "Connection error."
+    "comingSoon": "Binnenkort beschikbaar! Deze taal wordt voorbereid. 🌍",
+    "connectionError": "Verbindingsfout."
 }

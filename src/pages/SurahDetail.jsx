@@ -4,7 +4,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import {
     BookOpen, ArrowLeft, Bookmark, BookmarkCheck, Share2, RefreshCw, WifiOff,
-    Loader2, ChevronDown, ChevronRight, CornerDownLeft, X, Play, Pause, Volume2, VolumeX
+    Loader2, ChevronDown, ChevronRight, CornerDownLeft, X, Play, Pause, Volume2, VolumeX, Crown
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -14,6 +14,7 @@ import { useQuery, useInfiniteQuery } from '@tanstack/react-query';
 import { safeGetStorage, safeSetStorage } from '@/utils/storageHelper';
 import ShareCard, { SHARE_THEMES } from '@/components/ShareCard';
 import { shareHiddenElement } from '@/lib/share';
+import { isPremium } from '@/services/creditService';
 
 import { useTranslation } from 'react-i18next';
 
@@ -231,6 +232,7 @@ export default function SurahDetail() {
     // Toggle bookmark
     const toggleBookmark = useCallback((verse) => {
         selection();
+        if (!isPremium()) { navigate('/premium'); return; }
         setBookmarks(prev => {
             const exists = prev.some(b => b.verseKey === verse.verseKey);
             let updated;
@@ -294,6 +296,7 @@ export default function SurahDetail() {
     // Audio Logic
     const toggleSurahAudio = async () => {
         selection();
+        if (!isPremium()) { navigate('/premium'); return; }
         if (playingAyahKey) {
             audio.pause();
             setPlayingAyahKey(null);
@@ -370,6 +373,7 @@ export default function SurahDetail() {
 
     const handlePlayAyah = async (verse) => {
         selection();
+        if (!isPremium()) { navigate('/premium'); return; }
         if (isSurahPlaying) {
             audio.pause();
             setIsSurahPlaying(false);
@@ -738,28 +742,41 @@ export default function SurahDetail() {
 
                             {/* Theme Grid */}
                             <div className="grid grid-cols-5 gap-3 mb-8">
-                                {Object.values(SHARE_THEMES).map(theme => (
-                                    <button
-                                        key={theme.id}
-                                        onClick={() => {
-                                            selection();
-                                            setActiveTheme(theme);
-                                        }}
-                                        className={cn(
-                                            "aspect-square rounded-full transition-all duration-300 relative border-2 border-transparent",
-                                            theme.preview,
-                                            activeTheme.id === theme.id ? "scale-110 ring-2 ring-offset-2 ring-islamic-gold ring-offset-[#021a0f]" : "opacity-70 hover:opacity-100"
-                                        )}
-                                        aria-label={theme.name}
-                                    >
-                                        {activeTheme.id === theme.id && (
-                                            <motion.div
-                                                layoutId="activeTheme"
-                                                className="absolute inset-0 border-2 border-white/50 rounded-full"
-                                            />
-                                        )}
-                                    </button>
-                                ))}
+                                {Object.values(SHARE_THEMES).map((theme, index) => {
+                                    const isFree = index === 0;
+                                    const isLocked = !isFree && !isPremium();
+                                    return (
+                                        <button
+                                            key={theme.id}
+                                            onClick={() => {
+                                                selection();
+                                                if (isLocked) {
+                                                    navigate('/premium');
+                                                    return;
+                                                }
+                                                setActiveTheme(theme);
+                                            }}
+                                            className={cn(
+                                                "aspect-square rounded-full transition-all duration-300 relative border-2 border-transparent",
+                                                theme.preview,
+                                                activeTheme.id === theme.id ? "scale-110 ring-2 ring-offset-2 ring-islamic-gold ring-offset-[#021a0f]" : isLocked ? "opacity-40" : "opacity-70 hover:opacity-100"
+                                            )}
+                                            aria-label={theme.name}
+                                        >
+                                            {activeTheme.id === theme.id && (
+                                                <motion.div
+                                                    layoutId="activeTheme"
+                                                    className="absolute inset-0 border-2 border-white/50 rounded-full"
+                                                />
+                                            )}
+                                            {isLocked && (
+                                                <div className="absolute -top-1 -right-1 w-4.5 h-4.5 rounded-full bg-gradient-to-br from-islamic-gold to-amber-600 flex items-center justify-center shadow-md shadow-islamic-gold/30">
+                                                    <Crown size={9} className="text-white" fill="white" />
+                                                </div>
+                                            )}
+                                        </button>
+                                    );
+                                })}
                             </div>
 
                             {/* Action Button */}

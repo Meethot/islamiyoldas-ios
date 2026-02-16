@@ -1,54 +1,64 @@
 {
-    "title": "Dhikr Counter",
+    "title": "Zikirmatik",
     "presets": {
         "subhanallah": {
-            "name": "SubhanAllah",
-            "meaning": "Glory be to Allah"
+            "name": "Sübhanallah",
+            "meaning": "Allah nöqsan sifətlərdən uzaqdır"
         },
         "elhamdulillah": {
-            "name": "Alhamdulillah",
-            "meaning": "All praise is due to Allah"
+            "name": "Əlhəmdülillah",
+            "meaning": "Həmd (şükür) Allahadır"
         },
         "allahuekber": {
-            "name": "Allahu Akbar",
-            "meaning": "Allah is the Greatest"
+            "name": "Allahu Əkbər",
+            "meaning": "Allah ən böyükdür"
         },
         "last": {
-            "name": "La ilaha illallah",
-            "meaning": "There is no god but Allah"
+            "name": "Lə iləhə illəllah",
+            "meaning": "Allahdan başqa ilah yoxdur"
         },
         "istigfar": {
-            "name": "Astaghfirullah",
-            "meaning": "I seek forgiveness from Allah"
+            "name": "Əstağfirullah",
+            "meaning": "Allahdan bağışlanma diləyirəm"
         },
         "salavat": {
-            "name": "Salawat",
-            "meaning": "O Allah, send blessings upon our Prophet Muhammad"
+            "name": "Salavat",
+            "meaning": "Allahım, Əfəndimiz Muhəmmədə rəhmət et"
         }
     },
     "vibration": {
-        "everyClick": "Vibration: Every Click",
-        "targetOnly": "Vibration: Target Only",
-        "off": "Vibration: Off"
+        "everyClick": "Titrəmə: Hər Toxunmada",
+        "targetOnly": "Titrəmə: Yalnız Hədəfdə",
+        "off": "Titrəmə: Bağlı"
     },
     "vibrationTooltip": {
-        "all": "All Vibrations On",
-        "target": "Vibration on Target Only",
-        "off": "Vibration Off"
+        "all": "Bütün Titrəmələr Açıq",
+        "target": "Yalnız Hədəfdə Titrəmə",
+        "off": "Titrəmə Bağlı"
     },
-    "confirmReset": "Are you sure you want to reset the dhikr counter?",
-    "target": "Target: {{count}}",
-    "targetWithUnit": "Target: {{count}} Times",
-    "round": "ROUND",
-    "roundCompleted": "Round {{round}} Completed ✓",
-    "totalDhikr": "Total Dhikr",
-    "resetAllTitle": "Reset all dhikr?",
-    "cancel": "CANCEL",
-    "reset": "RESET",
-    "setTarget": "Set Target",
-    "setTargetDesc": "Enter your personal target for {{name}}.",
-    "saveTarget": "SAVE TARGET",
-    "resetAllTooltip": "Reset All Dhikr",
-    "footerVerse": "\"O you who believe! Remember Allah with much remembrance, and glorify Him morning and evening.\"",
-    "footerVerseSource": "SURAH AL-AHZAB, 41-42"
+    "confirmReset": "Zikirmatik sayğacını sıfırlamaq istədiyinizdən əminsiniz?",
+    "target": "Hədəf: {{count}}",
+    "targetWithUnit": "Hədəf: {{count}} Ədəd",
+    "round": "TUR",
+    "roundCompleted": "{{round}}. Tur Tamamlandı ✓",
+    "totalDhikr": "Cəmi Zikir",
+    "resetAllTitle": "Bütün zikrləri sıfırla?",
+    "cancel": "LƏĞV ET",
+    "reset": "SIFIRLA",
+    "setTarget": "Hədəf Müəyyən Et",
+    "setTargetDesc": "{{name}} üçün şəxsi hədəfinizi daxil edin.",
+    "saveTarget": "HƏDƏFİ SAXLA",
+    "resetAllTooltip": "Bütün Zikrləri Sıfırla",
+    "footerVerse": "\"Ey iman gətirənlər! Allahı çox-çox zikr edin və Onu səhər-axşam təsbeh edin.\"",
+    "footerVerseSource": "ƏHZAB SURƏSİ, 41-42",
+    "dhikrLimit": {
+        "title": "Günlük Zikir Haqqınız",
+        "completed": "Tamamlandı",
+        "desc1": "Pulsuz olaraq gündə",
+        "count": "{{count}} zikir",
+        "desc2": "çəkə bilərsiniz.",
+        "desc3": "Limitsiz zikir üçün Premiuma yüksəlin.",
+        "cta": "Limitsiz Zikir — Premium",
+        "dismiss": "Sabah yenidən gəl"
+    }
 }

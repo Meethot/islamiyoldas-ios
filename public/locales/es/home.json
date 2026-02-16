@@ -253,5 +253,15 @@
         "motivational": "\"Would you like to perform your prayer?\"",
         "praying": "I'm Praying ✅",
         "remindLater": "Remind in 10 min ⏰"
+    },
+    "dhikrLimit": {
+        "title": "Límite diario de Dhikr",
+        "completed": "Alcanzado",
+        "desc1": "Puedes realizar",
+        "count": "{{count}} dhikrs",
+        "desc2": "gratis al día.",
+        "desc3": "Actualiza a Premium para dhikr ilimitado.",
+        "cta": "Dhikr ilimitado — Premium",
+        "dismiss": "Vuelve mañana"
     }
 }

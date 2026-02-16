@@ -1,54 +1,54 @@
 {
     "steps": {
         "language": {
-            "title": "Select Language",
-            "subtitle": "Choose your preferred language",
-            "select": "Select your language"
+            "title": "Dil Seçimi",
+            "subtitle": "Tətbiq dilini müəyyən edin",
+            "select": "Üstünlük verdiyiniz dili seçin"
         },
         "gender": {
-            "title": "Your Gender",
-            "male": "Male",
-            "female": "Female"
+            "title": "Cinsiyyətiniz",
+            "male": "Kişi",
+            "female": "Qadın"
         },
         "age": {
-            "title": "Your Age Group",
-            "subtitle": "Tailored content for you",
-            "range1": "13 - 17 years",
-            "range2": "18 - 30 years",
-            "range3": "31 - 45 years",
-            "range4": "46+ years"
+            "title": "Yaş Qrupunuz",
+            "subtitle": "Sizə uyğun məzmun təqdim edək",
+            "range1": "13 - 17 yaş",
+            "range2": "18 - 30 yaş",
+            "range3": "31 - 45 yaş",
+            "range4": "46+ yaş"
         },
         "prayerStatus": {
-            "title": "Prayer Status",
-            "subtitle": "Understanding your journey",
-            "regular": "Yes, I pray 5 times",
-            "occasional": "I pray occasionally",
-            "irregular": "I haven't started yet"
+            "title": "Namaz Vəziyyətiniz",
+            "subtitle": "Mənəvi yolçuluğunuzu anlayaq",
+            "regular": "Bəli, 5 vaxt qılıram",
+            "occasional": "Ara-sıra qılıram",
+            "irregular": "Hələ başlamamışam"
         },
         "quranLevel": {
-            "title": "Quran Knowledge",
-            "subtitle": "Set your learning level",
-            "advanced": "I read fluently",
-            "reading": "I read slowly",
-            "learning": "I know letters",
-            "none": "I want to learn"
+            "title": "Quran Bilginiz",
+            "subtitle": "Öyrənmə səviyyənizi müəyyənləşdirək",
+            "advanced": "Axıcı oxuyuram",
+            "reading": "Yavaş oxuyuram",
+            "learning": "Hərfləri bilirəm",
+            "none": "Öyrənmək istəyirəm"
         },
         "goal": {
-            "title": "Main Goal",
-            "subtitle": "How can we help you?",
-            "prayer": "Regular Prayers",
-            "quran": "Learn Quran",
-            "spirituality": "Strengthen Spirituality",
-            "knowledge": "Islamic Knowledge"
+            "title": "Əsas Hədəfiniz",
+            "subtitle": "Sizə necə kömək edə bilərik?",
+            "prayer": "Namazlarımı qaydaya salmaq",
+            "quran": "Quran öyrənmək",
+            "spirituality": "Mənəviyyatımı gücləndirmək",
+            "knowledge": "İslami bilik əldə etmək"
         }
     },
     "welcome": {
-        "title": "Welcome",
-        "subtitle": "Let's personalize your experience"
+        "title": "Xoş Gəldiniz",
+        "subtitle": "Sizə xüsusi bir təcrübə hazırlayaq"
     },
-    "progress": "Step {{current}} / {{total}}",
+    "progress": "Addım {{current}} / {{total}}",
     "buttons": {
-        "next": "Continue",
-        "start": "Start"
+        "next": "Davam Et",
+        "start": "Başla"
     }
 }

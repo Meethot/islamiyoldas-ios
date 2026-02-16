@@ -5,7 +5,13 @@
         "welcomeMessage": "Selamün aleyküm güzel kardeşim. Ben senin Manevi Asistanınım. Kalbinde ne var, seni daraltan veya şükrettiren nedir? Bana anlat, sana Kuran ve Sünnet ışığında bir reçete hazırlayayım.",
         "thinking": "Tefekkür ediliyor...",
         "placeholder": "Derdim var, içim daralıyor...",
-        "errorPrefix": "Hata oluştu:"
+        "errorPrefix": "Hata oluştu:",
+        "freeQuota": "Bugün {{count}} hakkın kaldı",
+        "unlockMore": "Daha fazla aç",
+        "limitReachedBanner": "Günlük hakkın doldu",
+        "limitReachedPlaceholder": "Premium ile 30 soru sorabilirsin...",
+        "dailyLimitReached": "Günlük soru hakkınız doldu. Yarın tekrar gelin veya Premium ile günde 30 soru sorun.",
+        "premiumQuota": "{{count}} hakkın kaldı"
     },
     "prescription": {
         "title": "Manevi Reçete",

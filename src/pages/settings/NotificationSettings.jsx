@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 import { useHaptics } from '@/hooks/useMobile';
 import { usePrayerTimes } from '../../context/PrayerTimesContext';
 import { useTranslation } from 'react-i18next';
+import { isPremium } from '@/services/creditService';
 
 function SettingsToggle({ icon: Icon, label, subtitle, active, onToggle }) {
     return (
@@ -43,6 +44,15 @@ export default function NotificationSettings() {
     const { t } = useTranslation('settings');
     const { selection } = useHaptics();
     const { settings: prayerSettings, updateSettings } = usePrayerTimes();
+
+    const premiumGate = (callback) => {
+        if (!isPremium()) {
+            selection();
+            navigate('/premium');
+            return;
+        }
+        callback();
+    };
 
     const containerVariants = {
         hidden: { opacity: 0 },
@@ -82,10 +92,10 @@ export default function NotificationSettings() {
                             label={t('adhanTime')}
                             subtitle={t('adhanTimeSubtitle')}
                             active={prayerSettings.adhanEnabled}
-                            onToggle={() => {
+                            onToggle={() => premiumGate(() => {
                                 selection();
                                 updateSettings({ adhanEnabled: !prayerSettings.adhanEnabled });
-                            }}
+                            })}
                         />
                         {prayerSettings.adhanEnabled && (
                             <SettingsToggle
@@ -93,10 +103,10 @@ export default function NotificationSettings() {
                                 label={t('vibrateOnly')}
                                 subtitle={t('vibrateOnlySubtitle')}
                                 active={prayerSettings.vibrateOnly}
-                                onToggle={() => {
+                                onToggle={() => premiumGate(() => {
                                     selection();
                                     updateSettings({ vibrateOnly: !prayerSettings.vibrateOnly });
-                                }}
+                                })}
                             />
                         )}
                         <SettingsToggle
@@ -104,10 +114,10 @@ export default function NotificationSettings() {
                             label={t('dailyVerse')}
                             subtitle={t('dailyVerseSubtitle')}
                             active={prayerSettings.verseEnabled}
-                            onToggle={() => {
+                            onToggle={() => premiumGate(() => {
                                 selection();
                                 updateSettings({ verseEnabled: !prayerSettings.verseEnabled });
-                            }}
+                            })}
                         />
                     </div>
                 </motion.section>
@@ -121,40 +131,40 @@ export default function NotificationSettings() {
                             label={t('prayerMode')}
                             subtitle={t('prayerModeSubtitle')}
                             active={prayerSettings.prayerFocusMode}
-                            onToggle={() => {
+                            onToggle={() => premiumGate(() => {
                                 selection();
                                 updateSettings({ prayerFocusMode: !prayerSettings.prayerFocusMode });
-                            }}
+                            })}
                         />
                         <SettingsToggle
                             icon={Share2}
                             label={t('spiritualRewards')}
                             subtitle={t('spiritualRewardsSubtitle')}
                             active={prayerSettings.spiritualRewards}
-                            onToggle={() => {
+                            onToggle={() => premiumGate(() => {
                                 selection();
                                 updateSettings({ spiritualRewards: !prayerSettings.spiritualRewards });
-                            }}
+                            })}
                         />
                         <SettingsToggle
                             icon={MessageSquare}
                             label={t('fridayMessage')}
                             subtitle={t('fridayMessageSubtitle')}
                             active={prayerSettings.fridayMessage}
-                            onToggle={() => {
+                            onToggle={() => premiumGate(() => {
                                 selection();
                                 updateSettings({ fridayMessage: !prayerSettings.fridayMessage });
-                            }}
+                            })}
                         />
                         <SettingsToggle
                             icon={Disc3}
                             label={t('dhikrReminder')}
                             subtitle={t('dhikrReminderSubtitle')}
                             active={prayerSettings.dhikrReminder}
-                            onToggle={() => {
+                            onToggle={() => premiumGate(() => {
                                 selection();
                                 updateSettings({ dhikrReminder: !prayerSettings.dhikrReminder });
-                            }}
+                            })}
                         />
                     </div>
                 </motion.section>

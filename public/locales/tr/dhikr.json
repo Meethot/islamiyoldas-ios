@@ -50,5 +50,15 @@
     "saveTarget": "HEDEFİ KAYDET",
     "resetAllTooltip": "Tüm Zikirleri Sıfırla",
     "footerVerse": "\"Ey iman edenler! Allah'ı çokça zikredin ve O'nu sabah akşam tespih edin.\"",
-    "footerVerseSource": "AHZAB SURESİ, 41-42"
+    "footerVerseSource": "AHZAB SURESİ, 41-42",
+    "dhikrLimit": {
+        "title": "Günlük Zikir Hakkınız",
+        "completed": "Tamamlandı",
+        "desc1": "Ücretsiz olarak günde",
+        "count": "{{count}} zikir",
+        "desc2": "çekebilirsiniz.",
+        "desc3": "Sınırsız zikir için Premium'a yükseltin.",
+        "cta": "Sınırsız Zikir — Premium",
+        "dismiss": "Yarın tekrar gel"
+    }
 }

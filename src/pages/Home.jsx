@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
     Moon, Sunrise, Sun, Sunset, Sparkles, Star, Wind, MessageCircle, X, Download,
-    ChevronRight, Heart, Share2, Bot
+    ChevronRight, Heart, Share2, Bot, Crown
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -18,6 +18,7 @@ import {
     ReligiousCalendarWidget, QuickAction, LoadingPlaceholder, TasbihIcon
 } from '@/components/HomeComponents';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import { shareProgress, shareInvite, shareVerse } from '@/lib/share';
 import PrayerTimeOverlay from '@/components/PrayerTimeOverlay';
 import { triggerReviewPrompt } from '@/components/ReviewPrompt';
@@ -25,6 +26,7 @@ import { usePrayerFocus } from '@/hooks/usePrayerFocus';
 import { useTranslation } from 'react-i18next';
 import { Capacitor } from '@capacitor/core';
 import { AdMob } from '@capacitor-community/admob';
+import { isPremium } from '@/services/creditService';
 
 // Static Constants moved outside to prevent re-creation
 // FRIDAY_CONTENT is now dynamic - moved inside component to use t()
@@ -246,8 +248,10 @@ export default function Home() {
         const deedItems = t('deed.items', { returnObjects: true });
         setCurrentDeed(Array.isArray(deedItems) ? deedItems[dayOfYear % deedItems.length] : '');
 
-        if (isFriday) {
+        if (isFriday && isPremium()) {
             setActiveTheme(SHARE_THEMES.find(t => t.id === 'friday'));
+        } else {
+            setActiveTheme(SHARE_THEMES[0]);
         }
 
         // Persistent Deed Reveal Logic
@@ -356,11 +360,39 @@ export default function Home() {
                 onShare={handleShare}
             />
 
-            <DailyDeedCard
-                revealed={deedRevealed}
-                deed={currentDeed}
-                onReveal={revealDeed}
-            />
+            {isPremium() ? (
+                <DailyDeedCard
+                    revealed={deedRevealed}
+                    deed={currentDeed}
+                    onReveal={revealDeed}
+                />
+            ) : (
+                <motion.div variants={itemVariants}>
+                    <Card
+                        className="group relative overflow-hidden rounded-[2.5rem] border-none backdrop-blur-xl bg-white/80 dark:bg-gradient-to-br dark:from-[#032e18] dark:via-[#044d29] dark:to-[#032e18] shadow-xl dark:shadow-[0_20px_60px_rgba(4,77,41,0.4)] transition-all duration-500 opacity-70"
+                        onClick={() => navigate('/premium')}
+                    >
+                        <div className="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-transparent via-islamic-gold to-transparent opacity-50" />
+                        <CardContent className="p-6">
+                            <div className="flex items-center gap-4">
+                                <div className="w-14 h-14 rounded-[1.25rem] flex items-center justify-center bg-islamic-gold/10 text-islamic-gold shadow-inner">
+                                    <Heart className="w-7 h-7" />
+                                </div>
+                                <div className="flex-1">
+                                    <h4 className="text-xs font-bold font-serif text-gray-400 dark:text-emerald-100/60 uppercase tracking-widest mb-1">{t('deed.title')}</h4>
+                                    <div className="flex items-center gap-2">
+                                        <p className="text-sm font-bold text-gray-300 dark:text-gray-600 blur-[3px] select-none">{t('deed.blurText')}</p>
+                                        <span className="text-[10px] bg-gradient-to-r from-islamic-gold to-amber-600 text-white px-2.5 py-0.5 rounded-full font-bold flex items-center gap-1">
+                                            <Crown size={10} fill="white" /> Premium
+                                        </span>
+                                    </div>
+                                </div>
+                                <ChevronRight className="text-islamic-gold/40" />
+                            </div>
+                        </CardContent>
+                    </Card>
+                </motion.div>
+            )}
 
             <EsmaUlHusnaWidget
                 esmaList={ESMA_UL_HUSNA}
@@ -476,19 +508,34 @@ export default function Home() {
                                 <div className="space-y-4">
                                     <p className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest text-center">{t('theme_select')}</p>
                                     <div className="flex justify-center gap-4">
-                                        {SHARE_THEMES.map(theme => (
-                                            <button key={theme.id} onClick={() => { selection(); setActiveTheme(theme); }}
-                                                aria-label={`Tema: ${theme.name}`}
-                                                className={cn("touch-target w-12 h-12 rounded-full border-2 transition-all active:scale-95",
-                                                    activeTheme.id === theme.id ? "border-islamic-gold scale-110 shadow-lg" : "border-transparent",
-                                                    theme.id === 'emerald' ? "bg-islamic-green" :
-                                                        theme.id === 'golden' ? "bg-amber-500" :
-                                                            theme.id === 'gray' ? "bg-gray-500" :
-                                                                theme.id === 'blue' ? "bg-blue-600" :
-                                                                    theme.id === 'friday' ? "bg-[#134951]" : "bg-gray-200"
-                                                )}
-                                            />
-                                        ))}
+                                        {SHARE_THEMES.map((theme, index) => {
+                                            const isFree = index === 0;
+                                            const isLocked = !isFree && !isPremium();
+                                            return (
+                                                <button key={theme.id} onClick={() => {
+                                                    selection();
+                                                    if (isLocked) { navigate('/premium'); return; }
+                                                    setActiveTheme(theme);
+                                                }}
+                                                    aria-label={`Tema: ${theme.name}`}
+                                                    className={cn("touch-target w-12 h-12 rounded-full border-2 transition-all active:scale-95 relative",
+                                                        activeTheme.id === theme.id ? "border-islamic-gold scale-110 shadow-lg" : "border-transparent",
+                                                        isLocked && "opacity-50",
+                                                        theme.id === 'emerald' ? "bg-islamic-green" :
+                                                            theme.id === 'golden' ? "bg-amber-500" :
+                                                                theme.id === 'gray' ? "bg-gray-500" :
+                                                                    theme.id === 'blue' ? "bg-blue-600" :
+                                                                        theme.id === 'friday' ? "bg-[#134951]" : "bg-gray-200"
+                                                    )}
+                                                >
+                                                    {isLocked && (
+                                                        <div className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-gradient-to-br from-islamic-gold to-amber-600 flex items-center justify-center shadow-md shadow-islamic-gold/30">
+                                                            <Crown size={10} className="text-white" fill="white" />
+                                                        </div>
+                                                    )}
+                                                </button>
+                                            );
+                                        })}
                                     </div>
                                 </div>
                                 <Button
@@ -597,12 +644,14 @@ if (typeof window !== 'undefined') {
 function EsmaDetailModal({ esma, count, setCount, onClose }) {
     const { selection, heavy, medium, targetReached } = useHaptics();
     const { t, i18n } = useTranslation('home');
+    const navigate = useNavigate();
 
     // Sound and Haptics settings
     const [soundEnabled, setSoundEnabled] = useState(true);
     const [hapticsMode, setHapticsMode] = useState('all'); // 'all', 'target', 'off'
     const [showResetConfirm, setShowResetConfirm] = useState(false);
     const [feedbackMessage, setFeedbackMessage] = useState('');
+    const [showDhikrLimit, setShowDhikrLimit] = useState(false);
 
     if (!esma) return null;
 
@@ -623,6 +672,23 @@ function EsmaDetailModal({ esma, count, setCount, onClose }) {
     const strokeDashoffset = circumference - progress * circumference;
 
     const handleIncrement = () => {
+        // Daily dhikr limit for non-premium users (33 free per day)
+        if (!isPremium()) {
+            const stored = JSON.parse(localStorage.getItem('esma_daily_limit') || '{}');
+            const today = getAppDate().toISOString().slice(0, 10); // "YYYY-MM-DD"
+            // Reset if different day
+            const dailyCount = stored.date === today ? (stored.count || 0) : 0;
+            if (dailyCount >= 33) {
+                setShowDhikrLimit(true);
+                return;
+            }
+            // Update daily count
+            localStorage.setItem('esma_daily_limit', JSON.stringify({
+                count: dailyCount + 1,
+                date: today
+            }));
+        }
+
         const newCount = count + 1;
         setCount(newCount);
 
@@ -896,6 +962,87 @@ function EsmaDetailModal({ esma, count, setCount, onClose }) {
                                         </button>
                                     </div>
                                 </div>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+
+                    {/* Daily Dhikr Limit Overlay */}
+                    <AnimatePresence>
+                        {showDhikrLimit && (
+                            <motion.div
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                className="fixed inset-0 bg-black/30 backdrop-blur-md flex items-center justify-center z-[9999]"
+                                onClick={(e) => e.stopPropagation()}
+                            >
+                                <motion.div
+                                    initial={{ scale: 0.85, opacity: 0, y: 30 }}
+                                    animate={{ scale: 1, opacity: 1, y: 0 }}
+                                    exit={{ scale: 0.85, opacity: 0, y: 30 }}
+                                    transition={{ type: 'spring', damping: 20, stiffness: 300 }}
+                                    className="px-8 text-center"
+                                >
+                                    {/* Animated ring with count */}
+                                    <div className="flex justify-center mb-6">
+                                        <div className="relative">
+                                            <svg width="96" height="96" viewBox="0 0 96 96" className="transform -rotate-90">
+                                                <circle cx="48" cy="48" r="42" fill="none" stroke="rgba(212,175,55,0.1)" strokeWidth="4" />
+                                                <motion.circle
+                                                    cx="48" cy="48" r="42"
+                                                    fill="none"
+                                                    stroke="url(#goldGrad)"
+                                                    strokeWidth="4"
+                                                    strokeLinecap="round"
+                                                    strokeDasharray={2 * Math.PI * 42}
+                                                    initial={{ strokeDashoffset: 2 * Math.PI * 42 }}
+                                                    animate={{ strokeDashoffset: 0 }}
+                                                    transition={{ duration: 1.2, ease: 'easeOut' }}
+                                                />
+                                                <defs>
+                                                    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                                        <stop offset="0%" stopColor="#D4AF37" />
+                                                        <stop offset="100%" stopColor="#F5D68A" />
+                                                    </linearGradient>
+                                                </defs>
+                                            </svg>
+                                            <div className="absolute inset-0 flex flex-col items-center justify-center">
+                                                <span className="text-2xl font-black text-islamic-gold">33</span>
+                                                <span className="text-[9px] text-islamic-gold/50 font-bold uppercase tracking-widest">/ 33</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Title */}
+                                    <h3 className="text-xl font-serif font-bold text-white mb-2 leading-tight">
+                                        {t('dhikrLimit.title')}<br />
+                                        <span className="text-islamic-gold">{t('dhikrLimit.completed')}</span>
+                                    </h3>
+
+                                    {/* Description */}
+                                    <p className="text-[13px] text-white/45 leading-relaxed mb-8">
+                                        {t('dhikrLimit.desc1')} <span className="text-islamic-gold/80 font-semibold">{t('dhikrLimit.count', { count: 33 })}</span> {t('dhikrLimit.desc2')}<br />
+                                        {t('dhikrLimit.desc3')}
+                                    </p>
+
+                                    {/* CTA Button */}
+                                    <motion.button
+                                        whileTap={{ scale: 0.97 }}
+                                        onClick={() => { setShowDhikrLimit(false); navigate('/premium'); }}
+                                        className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-islamic-gold via-amber-400 to-islamic-gold text-[#0a2e1f] font-bold text-sm tracking-wide shadow-lg shadow-islamic-gold/20 flex items-center justify-center gap-2"
+                                    >
+                                        <Sparkles size={16} />
+                                        {t('dhikrLimit.cta')}
+                                    </motion.button>
+
+                                    {/* Dismiss */}
+                                    <button
+                                        onClick={() => setShowDhikrLimit(false)}
+                                        className="w-full mt-4 py-2 text-white/25 text-xs font-medium hover:text-white/40 transition-colors"
+                                    >
+                                        {t('dhikrLimit.dismiss')}
+                                    </button>
+                                </motion.div>
                             </motion.div>
                         )}
                     </AnimatePresence>

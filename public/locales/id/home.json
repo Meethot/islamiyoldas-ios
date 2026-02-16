@@ -253,5 +253,15 @@
         "motivational": "\"Would you like to perform your prayer?\"",
         "praying": "I'm Praying ✅",
         "remindLater": "Remind in 10 min ⏰"
+    },
+    "dhikrLimit": {
+        "title": "Batas Dzikir Harian",
+        "completed": "Tercapai",
+        "desc1": "Anda dapat melakukan",
+        "count": "{{count}} dzikir",
+        "desc2": "gratis per hari.",
+        "desc3": "Tingkatkan ke Premium untuk dzikir tanpa batas.",
+        "cta": "Dzikir Tanpa Batas — Premium",
+        "dismiss": "Datang lagi besok"
     }
 }

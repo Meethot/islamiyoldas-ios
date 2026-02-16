@@ -1,9 +1,18 @@
 {
-    "title": "Daily Self-Reflection",
-    "no": "No",
-    "yes": "Yes",
+    "title": "Refleksi Diri Harian",
+    "no": "Tidak",
+    "yes": "Ya",
     "elhamdulillah": "Alhamdulillah",
-    "completionMsg": "You reflected on your heart today, may your soul find peace.",
-    "yourShare": "Today's Gift...",
-    "goHome": "Go to Home"
+    "completionMsg": "Hari ini kamu merenungkan hatimu, semoga jiwamu tenang.",
+    "yourShare": "Hadiah Hari Ini...",
+    "goHome": "Ke Beranda",
+    "premiumNotice": "Premium diperlukan untuk melanjutkan",
+    "streakDays": "Hari Berturut-turut",
+    "bestStreak": "Terbaik",
+    "streakMsg0": "Kembali besok, mulai seri! 🌱",
+    "streakMsg1": "Langkah pertama! Lanjutkan! 🌿",
+    "streakMsg2": "Kamu hebat! Jangan berhenti! 🔥",
+    "streakMsg5": "Luar biasa! Kebiasaan terbentuk! ⭐",
+    "streakMsg10": "Disiplin sempurna! Kamu menginspirasi! 💎",
+    "streakMsg30": "Seri legendaris! Selamat! 🏆"
 }
