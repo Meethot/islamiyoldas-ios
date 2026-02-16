@@ -1,6 +1,7 @@
 import { ESMA_DE as _ESMA_DE } from './esmaDE';
 import { ESMA_RU as _ESMA_RU } from './esmaRU';
 import { ESMA_AR as _ESMA_AR } from './esmaAR';
+import { ESMA_AZ as _ESMA_AZ } from './esmaAZ';
 
 export const ALL_ESMA = [
     { id: 1, name: 'Allah', meaning: 'Her şeyin hakikî mâbudu, her şeyi yaratan.', meaning_en: 'The true God of all things, Creator of everything.', ebced: 66, virtue: 'Dua ve dileklerin kabulü için en büyük isimdir.', virtue_en: 'The greatest name for the acceptance of prayers and wishes.', calligraphy: 'اللّٰه' },
@@ -109,5 +110,7 @@ export const ALL_ESMA = [
     const ru = _ESMA_RU[esma.id];
     // Merge Arabic translations from esmaAR.js
     const ar = _ESMA_AR[esma.id];
-    return { ...esma, ...(de || {}), ...(ru || {}), ...(ar || {}) };
+    // Merge Azerbaijani translations from esmaAZ.js
+    const az = _ESMA_AZ[esma.id];
+    return { ...esma, ...(de || {}), ...(ru || {}), ...(ar || {}), ...(az || {}) };
 });

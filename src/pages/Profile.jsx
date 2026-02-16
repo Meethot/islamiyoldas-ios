@@ -403,19 +403,6 @@ export default function Profile() {
                         <ChevronRight className="w-5 h-5 text-stone-400 dark:text-gray-300 group-hover:translate-x-1 transition-transform" />
                     </div>
 
-                    {/* Privacy Modal Trigger - Keep as modal */}
-                    <div className="p-5 flex items-center justify-between hover:bg-stone-50 dark:hover:bg-white/5 transition-colors cursor-pointer group" onClick={() => setShowPrivacyModal(true)}>
-                        <div className="flex items-center gap-4">
-                            <div className="p-3 bg-blue-100/80 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 rounded-2xl group-hover:scale-110 transition-transform">
-                                <Shield size={20} />
-                            </div>
-                            <div className="text-left">
-                                <p className="text-sm font-bold text-stone-800 dark:text-white">{t('privacy.title')}</p>
-                                <p className="text-xs text-stone-500 dark:text-gray-400 font-medium">{t('privacy.subtitle')}</p>
-                            </div>
-                        </div>
-                        <ChevronRight className="w-5 h-5 text-stone-400 dark:text-gray-300 group-hover:translate-x-1 transition-transform" />
-                    </div>
 
                     {/* Share Progress */}
                     <div
@@ -530,6 +517,20 @@ export default function Profile() {
                             <div className="text-left">
                                 <p className="text-sm font-bold text-stone-800 dark:text-white">{t('legal.title')}</p>
                                 <p className="text-xs text-stone-500 dark:text-gray-400 font-medium">{t('legal.subtitle')}</p>
+                            </div>
+                        </div>
+                        <ChevronRight className="w-5 h-5 text-stone-400 dark:text-gray-300 group-hover:translate-x-1 transition-transform" />
+                    </div>
+
+                    {/* Privacy Modal Trigger */}
+                    <div className="p-5 flex items-center justify-between hover:bg-stone-50 dark:hover:bg-white/5 transition-colors cursor-pointer group" onClick={() => setShowPrivacyModal(true)}>
+                        <div className="flex items-center gap-4">
+                            <div className="p-3 bg-blue-100/80 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 rounded-2xl group-hover:scale-110 transition-transform">
+                                <Shield size={20} />
+                            </div>
+                            <div className="text-left">
+                                <p className="text-sm font-bold text-stone-800 dark:text-white">{t('privacy.title')}</p>
+                                <p className="text-xs text-stone-500 dark:text-gray-400 font-medium">{t('privacy.subtitle')}</p>
                             </div>
                         </div>
                         <ChevronRight className="w-5 h-5 text-stone-400 dark:text-gray-300 group-hover:translate-x-1 transition-transform" />

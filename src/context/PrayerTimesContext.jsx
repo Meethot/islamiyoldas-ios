@@ -245,12 +245,26 @@ export const PrayerTimesProvider = ({ children }) => {
 
             if (!settings.adhanEnabled) return;
 
+            const lang = i18n.language || 'tr';
+
+            const prayerNames = {
+                tr: ['Sabah Namazı', 'Öğle Namazı', 'İkindi Namazı', 'Akşam Namazı', 'Yatsı Namazı'],
+                en: ['Fajr Prayer', 'Dhuhr Prayer', 'Asr Prayer', 'Maghrib Prayer', 'Isha Prayer'],
+                de: ['Fajr-Gebet', 'Dhuhr-Gebet', 'Asr-Gebet', 'Maghrib-Gebet', 'Isha-Gebet'],
+                ru: ['Утренний намаз', 'Полуденный намаз', 'Послеполуденный намаз', 'Вечерний намаз', 'Ночной намаз'],
+                ar: ['صلاة الفجر', 'صلاة الظهر', 'صلاة العصر', 'صلاة المغرب', 'صلاة العشاء'],
+                az: ['Sübh Namazı', 'Günorta Namazı', 'İkindi Namazı', 'Axşam Namazı', 'Yatsı Namazı']
+            };
+            const notifTitle = { tr: 'Ezan Vakti 🕌', en: 'Prayer Time 🕌', de: 'Gebetszeit 🕌', ru: 'Время намаза 🕌', ar: 'وقت الأذان 🕌', az: 'Azan Vaxtı 🕌' };
+            const notifBody = { tr: 'vakti geldi. Haydi namaza!', en: 'time has come. Let\'s pray!', de: 'Zeit ist gekommen. Lasst uns beten!', ru: 'время пришло. Давайте помолимся!', ar: 'حان وقت الصلاة!', az: 'vaxtı gəldi. Haydi namaza!' };
+            const names = prayerNames[lang] || prayerNames.en;
+
             const prayers = [
-                { name: 'Sabah Namazı', time: timings.Fajr },
-                { name: 'Öğle Namazı', time: timings.Dhuhr },
-                { name: 'İkindi Namazı', time: timings.Asr },
-                { name: 'Akşam Namazı', time: timings.Maghrib },
-                { name: 'Yatsı Namazı', time: timings.Isha }
+                { name: names[0], time: timings.Fajr },
+                { name: names[1], time: timings.Dhuhr },
+                { name: names[2], time: timings.Asr },
+                { name: names[3], time: timings.Maghrib },
+                { name: names[4], time: timings.Isha }
             ];
 
             const isIOS = Capacitor.getPlatform() === 'ios';
@@ -258,10 +272,6 @@ export const PrayerTimesProvider = ({ children }) => {
             const notifications = [];
             const now = new Date();
 
-            // Sound config:
-            // - Android: channel handles the sound, but we set it here too for redundancy
-            // - iOS: per-notification sound file (must be in app bundle root)
-            // - Vibrate-only: null = no sound
             const soundValue = settings.vibrateOnly
                 ? null
                 : (isIOS ? 'ezan.caf' : 'ezan.mp3');
@@ -269,7 +279,7 @@ export const PrayerTimesProvider = ({ children }) => {
             for (let day = 0; day < MAX_PRAYER_DAYS; day++) {
                 prayers.forEach((p, idx) => {
                     const [h, m] = p.time.split(':').map(Number);
-                    if (isNaN(h) || isNaN(m)) return; // Guard against malformed times
+                    if (isNaN(h) || isNaN(m)) return;
 
                     const date = new Date();
                     date.setDate(date.getDate() + day);
@@ -277,11 +287,11 @@ export const PrayerTimesProvider = ({ children }) => {
 
                     if (date <= now) return;
 
-                    const id = day * 5 + idx + 1; // IDs 1-60
+                    const id = day * 5 + idx + 1;
 
                     const notif = {
-                        title: 'Ezan Vakti 🕌',
-                        body: `${p.name} vakti geldi. Haydi namaza!`,
+                        title: notifTitle[lang] || notifTitle.en,
+                        body: `${p.name} ${notifBody[lang] || notifBody.en}`,
                         id,
                         schedule: { at: date, allowWhileIdle: true },
                         sound: soundValue,
@@ -317,10 +327,22 @@ export const PrayerTimesProvider = ({ children }) => {
 
             const getRandomVerse = () => DAILY_VERSES[Math.floor(Math.random() * DAILY_VERSES.length)];
 
+            const lang = i18n.language || 'tr';
+            const slotLabels = {
+                tr: ['Sabah', 'Öğleden Sonra', 'Akşam'],
+                en: ['Morning', 'Afternoon', 'Evening'],
+                de: ['Morgen', 'Nachmittag', 'Abend'],
+                ru: ['Утро', 'День', 'Вечер'],
+                ar: ['الصباح', 'بعد الظهر', 'المساء'],
+                az: ['Səhər', 'Günortadan sonra', 'Axşam']
+            };
+            const verseTitle = { tr: 'Günün Ayeti', en: 'Verse of the Day', de: 'Vers des Tages', ru: 'Аят дня', ar: 'آية اليوم', az: 'Günün Ayəsi' };
+            const labels = slotLabels[lang] || slotLabels.en;
+
             const verseSlots = [
-                { id: 1001, hour: 9, minute: 0, label: 'Sabah' },
-                { id: 1002, hour: 14, minute: 0, label: 'Öğleden Sonra' },
-                { id: 1003, hour: 21, minute: 0, label: 'Akşam' }
+                { id: 1001, hour: 9, minute: 0, label: labels[0] },
+                { id: 1002, hour: 14, minute: 0, label: labels[1] },
+                { id: 1003, hour: 21, minute: 0, label: labels[2] }
             ];
 
             const notifications = verseSlots.map(slot => {
@@ -334,7 +356,7 @@ export const PrayerTimesProvider = ({ children }) => {
 
                 return {
                     id: slot.id,
-                    title: `Günün Ayeti (${slot.label}) 📖`,
+                    title: `${verseTitle[lang] || verseTitle.en} (${slot.label}) 📖`,
                     body: verse.text,
                     schedule: {
                         at: scheduleDate,
@@ -362,16 +384,45 @@ export const PrayerTimesProvider = ({ children }) => {
 
             if (!settings.fridayMessage) return;
 
-            const FRIDAY_MESSAGES = [
-                "Hayırlı Cumalar 🌹 Allah dualarınızı kabul, ömrünüzü bereketli eylesin.",
-                "Cumanız Mübarek Olsun. Kalbiniz nur, eviniz huzur dolsun. 🤲",
-                "Ey Rabbimiz! Bizi sana boyun eğenlerden kıl. Hayırlı Cumalar.",
-                "Gönüller duada birleşince Cumalar güzelleşir. Hayırlı Cumalar 🕌",
-                "Cuma gününün hayrı, bereketi üzerinize olsun. Selam ve dua ile... 🌹",
-                "Rabbim! Gönlümüzden geçen hayırlı duaları kabul eyle. Cumanız mübarek olsun.",
-                "Allah'ın rahmeti ve bereketi üzerinize olsun. Hayırlı, huzurlu Cumalar.",
-                "Ömrümüzün her anı Cuma bereketiyle dolsun. Dualarda buluşmak ümidiyle. 🤲"
-            ];
+            const lang = i18n.language || 'tr';
+            const FRIDAY_MESSAGES_MAP = {
+                tr: [
+                    "Hayırlı Cumalar 🌹 Allah dualarınızı kabul, ömrünüzü bereketli eylesin.",
+                    "Cumanız Mübarek Olsun. Kalbiniz nur, eviniz huzur dolsun. 🤲",
+                    "Ey Rabbimiz! Bizi sana boyun eğenlerden kıl. Hayırlı Cumalar.",
+                    "Gönüller duada birleşince Cumalar güzelleşir. Hayırlı Cumalar 🕌",
+                    "Cuma gününün hayrı, bereketi üzerinize olsun. Selam ve dua ile... 🌹",
+                ],
+                en: [
+                    "Blessed Friday 🌹 May Allah accept your prayers and bless your life.",
+                    "Jumu'ah Mubarak! May your heart be filled with light and your home with peace. 🤲",
+                    "Our Lord! Make us among those who submit to You. Blessed Friday.",
+                    "When hearts unite in prayer, Fridays become beautiful. Blessed Friday 🕌",
+                    "May the blessings of Friday be upon you. With peace and prayers... 🌹",
+                ],
+                az: [
+                    "Xeyirli Cümələr 🌹 Allah dualarınızı qəbul, ömrünüzü bərəkətli eləsin.",
+                    "Cüməniz Mübarək Olsun. Qəlbiniz nur, eviniz hüzur dolsun. 🤲",
+                    "Ey Rəbbimiz! Bizi Sənə boyun əyənlərdən et. Xeyirli Cümələr.",
+                    "Könüllər duada birləşəndə Cümələr gözəlləşir. Xeyirli Cümələr 🕌",
+                    "Cümə gününün xeyri, bərəkəti üzərinizə olsun. Salam və dua ilə... 🌹",
+                ],
+                de: [
+                    "Gesegneter Freitag 🌹 Möge Allah eure Gebete annehmen und euer Leben segnen.",
+                    "Jumu'ah Mubarak! Möge euer Herz mit Licht und euer Heim mit Frieden erfüllt sein. 🤲",
+                ],
+                ru: [
+                    "Благословенная пятница 🌹 Да примет Аллах ваши молитвы и благословит вашу жизнь.",
+                    "Джума Мубарак! Пусть ваше сердце наполнится светом, а дом — покоем. 🤲",
+                ],
+                ar: [
+                    "جمعة مباركة 🌹 تقبّل الله دعاءكم وبارك في أعماركم.",
+                    "جمعة طيبة! نسأل الله أن يملأ قلوبكم نوراً وبيوتكم سكينة. 🤲",
+                ]
+            };
+            const fridayTitle = { tr: 'Hayırlı Cumalar 🌹', en: 'Blessed Friday 🌹', de: 'Gesegneter Freitag 🌹', ru: 'Благословенная пятница 🌹', ar: 'جمعة مباركة 🌹', az: 'Xeyirli Cümələr 🌹' };
+
+            const messages = FRIDAY_MESSAGES_MAP[lang] || FRIDAY_MESSAGES_MAP.en;
 
             const now = new Date();
             const nextFriday = new Date();
@@ -380,7 +431,7 @@ export const PrayerTimesProvider = ({ children }) => {
             const daysUntilFriday = (5 + 7 - dayOfWeek) % 7;
             nextFriday.setDate(now.getDate() + (daysUntilFriday === 0 && now > nextFriday ? 7 : daysUntilFriday));
 
-            const randomMessage = FRIDAY_MESSAGES[Math.floor(Math.random() * FRIDAY_MESSAGES.length)];
+            const randomMessage = messages[Math.floor(Math.random() * messages.length)];
 
             const isIOS = Capacitor.getPlatform() === 'ios';
             const isAndroid = Capacitor.getPlatform() === 'android';
@@ -392,7 +443,7 @@ export const PrayerTimesProvider = ({ children }) => {
             await LocalNotifications.schedule({
                 notifications: [{
                     id: 2000,
-                    title: 'Hayırlı Cumalar 🌹',
+                    title: fridayTitle[lang] || fridayTitle.en,
                     body: randomMessage,
                     schedule: {
                         at: nextFriday,
@@ -417,16 +468,42 @@ export const PrayerTimesProvider = ({ children }) => {
 
             if (!settings.dhikrReminder) return;
 
-            const DHIKR_MESSAGES = [
-                "Kalpler ancak Allah'ı anmakla huzur bulur. Bugün zikrini yaptın mı? 📿",
-                "Bir dakika bile olsa zikret, kalbini nurlandır. Zikirmatik seni bekliyor 🤲",
-                "Her tesbih bir adım cennete… Bugünkü adımlarını attın mı? 📿",
-                "Dil Allah'ı zikrettiğinde kalp sükûnet bulur. Hadi zikredelim 🌿",
-                "Günün en bereketli anı: Allah'ı anma vakti. Zikirmatik'te buluşalım 📿",
-                "Zikir, ruhun gıdasıdır. Bugün ruhunu doyurdun mu? 🕊️",
-                "Sübhanallah, Elhamdülillah, Allahu Ekber… Üç kelimeyle huzur bul 📿",
-                "Kalbin paslanmasın, zikirle parıldasın. Haydi bir kaç dakika ayır 🌟",
-            ];
+            const lang = i18n.language || 'tr';
+            const DHIKR_MESSAGES_MAP = {
+                tr: [
+                    "Kalpler ancak Allah'ı anmakla huzur bulur. Bugün zikrini yaptın mı? 📿",
+                    "Bir dakika bile olsa zikret, kalbini nurlandır. Zikirmatik seni bekliyor 🤲",
+                    "Her tesbih bir adım cennete… Bugünkü adımlarını attın mı? 📿",
+                    "Dil Allah'ı zikrettiğinde kalp sükûnet bulur. Hadi zikredelim 🌿",
+                ],
+                en: [
+                    "Hearts find peace only in the remembrance of Allah. Have you done your dhikr today? 📿",
+                    "Even a minute of dhikr enlightens the heart. The counter is waiting for you 🤲",
+                    "Every tasbih is a step to Paradise… Have you taken your steps today? 📿",
+                    "SubhanAllah, Alhamdulillah, Allahu Akbar… Find peace in three words 📿",
+                ],
+                az: [
+                    "Qəlblər ancaq Allahı zikr etməklə hüzur tapır. Bu gün zikrini etdinmi? 📿",
+                    "Bir dəqiqə belə olsa zikr et, qəlbini nurlandır. Zikirmatik səni gözləyir 🤲",
+                    "Hər təsbeh cənnətə bir addımdır… Bugünkü addımlarını atdınmı? 📿",
+                    "Sübhanallah, Əlhəmdülillah, Allahu Əkbər… Üç söz ilə hüzur tap 📿",
+                ],
+                de: [
+                    "Herzen finden nur im Gedenken Allahs Ruhe. Hast du heute deinen Dhikr gemacht? 📿",
+                    "Jeder Tasbih ist ein Schritt zum Paradies… Hast du deine Schritte heute gemacht? 📿",
+                ],
+                ru: [
+                    "Сердца обретают покой лишь в поминании Аллаха. Ты сделал свой зикр сегодня? 📿",
+                    "СубханАллах, Альхамдулиллях, Аллаху Акбар… Обрети покой в трёх словах 📿",
+                ],
+                ar: [
+                    "ألا بذكر الله تطمئن القلوب. هل ذكرت الله اليوم؟ 📿",
+                    "سبحان الله والحمد لله والله أكبر… اطمئن بثلاث كلمات 📿",
+                ]
+            };
+            const dhikrTitle = { tr: 'Zikir Vakti 📿', en: 'Dhikr Time 📿', de: 'Dhikr-Zeit 📿', ru: 'Время зикра 📿', ar: 'وقت الذكر 📿', az: 'Zikr Vaxtı 📿' };
+
+            const dhikrMessages = DHIKR_MESSAGES_MAP[lang] || DHIKR_MESSAGES_MAP.en;
 
             const scheduleDate = new Date();
             scheduleDate.setHours(10, 0, 0, 0);
@@ -434,13 +511,13 @@ export const PrayerTimesProvider = ({ children }) => {
                 scheduleDate.setDate(scheduleDate.getDate() + 1);
             }
 
-            const randomMessage = DHIKR_MESSAGES[Math.floor(Math.random() * DHIKR_MESSAGES.length)];
+            const randomMessage = dhikrMessages[Math.floor(Math.random() * dhikrMessages.length)];
 
             console.log('📿 Scheduling daily dhikr reminder notification (permanent)');
             await LocalNotifications.schedule({
                 notifications: [{
                     id: 3000,
-                    title: 'Zikir Vakti 📿',
+                    title: dhikrTitle[lang] || dhikrTitle.en,
                     body: randomMessage,
                     schedule: {
                         at: scheduleDate,

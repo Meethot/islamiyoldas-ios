@@ -1,0 +1,45 @@
+// Azerbaijani translations for Prayer Hadiths & Duas
+// Keyed by id — merged into hadithData.js at export
+
+export const HADITH_AZ = {
+    1: { text_az: 'Namaz dinin dirəyidir. Kim namazı qoruyarsa dinini qorumuş, kim tərk edərsə dinini yıxmış olar.', source_az: 'Beyhəqi' },
+    2: { text_az: 'Qul ilə şirk və küfr arasındakı fərq namazın tərk edilməsidir.', source_az: 'Müslim' },
+    3: { text_az: 'Namaz möminin meracıdır.', source_az: 'Hədis' },
+    4: { text_az: 'Namazın savabı yalnız Allahın qatında bilinir.', source_az: 'Buxari' },
+    5: { text_az: 'Beş vaxt namaz, aralarındakı günahların kəffarəsidir.', source_az: 'Müslim' },
+    6: { text_az: 'Qulun Rəbbinə ən yaxın olduğu an, səcdə halında olduğu andır.', source_az: 'Müslim' },
+    7: { text_az: 'Kim sübh namazını qılarsa, Allahın himayəsindədir.', source_az: 'Müslim' },
+    8: { text_az: 'İki qaranlıqda namaz qılan kimsəni cəhənnəm atəşi yandıra bilməz.', source_az: 'Tirmizi' },
+    9: { text_az: 'Camaatla qılınan namaz, tək qılınan namazdan iyirmi yeddi dərəcə üstündür.', source_az: 'Buxari' },
+    10: { text_az: 'Namazını vaxtında qılan kimsə üçün cənnət qapıları açılar.', source_az: 'Tirmizi' },
+    11: { text_az: 'Allaha ən sevimli əməl, az da olsa davamlı olanıdır.', source_az: 'Buxari' },
+    12: { text_az: 'Namazı vaxtında qılmaq, Allahın ən çox sevdiyi əməldir.', source_az: 'Buxari və Müslim' },
+    13: { text_az: 'Beş vaxt namazı qılan kimsə, aralarındakı kiçik günahlardan arınmış olar.', source_az: 'Müslim' },
+    14: { text_az: 'Kim qırx gün boyunca ilk təkbirlə namaza davam edərsə, iki müjdə verilər: Cəhənnəmdən azad olmaq və nifaqdan qurtuluş.', source_az: 'Tirmizi' },
+    15: { text_az: 'Namazlarını tənbəllik etmədən qılan kimsəyə qiyamət günü böyük bir nur verilər.', source_az: 'Təbərani' },
+    16: { text_az: 'Namaz, qəlbin hüzuru və gözün aydınlığıdır.', source_az: 'Əhməd ibn Hənbəl' },
+    17: { text_az: 'Kişinin namazından, namazda oxuduğunu anladığı qədəri ona yazılar.', source_az: 'Əbu Davud' },
+    18: { text_az: 'Namazınızda qəlblərinizi Allaha çevirin; çünki namaz, Allah ilə qul arasında gizli bir söhbətdir.', source_az: 'İmam Qəzali' },
+    19: { text_az: 'Namazda olan kimsə, Rəbbi ilə pıçıldaşır.', source_az: 'Buxari' },
+    20: { text_az: 'Allah, namazda ayaqda durduğunuz müddətcə sizə baxar.', source_az: 'Tirmizi' },
+    21: { text_az: 'Şeytan, namaza düşmən olduğu qədər başqa heç bir şeyə düşmən deyildir.', source_az: 'Tirmizi' },
+    22: { text_az: 'Gözün nuru namazdadır, qəlbin rahatlığı zikirdədir.', source_az: 'Hədis' },
+    23: { text_az: 'Namazı ihmal edən, Allahdan başqa hər şeyi ihmal etmiş olar.', source_az: 'İmam Şafii' },
+    24: { text_az: 'Namaz, günün yorğunluğunu atar, ruha rahatlıq verər.', source_az: 'Hədis' },
+    25: { text_az: 'Sübh namazını qılan kimsə, o gün şeytanın şərindən qorunmuş olar.', source_az: 'Tirmizi' },
+};
+
+export const DUA_AZ = {
+    1: { azerbaijani: 'Rəbbimiz! Bizdən qəbul et. Şübhəsiz Sən eşidənsən, bilənsən.' },
+    2: { azerbaijani: 'Allahım! Səni anmağa, Sənə şükür etməyə və Sənə gözəl ibadət etməyə mənə yardım et.' },
+    3: { azerbaijani: 'Allahım! Küfrdən və yoxsulluqdan Sənə sığınıram.' },
+    4: { azerbaijani: 'Allah nöqsan sifətlərdən uzaqdır. Həmd Allaha məxsusdur. Allah ən böyükdür.' },
+    5: { azerbaijani: 'Allahdan başqa ilah yoxdur. O təkdir, ortağı yoxdur.' },
+    6: { azerbaijani: 'Allahım! Mənimlə günahlarım arasını uzaqlaşdır.' },
+    7: { azerbaijani: 'Göyləri və yeri yaradan Allaha yönəldim, Ondan başqasına ibadət etmərəm.' },
+    8: { azerbaijani: 'Rəbbim! Məni və nəslimdən gələnləri namaz qılanlardan et.' },
+    9: { azerbaijani: 'Allahım! Səndən faydalı elm, təmiz ruzi və qəbul olunan əməl diləyirəm.' },
+    10: { azerbaijani: 'Allahım! Nəfsimə çox zülm etdim. Günahları ancaq Sən bağışlayarsan. Məni bağışla və mənə mərhəmət et.' },
+    11: { azerbaijani: 'Rəbbimiz! Bizə dünyada da yaxşılıq ver, axirətdə də yaxşılıq ver və bizi atəş əzabından qoru.' },
+    12: { azerbaijani: 'Allahım! Hidayət verdiklərinlə birlikdə mənə də hidayət ver.' },
+};

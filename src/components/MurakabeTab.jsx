@@ -282,21 +282,23 @@ export default function MurakabeTab() {
         }).length;
 
     return (
-        <div className="min-h-[70vh] relative overflow-hidden rounded-b-3xl"
+        <div className="min-h-[70vh] relative overflow-hidden rounded-b-3xl bg-gradient-to-b from-[#FAF8F3] via-[#F5F0E6] to-[#EDE6D6] dark:from-transparent dark:via-transparent dark:to-transparent"
             style={{
-                background: 'linear-gradient(180deg, #021a0f 0%, #032e18 25%, #064e3b 50%, #043927 75%, #021a0f 100%)'
+                '--murakabe-dark-bg': 'linear-gradient(180deg, #021a0f 0%, #032e18 25%, #064e3b 50%, #043927 75%, #021a0f 100%)'
             }}
         >
+            {/* Dark mode background overlay */}
+            <div className="absolute inset-0 hidden dark:block" style={{ background: 'linear-gradient(180deg, #021a0f 0%, #032e18 25%, #064e3b 50%, #043927 75%, #021a0f 100%)' }} />
             {/* Layered Ambient Glows */}
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[500px] h-[300px] bg-islamic-gold/[0.04] rounded-full blur-[120px] pointer-events-none" />
-            <div className="absolute top-1/3 left-0 w-[300px] h-[300px] bg-emerald-500/[0.06] rounded-full blur-[100px] pointer-events-none" />
-            <div className="absolute bottom-1/4 right-0 w-[250px] h-[250px] bg-islamic-gold/[0.03] rounded-full blur-[80px] pointer-events-none" />
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[500px] h-[300px] bg-islamic-gold/[0.08] dark:bg-islamic-gold/[0.04] rounded-full blur-[120px] pointer-events-none" />
+            <div className="absolute top-1/3 left-0 w-[300px] h-[300px] bg-primary/[0.06] dark:bg-emerald-500/[0.06] rounded-full blur-[100px] pointer-events-none" />
+            <div className="absolute bottom-1/4 right-0 w-[250px] h-[250px] bg-islamic-gold/[0.06] dark:bg-islamic-gold/[0.03] rounded-full blur-[80px] pointer-events-none" />
 
             {/* Floating Particles */}
             {[...Array(6)].map((_, i) => (
                 <motion.div
                     key={i}
-                    className="absolute w-1 h-1 rounded-full bg-islamic-gold/30"
+                    className="absolute w-1 h-1 rounded-full bg-islamic-gold/20 dark:bg-islamic-gold/30"
                     style={{
                         left: `${15 + i * 15}%`,
                         top: `${20 + (i % 3) * 25}%`,
@@ -317,7 +319,7 @@ export default function MurakabeTab() {
 
             {/* Islamic Geometric Pattern Overlay */}
             <div
-                className="absolute inset-0 opacity-[0.03] pointer-events-none"
+                className="absolute inset-0 opacity-[0.02] dark:opacity-[0.03] pointer-events-none"
                 style={{
                     backgroundImage: `url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%23D4AF37' stroke-width='0.5'%3E%3Ccircle cx='40' cy='40' r='20'/%3E%3Ccircle cx='40' cy='40' r='30'/%3E%3Cpath d='M40 10 L40 70 M10 40 L70 40 M18 18 L62 62 M62 18 L18 62'/%3E%3C/g%3E%3C/svg%3E")`,
                     backgroundSize: '80px 80px'
@@ -328,12 +330,12 @@ export default function MurakabeTab() {
             <header className="relative z-10 text-center pt-8 pb-5">
                 {/* Decorative Flourish */}
                 <div className="flex items-center justify-center gap-3 mb-3">
-                    <div className="h-px w-12 bg-gradient-to-r from-transparent to-islamic-gold/40" />
-                    <div className="w-2 h-2 rounded-full bg-islamic-gold/50 shadow-[0_0_8px_rgba(212,175,55,0.3)]" />
-                    <div className="h-px w-12 bg-gradient-to-l from-transparent to-islamic-gold/40" />
+                    <div className="h-px w-12 bg-gradient-to-r from-transparent to-primary/30 dark:to-islamic-gold/40" />
+                    <div className="w-2 h-2 rounded-full bg-primary/40 dark:bg-islamic-gold/50 shadow-[0_0_8px_rgba(7,77,46,0.2)] dark:shadow-[0_0_8px_rgba(212,175,55,0.3)]" />
+                    <div className="h-px w-12 bg-gradient-to-l from-transparent to-primary/30 dark:to-islamic-gold/40" />
                 </div>
 
-                <h1 className="text-2xl font-serif font-bold text-islamic-gold tracking-wider drop-shadow-[0_0_12px_rgba(212,175,55,0.2)]">
+                <h1 className="text-2xl font-serif font-bold text-primary dark:text-islamic-gold tracking-wider dark:drop-shadow-[0_0_12px_rgba(212,175,55,0.2)]">
                     {t('title')}
                 </h1>
 
@@ -342,7 +344,7 @@ export default function MurakabeTab() {
                         key={currentIndex}
                         initial={{ opacity: 0, y: -5 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="text-sm text-islamic-gold/50 mt-2 font-medium tracking-widest"
+                        className="text-sm text-primary/50 dark:text-islamic-gold/50 mt-2 font-medium tracking-widest"
                     >
                         {currentIndex + 1} / {questions.length}
                     </motion.p>
@@ -351,7 +353,7 @@ export default function MurakabeTab() {
 
             {/* Progress Bar */}
             {!isCompleted && (
-                <div className="relative z-10 h-1.5 bg-white/[0.04] mx-8 rounded-full overflow-hidden border border-white/[0.03]">
+                <div className="relative z-10 h-1.5 bg-primary/[0.08] dark:bg-white/[0.04] mx-8 rounded-full overflow-hidden border border-primary/[0.08] dark:border-white/[0.03]">
                     <motion.div
                         className="h-full rounded-full"
                         style={{
@@ -373,7 +375,7 @@ export default function MurakabeTab() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.5 }}
                 >
-                    <div className="flex items-center justify-center gap-2 py-2 px-4 rounded-xl bg-islamic-gold/[0.08] border border-islamic-gold/15">
+                    <div className="flex items-center justify-center gap-2 py-2 px-4 rounded-xl bg-islamic-gold/[0.12] dark:bg-islamic-gold/[0.08] border border-islamic-gold/20 dark:border-islamic-gold/15">
                         <Crown size={13} className="text-islamic-gold" fill="currentColor" />
                         <span className="text-[11px] text-islamic-gold/80 font-medium tracking-wide">
                             {t('premiumNotice', 'Devam etmek için Premium gerekli')}
@@ -397,50 +399,48 @@ export default function MurakabeTab() {
                         >
                             {/* The Card */}
                             <div
-                                className="relative rounded-[2.5rem] p-7 shadow-2xl shadow-black/40 overflow-hidden border border-islamic-gold/[0.08]"
+                                className="relative rounded-[2.5rem] p-7 shadow-2xl shadow-primary/10 dark:shadow-black/40 overflow-hidden border border-primary/10 dark:border-islamic-gold/[0.08] bg-white/80 dark:bg-[#043927]"
                                 style={{
-                                    background: 'linear-gradient(145deg, rgba(4,57,39,0.9) 0%, rgba(3,46,24,0.95) 50%, rgba(2,28,15,0.9) 100%)',
                                     backdropFilter: 'blur(20px)',
                                 }}
                             >
                                 {/* Card Inner Glow */}
-                                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-24 bg-islamic-gold/[0.06] rounded-full blur-[60px] pointer-events-none" />
-                                <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-32 h-16 bg-emerald-400/[0.04] rounded-full blur-[40px] pointer-events-none" />
+                                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-24 bg-islamic-gold/[0.04] dark:bg-islamic-gold/[0.06] rounded-full blur-[60px] pointer-events-none" />
+                                <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-32 h-16 bg-primary/[0.04] dark:bg-emerald-400/[0.04] rounded-full blur-[40px] pointer-events-none" />
 
                                 {/* Gold Corner Accents */}
-                                <div className="absolute top-4 left-4 w-6 h-6 border-t border-l border-islamic-gold/20 rounded-tl-xl" />
-                                <div className="absolute top-4 right-4 w-6 h-6 border-t border-r border-islamic-gold/20 rounded-tr-xl" />
-                                <div className="absolute bottom-4 left-4 w-6 h-6 border-b border-l border-islamic-gold/20 rounded-bl-xl" />
-                                <div className="absolute bottom-4 right-4 w-6 h-6 border-b border-r border-islamic-gold/20 rounded-br-xl" />
+                                <div className="absolute top-4 left-4 w-6 h-6 border-t border-l border-primary/15 dark:border-islamic-gold/20 rounded-tl-xl" />
+                                <div className="absolute top-4 right-4 w-6 h-6 border-t border-r border-primary/15 dark:border-islamic-gold/20 rounded-tr-xl" />
+                                <div className="absolute bottom-4 left-4 w-6 h-6 border-b border-l border-primary/15 dark:border-islamic-gold/20 rounded-bl-xl" />
+                                <div className="absolute bottom-4 right-4 w-6 h-6 border-b border-r border-primary/15 dark:border-islamic-gold/20 rounded-br-xl" />
 
                                 {/* Icon */}
                                 <div className="relative flex justify-center mb-6">
                                     <motion.div
-                                        className="p-4 rounded-2xl border border-islamic-gold/20 relative"
+                                        className="p-4 rounded-2xl border border-primary/15 dark:border-islamic-gold/20 relative bg-primary/5 dark:bg-transparent"
                                         style={{
-                                            background: 'linear-gradient(135deg, rgba(212,175,55,0.15) 0%, rgba(212,175,55,0.05) 100%)',
-                                            boxShadow: '0 0 20px rgba(212,175,55,0.1), inset 0 1px 0 rgba(212,175,55,0.1)'
+                                            boxShadow: '0 0 20px rgba(7,77,46,0.05), inset 0 1px 0 rgba(7,77,46,0.05)'
                                         }}
                                         animate={{ scale: [1, 1.05, 1] }}
                                         transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
                                     >
                                         <currentQuestion.icon
-                                            className="w-8 h-8 text-islamic-gold drop-shadow-[0_0_8px_rgba(212,175,55,0.3)]"
+                                            className="w-8 h-8 text-primary dark:text-islamic-gold dark:drop-shadow-[0_0_8px_rgba(212,175,55,0.3)]"
                                             strokeWidth={1.5}
                                         />
                                     </motion.div>
                                 </div>
 
                                 {/* Question */}
-                                <h2 className="text-xl font-serif text-amber-50/90 text-center leading-relaxed min-h-[80px] flex items-center justify-center px-2">
+                                <h2 className="text-xl font-serif text-foreground/90 dark:text-amber-50/90 text-center leading-relaxed min-h-[80px] flex items-center justify-center px-2 relative z-10">
                                     {typeof currentQuestion.text === 'object' ? currentQuestion.text[currentLang] : currentQuestion.text}
                                 </h2>
 
                                 {/* Decorative Line */}
-                                <div className="flex items-center justify-center gap-3 mt-6">
-                                    <div className="h-px w-10 bg-gradient-to-r from-transparent to-islamic-gold/30" />
-                                    <div className="w-1.5 h-1.5 rounded-full bg-islamic-gold/40" />
-                                    <div className="h-px w-10 bg-gradient-to-l from-transparent to-islamic-gold/30" />
+                                <div className="flex items-center justify-center gap-3 mt-6 relative z-10">
+                                    <div className="h-px w-10 bg-gradient-to-r from-transparent to-primary/20 dark:to-islamic-gold/30" />
+                                    <div className="w-1.5 h-1.5 rounded-full bg-primary/30 dark:bg-islamic-gold/40" />
+                                    <div className="h-px w-10 bg-gradient-to-l from-transparent to-primary/20 dark:to-islamic-gold/30" />
                                 </div>
                             </div>
 
@@ -450,7 +450,7 @@ export default function MurakabeTab() {
                                     onClick={() => handleAnswer(false)}
                                     className={cn(
                                         "flex-1 h-14 rounded-2xl font-semibold text-base transition-all active:scale-95",
-                                        "bg-white/[0.04] border border-white/10 text-white/70 hover:bg-red-500/10 hover:border-red-500/20 hover:text-red-300"
+                                        "bg-muted/60 dark:bg-white/[0.04] border border-border dark:border-white/10 text-muted-foreground dark:text-white/70 hover:bg-red-500/10 hover:border-red-500/20 hover:text-red-500 dark:hover:text-red-300"
                                     )}
                                 >
                                     <X className="w-5 h-5 mr-2" />
@@ -545,7 +545,7 @@ export default function MurakabeTab() {
 
                             {/* Title - Staggered */}
                             <motion.h2
-                                className="text-4xl font-serif text-islamic-gold mb-4 tracking-wide drop-shadow-[0_0_16px_rgba(212,175,55,0.3)]"
+                                className="text-4xl font-serif text-primary dark:text-islamic-gold mb-4 tracking-wide dark:drop-shadow-[0_0_16px_rgba(212,175,55,0.3)]"
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: 0.6, duration: 0.6 }}
@@ -555,7 +555,7 @@ export default function MurakabeTab() {
 
                             {/* Spiritual Message - Staggered */}
                             <motion.p
-                                className="text-lg text-emerald-100/80 font-light mb-10 leading-relaxed px-4 text-center"
+                                className="text-lg text-foreground/70 dark:text-emerald-100/80 font-light mb-10 leading-relaxed px-4 text-center"
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: 0.9, duration: 0.6 }}
@@ -566,34 +566,32 @@ export default function MurakabeTab() {
                             {/* Daily Destiny (Ayah) Card */}
                             {selectedAyah && (
                                 <motion.div
-                                    className="relative rounded-3xl p-6 mb-8 mx-4 overflow-hidden border border-islamic-gold/15"
+                                    className="relative rounded-3xl p-6 mb-8 mx-4 overflow-hidden border border-primary/10 dark:border-islamic-gold/15 bg-white/60 dark:bg-[#032e18]"
                                     style={{
-                                        background: 'linear-gradient(145deg, rgba(4,57,39,0.8) 0%, rgba(2,40,22,0.9) 100%)',
                                         backdropFilter: 'blur(12px)',
                                     }}
                                     initial={{ opacity: 0, y: 20 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ delay: 1.2, duration: 0.6 }}
                                 >
-                                    {/* Intro Label */}
-                                    <p className="text-sm text-islamic-gold/70 italic text-center mb-3 tracking-wide">
+                                    <p className="text-sm text-primary/60 dark:text-islamic-gold/70 italic text-center mb-3 tracking-wide relative z-10">
                                         {t('yourShare')}
                                     </p>
 
                                     {/* Decorative Line */}
-                                    <div className="flex items-center justify-center gap-3 mb-4">
-                                        <div className="h-px w-10 bg-islamic-gold/30" />
-                                        <div className="w-1.5 h-1.5 rounded-full bg-islamic-gold/50" />
-                                        <div className="h-px w-10 bg-islamic-gold/30" />
+                                    <div className="flex items-center justify-center gap-3 mb-4 relative z-10">
+                                        <div className="h-px w-10 bg-primary/20 dark:bg-islamic-gold/30" />
+                                        <div className="w-1.5 h-1.5 rounded-full bg-primary/30 dark:bg-islamic-gold/50" />
+                                        <div className="h-px w-10 bg-primary/20 dark:bg-islamic-gold/30" />
                                     </div>
 
                                     {/* Ayah Text */}
-                                    <p className="text-lg font-serif text-amber-100 text-center leading-relaxed mb-4">
+                                    <p className="text-lg font-serif text-foreground/80 dark:text-amber-100 text-center leading-relaxed mb-4 relative z-10">
                                         "{typeof selectedAyah.text === 'object' ? (selectedAyah.text[currentLang] || selectedAyah.text.en || selectedAyah.text.tr) : selectedAyah.text}"
                                     </p>
 
                                     {/* Reference */}
-                                    <p className="text-xs text-white/40 text-center tracking-wider">
+                                    <p className="text-xs text-muted-foreground dark:text-white/40 text-center tracking-wider relative z-10">
                                         — {typeof selectedAyah.source === 'object' ? (selectedAyah.source[currentLang] || selectedAyah.source.en || selectedAyah.source.tr) : selectedAyah.source}
                                     </p>
                                 </motion.div>
@@ -601,9 +599,8 @@ export default function MurakabeTab() {
 
                             {/* ── Streak Section ── */}
                             <motion.div
-                                className="relative rounded-3xl p-5 mb-6 mx-2 overflow-hidden border border-islamic-gold/10"
+                                className="relative rounded-3xl p-5 mb-6 mx-2 overflow-hidden border border-primary/10 dark:border-islamic-gold/10 bg-white/60 dark:bg-[#043927]"
                                 style={{
-                                    background: 'linear-gradient(160deg, rgba(4,57,39,0.7) 0%, rgba(2,30,16,0.9) 100%)',
                                     backdropFilter: 'blur(12px)',
                                 }}
                                 initial={{ opacity: 0, y: 20 }}
@@ -667,7 +664,7 @@ export default function MurakabeTab() {
                                         >
                                             {streak}
                                         </motion.div>
-                                        <p className="text-xs text-white/40 font-medium tracking-wider mt-0.5 uppercase">
+                                        <p className="text-xs text-muted-foreground dark:text-white/40 font-medium tracking-wider mt-0.5 uppercase">
                                             {t('streakDays', 'Gün Serisi')}
                                         </p>
                                     </div>
@@ -679,7 +676,7 @@ export default function MurakabeTab() {
                                                 <Trophy size={12} className="text-islamic-gold" />
                                                 <span className="text-sm font-bold text-islamic-gold">{bestStreak}</span>
                                             </div>
-                                            <p className="text-[9px] text-white/30 mt-1 uppercase tracking-wider">
+                                            <p className="text-[9px] text-muted-foreground/60 dark:text-white/30 mt-1 uppercase tracking-wider">
                                                 {t('bestStreak', 'En İyi')}
                                             </p>
                                         </div>
@@ -698,17 +695,17 @@ export default function MurakabeTab() {
                                         >
                                             <span className={cn(
                                                 "text-[10px] font-medium tracking-wide",
-                                                day.isToday ? "text-islamic-gold" : "text-white/30"
+                                                day.isToday ? "text-primary dark:text-islamic-gold" : "text-muted-foreground/50 dark:text-white/30"
                                             )}>
                                                 {day.name}
                                             </span>
                                             <div className={cn(
                                                 "w-8 h-8 rounded-xl flex items-center justify-center transition-all border",
                                                 day.completed
-                                                    ? "bg-gradient-to-br from-emerald-500/30 to-emerald-600/20 border-emerald-500/30"
+                                                    ? "bg-gradient-to-br from-emerald-500/20 dark:from-emerald-500/30 to-emerald-600/10 dark:to-emerald-600/20 border-emerald-500/20 dark:border-emerald-500/30"
                                                     : day.isToday
-                                                        ? "bg-islamic-gold/10 border-islamic-gold/25 border-dashed"
-                                                        : "bg-white/[0.03] border-white/[0.06]"
+                                                        ? "bg-primary/10 dark:bg-islamic-gold/10 border-primary/25 dark:border-islamic-gold/25 border-dashed"
+                                                        : "bg-muted/40 dark:bg-white/[0.03] border-border/50 dark:border-white/[0.06]"
                                             )}>
                                                 {day.completed ? (
                                                     <motion.div
@@ -719,9 +716,9 @@ export default function MurakabeTab() {
                                                         <Check size={14} className="text-emerald-400" strokeWidth={3} />
                                                     </motion.div>
                                                 ) : day.isToday ? (
-                                                    <div className="w-2 h-2 rounded-full bg-islamic-gold/50" />
+                                                    <div className="w-2 h-2 rounded-full bg-primary/40 dark:bg-islamic-gold/50" />
                                                 ) : (
-                                                    <div className="w-1.5 h-1.5 rounded-full bg-white/10" />
+                                                    <div className="w-1.5 h-1.5 rounded-full bg-muted-foreground/20 dark:bg-white/10" />
                                                 )}
                                             </div>
                                         </motion.div>
@@ -730,7 +727,7 @@ export default function MurakabeTab() {
 
                                 {/* Motivational Message */}
                                 <motion.p
-                                    className="text-center text-xs text-white/40 mt-4 italic"
+                                    className="text-center text-xs text-muted-foreground dark:text-white/40 mt-4 italic"
                                     initial={{ opacity: 0 }}
                                     animate={{ opacity: 1 }}
                                     transition={{ delay: 2.3 }}
@@ -752,7 +749,7 @@ export default function MurakabeTab() {
                             >
                                 <Button
                                     onClick={() => navigate('/')}
-                                    className="w-full h-14 rounded-2xl font-semibold text-base bg-white/[0.06] border border-white/10 text-white hover:bg-white/10 backdrop-blur-md transition-all active:scale-95"
+                                    className="w-full h-14 rounded-2xl font-semibold text-base bg-muted/60 dark:bg-white/[0.06] border border-border dark:border-white/10 text-foreground dark:text-white hover:bg-muted dark:hover:bg-white/10 backdrop-blur-md transition-all active:scale-95"
                                 >
                                     <Home className="w-4 h-4 mr-2" />
                                     {t('goHome')}
@@ -764,7 +761,7 @@ export default function MurakabeTab() {
             </main>
 
             {/* Bottom Gradient Fade */}
-            <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-[#021a0f] to-transparent pointer-events-none" />
+            <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-[#EDE6D6] dark:from-[#021a0f] to-transparent pointer-events-none" />
         </div>
     );
 }

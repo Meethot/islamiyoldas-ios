@@ -214,6 +214,60 @@ export const DAILY_VERSES_RU = [
     { id: 50, text: "Аллах с вами и никогда не лишит вас ваших деяний.", source: "Мухаммад, 35" },
 ];
 
+// Azerbaijani translations of all 50 daily verses
+export const DAILY_VERSES_AZ = [
+    { id: 1, text: "Şübhəsiz ki, namaz möminlərə müəyyən vaxtlarda fərz qılınmışdır.", source: "Nisa Surəsi, 103" },
+    { id: 2, text: "Allahı ayaq üstə, oturarkən və yanları üzərinə yatarkən zikr edənlər və göylərin, yerin yaradılışı haqqında düşünənlər...", source: "Ali-İmran Surəsi, 191" },
+    { id: 3, text: "Məni anın ki, Mən də sizi anım. Mənə şükür edin və nankorluq etməyin.", source: "Bəqərə Surəsi, 152" },
+    { id: 4, text: "Kim bir yaxşılıq etsə, ona bunun on qatı vardır.", source: "Ənam Surəsi, 160" },
+    { id: 5, text: "Səbir və namazla Allahdan kömək istəyin. Şübhəsiz ki, Allah səbir edənlərlədir.", source: "Bəqərə Surəsi, 153" },
+    { id: 6, text: "Allahın mərhəməti yaxşılıq edənlərə yaxındır.", source: "Əraf Surəsi, 56" },
+    { id: 7, text: "Kim Allaha təvəkkül etsə, O, özünə yetər.", source: "Talaq Surəsi, 3" },
+    { id: 8, text: "Rəbbinizdən bağışlanma diləyin, sonra Ona tövbə edin.", source: "Hud Surəsi, 3" },
+    { id: 9, text: "Ey iman edənlər! Namaz və səbirlə Allahdan kömək istəyin.", source: "Bəqərə Surəsi, 153" },
+    { id: 10, text: "Allah heç bir nəfsi gücünün çatdığından başqa bir şeylə yükləməz.", source: "Bəqərə Surəsi, 286" },
+    { id: 11, text: "Mənə dua edin, duanızı qəbul edim.", source: "Mömin Surəsi, 60" },
+    { id: 12, text: "Kim təqva sahibi olarsa, Allah ona bir çıxış yolu nəsib edər.", source: "Talaq Surəsi, 2" },
+    { id: 13, text: "Allah sizə asanlıq diləyir, çətinlik diləməz.", source: "Bəqərə Surəsi, 185" },
+    { id: 14, text: "Şübhəsiz ki, hər çətinliklə bərabər bir asanlıq vardır.", source: "İnşirah Surəsi, 6" },
+    { id: 15, text: "Ey iman edənlər! Allahı çox zikr edin.", source: "Əhzab Surəsi, 41" },
+    { id: 16, text: "Allahın zikri ilə qəlblər hüzur tapar.", source: "Rad Surəsi, 28" },
+    { id: 17, text: "Kim Allah yolunda bir addım atarsa, Allah ona iki qat mükafat verər.", source: "Bəqərə Surəsi, 261" },
+    { id: 18, text: "Allah bağışlayandır, mərhəmətlidir.", source: "Bəqərə Surəsi, 173" },
+    { id: 19, text: "Və Rəbbinin ruzisi daha xeyirli və daha davamlıdır.", source: "Taha Surəsi, 131" },
+    { id: 20, text: "O, qullarının tövbəsini qəbul edən, günahları bağışlayan və etdiklərinizi biləndir.", source: "Şura Surəsi, 25" },
+    { id: 21, text: "Kim Allaha və axirət gününə inanırsa, ya xeyir söyləsin, ya da sussun.", source: "Hədis (Buxari)" },
+    { id: 22, text: "De ki: Rəbbimin mərhəməti onların yığdıqlarından daha xeyirlidir.", source: "Nəml Surəsi, 62" },
+    { id: 23, text: "Allah qəlbləri və gözləri çevirəndir.", source: "Nur Surəsi, 37" },
+    { id: 24, text: "Ey iman edənlər! Səbir edin, dözümlü olun, hazırlıqlı olun və Allahdan qorxun.", source: "Ali-İmran Surəsi, 200" },
+    { id: 25, text: "O, sizin adınıza deyil, qəlbinizə baxar.", source: "Hədis (Müslim)" },
+    { id: 26, text: "Elm öyrənmək hər Müsəlmana fərzdir.", source: "Hədis (İbn Macə)" },
+    { id: 27, text: "Kim səhər-axşam 'Sübhanallah' desə, ona dənizin köpüyü qədər savab verilər.", source: "Hədis (Müslim)" },
+    { id: 28, text: "Ən xeyirliniz insanlara ən faydalı olanınızdır.", source: "Hədis (Təbərani)" },
+    { id: 29, text: "Mömin möminin güzgüsüdür.", source: "Hədis (Əbu Davud)" },
+    { id: 30, text: "Allaha qarşı gəlməkdən çəkinin. Şübhəsiz ki, Allah qəlbdə olanı bilir.", source: "Bəqərə Surəsi, 235" },
+    { id: 31, text: "Gözəl söz kökü möhkəm, budaqları göydə olan gözəl bir ağac kimidir.", source: "İbrahim Surəsi, 24" },
+    { id: 32, text: "Kim bir müsəlmanın dünya sıxıntılarından birini aradan qaldırarsa, Allah da onun qiyamət günü sıxıntılarından birini aradan qaldırar.", source: "Hədis (Müslim)" },
+    { id: 33, text: "Yaxşılıq edənlərin qarşılığı yaxşılıqdan başqa bir şey olarmı?", source: "Rəhman Surəsi, 60" },
+    { id: 34, text: "Sən bağışla, yaxşılığı əmr et və cahillərdən üz çevir.", source: "Əraf Surəsi, 199" },
+    { id: 35, text: "Onlar bolluqda da, darlıqda da Allah yolunda infaq edənlərdir.", source: "Ali-İmran Surəsi, 134" },
+    { id: 36, text: "Allah qatında ən dəyərli olanınız, ən təqvalı olanınızdır.", source: "Hucurat Surəsi, 13" },
+    { id: 37, text: "Rəbbinizə yalvararaq və gizlicə dua edin. Şübhəsiz ki, O, həddi aşanları sevməz.", source: "Əraf Surəsi, 55" },
+    { id: 38, text: "Onlar ki, özlərinə bir pislik toxunduğunda səbir edərlər.", source: "Şura Surəsi, 43" },
+    { id: 39, text: "Həqiqi möminlər o kimsələrdir ki, Allah anıldığı zaman qəlbləri titrəyər.", source: "Ənfal Surəsi, 2" },
+    { id: 40, text: "Və hər xeyirli iş edən kimsəyə Allah mütləq mükafatını verər.", source: "Ali-İmran Surəsi, 171" },
+    { id: 41, text: "Rəbbinin yoluna hikmətlə və gözəl öyüdlə dəvət et.", source: "Nəhl Surəsi, 125" },
+    { id: 42, text: "Allahın nemətini anın ki, qurtuluşa yetişəsiniz.", source: "Ali-İmran Surəsi, 103" },
+    { id: 43, text: "Doğrusu sən, böyük bir əxlaq üzərindəsən.", source: "Qələm Surəsi, 4" },
+    { id: 44, text: "Kim bir kimsəyə həyat verərsə, bütün insanlara həyat vermiş kimi olar.", source: "Maidə Surəsi, 32" },
+    { id: 45, text: "Rəbbinə həmd edərək səhərlə və ulduzlar batarkən Onu təsbih et.", source: "Tur Surəsi, 49" },
+    { id: 46, text: "Biz insanı ən gözəl biçimdə yaratdıq.", source: "Tin Surəsi, 4" },
+    { id: 47, text: "Həqiqətən, namazın hər cür pislikdən və pis əməldən çəkindirir.", source: "Ənkəbut Surəsi, 45" },
+    { id: 48, text: "Rəbbim! Elmimi artır.", source: "Taha Surəsi, 114" },
+    { id: 49, text: "Şübhəsiz ki, Allah səbir edənlərlə bərabərdir.", source: "Ənfal Surəsi, 46" },
+    { id: 50, text: "Allah sizinlə bərabərdir və əsla əməllərinizi boşa çıxarmaz.", source: "Muhəmməd Surəsi, 35" },
+];
+
 import { getDayOfYear } from '@/lib/testDate';
 
 // Language → Verses lookup map (add new languages here)
@@ -221,6 +275,7 @@ const VERSES_MAP = {
     en: DAILY_VERSES_EN,
     de: DAILY_VERSES_DE,
     ru: DAILY_VERSES_RU,
+    az: DAILY_VERSES_AZ,
 };
 
 // Get a consistent verse for the day (same verse for all users on the same day)

@@ -271,9 +271,9 @@ export default function Quran() {
     }, [audio]);
 
     return (
-        <div className="min-h-screen bg-gradient-to-b from-white to-gray-50 dark:from-[#032e18] dark:to-[#021a0f] pb-24">
+        <div className="min-h-screen bg-gradient-to-b from-background to-muted dark:from-[#032e18] dark:to-[#021a0f] pb-24">
             {/* Header */}
-            <div className="bg-islamic-green dark:bg-[#032e18] p-5 sticky top-0 z-40 border-b border-white/10">
+            <div className="bg-gradient-to-br from-primary via-primary to-emerald-800 dark:from-[#032e18] dark:via-[#032e18] dark:to-[#021a0f] p-5 sticky top-0 z-40 border-b border-primary/10 dark:border-white/10 shadow-lg shadow-primary/10 dark:shadow-black/20">
                 <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-3">
                         <button
@@ -325,7 +325,7 @@ export default function Quran() {
                             placeholder={t('searchPlaceholder')}
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className="w-full pl-12 pr-4 py-3 bg-[#0d2a18] border border-white/20 rounded-2xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-islamic-gold"
+                            className="w-full pl-12 pr-4 py-3 bg-white/15 dark:bg-[#0d2a18] border border-white/20 rounded-2xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-islamic-gold"
                         />
                     </div>
                 )}
@@ -503,7 +503,7 @@ export default function Quran() {
                                     <Bookmark className="w-10 h-10 text-islamic-gold/50" />
                                 </div>
                                 <div>
-                                    <h3 className="text-lg font-bold text-white mb-1">{t('noBookmarks')}</h3>
+                                    <h3 className="text-lg font-bold text-foreground dark:text-white mb-1">{t('noBookmarks')}</h3>
                                     <p className="text-sm text-gray-400">
                                         {t('noBookmarksHint')}
                                     </p>
