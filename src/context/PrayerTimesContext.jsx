@@ -261,9 +261,9 @@ export const PrayerTimesProvider = ({ children }) => {
             // Sound config:
             // - Android: channel handles the sound, but we set it here too for redundancy
             // - iOS: per-notification sound file (must be in app bundle root)
-            // - Vibrate-only: empty string = system default silent behavior
+            // - Vibrate-only: null = no sound
             const soundValue = settings.vibrateOnly
-                ? ''
+                ? null
                 : (isIOS ? 'ezan.caf' : 'ezan.mp3');
 
             for (let day = 0; day < MAX_PRAYER_DAYS; day++) {
@@ -281,7 +281,7 @@ export const PrayerTimesProvider = ({ children }) => {
 
                     const notif = {
                         title: 'Ezan Vakti 🕌',
-                        body: `${p.name} vakti girdi. Haydi namaza!`,
+                        body: `${p.name} vakti geldi. Haydi namaza!`,
                         id,
                         schedule: { at: date, allowWhileIdle: true },
                         sound: soundValue,
@@ -385,7 +385,7 @@ export const PrayerTimesProvider = ({ children }) => {
             const isIOS = Capacitor.getPlatform() === 'ios';
             const isAndroid = Capacitor.getPlatform() === 'android';
             const soundValue = settings.vibrateOnly
-                ? ''
+                ? null
                 : (isIOS ? 'beep.caf' : 'beep.wav');
 
             console.log('🕌 Scheduling 1 repeating weekly Friday notification (permanent)');

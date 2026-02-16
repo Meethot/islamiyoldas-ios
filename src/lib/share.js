@@ -1,4 +1,7 @@
 import html2canvas from 'html2canvas';
+import { Capacitor } from '@capacitor/core';
+import { Share } from '@capacitor/share';
+import { Filesystem, Directory } from '@capacitor/filesystem';
 import i18n from '../i18n';
 
 const t = (key, options) => i18n.t(`share.${key}`, { ns: 'common', ...options });
@@ -40,17 +43,46 @@ export async function shareProgress(elementId = 'share-card', streak = 0, naviga
 
         element.style.cssText = originalStyle;
 
+        const streakText = streak > 0 ? t('progress_streak', { count: streak }) : '';
+        const progressFileName = t('progress_filename') || 'ilerleme.png';
+        const shareText = t('progress_text', { streak: streakText }) || 'İslami Yoldaş ile ilerliyorum!';
+        const shareTitle = t('progress_title') || 'İlerleme Paylaşımı';
+
+        // Native platform: Capacitor Filesystem + Share
+        if (Capacitor.isNativePlatform()) {
+            const dataUrl = canvas.toDataURL('image/png');
+            const base64Data = dataUrl.split(',')[1];
+
+            const savedFile = await Filesystem.writeFile({
+                path: progressFileName,
+                data: base64Data,
+                directory: Directory.Cache
+            });
+
+            await Share.share({
+                title: shareTitle,
+                text: shareText,
+                url: savedFile.uri,
+                dialogTitle: shareTitle
+            });
+
+            try {
+                await Filesystem.deleteFile({ path: progressFileName, directory: Directory.Cache });
+            } catch { /* ignore */ }
+
+            return true;
+        }
+
+        // Web fallback
         const blob = await new Promise((resolve) => {
             canvas.toBlob(resolve, 'image/png', 1.0);
         });
 
-        const streakText = streak > 0 ? t('progress_streak', { count: streak }) : '';
-        const file = new File([blob], t('progress_filename'), { type: 'image/png' });
-        const shareText = t('progress_text', { streak: streakText });
+        const file = new File([blob], progressFileName, { type: 'image/png' });
 
         const shareData = {
             files: [file],
-            title: t('progress_title'),
+            title: shareTitle,
             text: shareText
         };
 
@@ -60,16 +92,14 @@ export async function shareProgress(elementId = 'share-card', streak = 0, naviga
         } else {
             const url = canvas.toDataURL('image/png');
             const link = document.createElement('a');
-            link.download = t('progress_filename');
+            link.download = progressFileName;
             link.href = url;
             link.click();
             return true;
         }
     } catch (error) {
+        if (error.name === 'AbortError' || error.message?.includes('cancel') || error.message?.includes('dismiss')) return false;
         console.error('Share failed:', error);
-        if (error.name !== 'AbortError') {
-            alert(t('share_failed'));
-        }
         return false;
     }
 }
@@ -129,15 +159,44 @@ export async function shareVerse(elementId, text, source, isFriday = false) {
             allowTaint: true
         });
 
+        const fileName = isFriday ? (t('friday_filename') || 'cuma_mesaji.png') : (t('verse_filename') || 'gunun_ayeti.png');
+        const shareTitle = isFriday ? (t('verse_friday') || 'Hayırlı Cumalar') : (t('verse_daily') || 'Günün Ayeti');
+        const shareText = t('verse_text', { text, source }) || `${text}\n— ${source}`;
+
+        // Native platform: Capacitor Filesystem + Share
+        if (Capacitor.isNativePlatform()) {
+            const dataUrl = canvas.toDataURL('image/png');
+            const base64Data = dataUrl.split(',')[1];
+
+            // Save to temp file
+            const savedFile = await Filesystem.writeFile({
+                path: fileName,
+                data: base64Data,
+                directory: Directory.Cache
+            });
+
+            // Share via native share sheet
+            await Share.share({
+                title: shareTitle,
+                text: shareText,
+                url: savedFile.uri,
+                dialogTitle: shareTitle
+            });
+
+            // Clean up temp file
+            try {
+                await Filesystem.deleteFile({ path: fileName, directory: Directory.Cache });
+            } catch { /* ignore cleanup errors */ }
+
+            return true;
+        }
+
+        // Web fallback: navigator.share or download
         const blob = await new Promise((resolve) => {
             canvas.toBlob(resolve, 'image/png', 1.0);
         });
 
-        const fileName = isFriday ? t('friday_filename') : t('verse_filename');
         const file = new File([blob], fileName, { type: 'image/png' });
-
-        const shareTitle = isFriday ? t('verse_friday') : t('verse_daily');
-        const shareText = t('verse_text', { text, source });
 
         const shareData = {
             files: [file],
@@ -157,10 +216,8 @@ export async function shareVerse(elementId, text, source, isFriday = false) {
             return true;
         }
     } catch (error) {
+        if (error.name === 'AbortError' || error.message?.includes('cancel') || error.message?.includes('dismiss')) return false;
         console.error('Verse share failed:', error);
-        if (error.name !== 'AbortError') {
-            alert(t('verse_share_error'));
-        }
         return false;
     }
 }
@@ -192,8 +249,36 @@ export async function shareHiddenElement(elementId, shareText, title) {
 
         element.style.cssText = originalStyle;
 
+        const hiddenFileName = t('hidden_filename') || 'paylasim.png';
+
+        // Native platform: Capacitor Filesystem + Share
+        if (Capacitor.isNativePlatform()) {
+            const dataUrl = canvas.toDataURL('image/png');
+            const base64Data = dataUrl.split(',')[1];
+
+            const savedFile = await Filesystem.writeFile({
+                path: hiddenFileName,
+                data: base64Data,
+                directory: Directory.Cache
+            });
+
+            await Share.share({
+                title: shareTitle,
+                text: shareText,
+                url: savedFile.uri,
+                dialogTitle: shareTitle
+            });
+
+            try {
+                await Filesystem.deleteFile({ path: hiddenFileName, directory: Directory.Cache });
+            } catch { /* ignore */ }
+
+            return true;
+        }
+
+        // Web fallback
         const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png', 1.0));
-        const file = new File([blob], t('hidden_filename'), { type: 'image/png' });
+        const file = new File([blob], hiddenFileName, { type: 'image/png' });
 
         const shareData = {
             files: [file],
@@ -207,12 +292,13 @@ export async function shareHiddenElement(elementId, shareText, title) {
         } else {
             const url = canvas.toDataURL('image/png');
             const link = document.createElement('a');
-            link.download = t('hidden_filename');
+            link.download = hiddenFileName;
             link.href = url;
             link.click();
             return true;
         }
     } catch (e) {
+        if (e.name === 'AbortError' || e.message?.includes('cancel') || e.message?.includes('dismiss')) return false;
         console.error('Hidden share failed', e);
         return false;
     }

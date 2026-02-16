@@ -7,6 +7,8 @@ import {
 import { LocalNotifications } from '@capacitor/local-notifications';
 import { Button } from '@/components/ui/button';
 import { advanceTestDay, resetTestDay, getTestDayOffset, getTodayString, getDailyPrayersKey } from '@/lib/testDate';
+import { addCredit, getCredits } from '@/services/creditService';
+import { Coins } from 'lucide-react';
 
 /**
  * DebugMenu - Hidden stress test dashboard for developers
@@ -310,6 +312,17 @@ const DebugMenu = () => {
                             setLastAction('❌ Cancel error: ' + error.message);
                         }
                     }, color: 'bg-red-600'
+                },
+            ]
+        },
+        {
+            group: '💰 Amin Kredisi',
+            items: [
+                {
+                    label: '+50 Kredi', icon: Coins, action: () => {
+                        const newCreds = addCredit(50);
+                        setLastAction(`💰 +50 kredi eklendi! Toplam: ${newCreds}`);
+                    }, color: 'bg-yellow-600'
                 },
             ]
         }

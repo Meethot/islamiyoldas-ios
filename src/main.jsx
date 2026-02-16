@@ -9,6 +9,10 @@ import { UserProvider } from './context/UserContext.jsx'
 import { ThemeProvider } from './context/ThemeContext.jsx'
 import { LocationProvider } from './context/LocationContext.jsx'
 import QueryProvider from './providers/QueryProvider.jsx'
+import { initAnalytics } from './services/analyticsService'
+
+// Initialize Amplitude Analytics
+initAnalytics();
 
 // Disable selection and context menu globally for security
 document.addEventListener('contextmenu', (e) => e.preventDefault());

@@ -22,7 +22,7 @@ function SettingsToggle({ icon: Icon, label, subtitle, active, onToggle }) {
                 </div>
                 <div className="text-left">
                     <p className="text-sm font-bold text-gray-900 dark:text-white">{label}</p>
-                    <p className="text-[10px] text-gray-400 dark:text-gray-500 font-medium">{subtitle}</p>
+                    <p className="text-xs text-gray-400 dark:text-gray-500 font-medium">{subtitle}</p>
                 </div>
             </div>
             <div className={cn(
@@ -75,7 +75,7 @@ export default function NotificationSettings() {
             >
                 {/* Core Notifications */}
                 <motion.section variants={itemVariants} className="space-y-3">
-                    <h3 className="px-2 text-[10px] font-bold text-gray-400 dark:text-emerald-100/40 uppercase tracking-widest">{t('notifications')}</h3>
+                    <h3 className="px-2 text-xs font-bold text-gray-400 dark:text-emerald-100/40 uppercase tracking-widest">{t('notifications')}</h3>
                     <div className="bg-white dark:bg-white/5 rounded-[2rem] shadow-sm border dark:border-white/5 overflow-hidden">
                         <SettingsToggle
                             icon={Bell}
@@ -114,7 +114,7 @@ export default function NotificationSettings() {
 
                 {/* Prayer Motivation */}
                 <motion.section variants={itemVariants} className="space-y-3">
-                    <h3 className="px-2 text-[10px] font-bold text-gray-400 dark:text-emerald-100/40 uppercase tracking-widest">{t('prayerMotivation')}</h3>
+                    <h3 className="px-2 text-xs font-bold text-gray-400 dark:text-emerald-100/40 uppercase tracking-widest">{t('prayerMotivation')}</h3>
                     <div className="bg-white dark:bg-white/5 rounded-[2rem] shadow-sm border dark:border-white/5 overflow-hidden">
                         <SettingsToggle
                             icon={Moon}

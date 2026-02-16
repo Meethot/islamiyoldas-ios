@@ -7,11 +7,13 @@ import { getSpiritualAdvice } from '@/services/AiMentorService';
 import AiPrescriptionCard from '@/components/AiPrescriptionCard';
 import { triggerReviewPrompt } from '@/components/ReviewPrompt';
 import { useTranslation } from 'react-i18next';
+import { useHaptics } from '@/hooks/useMobile';
 
 
 export default function AiMentor() {
     const navigate = useNavigate();
     const { t, i18n } = useTranslation('misc');
+    const { light } = useHaptics();
     const chatEndRef = useRef(null);
     const [messages, setMessages] = useState([
         {
@@ -34,6 +36,7 @@ export default function AiMentor() {
 
     const handleSend = async () => {
         if (!input.trim() || isLoading) return;
+        light();
 
         const userMsg = { id: Date.now(), role: 'user', text: input };
         setMessages(prev => [...prev, userMsg]);

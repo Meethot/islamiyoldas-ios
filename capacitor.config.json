@@ -9,7 +9,13 @@
     },
     "LocalNotifications": {
       "smallIcon": "ic_stat_icon",
-      "iconColor": "#D4AF37"
+      "iconColor": "#D4AF37",
+      "sound": "ezan.caf",
+      "presentationOptions": [
+        "badge",
+        "sound",
+        "alert"
+      ]
     },
     "PushNotifications": {
       "presentationOptions": [

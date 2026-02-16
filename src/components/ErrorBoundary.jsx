@@ -28,7 +28,20 @@ class ErrorBoundary extends React.Component {
     }
 
     handleReport = () => {
-        const t = (key) => i18n.t(`error_boundary.${key}`, { ns: 'common' });
+        const REPORT_FALLBACKS = {
+            email_greeting: 'Merhaba,\n\nUygulamada bir hata ile karşılaştım.',
+            email_info_header: '--- HATA BİLGİLERİ (lütfen silmeyin) ---',
+            email_description_prompt: 'Açıklama (ne yaptığınızı kısaca yazın):',
+        };
+        const t = (key) => {
+            try {
+                const result = i18n.t(`error_boundary.${key}`, { ns: 'common' });
+                if (!result || result === `error_boundary.${key}`) return REPORT_FALLBACKS[key] || key;
+                return result;
+            } catch {
+                return REPORT_FALLBACKS[key] || key;
+            }
+        };
         const errorMsg = this.state.error?.toString() || 'Unknown error';
         const stack = this.state.errorInfo?.componentStack || '';
         const url = window.location.href;
@@ -60,7 +73,23 @@ ${t('email_description_prompt')}
     };
 
     render() {
-        const t = (key) => i18n.t(`error_boundary.${key}`, { ns: 'common' });
+        const FALLBACKS = {
+            title: 'Bir şeyler ters gitti',
+            description: 'Beklenmeyen bir hata oluştu. Lütfen sayfayı yeniden yüklemeyi deneyin.',
+            reload: 'Sayfayı Yenile',
+            report: 'Hatayı Bildir',
+            reset: 'Önbelleği Temizle ve Sıfırla',
+        };
+        const t = (key) => {
+            try {
+                const result = i18n.t(`error_boundary.${key}`, { ns: 'common' });
+                // i18n returns the raw key if translation is missing or not loaded
+                if (!result || result === `error_boundary.${key}`) return FALLBACKS[key] || key;
+                return result;
+            } catch {
+                return FALLBACKS[key] || key;
+            }
+        };
 
         if (this.state.hasError) {
             return (

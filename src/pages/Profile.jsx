@@ -234,7 +234,7 @@ export default function Profile() {
 
     const handleReportBug = () => {
         selection();
-        const email = "test@gmail.com";
+        const email = "support@islamiyoldas.com";
         const subject = encodeURIComponent(t('report_bug.email_subject'));
         const body = encodeURIComponent(t('report_bug.email_body'));
         window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
@@ -354,7 +354,7 @@ export default function Profile() {
                             </div>
                             <div className="text-left">
                                 <p className="text-sm font-bold text-stone-800 dark:text-white">{t('notifications.title')}</p>
-                                <p className="text-[10px] text-stone-500 dark:text-gray-400 font-medium">{t('notifications.subtitle')}</p>
+                                <p className="text-xs text-stone-500 dark:text-gray-400 font-medium">{t('notifications.subtitle')}</p>
                             </div>
                         </div>
                         <ChevronRight className="w-5 h-5 text-stone-400 dark:text-gray-300 group-hover:translate-x-1 transition-transform" />
@@ -371,7 +371,7 @@ export default function Profile() {
                             </div>
                             <div className="text-left">
                                 <p className="text-sm font-bold text-stone-800 dark:text-white">{t('appearance.title')}</p>
-                                <p className="text-[10px] text-stone-500 dark:text-gray-400 font-medium">{isDarkMode ? t('appearance.dark_active') : t('appearance.light_active')}</p>
+                                <p className="text-xs text-stone-500 dark:text-gray-400 font-medium">{isDarkMode ? t('appearance.dark_active') : t('appearance.light_active')}</p>
                             </div>
                         </div>
                         {/* Sliding Toggle Switch */}
@@ -397,7 +397,7 @@ export default function Profile() {
                             </div>
                             <div className="text-left">
                                 <p className="text-sm font-bold text-stone-800 dark:text-white">{t('location.title')}</p>
-                                <p className="text-[10px] text-stone-500 dark:text-gray-400 font-medium">{t('location.subtitle')}</p>
+                                <p className="text-xs text-stone-500 dark:text-gray-400 font-medium">{t('location.subtitle')}</p>
                             </div>
                         </div>
                         <ChevronRight className="w-5 h-5 text-stone-400 dark:text-gray-300 group-hover:translate-x-1 transition-transform" />
@@ -411,7 +411,7 @@ export default function Profile() {
                             </div>
                             <div className="text-left">
                                 <p className="text-sm font-bold text-stone-800 dark:text-white">{t('privacy.title')}</p>
-                                <p className="text-[10px] text-stone-500 dark:text-gray-400 font-medium">{t('privacy.subtitle')}</p>
+                                <p className="text-xs text-stone-500 dark:text-gray-400 font-medium">{t('privacy.subtitle')}</p>
                             </div>
                         </div>
                         <ChevronRight className="w-5 h-5 text-stone-400 dark:text-gray-300 group-hover:translate-x-1 transition-transform" />
@@ -432,7 +432,7 @@ export default function Profile() {
                             </div>
                             <div className="text-left">
                                 <p className="text-sm font-bold text-stone-800 dark:text-white">{t('share.title')}</p>
-                                <p className="text-[10px] text-stone-500 dark:text-gray-400 font-medium">{t('share.subtitle')}</p>
+                                <p className="text-xs text-stone-500 dark:text-gray-400 font-medium">{t('share.subtitle')}</p>
                             </div>
                         </div>
                         <ChevronRight className="w-5 h-5 text-stone-400 dark:text-gray-300 group-hover:translate-x-1 transition-transform" />
@@ -453,7 +453,7 @@ export default function Profile() {
                             </div>
                             <div className="text-left">
                                 <p className="text-sm font-bold text-stone-800 dark:text-white">{t('invite.title')}</p>
-                                <p className="text-[10px] text-stone-500 dark:text-gray-400 font-medium">{t('invite.subtitle')}</p>
+                                <p className="text-xs text-stone-500 dark:text-gray-400 font-medium">{t('invite.subtitle')}</p>
                             </div>
                         </div>
                         <ChevronRight className="w-5 h-5 text-stone-400 dark:text-gray-300 group-hover:translate-x-1 transition-transform" />
@@ -478,7 +478,7 @@ export default function Profile() {
                             </div>
                             <div className="text-left">
                                 <p className="text-sm font-bold text-stone-800 dark:text-white">{t('language.title')}</p>
-                                <p className="text-[10px] text-stone-500 dark:text-gray-400 font-medium">{t('language.subtitle')}</p>
+                                <p className="text-xs text-stone-500 dark:text-gray-400 font-medium">{t('language.subtitle')}</p>
                             </div>
                         </div>
 
@@ -495,7 +495,7 @@ export default function Profile() {
                             </div>
                             <div className="text-left">
                                 <p className="text-sm font-bold text-stone-800 dark:text-white">{t('promo.title')}</p>
-                                <p className="text-[10px] text-stone-500 dark:text-gray-400 font-medium">{t('promo.subtitle')}</p>
+                                <p className="text-xs text-stone-500 dark:text-gray-400 font-medium">{t('promo.subtitle')}</p>
                             </div>
                         </div>
                         <ChevronRight className="w-5 h-5 text-stone-400 dark:text-gray-300 group-hover:translate-x-1 transition-transform" />
@@ -512,7 +512,7 @@ export default function Profile() {
                             </div>
                             <div className="text-left">
                                 <p className="text-sm font-bold text-stone-800 dark:text-white">{t('report_bug.title')}</p>
-                                <p className="text-[10px] text-stone-500 dark:text-gray-400 font-medium">{t('report_bug.subtitle')}</p>
+                                <p className="text-xs text-stone-500 dark:text-gray-400 font-medium">{t('report_bug.subtitle')}</p>
                             </div>
                         </div>
                         <ChevronRight className="w-5 h-5 text-stone-400 dark:text-gray-300 group-hover:translate-x-1 transition-transform" />
@@ -529,7 +529,7 @@ export default function Profile() {
                             </div>
                             <div className="text-left">
                                 <p className="text-sm font-bold text-stone-800 dark:text-white">{t('legal.title')}</p>
-                                <p className="text-[10px] text-stone-500 dark:text-gray-400 font-medium">{t('legal.subtitle')}</p>
+                                <p className="text-xs text-stone-500 dark:text-gray-400 font-medium">{t('legal.subtitle')}</p>
                             </div>
                         </div>
                         <ChevronRight className="w-5 h-5 text-stone-400 dark:text-gray-300 group-hover:translate-x-1 transition-transform" />

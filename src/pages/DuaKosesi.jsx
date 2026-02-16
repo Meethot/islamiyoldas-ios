@@ -134,6 +134,76 @@ function getRandomDuas(pool, count) {
     }
     return shuffled.slice(0, count);
 }
+
+// Generate fresh fake duas (called on init and when cache expires)
+function generateFakeDuas() {
+    const savedCounts = localStorage.getItem('fakeDuasCounts');
+    const cachedSelection = localStorage.getItem('fakeDuasSelection');
+    const seenIdsRaw = localStorage.getItem('fakeDuasSeenIds');
+    let seenIds = [];
+
+    try { seenIds = seenIdsRaw ? JSON.parse(seenIdsRaw) : []; } catch { seenIds = []; }
+
+    // If there's a valid cached set (< 24h old), use it
+    if (cachedSelection) {
+        try {
+            const { ids, timestamp } = JSON.parse(cachedSelection);
+            const now = getAppDate().getTime();
+            const twentyFourHours = 24 * 60 * 60 * 1000;
+
+            if (now - timestamp < twentyFourHours && Array.isArray(ids) && ids.length > 0) {
+                const cachedDuas = ids
+                    .map(id => ALL_DUAS_POOL.find(d => d.id === id))
+                    .filter(Boolean);
+
+                if (cachedDuas.length > 0) {
+                    if (savedCounts) {
+                        const parsed = JSON.parse(savedCounts);
+                        return cachedDuas.map(d => ({
+                            ...d,
+                            count: parsed[d.id] || d.count
+                        }));
+                    }
+                    return cachedDuas;
+                }
+            }
+        } catch (e) {
+            console.error('Error parsing cached duas:', e);
+        }
+    }
+
+    // Cache expired or doesn't exist — pick NEW unseen duas
+    const seenSet = new Set(seenIds);
+    let available = ALL_DUAS_POOL.filter(d => !seenSet.has(d.id));
+
+    // If all duas have been seen, reset the cycle
+    if (available.length === 0) {
+        seenIds = [];
+        localStorage.setItem('fakeDuasSeenIds', JSON.stringify([]));
+        available = ALL_DUAS_POOL;
+    }
+
+    const randomSet = getRandomDuas(available, Math.min(6, available.length));
+
+    // Mark these as seen
+    const newSeenIds = [...seenIds, ...randomSet.map(d => d.id)];
+    localStorage.setItem('fakeDuasSeenIds', JSON.stringify(newSeenIds));
+
+    // Cache the selection with app-aware timestamp
+    localStorage.setItem('fakeDuasSelection', JSON.stringify({
+        ids: randomSet.map(d => d.id),
+        timestamp: getAppDate().getTime()
+    }));
+
+    if (savedCounts) {
+        const parsed = JSON.parse(savedCounts);
+        return randomSet.map(d => ({
+            ...d,
+            count: parsed[d.id] || d.count
+        }));
+    }
+    return randomSet;
+}
 // ======================================
 
 export default function DuaKosesi() {
@@ -205,74 +275,33 @@ export default function DuaKosesi() {
     const [refreshKey, setRefreshKey] = useState(0); // Increment to trigger re-fetch
 
     // Fake Data (Simulated) - each dua shown only once, never repeated
-    const [fakeDuas, setFakeDuas] = useState(() => {
-        const savedCounts = localStorage.getItem('fakeDuasCounts');
-        const cachedSelection = localStorage.getItem('fakeDuasSelection');
-        const seenIdsRaw = localStorage.getItem('fakeDuasSeenIds');
-        let seenIds = [];
+    const [fakeDuas, setFakeDuas] = useState(() => generateFakeDuas());
 
-        try { seenIds = seenIdsRaw ? JSON.parse(seenIdsRaw) : []; } catch (e) { seenIds = []; }
-
-        // If there's a valid cached set (user hasn't finished viewing these yet), show it
-        if (cachedSelection) {
+    // Re-check on every mount/focus: if cache is stale, regenerate
+    useEffect(() => {
+        const checkStale = () => {
+            const cachedSelection = localStorage.getItem('fakeDuasSelection');
+            if (!cachedSelection) return;
             try {
-                const { ids, timestamp } = JSON.parse(cachedSelection);
-                const now = new Date().getTime();
-                const twentyFourHours = 24 * 60 * 60 * 1000;
-
-                if (now - timestamp < twentyFourHours && Array.isArray(ids) && ids.length > 0) {
-                    const cachedDuas = ids
-                        .map(id => ALL_DUAS_POOL.find(d => d.id === id))
-                        .filter(Boolean);
-
-                    if (cachedDuas.length > 0) {
-                        if (savedCounts) {
-                            const parsed = JSON.parse(savedCounts);
-                            return cachedDuas.map(d => ({
-                                ...d,
-                                count: parsed[d.id] || d.count
-                            }));
-                        }
-                        return cachedDuas;
-                    }
+                const { timestamp } = JSON.parse(cachedSelection);
+                const now = getAppDate().getTime();
+                if (now - timestamp >= 24 * 60 * 60 * 1000) {
+                    setFakeDuas(generateFakeDuas());
                 }
-            } catch (e) {
-                console.error('Error parsing cached duas:', e);
-            }
-        }
-
-        // Cache expired or doesn't exist — pick NEW unseen duas
-        const seenSet = new Set(seenIds);
-        let available = ALL_DUAS_POOL.filter(d => !seenSet.has(d.id));
-
-        // If all duas have been seen, reset the cycle
-        if (available.length < 6) {
-            seenIds = [];
-            localStorage.setItem('fakeDuasSeenIds', JSON.stringify([]));
-            available = ALL_DUAS_POOL;
-        }
-
-        const randomSet = getRandomDuas(available, 6);
-
-        // Mark these as seen
-        const newSeenIds = [...seenIds, ...randomSet.map(d => d.id)];
-        localStorage.setItem('fakeDuasSeenIds', JSON.stringify(newSeenIds));
-
-        // Cache the selection for 24h
-        localStorage.setItem('fakeDuasSelection', JSON.stringify({
-            ids: randomSet.map(d => d.id),
-            timestamp: new Date().getTime()
-        }));
-
-        if (savedCounts) {
-            const parsed = JSON.parse(savedCounts);
-            return randomSet.map(d => ({
-                ...d,
-                count: parsed[d.id] || d.count
-            }));
-        }
-        return randomSet;
-    });
+            } catch { /* ignore */ }
+        };
+        checkStale();
+        // Also check when app returns from background
+        const onFocus = () => checkStale();
+        window.addEventListener('focus', onFocus);
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible') checkStale();
+        });
+        return () => {
+            window.removeEventListener('focus', onFocus);
+            document.removeEventListener('visibilitychange', checkStale);
+        };
+    }, []);
 
     // My Requests (Local History)
     const [myRequests, setMyRequests] = useState(() => {

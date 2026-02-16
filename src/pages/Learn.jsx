@@ -962,7 +962,7 @@ export default function Learn() {
     const [currentStep, setCurrentStep] = useState(0);
     const [isComplete, setIsComplete] = useState(false);
     const totalStepsRef = React.useRef(0);
-    const { selection, success, heavy } = useHaptics();
+    const { selection, success, heavy, light } = useHaptics();
     const { t, i18n } = useTranslation('learn');
 
     const lang = i18n.language;
@@ -977,7 +977,7 @@ export default function Learn() {
     totalStepsRef.current = totalSteps;
 
     const next = useCallback(() => {
-        selection();
+        light();
         setCurrentStep(prev => {
             if (prev < totalStepsRef.current - 1) {
                 return prev + 1;
@@ -990,12 +990,12 @@ export default function Learn() {
                 return prev;
             }
         });
-    }, [selection, success]);
+    }, [light, success]);
 
     const prev = useCallback(() => {
-        selection();
+        light();
         setCurrentStep(prev => Math.max(0, prev - 1));
-    }, [selection]);
+    }, [light]);
 
     const reset = useCallback(() => {
         heavy();

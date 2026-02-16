@@ -8,6 +8,9 @@ import {
     Sparkles, Star, ChevronRight, Check, Globe
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { db } from '@/lib/firebase';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { analytics, setUserProperties } from '@/services/analyticsService';
 
 // Progress bar — pure CSS transitions
 const ProgressBar = ({ current, total }) => (
@@ -130,7 +133,19 @@ export default function Onboarding() {
                     success();
                     localStorage.setItem('onboardingComplete', 'true');
                     localStorage.setItem('userProfile', JSON.stringify(nextAnswers));
-                    window.location.href = '/';
+
+                    // Track onboarding in Amplitude
+                    setUserProperties(nextAnswers);
+                    analytics.onboardingCompleted({ ...nextAnswers, language: i18n.language });
+
+                    // Save demographics to Firestore for analytics, then redirect
+                    addDoc(collection(db, 'userDemographics'), {
+                        ...nextAnswers,
+                        language: i18n.language,
+                        createdAt: serverTimestamp()
+                    }).catch(() => { }).finally(() => {
+                        window.location.href = '/';
+                    });
                 }
                 return nextAnswers;
             });

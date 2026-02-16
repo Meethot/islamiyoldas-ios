@@ -44,6 +44,20 @@ export default function PrayerRewardModal({ isOpen, onClose, content, prayerName
 
     const { hadith, dua } = content;
 
+    // Language field mapping for hadith/dua data
+    const getHadithText = (h) => {
+        const map = { tr: h.text, en: h.textEn, de: h.text_de, ru: h.text_ru, ar: h.text_ar };
+        return map[lang] || h.text || h.textEn;
+    };
+    const getHadithSource = (h) => {
+        const map = { tr: h.source, en: h.sourceEn, de: h.source_de, ru: h.source_ru, ar: h.source_ar };
+        return map[lang] || h.source || h.sourceEn;
+    };
+    const getDuaTranslation = (d) => {
+        const map = { tr: d.turkish, en: d.english, de: d.german, ru: d.russian };
+        return map[lang] || d.turkish || d.english;
+    };
+
     return (
         <AnimatePresence>
             {isOpen && (
@@ -125,12 +139,12 @@ export default function PrayerRewardModal({ isOpen, onClose, content, prayerName
                                 >
                                     <div className="bg-white/50 dark:bg-black/20 rounded-2xl p-5 border border-white/30 dark:border-white/10">
                                         <p className="text-sm leading-relaxed text-gray-700 dark:text-gray-200 italic text-center font-serif">
-                                            "{hadith[`text_${lang}`] || hadith.textEn || hadith.text}"
+                                            "{getHadithText(hadith)}"
                                         </p>
                                         <div className="mt-3 flex items-center justify-center gap-2">
                                             <div className="h-px flex-1 bg-gray-300 dark:bg-white/10 max-w-[60px]" />
                                             <p className="text-xs text-islamic-green dark:text-islamic-gold font-bold uppercase tracking-wide">
-                                                {hadith[`source_${lang}`] || hadith.sourceEn || hadith.source}
+                                                {getHadithSource(hadith)}
                                             </p>
                                             <div className="h-px flex-1 bg-gray-300 dark:bg-white/10 max-w-[60px]" />
                                         </div>
@@ -155,9 +169,11 @@ export default function PrayerRewardModal({ isOpen, onClose, content, prayerName
                                                 {dua.arabic}
                                             </p>
                                         )}
-                                        <p className="text-sm text-gray-600 dark:text-gray-300 italic">
-                                            {dua[lang] || dua.english || dua.turkish}
-                                        </p>
+                                        {lang !== 'ar' && (
+                                            <p className="text-sm text-gray-600 dark:text-gray-300 italic">
+                                                {getDuaTranslation(dua)}
+                                            </p>
+                                        )}
                                     </div>
                                 </motion.div>
                             )}

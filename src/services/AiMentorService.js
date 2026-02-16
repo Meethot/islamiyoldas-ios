@@ -181,7 +181,7 @@ export async function getSpiritualAdvice(userMessage, language = 'tr') {
     }
 
     // Get API Key from Environment Variables (Vite)
-    const API_KEY = import.meta.env.VITE_GEMINI_API_KEY || 'AIzaSyBmDCS4puI_b_3xxKTPF1dmjtCYRs7Kl3I';
+    const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
 
     if (!API_KEY || API_KEY === 'YOUR_API_KEY_HERE') {
         throw new Error(language === 'en'

@@ -740,14 +740,14 @@ export const EsmaUlHusnaWidget = memo(({ esmaList, onSelect, onShowAll }) => {
                         <h4 className="text-sm font-black uppercase tracking-tight text-gray-800 dark:text-white">
                             {esma.name}
                         </h4>
-                        <p className="text-[10px] text-gray-500 dark:text-emerald-100/40 font-medium line-clamp-2 mt-2 leading-relaxed opacity-90">
+                        <p className="text-xs text-gray-500 dark:text-emerald-100/40 font-medium line-clamp-2 mt-2 leading-relaxed opacity-90">
                             {esma[`meaning_${lang}`] || esma.meaning}
                         </p>
 
                         {/* Subtle Badge or Indicator */}
                         <div className="mt-4 flex items-center gap-1.5">
                             <div className="w-1.5 h-1.5 rounded-full bg-islamic-gold/40" />
-                            <span className="text-[8px] font-bold uppercase tracking-widest text-gray-400">{t('esma.seeDetails')}</span>
+                            <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">{t('esma.seeDetails')}</span>
                         </div>
                     </motion.div>
                 ))}
@@ -846,7 +846,7 @@ export const AllEsmaModal = memo(({ isOpen, onClose, onSelect }) => {
                             <h4 className="text-sm font-black uppercase tracking-tight text-white group-hover:text-islamic-gold transition-colors">
                                 {esma.name}
                             </h4>
-                            <p className="text-[10px] text-gray-400 font-medium leading-relaxed mt-1 line-clamp-1">
+                            <p className="text-xs text-gray-400 font-medium leading-relaxed mt-1 line-clamp-1">
                                 {esma[`meaning_${lang}`] || esma.meaning}
                             </p>
                         </div>
@@ -854,7 +854,7 @@ export const AllEsmaModal = memo(({ isOpen, onClose, onSelect }) => {
                             <span className="text-2xl font-serif text-islamic-gold mb-1 group-hover:scale-110 transition-transform">
                                 {esma.calligraphy}
                             </span>
-                            <span className="text-[8px] font-black text-gray-500 uppercase tracking-[0.2em]">{t('esma.ebced')}: {esma.ebced}</span>
+                            <span className="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em]">{t('esma.ebced')}: {esma.ebced}</span>
                         </div>
                     </motion.div>
                 ))}
@@ -1132,6 +1132,17 @@ export const PrayerCountdownWidget = memo(({ loading, city, nextPrayerInfo, pray
 
             const id = Math.floor(Math.random() * 2147483647);
 
+            // Cancel auto-scheduled notification for this prayer to prevent duplicates
+            // Auto-scheduler IDs: day * 5 + prayerIndex + 1 (day 0 = today)
+            const prayerNames = ['sabah', 'öğle', 'ikindi', 'akşam', 'yatsı'];
+            const prayerIdx = prayerNames.findIndex(n => displayedPrayer.name.toLowerCase().includes(n));
+            if (prayerIdx !== -1) {
+                const autoId = 0 * 5 + prayerIdx + 1; // day=0 (today)
+                try {
+                    await LocalNotifications.cancel({ notifications: [{ id: autoId }] });
+                } catch { /* ignore */ }
+            }
+
             await LocalNotifications.schedule({
                 notifications: [{
                     title: "Vakit Yaklaşıyor!",
@@ -1226,6 +1237,16 @@ export const PrayerCountdownWidget = memo(({ loading, city, nextPrayerInfo, pray
             }
 
             const id = Math.floor(Math.random() * 2147483647);
+
+            // Cancel auto-scheduled notification for this prayer to prevent duplicates
+            const prayerNames = ['sabah', 'öğle', 'ikindi', 'akşam', 'yatsı'];
+            const prayerIdx = prayerNames.findIndex(n => prayer.name.toLowerCase().includes(n));
+            if (prayerIdx !== -1) {
+                const autoId = 0 * 5 + prayerIdx + 1;
+                try {
+                    await LocalNotifications.cancel({ notifications: [{ id: autoId }] });
+                } catch { /* ignore */ }
+            }
 
             await LocalNotifications.schedule({
                 notifications: [{
@@ -2490,7 +2511,7 @@ export const QuickAction = memo(({ to, icon: Icon, label, color, subtitle, onCli
             </div>
             <div className="mt-auto z-10">
                 <p className="text-sm font-bold leading-tight font-serif tracking-wide">{label}</p>
-                <p className="text-[10px] opacity-80 font-bold tracking-widest uppercase mt-1">{subtitle}</p>
+                <p className="text-xs opacity-80 font-bold tracking-widest uppercase mt-1">{subtitle}</p>
             </div>
 
             {/* Shine Effect */}

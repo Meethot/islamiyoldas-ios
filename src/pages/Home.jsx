@@ -50,11 +50,14 @@ const RELIGIOUS_DAYS = [
     { name: 'Berat Kandili', name_en: 'Night of Forgiveness', name_de: 'Nacht der Vergebung', name_ru: 'Ночь Прощения', name_ar: 'ليلة البراءة', date: '2026-02-02' },
     { name: 'Ramazan Başlangıcı', name_en: 'Start of Ramadan', name_de: 'Beginn des Ramadan', name_ru: 'Начало Рамадана', name_ar: 'بداية رمضان', date: '2026-02-19' },
     { name: 'Kadir Gecesi', name_en: 'Night of Power', name_de: 'Nacht der Bestimmung', name_ru: 'Ночь Предопределения', name_ar: 'ليلة القدر', date: '2026-03-16' },
+    { name: 'Ramazan Bayramı Arifesi', name_en: 'Eve of Eid al-Fitr', name_de: 'Vorabend des Fastenbrechens', name_ru: 'Канун Ураза-байрам', name_ar: 'عشية عيد الفطر', date: '2026-03-19' },
     { name: 'Ramazan Bayramı', name_en: 'Eid al-Fitr', name_de: 'Fest des Fastenbrechens', name_ru: 'Ураза-байрам', name_ar: 'عيد الفطر', date: '2026-03-20' }, // 1. Gün
+    { name: 'Kurban Bayramı Arifesi', name_en: 'Eve of Eid al-Adha', name_de: 'Vorabend des Opferfests', name_ru: 'Канун Курбан-байрам', name_ar: 'عشية عيد الأضحى', date: '2026-05-26' },
     { name: 'Kurban Bayramı', name_en: 'Eid al-Adha', name_de: 'Opferfest', name_ru: 'Курбан-байрам', name_ar: 'عيد الأضحى', date: '2026-05-27' }, // 1. Gün
     { name: 'Hicri Yılbaşı', name_en: 'Islamic New Year', name_de: 'Islamisches Neujahr', name_ru: 'Исламский Новый год', name_ar: 'رأس السنة الهجرية', date: '2026-06-16' },
     { name: 'Aşure Günü', name_en: 'Day of Ashura', name_de: 'Tag von Aschura', name_ru: 'День Ашура', name_ar: 'يوم عاشوراء', date: '2026-06-25' },
     { name: 'Mevlid Kandili', name_en: 'Birth of the Prophet', name_de: 'Geburtstag des Propheten', name_ru: 'Рождение Пророка', name_ar: 'المولد النبوي', date: '2026-08-24' },
+    { name: 'Regaib Kandili', name_en: 'Night of Wishes', name_de: 'Nacht der Wünsche', name_ru: 'Ночь Желаний', name_ar: 'ليلة الرغائب', date: '2026-12-10' },
 ];
 
 const containerVariants = {
