@@ -20,7 +20,10 @@
         "modal_title": "Məlumat & Gizlilik",
         "data_info": "Məlumatlarınız yalnız <strong>bu cihazda</strong> saxlanılır. Serverlərimizə heç bir məlumat göndərilmir.",
         "download": "Məlumatlarımı Endir",
-        "delete_all": "Bütün Məlumatları Sil"
+        "delete_all": "Bütün Məlumatları Sil",
+        "delete_confirm": "Bütün məlumatlarınız həmişəlik silinəcək. Bu əməliyyat geri alına bilməz.",
+        "delete_cancel": "Ləğv et",
+        "delete_yes": "Bəli, Sil"
     },
     "appearance": {
         "title": "Görünüş",

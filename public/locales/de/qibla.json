@@ -26,5 +26,17 @@
     "distanceToKaaba": "Du bist {{distance}} km von der Kaaba entfernt",
     "hadith": "\"Wo immer ihr auch seid, wendet euer Gesicht zur Heiligen Moschee.\"",
     "hadithSource": "— Sure Al-Baqara, 144",
-    "understood": "Verstanden ✨"
+    "understood": "Verstanden ✨",
+    "sensorMissing": {
+        "title": "Kompass-Sensor nicht gefunden",
+        "subtitle": "Hardware-Einschränkung",
+        "reason": "Ihr Gerät hat kein Magnetometer",
+        "reasonDesc": "Dieses Telefon verfügt nicht über den für die Kompassfunktion erforderlichen Magnetsensor. Dies ist eine Hardware-Einschränkung.",
+        "alternative": "Alternative Methode",
+        "alternativeDesc": "Sie können die Richtung zur Kaaba von Ihrem Standort auf einer Karte sehen.",
+        "openMaps": "Kaaba auf Karte anzeigen",
+        "hadith": "\"Allah gehört der Osten und der Westen. Wohin ihr euch auch wendet, dort ist das Angesicht Allahs.\"",
+        "hadithSource": "— Sure Al-Baqara, 115",
+        "close": "Verstanden 🧭"
+    }
 }

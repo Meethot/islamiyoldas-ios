@@ -26,5 +26,17 @@
     "distanceToKaaba": "Kâbe'ye {{distance}} km uzaktasın",
     "hadith": "\"Nerede olursanız olun, yüzünüzü Mescid-i Haram'a doğru çevirin.\"",
     "hadithSource": "— Bakara Suresi, 144",
-    "understood": "Anladım ✨"
+    "understood": "Anladım ✨",
+    "sensorMissing": {
+        "title": "Pusula Sensörü Bulunamadı",
+        "subtitle": "Donanım Kısıtlaması",
+        "reason": "Cihazınızda manyetometre yok",
+        "reasonDesc": "Bu telefonda pusula için gerekli manyetik sensör bulunmuyor. Bu donanımsal bir kısıtlamadır, yazılımla çözülemez.",
+        "alternative": "Alternatif yöntem",
+        "alternativeDesc": "Kıble yönünü bulmak için haritada konumunuzdan Kâbe'ye olan yönü görebilirsiniz.",
+        "openMaps": "Haritada Kâbe'yi Göster",
+        "hadith": "\"Doğu da Batı da Allah'ındır. Nereye dönerseniz, Allah'ın yüzü oradadır.\"",
+        "hadithSource": "— Bakara Suresi, 115",
+        "close": "Anladım 🧭"
+    }
 }

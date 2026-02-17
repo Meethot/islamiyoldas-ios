@@ -26,5 +26,17 @@
     "distanceToKaaba": "You are {{distance}} km away from the Kaaba",
     "hadith": "\"Wherever you are, turn your face toward the Sacred Mosque.\"",
     "hadithSource": "— Surah Al-Baqarah, 144",
-    "understood": "Got it ✨"
+    "understood": "Got it ✨",
+    "sensorMissing": {
+        "title": "Capteur de boussole introuvable",
+        "subtitle": "Limitation matérielle",
+        "reason": "Votre appareil n'a pas de magnétomètre",
+        "reasonDesc": "Ce téléphone ne dispose pas du capteur magnétique nécessaire au fonctionnement de la boussole. C'est une limitation matérielle.",
+        "alternative": "Méthode alternative",
+        "alternativeDesc": "Vous pouvez voir la direction de la Kaaba depuis votre position sur une carte.",
+        "openMaps": "Afficher la Kaaba sur la carte",
+        "hadith": "\"À Allah appartiennent l'Orient et l'Occident. Où que vous vous tourniez, la Face d'Allah est là.\"",
+        "hadithSource": "— Sourate Al-Baqarah, 115",
+        "close": "Compris 🧭"
+    }
 }

@@ -2,8 +2,10 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     Compass as CompassIcon, Info, X, Star,
-    Loader2, Smartphone, MapPin, Navigation2, Vibrate, RotateCcw, ChevronLeft
+    Loader2, Smartphone, MapPin, Navigation2, Vibrate, RotateCcw, ChevronLeft,
+    AlertTriangle, ExternalLink
 } from 'lucide-react';
+import { Capacitor } from '@capacitor/core';
 import { useNavigate } from 'react-router-dom';
 import { useLocation } from '@/context/LocationContext';
 import { useHaptics } from '@/hooks/useMobile';
@@ -100,6 +102,7 @@ export default function Qibla() {
     const [hapticEnabled, setHapticEnabled] = useState(true);
     const [declination, setDeclination] = useState(0);
     const [distanceKM, setDistanceKM] = useState(0);
+    const [sensorMissing, setSensorMissing] = useState(false);
 
     // Refs — direct DOM manipulation for 60fps smooth rotation
     const compassRef = useRef(null);
@@ -219,18 +222,28 @@ export default function Qibla() {
     }, [hasLocation, latitude, longitude]);
 
 
-    // --- NATIVE COMPASS IMPLEMENTATION ---
+    // --- NATIVE COMPASS WITH SENSOR DETECTION ---
     useEffect(() => {
         if (status !== 'active') return;
 
-        // Failsafe: if compass never fires (web/simulator/broken sensor),
-        // force ready after 3s so UI doesn't block forever
-        const failsafe = setTimeout(() => {
-            if (!compassReady && mountedRef.current) {
-                console.warn('Compass failsafe triggered — no reading in 3s');
-                setCompassReady(true);
+        // Track readings to detect dead/stuck sensor
+        const readings = [];
+        let sensorVerified = false;
+
+        // After 4s, check if sensor is truly working (not just sending static values)
+        const sensorCheck = setTimeout(() => {
+            if (sensorVerified || !mountedRef.current) return;
+
+            // If fewer than 3 readings OR all readings are the same = dead sensor
+            const uniqueReadings = new Set(readings.map(r => Math.round(r)));
+            const sensorDead = readings.length < 3 || uniqueReadings.size < 2;
+
+            if (sensorDead) {
+                console.warn(`Sensor dead: ${readings.length} readings, ${uniqueReadings.size} unique`);
+                setSensorMissing(true);
             }
-        }, 3000);
+            if (mountedRef.current) setCompassReady(true);
+        }, 4000);
 
         const startCompass = async () => {
             if (!mountedRef.current) return;
@@ -246,6 +259,15 @@ export default function Qibla() {
                 // Lightweight listener — only updates the target ref, no React state
                 await Compass.addListener('headingChange', (data) => {
                     if (!mountedRef.current) return;
+
+                    // Collect raw values for sensor verification
+                    if (!sensorVerified) {
+                        readings.push(data.value);
+                        if (readings.length >= 5) {
+                            const unique = new Set(readings.map(r => Math.round(r)));
+                            if (unique.size >= 2) sensorVerified = true;
+                        }
+                    }
 
                     let trueHeading = (data.value + declinationRef.current + 360) % 360;
                     if (debugAligned) trueHeading = qiblaAngleRef.current;
@@ -281,7 +303,7 @@ export default function Qibla() {
 
             } catch (e) {
                 console.error("Compass Error", e);
-                // Force ready so UI isn't stuck
+                setSensorMissing(true);
                 setCompassReady(true);
             }
         };
@@ -289,7 +311,7 @@ export default function Qibla() {
         startCompass();
 
         return () => {
-            clearTimeout(failsafe);
+            clearTimeout(sensorCheck);
             Compass.stopListening();
             Compass.removeAllListeners();
         };
@@ -515,6 +537,87 @@ export default function Qibla() {
                     </div>
                 )}
             </footer>
+
+            {/* Sensor Missing Popup */}
+            <AnimatePresence>
+                {sensorMissing && (
+                    <motion.div
+                        initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-[100] bg-black/90 backdrop-blur-2xl flex items-center justify-center p-6"
+                    >
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.85, y: 30 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                            transition={{ type: 'spring', damping: 22, stiffness: 280 }}
+                            className="bg-gradient-to-b from-[#0a3d2e] to-[#021a0f] p-7 rounded-[2rem] border border-amber-500/20 max-w-sm w-full shadow-2xl shadow-emerald-900/40"
+                        >
+                            {/* Icon */}
+                            <div className="flex flex-col items-center mb-5">
+                                <motion.div
+                                    animate={{ rotate: [0, -5, 5, -5, 0] }}
+                                    transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
+                                    className="w-20 h-20 rounded-full bg-gradient-to-br from-amber-500/20 to-red-500/10 border border-amber-400/30 flex items-center justify-center mb-4"
+                                >
+                                    <div className="relative">
+                                        <CompassIcon className="w-10 h-10 text-amber-400/80" />
+                                        <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-red-500/90 flex items-center justify-center">
+                                            <X className="w-3 h-3 text-white" />
+                                        </div>
+                                    </div>
+                                </motion.div>
+                                <h3 className="text-lg text-white font-serif tracking-wide text-center">{t('sensorMissing.title')}</h3>
+                                <p className="text-[11px] tracking-[0.3em] text-amber-400/60 mt-1 uppercase">{t('sensorMissing.subtitle')}</p>
+                            </div>
+
+                            {/* Explanation */}
+                            <div className="space-y-3 mb-5">
+                                <div className="flex items-start gap-3 p-3.5 rounded-xl bg-amber-500/[0.06] border border-amber-500/10">
+                                    <AlertTriangle className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
+                                    <div>
+                                        <p className="text-sm text-emerald-100/80 font-medium">{t('sensorMissing.reason')}</p>
+                                        <p className="text-xs text-emerald-100/40 mt-1">{t('sensorMissing.reasonDesc')}</p>
+                                    </div>
+                                </div>
+                                <div className="flex items-start gap-3 p-3.5 rounded-xl bg-white/[0.03] border border-white/[0.05]">
+                                    <Smartphone className="w-5 h-5 text-emerald-400/70 shrink-0 mt-0.5" />
+                                    <div>
+                                        <p className="text-sm text-emerald-100/80 font-medium">{t('sensorMissing.alternative')}</p>
+                                        <p className="text-xs text-emerald-100/40 mt-1">{t('sensorMissing.alternativeDesc')}</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Open in Maps */}
+                            <a
+                                href={`https://www.google.com/maps/dir/?api=1&destination=21.4225,39.8262&travelmode=driving`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex items-center justify-center gap-3 py-3 px-4 rounded-2xl bg-emerald-950/60 border border-emerald-500/10 mb-5 active:scale-[0.98] transition-transform"
+                            >
+                                <MapPin className="w-5 h-5 text-amber-400" />
+                                <span className="text-sm text-emerald-100/80 font-medium">{t('sensorMissing.openMaps')}</span>
+                                <ExternalLink className="w-3.5 h-3.5 text-emerald-100/30" />
+                            </a>
+
+                            {/* Hadith */}
+                            <div className="text-center mb-5 px-2">
+                                <p className="text-xs text-emerald-100/60 italic font-serif leading-relaxed">
+                                    {t('sensorMissing.hadith')}
+                                </p>
+                                <p className="text-[10px] text-amber-400/70 mt-1 font-medium">{t('sensorMissing.hadithSource')}</p>
+                            </div>
+
+                            <button
+                                onClick={() => setSensorMissing(false)}
+                                className="w-full bg-gradient-to-r from-emerald-800 to-emerald-700 hover:from-emerald-700 hover:to-emerald-600 rounded-xl py-3 text-emerald-50 font-medium tracking-wide transition-all"
+                            >
+                                {t('sensorMissing.close')}
+                            </button>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
 
             <AnimatePresence>
                 {showInfo && (

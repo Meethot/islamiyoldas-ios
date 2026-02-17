@@ -36,14 +36,20 @@ export default function AiMentor() {
     const { t, i18n } = useTranslation('misc');
     const { light, heavy } = useHaptics();
     const chatEndRef = useRef(null);
-    const [messages, setMessages] = useState([
-        {
+    const [messages, setMessages] = useState(() => {
+        const welcome = {
             id: 'welcome',
             role: 'assistant',
             text: t('aiMentor.welcomeMessage'),
             isPrescription: false
+        };
+        try {
+            const saved = JSON.parse(localStorage.getItem('ai_mentor_history') || '[]');
+            return saved.length > 0 ? [welcome, ...saved] : [welcome];
+        } catch {
+            return [welcome];
         }
-    ]);
+    });
     const [input, setInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [usedCount, setUsedCount] = useState(getUsedToday());
@@ -58,6 +64,15 @@ export default function AiMentor() {
 
     useEffect(() => {
         scrollToBottom();
+    }, [messages]);
+
+    // Persist last 3 messages (excluding welcome)
+    useEffect(() => {
+        const toSave = messages.filter(m => m.id !== 'welcome').slice(-3);
+        if (toSave.length > 0) {
+            try { localStorage.setItem('ai_mentor_history', JSON.stringify(toSave)); }
+            catch { /* quota exceeded */ }
+        }
     }, [messages]);
 
     const handleSend = async () => {
@@ -170,10 +185,10 @@ export default function AiMentor() {
             {/* Credit Info Banner - show for all users */}
             <motion.div
                 className={`px-4 py-2 flex items-center justify-center gap-2 border-b ${premium
+                    ? 'bg-islamic-gold/[0.04] border-islamic-gold/10'
+                    : remaining > 0
                         ? 'bg-islamic-gold/[0.04] border-islamic-gold/10'
-                        : remaining > 0
-                            ? 'bg-islamic-gold/[0.04] border-islamic-gold/10'
-                            : 'bg-red-500/[0.06] border-red-500/10'
+                        : 'bg-red-500/[0.06] border-red-500/10'
                     }`}
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: 'auto' }}

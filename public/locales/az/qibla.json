@@ -26,5 +26,17 @@
     "distanceToKaaba": "Kəbəyə {{distance}} km uzaqdasan",
     "hadith": "\"Harada olursanız olun, üzünüzü Məscid-i Harama tərəf çevirin.\"",
     "hadithSource": "— Bəqərə Surəsi, 144",
-    "understood": "Anladım ✨"
+    "understood": "Anladım ✨",
+    "sensorMissing": {
+        "title": "Pusula Sensoru Tapılmadı",
+        "subtitle": "Avadanlıq Məhdudiyyəti",
+        "reason": "Cihazınızda maqnitometr yoxdur",
+        "reasonDesc": "Bu telefonda pusula funksiyası üçün lazım olan maqnit sensor yoxdur. Bu avadanlıq məhdudiyyətidir, proqramla həll edilə bilməz.",
+        "alternative": "Alternativ üsul",
+        "alternativeDesc": "Xəritədə konumunuzdan Kəbəyə olan istiqaməti görə bilərsiniz.",
+        "openMaps": "Kəbəni Xəritədə Göstər",
+        "hadith": "\"Şərq də Qərb də Allahındır. Hara dönsəniz, Allahın üzü oradadır.\"",
+        "hadithSource": "— Bəqərə Surəsi, 115",
+        "close": "Anladım 🧭"
+    }
 }

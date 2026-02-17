@@ -26,5 +26,17 @@
     "distanceToKaaba": "You are {{distance}} km away from the Kaaba",
     "hadith": "\"Wherever you are, turn your face toward the Sacred Mosque.\"",
     "hadithSource": "— Surah Al-Baqarah, 144",
-    "understood": "Got it ✨"
+    "understood": "Got it ✨",
+    "sensorMissing": {
+        "title": "Kompas sensor niet gevonden",
+        "subtitle": "Hardwarebeperking",
+        "reason": "Uw apparaat heeft geen magnetometer",
+        "reasonDesc": "Deze telefoon heeft niet de magnetische sensor die nodig is voor kompasfunctionaliteit. Dit is een hardwarebeperking.",
+        "alternative": "Alternatieve methode",
+        "alternativeDesc": "U kunt de richting naar de Kaaba vanaf uw locatie op een kaart zien.",
+        "openMaps": "Kaaba op kaart tonen",
+        "hadith": "\"Aan Allah behoren het oosten en het westen. Waarheen jullie je ook wenden, daar is het Aangezicht van Allah.\"",
+        "hadithSource": "— Soera Al-Baqarah, 115",
+        "close": "Begrepen 🧭"
+    }
 }

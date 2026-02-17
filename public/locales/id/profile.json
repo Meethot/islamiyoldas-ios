@@ -20,7 +20,10 @@
         "modal_title": "Data & Privacy",
         "data_info": "Your data is stored <strong>only on this device</strong>. No data is sent to our servers.",
         "download": "Download My Data",
-        "delete_all": "Delete All Data"
+        "delete_all": "Hapus Semua Data",
+        "delete_confirm": "Semua data Anda akan dihapus secara permanen. Tindakan ini tidak dapat dibatalkan.",
+        "delete_cancel": "Batal",
+        "delete_yes": "Ya, Hapus"
     },
     "appearance": {
         "title": "Appearance",

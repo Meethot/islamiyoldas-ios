@@ -20,7 +20,10 @@
         "modal_title": "Data & Privacy",
         "data_info": "Your data is stored <strong>only on this device</strong>. No data is sent to our servers.",
         "download": "Download My Data",
-        "delete_all": "Delete All Data"
+        "delete_all": "Eliminar todos los datos",
+        "delete_confirm": "Todos sus datos se eliminarán permanentemente. Esta acción no se puede deshacer.",
+        "delete_cancel": "Cancelar",
+        "delete_yes": "Sí, eliminar"
     },
     "appearance": {
         "title": "Appearance",
