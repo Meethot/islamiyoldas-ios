@@ -5,16 +5,18 @@ import {
     FastForward, AlertTriangle, CheckCircle2, RefreshCcw, Navigation, Bell, List, RotateCcw, AlarmClock
 } from 'lucide-react';
 import { LocalNotifications } from '@capacitor/local-notifications';
+import { Capacitor } from '@capacitor/core';
+import { FirebaseCrashlytics } from '@capacitor-firebase/crashlytics';
 import { Button } from '@/components/ui/button';
 import { advanceTestDay, resetTestDay, getTestDayOffset, getTodayString, getDailyPrayersKey } from '@/lib/testDate';
 import { addCredit, getCredits, isPremium } from '@/services/creditService';
-import { Coins, Crown } from 'lucide-react';
+import { Coins, Crown, Flame } from 'lucide-react';
 
 /**
  * DebugMenu - Hidden stress test dashboard for developers
  */
 
-const DEBUG_MODE = true;
+const DEBUG_MODE = false;
 
 // Component that crashes on render to trigger ErrorBoundary
 function CrashTrigger({ shouldCrash }) {
@@ -259,13 +261,53 @@ const DebugMenu = () => {
             ]
         },
         {
-            group: '💥 Error Testing',
+            group: '💥 Crashlytics Test',
             items: [
                 {
-                    label: 'Crash App', icon: AlertTriangle, action: () => {
-                        setLastAction('💥 Crashing app...');
-                        setShouldCrash(true);
+                    label: 'Non-Fatal Error', icon: AlertTriangle, action: async () => {
+                        if (!Capacitor.isNativePlatform()) {
+                            setLastAction('❌ Sadece cihazda çalışır');
+                            return;
+                        }
+                        try {
+                            await FirebaseCrashlytics.setEnabled({ enabled: true });
+                            await FirebaseCrashlytics.log({ message: 'DebugMenu: About to record non-fatal' });
+                            await FirebaseCrashlytics.recordException({
+                                message: 'DebugMenu test — non-fatal JS error at ' + new Date().toISOString(),
+                            });
+                            await FirebaseCrashlytics.sendUnsentReports();
+                            setLastAction('📤 Non-fatal gönderildi! Console\'da birkaç dk bekle.');
+                        } catch (e) {
+                            setLastAction('❌ ' + e.message);
+                        }
+                    }, color: 'bg-orange-600'
+                },
+                {
+                    label: 'Native Crash', icon: Flame, action: async () => {
+                        if (!Capacitor.isNativePlatform()) {
+                            setLastAction('❌ Sadece cihazda çalışır');
+                            return;
+                        }
+                        setLastAction('💀 Native crash tetikleniyor — uygulama kapanacak!');
+                        setTimeout(async () => {
+                            await FirebaseCrashlytics.crash({ message: 'DebugMenu forced crash test' });
+                        }, 500);
                     }, color: 'bg-red-800'
+                },
+                {
+                    label: 'Check Status', icon: Bug, action: async () => {
+                        if (!Capacitor.isNativePlatform()) {
+                            setLastAction('❌ Sadece cihazda çalışır');
+                            return;
+                        }
+                        try {
+                            const { crashed } = await FirebaseCrashlytics.didCrashOnPreviousExecution();
+                            const enabled = await FirebaseCrashlytics.isEnabled().catch(() => ({ enabled: 'N/A (Android)' }));
+                            setLastAction(`📊 Önceki crash: ${crashed ? 'EVET ✅' : 'HAYIR'} | Enabled: ${JSON.stringify(enabled)}`);
+                        } catch (e) {
+                            setLastAction('❌ ' + e.message);
+                        }
+                    }, color: 'bg-blue-700'
                 },
             ]
         },

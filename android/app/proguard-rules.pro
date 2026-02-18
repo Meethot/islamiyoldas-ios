@@ -1,6 +1,6 @@
 # Capacitor
 -keep class com.getcapacitor.** { *; }
--keep class com.islamic.app.** { *; }
+-keep class com.islamiyoldas.app.** { *; }
 -dontwarn com.getcapacitor.**
 
 # Capacitor Plugins

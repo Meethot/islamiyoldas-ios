@@ -1,14 +1,17 @@
 import React, { useState, useEffect, Suspense } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation as useRouterLocation } from 'react-router-dom';
 import Onboarding from './pages/Onboarding';
 import Home from './pages/Home';
 import AppLayout from './layouts/AppLayout';
 import SplashScreen from './components/SplashScreen';
 import { PrayerTimesProvider, usePrayerTimes } from './context/PrayerTimesContext';
 import { useLocation } from './context/LocationContext';
+import { App as CapApp } from '@capacitor/app';
+import { LocalNotifications } from '@capacitor/local-notifications';
 
 import { initAdMob } from './services/adService';
 import { isPremium } from './services/creditService';
+import { initCrashlytics, logPageView } from './services/crashService';
 
 import ScrollToTop from './components/ScrollToTop';
 import SwipeBackHandler from './components/SwipeBackHandler';
@@ -45,6 +48,12 @@ function App() {
   );
 }
 
+function CrashBreadcrumbs() {
+  const location = useRouterLocation();
+  useEffect(() => { logPageView(location.pathname); }, [location.pathname]);
+  return null;
+}
+
 function AppContent() {
   const [showSplash, setShowSplash] = useState(true);
   const onboardingComplete = localStorage.getItem('onboardingComplete') === 'true';
@@ -74,6 +83,19 @@ function AppContent() {
   // AdMob init
   useEffect(() => { initAdMob(); }, []);
 
+  // Crashlytics init
+  useEffect(() => { initCrashlytics(); }, []);
+
+  // Dismiss ezan notifications when app comes to foreground
+  useEffect(() => {
+    const listener = CapApp.addListener('appStateChange', (state) => {
+      if (state.isActive) {
+        LocalNotifications.removeAllDeliveredNotifications().catch(() => { });
+      }
+    });
+    return () => { listener.then(l => l.remove()); };
+  }, []);
+
   if (showSplash) return <SplashScreen dataReady={dataReady} />;
 
   return (
@@ -85,6 +107,7 @@ function AppContent() {
           <Router>
             <ScrollToTop />
             <SwipeBackHandler />
+            <CrashBreadcrumbs />
             <InterstitialAdManager />
             <ReviewPrompt />
             <Suspense fallback={<div className="min-h-screen bg-background" />}>

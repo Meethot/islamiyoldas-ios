@@ -1,4 +1,4 @@
-package com.islamic.app;
+package com.islamiyoldas.app;
 
 import android.view.SoundEffectConstants;
 import android.view.View;

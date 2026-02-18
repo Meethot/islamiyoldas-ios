@@ -16,6 +16,7 @@ import Swal from 'sweetalert2';
 import { getCredits, addCredit, spendCredits, isPremium, CREDIT_COSTS } from '@/services/creditService';
 import { initAdMob, showRewardedAd } from '@/services/adService';
 import { useTranslation } from 'react-i18next';
+import { getFakePrayersByLang, normalizeLang } from '@/data/fakePrayers';
 import CreditPaywallModal from '@/components/CreditPaywallModal';
 
 
@@ -83,48 +84,7 @@ const BLOCKED_WORDS = [
     "manyak", "sapık"
 ];
 // =========================================
-const ALL_DUAS_POOL = [
-    { id: 1, text: "Annem çok hasta, şifa bekliyoruz. Dualarınızda ona da yer ayırır mısınız?", count: 128 },
-    { id: 2, text: "Üzerimde çok büyük bir borç yükü var, hayırlı bir kapı açılması için dua bekliyorum.", count: 84 },
-    { id: 3, text: "Yarın çok kritik bir sınavım var, zihin açıklığı için dua eder misiniz?", count: 215 },
-    { id: 4, text: "Ruhum çok daralıyor, iç huzur ve inşirah için dualarınıza talibim.", count: 156 },
-    { id: 5, text: "Evladım hayırlı bir yola girsin, kötü alışkanlıklardan kurtulsun diye dua bekliyorum.", count: 312 },
-    { id: 6, text: "Yalnızlık ve kimsesizlik hissinden kurtulmak için kalpten bir dua istiyorum.", count: 97 },
-    { id: 7, text: "Babam ameliyata girecek, başarılı geçmesi için dua eder misiniz?", count: 203 },
-    { id: 8, text: "Eşimle aramız çok bozuldu, aileme huzur vermesi için Allah'a yalvarıyorum.", count: 176 },
-    { id: 9, text: "İş bulamıyorum, hayırlı bir kapının açılması için dualarınızı bekliyorum.", count: 145 },
-    { id: 10, text: "Küçük kızım çok ağır hasta, şifa nasip etmesi için dua edin lütfen.", count: 387 },
-    { id: 11, text: "Borçlarımdan kurtulamıyorum, maddi sıkıntılarım için dua istiyorum.", count: 132 },
-    { id: 12, text: "Hayırlı bir eş nasip etmesi için dua ediyorum, siz de dua eder misiniz?", count: 267 },
-    { id: 13, text: "Depresyondayım, Allah'ın bana şifa ve huzur vermesi için dua edin.", count: 198 },
-    { id: 14, text: "Askerdeki oğlum için dua istiyorum, sağ salim dönmesi için.", count: 341 },
-    { id: 15, text: "Hamileliğim çok riskli, bebeğimin sağlıklı doğması için dua edin.", count: 276 },
-    { id: 16, text: "Sınavlara hazırlanıyorum, Allah zihin açıklığı ve başarı versin.", count: 189 },
-    { id: 17, text: "Çok zor günlerden geçiyorum, sabrım tükeniyor. Dua edin lütfen.", count: 154 },
-    { id: 18, text: "Kanser tedavisi görüyorum, şifa diliyorum. Dualarınıza ihtiyacım var.", count: 412 },
-    { id: 19, text: "Ailecek çok zor durumdayız, Allah yardımcımız olsun.", count: 167 },
-    { id: 20, text: "Gurbette çok yalnızım, Allah sabır ve güç versin.", count: 143 },
-    { id: 21, text: "Kardeşim yanlış yollara düştü, hidayet nasip etmesi için dua edin.", count: 234 },
-    { id: 22, text: "Namazlarıma düzen veremiyorum, Allah beni bu konuda güçlendirsin.", count: 178 },
-    { id: 23, text: "Ebeveynlerimin sağlığı için dua istiyorum, ikisi de yaşlı ve hasta.", count: 289 },
-    { id: 24, text: "Çocuğum okula uyum sağlayamıyor, hayırlısı olması için dua edin.", count: 112 },
-    { id: 25, text: "Kötü alışkanlıklarımdan kurtulmak istiyorum, bana dua edin.", count: 165 },
-    { id: 26, text: "Üniversite sınavına hazırlanıyorum, hayırlı bir sonuç için dua edin.", count: 298 },
-    { id: 27, text: "Ameliyat olacağım, Allah'tan sağlıklı bir şekilde atlatmayı diliyorum.", count: 223 },
-    { id: 28, text: "İşsiz kaldım, ailemle birlikte çok zordayız. Dua edin kardeşler.", count: 187 },
-    { id: 29, text: "Evliliğimin kurtulması için dua edin, çocuklarım var.", count: 201 },
-    { id: 30, text: "Hac'ca gidebilmek için dua ediyorum, nasip olması dileğiyle.", count: 356 },
-    { id: 31, text: "Allah bizi doğru yoldan ayırmasın, imanımızı güçlendirsin.", count: 445 },
-    { id: 32, text: "Vesveseden çok rahatsız oluyorum, Allah kurtarsın. Dua edin.", count: 134 },
-    { id: 33, text: "Gece uykularım çok bozuk, huzurlu uyumak için dua istiyorum.", count: 108 },
-    { id: 34, text: "Ablam yoğun bakımda, şifa vermesi için yalvarıyorum. Dua edin.", count: 378 },
-    { id: 35, text: "Mahkemem var, hakkımın teslim edilmesi için dua ediyorum.", count: 146 },
-    { id: 36, text: "Tövbelerimin kabul olması için dua edin, çok pişmanım.", count: 192 },
-    { id: 37, text: "Ailemle barışmak istiyorum, gönüllerin yumuşaması için dua edin.", count: 163 },
-    { id: 38, text: "Küçük oğlum engelli, onun ve bizim için sabır diliyorum.", count: 334 },
-    { id: 39, text: "Maddi manevi sıkıntılarımdan kurtulmak için dualarınıza ihtiyacım var.", count: 171 },
-    { id: 40, text: "Rızkımın bereketlenmesi için dua edin, çok dar geçiniyoruz.", count: 218 },
-];
+// Fake prayers are now loaded from src/data/fakePrayers.js per language
 
 function getRandomDuas(pool, count) {
     const shuffled = [...pool];
@@ -135,16 +95,20 @@ function getRandomDuas(pool, count) {
     return shuffled.slice(0, count);
 }
 
-// Generate fresh fake duas (called on init and when cache expires)
-function generateFakeDuas() {
-    const savedCounts = localStorage.getItem('fakeDuasCounts');
-    const cachedSelection = localStorage.getItem('fakeDuasSelection');
-    const seenIdsRaw = localStorage.getItem('fakeDuasSeenIds');
+// Generate fresh fake duas per language (called on init and when cache expires)
+function generateFakeDuas(lang = 'tr') {
+    const pool = getFakePrayersByLang(lang);
+    const cacheKey = `fakeDuasSelection_${lang}`;
+    const seenKey = `fakeDuasSeenIds_${lang}`;
+    const countsKey = `fakeDuasCounts_${lang}`;
+
+    const savedCounts = localStorage.getItem(countsKey);
+    const cachedSelection = localStorage.getItem(cacheKey);
+    const seenIdsRaw = localStorage.getItem(seenKey);
     let seenIds = [];
 
     try { seenIds = seenIdsRaw ? JSON.parse(seenIdsRaw) : []; } catch { seenIds = []; }
 
-    // If there's a valid cached set (< 24h old), use it
     if (cachedSelection) {
         try {
             const { ids, timestamp } = JSON.parse(cachedSelection);
@@ -153,7 +117,7 @@ function generateFakeDuas() {
 
             if (now - timestamp < twentyFourHours && Array.isArray(ids) && ids.length > 0) {
                 const cachedDuas = ids
-                    .map(id => ALL_DUAS_POOL.find(d => d.id === id))
+                    .map(id => pool.find(d => d.id === id))
                     .filter(Boolean);
 
                 if (cachedDuas.length > 0) {
@@ -172,25 +136,21 @@ function generateFakeDuas() {
         }
     }
 
-    // Cache expired or doesn't exist — pick NEW unseen duas
     const seenSet = new Set(seenIds);
-    let available = ALL_DUAS_POOL.filter(d => !seenSet.has(d.id));
+    let available = pool.filter(d => !seenSet.has(d.id));
 
-    // If all duas have been seen, reset the cycle
     if (available.length === 0) {
         seenIds = [];
-        localStorage.setItem('fakeDuasSeenIds', JSON.stringify([]));
-        available = ALL_DUAS_POOL;
+        localStorage.setItem(seenKey, JSON.stringify([]));
+        available = pool;
     }
 
     const randomSet = getRandomDuas(available, Math.min(6, available.length));
 
-    // Mark these as seen
     const newSeenIds = [...seenIds, ...randomSet.map(d => d.id)];
-    localStorage.setItem('fakeDuasSeenIds', JSON.stringify(newSeenIds));
+    localStorage.setItem(seenKey, JSON.stringify(newSeenIds));
 
-    // Cache the selection with app-aware timestamp
-    localStorage.setItem('fakeDuasSelection', JSON.stringify({
+    localStorage.setItem(cacheKey, JSON.stringify({
         ids: randomSet.map(d => d.id),
         timestamp: getAppDate().getTime()
     }));
@@ -208,7 +168,8 @@ function generateFakeDuas() {
 
 export default function DuaKosesi() {
     const navigate = useNavigate();
-    const { t } = useTranslation('dua');
+    const { t, i18n } = useTranslation('dua');
+    const currentLang = normalizeLang(i18n.language);
     const [showForm, setShowForm] = useState(false);
     const [showHistory, setShowHistory] = useState(false);
     const [showSuccess, setShowSuccess] = useState(false);
@@ -275,18 +236,18 @@ export default function DuaKosesi() {
     const [refreshKey, setRefreshKey] = useState(0); // Increment to trigger re-fetch
 
     // Fake Data (Simulated) - each dua shown only once, never repeated
-    const [fakeDuas, setFakeDuas] = useState(() => generateFakeDuas());
+    const [fakeDuas, setFakeDuas] = useState(() => generateFakeDuas(currentLang));
 
     // Re-check on every mount/focus: if cache is stale, regenerate
     useEffect(() => {
         const checkStale = () => {
-            const cachedSelection = localStorage.getItem('fakeDuasSelection');
+            const cachedSelection = localStorage.getItem(`fakeDuasSelection_${currentLang}`);
             if (!cachedSelection) return;
             try {
                 const { timestamp } = JSON.parse(cachedSelection);
                 const now = getAppDate().getTime();
                 if (now - timestamp >= 24 * 60 * 60 * 1000) {
-                    setFakeDuas(generateFakeDuas());
+                    setFakeDuas(generateFakeDuas(currentLang));
                 }
             } catch { /* ignore */ }
         };
@@ -385,7 +346,7 @@ export default function DuaKosesi() {
     useEffect(() => {
         const fetchRandom = async () => {
             try {
-                const data = await getRandomApprovedPrayers(6);
+                const data = await getRandomApprovedPrayers(6, currentLang);
                 setRealDuas(data);
             } catch (err) {
                 console.error("Error fetching random prayers:", err);
@@ -544,7 +505,7 @@ export default function DuaKosesi() {
         }
 
         try {
-            const id = await addPrayer(text);
+            const id = await addPrayer(text, currentLang);
 
             // Increment daily count on success
             const newCount = dailyCount + 1;

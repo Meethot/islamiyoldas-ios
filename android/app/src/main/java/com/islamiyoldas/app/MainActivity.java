@@ -1,4 +1,4 @@
-package com.islamic.app;
+package com.islamiyoldas.app;
 
 import com.getcapacitor.BridgeActivity;
 

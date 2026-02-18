@@ -21,9 +21,10 @@ const COLLECTION_NAME = 'prayers';
 /**
  * Adds a new prayer request to Firestore.
  * @param {string} text - The content of the prayer request.
+ * @param {string} lang - The language code (e.g., 'tr', 'en', 'ar').
  * @returns {Promise<string>} - The ID of the newly created document.
  */
-export async function addPrayer(text) {
+export async function addPrayer(text, lang = 'tr') {
     if (!text || text.trim().length < 10) {
         throw new Error("Dua metni en az 10 karakter olmalıdır.");
     }
@@ -32,10 +33,11 @@ export async function addPrayer(text) {
         const docRef = await addDoc(collection(db, COLLECTION_NAME), {
             text: text.trim(),
             aminCount: 0,
-            status: 'pending', // 'pending' | 'approved' | 'rejected'
+            status: 'pending',
             timestamp: serverTimestamp(),
             randomIndex: Math.floor(Math.random() * 10000000),
-            platform: 'mobile' // Optional: track source
+            platform: 'mobile',
+            lang: lang.split('-')[0] || 'tr'
         });
         return docRef.id;
     } catch (error) {
@@ -85,21 +87,24 @@ export function getApprovedPrayers(callback, startDate) {
 }
 
 /**
- * Fetches a random set of approved prayers using randomIndex.
+ * Fetches a random set of approved prayers using randomIndex, filtered by language.
  * @param {number} count - Number of prayers to fetch.
+ * @param {string} lang - Language code to filter prayers by.
  * @returns {Promise<Array>} - Array of prayer objects.
  */
-export async function getRandomApprovedPrayers(count = 6) {
+export async function getRandomApprovedPrayers(count = 6, lang = 'tr') {
+    const normalizedLang = lang?.split('-')[0] || 'tr';
     const startAt = Math.floor(Math.random() * 10000000);
     const colRef = collection(db, COLLECTION_NAME);
     const results = [];
     const seenIds = new Set();
 
     try {
-        // Query 1: Forward from random point
+        // Query 1: Forward from random point, filtered by lang
         const q1 = query(
             colRef,
             where('status', '==', 'approved'),
+            where('lang', '==', normalizedLang),
             where('randomIndex', '>=', startAt),
             orderBy('randomIndex'),
             limit(count)
@@ -116,9 +121,10 @@ export async function getRandomApprovedPrayers(count = 6) {
             const q2 = query(
                 colRef,
                 where('status', '==', 'approved'),
+                where('lang', '==', normalizedLang),
                 where('randomIndex', '>=', 0),
                 orderBy('randomIndex'),
-                limit(remaining + seenIds.size) // fetch extra to filter dupes
+                limit(remaining + seenIds.size)
             );
             const snap2 = await getDocs(q2);
             snap2.docs.forEach(d => {
@@ -130,11 +136,11 @@ export async function getRandomApprovedPrayers(count = 6) {
         }
     } catch (error) {
         console.error("Error fetching random prayers:", error);
-        // Graceful fallback: try chronological query (for docs without randomIndex)
         try {
             const fallbackQ = query(
                 colRef,
                 where('status', '==', 'approved'),
+                where('lang', '==', normalizedLang),
                 orderBy('timestamp', 'desc'),
                 limit(count)
             );

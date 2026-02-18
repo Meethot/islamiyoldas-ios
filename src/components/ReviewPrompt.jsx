@@ -109,7 +109,7 @@ export default function ReviewPrompt() {
             if (platform === 'ios') {
                 window.open(`https://apps.apple.com/app/id${APP_STORE_ID}?action=write-review`, '_blank');
             } else if (platform === 'android') {
-                window.open(`market://details?id=com.islamic.app`, '_blank');
+                window.open(`market://details?id=com.islamiyoldas.app`, '_blank');
             }
         }
     };

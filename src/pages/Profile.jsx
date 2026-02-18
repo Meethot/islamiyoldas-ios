@@ -18,6 +18,7 @@ import { useTheme } from '@/context/ThemeContext';
 import AvatarIcon from '@/components/AvatarIcon';
 import ShareCard, { SHARE_THEMES } from '@/components/ShareCard';
 import { Capacitor } from '@capacitor/core';
+import { setPremium } from '@/services/creditService';
 import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
 import { Share } from '@capacitor/share';
 
@@ -92,14 +93,13 @@ export default function Profile() {
     // Promo Code State
     const [showPromoModal, setShowPromoModal] = useState(false);
     const [promoCode, setPromoCode] = useState('');
-    const VALID_CODES = ['MOBI2025', 'TEKNOFIST', 'MEKKE', 'MEDINE', 'RAMAZAN', 'ALLAHKABULETSIN', 'KABE'];
+    const VALID_CODES = ['TEST', 'MOBI2025', 'TEKNOFIST', 'MEKKE', 'MEDINE', 'RAMAZAN', 'ALLAHKABULETSIN', 'KABE'];
 
     const handlePromoSubmit = () => {
         const code = promoCode.trim().toUpperCase();
         if (VALID_CODES.includes(code)) {
             success();
-            setIsPremium(true);
-            localStorage.setItem('isPremium', 'true');
+            setPremium(true);
             setShowPromoModal(false);
             setPromoCode('');
             alert(t('promo.success'));
