@@ -7,25 +7,6 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:260066358179:android:ce71e5a4b8f76e73cca016",
-        "android_client_info": {
-          "package_name": "com.islamic.app"
-        }
-      },
-      "oauth_client": [],
-      "api_key": [
-        {
-          "current_key": "AIzaSyCqkQjW2Y0VtX8BqdCyMtgMBuMWAeDz7Dw"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": []
-        }
-      }
-    },
-    {
-      "client_info": {
         "mobilesdk_app_id": "1:260066358179:android:f028050bfc137f03cca016",
         "android_client_info": {
           "package_name": "com.islamiyoldas.app"

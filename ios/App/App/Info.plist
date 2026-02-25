@@ -22,6 +22,8 @@
 	<string>$(MARKETING_VERSION)</string>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
+	<key>GADApplicationIdentifier</key>
+	<string>ca-app-pub-3345957146167395~1644282671</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
@@ -32,12 +34,19 @@
 	<string>Kıble yönünü doğru hesaplamak için hareket sensörlerine erişmemiz gerekiyor.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>Paylaştığınız içerikleri galerinize kaydedebilmek için izninize ihtiyacımız var.</string>
+	<key>NSUserTrackingUsageDescription</key>
+	<string>Size daha uygun hizmet ve uygulama deneyiminizi iyileştirmek için izin istiyoruz.</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>audio</string>
 		<string>fetch</string>
 		<string>remote-notification</string>
 		<string>processing</string>
+	</array>
+	<key>BGTaskSchedulerPermittedIdentifiers</key>
+	<array>
+		<string>com.islamiyoldas.app.background-fetch</string>
+		<string>com.islamiyoldas.app.background-processing</string>
 	</array>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
@@ -50,17 +59,16 @@
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
+		<string>UIInterfaceOrientationPortraitUpsideDown</string>
 	</array>
 	<key>UISupportedInterfaceOrientations~ipad</key>
 	<array>
+		<string>UIInterfaceOrientationLandscapeLeft</string>
+		<string>UIInterfaceOrientationLandscapeRight</string>
 		<string>UIInterfaceOrientationPortrait</string>
 		<string>UIInterfaceOrientationPortraitUpsideDown</string>
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
-	<key>NSUserTrackingUsageDescription</key>
-	<string>Size daha uygun hizmet ve uygulama deneyiminizi iyileştirmek için izin istiyoruz.</string>
-	<key>GADApplicationIdentifier</key>
-	<string>ca-app-pub-3345957146167395~1644282671</string>
 </dict>
 </plist>
