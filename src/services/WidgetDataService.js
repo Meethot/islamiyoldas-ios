@@ -171,7 +171,6 @@ function formatPrayerData(prayerTimes) {
  */
 export async function updatePrayerWidget(prayerTimes) {
     if (!Capacitor.isNativePlatform() || Capacitor.getPlatform() !== 'ios') {
-        console.log('[WidgetDataService] Not on iOS, skipping widget update');
         return;
     }
 
@@ -184,7 +183,6 @@ export async function updatePrayerWidget(prayerTimes) {
             value: JSON.stringify(widgetData),
         });
 
-        console.log('[WidgetDataService] Prayer widget data updated');
     } catch (error) {
         console.error('[WidgetDataService] Failed to update prayer widget:', error);
     }
@@ -195,7 +193,6 @@ export async function updatePrayerWidget(prayerTimes) {
  */
 export async function updateInspirationWidget() {
     if (!Capacitor.isNativePlatform() || Capacitor.getPlatform() !== 'ios') {
-        console.log('[WidgetDataService] Not on iOS, skipping widget update');
         return;
     }
 
@@ -214,7 +211,6 @@ export async function updateInspirationWidget() {
             value: JSON.stringify(widgetData),
         });
 
-        console.log('[WidgetDataService] Inspiration widget data updated');
     } catch (error) {
         console.error('[WidgetDataService] Failed to update inspiration widget:', error);
     }
@@ -237,7 +233,6 @@ export async function updateAllWidgets(prayerTimes) {
 
         // Reload all widget timelines
         await WidgetBridge.reloadAllTimelines();
-        console.log('[WidgetDataService] All widgets refreshed');
     } catch (error) {
         console.error('[WidgetDataService] Widget refresh failed:', error);
     }

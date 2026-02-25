@@ -190,7 +190,6 @@ const DebugMenu = () => {
                 const date = n.schedule?.at ? new Date(n.schedule.at).toLocaleString('tr-TR') : 'Hemen';
                 return `ID: ${n.id}\nBaşlık: ${n.title}\nZaman: ${date}\nSes: ${n.sound || 'Sessiz'}`;
             }).join('\n\n---\n\n');
-            console.log('Pending Notifications:', pending.notifications);
             alert(`Bekleyen Bildirimler (${pending.notifications.length}):\n\n${list}`);
             setLastAction(`📋 Listed ${pending.notifications.length} notifications`);
         } catch (error) {

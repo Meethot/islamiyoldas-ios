@@ -1285,7 +1285,6 @@ export const PrayerCountdownWidget = memo(({ loading, city, nextPrayerInfo, pray
                 try {
                     await LocalNotifications.cancel({ notifications: [{ id: existingReminder.id }] });
                 } catch (e) {
-                    console.log('Could not cancel old notification:', e);
                 }
             }
 

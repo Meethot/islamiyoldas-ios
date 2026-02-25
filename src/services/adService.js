@@ -45,7 +45,6 @@ export async function initAdMob() {
 export async function showRewardedAd() {
     if (!ADS_ENABLED) return { rewarded: false, disabled: true };
     if (!IS_NATIVE) {
-        console.log('[DEV] Rewarded reklam simülasyonu...');
         await new Promise(resolve => setTimeout(resolve, 2000));
         return { rewarded: true, simulated: true };
     }
@@ -104,7 +103,6 @@ export async function showRewardedAd() {
 export async function showInterstitialAd() {
     if (!ADS_ENABLED) return;
     if (!IS_NATIVE) {
-        console.log('[DEV] Interstitial reklam simülasyonu...');
         return;
     }
 

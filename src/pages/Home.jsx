@@ -618,7 +618,6 @@ async function initEsmaAudio() {
         const arrayBuffer = await response.arrayBuffer();
         esmaAudioBuffer = await esmaAudioContext.decodeAudioData(arrayBuffer);
     } catch (e) {
-        console.log('[EsmaAudio] Init failed:', e);
     }
 }
 

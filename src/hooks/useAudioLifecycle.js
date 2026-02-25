@@ -28,10 +28,8 @@ export const useAudioLifecycle = (audioInstance, isPlaying, setIsPlaying) => {
         const handleAppStateChange = async (state) => {
             if (state.isActive) {
                 // App came to foreground
-                console.log('App resumed, checking audio state...');
 
                 if (audioInstance && wasPlayingRef.current) {
-                    console.log('Audio was playing before background, attempting resume...');
                     try {
                         // Check if audio is actually paused or ready
                         if (audioInstance.paused) {
@@ -54,7 +52,6 @@ export const useAudioLifecycle = (audioInstance, isPlaying, setIsPlaying) => {
                 // App went to background
                 // Note: On iOS, audio usually pauses automatically if background audio is not configured in Info.plist
                 // or playing via a specific plugin. Standard HTML5 audio usually stops.
-                console.log('App backgrounded');
             }
         };
 

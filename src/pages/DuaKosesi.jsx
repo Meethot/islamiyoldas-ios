@@ -36,7 +36,6 @@ async function initAudio() {
         const arrayBuffer = await response.arrayBuffer();
         audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
     } catch (e) {
-        console.log('[Audio] Web Audio API init failed:', e);
     }
 }
 initAudio();
@@ -68,7 +67,6 @@ async function triggerHaptics() {
             navigator.vibrate(50);
         }
     } catch (error) {
-        console.log('[Haptics] Not available:', error);
     }
 }
 // ====================================
@@ -421,7 +419,7 @@ export default function DuaKosesi() {
             updatedFakes.forEach(d => {
                 persistData[d.id] = d.count;
             });
-            localStorage.setItem('fakeDuasCounts', JSON.stringify(persistData));
+            localStorage.setItem(`fakeDuasCounts_${currentLang}`, JSON.stringify(persistData));
         }
     };
 

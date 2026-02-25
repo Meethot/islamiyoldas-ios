@@ -86,7 +86,6 @@ export default function Quran() {
     useEffect(() => {
         const handleResume = async () => {
             if (currentlyPlaying && isPlaying && audio.paused) {
-                console.log("App resumed, forcing audio play...");
                 try {
                     await audio.play();
                     setIsAudioPlaying(true);

@@ -22,7 +22,6 @@ export async function initCrashlytics() {
         // Log app start
         await FirebaseCrashlytics.log({ message: 'App initialized successfully' });
 
-        console.log('[Crashlytics] Initialized and enabled');
     } catch (e) {
         console.error('[Crashlytics] Init failed:', e);
     }

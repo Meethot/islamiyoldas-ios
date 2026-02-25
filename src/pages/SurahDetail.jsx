@@ -187,9 +187,7 @@ export default function SurahDetail() {
             element.scrollIntoView({ behavior: 'smooth', block: 'center' });
             // Don't clear immediately so user can see what they typed if they want to adjust
             setJumpTarget('');
-            console.log(`Jumped to verse ${verseNumber}`);
         } else {
-            console.log(`Verse ${verseNumber} not currently loaded. Checks started...`);
             // Store pending jump target
             setPendingJumpVerse(verseNumber);
 
@@ -453,7 +451,6 @@ export default function SurahDetail() {
 
         if (element) {
             // Found it! Scroll and clear pending
-            console.log(`Found pending verse ${verseNumber}, scrolling...`);
             selection();
             element.scrollIntoView({ behavior: 'smooth', block: 'center' });
             setPendingJumpVerse(null);
@@ -466,7 +463,6 @@ export default function SurahDetail() {
             }
 
             if (hasNextPage) {
-                console.log(`Fetching next page for verse ${verseNumber}...`);
                 fetchNextPage();
             } else {
                 // No more pages and still not found

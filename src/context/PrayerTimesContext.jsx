@@ -5,7 +5,7 @@ import { LocalNotifications } from '@capacitor/local-notifications';
 import { Preferences } from '@capacitor/preferences';
 import { Capacitor } from '@capacitor/core';
 import { useLocation } from '@/context/LocationContext';
-import { DAILY_VERSES } from '@/data/dailyVerses';
+import { DAILY_VERSES, DAILY_VERSES_EN, DAILY_VERSES_DE, DAILY_VERSES_RU, DAILY_VERSES_AZ } from '@/data/dailyVerses';
 
 const PrayerTimesContext = createContext();
 
@@ -74,7 +74,6 @@ export const PrayerTimesProvider = ({ children }) => {
         if (!Capacitor.isNativePlatform() || !prayerTimes) return;
 
         const handleAppResume = () => {
-            console.log('📿 App resumed — refreshing prayer notification schedule');
             scheduleDailyNotifications(prayerTimes);
         };
 
@@ -309,7 +308,6 @@ export const PrayerTimesProvider = ({ children }) => {
             }
 
             if (notifications.length > 0) {
-                console.log(`📿 Scheduling ${notifications.length} prayer notifications for next ${MAX_PRAYER_DAYS} days`);
                 await LocalNotifications.schedule({ notifications });
             }
         } catch (error) {
@@ -325,9 +323,11 @@ export const PrayerTimesProvider = ({ children }) => {
 
             if (!settings.verseEnabled) return;
 
-            const getRandomVerse = () => DAILY_VERSES[Math.floor(Math.random() * DAILY_VERSES.length)];
-
             const lang = i18n.language || 'tr';
+
+            const versesMap = { en: DAILY_VERSES_EN, de: DAILY_VERSES_DE, ru: DAILY_VERSES_RU, az: DAILY_VERSES_AZ };
+            const verses = versesMap[lang] || DAILY_VERSES;
+            const getRandomVerse = () => verses[Math.floor(Math.random() * verses.length)];
             const slotLabels = {
                 tr: ['Sabah', 'Öğleden Sonra', 'Akşam'],
                 en: ['Morning', 'Afternoon', 'Evening'],
@@ -368,7 +368,6 @@ export const PrayerTimesProvider = ({ children }) => {
                 };
             });
 
-            console.log('📖 Scheduling 3 repeating daily verse notifications (permanent)');
             await LocalNotifications.schedule({ notifications });
 
         } catch (error) {
@@ -439,7 +438,6 @@ export const PrayerTimesProvider = ({ children }) => {
                 ? null
                 : (isIOS ? 'beep.caf' : 'beep.wav');
 
-            console.log('🕌 Scheduling 1 repeating weekly Friday notification (permanent)');
             await LocalNotifications.schedule({
                 notifications: [{
                     id: 2000,
@@ -513,7 +511,6 @@ export const PrayerTimesProvider = ({ children }) => {
 
             const randomMessage = dhikrMessages[Math.floor(Math.random() * dhikrMessages.length)];
 
-            console.log('📿 Scheduling daily dhikr reminder notification (permanent)');
             await LocalNotifications.schedule({
                 notifications: [{
                     id: 3000,

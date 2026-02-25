@@ -43,8 +43,8 @@ export const advanceTestDay = () => {
             key.includes('dailyDeed') ||
             key.includes('lastRevealed') ||
             key.startsWith('dailyPrayers_') || // Reset completed prayers (date-specific)
-            key === 'fakeDuasSelection' ||       // Reset dua kardeşliği cache
-            key === 'fakeDuasCounts'              // Reset amin counts on fake duas
+            key.startsWith('fakeDuasSelection_') || // Reset dua kardeşliği cache
+            key.startsWith('fakeDuasCounts_')         // Reset amin counts on fake duas
         )) {
             keysToRemove.push(key);
         }
