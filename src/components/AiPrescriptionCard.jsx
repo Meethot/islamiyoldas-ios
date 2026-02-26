@@ -49,7 +49,7 @@ async function fetchVerseAudio(surah, verse) {
 export default function AiPrescriptionCard({ data }) {
     const navigate = useNavigate();
     const { t, i18n } = useTranslation('misc');
-    const lang = i18n.language;
+    const lang = (i18n.language || 'en').split('-')[0];
     const [verseData, setVerseData] = useState(null);
     const [loadingVerse, setLoadingVerse] = useState(true);
     const [audioUrl, setAudioUrl] = useState(null);

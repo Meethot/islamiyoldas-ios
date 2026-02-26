@@ -147,7 +147,7 @@ export default function SurahDetail() {
     const navigate = useNavigate();
     const { selection, success } = useHaptics();
     const { t, i18n } = useTranslation();
-    const currentLang = i18n.language?.split('-')[0] || 'tr';
+    const currentLang = i18n.language?.split('-')[0] || 'en';
 
     // State
     const [bookmarks, setBookmarks] = useState(() => safeGetStorage(BOOKMARKS_KEY, []));

@@ -722,7 +722,7 @@ export const DailyDeedCard = memo(({ revealed, deed, onReveal }) => {
 // --- Esma-ül Hüsna Widget ---
 export const EsmaUlHusnaWidget = memo(({ esmaList, onSelect, onShowAll }) => {
     const { t, i18n } = useTranslation('home');
-    const lang = i18n.language;
+    const lang = (i18n.language || 'en').split('-')[0];
     return (
         <motion.div variants={itemVariants} className="space-y-4">
             <div className="flex justify-between items-end px-1">
@@ -774,7 +774,7 @@ export const EsmaUlHusnaWidget = memo(({ esmaList, onSelect, onShowAll }) => {
 // --- All Esma Modal (Alphabetical & Searchable) ---
 export const AllEsmaModal = memo(({ isOpen, onClose, onSelect }) => {
     const { t, i18n } = useTranslation('home');
-    const lang = i18n.language;
+    const lang = (i18n.language || 'en').split('-')[0];
     const [search, setSearch] = useState('');
     const [isAscending, setIsAscending] = useState(true);
     const { selection } = useHaptics();
@@ -1159,15 +1159,25 @@ export const PrayerCountdownWidget = memo(({ loading, city, nextPrayerInfo, pray
                 } catch { /* ignore */ }
             }
 
+            const reminderTitle = { tr: 'Vakit Yaklaşıyor!', en: 'Prayer Time Approaching!', de: 'Gebetszeit naht!', ru: 'Время намаза приближается!', ar: 'اقترب وقت الصلاة!', az: 'Namaz vaxtı yaxınlaşır!' };
+            const reminderBody = {
+                tr: `${displayedPrayer.name} vaktine ${minutesBefore === 0 ? 'girdi' : `${minutesBefore} dakika kaldı`}.`,
+                en: `${minutesBefore === 0 ? `${displayedPrayer.name} time has arrived.` : `${minutesBefore} minutes until ${displayedPrayer.name}.`}`,
+                de: `${minutesBefore === 0 ? `${displayedPrayer.name} Zeit ist da.` : `Noch ${minutesBefore} Minuten bis ${displayedPrayer.name}.`}`,
+                ru: `${minutesBefore === 0 ? `Время ${displayedPrayer.name} наступило.` : `До ${displayedPrayer.name} осталось ${minutesBefore} минут.`}`,
+                ar: `${minutesBefore === 0 ? `حان وقت ${displayedPrayer.name}.` : `باقي ${minutesBefore} دقيقة على ${displayedPrayer.name}.`}`,
+                az: `${minutesBefore === 0 ? `${displayedPrayer.name} vaxtı gəldi.` : `${displayedPrayer.name} vaxtına ${minutesBefore} dəqiqə qaldı.`}`
+            };
+            const currentLang = i18n.language || 'en';
             await LocalNotifications.schedule({
                 notifications: [{
-                    title: "Vakit Yaklaşıyor!",
-                    body: `${displayedPrayer.name} vaktine ${minutesBefore === 0 ? 'girdi' : `${minutesBefore} dakika kaldı`}.`,
+                    title: reminderTitle[currentLang] || reminderTitle.tr,
+                    body: reminderBody[currentLang] || reminderBody.tr,
                     id: id,
                     schedule: { at: triggerDate, allowWhileIdle: true },
                     sound: settings.vibrateOnly ? null : (Capacitor.getPlatform() === 'android' ? 'beep' : 'beep.caf'),
-                    channelId: 'ezan_vakti', // Re-using same channel
-                    interruptionLevel: 'timeSensitive' // Ensures better delivery
+                    channelId: 'ezan_vakti',
+                    interruptionLevel: 'timeSensitive'
                 }]
             });
             const prayerDate = getTodayString();
@@ -1264,10 +1274,20 @@ export const PrayerCountdownWidget = memo(({ loading, city, nextPrayerInfo, pray
                 } catch { /* ignore */ }
             }
 
+            const rTitle = { tr: 'Vakit Yaklaşıyor!', en: 'Prayer Time Approaching!', de: 'Gebetszeit naht!', ru: 'Время намаза приближается!', ar: 'اقترب وقت الصلاة!', az: 'Namaz vaxtı yaxınlaşır!' };
+            const rBody = {
+                tr: `${prayer.name} vaktine ${minutesBefore === 0 ? 'girdi' : `${minutesBefore} dakika kaldı`}.`,
+                en: `${minutesBefore === 0 ? `${prayer.name} time has arrived.` : `${minutesBefore} minutes until ${prayer.name}.`}`,
+                de: `${minutesBefore === 0 ? `${prayer.name} Zeit ist da.` : `Noch ${minutesBefore} Minuten bis ${prayer.name}.`}`,
+                ru: `${minutesBefore === 0 ? `Время ${prayer.name} наступило.` : `До ${prayer.name} осталось ${minutesBefore} минут.`}`,
+                ar: `${minutesBefore === 0 ? `حان وقت ${prayer.name}.` : `باقي ${minutesBefore} دقيقة على ${prayer.name}.`}`,
+                az: `${minutesBefore === 0 ? `${prayer.name} vaxtı gəldi.` : `${prayer.name} vaxtına ${minutesBefore} dəqiqə qaldı.`}`
+            };
+            const cLang = i18n.language || 'en';
             await LocalNotifications.schedule({
                 notifications: [{
-                    title: "Vakit Yaklaşıyor!",
-                    body: `${prayer.name} vaktine ${minutesBefore === 0 ? 'girdi' : `${minutesBefore} dakika kaldı`}.`,
+                    title: rTitle[cLang] || rTitle.tr,
+                    body: rBody[cLang] || rBody.tr,
                     id: id,
                     schedule: { at: triggerDate, allowWhileIdle: true },
                     sound: settings.vibrateOnly ? null : (Capacitor.getPlatform() === 'android' ? 'beep' : 'beep.caf'),
@@ -1817,7 +1837,7 @@ export const ReligiousCalendarWidget = memo(({ days }) => {
     const [showModal, setShowModal] = useState(false);
     const { selection, heavy } = useHaptics();
     const { t, i18n } = useTranslation('home');
-    const lang = i18n.language;
+    const lang = (i18n.language || 'en').split('-')[0];
 
     // Data Parsing
     const now = new Date();

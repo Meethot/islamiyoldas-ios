@@ -14,18 +14,20 @@ export const handleLanguageChange = (langCode) => {
     window.location.reload();
 };
 
-const currentLng = localStorage.getItem('i18nextLng') || 'tr';
-
-document.documentElement.dir = dir(currentLng);
-document.documentElement.lang = currentLng;
+// Set initial dir/lang from saved preference (if any)
+const savedLng = localStorage.getItem('i18nextLng');
+if (savedLng) {
+    document.documentElement.dir = dir(savedLng);
+    document.documentElement.lang = savedLng;
+}
 
 i18n
     .use(HttpBackend)
     .use(LanguageDetector)
     .use(initReactI18next)
     .init({
-        lng: currentLng,
-        fallbackLng: 'tr',
+        // No `lng` here — let LanguageDetector handle detection
+        fallbackLng: 'en',
         supportedLngs,
         debug: false,
         ns: ['common', 'home', 'profile', 'onboarding', 'settings', 'tracking', 'dhikr', 'stories', 'qibla', 'fasting', 'learn', 'misc', 'sleep', 'tefekkur', 'murakabe', 'goals', 'dua', 'quran'],
@@ -40,7 +42,7 @@ i18n
         },
 
         detection: {
-            order: ['localStorage'],
+            order: ['localStorage', 'navigator'],
             lookupLocalStorage: 'i18nextLng',
             caches: ['localStorage'],
         },
@@ -49,5 +51,12 @@ i18n
             useSuspense: true
         }
     });
+
+// Reactively update document direction & lang when language changes
+i18n.on('languageChanged', (lng) => {
+    const baseLang = lng?.split('-')[0] || 'en';
+    document.documentElement.dir = dir(baseLang);
+    document.documentElement.lang = baseLang;
+});
 
 export default i18n;

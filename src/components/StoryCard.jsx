@@ -53,7 +53,8 @@ export default function StoryCard({ story, onClick }) {
         return () => clearTimeout(timeout);
     }, [story.id]);
 
-    const locale = i18n.language === 'ar' ? 'ar-SA' : i18n.language === 'de' ? 'de-DE' : i18n.language === 'ru' ? 'ru-RU' : i18n.language === 'tr' ? 'tr-TR' : 'en-US';
+    const baseLang = (i18n.language || 'en').split('-')[0];
+    const locale = baseLang === 'ar' ? 'ar-SA' : baseLang === 'de' ? 'de-DE' : baseLang === 'ru' ? 'ru-RU' : baseLang === 'tr' ? 'tr-TR' : 'en-US';
     const formattedCount = new Intl.NumberFormat(locale).format(listenerCount);
 
     return (

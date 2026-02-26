@@ -21,7 +21,7 @@ import { useTranslation } from 'react-i18next';
 export default function PrayerRewardModal({ isOpen, onClose, content, prayerName }) {
     const { light } = useHaptics();
     const { t, i18n } = useTranslation('home');
-    const lang = i18n.language;
+    const lang = (i18n.language || 'en').split('-')[0]; // Normalize 'tr-TR' → 'tr'
 
     // Body Scroll Lock
     useEffect(() => {
@@ -47,15 +47,15 @@ export default function PrayerRewardModal({ isOpen, onClose, content, prayerName
     // Language field mapping for hadith/dua data
     const getHadithText = (h) => {
         const map = { tr: h.text, en: h.textEn, de: h.text_de, ru: h.text_ru, ar: h.text_ar, az: h.text_az };
-        return map[lang] || h.text || h.textEn;
+        return map[lang] || h.textEn || h.text; // Fallback to English (default language)
     };
     const getHadithSource = (h) => {
         const map = { tr: h.source, en: h.sourceEn, de: h.source_de, ru: h.source_ru, ar: h.source_ar, az: h.source_az };
-        return map[lang] || h.source || h.sourceEn;
+        return map[lang] || h.source; // Fallback to Turkish
     };
     const getDuaTranslation = (d) => {
         const map = { tr: d.turkish, en: d.english, de: d.german, ru: d.russian, az: d.azerbaijani };
-        return map[lang] || d.turkish || d.english;
+        return map[lang] || d.english || d.turkish; // Fallback to English
     };
 
     return (

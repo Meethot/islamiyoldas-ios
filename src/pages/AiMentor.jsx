@@ -128,7 +128,7 @@ export default function AiMentor() {
             setMessages(prev => [...prev, {
                 id: Date.now() + 1,
                 role: 'assistant',
-                text: `${t('aiMentor.errorPrefix')} ${error.message || t('aiMentor.connectionError')}`,
+                text: t('aiMentor.connectionError'),
                 isPrescription: false
             }]);
         } finally {

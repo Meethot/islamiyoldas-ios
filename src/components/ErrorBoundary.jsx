@@ -47,7 +47,7 @@ class ErrorBoundary extends React.Component {
         const url = window.location.href;
         const ua = navigator.userAgent;
         const timestamp = new Date().toISOString();
-        const lang = i18n.language || 'tr';
+        const lang = i18n.language || 'en';
         const appVersion = localStorage.getItem('appVersion') || '-';
 
         const subject = encodeURIComponent(`[Bug Report] ${errorMsg.substring(0, 80)}`);

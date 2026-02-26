@@ -30,7 +30,13 @@ export const PrayerTimesProvider = ({ children }) => {
     // Ref to track if initial schedule has been done
     const initialScheduleDoneRef = useRef(false);
 
+    // Debounce ref for notification scheduling — prevents duplicate calls from rapid state changes
+    const scheduleDebounceRef = useRef(null);
+    // Mutex to prevent overlapping schedule operations (cancel + schedule race condition)
+    const schedulingRef = useRef(false);
+
     const { latitude, longitude, hasLocation } = useLocation();
+    const { i18n } = useTranslation();
 
     const FALLBACK_COORDS = { lat: 41.0082, lng: 28.9784 };
 
@@ -47,35 +53,60 @@ export const PrayerTimesProvider = ({ children }) => {
         fetchPrayerTimes();
     }, [latitude, longitude, hasLocation]);
 
-    // Schedule notifications when prayer times or relevant settings change
+    // Schedule notifications when prayer times or relevant settings change (debounced)
     useEffect(() => {
         if (!prayerTimes) return;
 
-        scheduleDailyNotifications(prayerTimes);
-    }, [prayerTimes, settings.adhanEnabled, settings.vibrateOnly]);
+        // Clear any pending debounce
+        if (scheduleDebounceRef.current) {
+            clearTimeout(scheduleDebounceRef.current);
+        }
 
-    // Schedule verse notifications when setting changes
+        // Debounce: wait 1s for rapid state changes to settle before scheduling
+        scheduleDebounceRef.current = setTimeout(() => {
+            scheduleDailyNotifications(prayerTimes);
+        }, 1000);
+
+        return () => {
+            if (scheduleDebounceRef.current) {
+                clearTimeout(scheduleDebounceRef.current);
+            }
+        };
+    }, [prayerTimes, settings.adhanEnabled, settings.vibrateOnly, i18n.language]);
+
+    // Schedule verse notifications when setting or language changes
     useEffect(() => {
         scheduleVerseNotifications();
-    }, [settings.verseEnabled]);
+    }, [settings.verseEnabled, i18n.language]);
 
     // Schedule Friday message when setting changes
     useEffect(() => {
         scheduleFridayMessage();
-    }, [settings.fridayMessage, settings.vibrateOnly]);
+    }, [settings.fridayMessage, settings.vibrateOnly, i18n.language]);
 
     // Schedule dhikr reminder when setting changes
     useEffect(() => {
         scheduleDhikrReminder();
-    }, [settings.dhikrReminder]);
+    }, [settings.dhikrReminder, i18n.language]);
 
     // Re-schedule prayer notifications every time app becomes active (handles 12-day expiry)
+    // Also clears delivered notifications to prevent flood after phone wake
     useEffect(() => {
         if (!Capacitor.isNativePlatform() || !prayerTimes) return;
 
-        const handleAppResume = () => {
+        const handleAppResume = async () => {
+            try {
+                // Clear ALL delivered notifications from notification center first
+                // This prevents the "45 notifications at once" flood after phone has been off
+                await LocalNotifications.removeAllDeliveredNotifications();
+            } catch (e) {
+                console.warn('Could not clear delivered notifications', e);
+            }
             scheduleDailyNotifications(prayerTimes);
         };
+
+        // Also clear delivered notifications on initial mount (fresh app open)
+        LocalNotifications.removeAllDeliveredNotifications().catch(() => { });
 
         // Capacitor App plugin fires 'resume' when app comes to foreground
         const importApp = async () => {
@@ -168,15 +199,12 @@ export const PrayerTimesProvider = ({ children }) => {
         }
     };
 
-    const { i18n } = useTranslation();
 
     const fetchPrayerTimes = useCallback(async () => {
         try {
             setLoading(true);
             const today = new Date();
             const dateStr = `${today.getDate()}-${today.getMonth() + 1}-${today.getFullYear()}`;
-
-            const method = i18n.language?.startsWith('tr') ? 13 : 3;
 
             let lat, lng;
             if (hasLocation && latitude && longitude) {
@@ -188,6 +216,11 @@ export const PrayerTimesProvider = ({ children }) => {
                 lng = FALLBACK_COORDS.lng;
                 setLocationSource('fallback');
             }
+
+            // Determine calculation method by location, NOT language
+            // Turkey bounding box: lat 36-42, lng 26-45
+            const isInTurkey = lat >= 36 && lat <= 42 && lng >= 26 && lng <= 45;
+            const method = isInTurkey ? 13 : 3; // 13 = Diyanet, 3 = MWL
 
             const response = await axios.get(`https://api.aladhan.com/v1/timings/${dateStr}`, {
                 params: { latitude: lat, longitude: lng, method }
@@ -201,7 +234,7 @@ export const PrayerTimesProvider = ({ children }) => {
         } finally {
             setLoading(false);
         }
-    }, [i18n.language, latitude, longitude, hasLocation]);
+    }, [latitude, longitude, hasLocation]);
 
     const findNextPrayer = (timings) => {
         try {
@@ -234,8 +267,10 @@ export const PrayerTimesProvider = ({ children }) => {
     // Remaining: 60 slots / 5 prayers = 12 days of prayer notifications
     const MAX_PRAYER_DAYS = 12;
 
-    const scheduleDailyNotifications = useCallback(async (timings) => {
+    const scheduleDailyNotifications = useCallback(async (todayTimings) => {
         if (!Capacitor.isNativePlatform()) return;
+        if (schedulingRef.current) return;
+        schedulingRef.current = true;
 
         try {
             // Cancel all existing prayer notifications (IDs 1-60)
@@ -244,7 +279,7 @@ export const PrayerTimesProvider = ({ children }) => {
 
             if (!settings.adhanEnabled) return;
 
-            const lang = i18n.language || 'tr';
+            const lang = i18n.language || 'en';
 
             const prayerNames = {
                 tr: ['Sabah Namazı', 'Öğle Namazı', 'İkindi Namazı', 'Akşam Namazı', 'Yatsı Namazı'],
@@ -258,16 +293,49 @@ export const PrayerTimesProvider = ({ children }) => {
             const notifBody = { tr: 'vakti geldi. Haydi namaza!', en: 'time has come. Let\'s pray!', de: 'Zeit ist gekommen. Lasst uns beten!', ru: 'время пришло. Давайте помолимся!', ar: 'حان وقت الصلاة!', az: 'vaxtı gəldi. Haydi namaza!' };
             const names = prayerNames[lang] || prayerNames.en;
 
-            const prayers = [
-                { name: names[0], time: timings.Fajr },
-                { name: names[1], time: timings.Dhuhr },
-                { name: names[2], time: timings.Asr },
-                { name: names[3], time: timings.Maghrib },
-                { name: names[4], time: timings.Isha }
-            ];
+            // Determine GPS coords for API call
+            const lat = (hasLocation && latitude) ? latitude : FALLBACK_COORDS.lat;
+            const lng = (hasLocation && longitude) ? longitude : FALLBACK_COORDS.lng;
+            const isInTurkey = lat >= 36 && lat <= 42 && lng >= 26 && lng <= 45;
+            const method = isInTurkey ? 13 : 3;
+
+            // Fetch calendar data for accurate per-day prayer times
+            // Use calendar API to get the whole month in one call
+            let calendarData = {};
+            try {
+                const today = new Date();
+                const year = today.getFullYear();
+                const month = today.getMonth() + 1;
+
+                const res = await axios.get(`https://api.aladhan.com/v1/calendar/${year}/${month}`, {
+                    params: { latitude: lat, longitude: lng, method }
+                });
+                const days = res.data?.data || [];
+                days.forEach(d => {
+                    const dateKey = d.date?.gregorian?.date; // "DD-MM-YYYY"
+                    if (dateKey) calendarData[dateKey] = d.timings;
+                });
+
+                // If 12-day window spans into next month, fetch that too
+                const lastDay = new Date(today);
+                lastDay.setDate(lastDay.getDate() + MAX_PRAYER_DAYS - 1);
+                if (lastDay.getMonth() + 1 !== month) {
+                    const nextMonth = lastDay.getMonth() + 1;
+                    const nextYear = lastDay.getFullYear();
+                    const res2 = await axios.get(`https://api.aladhan.com/v1/calendar/${nextYear}/${nextMonth}`, {
+                        params: { latitude: lat, longitude: lng, method }
+                    });
+                    const days2 = res2.data?.data || [];
+                    days2.forEach(d => {
+                        const dateKey = d.date?.gregorian?.date;
+                        if (dateKey) calendarData[dateKey] = d.timings;
+                    });
+                }
+            } catch (e) {
+                console.warn('Calendar API failed, using today\'s times as fallback', e);
+            }
 
             const isIOS = Capacitor.getPlatform() === 'ios';
-            const isAndroid = Capacitor.getPlatform() === 'android';
             const notifications = [];
             const now = new Date();
 
@@ -276,12 +344,28 @@ export const PrayerTimesProvider = ({ children }) => {
                 : (isIOS ? 'ezan.caf' : 'ezan.mp3');
 
             for (let day = 0; day < MAX_PRAYER_DAYS; day++) {
-                prayers.forEach((p, idx) => {
-                    const [h, m] = p.time.split(':').map(Number);
+                const targetDate = new Date();
+                targetDate.setDate(targetDate.getDate() + day);
+
+                // Build date key in Aladhan format: "DD-MM-YYYY"
+                const dd = String(targetDate.getDate()).padStart(2, '0');
+                const mm = String(targetDate.getMonth() + 1).padStart(2, '0');
+                const yyyy = targetDate.getFullYear();
+                const dateKey = `${dd}-${mm}-${yyyy}`;
+
+                // Use per-day times from calendar, or fall back to today's timings
+                const dayTimings = calendarData[dateKey] || todayTimings;
+
+                const prayerKeys = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
+                prayerKeys.forEach((key, idx) => {
+                    const rawTime = dayTimings[key];
+                    if (!rawTime) return;
+                    // Strip timezone offset: "06:12 (+03)" → "06:12"
+                    const timeStr = rawTime.split(' ')[0];
+                    const [h, m] = timeStr.split(':').map(Number);
                     if (isNaN(h) || isNaN(m)) return;
 
-                    const date = new Date();
-                    date.setDate(date.getDate() + day);
+                    const date = new Date(targetDate);
                     date.setHours(h, m, 0, 0);
 
                     if (date <= now) return;
@@ -290,7 +374,7 @@ export const PrayerTimesProvider = ({ children }) => {
 
                     const notif = {
                         title: notifTitle[lang] || notifTitle.en,
-                        body: `${p.name} ${notifBody[lang] || notifBody.en}`,
+                        body: `${names[idx]} ${notifBody[lang] || notifBody.en}`,
                         id,
                         schedule: { at: date, allowWhileIdle: true },
                         sound: soundValue,
@@ -298,7 +382,6 @@ export const PrayerTimesProvider = ({ children }) => {
                         smallIcon: 'ic_stat_icon_config_sample',
                     };
 
-                    // iOS: time-sensitive ensures delivery even in Focus/DND mode
                     if (isIOS) {
                         notif.interruptionLevel = 'timeSensitive';
                     }
@@ -312,8 +395,10 @@ export const PrayerTimesProvider = ({ children }) => {
             }
         } catch (error) {
             console.error('Error scheduling notifications:', error);
+        } finally {
+            schedulingRef.current = false;
         }
-    }, [settings.adhanEnabled, settings.vibrateOnly]);
+    }, [settings.adhanEnabled, settings.vibrateOnly, latitude, longitude, hasLocation]);
 
     const scheduleVerseNotifications = useCallback(async () => {
         if (!Capacitor.isNativePlatform()) return;
@@ -323,10 +408,10 @@ export const PrayerTimesProvider = ({ children }) => {
 
             if (!settings.verseEnabled) return;
 
-            const lang = i18n.language || 'tr';
+            const lang = i18n.language || 'en';
 
-            const versesMap = { en: DAILY_VERSES_EN, de: DAILY_VERSES_DE, ru: DAILY_VERSES_RU, az: DAILY_VERSES_AZ };
-            const verses = versesMap[lang] || DAILY_VERSES;
+            const versesMap = { tr: DAILY_VERSES, en: DAILY_VERSES_EN, de: DAILY_VERSES_DE, ru: DAILY_VERSES_RU, az: DAILY_VERSES_AZ };
+            const verses = versesMap[lang] || DAILY_VERSES_EN;
             const getRandomVerse = () => verses[Math.floor(Math.random() * verses.length)];
             const slotLabels = {
                 tr: ['Sabah', 'Öğleden Sonra', 'Akşam'],
@@ -383,7 +468,7 @@ export const PrayerTimesProvider = ({ children }) => {
 
             if (!settings.fridayMessage) return;
 
-            const lang = i18n.language || 'tr';
+            const lang = i18n.language || 'en';
             const FRIDAY_MESSAGES_MAP = {
                 tr: [
                     "Hayırlı Cumalar 🌹 Allah dualarınızı kabul, ömrünüzü bereketli eylesin.",
@@ -466,7 +551,7 @@ export const PrayerTimesProvider = ({ children }) => {
 
             if (!settings.dhikrReminder) return;
 
-            const lang = i18n.language || 'tr';
+            const lang = i18n.language || 'en';
             const DHIKR_MESSAGES_MAP = {
                 tr: [
                     "Kalpler ancak Allah'ı anmakla huzur bulur. Bugün zikrini yaptın mı? 📿",

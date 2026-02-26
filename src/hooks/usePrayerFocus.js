@@ -118,9 +118,26 @@ export function usePrayerFocus(prayerTimes, completedPrayers) {
             try {
                 const notificationId = Math.floor(Math.random() * 2147483647);
                 const isIOS = Capacitor.getPlatform() === 'ios';
+                const lang = localStorage.getItem('i18nextLng') || 'en';
+                const snoozeTitle = {
+                    tr: 'Namaz Vakti Hatırlatması',
+                    en: 'Prayer Time Reminder',
+                    de: 'Gebetszeit-Erinnerung',
+                    ru: 'Напоминание о намазе',
+                    ar: 'تذكير بوقت الصلاة',
+                    az: 'Namaz Vaxtı Xatırlatması'
+                };
+                const snoozeBody = {
+                    tr: 'Namazını kılmayı unutma! 🕌',
+                    en: "Don't forget to pray! 🕌",
+                    de: 'Vergiss nicht zu beten! 🕌',
+                    ru: 'Не забудь помолиться! 🕌',
+                    ar: 'لا تنسَ الصلاة! 🕌',
+                    az: 'Namazını qılmağı unutma! 🕌'
+                };
                 const notif = {
-                    title: 'Prayer Time Reminder',
-                    body: `Don't forget to pray! 🕌`,
+                    title: snoozeTitle[lang] || snoozeTitle.tr,
+                    body: snoozeBody[lang] || snoozeBody.tr,
                     id: notificationId,
                     schedule: { at: new Date(tenMinutesLater), allowWhileIdle: true },
                     sound: isIOS ? 'beep.caf' : 'beep.wav',

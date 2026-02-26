@@ -39,7 +39,7 @@ export default function Murakabe() {
     const navigate = useNavigate();
     const { selection, success, heavy } = useHaptics();
     const { t, i18n } = useTranslation('murakabe');
-    const currentLang = i18n.language || 'tr';
+    const currentLang = (i18n.language || 'en').split('-')[0];
 
     // Randomly selected questions for the day (7 items)
     const [questions, setQuestions] = useState([]);

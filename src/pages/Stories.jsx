@@ -25,7 +25,7 @@ const CATEGORY_IDS = [
 export default function Stories() {
     const { t, i18n } = useTranslation('stories');
     const navigate = useNavigate();
-    const lang = i18n.language;
+    const lang = (i18n.language || 'en').split('-')[0];
     const activeStories = { ...STORIES, ...(STORIES_MAP[lang] || {}) };
     const [activeCategory, setActiveCategory] = useState('prophets');
     const [selectedStory, setSelectedStory] = useState(null);

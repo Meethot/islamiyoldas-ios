@@ -8,7 +8,7 @@ import { useTranslation } from 'react-i18next';
 import { handleLanguageChange } from '@/i18n';
 
 const LANGUAGES = [
-    { code: 'tr', label: 'Türkçe', native: 'Türkçe', flag: '🇹🇷' },
+    { code: 'tr', label: 'Türkçe', native: 'Turkish', flag: '🇹🇷' },
     { code: 'az', label: 'Azərbaycanca', native: 'Azerbaijani', flag: '🇦🇿' },
     { code: 'en', label: 'English', native: 'English', flag: '🇬🇧' },
     { code: 'de', label: 'Deutsch', native: 'Deutsch', flag: '🇩🇪', beta: true },
@@ -80,7 +80,7 @@ export default function LanguageSettings() {
                                     <div className="text-left">
                                         <div className="flex items-center gap-2">
                                             <p className={cn(
-                                                "text-sm font-bold",
+                                                "text-base font-bold",
                                                 i18n.language === lang.code
                                                     ? "text-islamic-gold"
                                                     : "text-gray-900 dark:text-white"
@@ -88,12 +88,12 @@ export default function LanguageSettings() {
                                                 {lang.label}
                                             </p>
                                             {lang.beta && (
-                                                <span className="text-[9px] font-bold uppercase tracking-wider bg-islamic-gold/15 text-islamic-gold px-2 py-0.5 rounded-full border border-islamic-gold/30">
+                                                <span className="text-[10px] font-bold uppercase tracking-wider bg-islamic-gold/15 text-islamic-gold px-2 py-0.5 rounded-full border border-islamic-gold/30">
                                                     Beta
                                                 </span>
                                             )}
                                         </div>
-                                        <p className="text-[10px] text-gray-400 dark:text-gray-500 font-medium">{lang.native}</p>
+                                        <p className="text-xs text-gray-400 dark:text-gray-500 font-medium">{lang.native}</p>
                                     </div>
                                 </div>
                                 {i18n.language === lang.code && (

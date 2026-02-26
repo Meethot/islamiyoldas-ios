@@ -969,7 +969,7 @@ export default function Learn() {
     const { selection, success, heavy, light } = useHaptics();
     const { t, i18n } = useTranslation('learn');
 
-    const lang = i18n.language;
+    const lang = (i18n.language || 'en').split('-')[0];
 
     // Language-indexed guide overrides — add new languages here
     const GUIDES_MAP = { en: GUIDES_EN, de: GUIDES_DE, ru: GUIDES_RU, ar: GUIDES_AR, az: GUIDES_AZ };

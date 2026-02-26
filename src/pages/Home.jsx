@@ -84,7 +84,7 @@ export default function Home() {
     const { prayerTimes, loadingPrayers, nextPrayerInfo, city, country } = usePrayers();
 
     // Get today's verse using global test date system
-    const DAILY_VERSE = getDailyVerse(i18n.language);
+    const DAILY_VERSE = getDailyVerse((i18n.language || 'en').split('-')[0]);
 
     // Dynamic FRIDAY_CONTENT using translations
     const FRIDAY_CONTENT = useMemo(() => ({
@@ -788,7 +788,7 @@ function EsmaDetailModal({ esma, count, setCount, onClose }) {
                             {esma.name}
                         </h2>
                         <p className="text-white/50 text-sm font-light italic tracking-wide max-w-xs mx-auto">
-                            "{esma[`meaning_${i18n.language}`] || esma.meaning}"
+                            "{esma[`meaning_${(i18n.language || 'en').split('-')[0]}`] || esma.meaning}"
                         </p>
                     </div>
 
@@ -1054,7 +1054,7 @@ function EsmaDetailModal({ esma, count, setCount, onClose }) {
                             <span className="text-[10px] uppercase font-bold tracking-[0.2em]">{t('esma.virtue_title')}</span>
                         </div>
                         <p className="text-sm text-white/80 leading-relaxed font-light font-serif">
-                            {esma[`virtue_${i18n.language}`] || esma.virtue}
+                            {esma[`virtue_${(i18n.language || 'en').split('-')[0]}`] || esma.virtue}
                         </p>
                     </div>
 

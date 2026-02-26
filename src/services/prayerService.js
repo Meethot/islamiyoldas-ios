@@ -37,7 +37,7 @@ export async function addPrayer(text, lang = 'tr') {
             timestamp: serverTimestamp(),
             randomIndex: Math.floor(Math.random() * 10000000),
             platform: 'mobile',
-            lang: lang.split('-')[0] || 'tr'
+            lang: lang.split('-')[0] || 'en'
         });
         return docRef.id;
     } catch (error) {
@@ -92,8 +92,8 @@ export function getApprovedPrayers(callback, startDate) {
  * @param {string} lang - Language code to filter prayers by.
  * @returns {Promise<Array>} - Array of prayer objects.
  */
-export async function getRandomApprovedPrayers(count = 6, lang = 'tr') {
-    const normalizedLang = lang?.split('-')[0] || 'tr';
+export async function getRandomApprovedPrayers(count = 6, lang = 'en') {
+    const normalizedLang = lang?.split('-')[0] || 'en';
     const startAt = Math.floor(Math.random() * 10000000);
     const colRef = collection(db, COLLECTION_NAME);
     const results = [];

@@ -6,7 +6,7 @@ import { Capacitor } from '@capacitor/core';
 import { useTranslation } from 'react-i18next';
 
 const STORAGE_KEY = 'review_prompt_v2';
-const APP_STORE_ID = '6745498032';
+const APP_STORE_ID = '6759666173';
 const COOLDOWN_MS = 12 * 60 * 60 * 1000; // 12 saat
 const PASSIVE_TIMEOUT = 30 * 60 * 1000; // 30 dakika
 

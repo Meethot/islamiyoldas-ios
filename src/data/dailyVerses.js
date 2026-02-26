@@ -272,6 +272,7 @@ import { getDayOfYear } from '@/lib/testDate';
 
 // Language → Verses lookup map (add new languages here)
 const VERSES_MAP = {
+    tr: DAILY_VERSES,
     en: DAILY_VERSES_EN,
     de: DAILY_VERSES_DE,
     ru: DAILY_VERSES_RU,
@@ -280,9 +281,9 @@ const VERSES_MAP = {
 
 // Get a consistent verse for the day (same verse for all users on the same day)
 // Uses global test date system for testing day progression
-export const getDailyVerse = (lang = 'tr') => {
+export const getDailyVerse = (lang = 'en') => {
     const dayOfYear = getDayOfYear();
-    const verses = VERSES_MAP[lang] || DAILY_VERSES;
+    const verses = VERSES_MAP[lang] || DAILY_VERSES_EN;
 
     // Use day of year to select verse (cycles through all 50 verses)
     const verseIndex = Math.abs(dayOfYear) % verses.length;

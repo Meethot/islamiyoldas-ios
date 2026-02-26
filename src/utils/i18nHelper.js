@@ -13,7 +13,7 @@ import i18n from '@/i18n';
 /**
  * Get current locale code (e.g. 'tr', 'en', 'de')
  */
-export const getCurrentLang = () => i18n.language || localStorage.getItem('i18nextLng') || 'tr';
+export const getCurrentLang = () => i18n.language || localStorage.getItem('i18nextLng') || 'en';
 
 /**
  * Get locale string for Intl APIs (e.g. 'tr-TR', 'en-US', 'de-DE')
@@ -31,7 +31,7 @@ const LOCALE_MAP = {
     id: 'id-ID'
 };
 
-export const getIntlLocale = () => LOCALE_MAP[getCurrentLang()] || 'tr-TR';
+export const getIntlLocale = () => LOCALE_MAP[getCurrentLang()] || 'en-US';
 
 /**
  * Translate outside React — uses i18n instance directly

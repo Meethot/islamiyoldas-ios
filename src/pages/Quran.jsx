@@ -45,7 +45,7 @@ export default function Quran() {
     const navigate = useNavigate();
     const { t, i18n } = useTranslation('quran');
     const { selection, success } = useHaptics();
-    const currentLang = i18n.language?.split('-')[0] || 'tr';
+    const currentLang = i18n.language?.split('-')[0] || 'en';
 
     // State
     const [surahs, setSurahs] = useState([]);
