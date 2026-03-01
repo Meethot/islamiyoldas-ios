@@ -441,7 +441,7 @@ export const PrayerTimesProvider = ({ children }) => {
 
                 return {
                     id: slot.id,
-                    title: `${verseTitle[lang] || verseTitle.en} (${slot.label}) 📖`,
+                    title: `${verseTitle[lang] || verseTitle.en} 📖`,
                     body: verse.text,
                     schedule: {
                         at: scheduleDate,

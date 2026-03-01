@@ -70,9 +70,8 @@ export default function SplashScreen({ dataReady = false }) {
                     exit={{ opacity: 0, transition: { duration: 0.8, ease: "easeInOut" } }}
                     className="fixed inset-0 z-[9999] bg-[#021a0f] flex flex-col items-center justify-center overflow-hidden"
                 >
-                    {/* Background Subtle Radial Glow */}
-                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-[120vh] bg-islamic-green/15 blur-[120px] rounded-full -z-10" />
-                    <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-islamic-green/10 via-transparent to-transparent -z-10" />
+                    {/* Background Subtle Radial Glow — using radial gradient instead of blur for performance */}
+                    <div className="absolute inset-0 -z-10" style={{ background: 'radial-gradient(ellipse at center, rgba(34,197,94,0.12) 0%, transparent 70%)' }} />
 
                     <div className="flex flex-col items-center w-full max-w-[340px] px-6">
                         {/* Logo with Glow */}
@@ -82,7 +81,7 @@ export default function SplashScreen({ dataReady = false }) {
                             transition={{ duration: 1, ease: "easeOut" }}
                             className="relative mb-8"
                         >
-                            <div className="absolute inset-0 bg-islamic-green/20 blur-2xl rounded-full scale-150 animate-pulse" />
+                            <div className="absolute inset-0 rounded-full scale-150" style={{ background: 'radial-gradient(circle, rgba(34,197,94,0.15) 0%, transparent 70%)' }} />
                             <img
                                 src={logo}
                                 alt={i18n.t('common:splash.title')}
@@ -112,13 +111,9 @@ export default function SplashScreen({ dataReady = false }) {
 
                         {/* Loading Bar Container */}
                         <div className="w-full h-[2px] bg-white/5 rounded-full overflow-hidden relative">
-                            <motion.div
-                                animate={{
-                                    width: `${roundedProgress}%`,
-                                    filter: `brightness(${1 + (roundedProgress / 100)}) opacity(${0.6 + (roundedProgress / 250)})`
-                                }}
-                                transition={{ duration: 0.1, ease: "linear" }}
-                                className="absolute top-0 left-0 h-full bg-islamic-gold shadow-[0_0_15px_rgba(212,175,55,0.8)]"
+                            <div
+                                style={{ width: `${roundedProgress}%`, willChange: 'width' }}
+                                className="absolute top-0 left-0 h-full bg-islamic-gold shadow-[0_0_8px_rgba(212,175,55,0.6)]"
                             />
                         </div>
 

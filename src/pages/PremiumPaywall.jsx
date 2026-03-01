@@ -4,6 +4,7 @@ import { X, Crown, Star, BookOpen, Users, Check, Sparkles } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useHaptics } from '@/hooks/useMobile';
+import { setPremium } from '@/services/creditService';
 
 // ─── Gold Dust Particles (Canvas) ────────────────────────
 function GoldParticles() {
@@ -62,7 +63,7 @@ function GoldParticles() {
         };
     }, []);
 
-    return <canvas ref={canvasRef} className="fixed inset-0 pointer-events-none z-0" style={{ opacity: 0.7 }} />;
+    return <canvas ref={canvasRef} className="absolute inset-0 pointer-events-none z-0" style={{ opacity: 0.7 }} />;
 }
 
 // ─── Premium Hero Visual (Enhanced Crescent + Geometric Arcs) ─────
@@ -304,7 +305,7 @@ export default function PremiumPaywall() {
 
     const handleSubscribe = useCallback(() => {
         success();
-        localStorage.setItem('isPremium', 'true');
+        setPremium(true);
         setShowSuccess(true);
     }, [success]);
 
@@ -316,12 +317,12 @@ export default function PremiumPaywall() {
             <GoldParticles />
 
             <div
-                className="fixed inset-0 z-50 flex flex-col"
+                className="absolute inset-0 z-50 flex flex-col"
                 style={{ background: 'linear-gradient(170deg, #0d4a2e 0%, #072a1a 20%, #041c11 50%, #010d07 100%)' }}
             >
                 {/* Islamic pattern overlay */}
                 <div
-                    className="fixed inset-0 pointer-events-none opacity-[0.015] z-0"
+                    className="absolute inset-0 pointer-events-none opacity-[0.015] z-0"
                     style={{
                         backgroundImage: `url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%23D4AF37' stroke-width='0.5'%3E%3Cpath d='M40 0L50 15L65 10L55 25L70 30L55 35L65 50L50 45L40 60L30 45L15 50L25 35L10 30L25 25L15 10L30 15Z'/%3E%3Ccircle cx='40' cy='30' r='8'/%3E%3C/g%3E%3C/svg%3E")`,
                         backgroundSize: '80px 80px',
@@ -534,7 +535,7 @@ export default function PremiumPaywall() {
                             <p className="text-white/70 font-bold text-base mt-1">₺124,99</p>
                             <p className="text-white/25 text-[10px]">/ {t('premium.month')}</p>
                             <div className="mt-1.5 pt-1.5 border-t border-white/[0.06]">
-                                <p className="text-white/30 text-[10px] text-center">{t('premium.daily_monthly')}</p>
+                                <p className="text-white/30 text-[12px] text-center">{t('premium.daily_monthly')}</p>
                             </div>
                         </button>
 
@@ -564,7 +565,7 @@ export default function PremiumPaywall() {
                             <p className="text-[#D4AF37] font-bold text-base mt-1">₺979,99</p>
                             <p className="text-[#D4AF37]/40 text-[10px]">/ {t('premium.year')}</p>
                             <div className="mt-1.5 pt-1.5 border-t border-[#D4AF37]/10">
-                                <p className="text-[#D4AF37]/60 text-[10px] font-semibold text-center">{t('premium.daily_yearly')}</p>
+                                <p className="text-[#D4AF37]/60 text-[12px] font-semibold text-center">{t('premium.daily_yearly')}</p>
                             </div>
                         </button>
                     </motion.div>
@@ -576,7 +577,7 @@ export default function PremiumPaywall() {
                             className="flex items-center justify-center gap-1.5 mb-2 flex-shrink-0"
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
-                            transition={{ delay: 0.7 }}
+                            transition={{ delay: 0.5 }}
                         >
                             <div className="w-4 h-4 rounded-md bg-[#D4AF37]/12 flex items-center justify-center">
                                 <BookOpen size={10} className="text-[#D4AF37]" />
@@ -614,7 +615,7 @@ export default function PremiumPaywall() {
                             </span>
                         </motion.button>
 
-                        <p className="text-center text-white/25 text-[10px] mt-2 leading-relaxed">
+                        <p className="text-center text-white/40 text-[12px] mt-2 leading-relaxed">
                             🔔 {selectedPlan === 'yearly' ? t('premium.disclaimer_yearly') : t('premium.disclaimer_monthly')}
                         </p>
 
@@ -627,26 +628,26 @@ export default function PremiumPaywall() {
                         animate={{ opacity: 1 }}
                         transition={{ delay: 0.9 }}
                     >
-                        <button className="text-white/15 text-[10px] hover:text-white/30 transition-colors">{t('premium.restore')}</button>
-                        <span className="text-white/8">•</span>
-                        <button onClick={() => navigate('/settings/legal')} className="text-white/15 text-[10px] hover:text-white/30 transition-colors">{t('premium.terms')}</button>
-                        <span className="text-white/8">•</span>
-                        <button onClick={() => navigate('/legal/privacy')} className="text-white/15 text-[10px] hover:text-white/30 transition-colors">{t('premium.privacy')}</button>
+                        <button className="text-white/35 text-[11px] hover:text-white/50 transition-colors">{t('premium.restore')}</button>
+                        <span className="text-white/15">•</span>
+                        <button onClick={() => navigate('/settings/legal')} className="text-white/35 text-[11px] hover:text-white/50 transition-colors">{t('premium.terms')}</button>
+                        <span className="text-white/15">•</span>
+                        <button onClick={() => navigate('/legal/privacy')} className="text-white/35 text-[11px] hover:text-white/50 transition-colors">{t('premium.privacy')}</button>
                     </motion.div>
                 </div >
             </div >
 
-            {/* ═══ EXIT INTENT POPUP ═══ */}
+            {/* ═══ EXIT INTENT POPUP (Enhanced) ═══ */}
             <AnimatePresence>
                 {showExitPopup && (
                     <motion.div
-                        className="fixed inset-0 z-[70] flex items-center justify-center px-5"
+                        className="absolute inset-0 z-[70] flex items-center justify-center px-5"
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        transition={{ duration: 0.3 }}
+                        transition={{ duration: 0.35 }}
                     >
-                        {/* Deep blur backdrop */}
+                        {/* Backdrop */}
                         <motion.div
                             className="absolute inset-0 bg-black/85 backdrop-blur-lg"
                             onClick={() => setShowExitPopup(false)}
@@ -654,10 +655,11 @@ export default function PremiumPaywall() {
                             animate={{ opacity: 1 }}
                         />
 
-                        {/* Ambient glow behind card */}
-                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(212,175,55,0.08) 0%, transparent 70%)', animation: 'pw-breathe 4s ease-in-out infinite' }} />
+                        {/* Ambient glow */}
+                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 rounded-full pointer-events-none"
+                            style={{ background: 'radial-gradient(circle, rgba(212,175,55,0.06) 0%, transparent 70%)' }} />
 
-                        {/* Centered card */}
+                        {/* Card */}
                         <motion.div
                             className="relative w-full max-w-[360px] rounded-3xl overflow-hidden"
                             style={{
@@ -669,86 +671,73 @@ export default function PremiumPaywall() {
                             exit={{ scale: 0.85, opacity: 0 }}
                             transition={{ type: 'spring', damping: 24, stiffness: 300 }}
                         >
-                            {/* Top gold accent line */}
+                            {/* Islamic pattern overlay on card */}
+                            <div className="absolute inset-0 pointer-events-none opacity-[0.015]"
+                                style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%23D4AF37' stroke-width='0.4'%3E%3Cpath d='M30 0L37 11L48 8L42 19L53 23L42 27L48 38L37 35L30 46L23 35L12 38L18 27L7 23L18 19L12 8L23 11Z'/%3E%3C/g%3E%3C/svg%3E")` }} />
+
+                            {/* Top accent */}
                             <div className="absolute top-0 left-0 right-0 h-[2px]" style={{ background: 'linear-gradient(90deg, transparent 5%, #D4AF37 50%, transparent 95%)' }} />
 
-                            <div className="px-7 pb-7 pt-6">
+                            <div className="px-6 pb-6 pt-5">
 
-                                {/* Animated crescent with sparkles */}
-                                <div className="w-28 h-28 mx-auto mb-5 relative">
-                                    {/* Outer ambient glow */}
-                                    <div className="absolute inset-[-20px] rounded-full" style={{ background: 'radial-gradient(circle, rgba(212,175,55,0.1) 0%, transparent 60%)', animation: 'pw-breathe 5s ease-in-out infinite' }} />
-                                    {/* Mid glow */}
-                                    <div className="absolute inset-[-8px] rounded-full" style={{ background: 'radial-gradient(circle, rgba(212,175,55,0.16) 0%, transparent 55%)', animation: 'pw-breathe 3.5s ease-in-out infinite 0.8s' }} />
-                                    {/* Core glow */}
-                                    <div className="absolute inset-0 rounded-full" style={{ background: 'radial-gradient(circle, rgba(212,175,55,0.22) 0%, transparent 50%)', animation: 'pw-breathe 2.5s ease-in-out infinite 1.5s' }} />
-
-                                    {/* Scattered gold sparkles */}
-                                    {[
-                                        { top: '-6px', left: '8px', size: 3, delay: '0s', dur: '3s' },
-                                        { top: '2px', right: '-4px', size: 2.5, delay: '1.2s', dur: '4s' },
-                                        { bottom: '6px', left: '-2px', size: 2, delay: '0.5s', dur: '3.5s' },
-                                        { top: '50%', right: '-8px', size: 3.5, delay: '2s', dur: '4.5s' },
-                                        { bottom: '-4px', right: '20px', size: 2, delay: '0.8s', dur: '3s' },
-                                        { top: '-2px', left: '50%', size: 2.5, delay: '1.5s', dur: '3.8s' },
-                                    ].map((s, i) => (
-                                        <div
-                                            key={i}
-                                            className="absolute rounded-full bg-[#FFD700] z-20"
-                                            style={{
-                                                top: s.top, left: s.left, right: s.right, bottom: s.bottom,
-                                                width: s.size, height: s.size,
-                                                animation: `pw-breathe ${s.dur} ease-in-out infinite ${s.delay}`,
-                                                boxShadow: '0 0 4px rgba(255,215,0,0.5)',
-                                            }}
-                                        />
-                                    ))}
-
-                                    {/* Rotating ring of dots */}
-                                    <div className="absolute inset-[-14px] z-[5]" style={{ animation: 'pw-hero-rotate 20s linear infinite' }}>
-                                        {Array.from({ length: 8 }).map((_, i) => {
-                                            const angle = (i * 45) * Math.PI / 180;
-                                            const r = 42;
-                                            return (
-                                                <div
-                                                    key={i}
-                                                    className="absolute rounded-full bg-[#D4AF37]"
-                                                    style={{
-                                                        width: i % 2 === 0 ? 2.5 : 1.5,
-                                                        height: i % 2 === 0 ? 2.5 : 1.5,
-                                                        left: `calc(50% + ${Math.cos(angle) * r}px - 1px)`,
-                                                        top: `calc(50% + ${Math.sin(angle) * r}px - 1px)`,
-                                                        opacity: i % 2 === 0 ? 0.4 : 0.2,
-                                                    }}
-                                                />
-                                            );
-                                        })}
-                                    </div>
-
-                                    <svg viewBox="0 0 60 60" className="w-full h-full relative z-10" fill="none">
+                                {/* Moon visual — matching success screen style */}
+                                <motion.div className="w-24 h-24 mx-auto mb-4 relative"
+                                    initial={{ scale: 0.5, opacity: 0 }}
+                                    animate={{ scale: 1, opacity: 1 }}
+                                    transition={{ type: 'spring', stiffness: 80, damping: 16 }}>
+                                    <svg viewBox="0 0 120 120" className="w-full h-full">
                                         <defs>
-                                            <linearGradient id="exit-gold" x1="0%" y1="0%" x2="100%" y2="100%">
-                                                <stop offset="0%" stopColor="#FFE066" stopOpacity="0.95" />
-                                                <stop offset="35%" stopColor="#FFD700" stopOpacity="0.92" />
-                                                <stop offset="70%" stopColor="#D4AF37" stopOpacity="0.88" />
-                                                <stop offset="100%" stopColor="#B8860B" stopOpacity="0.75" />
+                                            <radialGradient id="ex-glow" cx="50%" cy="50%" r="50%">
+                                                <stop offset="0%" stopColor="#FFD700" stopOpacity="0.25" />
+                                                <stop offset="100%" stopColor="#D4AF37" stopOpacity="0" />
+                                            </radialGradient>
+                                            <linearGradient id="ex-moon" x1="20%" y1="10%" x2="80%" y2="90%">
+                                                <stop offset="0%" stopColor="#FFE066" />
+                                                <stop offset="40%" stopColor="#FFD700" />
+                                                <stop offset="100%" stopColor="#B8960C" />
                                             </linearGradient>
-                                            <filter id="exit-glow"><feGaussianBlur in="SourceGraphic" stdDeviation="2.5" /></filter>
                                         </defs>
-                                        {/* Moon glow */}
-                                        <g filter="url(#exit-glow)" opacity="0.4"><circle cx="28" cy="28" r="18" fill="#D4AF37" /></g>
-                                        {/* Moon body */}
-                                        <circle cx="28" cy="28" r="18" fill="url(#exit-gold)" opacity="0.93" />
-                                        {/* Dark cutout */}
-                                        <circle cx="36" cy="22" r="14" fill="#082b1c" />
-                                        <circle cx="37" cy="21" r="13" fill="#041c11" opacity="0.5" />
-
+                                        <motion.circle cx="60" cy="60" r="55" fill="url(#ex-glow)"
+                                            initial={{ opacity: 0 }} animate={{ opacity: [0, 0.6, 0.4] }}
+                                            transition={{ duration: 2, delay: 0.3 }} />
+                                        <circle cx="60" cy="60" r="34" fill="url(#ex-moon)" opacity="0.9" />
+                                        <circle cx="60" cy="60" r="34" fill="url(#sc-inner)" />
+                                        <circle cx="72" cy="52" r="26" fill="#082b1c" />
+                                        <circle cx="50" cy="50" r="3" fill="rgba(255,255,255,0.06)" />
+                                        <circle cx="56" cy="64" r="2" fill="rgba(255,255,255,0.04)" />
                                     </svg>
-                                </div>
+
+                                    {/* Rotating dots */}
+                                    <motion.div className="absolute inset-[-10px]"
+                                        initial={{ opacity: 0 }}
+                                        animate={{ opacity: 0.6, rotate: 360 }}
+                                        transition={{ opacity: { duration: 0.8, delay: 0.5 }, rotate: { duration: 25, repeat: Infinity, ease: 'linear' } }}>
+                                        {Array.from({ length: 8 }, (_, i) => (
+                                            <div key={i} className="absolute rounded-full" style={{
+                                                width: i % 2 === 0 ? 2.5 : 1.5, height: i % 2 === 0 ? 2.5 : 1.5,
+                                                background: '#D4AF37',
+                                                top: `${50 + 48 * Math.sin(i * 45 * Math.PI / 180)}%`,
+                                                left: `${50 + 48 * Math.cos(i * 45 * Math.PI / 180)}%`,
+                                                transform: 'translate(-50%, -50%)',
+                                                opacity: i % 2 === 0 ? 0.5 : 0.25,
+                                            }} />
+                                        ))}
+                                    </motion.div>
+
+                                    {/* Sparkles */}
+                                    {[30, 130, 230, 330].map((deg, i) => (
+                                        <motion.div key={deg} className="absolute w-1 h-1 rounded-full bg-[#FFD700]"
+                                            style={{ top: `${50 + 50 * Math.sin(deg * Math.PI / 180)}%`, left: `${50 + 50 * Math.cos(deg * Math.PI / 180)}%` }}
+                                            initial={{ opacity: 0, scale: 0 }}
+                                            animate={{ opacity: [0, 0.8, 0.2], scale: [0, 1.2, 0.6] }}
+                                            transition={{ duration: 2.5, delay: 0.8 + i * 0.2, repeat: Infinity, repeatType: 'reverse' }} />
+                                    ))}
+                                </motion.div>
 
                                 {/* Heading */}
                                 <motion.h2
-                                    className="text-center text-[#D4AF37] text-[22px] font-bold mb-2 leading-tight"
+                                    className="text-center text-[#FFD700] text-[22px] font-bold mb-1.5 leading-tight"
+                                    style={{ fontFamily: 'Georgia, serif' }}
                                     initial={{ opacity: 0, y: 10 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ delay: 0.15 }}
@@ -757,7 +746,7 @@ export default function PremiumPaywall() {
                                 </motion.h2>
 
                                 <motion.p
-                                    className="text-center text-white/45 text-[14px] mb-5"
+                                    className="text-center text-white/40 text-[13px] mb-5"
                                     initial={{ opacity: 0 }}
                                     animate={{ opacity: 1 }}
                                     transition={{ delay: 0.25 }}
@@ -765,59 +754,62 @@ export default function PremiumPaywall() {
                                     {t('premium.exit_message')}
                                 </motion.p>
 
-                                {/* Loss aversion items */}
-                                <div className="space-y-2.5 mb-5">
-                                    {['exit_loss_1', 'exit_loss_2', 'exit_loss_3'].map((key, i) => (
+                                {/* Loss aversion items — enhanced with accent bars */}
+                                <div className="space-y-2 mb-5">
+                                    {[
+                                        { key: 'exit_loss_1', icon: '🤲', color: '#EF4444' },
+                                        { key: 'exit_loss_2', icon: '📖', color: '#F59E0B' },
+                                        { key: 'exit_loss_3', icon: '📿', color: '#EF4444' },
+                                    ].map((item, i) => (
                                         <motion.div
-                                            key={key}
-                                            className="flex items-center gap-3 px-4 py-3 rounded-2xl bg-white/[0.03] border border-red-500/[0.06]"
-                                            initial={{ opacity: 0, x: -15 }}
+                                            key={item.key}
+                                            className="flex items-center gap-3 px-4 py-3 rounded-2xl relative overflow-hidden"
+                                            style={{ background: 'linear-gradient(135deg, rgba(239,68,68,0.04) 0%, rgba(255,255,255,0.02) 100%)', border: '1px solid rgba(239,68,68,0.08)' }}
+                                            initial={{ opacity: 0, x: -20 }}
                                             animate={{ opacity: 1, x: 0 }}
-                                            transition={{ delay: 0.3 + i * 0.1 }}
+                                            transition={{ delay: 0.3 + i * 0.12 }}
                                         >
-                                            <div className="w-6 h-6 rounded-full bg-red-500/10 flex items-center justify-center flex-shrink-0">
-                                                <X size={12} className="text-red-400/80" />
+                                            <motion.div className="absolute left-0 top-[15%] bottom-[15%] w-[3px] rounded-r-full"
+                                                style={{ background: item.color }}
+                                                initial={{ scaleY: 0 }} animate={{ scaleY: 1 }}
+                                                transition={{ duration: 0.4, delay: 0.5 + i * 0.12 }} />
+                                            <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0"
+                                                style={{ background: 'rgba(239,68,68,0.08)' }}>
+                                                <span className="text-[15px]">{item.icon}</span>
                                             </div>
-                                            <span className="text-white/55 text-[14px] leading-snug">{t(`premium.${key}`)}</span>
+                                            <span className="text-white/60 text-[13px] leading-snug flex-1">{t(`premium.${item.key}`)}</span>
+                                            <div className="w-5 h-5 rounded-full bg-red-500/10 flex items-center justify-center flex-shrink-0">
+                                                <X size={11} className="text-red-400/70" />
+                                            </div>
                                         </motion.div>
                                     ))}
                                 </div>
 
-                                {/* Progress bar — Zeigarnik */}
-                                <motion.div
-                                    className="mb-6 px-1"
-                                    initial={{ opacity: 0 }}
-                                    animate={{ opacity: 1 }}
-                                    transition={{ delay: 0.65 }}
-                                >
+                                {/* Progress bar */}
+                                <motion.div className="mb-5 px-1" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.65 }}>
                                     <div className="flex items-center justify-between mb-1.5">
-                                        <span className="text-white/30 text-[12px]">{lang === 'tr' ? 'Manevi yolculuğun' : 'Your spiritual journey'}</span>
-                                        <span className="text-[#D4AF37]/60 text-[12px] font-bold">15%</span>
+                                        <span className="text-white/30 text-[11px]">{lang === 'tr' ? 'Manevi yolculuğun' : 'Your spiritual journey'}</span>
+                                        <span className="text-[#D4AF37]/60 text-[11px] font-bold">15%</span>
                                     </div>
-                                    <div className="h-2 rounded-full bg-white/[0.06] overflow-hidden">
-                                        <motion.div
-                                            className="h-full rounded-full"
-                                            style={{ background: 'linear-gradient(90deg, #D4AF37, #FFD700)', boxShadow: '0 0 8px rgba(212,175,55,0.3)' }}
-                                            initial={{ width: 0 }}
-                                            animate={{ width: '15%' }}
-                                            transition={{ delay: 0.75, duration: 1, ease: 'easeOut' }}
-                                        />
+                                    <div className="h-1.5 rounded-full bg-white/[0.06] overflow-hidden">
+                                        <motion.div className="h-full rounded-full"
+                                            style={{ background: 'linear-gradient(90deg, #D4AF37, #FFD700)' }}
+                                            initial={{ width: 0 }} animate={{ width: '15%' }}
+                                            transition={{ delay: 0.75, duration: 1, ease: 'easeOut' }} />
                                     </div>
-                                    <p className="text-white/20 text-[11px] mt-1.5 text-center">
+                                    <p className="text-white/20 text-[10px] mt-1 text-center">
                                         {lang === 'tr' ? 'Premium ile %100\'e ulaş' : 'Reach 100% with Premium'}
                                     </p>
                                 </motion.div>
 
-                                {/* Social proof — FOMO */}
-                                <motion.div
-                                    className="flex items-center justify-center gap-2 mb-4"
-                                    initial={{ opacity: 0 }}
-                                    animate={{ opacity: 1 }}
-                                    transition={{ delay: 0.95 }}
-                                >
+                                {/* Social proof */}
+                                <motion.div className="flex items-center justify-center gap-2 mb-4"
+                                    initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.85 }}>
                                     <div className="relative">
-                                        <Users size={14} className="text-emerald-400/60" />
-                                        <div className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 rounded-full bg-emerald-400" style={{ animation: 'pw-breathe 2s ease-in-out infinite' }} />
+                                        <Users size={13} className="text-emerald-400/60" />
+                                        <motion.div className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 rounded-full bg-emerald-400"
+                                            animate={{ opacity: [0.4, 1, 0.4] }}
+                                            transition={{ duration: 2, repeat: Infinity }} />
                                     </div>
                                     <span className="text-white/40 text-[12px]">
                                         {t('premium.social_proof', { count: socialCount.toLocaleString() })}
@@ -829,29 +821,27 @@ export default function PremiumPaywall() {
                                     onClick={() => setShowExitPopup(false)}
                                     className="relative w-full py-[18px] rounded-2xl font-bold text-[16px] text-[#021a0f] overflow-hidden mb-3"
                                     style={{
-                                        background: 'linear-gradient(135deg, #FFD700 0%, #D4AF37 50%, #FFD700 100%)',
+                                        background: 'linear-gradient(135deg, #FFE066 0%, #FFD700 30%, #D4AF37 70%, #FFD700 100%)',
                                         boxShadow: '0 8px 35px rgba(212,175,55,0.4), inset 0 1px 0 rgba(255,255,255,0.3)',
                                     }}
                                     whileTap={{ scale: 0.97 }}
                                     initial={{ opacity: 0, y: 10 }}
                                     animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: 0.85 }}
+                                    transition={{ type: 'spring', stiffness: 120, damping: 16, delay: 0.9 }}
                                 >
-                                    <div
-                                        className="absolute inset-0 pointer-events-none"
+                                    <div className="absolute inset-0 pointer-events-none"
                                         style={{
-                                            background: 'linear-gradient(105deg, transparent 35%, rgba(255,255,255,0.3) 45%, rgba(255,255,255,0.45) 50%, rgba(255,255,255,0.3) 55%, transparent 65%)',
+                                            background: 'linear-gradient(105deg, transparent 30%, rgba(255,255,255,0.35) 42%, rgba(255,255,255,0.5) 50%, rgba(255,255,255,0.35) 58%, transparent 70%)',
                                             backgroundSize: '200% 100%',
                                             animation: 'pw-shimmer 2.5s ease-in-out infinite',
-                                        }}
-                                    />
+                                        }} />
                                     <span className="relative z-10">{t('premium.exit_cta')}</span>
                                 </motion.button>
 
                                 {/* Dismiss */}
                                 <motion.button
-                                    onClick={() => navigate(-1)}
-                                    className="w-full text-center text-white/20 text-[12px] hover:text-white/30 transition-colors py-2"
+                                    onClick={() => navigate('/')}
+                                    className="w-full text-center text-white/30 text-[12px] hover:text-white/45 transition-colors py-2"
                                     initial={{ opacity: 0 }}
                                     animate={{ opacity: 1 }}
                                     transition={{ delay: 1.0 }}
@@ -864,163 +854,179 @@ export default function PremiumPaywall() {
                 )}
             </AnimatePresence>
 
-            {/* ── Purchase Success Screen ── */}
+            {/* ── Purchase Success Screen (Enhanced) ── */}
             <AnimatePresence>
                 {showSuccess && (
                     <motion.div
-                        className="fixed inset-0 z-[999] flex flex-col items-center justify-center"
+                        className="absolute inset-0 z-[999] flex flex-col items-center justify-center overflow-hidden"
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        transition={{ duration: 0.6 }}
-                        style={{ background: 'linear-gradient(170deg, #0d4a2e 0%, #072a1a 20%, #041c11 50%, #010d07 100%)' }}
+                        transition={{ duration: 0.8 }}
+                        style={{ background: 'linear-gradient(170deg, #0d4a2e 0%, #072a1a 15%, #041c11 45%, #010d07 100%)' }}
                     >
-                        {/* Ambient glow behind moon */}
-                        <motion.div
-                            className="absolute top-[18%] left-1/2 -translate-x-1/2 w-72 h-72 rounded-full pointer-events-none"
-                            initial={{ opacity: 0, scale: 0.5 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            transition={{ duration: 1.2, delay: 0.3 }}
-                            style={{ background: 'radial-gradient(circle, rgba(212,175,55,0.12) 0%, rgba(212,175,55,0.04) 40%, transparent 70%)' }}
+                        {/* Islamic pattern overlay */}
+                        <div
+                            className="absolute inset-0 pointer-events-none opacity-[0.012] z-0"
+                            style={{
+                                backgroundImage: `url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%23D4AF37' stroke-width='0.5'%3E%3Cpath d='M40 0L50 15L65 10L55 25L70 30L55 35L65 50L50 45L40 60L30 45L15 50L25 35L10 30L25 25L15 10L30 15Z'/%3E%3Ccircle cx='40' cy='30' r='8'/%3E%3C/g%3E%3C/svg%3E")`,
+                            }}
                         />
 
-                        {/* Moon: crescent → full moon morph */}
+                        {/* Layer 1: Deep ambient glow */}
                         <motion.div
-                            className="relative w-28 h-28 mb-6"
-                            initial={{ opacity: 0, scale: 0.6, y: 20 }}
+                            className="absolute top-[12%] left-1/2 -translate-x-1/2 w-[360px] h-[360px] rounded-full pointer-events-none"
+                            initial={{ opacity: 0, scale: 0.3 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ duration: 1.8, delay: 0.2 }}
+                            style={{ background: 'radial-gradient(circle, rgba(212,175,55,0.06) 0%, rgba(212,175,55,0.02) 40%, transparent 70%)' }}
+                        />
+
+                        {/* Layer 2: Mid golden aura */}
+                        <motion.div
+                            className="absolute top-[16%] left-1/2 -translate-x-1/2 w-64 h-64 rounded-full pointer-events-none"
+                            initial={{ opacity: 0, scale: 0.5 }}
+                            animate={{ opacity: [0, 0.8, 0.5] }}
+                            transition={{ duration: 2.5, delay: 0.5 }}
+                            style={{ background: 'radial-gradient(circle, rgba(255,215,0,0.1) 0%, rgba(212,175,55,0.03) 50%, transparent 75%)' }}
+                        />
+
+                        {/* Moon Visual */}
+                        <motion.div
+                            className="relative w-36 h-36 mb-4"
+                            initial={{ opacity: 0, scale: 0.4, y: 30 }}
                             animate={{ opacity: 1, scale: 1, y: 0 }}
-                            transition={{ type: 'spring', stiffness: 80, damping: 18, delay: 0.2 }}
+                            transition={{ type: 'spring', stiffness: 60, damping: 16, delay: 0.15 }}
                         >
-                            <svg viewBox="0 0 120 120" className="w-full h-full">
+                            <svg viewBox="0 0 160 160" className="w-full h-full">
                                 <defs>
-                                    <radialGradient id="sg-glow" cx="50%" cy="50%" r="50%">
-                                        <stop offset="0%" stopColor="#FFD700" stopOpacity="0.4" />
+                                    <radialGradient id="sc-glow" cx="50%" cy="50%" r="50%">
+                                        <stop offset="0%" stopColor="#FFD700" stopOpacity="0.35" />
+                                        <stop offset="60%" stopColor="#D4AF37" stopOpacity="0.08" />
                                         <stop offset="100%" stopColor="#D4AF37" stopOpacity="0" />
                                     </radialGradient>
-                                    <linearGradient id="sg-moon" x1="0%" y1="0%" x2="100%" y2="100%">
-                                        <stop offset="0%" stopColor="#FFD700" />
-                                        <stop offset="50%" stopColor="#D4AF37" />
+                                    <linearGradient id="sc-moon" x1="20%" y1="10%" x2="80%" y2="90%">
+                                        <stop offset="0%" stopColor="#FFE066" />
+                                        <stop offset="35%" stopColor="#FFD700" />
+                                        <stop offset="70%" stopColor="#D4AF37" />
                                         <stop offset="100%" stopColor="#B8960C" />
                                     </linearGradient>
+                                    <radialGradient id="sc-inner" cx="40%" cy="35%" r="50%">
+                                        <stop offset="0%" stopColor="rgba(255,255,255,0.12)" />
+                                        <stop offset="100%" stopColor="rgba(255,255,255,0)" />
+                                    </radialGradient>
                                 </defs>
-                                {/* Glow aura */}
-                                <motion.circle
-                                    cx="60" cy="60" r="55"
-                                    fill="url(#sg-glow)"
-                                    initial={{ opacity: 0 }}
-                                    animate={{ opacity: [0, 0.6, 0.4] }}
-                                    transition={{ duration: 2, delay: 0.8 }}
-                                />
-                                {/* Full moon circle */}
-                                <motion.circle
-                                    cx="60" cy="60" r="36"
-                                    fill="url(#sg-moon)"
-                                    initial={{ opacity: 0.3 }}
-                                    animate={{ opacity: 1 }}
-                                    transition={{ duration: 1.5, delay: 0.4 }}
-                                />
-                                {/* Crescent shadow that fades away (moon becoming full) */}
-                                <motion.circle
-                                    cx="75" cy="55" r="30"
-                                    fill="#041c11"
-                                    initial={{ opacity: 1 }}
-                                    animate={{ opacity: 0, cx: 100 }}
-                                    transition={{ duration: 1.8, delay: 0.5, ease: 'easeInOut' }}
-                                />
-                                {/* Inner subtle details */}
-                                <circle cx="50" cy="50" r="4" fill="rgba(255,255,255,0.08)" />
-                                <circle cx="68" cy="70" r="3" fill="rgba(255,255,255,0.06)" />
-                                <circle cx="55" cy="65" r="2" fill="rgba(255,255,255,0.05)" />
+                                <motion.circle cx="80" cy="80" r="75" fill="url(#sc-glow)" initial={{ opacity: 0 }} animate={{ opacity: [0, 0.7, 0.5] }} transition={{ duration: 2.5, delay: 0.6 }} />
+                                <motion.circle cx="80" cy="80" r="48" fill="url(#sc-moon)" initial={{ opacity: 0.2 }} animate={{ opacity: 1 }} transition={{ duration: 1.8, delay: 0.3 }} />
+                                <circle cx="80" cy="80" r="48" fill="url(#sc-inner)" />
+                                <motion.circle cx="100" cy="72" r="40" fill="#041c11" initial={{ opacity: 1 }} animate={{ opacity: 0, cx: 140 }} transition={{ duration: 2.2, delay: 0.4, ease: 'easeInOut' }} />
+                                <circle cx="68" cy="68" r="5" fill="rgba(255,255,255,0.06)" />
+                                <circle cx="90" cy="88" r="3.5" fill="rgba(255,255,255,0.04)" />
+                                <circle cx="74" cy="85" r="2.5" fill="rgba(255,255,255,0.05)" />
                             </svg>
-                            {/* Sparkle particles around moon */}
-                            {[0, 60, 120, 180, 240, 300].map((deg, i) => (
-                                <motion.div
-                                    key={deg}
-                                    className="absolute w-1 h-1 rounded-full bg-[#FFD700]"
-                                    style={{
-                                        top: `${50 + 48 * Math.sin(deg * Math.PI / 180)}%`,
-                                        left: `${50 + 48 * Math.cos(deg * Math.PI / 180)}%`,
-                                    }}
+
+                            {/* Rotating dot ring */}
+                            <motion.div
+                                className="absolute inset-[-16px]"
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1, rotate: 360 }}
+                                transition={{ opacity: { duration: 1, delay: 1 }, rotate: { duration: 30, repeat: Infinity, ease: 'linear' } }}
+                            >
+                                {Array.from({ length: 12 }, (_, i) => (
+                                    <div key={i} className="absolute rounded-full" style={{
+                                        width: i % 3 === 0 ? 3 : 1.5, height: i % 3 === 0 ? 3 : 1.5,
+                                        background: i % 3 === 0 ? '#FFD700' : 'rgba(212,175,55,0.4)',
+                                        top: `${50 + 50 * Math.sin(i * 30 * Math.PI / 180)}%`,
+                                        left: `${50 + 50 * Math.cos(i * 30 * Math.PI / 180)}%`,
+                                        transform: 'translate(-50%, -50%)',
+                                    }} />
+                                ))}
+                            </motion.div>
+
+                            {/* Sparkle particles */}
+                            {[0, 55, 120, 195, 260, 330].map((deg, i) => (
+                                <motion.div key={deg} className="absolute w-1 h-1 rounded-full bg-[#FFD700]"
+                                    style={{ top: `${50 + 52 * Math.sin(deg * Math.PI / 180)}%`, left: `${50 + 52 * Math.cos(deg * Math.PI / 180)}%` }}
                                     initial={{ opacity: 0, scale: 0 }}
-                                    animate={{ opacity: [0, 0.8, 0.3], scale: [0, 1.2, 0.8] }}
-                                    transition={{ duration: 1.5, delay: 1.0 + i * 0.12, repeat: Infinity, repeatType: 'reverse', repeatDelay: 2 }}
+                                    animate={{ opacity: [0, 0.9, 0.2], scale: [0, 1.3, 0.7] }}
+                                    transition={{ duration: 2.5, delay: 1.2 + i * 0.15, repeat: Infinity, repeatType: 'reverse' }}
                                 />
                             ))}
                         </motion.div>
 
+                        {/* SVG Checkmark */}
+                        <motion.div className="mb-3" initial={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }}
+                            transition={{ type: 'spring', stiffness: 200, damping: 12, delay: 1.3 }}>
+                            <div className="w-10 h-10 rounded-full bg-emerald-500/15 border border-emerald-400/20 flex items-center justify-center">
+                                <motion.svg viewBox="0 0 24 24" className="w-5 h-5">
+                                    <motion.path d="M5 12l5 5 9-9" fill="none" stroke="#34d399" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
+                                        initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 0.6, delay: 1.5, ease: 'easeOut' }} />
+                                </motion.svg>
+                            </div>
+                        </motion.div>
+
+                        {/* Premium Badge */}
+                        <motion.div className="flex items-center gap-1.5 mb-3 px-4 py-1.5 rounded-full border border-[#D4AF37]/20"
+                            style={{ background: 'linear-gradient(135deg, rgba(212,175,55,0.08) 0%, rgba(212,175,55,0.02) 100%)' }}
+                            initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 1.6 }}>
+                            <Crown size={12} className="text-[#FFD700]" />
+                            <span className="text-[#D4AF37] text-[10px] font-bold tracking-[0.15em] uppercase">Premium Üye</span>
+                        </motion.div>
+
                         {/* Title */}
-                        <motion.h1
-                            className="text-[#FFD700] font-serif text-[26px] font-bold text-center leading-tight"
-                            initial={{ opacity: 0, y: 15 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.7, delay: 0.9 }}
-                        >
+                        <motion.h1 className="text-[#FFD700] text-[28px] font-bold text-center leading-tight px-6"
+                            style={{ fontFamily: 'Georgia, serif' }}
+                            initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 1.7 }}>
                             {t('premium.success_title')}
                         </motion.h1>
 
                         {/* Subtitle */}
-                        <motion.p
-                            className="text-white/50 text-[14px] text-center mt-2 mb-8"
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.6, delay: 1.2 }}
-                        >
+                        <motion.p className="text-white/45 text-[14px] text-center mt-2 mb-7 px-8"
+                            initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 2.0 }}>
                             {t('premium.success_subtitle')}
                         </motion.p>
 
-                        {/* Unlocked features */}
-                        <div className="w-full max-w-[300px] space-y-3 px-4 mb-10">
+                        {/* Unlocked Features */}
+                        <div className="w-full max-w-[320px] space-y-2.5 px-5 mb-8">
                             {[
-                                { emoji: '🤖', key: 'success_feat_1' },
-                                { emoji: '📖', key: 'success_feat_2' },
-                                { emoji: '📿', key: 'success_feat_3' },
-                                { emoji: '👑', key: 'success_feat_4' },
+                                { icon: '🤲', key: 'success_feat_1', color: '#D4AF37' },
+                                { icon: '📖', key: 'success_feat_2', color: '#10B981' },
+                                { icon: '📿', key: 'success_feat_3', color: '#60A5FA' },
+                                { icon: '👑', key: 'success_feat_4', color: '#F59E0B' },
                             ].map((feat, i) => (
-                                <motion.div
-                                    key={feat.key}
-                                    className="flex items-center gap-3 bg-white/[0.04] rounded-xl px-4 py-3 border border-white/[0.06]"
-                                    initial={{ opacity: 0, x: -20 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    transition={{ duration: 0.5, delay: 1.6 + i * 0.15 }}
-                                >
-                                    <span className="text-lg flex-shrink-0">{feat.emoji}</span>
-                                    <span className="text-white/70 text-[13px] font-medium flex-1">
+                                <motion.div key={feat.key}
+                                    className="flex items-center gap-3.5 rounded-2xl px-4 py-3.5 relative overflow-hidden"
+                                    style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.035) 0%, rgba(255,255,255,0.01) 100%)', border: '1px solid rgba(255,255,255,0.06)' }}
+                                    initial={{ opacity: 0, x: -25 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5, delay: 2.2 + i * 0.18 }}>
+                                    <motion.div className="absolute left-0 top-[15%] bottom-[15%] w-[3px] rounded-r-full"
+                                        style={{ background: feat.color }} initial={{ scaleY: 0 }} animate={{ scaleY: 1 }}
+                                        transition={{ duration: 0.4, delay: 2.5 + i * 0.18 }} />
+                                    <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
+                                        style={{ background: `${feat.color}12` }}>
+                                        <span className="text-[18px]">{feat.icon}</span>
+                                    </div>
+                                    <span className="text-white/75 text-[14px] font-medium flex-1 leading-snug">
                                         {t(`premium.${feat.key}`)}
                                     </span>
-                                    <motion.div
-                                        className="w-5 h-5 rounded-full bg-emerald-500/20 flex items-center justify-center flex-shrink-0"
-                                        initial={{ scale: 0 }}
-                                        animate={{ scale: 1 }}
-                                        transition={{ type: 'spring', stiffness: 300, damping: 15, delay: 1.9 + i * 0.15 }}
-                                    >
-                                        <Check size={12} className="text-emerald-400" />
+                                    <motion.div className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0"
+                                        style={{ background: `${feat.color}20` }}
+                                        initial={{ scale: 0 }} animate={{ scale: 1 }}
+                                        transition={{ type: 'spring', stiffness: 350, damping: 14, delay: 2.6 + i * 0.18 }}>
+                                        <Check size={13} className="text-emerald-400" />
                                     </motion.div>
                                 </motion.div>
                             ))}
                         </div>
 
                         {/* CTA Button */}
-                        <motion.button
-                            onClick={() => navigate('/')}
-                            className="w-[280px] py-4 rounded-2xl font-bold text-[16px] text-[#021a0f] relative overflow-hidden"
-                            style={{
-                                background: 'linear-gradient(135deg, #FFD700 0%, #D4AF37 50%, #FFD700 100%)',
-                                boxShadow: '0 6px 30px rgba(212,175,55,0.35), inset 0 1px 0 rgba(255,255,255,0.25)',
-                            }}
-                            initial={{ opacity: 0, y: 15 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.6, delay: 2.5 }}
-                            whileTap={{ scale: 0.97 }}
-                        >
-                            <div
-                                className="absolute inset-0 pointer-events-none"
-                                style={{
-                                    background: 'linear-gradient(105deg, transparent 35%, rgba(255,255,255,0.3) 45%, rgba(255,255,255,0.45) 50%, rgba(255,255,255,0.3) 55%, transparent 65%)',
-                                    backgroundSize: '200% 100%',
-                                    animation: 'pw-shimmer 3s ease-in-out infinite',
-                                }}
-                            />
-                            <span className="relative z-10">{t('premium.success_cta')}</span>
+                        <motion.button onClick={() => navigate('/')}
+                            className="w-[300px] py-4 rounded-2xl font-bold text-[17px] text-[#021a0f] relative overflow-hidden"
+                            style={{ background: 'linear-gradient(135deg, #FFE066 0%, #FFD700 30%, #D4AF37 70%, #FFD700 100%)', boxShadow: '0 8px 40px rgba(212,175,55,0.4), inset 0 1px 0 rgba(255,255,255,0.3)' }}
+                            initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
+                            transition={{ type: 'spring', stiffness: 100, damping: 18, delay: 3.0 }} whileTap={{ scale: 0.96 }}>
+                            <div className="absolute inset-0 pointer-events-none"
+                                style={{ background: 'linear-gradient(105deg, transparent 30%, rgba(255,255,255,0.35) 42%, rgba(255,255,255,0.5) 50%, rgba(255,255,255,0.35) 58%, transparent 70%)', backgroundSize: '200% 100%', animation: 'pw-shimmer 2.5s ease-in-out infinite' }} />
+                            <span className="relative z-10">{t('premium.success_cta')} →</span>
                         </motion.button>
                     </motion.div>
                 )}

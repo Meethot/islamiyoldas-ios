@@ -16,7 +16,7 @@ import { Coins, Crown, Flame } from 'lucide-react';
  * DebugMenu - Hidden stress test dashboard for developers
  */
 
-const DEBUG_MODE = false;
+const DEBUG_MODE = true;
 
 // Component that crashes on render to trigger ErrorBoundary
 function CrashTrigger({ shouldCrash }) {
