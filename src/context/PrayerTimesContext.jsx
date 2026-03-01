@@ -89,41 +89,6 @@ export const PrayerTimesProvider = ({ children }) => {
         scheduleDhikrReminder();
     }, [settings.dhikrReminder, i18n.language]);
 
-    // Re-schedule prayer notifications every time app becomes active (handles 12-day expiry)
-    // Also clears delivered notifications to prevent flood after phone wake
-    useEffect(() => {
-        if (!Capacitor.isNativePlatform() || !prayerTimes) return;
-
-        const handleAppResume = async () => {
-            try {
-                // Clear ALL delivered notifications from notification center first
-                // This prevents the "45 notifications at once" flood after phone has been off
-                await LocalNotifications.removeAllDeliveredNotifications();
-            } catch (e) {
-                console.warn('Could not clear delivered notifications', e);
-            }
-            scheduleDailyNotifications(prayerTimes);
-        };
-
-        // Also clear delivered notifications on initial mount (fresh app open)
-        LocalNotifications.removeAllDeliveredNotifications().catch(() => { });
-
-        // Capacitor App plugin fires 'resume' when app comes to foreground
-        const importApp = async () => {
-            try {
-                const { App } = await import('@capacitor/app');
-                App.addListener('resume', handleAppResume);
-                return () => App.removeAllListeners('resume');
-            } catch (e) {
-                console.warn('Could not add resume listener', e);
-            }
-        };
-
-        let cleanup;
-        importApp().then(fn => { cleanup = fn; });
-
-        return () => { if (cleanup) cleanup(); };
-    }, [prayerTimes, settings.adhanEnabled, settings.vibrateOnly]);
 
     const loadSettings = async () => {
         try {
@@ -200,11 +165,77 @@ export const PrayerTimesProvider = ({ children }) => {
     };
 
 
+    // ─── Diyanet API helpers ───
+    const DIYANET_API = 'https://prayertimes.api.abdus.dev/api/diyanet';
+
+    // Resolve Diyanet location_id from district name (cached)
+    const resolveDiyanetLocationId = async (districtName) => {
+        if (!districtName) return null;
+
+        // Check cache first
+        const cacheKey = `diyanet_loc_${districtName.toLowerCase()}`;
+        const cached = localStorage.getItem(cacheKey);
+        if (cached) return parseInt(cached, 10);
+
+        try {
+            const res = await axios.get(`${DIYANET_API}/search`, {
+                params: { q: districtName },
+                timeout: 5000,
+            });
+            const results = res.data;
+            if (results && results.length > 0) {
+                // Prefer exact match, otherwise take first result
+                const exact = results.find(
+                    r => r.region?.toLowerCase() === districtName.toLowerCase()
+                );
+                const id = (exact || results[0]).id;
+                localStorage.setItem(cacheKey, String(id));
+                return id;
+            }
+        } catch (e) {
+            console.warn('Diyanet location search failed:', e.message);
+        }
+        return null;
+    };
+
+    // Fetch today's times from Diyanet
+    const fetchDiyanetTimes = async (locationId) => {
+        try {
+            const res = await axios.get(`${DIYANET_API}/prayertimes`, {
+                params: { location_id: locationId },
+                timeout: 5000,
+            });
+            const days = res.data;
+            if (!days || days.length === 0) return null;
+
+            // Find today's entry
+            const todayStr = new Date().toISOString().split('T')[0]; // "2026-03-01"
+            const todayData = days.find(d => d.date?.startsWith(todayStr));
+            if (!todayData) return null;
+
+            // Map abdus.dev fields → Aladhan-compatible field names
+            // abdus.dev: fajr, sun, dhuhr, asr, maghrib, isha
+            // In Diyanet, "fajr" IS the İmsak time (sahur bitiş)
+            return {
+                Imsak: todayData.fajr,   // Diyanet fajr = İmsak
+                Fajr: todayData.fajr,    // Same as Imsak in Diyanet system
+                Sunrise: todayData.sun,
+                Dhuhr: todayData.dhuhr,
+                Asr: todayData.asr,
+                Maghrib: todayData.maghrib,
+                Isha: todayData.isha,
+                Sunset: todayData.maghrib,
+                _source: 'diyanet',
+            };
+        } catch (e) {
+            console.warn('Diyanet prayer times fetch failed:', e.message);
+            return null;
+        }
+    };
+
     const fetchPrayerTimes = useCallback(async () => {
         try {
             setLoading(true);
-            const today = new Date();
-            const dateStr = `${today.getDate()}-${today.getMonth() + 1}-${today.getFullYear()}`;
 
             let lat, lng;
             if (hasLocation && latitude && longitude) {
@@ -217,16 +248,38 @@ export const PrayerTimesProvider = ({ children }) => {
                 setLocationSource('fallback');
             }
 
-            // Determine calculation method by location, NOT language
             // Turkey bounding box: lat 36-42, lng 26-45
             const isInTurkey = lat >= 36 && lat <= 42 && lng >= 26 && lng <= 45;
-            const method = isInTurkey ? 13 : 3; // 13 = Diyanet, 3 = MWL
+            const countryCode = localStorage.getItem('cached_country_code');
+            const isTurkishLocation = isInTurkey || countryCode === 'tr';
+
+            // ── Try Diyanet API first for Turkey ──
+            if (isTurkishLocation) {
+                const district = localStorage.getItem('cached_district');
+                if (district) {
+                    const locationId = await resolveDiyanetLocationId(district);
+                    if (locationId) {
+                        const diyanetTimings = await fetchDiyanetTimes(locationId);
+                        if (diyanetTimings) {
+                            setPrayerTimes(diyanetTimings);
+                            findNextPrayer(diyanetTimings);
+                            return;
+                        }
+                    }
+                }
+            }
+
+            // ── Fallback: Aladhan API ──
+            const today = new Date();
+            const dateStr = `${today.getDate()}-${today.getMonth() + 1}-${today.getFullYear()}`;
+            const method = isTurkishLocation ? 13 : 3; // 13 = Diyanet approx, 3 = MWL
 
             const response = await axios.get(`https://api.aladhan.com/v1/timings/${dateStr}`, {
                 params: { latitude: lat, longitude: lng, method }
             });
 
             const timings = response.data.data.timings;
+            timings._source = 'aladhan';
             setPrayerTimes(timings);
             findNextPrayer(timings);
         } catch (error) {
@@ -236,17 +289,58 @@ export const PrayerTimesProvider = ({ children }) => {
         }
     }, [latitude, longitude, hasLocation]);
 
+    // Re-fetch prayer times + re-schedule notifications every time app becomes active
+    // This handles: 7-day notification expiry, date changes, and stale cached data
+    useEffect(() => {
+        if (!Capacitor.isNativePlatform()) return;
+
+        const handleAppResume = async () => {
+            try {
+                await LocalNotifications.removeAllDeliveredNotifications();
+            } catch (e) {
+                console.warn('Could not clear delivered notifications', e);
+            }
+            fetchPrayerTimes();
+        };
+
+        LocalNotifications.removeAllDeliveredNotifications().catch(() => { });
+
+        const importApp = async () => {
+            try {
+                const { App } = await import('@capacitor/app');
+                App.addListener('resume', handleAppResume);
+                return () => App.removeAllListeners('resume');
+            } catch (e) {
+                console.warn('Could not add resume listener', e);
+            }
+        };
+
+        let cleanup;
+        importApp().then(fn => { cleanup = fn; });
+
+        return () => { if (cleanup) cleanup(); };
+    }, [fetchPrayerTimes]);
+
     const findNextPrayer = (timings) => {
         try {
             const now = new Date();
             const timeToMinutes = (time) => {
-                const [h, m] = time.split(':').map(Number);
+                if (!time) return -1;
+                const clean = time.split(' ')[0];
+                const [h, m] = clean.split(':').map(Number);
                 return h * 60 + m;
             };
             const currentMinutes = now.getHours() * 60 + now.getMinutes();
 
+            // Turkish/AZ convention: İmsak (fasting start) as first prayer
+            // International convention: Fajr (dawn prayer) as first prayer
+            const lang = (i18n.language || 'en').split('-')[0];
+            const useImsak = lang === 'tr' || lang === 'az';
+            const firstPrayerTime = useImsak ? timings.Imsak : timings.Fajr;
+            const firstPrayerName = useImsak ? 'İmsak' : 'Fajr';
+
             const prayers = [
-                { name: 'İmsak', time: timings.Fajr },
+                { name: firstPrayerName, time: firstPrayerTime },
                 { name: 'Güneş', time: timings.Sunrise },
                 { name: 'Öğle', time: timings.Dhuhr },
                 { name: 'İkindi', time: timings.Asr },
@@ -254,7 +348,7 @@ export const PrayerTimesProvider = ({ children }) => {
                 { name: 'Yatsı', time: timings.Isha }
             ];
 
-            let next = prayers.find(p => timeToMinutes(p.time) > currentMinutes);
+            let next = prayers.find(p => p.time && timeToMinutes(p.time) > currentMinutes);
             if (!next) next = prayers[0];
             setNextPrayer(next);
         } catch (e) {
@@ -263,9 +357,10 @@ export const PrayerTimesProvider = ({ children }) => {
     };
 
     // iOS limit: 64 pending notifications
-    // Budget: 3 repeating verse + 1 repeating friday = 4 permanent
-    // Remaining: 60 slots / 5 prayers = 12 days of prayer notifications
-    const MAX_PRAYER_DAYS = 12;
+    // Budget: 3 repeating verse + 1 repeating friday + 1 dhikr = 5 permanent
+    // Prayer: 7 days × 5 prayers = 35 slots (IDs 1-35)
+    // Reserved: 24 slots for future features
+    const MAX_PRAYER_DAYS = 7;
 
     const scheduleDailyNotifications = useCallback(async (todayTimings) => {
         if (!Capacitor.isNativePlatform()) return;
@@ -273,8 +368,8 @@ export const PrayerTimesProvider = ({ children }) => {
         schedulingRef.current = true;
 
         try {
-            // Cancel all existing prayer notifications (IDs 1-60)
-            const cancelIds = Array.from({ length: 60 }, (_, i) => ({ id: i + 1 }));
+            // Cancel all existing prayer notifications (IDs 1-35)
+            const cancelIds = Array.from({ length: 35 }, (_, i) => ({ id: i + 1 }));
             await LocalNotifications.cancel({ notifications: cancelIds });
 
             if (!settings.adhanEnabled) return;
@@ -297,39 +392,122 @@ export const PrayerTimesProvider = ({ children }) => {
             const lat = (hasLocation && latitude) ? latitude : FALLBACK_COORDS.lat;
             const lng = (hasLocation && longitude) ? longitude : FALLBACK_COORDS.lng;
             const isInTurkey = lat >= 36 && lat <= 42 && lng >= 26 && lng <= 45;
-            const method = isInTurkey ? 13 : 3;
+            const countryCode = localStorage.getItem('cached_country_code');
+            const isTurkishLocation = isInTurkey || countryCode === 'tr';
 
             // Fetch calendar data for accurate per-day prayer times
-            // Use calendar API to get the whole month in one call
             let calendarData = {};
+            let useDiyanetFormat = false;
             try {
+                // ── Try Diyanet first for Turkey ──
+                const district = localStorage.getItem('cached_district');
+                if (isTurkishLocation && district) {
+                    const locationId = await resolveDiyanetLocationId(district);
+                    if (locationId) {
+                        const res = await axios.get(`${DIYANET_API}/prayertimes`, {
+                            params: { location_id: locationId },
+                            timeout: 5000,
+                        });
+                        const days = res.data || [];
+                        if (days.length > 0) {
+                            useDiyanetFormat = true;
+                            days.forEach(d => {
+                                if (!d.date) return;
+                                const dateObj = new Date(d.date);
+                                const dd = String(dateObj.getDate()).padStart(2, '0');
+                                const mm = String(dateObj.getMonth() + 1).padStart(2, '0');
+                                const yyyy = dateObj.getFullYear();
+                                const dateKey = `${dd}-${mm}-${yyyy}`;
+                                // Map to Aladhan-compatible structure
+                                calendarData[dateKey] = {
+                                    Fajr: d.fajr,
+                                    Sunrise: d.sun,
+                                    Dhuhr: d.dhuhr,
+                                    Asr: d.asr,
+                                    Maghrib: d.maghrib,
+                                    Isha: d.isha,
+                                };
+                            });
+                        }
+                    }
+                }
+
+                // ── Supplement missing dates (Diyanet only returns current month) ──
+                // Check if all 12 days are covered — if not, fill gaps with Aladhan
                 const today = new Date();
-                const year = today.getFullYear();
-                const month = today.getMonth() + 1;
+                let hasMissingDays = false;
+                for (let d = 0; d < MAX_PRAYER_DAYS; d++) {
+                    const checkDate = new Date(today);
+                    checkDate.setDate(checkDate.getDate() + d);
+                    const dd = String(checkDate.getDate()).padStart(2, '0');
+                    const mm = String(checkDate.getMonth() + 1).padStart(2, '0');
+                    const yyyy = checkDate.getFullYear();
+                    if (!calendarData[`${dd}-${mm}-${yyyy}`]) {
+                        hasMissingDays = true;
+                        break;
+                    }
+                }
 
-                const res = await axios.get(`https://api.aladhan.com/v1/calendar/${year}/${month}`, {
-                    params: { latitude: lat, longitude: lng, method }
-                });
-                const days = res.data?.data || [];
-                days.forEach(d => {
-                    const dateKey = d.date?.gregorian?.date; // "DD-MM-YYYY"
-                    if (dateKey) calendarData[dateKey] = d.timings;
-                });
+                if (hasMissingDays) {
+                    // Fetch Aladhan calendar for the missing month(s)
+                    const method = isTurkishLocation ? 13 : 3;
+                    const monthsToFetch = new Set();
+                    for (let d = 0; d < MAX_PRAYER_DAYS; d++) {
+                        const checkDate = new Date(today);
+                        checkDate.setDate(checkDate.getDate() + d);
+                        monthsToFetch.add(`${checkDate.getFullYear()}-${checkDate.getMonth() + 1}`);
+                    }
 
-                // If 12-day window spans into next month, fetch that too
-                const lastDay = new Date(today);
-                lastDay.setDate(lastDay.getDate() + MAX_PRAYER_DAYS - 1);
-                if (lastDay.getMonth() + 1 !== month) {
-                    const nextMonth = lastDay.getMonth() + 1;
-                    const nextYear = lastDay.getFullYear();
-                    const res2 = await axios.get(`https://api.aladhan.com/v1/calendar/${nextYear}/${nextMonth}`, {
+                    for (const ym of monthsToFetch) {
+                        const [y, m] = ym.split('-').map(Number);
+                        try {
+                            const res = await axios.get(`https://api.aladhan.com/v1/calendar/${y}/${m}`, {
+                                params: { latitude: lat, longitude: lng, method }
+                            });
+                            const days = res.data?.data || [];
+                            days.forEach(d => {
+                                const dateKey = d.date?.gregorian?.date;
+                                // Only fill gaps — don't overwrite Diyanet data
+                                if (dateKey && !calendarData[dateKey]) {
+                                    calendarData[dateKey] = d.timings;
+                                }
+                            });
+                        } catch (e2) {
+                            console.warn(`Aladhan calendar ${y}/${m} failed`, e2);
+                        }
+                    }
+                }
+
+                // ── Full Aladhan fallback (no Diyanet data at all) ──
+                if (Object.keys(calendarData).length === 0) {
+                    const year = today.getFullYear();
+                    const month = today.getMonth() + 1;
+                    const method = isTurkishLocation ? 13 : 3;
+
+                    const res = await axios.get(`https://api.aladhan.com/v1/calendar/${year}/${month}`, {
                         params: { latitude: lat, longitude: lng, method }
                     });
-                    const days2 = res2.data?.data || [];
-                    days2.forEach(d => {
+                    const days = res.data?.data || [];
+                    days.forEach(d => {
                         const dateKey = d.date?.gregorian?.date;
                         if (dateKey) calendarData[dateKey] = d.timings;
                     });
+
+                    // If 12-day window spans into next month, fetch that too
+                    const lastDay = new Date(today);
+                    lastDay.setDate(lastDay.getDate() + MAX_PRAYER_DAYS - 1);
+                    if (lastDay.getMonth() + 1 !== month) {
+                        const nextMonth = lastDay.getMonth() + 1;
+                        const nextYear = lastDay.getFullYear();
+                        const res2 = await axios.get(`https://api.aladhan.com/v1/calendar/${nextYear}/${nextMonth}`, {
+                            params: { latitude: lat, longitude: lng, method }
+                        });
+                        const days2 = res2.data?.data || [];
+                        days2.forEach(d => {
+                            const dateKey = d.date?.gregorian?.date;
+                            if (dateKey) calendarData[dateKey] = d.timings;
+                        });
+                    }
                 }
             } catch (e) {
                 console.warn('Calendar API failed, using today\'s times as fallback', e);

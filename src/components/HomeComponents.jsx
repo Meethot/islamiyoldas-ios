@@ -1413,7 +1413,7 @@ export const PrayerCountdownWidget = memo(({ loading, city, nextPrayerInfo, pray
         <>
             <motion.div variants={itemVariants}>
                 <Card
-                    className="glass-panel border-none text-black dark:text-white overflow-hidden relative cursor-pointer active:scale-[0.98] transition-transform"
+                    className="glass-panel border-none rounded-[2.5rem] text-black dark:text-white overflow-hidden relative cursor-pointer active:scale-[0.98] transition-transform"
                     onClick={handleCardClick}
                 >
                     <CardContent className="p-0">

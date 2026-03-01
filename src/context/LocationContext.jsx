@@ -45,14 +45,22 @@ export function LocationProvider({ children }) {
     const getReverseGeocode = useCallback(async (lat, lon) => {
         try {
             const response = await fetch(
-                `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=10&addressdetails=1`,
+                `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=12&addressdetails=1`,
                 { headers: { 'Accept-Language': 'tr' } }
             );
             const data = await response.json();
-            const city = data.address.province || data.address.city || data.address.town || data.address.village || data.address.suburb;
+            const addr = data.address || {};
+            const city = addr.province || addr.city || addr.town || addr.village || addr.suburb;
+            // District/ilçe: town > county > suburb (for Diyanet lookup)
+            const district = addr.town || addr.county || addr.suburb || null;
+            const countryCode = addr.country_code || null;
+
             setAddress(city);
             localStorage.setItem('cached_address', city);
-            return city;
+            if (district) localStorage.setItem('cached_district', district);
+            if (countryCode) localStorage.setItem('cached_country_code', countryCode);
+
+            return { city, district, countryCode };
         } catch (err) {
             console.error('Reverse geocode error:', err);
             return null;
@@ -207,7 +215,9 @@ export function LocationProvider({ children }) {
         latitude: location?.latitude || null,
         longitude: location?.longitude || null,
         hasLocation: !!location,
-        cityName: address || 'İstanbul'
+        cityName: address || 'İstanbul',
+        districtName: localStorage.getItem('cached_district') || null,
+        countryCode: localStorage.getItem('cached_country_code') || null,
     };
 
     return (

@@ -34,8 +34,14 @@ export function usePrayers() {
             return cleanTime;
         };
 
+        // Turkish & Azerbaijani convention: İmsak (fasting start time)
+        // International convention: Fajr (dawn prayer time)
+        const lang = (i18n.language || 'en').split('-')[0];
+        const useImsak = lang === 'tr' || lang === 'az';
+        const firstPrayerTime = useImsak ? rawTimes.Imsak : rawTimes.Fajr;
+
         return [
-            { id: 'fajr', name: t('prayer.fajr'), time: formatTime(rawTimes.Fajr), icon: Moon },
+            { id: 'fajr', name: t('prayer.fajr'), time: formatTime(firstPrayerTime), icon: Moon },
             { id: 'sunrise', name: t('prayer.sunrise'), time: formatTime(rawTimes.Sunrise), icon: Sunrise },
             { id: 'dhuhr', name: t('prayer.dhuhr'), time: formatTime(rawTimes.Dhuhr), icon: Sun },
             { id: 'asr', name: t('prayer.asr'), time: formatTime(rawTimes.Asr), icon: Sun },

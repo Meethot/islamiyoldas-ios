@@ -360,6 +360,8 @@ export default function Home() {
                 onShare={handleShare}
             />
 
+            <PrayerCountdownWidget loading={loadingPrayers} city={city} nextPrayerInfo={nextPrayerInfo} prayerTimes={prayerTimes} />
+
             {isPremium() ? (
                 <DailyDeedCard
                     revealed={deedRevealed}
@@ -393,17 +395,6 @@ export default function Home() {
                     </Card>
                 </motion.div>
             )}
-
-            <EsmaUlHusnaWidget
-                esmaList={ESMA_UL_HUSNA}
-                onSelect={openEsma}
-                onShowAll={handleShowAllEsma}
-            />
-
-
-
-            <PrayerCountdownWidget loading={loadingPrayers} city={city} nextPrayerInfo={nextPrayerInfo} prayerTimes={prayerTimes} />
-
 
 
             <motion.div variants={itemVariants} className="grid grid-cols-3 gap-2">
@@ -459,6 +450,12 @@ export default function Home() {
                     <ChevronRight size={16} className="text-islamic-gold group-hover:translate-x-1 transition-transform relative z-10" />
                 </div>
             </motion.div>
+
+            <EsmaUlHusnaWidget
+                esmaList={ESMA_UL_HUSNA}
+                onSelect={openEsma}
+                onShowAll={handleShowAllEsma}
+            />
 
             <ReligiousCalendarWidget days={RELIGIOUS_DAYS} />
 

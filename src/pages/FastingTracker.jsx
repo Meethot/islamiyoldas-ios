@@ -413,8 +413,8 @@ export default function FastingTracker() {
     });
 
     const imsakTime = useMemo(() => {
-        if (!rawTimes?.Fajr) return null;
-        const cleanTime = rawTimes.Fajr.split(' ')[0];
+        if (!rawTimes?.Imsak) return null;
+        const cleanTime = rawTimes.Imsak.split(' ')[0];
         const [h, m] = cleanTime.split(':').map(Number);
         if (isNaN(h) || isNaN(m)) return null;
         return { hours: h, minutes: m, display: cleanTime };
