@@ -2,7 +2,7 @@ import { Capacitor } from '@capacitor/core';
 import { AdMob, RewardAdPluginEvents, InterstitialAdPluginEvents, AdmobConsentStatus } from '@capacitor-community/admob';
 
 // 🔴 Reklamlar şu an kapalı — aktif etmek için true yap
-export const ADS_ENABLED = false;
+export const ADS_ENABLED = true;
 
 const IS_NATIVE = Capacitor.isNativePlatform();
 
@@ -25,8 +25,8 @@ export async function initAdMob() {
 
     try {
         await AdMob.initialize({
-            // ⚠️ Production'a geçerken false yap
-            initializeForTesting: true,
+            // Production'a geçerken false yapıldı
+            initializeForTesting: false,
         });
 
         const consentInfo = await AdMob.requestConsentInfo();
@@ -84,8 +84,8 @@ export async function showRewardedAd() {
         try {
             await AdMob.prepareRewardVideoAd({
                 adId,
-                // ⚠️ Production'a geçerken false yap
-                isTesting: true,
+                // Production'a geçerken false yapıldı
+                isTesting: false,
                 ssv: { userId: 'user', customData: 'aminKumbara' },
             });
             await AdMob.showRewardVideoAd();
@@ -132,8 +132,8 @@ export async function showInterstitialAd() {
         try {
             await AdMob.prepareInterstitial({
                 adId,
-                // ⚠️ Production'a geçerken false yap
-                isTesting: true,
+                // Production'a geçerken false yapıldı
+                isTesting: false,
             });
             await AdMob.showInterstitial();
         } catch {

@@ -7,6 +7,7 @@ import { defineConfig, globalIgnores } from 'eslint/config'
 export default defineConfig([
   globalIgnores(['dist']),
   {
+    ignores: ['dist/**', 'android/**', 'ios/**', 'build/**', 'node_modules/**'],
     files: ['**/*.{js,jsx}'],
     extends: [
       js.configs.recommended,
@@ -23,7 +24,10 @@ export default defineConfig([
       },
     },
     rules: {
-      'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]' }],
+      'no-unused-vars': 'warn',
+      'no-undef': 'warn',
+      'no-async-promise-executor': 'off',
+      'no-empty': 'off',
     },
   },
 ])

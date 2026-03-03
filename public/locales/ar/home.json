@@ -66,6 +66,12 @@
     "theme_select": "اختر المظهر",
     "share_image": "مشاركة الصورة",
     "sharing": "جارٍ المشاركة...",
+    "alarm_too_close": "الوقت قريب جداً، لا يمكن ضبط المنبه.",
+    "sound_on": "الصوت: مفعّل",
+    "sound_off": "الصوت: مغلق",
+    "haptics_every": "الاهتزاز: عند كل نقرة",
+    "haptics_target": "الاهتزاز: عند الهدف فقط",
+    "haptics_off": "الاهتزاز: مغلق",
     "close": "إغلاق",
     "reset": "إعادة تعيين",
     "quick_actions": {

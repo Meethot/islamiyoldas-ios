@@ -85,7 +85,7 @@
         "email_description_prompt": "Description (briefly describe what you were doing):"
     },
     "premium": {
-        "headline": "Remove the Limits on Your Spiritual Journey",
+        "headline": "Remove Boundaries in Your Islamic Journey",
         "subheadline": "Join our Premium family for uninterrupted peace, unlimited worship tracking and exclusive guidance.",
         "stars": "stars",
         "reviews": "reviews",
@@ -112,6 +112,8 @@
         "year": "year",
         "daily_monthly": "Only ₺4.17 / day",
         "daily_yearly": "🔥 Only ₺2.68 / day",
+        "daily_label": "Only {{price}} / day",
+        "monthly_label": "{{price}} / month",
         "cta_trial": "START FREE NOW",
         "cta_subscribe": "BEGIN YOUR JOURNEY",
         "disclaimer_yearly": "Try 3 days free. Subscription auto-renews at ₺979.99/year after trial ends. Cancel anytime.",
@@ -120,7 +122,7 @@
         "terms": "Terms of Service",
         "privacy": "Privacy Policy",
         "social_proof": "{{count}} people joined Premium this month",
-        "exit_title": "Don't Give Up Your Journey",
+        "exit_title": "Don't Give Up on Your Islamic Journey",
         "exit_message": "Without Premium, you'll lose access to:",
         "exit_loss_1": "All premium Tafakkur & Murakaba content",
         "exit_loss_2": "Quran listening & peaceful sleep mode",
@@ -133,6 +135,20 @@
         "success_feat_1": "Spiritual Assistant & Murakabe",
         "success_feat_2": "Quran Listening & Sleep Mode",
         "success_feat_3": "Unlimited Dhikr Goals",
-        "success_feat_4": "All Premium Content"
+        "success_feat_4": "All Premium Content",
+        "iap_processing": "Processing payment...",
+        "iap_wait": "Please wait, opening store",
+        "iap_timeout": "Transaction timed out. Please try again.",
+        "iap_error_network": "Check your internet connection and try again.",
+        "iap_error_declined": "Payment declined. Please check your payment method.",
+        "iap_error_restricted": "Purchases are restricted. Check Settings > Screen Time.",
+        "iap_error_unavailable": "This product is currently unavailable. Please try later.",
+        "iap_error_generic": "Something went wrong. Please try again.",
+        "iap_restore_empty": "No active subscription found.",
+        "iap_restore_failed": "Restore failed. Please try again.",
+        "iap_restore_success": "Purchases restored successfully.",
+        "premium_member": "Premium Member",
+        "exit_journey": "Your spiritual journey",
+        "exit_reach_100": "Reach 100% with Premium"
     }
 }

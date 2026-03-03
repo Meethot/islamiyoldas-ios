@@ -15,7 +15,7 @@
     "surahName": "سورة {{name}}",
     "listeningTo": "الاستماع لسورة {{name}}",
     "bgTitle": "الرفيق الإسلامي",
-    "audioNote": "الصوت: [اختيار القارئ من API]",
+    "audioNote": "الصوت: اختيار القارئ من API",
     "apiNote": "💡 سيتم تحميل محتوى الآيات من الخادم",
     "revelation": {
         "makkah": "مكّية",

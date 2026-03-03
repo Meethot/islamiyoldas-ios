@@ -12,6 +12,7 @@ import { LocalNotifications } from '@capacitor/local-notifications';
 import { initAdMob } from './services/adService';
 import { isPremium } from './services/creditService';
 import { initCrashlytics, logPageView } from './services/crashService';
+import { initOneSignal } from './services/pushService';
 
 import ScrollToTop from './components/ScrollToTop';
 import SwipeBackHandler from './components/SwipeBackHandler';
@@ -85,6 +86,16 @@ function AppContent() {
 
   // Crashlytics init
   useEffect(() => { initCrashlytics(); }, []);
+
+  // OneSignal init
+  useEffect(() => { initOneSignal(); }, []);
+
+  // IAP init — sets up transaction listeners + verifies subscription
+  useEffect(() => {
+    import('@/services/purchaseService').then(({ initializePurchases }) => {
+      initializePurchases();
+    }).catch(() => { });
+  }, []);
 
   // Dismiss ezan notifications when app comes to foreground
   useEffect(() => {

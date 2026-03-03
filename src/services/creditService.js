@@ -42,4 +42,19 @@ export function isPremium() {
 
 export function setPremium(value) {
     localStorage.setItem(STORAGE_KEYS.PREMIUM, value ? 'true' : 'false');
+    window.dispatchEvent(new Event('premiumStatusChanged'));
+}
+
+/**
+ * Verify premium status with the native store (StoreKit / Google Play).
+ * Updates localStorage cache and returns the verified result.
+ * Falls back to cached localStorage value on web or error.
+ */
+export async function verifyPremiumStatus() {
+    try {
+        const { verifySubscription } = await import('./purchaseService');
+        return await verifySubscription();
+    } catch {
+        return isPremium();
+    }
 }

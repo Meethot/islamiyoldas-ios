@@ -85,7 +85,7 @@
         "email_description_prompt": "Açıklama (ne yaptığınızı kısaca yazın):"
     },
     "premium": {
-        "headline": "Manevi Yolculuğunda Sınırları Kaldır",
+        "headline": "İslami Yolculuğunda Sınırları Kaldır",
         "subheadline": "Kesintisiz huzur, sınırsız ibadet takibi ve özel rehberlik için Premium ailemize katılın.",
         "stars": "yıldız",
         "reviews": "puan",
@@ -112,6 +112,8 @@
         "year": "yıl",
         "daily_monthly": "Günlük sadece ₺4,17",
         "daily_yearly": "🔥 Günlük sadece ₺2,68",
+        "daily_label": "Günlük sadece {{price}}",
+        "monthly_label": "Aylık {{price}}",
         "cta_trial": "HEMEN ÜCRETSİZ BAŞLA",
         "cta_subscribe": "MANEVİ YOLCULUĞA BAŞLA",
         "disclaimer_yearly": "3 gün ücretsiz deneyin. Deneme sonunda abonelik otomatik olarak ₺979,99/yıl üzerinden yenilenir. İstediğiniz zaman iptal edebilirsiniz.",
@@ -120,7 +122,7 @@
         "terms": "Kullanım Koşulları",
         "privacy": "Gizlilik Politikası",
         "social_proof": "Bu ay {{count}} kişi Premium ailemize katıldı",
-        "exit_title": "Manevi Yolculuğundan Vazgeçme",
+        "exit_title": "İslami Yolculuğundan Vazgeçme",
         "exit_message": "Premium olmadan bu özelliklere erişimini kaybedeceksin:",
         "exit_loss_1": "Tüm premium Tefekkür ve Murakabe içerikleri",
         "exit_loss_2": "Kur'an dinleme ve huzurlu uyku modu",
@@ -133,6 +135,20 @@
         "success_feat_1": "Manevi Asistan & Murakabe",
         "success_feat_2": "Kur'an Dinleme & Uyku Modu",
         "success_feat_3": "Sınırsız Zikir Hedefleri",
-        "success_feat_4": "Tüm Premium İçerikler"
+        "success_feat_4": "Tüm Premium İçerikler",
+        "iap_processing": "Ödeme işleniyor...",
+        "iap_wait": "Lütfen bekleyin, mağaza açılıyor",
+        "iap_timeout": "İşlem zaman aşımına uğradı. Lütfen tekrar deneyin.",
+        "iap_error_network": "İnternet bağlantınızı kontrol edin ve tekrar deneyin.",
+        "iap_error_declined": "Ödeme reddedildi. Ödeme yönteminizi kontrol edin.",
+        "iap_error_restricted": "Satın alma kısıtlanmış. Ayarlar > Ekran Süresi bölümünü kontrol edin.",
+        "iap_error_unavailable": "Bu ürün şu an kullanılamıyor. Lütfen daha sonra deneyin.",
+        "iap_error_generic": "Bir hata oluştu. Lütfen tekrar deneyin.",
+        "iap_restore_empty": "Aktif abonelik bulunamadı.",
+        "iap_restore_failed": "Geri yükleme başarısız. Tekrar deneyin.",
+        "iap_restore_success": "Satın alımlarınız başarıyla yüklendi.",
+        "premium_member": "Premium Üye",
+        "exit_journey": "Manevi yolculuğun",
+        "exit_reach_100": "Premium ile %100'e ulaş"
     }
 }

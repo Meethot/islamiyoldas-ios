@@ -38,5 +38,12 @@
     "shareApp": "Share App",
     "contactUs": "Contact Us",
     "appName": "Islamic Companion v1.0.0",
-    "appSlogan": "Together on the Spiritual Path"
+    "appSlogan": "Together on the Spiritual Path",
+    "legal": {
+        "terms_title": "Terms of Use",
+        "terms_desc": "Service terms and usage rules",
+        "privacy_title": "Privacy Policy",
+        "privacy_desc": "How we protect your data",
+        "footer_note": "For questions, email us at support@islamiyoldas.com."
+    }
 }

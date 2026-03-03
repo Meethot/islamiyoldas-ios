@@ -66,6 +66,12 @@
     "theme_select": "Thema auswählen",
     "share_image": "Foto teilen",
     "sharing": "Wird geteilt...",
+    "alarm_too_close": "Zu wenig Zeit bis zum Gebet, Alarm kann nicht gesetzt werden.",
+    "sound_on": "Ton: Ein",
+    "sound_off": "Ton: Aus",
+    "haptics_every": "Vibration: Bei jedem Tippen",
+    "haptics_target": "Vibration: Nur bei Ziel",
+    "haptics_off": "Vibration: Aus",
     "close": "Schließen",
     "reset": "Zurücksetzen",
     "quick_actions": {

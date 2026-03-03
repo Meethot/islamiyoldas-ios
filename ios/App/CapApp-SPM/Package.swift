@@ -24,7 +24,9 @@ let package = Package(
         .package(name: "CapacitorShare", path: "../../../node_modules/@capacitor/share"),
         .package(name: "CapacitorStatusBar", path: "../../../node_modules/@capacitor/status-bar"),
         .package(name: "CapgoCapacitorCompass", path: "../../../node_modules/@capgo/capacitor-compass"),
-        .package(name: "CordovaPluginDevice", path: "../../capacitor-cordova-ios-plugins/sources/CordovaPluginDevice")
+        .package(name: "CapgoNativePurchases", path: "../../../node_modules/@capgo/native-purchases"),
+        .package(name: "CordovaPluginDevice", path: "../../capacitor-cordova-ios-plugins/sources/CordovaPluginDevice"),
+        .package(name: "OnesignalCordovaPlugin", path: "../../capacitor-cordova-ios-plugins/sources/OnesignalCordovaPlugin")
     ],
     targets: [
         .target(
@@ -44,7 +46,9 @@ let package = Package(
                 .product(name: "CapacitorShare", package: "CapacitorShare"),
                 .product(name: "CapacitorStatusBar", package: "CapacitorStatusBar"),
                 .product(name: "CapgoCapacitorCompass", package: "CapgoCapacitorCompass"),
-                .product(name: "CordovaPluginDevice", package: "CordovaPluginDevice")
+                .product(name: "CapgoNativePurchases", package: "CapgoNativePurchases"),
+                .product(name: "CordovaPluginDevice", package: "CordovaPluginDevice"),
+                .product(name: "OnesignalCordovaPlugin", package: "OnesignalCordovaPlugin")
             ]
         )
     ]

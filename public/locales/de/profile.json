@@ -6,7 +6,7 @@
     },
     "premium": {
         "banner_title": "Premium werden",
-        "banner_desc": "Werbefreies Erlebnis und detaillierte Statistiken."
+        "banner_desc": "Erlebe deine islamische Reise ungestört, schalte alle Premium-Funktionen frei."
     },
     "personal_settings": "Persönliche Einstellungen",
     "general_settings": "Allgemeine Einstellungen",
@@ -89,5 +89,8 @@
     },
     "avatar_modal_title": "Profilfoto auswählen",
     "app_name": "Islamischer Begleiter",
-    "version": "Version 2.1.0 (Pro Max)"
+    "version": "Version 2.1.0 (Pro Max)",
+    "theme_select_title": "Thema auswählen",
+    "fill_dates": "Bitte füllen Sie die Daten aus",
+    "calc_complete": "Berechnung abgeschlossen."
 }

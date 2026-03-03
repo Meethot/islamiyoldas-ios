@@ -15,7 +15,7 @@
     "surahName": "Сура {{name}}",
     "listeningTo": "Слушаю суру {{name}}",
     "bgTitle": "Исламский Спутник",
-    "audioNote": "Аудио: [Выбор чтеца из API]",
+    "audioNote": "Аудио: Выбор чтеца из API",
     "apiNote": "💡 Текст аятов будет загружен из API",
     "revelation": {
         "makkah": "Мекка",

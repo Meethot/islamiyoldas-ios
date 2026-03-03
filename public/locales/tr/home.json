@@ -67,6 +67,12 @@
     "share_image": "Fotoğrafı Paylaş",
     "sharing": "Paylaşılıyor...",
     "close": "Kapat",
+    "alarm_too_close": "Vakte çok az kalmış, bu süre için alarm kurulamaz.",
+    "sound_on": "Ses: Açık",
+    "sound_off": "Ses: Kapalı",
+    "haptics_every": "Titreşim: Her Tıklamada",
+    "haptics_target": "Titreşim: Sadece Hedefte",
+    "haptics_off": "Titreşim: Kapalı",
     "reset": "Sıfırla",
     "quick_actions": {
         "dhikr": {

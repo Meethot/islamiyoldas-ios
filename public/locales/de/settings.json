@@ -38,5 +38,12 @@
     "shareApp": "App teilen",
     "contactUs": "Kontakt",
     "appName": "Islamischer Begleiter v1.0.0",
-    "appSlogan": "Gemeinsam auf dem spirituellen Weg"
+    "appSlogan": "Gemeinsam auf dem spirituellen Weg",
+    "legal": {
+        "terms_title": "Nutzungsbedingungen",
+        "terms_desc": "Servicebedingungen und Nutzungsregeln",
+        "privacy_title": "Datenschutzrichtlinie",
+        "privacy_desc": "Wie wir Ihre Daten schützen",
+        "footer_note": "Bei Fragen schreiben Sie uns an support@islamiyoldas.com."
+    }
 }

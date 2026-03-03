@@ -6,7 +6,7 @@
     },
     "premium": {
         "banner_title": "Premiuma Keç",
-        "banner_desc": "Reklamsız təcrübə və ətraflı statistikalar."
+        "banner_desc": "İslami səyahətini kəsintisiz yaşa, bütün Premium xüsusiyyətləri kəşf et."
     },
     "personal_settings": "Şəxsi Tənzimləmələr",
     "general_settings": "Ümumi Tənzimləmələr",
@@ -89,5 +89,8 @@
     },
     "avatar_modal_title": "Profil Şəkli Seç",
     "app_name": "İslami Yoldaş",
-    "version": "Versiya 2.1.0 (Pro Max)"
+    "version": "Versiya 2.1.0 (Pro Max)",
+    "theme_select_title": "Tema Seçin",
+    "fill_dates": "Tarixləri doldurun",
+    "calc_complete": "Hesablama tamamlandı."
 }

@@ -15,7 +15,7 @@
     "surahName": "Surah {{name}}",
     "listeningTo": "Listening to Surah {{name}}",
     "bgTitle": "Islamic Companion",
-    "audioNote": "Audio: [Reciter selection coming from API]",
+    "audioNote": "Audio: Reciter selection coming from API",
     "apiNote": "💡 Verse content will be loaded from API",
     "revelation": {
         "makkah": "Makkah",

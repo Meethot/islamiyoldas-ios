@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Crown, Star, BookOpen, Users, Check, Sparkles } from 'lucide-react';
+import { X, Crown, Star, BookOpen, Users, Check, Sparkles, Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useHaptics } from '@/hooks/useMobile';
 import { setPremium } from '@/services/creditService';
+import { getProducts, purchaseProduct, restorePurchases, PRODUCT_IDS } from '@/services/purchaseService';
 
 // ─── Gold Dust Particles (Canvas) ────────────────────────
 function GoldParticles() {
@@ -69,7 +70,7 @@ function GoldParticles() {
 // ─── Premium Hero Visual (Enhanced Crescent + Geometric Arcs) ─────
 function PremiumHeroVisual() {
     return (
-        <div className="relative w-[140px] h-[140px] mx-auto">
+        <div className="relative w-[110px] h-[110px] mx-auto">
             {/* Layer 1: Deep ambient glow — outermost, softest */}
             <div className="absolute inset-[-40%] pointer-events-none" style={{
                 background: 'radial-gradient(circle at 50% 45%, rgba(212,175,55,0.08) 0%, rgba(212,175,55,0.02) 40%, transparent 65%)',
@@ -275,16 +276,62 @@ export default function PremiumPaywall() {
     const [swipeDir, setSwipeDir] = useState(1);
     const [showExitPopup, setShowExitPopup] = useState(false);
     const [showSuccess, setShowSuccess] = useState(false);
-
-    const socialCount = useMemo(() => {
-        const today = new Date().toISOString().slice(0, 10);
-        let hash = 0;
-        for (let i = 0; i < today.length; i++) hash = ((hash << 5) - hash) + today.charCodeAt(i);
-        return 2000 + Math.abs(hash % 1200);
-    }, []);
+    const [isLoading, setIsLoading] = useState(false);
+    const [isRestoring, setIsRestoring] = useState(false);
+    const [products, setProducts] = useState([]);
+    const [toast, setToast] = useState(null); // { type: 'error'|'info', message }
 
     const lang = i18n.language?.split('-')[0] || 'en';
     const reviews = REVIEWS[lang] || REVIEWS.en;
+
+    // Auto-dismiss toast after 4 seconds
+    useEffect(() => {
+        if (!toast) return;
+        const timer = setTimeout(() => setToast(null), 4000);
+        return () => clearTimeout(timer);
+    }, [toast]);
+
+    // Fetch real product prices from the store on mount
+    useEffect(() => {
+        getProducts().then(p => {
+            if (p.length > 0) setProducts(p);
+        });
+    }, []);
+
+    // Helper to get the store price for a product
+    const getPrice = useCallback((productId) => {
+        const product = products.find(p => p.identifier === productId);
+        return product?.priceString || null;
+    }, [products]);
+
+    // Format a numeric price with the product's currency using Intl.NumberFormat
+    const formatPrice = useCallback((amount, currencyCode) => {
+        try {
+            return new Intl.NumberFormat(i18n.language || 'en', {
+                style: 'currency',
+                currency: currencyCode,
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+            }).format(amount);
+        } catch {
+            return `${amount.toFixed(2)}`;
+        }
+    }, [i18n.language]);
+
+    // Calculate daily price: monthly÷30, yearly÷365
+    const getDailyPrice = useCallback((productId) => {
+        const product = products.find(p => p.identifier === productId);
+        if (!product?.price || !product?.currencyCode) return null;
+        const divisor = productId === PRODUCT_IDS.YEARLY ? 365 : 30;
+        return formatPrice(product.price / divisor, product.currencyCode);
+    }, [products, formatPrice]);
+
+    // Calculate monthly equivalent of yearly price: yearly÷12
+    const getMonthlyEquivalent = useCallback(() => {
+        const product = products.find(p => p.identifier === PRODUCT_IDS.YEARLY);
+        if (!product?.price || !product?.currencyCode) return null;
+        return formatPrice(product.price / 12, product.currencyCode);
+    }, [products, formatPrice]);
 
     useEffect(() => {
         let autoTimer;
@@ -303,11 +350,96 @@ export default function PremiumPaywall() {
         navigate('/');
     }, [navigate, showExitPopup]);
 
-    const handleSubscribe = useCallback(() => {
-        success();
-        setPremium(true);
-        setShowSuccess(true);
-    }, [success]);
+    // Map error codes to user-friendly messages
+    const getErrorMessage = useCallback((error) => {
+        if (!error || error === 'cancelled') return null;
+        const msg = error.toLowerCase();
+        if (msg.includes('network') || msg.includes('timeout') || msg.includes('internet') || msg.includes('connection'))
+            return t('premium.iap_error_network');
+        if (msg.includes('declined') || msg.includes('payment'))
+            return t('premium.iap_error_declined');
+        if (msg.includes('not allowed') || msg.includes('restriction') || msg.includes('parental'))
+            return t('premium.iap_error_restricted');
+        if (msg.includes('not available') || msg.includes('unavailable'))
+            return t('premium.iap_error_unavailable');
+        return t('premium.iap_error_generic');
+    }, [t]);
+
+    const handleSubscribe = useCallback(async () => {
+        if (isLoading) return;
+        setIsLoading(true);
+        setToast(null);
+
+        // 30-second timeout
+        const timeoutId = setTimeout(() => {
+            setIsLoading(false);
+            setToast({ type: 'error', message: t('premium.iap_timeout') });
+        }, 30000);
+
+        try {
+            const productId = selectedPlan === 'yearly' ? PRODUCT_IDS.YEARLY : PRODUCT_IDS.MONTHLY;
+            const result = await purchaseProduct(productId);
+            clearTimeout(timeoutId);
+            if (result.success) {
+                success();
+                setPremium(true);
+                setShowSuccess(true);
+            } else if (result.error && result.error !== 'cancelled') {
+                const msg = getErrorMessage(result.error);
+                if (msg) setToast({ type: 'error', message: msg });
+            }
+            // cancelled = silently close, no message
+        } catch (err) {
+            clearTimeout(timeoutId);
+            setToast({ type: 'error', message: t('premium.iap_error_generic') });
+        } finally {
+            setIsLoading(false);
+        }
+    }, [isLoading, selectedPlan, success, t, getErrorMessage]);
+
+    const handleRestore = useCallback(async () => {
+        if (isRestoring) return;
+        setIsRestoring(true);
+        setToast(null);
+
+        // Fail-safe 30s timeout
+        let timeoutFired = false;
+        const timeoutId = setTimeout(() => {
+            timeoutFired = true;
+            setIsRestoring(false);
+            setToast({ type: 'error', message: t('premium.iap_timeout', 'İşlem zaman aşımına uğradı. Lütfen tekrar deneyin.') });
+            setTimeout(() => setToast(null), 4000);
+        }, 30000);
+
+        try {
+            const result = await restorePurchases();
+
+            // If the timeout already fired, ignore the result to prevent race conditions
+            if (timeoutFired) return;
+            clearTimeout(timeoutId);
+
+            if (result.isPremium) {
+                success();
+                setPremium(true);
+                setToast({ type: 'success', message: t('premium.iap_restore_success', 'Satın alımlarınız başarıyla yüklendi.') });
+                setTimeout(() => {
+                    setShowSuccess(true);
+                }, 1500); // Show success message briefly before closing the paywall
+            } else {
+                setToast({ type: 'info', message: t('premium.iap_restore_empty', 'Geri yüklenecek satın alım bulunamadı.') });
+            }
+        } catch (err) {
+            if (timeoutFired) return;
+            clearTimeout(timeoutId);
+            setToast({ type: 'error', message: t('premium.iap_restore_failed', 'Geri yükleme işlemi başarısız oldu. Lütfen tekrar deneyin.') });
+        } finally {
+            if (!timeoutFired) {
+                setIsRestoring(false);
+                // Auto hide toast after 4s
+                setTimeout(() => setToast(null), 4000);
+            }
+        }
+    }, [isRestoring, success, t]);
 
     const review = reviews[reviewIdx];
 
@@ -315,6 +447,52 @@ export default function PremiumPaywall() {
         <>
             <style>{css}</style>
             <GoldParticles />
+
+            {/* ── Full-screen Loading Overlay (during native purchase) ── */}
+            <AnimatePresence>
+                {isLoading && (
+                    <motion.div
+                        className="fixed inset-0 z-[200] flex flex-col items-center justify-center bg-black/80 backdrop-blur-sm"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                    >
+                        <div className="relative w-16 h-16 mb-4">
+                            <div className="absolute inset-0 rounded-full border-2 border-[#D4AF37]/20" />
+                            <div className="absolute inset-0 rounded-full border-2 border-transparent border-t-[#D4AF37] animate-spin" />
+                            <svg className="absolute inset-0 m-auto text-[#D4AF37]" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12 2a9.93 9.93 0 0 0-3.12.51A10 10 0 0 1 12.88 22 10 10 0 0 0 12 2z" />
+                            </svg>
+                        </div>
+                        <p className="text-white/90 font-semibold text-base">{t('premium.iap_processing')}</p>
+                        <p className="text-white/40 text-xs mt-2">{t('premium.iap_wait')}</p>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* ── Toast Notification ── */}
+            <AnimatePresence>
+                {toast && (
+                    <motion.div
+                        className={`fixed top-12 left-4 right-4 z-[210] px-4 py-3 rounded-2xl backdrop-blur-xl border shadow-xl flex items-start gap-3 ${toast.type === 'error'
+                            ? 'bg-red-500/15 border-red-500/20 text-red-200'
+                            : toast.type === 'success' ? 'bg-green-500/15 border-green-500/20 text-green-200' : 'bg-white/10 border-white/15 text-white/80'
+                            }`}
+                        initial={{ opacity: 0, y: -20, scale: 0.95 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                        transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+                    >
+                        <span className="text-lg mt-0.5">{toast.type === 'error' ? '⚠️' : toast.type === 'success' ? '✅' : 'ℹ️'}</span>
+                        <div className="flex-1">
+                            <p className="text-[13px] leading-snug">{toast.message}</p>
+                        </div>
+                        <button onClick={() => setToast(null)} className="text-white/30 hover:text-white/60 transition-colors mt-0.5">
+                            <X size={16} />
+                        </button>
+                    </motion.div>
+                )}
+            </AnimatePresence>
 
             <div
                 className="absolute inset-0 z-50 flex flex-col"
@@ -350,11 +528,11 @@ export default function PremiumPaywall() {
                 </motion.button>
 
                 {/* ═══ CONTENT ═══ */}
-                <div className="relative z-10 flex-1 flex flex-col overflow-y-auto pw-scroll px-5 pt-[calc(2rem+env(safe-area-inset-top))] pb-[calc(0.75rem+env(safe-area-inset-bottom))] max-w-lg mx-auto w-full">
+                <div className="relative z-10 flex-1 flex flex-col overflow-y-auto pw-scroll px-5 pt-[calc(0.5rem+env(safe-area-inset-top))] pb-[calc(0.75rem+env(safe-area-inset-bottom))] max-w-lg mx-auto w-full">
 
                     {/* ── Hero: Visual + Badge + Title ── */}
                     <motion.div
-                        className="text-center mb-2 flex-shrink-0"
+                        className="text-center mb-0.5 flex-shrink-0"
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.6 }}
@@ -368,12 +546,12 @@ export default function PremiumPaywall() {
 
                         {/* Premium badge — centered */}
                         <motion.div
-                            className="flex justify-center mt-2"
+                            className="flex justify-center mt-1"
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.25, duration: 0.5 }}
                         >
-                            <div className="relative inline-flex items-center gap-2 px-5 py-2 rounded-full border border-[#D4AF37]/30 overflow-hidden"
+                            <div className="relative inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full border border-[#D4AF37]/30 overflow-hidden"
                                 style={{ background: 'linear-gradient(135deg, rgba(212,175,55,0.12) 0%, rgba(212,175,55,0.04) 100%)' }}
                             >
                                 <div className="absolute inset-0 pointer-events-none"
@@ -382,34 +560,21 @@ export default function PremiumPaywall() {
                                         animation: 'pw-card-sweep 3.5s ease-in-out infinite',
                                     }}
                                 />
-                                <Crown size={16} className="text-[#D4AF37]" />
-                                <span className="text-[#D4AF37] text-sm font-black tracking-[0.15em] uppercase"
+                                <Crown size={14} className="text-[#D4AF37]" />
+                                <span className="text-[#D4AF37] text-xs font-black tracking-[0.15em] uppercase"
                                     style={{ textShadow: '0 0 12px rgba(212,175,55,0.3)' }}
                                 >Premium</span>
                             </div>
                         </motion.div>
 
-                        {/* Rating line */}
-                        <div className="flex items-center justify-center gap-1.5 mt-2">
-                            <div className="flex gap-0.5">
-                                {[...Array(5)].map((_, i) => (
-                                    <Star key={i} size={10} className="text-[#D4AF37] fill-[#D4AF37]" />
-                                ))}
-                            </div>
-                            <span className="text-white/40 text-[12px] font-medium">4.9 {t('premium.stars')} • 1,000+ {t('premium.reviews')}</span>
-                        </div>
-
-                        <h1 className="text-[#D4AF37] font-serif text-[22px] font-bold leading-tight tracking-tight mt-2">
+                        <h1 className="text-[#D4AF37] font-serif text-[24px] font-bold leading-tight tracking-tight mt-2.5">
                             {t('premium.headline')}
                         </h1>
-                        <p className="text-white/35 text-[12px] leading-relaxed mt-1 max-w-[280px] mx-auto">
-                            {t('premium.subheadline')}
-                        </p>
                     </motion.div>
 
                     {/* ── Features ── */}
                     <motion.div
-                        className="flex flex-col gap-0.5 mb-2 flex-shrink-0"
+                        className="flex flex-col gap-1.5 mb-2.5 flex-shrink-0"
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         transition={{ delay: 0.3 }}
@@ -422,14 +587,14 @@ export default function PremiumPaywall() {
                         ].map((f, i) => (
                             <motion.div
                                 key={i}
-                                className="flex items-start gap-2.5 px-3 py-1 rounded-lg"
+                                className="flex items-start gap-3 px-3 py-1 rounded-lg"
                                 initial={{ opacity: 0, x: -12 }}
                                 animate={{ opacity: 1, x: 0 }}
                                 transition={{ delay: 0.35 + i * 0.07 }}
                             >
                                 <span className="text-sm flex-shrink-0 mt-px">{f.emoji}</span>
                                 <div className="min-w-0">
-                                    <p className="text-[14px] font-bold text-white/85 leading-tight">{f.title}</p>
+                                    <p className="text-[15px] font-bold text-white/85 leading-tight">{f.title}</p>
                                     <p className="text-[12px] text-white/40 leading-snug mt-0.5">{f.desc}</p>
                                 </div>
                             </motion.div>
@@ -438,33 +603,15 @@ export default function PremiumPaywall() {
 
                     {/* ── Reviews (swipeable) ── */}
                     <motion.div
-                        className="bg-white/[0.025] border border-white/[0.04] rounded-2xl p-3 mb-2 flex-shrink-0 overflow-hidden"
+                        className="bg-white/[0.025] border border-white/[0.04] rounded-2xl p-2.5 mb-2 flex-shrink-0 overflow-hidden"
                         initial={{ opacity: 0, y: 12 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.5 }}
                     >
-                        <div className="flex items-center justify-between mb-2">
-                            <div className="flex items-center gap-1.5">
-                                <svg width="12" height="18" viewBox="0 0 14 20" fill="none" className="flex-shrink-0 opacity-50">
-                                    <path d="M12 2C10 4 8 6 7 10C6 6 4 4 2 2" stroke="#D4AF37" strokeWidth="1" strokeLinecap="round" fill="none" />
-                                    <path d="M12 6C10 8 8 9 7 12C6 9 4 8 2 6" stroke="#D4AF37" strokeWidth="1" strokeLinecap="round" fill="none" />
-                                    <path d="M12 10C10 12 8 13 7 15C6 13 4 12 2 10" stroke="#D4AF37" strokeWidth="1" strokeLinecap="round" fill="none" />
-                                </svg>
-                                <div className="flex gap-0.5">
-                                    {[...Array(5)].map((_, i) => (
-                                        <Star key={i} size={12} className="text-[#D4AF37] fill-[#D4AF37]" />
-                                    ))}
-                                </div>
-                                <svg width="12" height="18" viewBox="0 0 14 20" fill="none" className="flex-shrink-0 opacity-50 scale-x-[-1]">
-                                    <path d="M12 2C10 4 8 6 7 10C6 6 4 4 2 2" stroke="#D4AF37" strokeWidth="1" strokeLinecap="round" fill="none" />
-                                    <path d="M12 6C10 8 8 9 7 12C6 9 4 8 2 6" stroke="#D4AF37" strokeWidth="1" strokeLinecap="round" fill="none" />
-                                    <path d="M12 10C10 12 8 13 7 15C6 13 4 12 2 10" stroke="#D4AF37" strokeWidth="1" strokeLinecap="round" fill="none" />
-                                </svg>
-                            </div>
-                            <div className="flex items-center gap-1.5">
-                                <span className="text-[#D4AF37] text-sm font-bold">4.9</span>
-                                <span className="text-white/25 text-[11px]">• 1,000+ {t('premium.reviews')}</span>
-                            </div>
+                        <div className="flex items-center gap-0.5 mb-1.5">
+                            {[...Array(5)].map((_, i) => (
+                                <Star key={i} size={14} className="text-[#D4AF37] fill-[#D4AF37]" />
+                            ))}
                         </div>
 
                         <AnimatePresence mode="wait" initial={false}>
@@ -488,14 +635,13 @@ export default function PremiumPaywall() {
                                 }}
                                 style={{ touchAction: 'pan-y' }}
                             >
-                                <p className="text-white/50 text-[13px] italic leading-snug mb-1">
+                                <p className="text-white/50 text-[15px] italic leading-normal mb-1.5">
                                     "{review.text}"
                                 </p>
-                                <p className="text-[#D4AF37]/50 text-[12px] font-medium">— {review.author}</p>
+                                <p className="text-[#D4AF37]/50 text-[14px] font-medium">— {review.author}</p>
                             </motion.div>
                         </AnimatePresence>
 
-                        {/* Dots */}
                         <div className="flex justify-center gap-1.5 mt-1.5">
                             {reviews.map((_, i) => (
                                 <div
@@ -507,8 +653,6 @@ export default function PremiumPaywall() {
                         </div>
                     </motion.div>
 
-                    {/* ── Flex spacer ── */}
-                    <div className="flex-1 min-h-0" />
                     {/* ── Pricing Cards ── */}
                     <motion.div
                         className="flex gap-2.5 mb-2 flex-shrink-0"
@@ -522,7 +666,6 @@ export default function PremiumPaywall() {
                             className={`flex-1 relative text-left p-3 rounded-xl border-2 transition-all overflow-hidden ${selectedPlan === 'monthly' ? 'border-white/25 bg-white/[0.05]' : 'border-white/[0.06] bg-white/[0.015]'}`}
                             style={selectedPlan === 'monthly' ? { animation: 'pw-card-glow 2.5s ease-in-out infinite' } : {}}
                         >
-                            {/* Shimmer sweep */}
                             <div
                                 className="absolute inset-0 pointer-events-none"
                                 style={{
@@ -532,10 +675,10 @@ export default function PremiumPaywall() {
                             />
                             <p className="text-white/70 font-bold text-[13px]">{t('premium.plan_monthly')}</p>
                             <p className="text-white/35 text-[10px] mt-0.5">{t('premium.plan_monthly_desc')}</p>
-                            <p className="text-white/70 font-bold text-base mt-1">₺124,99</p>
+                            <p className="text-white/70 font-bold text-base mt-1">{getPrice(PRODUCT_IDS.MONTHLY) || '₺124,99'}</p>
                             <p className="text-white/25 text-[10px]">/ {t('premium.month')}</p>
                             <div className="mt-1.5 pt-1.5 border-t border-white/[0.06]">
-                                <p className="text-white/30 text-[12px] text-center">{t('premium.daily_monthly')}</p>
+                                <p className="text-white/30 text-[12px] text-center">{getDailyPrice(PRODUCT_IDS.MONTHLY) ? t('premium.daily_label', { price: getDailyPrice(PRODUCT_IDS.MONTHLY) }) : t('premium.daily_monthly')}</p>
                             </div>
                         </button>
 
@@ -545,7 +688,6 @@ export default function PremiumPaywall() {
                             className={`flex-1 relative text-left p-3 rounded-xl border-2 transition-all overflow-hidden ${selectedPlan === 'yearly' ? 'border-[#D4AF37]/50 bg-[#D4AF37]/[0.06]' : 'border-[#D4AF37]/15 bg-[#D4AF37]/[0.02]'}`}
                             style={{ animation: 'pw-card-glow 2.5s ease-in-out infinite' }}
                         >
-                            {/* Gold shimmer sweep */}
                             <div
                                 className="absolute inset-0 pointer-events-none"
                                 style={{
@@ -553,7 +695,6 @@ export default function PremiumPaywall() {
                                     animation: 'pw-card-sweep 2.5s ease-in-out infinite',
                                 }}
                             />
-                            {/* Badge — prominent */}
                             <div
                                 className="absolute -top-0 right-0 left-0 mx-auto w-fit px-3 py-1 rounded-b-lg text-[9px] font-black uppercase tracking-wider text-[#021a0f]"
                                 style={{ background: 'linear-gradient(135deg, #FFD700, #D4AF37)', animation: 'pw-badge 2s ease-in-out infinite', boxShadow: '0 2px 12px rgba(212,175,55,0.3)' }}
@@ -561,30 +702,17 @@ export default function PremiumPaywall() {
                                 🌟 {t('premium.badge_best_value')}
                             </div>
                             <p className="text-[#D4AF37] font-bold text-[13px] mt-2">{t('premium.plan_yearly')}</p>
-                            <p className="text-white/35 text-[10px] mt-0.5">{t('premium.plan_yearly_per_month')}</p>
-                            <p className="text-[#D4AF37] font-bold text-base mt-1">₺979,99</p>
+                            <p className="text-white/35 text-[10px] mt-0.5">{getMonthlyEquivalent() ? t('premium.monthly_label', { price: getMonthlyEquivalent() }) : t('premium.plan_yearly_per_month')}</p>
+                            <p className="text-[#D4AF37] font-bold text-base mt-1">{getPrice(PRODUCT_IDS.YEARLY) || '₺979,99'}</p>
                             <p className="text-[#D4AF37]/40 text-[10px]">/ {t('premium.year')}</p>
                             <div className="mt-1.5 pt-1.5 border-t border-[#D4AF37]/10">
-                                <p className="text-[#D4AF37]/60 text-[12px] font-semibold text-center">{t('premium.daily_yearly')}</p>
+                                <p className="text-[#D4AF37]/60 text-[12px] font-semibold text-center">{getDailyPrice(PRODUCT_IDS.YEARLY) ? `🔥 ${t('premium.daily_label', { price: getDailyPrice(PRODUCT_IDS.YEARLY) })}` : t('premium.daily_yearly')}</p>
                             </div>
                         </button>
                     </motion.div>
 
-
-                    {/* Trial badge — only for yearly */}
-                    {selectedPlan === 'yearly' && (
-                        <motion.div
-                            className="flex items-center justify-center gap-1.5 mb-2 flex-shrink-0"
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            transition={{ delay: 0.5 }}
-                        >
-                            <div className="w-4 h-4 rounded-md bg-[#D4AF37]/12 flex items-center justify-center">
-                                <BookOpen size={10} className="text-[#D4AF37]" />
-                            </div>
-                            <span className="text-[#D4AF37]/60 text-[11px] font-bold">{t('premium.trial_included')}</span>
-                        </motion.div>
-                    )}
+                    {/* Flex spacer — pushes CTA to bottom */}
+                    <div className="flex-1 min-h-[8px]" />
 
                     {/* ── CTA Button ── */}
                     <motion.div
@@ -595,6 +723,7 @@ export default function PremiumPaywall() {
                     >
                         <motion.button
                             onClick={handleSubscribe}
+                            disabled={isLoading}
                             className="relative w-full py-4 rounded-2xl font-bold text-[16px] text-[#021a0f] overflow-hidden active:scale-[0.97] transition-transform"
                             style={{
                                 background: 'linear-gradient(135deg, #FFD700 0%, #D4AF37 50%, #FFD700 100%)',
@@ -614,74 +743,91 @@ export default function PremiumPaywall() {
                                 {selectedPlan === 'yearly' ? t('premium.cta_trial') : t('premium.cta_subscribe')}
                             </span>
                         </motion.button>
+                    </motion.div>
 
-                        <p className="text-center text-white/40 text-[12px] mt-2 leading-relaxed">
+                    {/* ── Below-the-fold: Disclaimer + Footer (visible on scroll) ── */}
+                    <div className="mt-3 flex-shrink-0">
+                        <p className="text-center text-white/40 text-[12px] leading-relaxed">
                             🔔 {selectedPlan === 'yearly' ? t('premium.disclaimer_yearly') : t('premium.disclaimer_monthly')}
                         </p>
 
-                    </motion.div>
+                        {/* Trial badge — only for yearly */}
+                        {selectedPlan === 'yearly' && (
+                            <div className="flex items-center justify-center gap-1.5 mt-2">
+                                <div className="w-4 h-4 rounded-md bg-[#D4AF37]/12 flex items-center justify-center">
+                                    <BookOpen size={10} className="text-[#D4AF37]" />
+                                </div>
+                                <span className="text-[#D4AF37]/60 text-[11px] font-bold">{t('premium.trial_included')}</span>
+                            </div>
+                        )}
 
-                    {/* ── Footer ── */}
-                    <motion.div
-                        className="flex items-center justify-center gap-3 mt-2 pt-2 border-t border-white/[0.03] flex-shrink-0"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ delay: 0.9 }}
-                    >
-                        <button className="text-white/35 text-[11px] hover:text-white/50 transition-colors">{t('premium.restore')}</button>
-                        <span className="text-white/15">•</span>
-                        <button onClick={() => navigate('/settings/legal')} className="text-white/35 text-[11px] hover:text-white/50 transition-colors">{t('premium.terms')}</button>
-                        <span className="text-white/15">•</span>
-                        <button onClick={() => navigate('/legal/privacy')} className="text-white/35 text-[11px] hover:text-white/50 transition-colors">{t('premium.privacy')}</button>
-                    </motion.div>
+
+                        <motion.div
+                            className="flex items-center justify-center gap-3 mt-3 pt-2 border-t border-white/[0.03] flex-shrink-0"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            transition={{ delay: 0.9 }}
+                        >
+                            <button onClick={handleRestore} disabled={isRestoring} className="text-white/35 text-[11px] hover:text-white/50 transition-colors flex items-center gap-1">{isRestoring && <Loader2 size={10} className="animate-spin" />}{t('premium.restore')}</button>
+                            <span className="text-white/15">•</span>
+                            <button onClick={() => window.open('https://www.islamiyoldas.com/terms', '_blank')} className="text-white/35 text-[11px] hover:text-white/50 transition-colors">{t('premium.terms')}</button>
+                            <span className="text-white/15">•</span>
+                            <button onClick={() => window.open('https://www.islamiyoldas.com/privacy', '_blank')} className="text-white/35 text-[11px] hover:text-white/50 transition-colors">{t('premium.privacy')}</button>
+                        </motion.div>
+                    </div>
                 </div >
             </div >
 
-            {/* ═══ EXIT INTENT POPUP (Enhanced) ═══ */}
+            {/* ═══ EXIT INTENT BOTTOM SHEET (Apple Compliant) ═══ */}
             <AnimatePresence>
                 {showExitPopup && (
                     <motion.div
-                        className="absolute inset-0 z-[70] flex items-center justify-center px-5"
+                        className="fixed inset-0 z-[70] flex flex-col justify-end"
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        transition={{ duration: 0.35 }}
+                        transition={{ duration: 0.3 }}
                     >
-                        {/* Backdrop */}
+                        {/* Dim Backdrop — tapping closes paywall entirely */}
                         <motion.div
-                            className="absolute inset-0 bg-black/85 backdrop-blur-lg"
-                            onClick={() => setShowExitPopup(false)}
+                            className="absolute inset-0 bg-black/70 backdrop-blur-md"
+                            onClick={() => navigate('/')}
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                         />
 
-                        {/* Ambient glow */}
-                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 rounded-full pointer-events-none"
-                            style={{ background: 'radial-gradient(circle, rgba(212,175,55,0.06) 0%, transparent 70%)' }} />
-
-                        {/* Card */}
+                        {/* Bottom Sheet Card */}
                         <motion.div
-                            className="relative w-full max-w-[360px] rounded-3xl overflow-hidden"
+                            className="relative w-full rounded-t-3xl overflow-hidden"
                             style={{
                                 background: 'linear-gradient(175deg, #0f3d28 0%, #082b1c 35%, #041c11 75%, #010d07 100%)',
-                                boxShadow: '0 0 0 1px rgba(212,175,55,0.08), 0 25px 60px rgba(0,0,0,0.5), 0 0 80px rgba(212,175,55,0.06)',
+                                boxShadow: '0 -10px 40px rgba(0,0,0,0.5), 0 0 0 1px rgba(212,175,55,0.08), 0 0 80px rgba(212,175,55,0.04)',
                             }}
-                            initial={{ scale: 0.8, opacity: 0 }}
-                            animate={{ scale: 1, opacity: 1 }}
-                            exit={{ scale: 0.85, opacity: 0 }}
-                            transition={{ type: 'spring', damping: 24, stiffness: 300 }}
+                            initial={{ y: '100%' }}
+                            animate={{ y: 0 }}
+                            exit={{ y: '100%' }}
+                            transition={{ type: 'spring', damping: 26, stiffness: 280 }}
+                            drag="y"
+                            dragConstraints={{ top: 0, bottom: 0 }}
+                            dragElastic={0.2}
+                            onDragEnd={(_, info) => {
+                                if (info.offset.y > 80) navigate('/');
+                            }}
                         >
-                            {/* Islamic pattern overlay on card */}
+                            {/* Top accent line */}
+                            <div className="absolute top-0 left-0 right-0 h-[2px]" style={{ background: 'linear-gradient(90deg, transparent 5%, #D4AF37 50%, transparent 95%)' }} />
+
+                            {/* Drag Handle */}
+                            <div className="w-12 h-1.5 bg-white/20 rounded-full mx-auto mt-3 mb-2" />
+
+                            {/* Islamic pattern overlay */}
                             <div className="absolute inset-0 pointer-events-none opacity-[0.015]"
                                 style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%23D4AF37' stroke-width='0.4'%3E%3Cpath d='M30 0L37 11L48 8L42 19L53 23L42 27L48 38L37 35L30 46L23 35L12 38L18 27L7 23L18 19L12 8L23 11Z'/%3E%3C/g%3E%3C/svg%3E")` }} />
 
-                            {/* Top accent */}
-                            <div className="absolute top-0 left-0 right-0 h-[2px]" style={{ background: 'linear-gradient(90deg, transparent 5%, #D4AF37 50%, transparent 95%)' }} />
+                            <div className="px-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] pt-1">
 
-                            <div className="px-6 pb-6 pt-5">
-
-                                {/* Moon visual — matching success screen style */}
-                                <motion.div className="w-24 h-24 mx-auto mb-4 relative"
+                                {/* Moon visual — compact for bottom sheet */}
+                                <motion.div className="w-20 h-20 mx-auto mb-3 relative"
                                     initial={{ scale: 0.5, opacity: 0 }}
                                     animate={{ scale: 1, opacity: 1 }}
                                     transition={{ type: 'spring', stiffness: 80, damping: 16 }}>
@@ -708,7 +854,7 @@ export default function PremiumPaywall() {
                                     </svg>
 
                                     {/* Rotating dots */}
-                                    <motion.div className="absolute inset-[-10px]"
+                                    <motion.div className="absolute inset-[-8px]"
                                         initial={{ opacity: 0 }}
                                         animate={{ opacity: 0.6, rotate: 360 }}
                                         transition={{ opacity: { duration: 0.8, delay: 0.5 }, rotate: { duration: 25, repeat: Infinity, ease: 'linear' } }}>
@@ -746,7 +892,7 @@ export default function PremiumPaywall() {
                                 </motion.h2>
 
                                 <motion.p
-                                    className="text-center text-white/40 text-[13px] mb-5"
+                                    className="text-center text-white/40 text-[13px] mb-4"
                                     initial={{ opacity: 0 }}
                                     animate={{ opacity: 1 }}
                                     transition={{ delay: 0.25 }}
@@ -754,8 +900,8 @@ export default function PremiumPaywall() {
                                     {t('premium.exit_message')}
                                 </motion.p>
 
-                                {/* Loss aversion items — enhanced with accent bars */}
-                                <div className="space-y-2 mb-5">
+                                {/* Loss aversion items — with accent bars */}
+                                <div className="space-y-2 mb-4">
                                     {[
                                         { key: 'exit_loss_1', icon: '🤲', color: '#EF4444' },
                                         { key: 'exit_loss_2', icon: '📖', color: '#F59E0B' },
@@ -786,9 +932,9 @@ export default function PremiumPaywall() {
                                 </div>
 
                                 {/* Progress bar */}
-                                <motion.div className="mb-5 px-1" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.65 }}>
+                                <motion.div className="mb-4 px-1" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.65 }}>
                                     <div className="flex items-center justify-between mb-1.5">
-                                        <span className="text-white/30 text-[11px]">{lang === 'tr' ? 'Manevi yolculuğun' : 'Your spiritual journey'}</span>
+                                        <span className="text-white/30 text-[11px]">{t('premium.exit_journey')}</span>
                                         <span className="text-[#D4AF37]/60 text-[11px] font-bold">15%</span>
                                     </div>
                                     <div className="h-1.5 rounded-full bg-white/[0.06] overflow-hidden">
@@ -798,23 +944,10 @@ export default function PremiumPaywall() {
                                             transition={{ delay: 0.75, duration: 1, ease: 'easeOut' }} />
                                     </div>
                                     <p className="text-white/20 text-[10px] mt-1 text-center">
-                                        {lang === 'tr' ? 'Premium ile %100\'e ulaş' : 'Reach 100% with Premium'}
+                                        {t('premium.exit_reach_100')}
                                     </p>
                                 </motion.div>
 
-                                {/* Social proof */}
-                                <motion.div className="flex items-center justify-center gap-2 mb-4"
-                                    initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.85 }}>
-                                    <div className="relative">
-                                        <Users size={13} className="text-emerald-400/60" />
-                                        <motion.div className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 rounded-full bg-emerald-400"
-                                            animate={{ opacity: [0.4, 1, 0.4] }}
-                                            transition={{ duration: 2, repeat: Infinity }} />
-                                    </div>
-                                    <span className="text-white/40 text-[12px]">
-                                        {t('premium.social_proof', { count: socialCount.toLocaleString() })}
-                                    </span>
-                                </motion.div>
 
                                 {/* CTA */}
                                 <motion.button
@@ -970,7 +1103,7 @@ export default function PremiumPaywall() {
                             style={{ background: 'linear-gradient(135deg, rgba(212,175,55,0.08) 0%, rgba(212,175,55,0.02) 100%)' }}
                             initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 1.6 }}>
                             <Crown size={12} className="text-[#FFD700]" />
-                            <span className="text-[#D4AF37] text-[10px] font-bold tracking-[0.15em] uppercase">Premium Üye</span>
+                            <span className="text-[#D4AF37] text-[10px] font-bold tracking-[0.15em] uppercase">{t('premium.premium_member')}</span>
                         </motion.div>
 
                         {/* Title */}

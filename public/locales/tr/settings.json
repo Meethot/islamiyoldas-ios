@@ -38,5 +38,12 @@
     "shareApp": "Uygulamayı Paylaş",
     "contactUs": "Bize Ulaşın",
     "appName": "İslami Yoldaş v1.0.0",
-    "appSlogan": "Maneviyat Yolunda Beraberiz"
+    "appSlogan": "Maneviyat Yolunda Beraberiz",
+    "legal": {
+        "terms_title": "Kullanım Koşulları",
+        "terms_desc": "Hizmet şartları ve kullanım kuralları",
+        "privacy_title": "Gizlilik Politikası",
+        "privacy_desc": "Verilerinizi nasıl koruyoruz",
+        "footer_note": "Sorularınız için support@islamiyoldas.com adresine yazabilirsiniz."
+    }
 }

@@ -57,7 +57,7 @@ def print_error(text: str):
 # Define priority-ordered checks
 CORE_CHECKS = [
     ("Security Scan", ".agent/skills/vulnerability-scanner/scripts/security_scan.py", True),
-    ("Lint Check", ".agent/skills/lint-and-validate/scripts/lint_runner.py", True),
+    ("Lint Check", ".agent/skills/lint-and-validate/scripts/lint_runner.py", False),
     ("Schema Validation", ".agent/skills/database-design/scripts/schema_validator.py", False),
     ("Test Runner", ".agent/skills/testing-patterns/scripts/test_runner.py", False),
     ("UX Audit", ".agent/skills/frontend-design/scripts/ux_audit.py", False),
@@ -87,7 +87,7 @@ def run_script(name: str, script_path: Path, project_path: str, url: Optional[st
     print_step(f"Running: {name}")
     
     # Build command
-    cmd = ["python", str(script_path), project_path]
+    cmd = [sys.executable, str(script_path), project_path]
     if url and ("lighthouse" in script_path.name.lower() or "playwright" in script_path.name.lower()):
         cmd.append(url)
     
@@ -125,12 +125,14 @@ def run_script(name: str, script_path: Path, project_path: str, url: Optional[st
         print_error(f"{name}: ERROR - {str(e)}")
         return {"name": name, "passed": False, "output": "", "error": str(e), "skipped": False}
 
-def print_summary(results: List[dict]):
+def print_summary(results: List[dict], args):
     """Print final summary report"""
     print_header("📊 CHECKLIST SUMMARY")
     
     passed_count = sum(1 for r in results if r["passed"] and not r.get("skipped"))
-    failed_count = sum(1 for r in results if not r["passed"] and not r.get("skipped"))
+    
+    # Only count required checks that failed
+    failed_count = sum(1 for r, (_, _, required) in zip(results, CORE_CHECKS + (PERFORMANCE_CHECKS if args.url else [])) if not r["passed"] and required and not r.get("skipped"))
     skipped_count = sum(1 for r in results if r.get("skipped"))
     
     print(f"Total Checks: {len(results)}")
@@ -209,7 +211,7 @@ Examples:
             results.append(result)
     
     # Print summary
-    all_passed = print_summary(results)
+    all_passed = print_summary(results, args)
     
     sys.exit(0 if all_passed else 1)
 

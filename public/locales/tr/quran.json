@@ -15,7 +15,7 @@
     "surahName": "{{name}} Suresi",
     "listeningTo": "{{name}} Suresi dinleniyor",
     "bgTitle": "İslami Yoldaş",
-    "audioNote": "Ses: [API'den kari seçimi gelecek]",
+    "audioNote": "Ses: API'den kari seçimi gelecek",
     "apiNote": "💡 Ayet içeriği API'den yüklenecek",
     "revelation": {
         "makkah": "Mekke",

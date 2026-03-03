@@ -1142,7 +1142,7 @@ export const PrayerCountdownWidget = memo(({ loading, city, nextPrayerInfo, pray
             const triggerDate = new Date(targetDate.getTime() - (minutesBefore * 60000));
 
             if (triggerDate <= now && minutesBefore !== 0) {
-                alert('Vakte çok az kalmış, bu süre için alarm kurulamaz.');
+                alert(t('alarm_too_close'));
                 return;
             }
 
@@ -1258,7 +1258,7 @@ export const PrayerCountdownWidget = memo(({ loading, city, nextPrayerInfo, pray
             const triggerDate = new Date(targetDate.getTime() - (minutesBefore * 60000));
 
             if (triggerDate <= now && minutesBefore !== 0) {
-                alert('Vakte çok az kalmış, bu süre için alarm kurulamaz.');
+                alert(t('alarm_too_close'));
                 return;
             }
 
@@ -1405,7 +1405,7 @@ export const PrayerCountdownWidget = memo(({ loading, city, nextPrayerInfo, pray
     // Determine what to show
     const displayName = displayedPrayer?.name || nextPrayerInfo?.name || '-';
     const displayTime = displayedPrayer?.time || '--:--';
-    const displayCountdown = selectedPrayerId ? customCountdown : nextPrayerInfo?.timeLeft || '00:00:00';
+    const displayCountdown = selectedPrayerId ? customCountdown : nextPrayerInfo?.timeLeft || '--:--:--';
     const isAutoMode = !selectedPrayerId;
     const DisplayIcon = displayedPrayer?.icon || Moon;
 
@@ -1448,7 +1448,7 @@ export const PrayerCountdownWidget = memo(({ loading, city, nextPrayerInfo, pray
                             </div>
 
                             {/* Center: Prayer Info */}
-                            <div className="flex-1 min-w-0">
+                            <div className="flex-1 min-w-[100px] pr-2">
                                 {loading ? (
                                     <div className="space-y-2">
                                         <div className="h-3 w-16 rounded shimmer" />
@@ -1458,26 +1458,26 @@ export const PrayerCountdownWidget = memo(({ loading, city, nextPrayerInfo, pray
                                     <>
                                         {/* Title Row */}
                                         <div className="flex items-center gap-2 mb-0.5">
-                                            <span className="text-[11px] text-gray-500 dark:text-gray-400 font-medium">
+                                            <span className="text-[11px] text-gray-500 dark:text-gray-400 font-medium whitespace-nowrap">
                                                 {isAutoMode ? t('prayerCard.upcoming') : t('prayerCard.tracking')}
                                             </span>
                                             {!isAutoMode && (
-                                                <span className="bg-islamic-gold text-black text-[9px] font-bold px-1.5 py-0.5 rounded-full">
+                                                <span className="bg-islamic-gold text-black text-[9px] font-bold px-1.5 py-0.5 rounded-full flex-shrink-0">
                                                     ✎
                                                 </span>
                                             )}
                                         </div>
                                         {/* Prayer Name & Time */}
-                                        <div className="flex items-baseline gap-2">
-                                            <h2 className="text-[22px] font-bold text-islamic-green dark:text-islamic-gold font-serif leading-tight">
+                                        <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+                                            <h2 className="text-[20px] sm:text-[22px] font-bold text-islamic-green dark:text-islamic-gold font-serif leading-tight truncate">
                                                 {displayName}
                                             </h2>
-                                            <span className="text-sm text-gray-500 dark:text-gray-400 font-mono">
+                                            <span className="text-sm text-gray-500 dark:text-gray-400 font-mono flex-shrink-0">
                                                 {displayTime}
                                             </span>
                                         </div>
                                         {/* City - Subtle */}
-                                        <p className="text-[10px] text-gray-500 dark:text-gray-400 mt-0.5 font-medium">
+                                        <p className="text-[10px] text-gray-500 dark:text-gray-400 mt-0.5 font-medium truncate">
                                             {city}
                                         </p>
                                     </>
@@ -1486,13 +1486,13 @@ export const PrayerCountdownWidget = memo(({ loading, city, nextPrayerInfo, pray
 
                             {/* Right: Countdown & Bell - Same Row */}
                             {!loading && (
-                                <div className="flex items-center gap-2">
+                                <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
                                     {/* Alarm Button */}
                                     <Button
                                         variant="ghost"
                                         size="icon"
                                         className={cn(
-                                            "h-10 w-10 rounded-full",
+                                            "h-9 w-9 sm:h-10 sm:w-10 rounded-full flex-shrink-0",
                                             alarmSet
                                                 ? "text-islamic-gold bg-islamic-gold/10"
                                                 : "text-gray-400 hover:text-islamic-gold hover:bg-islamic-gold/5"
@@ -1502,8 +1502,8 @@ export const PrayerCountdownWidget = memo(({ loading, city, nextPrayerInfo, pray
                                         <Bell size={18} fill={alarmSet ? "currentColor" : "none"} />
                                     </Button>
                                     {/* Countdown Timer */}
-                                    <div className="text-[22px] tabular-nums font-bold tracking-tight text-islamic-green dark:text-islamic-gold bg-black/5 dark:bg-white/5 px-3 py-1.5 rounded-xl">
-                                        {displayCountdown || '00:00:00'}
+                                    <div className="text-[18px] sm:text-[22px] tabular-nums font-bold tracking-tight text-islamic-green dark:text-islamic-gold bg-black/5 dark:bg-white/5 px-2.5 sm:px-3 py-1.5 rounded-xl flex-shrink-0">
+                                        {displayCountdown || '--:--:--'}
                                     </div>
                                 </div>
                             )}

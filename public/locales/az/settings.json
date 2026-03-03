@@ -38,5 +38,12 @@
     "shareApp": "Tətbiqi Paylaş",
     "contactUs": "Bizimlə Əlaqə",
     "appName": "İslami Yoldaş v1.0.0",
-    "appSlogan": "Mənəviyyat Yolunda Birlikdəyik"
+    "appSlogan": "Mənəviyyat Yolunda Birlikdəyik",
+    "legal": {
+        "terms_title": "İstifadə Şərtləri",
+        "terms_desc": "Xidmət şərtləri və istifadə qaydaları",
+        "privacy_title": "Məxfilik Siyasəti",
+        "privacy_desc": "Məlumatlarınızı necə qoruyuruq",
+        "footer_note": "Suallarınız üçün support@islamiyoldas.com ünvanına yazın."
+    }
 }

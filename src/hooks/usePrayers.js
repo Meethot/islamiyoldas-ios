@@ -10,7 +10,7 @@ import { useLocation } from '@/context/LocationContext';
  * Maintains backward compatibility with existing components
  */
 export function usePrayers() {
-    const [nextPrayerInfo, setNextPrayerInfo] = useState({ name: '-', timeLeft: '00:00:00' });
+    const [nextPrayerInfo, setNextPrayerInfo] = useState({ name: '-', timeLeft: '--:--:--' });
 
     // Get prayer times from global context (already GPS-aware)
     const { prayerTimes: rawTimes, loading: loadingPrayers, fetchPrayerTimes, locationSource } = usePrayerTimes();
@@ -54,7 +54,7 @@ export function usePrayers() {
     useEffect(() => {
         if (!prayerTimes) return;
 
-        const timer = setInterval(() => {
+        const updateTimer = () => {
             const now = new Date();
             let next = null;
             let minDiff = Infinity;
@@ -102,7 +102,10 @@ export function usePrayers() {
                     date: next.time.toISOString().split('T')[0]
                 });
             }
-        }, 1000);
+        };
+
+        updateTimer();
+        const timer = setInterval(updateTimer, 1000);
 
         return () => clearInterval(timer);
     }, [prayerTimes]);

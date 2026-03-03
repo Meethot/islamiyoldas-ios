@@ -15,7 +15,7 @@
     "surahName": "Sure {{name}}",
     "listeningTo": "Sure {{name}} wird gehört",
     "bgTitle": "Islamischer Begleiter",
-    "audioNote": "Audio: [Rezitator-Auswahl kommt von der API]",
+    "audioNote": "Audio: Rezitator-Auswahl kommt von der API",
     "apiNote": "💡 Versinhalt wird von der API geladen",
     "revelation": {
         "makkah": "Mekka",

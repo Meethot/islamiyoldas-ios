@@ -85,7 +85,7 @@
         "email_description_prompt": "Təsvir (nə etdiyinizi qısaca yazın):"
     },
     "premium": {
-        "headline": "Mənəvi Potensialınızı Üzə Çıxarın",
+        "headline": "İslami Səyahətində Sərhədləri Qaldır",
         "subheadline": "Premium ilə bütün xüsusiyyətlərin kilidini açın və ibadət təcrübənizi zirvəyə daşıyın.",
         "testimonial_quote": "Allah razı olsun, namazlarımı əla qaydaya saldı.",
         "testimonial_author": "Əhməd",
@@ -101,12 +101,27 @@
         "trial_included": "3 Günlük Pulsuz Sınaq Daxildir",
         "month": "ay",
         "year": "il",
+        "daily_label": "Gündəlik yalnız {{price}}",
+        "monthly_label": "Aylıq {{price}}",
         "cta_trial": "3 GÜNLÜK PULSUZ SINAĞI BAŞLAT",
         "cta_subscribe": "İNDİ ABUNƏ OL",
         "disclaimer_yearly": "3 gün pulsuz sınayın. Sınaq bitdikdən sonra abunəlik avtomatik olaraq ₺979,99/il üzrə yenilənir. İstədiyiniz zaman ləğv edə bilərsiniz.",
         "disclaimer_monthly": "Abunəlik ₺124,99/ay olaraq avtomatik yenilənir. İstədiyiniz zaman ləğv edə bilərsiniz.",
         "restore": "Satınalmanı Bərpa Et",
         "terms": "İstifadə Şərtləri",
-        "privacy": "Gizlilik Siyasəti"
+        "privacy": "Gizlilik Siyasəti",
+        "iap_processing": "Ödəniş emal edilir...",
+        "iap_wait": "Zəhmət olmasa gözləyin, mağaza açılır",
+        "iap_timeout": "Əməliyyat vaxtı bitdi. Zəhmət olmasa yenidən cəhd edin.",
+        "iap_error_network": "İnternet bağlantınızı yoxlayın və yenidən cəhd edin.",
+        "iap_error_declined": "Ödəniş rədd edildi. Ödəniş üsulunuzu yoxlayın.",
+        "iap_error_restricted": "Satınalmalar məhdudlaşdırılıb. Ayarlar > Ekran Vaxtını yoxlayın.",
+        "iap_error_unavailable": "Bu məhsul hazırda mövcud deyil. Zəhmət olmasa sonra cəhd edin.",
+        "iap_error_generic": "Xəta baş verdi. Zəhmət olmasa yenidən cəhd edin.",
+        "iap_restore_empty": "Aktiv abunəlik tapılmadı.",
+        "iap_restore_failed": "Bərpa uğursuz oldu. Yenidən cəhd edin.",
+        "premium_member": "Premium Üzv",
+        "exit_journey": "Mənəvi yolçuluğun",
+        "exit_reach_100": "Premium ilə 100%-ə çat"
     }
 }

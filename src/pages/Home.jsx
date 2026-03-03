@@ -108,6 +108,7 @@ export default function Home() {
     const [esmaCounts, setEsmaCounts] = useState(() => safeGetStorage('esma_counts', {})); // Stores count for each Esma: { "Allah": 5, "Rahman": 10 }
     const [sharing, setSharing] = useState(false);
     const [debugOverlay, setDebugOverlay] = useState(false); // Debug: Force show overlay
+    const [hasPremium, setHasPremium] = useState(isPremium());
 
     // Prayer Focus Detection (Blur Mode)
     const { activePrayer, shouldShowOverlay, snooze, clearSnooze } = usePrayerFocus(
@@ -173,6 +174,15 @@ export default function Home() {
         const handleDebugOverlay = () => setDebugOverlay(true);
         window.addEventListener('debugShowPrayerOverlay', handleDebugOverlay);
         return () => window.removeEventListener('debugShowPrayerOverlay', handleDebugOverlay);
+    }, []);
+
+    // Listen for premium status changes
+    useEffect(() => {
+        const handlePremiumChange = () => {
+            setHasPremium(isPremium());
+        };
+        window.addEventListener('premiumStatusChanged', handlePremiumChange);
+        return () => window.removeEventListener('premiumStatusChanged', handlePremiumChange);
     }, []);
 
     // Midnight Transition Detection (Check every minute)
@@ -248,7 +258,7 @@ export default function Home() {
         const deedItems = t('deed.items', { returnObjects: true });
         setCurrentDeed(Array.isArray(deedItems) ? deedItems[dayOfYear % deedItems.length] : '');
 
-        if (isFriday && isPremium()) {
+        if (isFriday && hasPremium) {
             setActiveTheme(SHARE_THEMES.find(t => t.id === 'friday'));
         } else {
             setActiveTheme(SHARE_THEMES[0]);
@@ -362,7 +372,7 @@ export default function Home() {
 
             <PrayerCountdownWidget loading={loadingPrayers} city={city} nextPrayerInfo={nextPrayerInfo} prayerTimes={prayerTimes} />
 
-            {isPremium() ? (
+            {hasPremium ? (
                 <DailyDeedCard
                     revealed={deedRevealed}
                     deed={currentDeed}
@@ -489,7 +499,7 @@ export default function Home() {
                                 </h4>
                                 <button
                                     onClick={() => { selection(); setShowShareModal(false); }}
-                                    aria-label="Kapat"
+                                    aria-label={t('close')}
                                     className="touch-target hover:bg-gray-100 dark:hover:bg-white/5 rounded-full dark:text-white"
                                 >
                                     <X className="w-5 h-5" />
@@ -507,7 +517,7 @@ export default function Home() {
                                     <div className="flex justify-center gap-4">
                                         {SHARE_THEMES.map((theme, index) => {
                                             const isFree = index === 0;
-                                            const isLocked = !isFree && !isPremium();
+                                            const isLocked = !isFree && !hasPremium;
                                             return (
                                                 <button key={theme.id} onClick={() => {
                                                     selection();
@@ -603,7 +613,7 @@ export default function Home() {
 }
 // --- Esma Detail Modal (Redesigned: Divine Elegance) ---
 // --- Web Audio API for instant sound ---
-const ESMA_SOUND_URL = 'https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3';
+const ESMA_SOUND_URL = '/sounds/esma_tap.mp3';
 let esmaAudioContext = null;
 let esmaAudioBuffer = null;
 
@@ -721,20 +731,20 @@ function EsmaDetailModal({ esma, count, setCount, onClose }) {
         selection();
         const newState = !soundEnabled;
         setSoundEnabled(newState);
-        showFeedback(newState ? 'Ses: Açık' : 'Ses: Kapalı');
+        showFeedback(newState ? t('sound_on') : t('sound_off'));
     };
 
     const cycleHapticsMode = () => {
         selection();
         let nextMode = 'all';
-        let msg = 'Titreşim: Her Tıklamada';
+        let msg = t('haptics_every');
 
         if (hapticsMode === 'all') {
             nextMode = 'target';
-            msg = 'Titreşim: Sadece Hedefte';
+            msg = t('haptics_target');
         } else if (hapticsMode === 'target') {
             nextMode = 'off';
-            msg = 'Titreşim: Kapalı';
+            msg = t('haptics_off');
         }
 
         setHapticsMode(nextMode);

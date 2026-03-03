@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import {
     User, Settings, Shield, Bell, HelpCircle, RefreshCw,
     ChevronRight, LogOut, Heart, Crown, Check, Moon, Sun, Download, Trash2, X,
-    BookOpen, Box, Landmark, Camera, Pen, Share2, UserPlus, Globe, Bug, Ticket, Gift
+    BookOpen, Box, Landmark, Camera, Pen, Share2, UserPlus, Globe, Bug, Ticket, Gift, Sparkles
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
@@ -18,7 +18,7 @@ import { useTheme } from '@/context/ThemeContext';
 import AvatarIcon from '@/components/AvatarIcon';
 import ShareCard, { SHARE_THEMES } from '@/components/ShareCard';
 import { Capacitor } from '@capacitor/core';
-import { setPremium } from '@/services/creditService';
+import { isPremium as checkIsPremium, setPremium } from '@/services/creditService';
 import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
 import { Share } from '@capacitor/share';
 
@@ -27,7 +27,7 @@ export default function Profile() {
     const { t, i18n } = useTranslation('profile');
     const navigate = useNavigate();
     const { selection, success, heavy } = useHaptics();
-    const { userData, updateAvatar } = useUser();
+    const { userData, updateAvatar, updateName } = useUser();
 
     // Constants
     const AVATAR_PRESETS = [
@@ -64,6 +64,10 @@ export default function Profile() {
     const [notifications, setNotifications] = useState(true);
     const [showPrivacyModal, setShowPrivacyModal] = useState(false);
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
+    // Name Editing State
+    const [showNameModal, setShowNameModal] = useState(false);
+    const [tempName, setTempName] = useState('');
 
     // Share Card Data
     const [shareData, setShareData] = useState({
@@ -117,7 +121,7 @@ export default function Profile() {
     // Load Data
     useEffect(() => {
         setStreak(localStorage.getItem('userStreak') || '7');
-        setIsPremium(localStorage.getItem('isPremium') === 'true');
+        setIsPremium(checkIsPremium());
         setNotifications(localStorage.getItem('notifications') !== 'false');
         // Migration: kaaba -> tuba
         let currentAvatar = localStorage.getItem('userAvatar') || 'male';
@@ -184,13 +188,14 @@ export default function Profile() {
             window.removeEventListener('storage', handleUpdate);
         };
     }, []);
-
-    const togglePremium = () => {
-        heavy();
-        const newState = !isPremium;
-        setIsPremium(newState);
-        localStorage.setItem('isPremium', newState.toString());
-    };
+    // Listen for global premium updates (e.g., from Paywall or App.jsx)
+    useEffect(() => {
+        const handlePremiumChange = () => {
+            setIsPremium(checkIsPremium());
+        };
+        window.addEventListener('premiumStatusChanged', handlePremiumChange);
+        return () => window.removeEventListener('premiumStatusChanged', handlePremiumChange);
+    }, []);
 
     const handleAvatarSelect = (id) => {
         selection();
@@ -205,6 +210,20 @@ export default function Profile() {
         window.dispatchEvent(new Event('avatarChanged'));
 
         setShowAvatarModal(false);
+    };
+
+    const handleNameSave = () => {
+        const trimmed = tempName.trim();
+        if (trimmed.length > 0 && trimmed.length <= 25) {
+            success();
+            // Update context
+            useUser().updateName(trimmed); // If we didn't destructure updateName
+            // actually we do destructure useUser(), let's use the object from top level instead
+            setShowNameModal(false);
+        } else {
+            heavy();
+            alert(t('invalid_name') || 'Lütfen 1-25 karakter arası bir isim girin.');
+        }
     };
 
     const toggleNotifications = () => {
@@ -225,10 +244,10 @@ export default function Profile() {
     };
 
     const calculateQada = () => {
-        if (!calcData.birthDate || !calcData.startDate) return alert('Please fill in the dates');
+        if (!calcData.birthDate || !calcData.startDate) return alert(t('fill_dates'));
         // Simple mock calc for UX demo
         success();
-        alert('Hesaplama simülasyonu tamamlandı.');
+        alert(t('calc_complete'));
     };
 
     const containerVariants = {
@@ -288,15 +307,32 @@ export default function Profile() {
                                 </div>
                             </div>
 
-                            {/* Camera/Edit Badge */}
+                            {/* Camera/Edit Badge for Avatar */}
                             <div className="absolute 0 bottom-1 right-1 bg-islamic-green text-white p-2 rounded-full border-4 border-white dark:border-[#032e18] shadow-lg">
                                 <Camera size={14} className="fill-current" />
                             </div>
                         </div>
 
-                        <h2 className={cn("text-2xl font-serif font-bold mb-1", isPremium ? "text-white" : "text-gray-900 dark:text-white")}>
-                            {t('user.default_name')}
-                        </h2>
+                        {/* Editable Name Section */}
+                        <div
+                            className="flex items-center justify-center gap-2 mb-1 group cursor-pointer"
+                            onClick={() => {
+                                selection();
+                                setTempName(userData.name === 'Kullanıcı' ? '' : userData.name);
+                                setShowNameModal(true);
+                            }}
+                        >
+                            <h2 className={cn("text-2xl font-serif font-bold", isPremium ? "text-white" : "text-gray-900 dark:text-white")}>
+                                {userData.name === 'Kullanıcı' ? t('user.default_name') : userData.name}
+                            </h2>
+                            <div className={cn(
+                                "flex items-center justify-center w-6 h-6 rounded-full opacity-50 transition-all duration-300 group-hover:opacity-100 group-hover:scale-110",
+                                isPremium ? "bg-white/20 text-white" : "bg-gray-100 dark:bg-white/10 text-gray-400 dark:text-gray-300"
+                            )}>
+                                <Pen size={12} />
+                            </div>
+                        </div>
+
                         <p className={cn("text-sm font-medium", isPremium ? "text-islamic-gold/80" : "text-stone-500 dark:text-gray-400")}>
                             {t('user.streak_desc', {
                                 count: (() => {
@@ -323,22 +359,47 @@ export default function Profile() {
 
             {/* Premium CTA (Only for Free Users) */}
             {!isPremium && (
-                <motion.div variants={itemVariants} className="px-4">
-                    <div
+                <motion.div variants={itemVariants} className="px-4 pb-2">
+                    <motion.div
                         onClick={() => { heavy(); navigate('/premium'); }}
-                        className="bg-gradient-to-r from-islamic-gold to-amber-500 rounded-[2rem] p-6 text-white shadow-xl relative overflow-hidden cursor-pointer group"
+                        className="relative rounded-[2rem] p-6 shadow-[0_8px_30px_rgba(212,175,55,0.3)] overflow-hidden cursor-pointer group"
+                        style={{ background: 'linear-gradient(135deg, #FFD700 0%, #D4AF37 50%, #FFD700 100%)' }}
+                        whileTap={{ scale: 0.96 }}
                     >
+                        {/* Shimmer sweep effect */}
+                        <motion.div
+                            className="absolute inset-0 pointer-events-none"
+                            style={{
+                                background: 'linear-gradient(105deg, transparent 35%, rgba(255,255,255,0.4) 45%, rgba(255,255,255,0.6) 50%, rgba(255,255,255,0.4) 55%, transparent 65%)',
+                                backgroundSize: '200% auto',
+                            }}
+                            animate={{ backgroundPosition: ['200% center', '-200% center'] }}
+                            transition={{ repeat: Infinity, duration: 3, ease: 'linear' }}
+                        />
+                        {/* Ambient Glows */}
+                        <div className="absolute -top-10 -right-10 w-32 h-32 bg-white/40 rounded-full blur-2xl group-hover:scale-110 transition-transform duration-700" />
+                        <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-white/20 rounded-full blur-xl" />
+
                         <div className="relative z-10 flex items-center justify-between">
-                            <div>
-                                <h3 className="text-lg font-bold font-serif mb-1">{t('premium.banner_title')}</h3>
-                                <p className="text-xs text-white/90 font-medium">{t('premium.banner_desc')}</p>
+                            <div className="pr-4">
+                                <h3 className="text-xl font-bold font-serif mb-1 tracking-tight flex items-center gap-1.5 text-[#064e3b]">
+                                    <Sparkles className="w-5 h-5 text-[#064e3b]" fill="currentColor" />
+                                    {t('premium.banner_title')}
+                                </h3>
+                                <p className="text-sm text-[#064e3b]/85 font-medium leading-snug drop-shadow-sm">
+                                    {t('premium.banner_desc')}
+                                </p>
                             </div>
-                            <div className="bg-white/20 p-3 rounded-full backdrop-blur-sm group-hover:scale-110 transition-transform">
-                                <Crown className="w-6 h-6 text-white fill-current" />
+                            <div className="bg-[#064e3b]/10 p-4 rounded-full backdrop-blur-md group-hover:scale-110 group-hover:bg-[#064e3b]/15 transition-all shadow-inner relative flex-shrink-0">
+                                <Moon className="w-8 h-8 text-[#064e3b] fill-current" />
+                                <motion.div
+                                    className="absolute inset-0 rounded-full border border-white/50"
+                                    animate={{ scale: [1, 1.25, 1], opacity: [0.6, 0, 0.6] }}
+                                    transition={{ repeat: Infinity, duration: 2.5 }}
+                                />
                             </div>
                         </div>
-                        <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
-                    </div>
+                    </motion.div>
                 </motion.div>
             )}
 
@@ -745,7 +806,7 @@ export default function Profile() {
                                         type="text"
                                         value={promoCode}
                                         onChange={(e) => setPromoCode(e.target.value)}
-                                        placeholder="MOBI2025"
+                                        placeholder="KOD GİRİNİZ"
                                         className="w-full p-4 bg-gray-50 dark:bg-white/5 border-2 border-gray-200 dark:border-white/10 rounded-xl text-lg font-bold text-center tracking-widest uppercase focus:outline-none focus:border-islamic-gold transition-colors"
                                     />
                                 </div>
@@ -763,7 +824,87 @@ export default function Profile() {
                 )}
             </AnimatePresence>
 
-            <div className="text-center pb-8 opacity-30">
+            {/* Editable Name Modal */}
+            <AnimatePresence>
+                {showNameModal && (
+                    <motion.div
+                        initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+                        onClick={() => setShowNameModal(false)}
+                    >
+                        <motion.div
+                            initial={{ scale: 0.9, opacity: 0, y: 20 }}
+                            animate={{ scale: 1, opacity: 1, y: 0 }}
+                            exit={{ scale: 0.9, opacity: 0, y: 20 }}
+                            onClick={(e) => e.stopPropagation()}
+                            className="bg-white dark:bg-[#032e18] w-full max-w-sm rounded-[2.5rem] p-6 shadow-2xl border dark:border-white/10"
+                        >
+                            <div className="flex justify-between items-center mb-6">
+                                <h3 className="text-xl font-bold font-serif text-islamic-green dark:text-islamic-gold flex items-center gap-2">
+                                    <User className="w-5 h-5" /> İsmini Düzenle
+                                </h3>
+                                <Button size="icon" variant="ghost" onClick={() => setShowNameModal(false)}><X className="w-5 h-5" /></Button>
+                            </div>
+
+                            <div className="space-y-4">
+                                <div className="space-y-2 relative">
+                                    <label className="text-xs font-bold text-gray-500 uppercase ml-1">Kullanıcı Adı</label>
+                                    <input
+                                        type="text"
+                                        value={tempName}
+                                        onChange={(e) => {
+                                            const val = e.target.value;
+                                            // Only allow letters (including Turkish characters) and spaces
+                                            if (/^[a-zA-ZğüşıöçĞÜŞİÖÇ\s]*$/.test(val)) {
+                                                setTempName(val);
+                                            }
+                                        }}
+                                        placeholder="Kullanıcı"
+                                        maxLength={25}
+                                        className="w-full p-4 pl-12 bg-gray-50 dark:bg-white/5 border-2 border-gray-200 dark:border-white/10 rounded-xl text-lg font-bold text-gray-900 dark:text-white focus:outline-none focus:border-islamic-green dark:focus:border-islamic-gold transition-colors"
+                                        autoFocus
+                                        onKeyDown={(e) => e.key === 'Enter' && tempName.trim() && (() => {
+                                            success();
+                                            updateName(tempName.trim());
+                                            setShowNameModal(false);
+                                        })()}
+                                    />
+                                    <Pen className="w-5 h-5 absolute left-4 bottom-4 text-gray-400" />
+                                </div>
+
+
+                                <p className="text-[10px] text-gray-400 text-center">İsim uzunluğu 1-25 karakter arasında olmalı ve sadece harf içermelidir.</p>
+
+                                <div className="flex gap-3">
+                                    <Button
+                                        onClick={() => setShowNameModal(false)}
+                                        className="flex-1 h-12 bg-gray-100 text-stone-700 hover:bg-gray-200 dark:bg-white/10 dark:text-white dark:hover:bg-white/20 rounded-xl font-medium transition-colors"
+                                    >
+                                        İptal
+                                    </Button>
+                                    <Button
+                                        onClick={() => {
+                                            if (tempName.trim()) {
+                                                success();
+                                                updateName(tempName.trim());
+                                                setShowNameModal(false);
+                                            } else {
+                                                heavy();
+                                            }
+                                        }}
+                                        disabled={!tempName.trim()}
+                                        className="flex-1 h-12 bg-islamic-green hover:bg-islamic-green/90 dark:bg-islamic-gold dark:text-[#032e18] dark:hover:bg-islamic-gold/90 text-white font-bold text-base rounded-xl transition-all shadow-md active:scale-95"
+                                    >
+                                        Kaydet
+                                    </Button>
+                                </div>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            <div className="text-center pb-8 opacity-30 mt-6">
                 <p className="text-[10px] font-black uppercase tracking-[0.3em]">{t('app_name')}</p>
                 <p className="text-[9px]">{t('version')}</p>
             </div>
@@ -794,7 +935,7 @@ export default function Profile() {
                             className="w-full max-w-md bg-white dark:bg-gray-900 rounded-t-3xl p-6 pb-safe"
                         >
                             <div className="flex items-center justify-between mb-6">
-                                <h3 className="text-lg font-bold text-gray-900 dark:text-white">Tema Seç</h3>
+                                <h3 className="text-lg font-bold text-gray-900 dark:text-white">{t('theme_select_title')}</h3>
                                 <button
                                     onClick={() => setShowShareModal(false)}
                                     className="p-2 rounded-full bg-gray-100 dark:bg-gray-800"

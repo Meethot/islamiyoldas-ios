@@ -38,5 +38,12 @@
     "shareApp": "مشاركة التطبيق",
     "contactUs": "تواصل معنا",
     "appName": "الرفيق الإسلامي v1.0.0",
-    "appSlogan": "معاً على الطريق الروحاني"
+    "appSlogan": "معاً على الطريق الروحاني",
+    "legal": {
+        "terms_title": "شروط الاستخدام",
+        "terms_desc": "شروط الخدمة وقواعد الاستخدام",
+        "privacy_title": "سياسة الخصوصية",
+        "privacy_desc": "كيف نحمي بياناتك",
+        "footer_note": "للأسئلة، راسلنا على support@islamiyoldas.com."
+    }
 }

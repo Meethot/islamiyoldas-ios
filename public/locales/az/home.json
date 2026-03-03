@@ -66,6 +66,12 @@
     "theme_select": "Tema Seçin",
     "share_image": "Şəkli Paylaş",
     "sharing": "Paylaşılır...",
+    "alarm_too_close": "Vaxta çox az qalıb, bu müddət üçün alarm qurula bilməz.",
+    "sound_on": "Səs: Açıq",
+    "sound_off": "Səs: Qapalı",
+    "haptics_every": "Titrəşim: Hər toxunuşda",
+    "haptics_target": "Titrəşim: Yalnız hədəfdə",
+    "haptics_off": "Titrəşim: Qapalı",
     "close": "Bağla",
     "reset": "Sıfırla",
     "quick_actions": {

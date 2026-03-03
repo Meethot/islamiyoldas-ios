@@ -85,7 +85,7 @@
         "email_description_prompt": "Beschreibung (beschreibe kurz, was du gemacht hast):"
     },
     "premium": {
-        "headline": "Entfalte Dein Spirituelles Potenzial",
+        "headline": "Entferne Grenzen auf deiner islamischen Reise",
         "subheadline": "Werde Premium und schalte alle Funktionen frei, um dein Gebetserlebnis zu verbessern.",
         "testimonial_quote": "Möge Allah euch segnen, diese App hat meine Gebete perfekt organisiert.",
         "testimonial_author": "Ahmet",
@@ -101,12 +101,27 @@
         "trial_included": "3 Tage kostenlose Testversion inklusive",
         "month": "Monat",
         "year": "Jahr",
+        "daily_label": "Nur {{price}} / Tag",
+        "monthly_label": "{{price}} / Monat",
         "cta_trial": "3-TAGE-TESTVERSION STARTEN",
         "cta_subscribe": "JETZT ABONNIEREN",
         "disclaimer_yearly": "3 Tage kostenlos testen. Das Abo verlängert sich automatisch für ₺979,99/Jahr nach Ablauf der Testphase. Jederzeit kündbar.",
         "disclaimer_monthly": "Das Abo verlängert sich automatisch für ₺124,99/Monat. Jederzeit kündbar.",
         "restore": "Kauf wiederherstellen",
         "terms": "Nutzungsbedingungen",
-        "privacy": "Datenschutzrichtlinie"
+        "privacy": "Datenschutzrichtlinie",
+        "iap_processing": "Zahlung wird verarbeitet...",
+        "iap_wait": "Bitte warten, Store wird geöffnet",
+        "iap_timeout": "Zeitüberschreitung. Bitte versuche es erneut.",
+        "iap_error_network": "Überprüfe deine Internetverbindung und versuche es erneut.",
+        "iap_error_declined": "Zahlung abgelehnt. Bitte überprüfe deine Zahlungsmethode.",
+        "iap_error_restricted": "Käufe sind eingeschränkt. Prüfe Einstellungen > Bildschirmzeit.",
+        "iap_error_unavailable": "Dieses Produkt ist derzeit nicht verfügbar. Bitte versuche es später.",
+        "iap_error_generic": "Etwas ist schiefgelaufen. Bitte versuche es erneut.",
+        "iap_restore_empty": "Kein aktives Abonnement gefunden.",
+        "iap_restore_failed": "Wiederherstellung fehlgeschlagen. Bitte erneut versuchen.",
+        "premium_member": "Premium-Mitglied",
+        "exit_journey": "Deine spirituelle Reise",
+        "exit_reach_100": "Erreiche 100% mit Premium"
     }
 }

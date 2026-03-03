@@ -6,7 +6,7 @@
     },
     "premium": {
         "banner_title": "Go Premium",
-        "banner_desc": "Ad-free experience and detailed stats."
+        "banner_desc": "Experience your Islamic journey uninterrupted, unlock all features."
     },
     "personal_settings": "Personal Settings",
     "general_settings": "General Settings",
@@ -89,5 +89,8 @@
     },
     "avatar_modal_title": "Select Profile Photo",
     "app_name": "Islamic Companion",
-    "version": "Version 2.1.0 (Pro Max)"
+    "version": "Version 2.1.0 (Pro Max)",
+    "theme_select_title": "Select Theme",
+    "fill_dates": "Please fill in the dates",
+    "calc_complete": "Calculation completed."
 }
