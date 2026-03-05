@@ -239,7 +239,7 @@ export default function Profile() {
         heavy();
         if (confirm(t('delete_account.confirm'))) {
             localStorage.clear();
-            window.location.reload();
+            window.location.href = '/';
         }
     };
 
@@ -721,7 +721,7 @@ export default function Profile() {
                                 <Button
                                     onClick={() => {
                                         localStorage.clear();
-                                        window.location.reload();
+                                        window.location.href = '/';
                                     }}
                                     className="flex-1 h-11 bg-red-500 text-white hover:bg-red-600 rounded-xl"
                                 >

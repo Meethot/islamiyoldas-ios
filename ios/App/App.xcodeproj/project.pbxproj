@@ -19,7 +19,7 @@
 		E44ECC572F36282700996C74 /* beep.caf in Resources */ = {isa = PBXBuildFile; fileRef = E44ECC552F36282700996C74 /* beep.caf */; };
 		E44ECC582F36282700996C74 /* ezan.caf in Resources */ = {isa = PBXBuildFile; fileRef = E44ECC562F36282700996C74 /* ezan.caf */; };
 		E48DDD312F45063500B2FBF8 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = E48DDD302F45063500B2FBF8 /* GoogleService-Info.plist */; };
-			PRIV001122334455660002 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = PRIV001122334455660001 /* PrivacyInfo.xcprivacy */; };
+		PRIV001122334455660002 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = PRIV001122334455660001 /* PrivacyInfo.xcprivacy */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -55,8 +55,7 @@
 		E47CC6A02F34FFB7001653B3 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 		E48DDD302F45063500B2FBF8 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		FC7B1184F88FB0712CDE0451 /* Pods-App.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-App.debug.xcconfig"; path = "Target Support Files/Pods-App/Pods-App.debug.xcconfig"; sourceTree = "<group>"; };
-			PRIV001122334455660001 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
-			AZLP001122334455660001 /* az */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = az; path = az.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		PRIV001122334455660001 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -102,7 +101,7 @@
 				504EC30E1FED79650016851F /* Assets.xcassets */,
 				504EC3101FED79650016851F /* LaunchScreen.storyboard */,
 				504EC3131FED79650016851F /* Info.plist */,
-					PRIV001122334455660001 /* PrivacyInfo.xcprivacy */,
+				PRIV001122334455660001 /* PrivacyInfo.xcprivacy */,
 				2FAD9762203C412B000D30F8 /* config.xml */,
 				50B271D01FEDC1A000F3C39B /* public */,
 				E48DDD302F45063500B2FBF8 /* GoogleService-Info.plist */,
@@ -200,7 +199,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-					PRIV001122334455660002 /* PrivacyInfo.xcprivacy in Resources */,
+				PRIV001122334455660002 /* PrivacyInfo.xcprivacy in Resources */,
 				504EC3121FED79650016851F /* LaunchScreen.storyboard in Resources */,
 				E44ECC572F36282700996C74 /* beep.caf in Resources */,
 				E44ECC582F36282700996C74 /* ezan.caf in Resources */,

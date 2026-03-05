@@ -87,8 +87,15 @@ export const WeeklyStreakWidget = memo(({ tubaData, setTubaData }) => {
     const navigate = useNavigate();
     const [showPremiumLock, setShowPremiumLock] = useState(false);
 
-    // Sound effect for button press (same as Dhikr)
-    const clickSoundRef = useRef(new Audio('https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3'));
+    // Sound effect — preloaded for zero latency
+    const clickSoundRef = useRef(null);
+    useEffect(() => {
+        const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3');
+        audio.preload = 'auto';
+        audio.volume = 0.6;
+        audio.load();
+        clickSoundRef.current = audio;
+    }, []);
 
     // Destructure Tuba Data
     const { currentStreak, totalWateredDays, lastWateredDate } = tubaData;
@@ -237,24 +244,20 @@ export const WeeklyStreakWidget = memo(({ tubaData, setTubaData }) => {
     const handleWatering = () => {
         const todayStr = getTodayString();
 
-        // Prevent multiple waterings per day logic
         if (isCompletedToday) {
             setAlreadyWateredMessage(true);
+            if (Capacitor.isNativePlatform()) Haptics.notification({ type: 'WARNING' }).catch(() => { });
             setTimeout(() => setAlreadyWateredMessage(false), 3000);
             return;
         }
 
-        // Premium gate: free on first day, premium required from day 2
         if (totalWateredDays >= 1 && !isPremium()) {
             navigate('/premium');
             return;
         }
 
         // Streak logic
-        // Streak logic
         let newStreak = currentStreak;
-
-        // Calculate "Yesterday" string for comparison
         const d = getAppDate();
         d.setDate(d.getDate() - 1);
         const year = d.getFullYear();
@@ -265,9 +268,8 @@ export const WeeklyStreakWidget = memo(({ tubaData, setTubaData }) => {
         if (lastWateredDate === yesterdayStr) {
             newStreak += 1;
         } else if (lastWateredDate === todayStr) {
-            newStreak = currentStreak; // Should be handled by guard, but safe
+            newStreak = currentStreak;
         } else {
-            // Streak broken (missed at least one day) or first time
             newStreak = 1;
         }
 
@@ -277,58 +279,64 @@ export const WeeklyStreakWidget = memo(({ tubaData, setTubaData }) => {
             lastWateredDate: todayStr
         };
 
-        // Haptic feedback - use Capacitor native haptics
+        // ── INSTANT haptic: Heavy impact on press for satisfying "thump" ──
         if (Capacitor.isNativePlatform()) {
-            try {
-                Haptics.impact({ style: ImpactStyle.Medium });
-            } catch (e) {
-                // Fallback to web vibration
-                if ('vibrate' in navigator) navigator.vibrate(50);
-            }
+            Haptics.impact({ style: ImpactStyle.Heavy }).catch(() => { });
+            // Second softer pulse 80ms later for "double-tap" premium feel
+            setTimeout(() => Haptics.impact({ style: ImpactStyle.Light }).catch(() => { }), 80);
         } else if ('vibrate' in navigator) {
-            navigator.vibrate(50);
+            navigator.vibrate([30, 60, 20]);
         }
 
-        // Sound feedback
+        // Sound — instant
         if (clickSoundRef.current) {
             clickSoundRef.current.currentTime = 0;
             clickSoundRef.current.play().catch(() => { });
         }
 
+        // Start water animation immediately
         setIsWatering(true);
 
+        // Particle flow starts fast (100ms) instead of 300ms
         setTimeout(() => {
             triggerParticleFlow();
             setTubaData(newData);
             localStorage.setItem('tubaAgaci_data', JSON.stringify(newData));
 
-            // Celebration check: trigger if this was the 7th day completed
-            // Local check instead of using state which might not be updated yet
+            // Tree impact haptic after water drop reaches tree (~600ms)
+            setTimeout(() => {
+                handleParticleComplete();
+            }, 500);
+
+            // Weekly celebration check
             const currentCheckedCount = completedDays.filter(d => d).length;
             const isCompletingLastDay = !completedDays[currentDayIndex];
 
             if (currentCheckedCount === 6 && isCompletingLastDay) {
                 setTimeout(() => {
                     setShowWeeklyCelebration(true);
-                    success(); // Triple haptic
+                    success();
                     setTimeout(() => setShowWeeklyCelebration(false), 8000);
-                }, 1500);
+                }, 1000);
             }
-        }, 300);
+        }, 100);
 
-        setTimeout(() => {
-            setIsWatering(false);
-        }, 1500);
+        // Water drop ends faster
+        setTimeout(() => setIsWatering(false), 900);
     };
 
     const handleParticleComplete = () => {
         setParticleFlying(false);
         setTreeImpact(true);
-        success();
 
-        setTimeout(() => {
-            setTreeImpact(false);
-        }, 600);
+        // Triple-pulse haptic on tree impact — satisfying "bloom" feedback
+        if (Capacitor.isNativePlatform()) {
+            Haptics.impact({ style: ImpactStyle.Heavy }).catch(() => { });
+            setTimeout(() => Haptics.impact({ style: ImpactStyle.Medium }).catch(() => { }), 60);
+            setTimeout(() => Haptics.impact({ style: ImpactStyle.Light }).catch(() => { }), 130);
+        }
+
+        setTimeout(() => setTreeImpact(false), 600);
     };
 
     return (
@@ -506,49 +514,25 @@ export const WeeklyStreakWidget = memo(({ tubaData, setTubaData }) => {
                         </motion.button>
                     </CardContent>
 
-                    {/* Flying Light Particle */}
-                    <AnimatePresence>
-                        {particleFlying && (
-                            <motion.div
-                                className="fixed w-4 h-4 rounded-full pointer-events-none z-[100]"
-                                style={{
-                                    background: 'radial-gradient(circle, rgba(255,255,255,1) 0%, rgba(212,175,55,1) 50%, rgba(16,185,129,0.8) 100%)',
-                                    boxShadow: '0 0 20px rgba(212,175,55,0.8), 0 0 40px rgba(212,175,55,0.4)',
-                                    left: particleStartPos.current.x,
-                                    top: particleStartPos.current.y
-                                }}
-                                initial={{ scale: 0, opacity: 0 }}
-                                animate={{
-                                    x: particleEndPos.current.x - particleStartPos.current.x,
-                                    y: [
-                                        0,
-                                        -80, // Arc peak
-                                        particleEndPos.current.y - particleStartPos.current.y
-                                    ],
-                                    scale: [0, 1.2, 1, 0.8],
-                                    opacity: [0, 1, 1, 0]
-                                }}
-                                transition={{
-                                    duration: 1.2,
-                                    ease: [0.43, 0.13, 0.23, 0.96],
-                                    times: [0, 0.3, 0.7, 1]
-                                }}
-                                onAnimationComplete={handleParticleComplete}
-                            />
-                        )}
-                    </AnimatePresence>
-
-                    {/* Water Drop Animation (Original) */}
+                    {/* Water Drop Animation — single beautiful drop with shimmer */}
                     <AnimatePresence>
                         {isWatering && (
                             <motion.div
-                                initial={{ opacity: 0, y: -10 }}
-                                animate={{ opacity: [0, 1, 1, 0], y: [0, 20, 40, 60] }}
+                                initial={{ opacity: 0, y: -20, scale: 0.3 }}
+                                animate={{ opacity: [0, 1, 1, 0.6, 0], y: [-20, 5, 25, 45, 60], scale: [0.3, 1.1, 1, 0.9, 0.5] }}
                                 exit={{ opacity: 0 }}
-                                transition={{ duration: 1.5, ease: "easeIn" }}
-                                className="absolute top-16 right-16 pointer-events-none"
+                                transition={{ duration: 0.85, ease: [0.22, 1, 0.36, 1] }}
+                                className="absolute top-14 right-14 pointer-events-none"
                             >
-                                <Droplet className="w-4 h-4 text-blue-400 fill-blue-300/70" />
+                                {/* Main water drop */}
+                                <Droplet className="w-6 h-6 text-blue-400 fill-blue-300/80 drop-shadow-[0_0_8px_rgba(96,165,250,0.6)]" />
+                                {/* Shimmer ring */}
+                                <motion.div
+                                    className="absolute inset-0 rounded-full"
+                                    style={{ border: '1.5px solid rgba(96,165,250,0.5)' }}
+                                    animate={{ scale: [0.8, 1.8, 2.5], opacity: [0.8, 0.3, 0] }}
+                                    transition={{ duration: 0.7, ease: 'easeOut' }}
+                                />
                             </motion.div>
                         )}
                     </AnimatePresence>
