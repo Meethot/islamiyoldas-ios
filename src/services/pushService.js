@@ -10,18 +10,12 @@ export async function initOneSignal() {
     }
 
     try {
-        // Uncomment to set OneSignal device logging to VERBOSE  
-        // OneSignal.Debug.setLogLevel(6);
-
         OneSignal.initialize(APP_ID);
 
-        // Prompts the user for notification permissions.
-        // * Since this shows a generic native prompt, we recommend instead using an In-App Message to prompt for notification permission (See step 7) to better communicate to your users what notifications they will get.
         OneSignal.Notifications.requestPermission(true).then((accepted) => {
             console.log("User accepted notifications: " + accepted);
         });
 
-        // Add event listeners
         OneSignal.Notifications.addEventListener('click', (event) => {
             console.log('OneSignal: notification clicked:', event);
         });
@@ -29,5 +23,17 @@ export async function initOneSignal() {
         console.log('OneSignal initialized successfully.');
     } catch (error) {
         console.error('OneSignal initialization error:', error);
+    }
+}
+
+export function setLanguageTag(langCode) {
+    if (!Capacitor.isNativePlatform()) return;
+    try {
+        const lang = (langCode || 'en').split('-')[0];
+        OneSignal.User.addTag('app_language', lang);
+        OneSignal.User.setLanguage(lang);
+        console.log('OneSignal language tag set:', lang);
+    } catch (error) {
+        console.error('OneSignal setLanguageTag error:', error);
     }
 }

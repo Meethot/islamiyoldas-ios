@@ -1,0 +1,40 @@
+diff --git a/node_modules/@capacitor/cli/dist/ios/update.js b/node_modules/@capacitor/cli/dist/ios/update.js
+index cbd21ec..cd6e728 100644
+--- a/node_modules/@capacitor/cli/dist/ios/update.js
++++ b/node_modules/@capacitor/cli/dist/ios/update.js
+@@ -93,7 +93,9 @@ let package = Package(
+         )
+     ]
+ )`;
+-    await (0, fs_extra_1.writeFile)((0, path_1.join)(config.ios.cordovaPluginsDirAbs, 'sources', p.name, 'Package.swift'), content);
++    const packageDir = (0, path_1.join)(config.ios.cordovaPluginsDirAbs, 'sources', p.name);
++    await (0, fs_extra_1.ensureDir)(packageDir);
++    await (0, fs_extra_1.writeFile)((0, path_1.join)(packageDir, 'Package.swift'), content);
+ }
+ async function installCocoaPodsPlugins(config, plugins, deployment) {
+     await (0, common_1.runTask)(`Updating iOS native dependencies with ${colors_1.default.input(`${await config.ios.podPath} install`)}`, () => {
+@@ -209,7 +211,9 @@ function isFramework(framework) {
+ async function generateCordovaPodspecs(cordovaPlugins, config) {
+     const staticPlugins = cordovaPlugins.filter((p) => (0, cordova_1.needsStaticPod)(p));
+     const noStaticPlugins = cordovaPlugins.filter((el) => !staticPlugins.includes(el));
+-    generateCordovaPodspec(noStaticPlugins, config, false);
++    // Pass ALL plugins to non-static podspec since copyPluginsNativeFiles
++    // copies all files to sources/ regardless of static status
++    generateCordovaPodspec(cordovaPlugins, config, false);
+     generateCordovaPodspec(staticPlugins, config, true);
+ }
+ async function generateCordovaPodspec(cordovaPlugins, config, isStatic) {
+@@ -363,9 +367,10 @@ async function copyPluginsNativeFiles(config, cordovaPlugins) {
+         const codeFiles = sourceFiles.concat(headerFiles);
+         const frameworks = (0, plugin_1.getPlatformElement)(p, platform, 'framework');
+         let sourcesFolderName = 'sources';
+-        if ((0, cordova_1.needsStaticPod)(p)) {
+-            sourcesFolderName += 'static';
+-        }
++        // Force all to sources since Capacitor 6 SPM expects 'sources'
++        // if ((0, cordova_1.needsStaticPod)(p)) {
++        //     sourcesFolderName += 'static';
++        // }
+         const sourcesFolder = (0, path_1.join)(config.ios.cordovaPluginsDirAbs, sourcesFolderName, p.name);
+         for (const codeFile of codeFiles) {
+             let fileName = codeFile.$.src.split('/').pop();

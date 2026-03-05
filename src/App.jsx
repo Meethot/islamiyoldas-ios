@@ -12,12 +12,13 @@ import { LocalNotifications } from '@capacitor/local-notifications';
 import { initAdMob } from './services/adService';
 import { isPremium } from './services/creditService';
 import { initCrashlytics, logPageView } from './services/crashService';
-import { initOneSignal } from './services/pushService';
+import { initOneSignal, setLanguageTag } from './services/pushService';
 
 import ScrollToTop from './components/ScrollToTop';
 import SwipeBackHandler from './components/SwipeBackHandler';
 import InterstitialAdManager from './components/InterstitialAdManager';
 import ReviewPrompt from './components/ReviewPrompt';
+import { useTranslation } from 'react-i18next';
 
 // Lazy-loaded pages — parsed only when navigated to
 const Learn = React.lazy(() => import('./pages/Learn'));
@@ -89,6 +90,10 @@ function AppContent() {
 
   // OneSignal init
   useEffect(() => { initOneSignal(); }, []);
+
+  // Sync app language to OneSignal for segment-based notifications
+  const { i18n } = useTranslation();
+  useEffect(() => { setLanguageTag(i18n.language); }, [i18n.language]);
 
   // IAP init — sets up transaction listeners + verifies subscription
   useEffect(() => {
