@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { getSpiritualAdvice } from '@/services/AiMentorService';
 import AiPrescriptionCard from '@/components/AiPrescriptionCard';
 import { triggerReviewPrompt } from '@/components/ReviewPrompt';
+import AiConsentModal, { hasAiConsent } from '@/components/AiConsentModal';
 import { useTranslation } from 'react-i18next';
 import { useHaptics } from '@/hooks/useMobile';
 import { isPremium } from '@/services/creditService';
@@ -53,6 +54,7 @@ export default function AiMentor() {
     const [input, setInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [usedCount, setUsedCount] = useState(getUsedToday());
+    const [consentGranted, setConsentGranted] = useState(hasAiConsent());
 
     const premium = isPremium();
     const dailyLimit = premium ? DAILY_LIMIT_PREMIUM : DAILY_LIMIT_FREE;
@@ -324,6 +326,14 @@ export default function AiMentor() {
                     </Button>
                 </div>
             </div>
+
+            {/* AI Consent Modal — shown before first use */}
+            {!consentGranted && (
+                <AiConsentModal
+                    onAccept={() => setConsentGranted(true)}
+                    onDecline={() => navigate(-1)}
+                />
+            )}
         </div>
     );
 }

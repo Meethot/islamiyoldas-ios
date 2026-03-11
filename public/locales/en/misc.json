@@ -25,5 +25,22 @@
         "count": "Count"
     },
     "comingSoon": "Coming Soon! This language is being prepared. 🌍",
-    "connectionError": "Unable to respond right now. Please try again in a moment."
+    "connectionError": "Unable to respond right now. Please try again in a moment.",
+    "aiConsent": {
+        "badge": "Data Privacy",
+        "title": "AI Mentor Data Usage",
+        "subtitle": "This feature uses artificial intelligence to provide personalized spiritual guidance for your questions.",
+        "data_sent_label": "Data Sent",
+        "data_sent_value": "Your questions and messages",
+        "provider_label": "Service Provider",
+        "provider_value": "Google Gemini AI (via Firebase)",
+        "purpose_label": "Purpose",
+        "purpose_value": "To provide personalized spiritual advice and guidance",
+        "storage_label": "Data Storage",
+        "storage_value": "Your messages are not permanently stored on servers",
+        "accept": "Accept & Continue",
+        "decline": "Not Now",
+        "privacy_note": "For details, see",
+        "privacy_link": "Privacy Policy"
+    }
 }

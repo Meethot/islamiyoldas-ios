@@ -16,7 +16,6 @@ import { initOneSignal, setLanguageTag } from './services/pushService';
 
 import ScrollToTop from './components/ScrollToTop';
 import SwipeBackHandler from './components/SwipeBackHandler';
-import InterstitialAdManager from './components/InterstitialAdManager';
 import ReviewPrompt from './components/ReviewPrompt';
 import { useTranslation } from 'react-i18next';
 
@@ -124,7 +123,6 @@ function AppContent() {
             <ScrollToTop />
             <SwipeBackHandler />
             <CrashBreadcrumbs />
-            <InterstitialAdManager />
             <ReviewPrompt />
             <Suspense fallback={<div className="min-h-screen bg-background" />}>
               <Routes>

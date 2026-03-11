@@ -25,5 +25,22 @@
         "count": "Adet"
     },
     "comingSoon": "Çok Yakında! Bu dil hazırlanıyor. 🌍",
-    "connectionError": "Şu an yanıt verilemedi. Lütfen bir süre sonra tekrar deneyiniz."
+    "connectionError": "Şu an yanıt verilemedi. Lütfen bir süre sonra tekrar deneyiniz.",
+    "aiConsent": {
+        "badge": "Veri Güvenliği",
+        "title": "AI Mentor Veri Kullanımı",
+        "subtitle": "Bu özellik, sorularınıza kişiselleştirilmiş dini rehberlik sağlamak için yapay zeka teknolojisi kullanır.",
+        "data_sent_label": "Gönderilen Veriler",
+        "data_sent_value": "Yazdığınız sorular ve mesajlar",
+        "provider_label": "Hizmet Sağlayıcı",
+        "provider_value": "Google Gemini AI (Firebase üzerinden)",
+        "purpose_label": "Kullanım Amacı",
+        "purpose_value": "Size özel dini tavsiye ve rehberlik sunmak",
+        "storage_label": "Veri Saklama",
+        "storage_value": "Mesajlarınız sunucuda kalıcı olarak saklanmaz",
+        "accept": "Kabul Et ve Devam Et",
+        "decline": "Şimdi Değil",
+        "privacy_note": "Detaylar için",
+        "privacy_link": "Gizlilik Politikası"
+    }
 }

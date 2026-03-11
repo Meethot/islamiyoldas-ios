@@ -25,5 +25,22 @@
         "count": "Anzahl"
     },
     "comingSoon": "Demnächst verfügbar! Diese Sprache wird vorbereitet. 🌍",
-    "connectionError": "Verbindungsfehler."
+    "connectionError": "Verbindungsfehler.",
+    "aiConsent": {
+        "badge": "Datenschutz",
+        "title": "AI Mentor Datennutzung",
+        "subtitle": "Diese Funktion nutzt künstliche Intelligenz, um personalisierte spirituelle Beratung für Ihre Fragen zu bieten.",
+        "data_sent_label": "Gesendete Daten",
+        "data_sent_value": "Ihre Fragen und Nachrichten",
+        "provider_label": "Dienstanbieter",
+        "provider_value": "Google Gemini AI (über Firebase)",
+        "purpose_label": "Zweck",
+        "purpose_value": "Personalisierte spirituelle Beratung und Anleitung",
+        "storage_label": "Datenspeicherung",
+        "storage_value": "Ihre Nachrichten werden nicht dauerhaft auf Servern gespeichert",
+        "accept": "Akzeptieren & Fortfahren",
+        "decline": "Nicht jetzt",
+        "privacy_note": "Für Details siehe",
+        "privacy_link": "Datenschutzerklärung"
+    }
 }

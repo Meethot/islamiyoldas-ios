@@ -370,11 +370,11 @@ export default function PremiumPaywall() {
         setIsLoading(true);
         setToast(null);
 
-        // 30-second timeout
+        // 60-second timeout (Apple sandbox can be slow)
         const timeoutId = setTimeout(() => {
             setIsLoading(false);
             setToast({ type: 'error', message: t('premium.iap_timeout') });
-        }, 30000);
+        }, 60000);
 
         try {
             const productId = selectedPlan === 'yearly' ? PRODUCT_IDS.YEARLY : PRODUCT_IDS.MONTHLY;
@@ -409,7 +409,7 @@ export default function PremiumPaywall() {
             setIsRestoring(false);
             setToast({ type: 'error', message: t('premium.iap_timeout', 'İşlem zaman aşımına uğradı. Lütfen tekrar deneyin.') });
             setTimeout(() => setToast(null), 4000);
-        }, 30000);
+        }, 60000);
 
         try {
             const result = await restorePurchases();

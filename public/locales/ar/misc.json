@@ -25,5 +25,22 @@
         "count": "العدد"
     },
     "comingSoon": "قريباً! هذه اللغة قيد الإعداد. 🌍",
-    "connectionError": "خطأ في الاتصال."
+    "connectionError": "خطأ في الاتصال.",
+    "aiConsent": {
+        "badge": "خصوصية البيانات",
+        "title": "استخدام بيانات المرشد الذكي",
+        "subtitle": "تستخدم هذه الميزة الذكاء الاصطناعي لتقديم إرشاد روحاني مخصص لأسئلتك.",
+        "data_sent_label": "البيانات المرسلة",
+        "data_sent_value": "أسئلتك ورسائلك",
+        "provider_label": "مقدم الخدمة",
+        "provider_value": "Google Gemini AI (عبر Firebase)",
+        "purpose_label": "الغرض",
+        "purpose_value": "تقديم نصائح وإرشادات روحانية مخصصة لك",
+        "storage_label": "تخزين البيانات",
+        "storage_value": "لا يتم تخزين رسائلك بشكل دائم على الخوادم",
+        "accept": "قبول والمتابعة",
+        "decline": "ليس الآن",
+        "privacy_note": "للتفاصيل، انظر",
+        "privacy_link": "سياسة الخصوصية"
+    }
 }

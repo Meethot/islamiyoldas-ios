@@ -25,5 +25,22 @@
         "count": "Say"
     },
     "comingSoon": "Tezliklə! Bu dil hazırlanır. 🌍",
-    "connectionError": "Bağlantı xətası."
+    "connectionError": "Bağlantı xətası.",
+    "aiConsent": {
+        "badge": "Məlumat Təhlükəsizliyi",
+        "title": "AI Mentor Məlumat İstifadəsi",
+        "subtitle": "Bu xüsusiyyət suallarınıza fərdiləşdirilmiş dini istiqamət vermək üçün süni intellekt texnologiyasından istifadə edir.",
+        "data_sent_label": "Göndərilən Məlumatlar",
+        "data_sent_value": "Yazdığınız suallar və mesajlar",
+        "provider_label": "Xidmət Təminatçısı",
+        "provider_value": "Google Gemini AI (Firebase vasitəsilə)",
+        "purpose_label": "İstifadə Məqsədi",
+        "purpose_value": "Sizə xüsusi dini məsləhət və istiqamət vermək",
+        "storage_label": "Məlumat Saxlama",
+        "storage_value": "Mesajlarınız serverlərdə daimi olaraq saxlanmır",
+        "accept": "Qəbul Et və Davam Et",
+        "decline": "İndi Yox",
+        "privacy_note": "Ətraflı məlumat üçün",
+        "privacy_link": "Gizlilik Siyasəti"
+    }
 }

@@ -97,7 +97,7 @@ export default function Profile() {
     // Promo Code State
     const [showPromoModal, setShowPromoModal] = useState(false);
     const [promoCode, setPromoCode] = useState('');
-    const VALID_CODES = ['TEST', 'MOBI2025', 'TEKNOFIST', 'MEKKE', 'MEDINE', 'RAMAZAN', 'ALLAHKABULETSIN', 'KABE'];
+    const VALID_CODES = [];
 
     const handlePromoSubmit = () => {
         const code = promoCode.trim().toUpperCase();
