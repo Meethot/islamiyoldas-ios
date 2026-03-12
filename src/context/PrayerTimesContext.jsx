@@ -576,7 +576,7 @@ export const PrayerTimesProvider = ({ children }) => {
         } finally {
             schedulingRef.current = false;
         }
-    }, [settings.adhanEnabled, settings.vibrateOnly, latitude, longitude, hasLocation]);
+    }, [settings.adhanEnabled, settings.vibrateOnly, latitude, longitude, hasLocation, i18n.language]);
 
     const scheduleVerseNotifications = useCallback(async () => {
         if (!Capacitor.isNativePlatform()) return;
@@ -636,7 +636,7 @@ export const PrayerTimesProvider = ({ children }) => {
         } catch (error) {
             console.error('Error scheduling verse notifications:', error);
         }
-    }, [settings.verseEnabled]);
+    }, [settings.verseEnabled, i18n.language]);
 
     const scheduleFridayMessage = useCallback(async () => {
         if (!Capacitor.isNativePlatform()) return;
@@ -719,7 +719,7 @@ export const PrayerTimesProvider = ({ children }) => {
         } catch (error) {
             console.error('Error scheduling Friday message:', error);
         }
-    }, [settings.fridayMessage, settings.vibrateOnly]);
+    }, [settings.fridayMessage, settings.vibrateOnly, i18n.language]);
 
     const scheduleDhikrReminder = useCallback(async () => {
         if (!Capacitor.isNativePlatform()) return;
@@ -792,7 +792,7 @@ export const PrayerTimesProvider = ({ children }) => {
         } catch (error) {
             console.error('Error scheduling dhikr reminder:', error);
         }
-    }, [settings.dhikrReminder]);
+    }, [settings.dhikrReminder, i18n.language]);
 
     const value = useMemo(() => ({
         prayerTimes,

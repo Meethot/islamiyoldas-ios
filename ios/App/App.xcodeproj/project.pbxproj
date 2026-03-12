@@ -19,6 +19,7 @@
 		E44ECC582F36282700996C74 /* ezan.caf in Resources */ = {isa = PBXBuildFile; fileRef = E44ECC562F36282700996C74 /* ezan.caf */; };
 		E48DDD312F45063500B2FBF8 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = E48DDD302F45063500B2FBF8 /* GoogleService-Info.plist */; };
 		E49259D82F61982100F71080 /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E49259D72F61982100F71080 /* StoreKit.framework */; };
+		E49259DD2F61A46D00F71080 /* İslami Yoldaş: Namaz, Ramazan.storekit in Resources */ = {isa = PBXBuildFile; fileRef = E49259DC2F61A46D00F71080 /* İslami Yoldaş: Namaz, Ramazan.storekit */; };
 		FDC19C72B4872EDDE8A4F115 /* Pods_App.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 08BF80F130E618CCA04DF7D9 /* Pods_App.framework */; };
 		PRIV001122334455660002 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = PRIV001122334455660001 /* PrivacyInfo.xcprivacy */; };
 /* End PBXBuildFile section */
@@ -48,7 +49,6 @@
 		504EC3111FED79650016851F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		504EC3131FED79650016851F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		50B271D01FEDC1A000F3C39B /* public */ = {isa = PBXFileReference; lastKnownFileType = folder; path = public; sourceTree = "<group>"; };
-		958DCC722DB07C7200EA8C5F /* debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = debug.xcconfig; path = ../debug.xcconfig; sourceTree = SOURCE_ROOT; };
 		A11BCC5A2F3D000100996C74 /* sahur_alarm.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = sahur_alarm.caf; sourceTree = "<group>"; };
 		BFAEAACB5F8DB34B47F86538 /* Pods-App.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-App.debug.xcconfig"; path = "Target Support Files/Pods-App/Pods-App.debug.xcconfig"; sourceTree = "<group>"; };
 		E44ECC552F36282700996C74 /* beep.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = beep.caf; sourceTree = "<group>"; };
@@ -57,6 +57,7 @@
 		E47CC6A02F34FFB7001653B3 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 		E48DDD302F45063500B2FBF8 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		E49259D72F61982100F71080 /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
+		E49259DC2F61A46D00F71080 /* İslami Yoldaş: Namaz, Ramazan.storekit */ = {isa = PBXFileReference; lastKnownFileType = text; path = "İslami Yoldaş: Namaz, Ramazan.storekit"; sourceTree = "<group>"; };
 		PRIV001122334455660001 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -76,7 +77,7 @@
 		504EC2FB1FED79650016851F = {
 			isa = PBXGroup;
 			children = (
-				958DCC722DB07C7200EA8C5F /* debug.xcconfig */,
+				E49259DC2F61A46D00F71080 /* İslami Yoldaş: Namaz, Ramazan.storekit */,
 				504EC3061FED79650016851F /* App */,
 				E47CC69D2F34FFB6001653B3 /* Frameworks */,
 				504EC3051FED79650016851F /* Products */,
@@ -205,6 +206,7 @@
 				PRIV001122334455660002 /* PrivacyInfo.xcprivacy in Resources */,
 				504EC3121FED79650016851F /* LaunchScreen.storyboard in Resources */,
 				E44ECC572F36282700996C74 /* beep.caf in Resources */,
+				E49259DD2F61A46D00F71080 /* İslami Yoldaş: Namaz, Ramazan.storekit in Resources */,
 				E44ECC582F36282700996C74 /* ezan.caf in Resources */,
 				A11BCC592F3D000100996C74 /* sahur_alarm.caf in Resources */,
 				50B271D11FEDC1A000F3C39B /* public in Resources */,

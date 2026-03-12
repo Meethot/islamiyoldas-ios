@@ -11,20 +11,6 @@ let NativePurchases = null;
 let isInitialized = false;
 let purchaseListeners = [];
 
-// On-screen debug logger (visible on device)
-function dbg(msg) {
-    console.log('[IAP]', msg);
-    let el = document.getElementById('iap-debug');
-    if (!el) {
-        el = document.createElement('div');
-        el.id = 'iap-debug';
-        el.style.cssText = 'position:fixed;top:50px;left:10px;right:10px;z-index:99999;background:rgba(0,0,0,0.9);color:#0f0;font-size:11px;padding:10px;border-radius:8px;max-height:200px;overflow-y:auto;font-family:monospace;pointer-events:auto;';
-        document.body.appendChild(el);
-    }
-    el.innerHTML += msg + '<br>';
-    el.scrollTop = el.scrollHeight;
-}
-
 function isNative() {
     return Capacitor.isNativePlatform();
 }
@@ -33,19 +19,16 @@ function isNative() {
 let pluginReadyResolve;
 const pluginReadyPromise = new Promise(resolve => { pluginReadyResolve = resolve; });
 
-// Load plugin eagerly
+// Load plugin eagerly — NEVER return the Proxy from an async function
 if (isNative()) {
     import('@capgo/native-purchases').then(mod => {
-        dbg('Module loaded: ' + Object.keys(mod).join(','));
         NativePurchases = mod.NativePurchases;
-        dbg('Plugin ready: ' + !!NativePurchases);
-        pluginReadyResolve(); // Resolve with undefined — safe!
-    }).catch(err => {
-        dbg('IMPORT FAILED: ' + (err?.message || err));
-        pluginReadyResolve(); // Still resolve so callers don't hang
+        pluginReadyResolve();
+    }).catch(() => {
+        pluginReadyResolve();
     });
 } else {
-    pluginReadyResolve(); // Not native — resolve immediately
+    pluginReadyResolve();
 }
 
 /**
@@ -54,12 +37,11 @@ if (isNative()) {
  */
 async function waitForPlugin() {
     await pluginReadyPromise;
-    // DO NOT return NativePurchases here — it's a Proxy with .then, 
-    // which causes async function to deadlock!
 }
 
 /**
  * Initialize IAP — call once on app startup.
+ * Sets up transaction listeners for StoreKit 2 updates.
  */
 export async function initializePurchases() {
     if (isInitialized) return;
@@ -67,46 +49,38 @@ export async function initializePurchases() {
     if (!NativePurchases) return;
     try {
         NativePurchases.addListener('transactionUpdated', (transaction) => {
-            dbg('transactionUpdated event');
             const active = isTransactionActive(transaction);
             localStorage.setItem(PREMIUM_KEY, active ? 'true' : 'false');
             purchaseListeners.forEach(fn => fn(active, transaction));
         }).catch(() => {});
         isInitialized = true;
-        dbg('Init OK');
-        verifySubscription().then(() => dbg('Subscription verified')).catch(() => {});
+        verifySubscription().catch(() => {});
     } catch (err) {
-        dbg('Init ERROR: ' + (err?.message || err));
+        console.warn('[IAP] Init error:', err);
         isInitialized = true;
     }
 }
 
 /**
  * Fetch subscription products with real localized prices from the store.
+ * Returns array of products or fallback mocks on web/error.
  */
 export async function getProducts() {
-    dbg('getProducts: START');
     await waitForPlugin();
-    dbg('getProducts: plugin=' + !!NativePurchases);
     if (!NativePurchases) {
-        dbg('getProducts: NO PLUGIN, mocks');
         return [
             { identifier: PRODUCT_IDS.MONTHLY, priceString: '₺124,99', price: 124.99, currencyCode: 'TRY', title: 'Aylık Premium', description: 'Aylık abonelik', introductoryPrice: null, discounts: [] },
             { identifier: PRODUCT_IDS.YEARLY, priceString: '₺979,99', price: 979.99, currencyCode: 'TRY', title: 'Yıllık Premium', description: 'Yıllık abonelik', introductoryPrice: null, discounts: [] },
         ];
     }
     try {
-        dbg('getProducts: CALLING STORE...');
         const result = await NativePurchases.getProducts({
             productIdentifiers: [PRODUCT_IDS.MONTHLY, PRODUCT_IDS.YEARLY],
             productType: 'subs',
         });
-        dbg('getProducts: RESULT=' + JSON.stringify(result));
-        const products = result?.products || [];
-        dbg('getProducts: ' + products.length + ' products');
-        return products;
+        return result?.products || [];
     } catch (err) {
-        dbg('getProducts: ERROR=' + (err?.message || err));
+        console.warn('[IAP] getProducts error:', err);
         return [];
     }
 }
@@ -117,26 +91,21 @@ export async function getProducts() {
  * @returns {Promise<{success: boolean, transaction?: object, error?: string}>}
  */
 export async function purchaseProduct(productId) {
-    dbg('purchase: START ' + productId);
     await waitForPlugin();
-    dbg('purchase: plugin=' + !!NativePurchases);
     if (!NativePurchases) {
         localStorage.setItem(PREMIUM_KEY, 'true');
         return { success: true, transaction: { productIdentifier: productId, transactionId: 'web-dev-mock' } };
     }
     try {
-        dbg('purchase: CALLING NATIVE...');
         const transaction = await NativePurchases.purchaseProduct({
             productIdentifier: productId,
             productType: 'subs',
         });
-        dbg('purchase: OK txn=' + JSON.stringify(transaction?.transactionId || 'none'));
         const active = isTransactionActive(transaction);
         localStorage.setItem(PREMIUM_KEY, active ? 'true' : 'false');
         return { success: active, transaction };
     } catch (err) {
         const message = err?.message || String(err);
-        dbg('purchase: ERROR=' + message);
         if (message.includes('cancel') || message.includes('Cancel') || message.includes('SKError Code=2')) {
             return { success: false, error: 'cancelled' };
         }
@@ -225,16 +194,12 @@ export function onPurchaseUpdate(callback) {
 // ─── Helpers ───
 
 function isTransactionActive(transaction) {
-    // iOS: check isActive flag or expiration date
     if (transaction.isActive === true) return true;
     if (transaction.isActive === false) return false;
-    // iOS fallback: check expiration date
     if (transaction.expirationDate) {
         return new Date(transaction.expirationDate) > new Date();
     }
-    // Android: check purchaseState === "1" (PURCHASED)
     if (transaction.purchaseState === '1') return true;
-    // Grace period — still grant access
     if (transaction.isInGracePeriod) return true;
     return false;
 }
