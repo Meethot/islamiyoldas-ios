@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Server, Sparkles, Lock, X } from 'lucide-react';
+import { ShieldCheck, Server, Sparkles, Lock, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 const CONSENT_KEY = 'ai_mentor_consent';
@@ -152,15 +152,13 @@ export default function AiConsentModal({ onAccept, onDecline }) {
                 {isVisible && (
                     <motion.div
                         className="fixed inset-0 z-[100] flex items-end justify-center"
-                        initial={{ opacity: 0 }}
+                        initial={{ opacity: 1 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                     >
-                        {/* Backdrop */}
-                        <motion.div
-                            className="absolute inset-0 bg-black/70 backdrop-blur-sm"
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
+                        {/* Backdrop — instant opacity to hide background */}
+                        <div
+                            className="absolute inset-0 bg-black/80 backdrop-blur-sm"
                             onClick={onDecline}
                         />
 
@@ -171,9 +169,18 @@ export default function AiConsentModal({ onAccept, onDecline }) {
                             animate={{ y: 0 }}
                             exit={{ y: '100%' }}
                             transition={{ type: 'spring', damping: 28, stiffness: 280 }}
+                            drag="y"
+                            dragConstraints={{ top: 0, bottom: 0 }}
+                            dragElastic={{ top: 0, bottom: 0.6 }}
+                            onDragEnd={(_, info) => {
+                                if (info.offset.y > 80 || info.velocity.y > 300) {
+                                    onDecline?.();
+                                }
+                            }}
+                            style={{ touchAction: 'none' }}
                         >
                             <div
-                                className="relative overflow-hidden rounded-t-[24px] border-t border-x border-[#D4AF37]/8 flex flex-col max-h-[85vh]"
+                                className="relative overflow-hidden rounded-t-[24px] flex flex-col max-h-[85vh]"
                                 style={{
                                     background: 'linear-gradient(175deg, #0d3d24 0%, #072a1a 30%, #041c11 65%, #021209 100%)',
                                 }}
@@ -194,10 +201,10 @@ export default function AiConsentModal({ onAccept, onDecline }) {
 
                                 {/* Close button */}
                                 <button
-                                    onClick={onDecline}
-                                    className="absolute top-3 right-3 w-7 h-7 flex items-center justify-center rounded-full bg-white/5 text-white/20 hover:text-white/40 transition-colors z-10"
+                                    onClick={(e) => { e.stopPropagation(); onDecline?.(); }}
+                                    className="absolute top-3 right-3 w-8 h-8 flex items-center justify-center rounded-full bg-white/10 text-white/40 hover:text-white/60 active:bg-white/20 transition-colors z-20"
                                 >
-                                    <X size={14} />
+                                    <X size={16} />
                                 </button>
 
                                 {/* Scrollable Content */}
@@ -220,6 +227,21 @@ export default function AiConsentModal({ onAccept, onDecline }) {
                                         </p>
                                     </motion.div>
 
+                                    {/* Third-party badge */}
+                                    <motion.div
+                                        className="flex items-center justify-center gap-2 mb-3"
+                                        initial={{ opacity: 0 }}
+                                        animate={{ opacity: 1 }}
+                                        transition={{ delay: 0.25 }}
+                                    >
+                                        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#D4AF37]/5 border border-[#D4AF37]/10">
+                                            <ShieldCheck size={12} className="text-[#D4AF37]/60" />
+                                            <span className="text-[#D4AF37]/50 text-[10px] font-medium tracking-wide uppercase">
+                                                {t('aiConsent.third_party_badge')}
+                                            </span>
+                                        </div>
+                                    </motion.div>
+
                                     {/* Info card */}
                                     <motion.div
                                         className="bg-white/[0.02] border border-[#D4AF37]/8 rounded-2xl px-3.5 py-1 mb-3.5"
@@ -228,7 +250,7 @@ export default function AiConsentModal({ onAccept, onDecline }) {
                                         transition={{ delay: 0.3 }}
                                     >
                                         <InfoRow
-                                            icon={Send}
+                                            icon={ShieldCheck}
                                             label={t('aiConsent.data_sent_label')}
                                             value={t('aiConsent.data_sent_value')}
                                             delay={0.35}
