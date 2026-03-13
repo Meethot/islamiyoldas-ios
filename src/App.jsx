@@ -115,10 +115,8 @@ function AppContent() {
 
   return (
     <>
-      {/* Desktop Background / Outer Container */}
-      <div className="min-h-screen bg-gray-100 dark:bg-gray-900 flex justify-center items-center overflow-hidden font-sans">
-        {/* Mobile Device Container */}
-        <div className="w-full max-w-md h-[100dvh] bg-background relative shadow-2xl overflow-hidden sm:rounded-[2rem] sm:border-[8px] sm:border-gray-800 dark:sm:border-gray-800">
+      {/* Full-screen app container — no phone frame for native builds */}
+      <div className="w-full h-[100dvh] bg-background relative overflow-hidden font-sans">
           <Router>
             <ScrollToTop />
             <SwipeBackHandler />
@@ -153,7 +151,6 @@ function AppContent() {
               </Routes>
             </Suspense>
           </Router>
-        </div>
       </div>
     </>
   );
