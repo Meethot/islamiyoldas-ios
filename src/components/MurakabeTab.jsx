@@ -282,7 +282,7 @@ export default function MurakabeTab() {
         }).length;
 
     return (
-        <div className="min-h-[70vh] relative overflow-hidden rounded-b-3xl bg-gradient-to-b from-[#FAF8F3] via-[#F5F0E6] to-[#EDE6D6] dark:from-transparent dark:via-transparent dark:to-transparent"
+        <div className="min-h-[60vh] sm:min-h-[70vh] relative overflow-hidden rounded-b-3xl bg-gradient-to-b from-[#FAF8F3] via-[#F5F0E6] to-[#EDE6D6] dark:from-transparent dark:via-transparent dark:to-transparent"
             style={{
                 '--murakabe-dark-bg': 'linear-gradient(180deg, #021a0f 0%, #032e18 25%, #064e3b 50%, #043927 75%, #021a0f 100%)'
             }}
@@ -327,7 +327,7 @@ export default function MurakabeTab() {
             />
 
             {/* Header */}
-            <header className="relative z-10 text-center pt-8 pb-5">
+            <header className="relative z-10 text-center pt-4 sm:pt-8 pb-3 sm:pb-5">
                 {/* Decorative Flourish */}
                 <div className="flex items-center justify-center gap-3 mb-3">
                     <div className="h-px w-12 bg-gradient-to-r from-transparent to-primary/30 dark:to-islamic-gold/40" />
@@ -399,7 +399,7 @@ export default function MurakabeTab() {
                         >
                             {/* The Card */}
                             <div
-                                className="relative rounded-[2.5rem] p-7 shadow-2xl shadow-primary/10 dark:shadow-black/40 overflow-hidden border border-primary/10 dark:border-islamic-gold/[0.08] bg-white/80 dark:bg-[#043927]"
+                                className="relative rounded-[2.5rem] p-5 sm:p-7 shadow-2xl shadow-primary/10 dark:shadow-black/40 overflow-hidden border border-primary/10 dark:border-islamic-gold/[0.08] bg-white/80 dark:bg-[#043927]"
                                 style={{
                                     backdropFilter: 'blur(20px)',
                                 }}
@@ -415,7 +415,7 @@ export default function MurakabeTab() {
                                 <div className="absolute bottom-4 right-4 w-6 h-6 border-b border-r border-primary/15 dark:border-islamic-gold/20 rounded-br-xl" />
 
                                 {/* Icon */}
-                                <div className="relative flex justify-center mb-6">
+                                <div className="relative flex justify-center mb-4 sm:mb-6">
                                     <motion.div
                                         className="p-4 rounded-2xl border border-primary/15 dark:border-islamic-gold/20 relative bg-primary/5 dark:bg-transparent"
                                         style={{

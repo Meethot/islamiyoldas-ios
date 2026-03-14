@@ -348,7 +348,7 @@ export default function Home() {
 
     return (
         <motion.div
-            className="space-y-6 p-5 pb-20 overflow-x-hidden dark:bg-[#032e18]"
+            className="space-y-4 sm:space-y-6 p-4 sm:p-5 pb-20 overflow-x-hidden dark:bg-[#032e18]"
             initial="hidden"
             animate="visible"
             variants={containerVariants}

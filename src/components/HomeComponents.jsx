@@ -349,9 +349,9 @@ export const WeeklyStreakWidget = memo(({ tubaData, setTubaData }) => {
                         growthProgress >= 7 ? "bg-islamic-gold/10" : "bg-islamic-green/5"
                     )} />
 
-                    <CardContent className="p-6 relative z-10">
+                    <CardContent className="p-4 sm:p-5 md:p-6 relative z-10">
                         {/* 7-Day Timeline */}
-                        <div className="mb-6">
+                        <div className="mb-4 sm:mb-6">
                             <div className="flex items-center justify-center gap-1.5 mb-2">
                                 {t('tuba.days', { returnObjects: true }).map((day, idx) => (
                                     <Fragment key={idx}>
@@ -489,7 +489,7 @@ export const WeeklyStreakWidget = memo(({ tubaData, setTubaData }) => {
                             disabled={isCompletedToday || isWatering}
                             whileTap={!isCompletedToday ? { scale: 0.95 } : {}}
                             className={cn(
-                                "w-full mt-6 h-12 rounded-2xl font-bold text-sm uppercase tracking-wide transition-all shadow-md flex items-center justify-center gap-2",
+                                "w-full mt-4 sm:mt-6 h-12 rounded-2xl font-bold text-sm uppercase tracking-wide transition-all shadow-md flex items-center justify-center gap-2",
                                 isCompletedToday
                                     ? "bg-gray-100 dark:bg-white/5 text-gray-400 dark:text-gray-500 cursor-default border border-gray-200 dark:border-white/5 shadow-none"
                                     : "bg-gradient-to-r from-islamic-green to-emerald-600 dark:from-islamic-gold dark:to-amber-600 text-white dark:text-[#032e18] hover:shadow-lg active:shadow-sm"
@@ -643,7 +643,7 @@ export const VerseOfDayCard = memo(({ isFriday, verse, fridayContent, onShare })
                         <Share2 className="w-5 h-5 text-islamic-gold" />
                     </button>
                 </CardHeader>
-                <CardContent className="relative z-10">
+                <CardContent className="relative z-10 p-5 sm:p-6">
                     <p className="font-serif text-xl leading-relaxed italic text-white/95 text-shadow-sm">
                         "{isFriday ? fridayContent.text : verse.text}"
                     </p>
@@ -674,7 +674,7 @@ export const DailyDeedCard = memo(({ revealed, deed, onReveal }) => {
                 onClick={onReveal}
             >
                 <div className="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-transparent via-islamic-gold to-transparent opacity-50" />
-                <CardContent className="p-6">
+                <CardContent className="p-4 sm:p-6">
                     <div className="flex items-center gap-4">
                         <div className={cn(
                             "w-14 h-14 rounded-[1.25rem] flex items-center justify-center transition-all duration-700 shadow-inner",
@@ -728,7 +728,7 @@ export const EsmaUlHusnaWidget = memo(({ esmaList, onSelect, onShowAll }) => {
                         key={esma.name}
                         whileTap={{ scale: 0.96 }}
                         onClick={() => onSelect(esma)}
-                        className="min-w-[200px] snap-center glass-panel p-6 rounded-[2.5rem] transition-all cursor-pointer relative overflow-hidden group bg-white/40 dark:bg-white/5 border border-white/20 dark:border-white/10 hover:border-islamic-gold/30 shadow-sm"
+                        className="min-w-[200px] snap-center glass-panel p-5 sm:p-6 rounded-[2.5rem] transition-all cursor-pointer relative overflow-hidden group bg-white/40 dark:bg-white/5 border border-white/20 dark:border-white/10 hover:border-islamic-gold/30 shadow-sm"
                     >
                         {/* Decorative Gradient Glow */}
                         <div className="absolute -top-12 -right-12 w-24 h-24 bg-islamic-green/5 dark:bg-islamic-gold/10 blur-3xl rounded-full" />
@@ -1402,7 +1402,7 @@ export const PrayerCountdownWidget = memo(({ loading, city, nextPrayerInfo, pray
                 >
                     <CardContent className="p-0">
                         {/* Main Countdown Row - Clean Design */}
-                        <div className="flex items-center gap-4 p-4">
+                        <div className="flex items-center gap-4 p-3 sm:p-4">
                             {/* Left: Icon */}
                             <div className="flex-shrink-0">
                                 {loading ? (
