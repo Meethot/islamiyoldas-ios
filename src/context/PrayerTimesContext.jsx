@@ -537,7 +537,7 @@ export const PrayerTimesProvider = ({ children }) => {
                                 const dateKey = d.date?.gregorian?.date;
                                 // Only fill gaps — don't overwrite Diyanet data
                                 if (dateKey && !calendarData[dateKey]) {
-                                    calendarData[dateKey] = d.timings;
+                                    calendarData[dateKey] = normalizeTimings(d.timings, localIsTurkish);
                                 }
                             });
                         } catch (e2) {
@@ -558,7 +558,7 @@ export const PrayerTimesProvider = ({ children }) => {
                     const days = res.data?.data || [];
                     days.forEach(d => {
                         const dateKey = d.date?.gregorian?.date;
-                        if (dateKey) calendarData[dateKey] = d.timings;
+                        if (dateKey) calendarData[dateKey] = normalizeTimings(d.timings, localIsTurkish);
                     });
 
                     // If 12-day window spans into next month, fetch that too
@@ -573,7 +573,7 @@ export const PrayerTimesProvider = ({ children }) => {
                         const days2 = res2.data?.data || [];
                         days2.forEach(d => {
                             const dateKey = d.date?.gregorian?.date;
-                            if (dateKey) calendarData[dateKey] = d.timings;
+                            if (dateKey) calendarData[dateKey] = normalizeTimings(d.timings, localIsTurkish);
                         });
                     }
                 }

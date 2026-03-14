@@ -6,6 +6,7 @@ import {
     AlertTriangle, ExternalLink
 } from 'lucide-react';
 import { Capacitor } from '@capacitor/core';
+import { Motion } from '@capacitor/motion';
 import { useNavigate } from 'react-router-dom';
 import { useLocation } from '@/context/LocationContext';
 import { useHaptics } from '@/hooks/useMobile';
@@ -103,6 +104,8 @@ export default function Qibla() {
     const [declination, setDeclination] = useState(0);
     const [distanceKM, setDistanceKM] = useState(0);
     const [sensorMissing, setSensorMissing] = useState(false);
+    const [isFlat, setIsFlat] = useState(true);
+    const [tiltStatus, setTiltStatus] = useState({ beta: 0, gamma: 0 });
 
     // Refs — direct DOM manipulation for 60fps smooth rotation
     const compassRef = useRef(null);
@@ -211,7 +214,6 @@ export default function Qibla() {
             setDistanceKM(Math.round(dist));
             setStatus('active');
         } else {
-            // Safety fallback — should rarely happen since splash waits for location
             const fallbackLat = 41.0082;
             const fallbackLng = 28.9784;
             setQiblaAngle(calculateGeodesicAzimuth(fallbackLat, fallbackLng));
@@ -220,6 +222,35 @@ export default function Qibla() {
             setStatus('active');
         }
     }, [hasLocation, latitude, longitude]);
+
+    // --- TILT DETECTION (Motion API) ---
+    useEffect(() => {
+        if (!Capacitor.isNativePlatform() || status !== 'active') return;
+
+        const handleMotion = (event) => {
+            const { beta, gamma } = event; // beta: front-back, gamma: left-right
+            const isDeviceFlat = Math.abs(beta) < 15 && Math.abs(gamma) < 15;
+            setIsFlat(isDeviceFlat);
+            setTiltStatus({ beta, gamma });
+        };
+
+        const startMotion = async () => {
+            try {
+                // Request permission if needed (iOS 13+)
+                if (DeviceOrientationEvent && typeof DeviceOrientationEvent.requestPermission === 'function') {
+                    await DeviceOrientationEvent.requestPermission();
+                }
+                Motion.addListener('orientation', handleMotion);
+            } catch (e) {
+                console.warn("Motion detection failed", e);
+            }
+        };
+
+        startMotion();
+        return () => {
+            Motion.removeAllListeners();
+        };
+    }, [status]);
 
 
     // --- NATIVE COMPASS WITH SENSOR DETECTION ---
@@ -289,8 +320,9 @@ export default function Qibla() {
                     if (diff < -180) diff += 360;
 
                     // Responsive alpha — faster for large changes, smooth for small
+                    // Responsive alpha — even tighter for micro-stutters
                     const absDiff = Math.abs(diff);
-                    const alpha = Math.min(0.25, 0.10 + absDiff * 0.003);
+                    const alpha = Math.min(0.20, 0.08 + absDiff * 0.002);
                     const smoothed = (current + alpha * diff + 360) % 360;
 
                     targetHeadingRef.current = smoothed;
@@ -394,6 +426,21 @@ export default function Qibla() {
                     </div>
                 ) : (
                     <div className="relative flex flex-col items-center gap-4">
+                        {/* Tilt Warning */}
+                        <AnimatePresence>
+                            {!isFlat && (
+                                <motion.div
+                                    initial={{ opacity: 0, y: -10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0, y: -10 }}
+                                    className="absolute -top-12 px-4 py-1.5 bg-red-500/20 border border-red-500/30 rounded-full backdrop-blur-md flex items-center gap-2 z-50 text-red-200"
+                                >
+                                    <Smartphone className="w-3.5 h-3.5 animate-bounce" />
+                                    <span className="text-[10px] uppercase font-bold tracking-tighter">Cihazı Düz Tutun / Hold Device Flat</span>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+
                         {/* Turn Direction Arrows — TOP, above compass */}
                         <div className="flex items-center justify-center gap-16 h-12">
                             {!isAligned && (
