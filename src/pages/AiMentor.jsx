@@ -300,6 +300,7 @@ export default function AiMentor() {
                     }`}>
                     <textarea
                         value={input}
+                        maxLength={1000}
                         onChange={(e) => setInput(e.target.value)}
                         onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleSend()}
                         placeholder={remaining <= 0 && !premium ? t('aiMentor.limitReachedPlaceholder') : t('aiMentor.placeholder')}
@@ -324,6 +325,12 @@ export default function AiMentor() {
                             <Send className="ml-0.5 w-5 h-5" />
                         )}
                     </Button>
+                </div>
+                {/* Character Counter */}
+                <div className="flex justify-end pr-4 mt-1.5">
+                    <span className={`text-[10px] font-medium transition-colors ${input.length >= 1000 ? 'text-red-500/90' : 'text-white/30'}`}>
+                        {input.length}/1000
+                    </span>
                 </div>
             </div>
 

@@ -33,9 +33,9 @@ const ProgressBar = ({ current, total }) => (
 
 // Slide direction context
 const slideVariants = {
-    enter: { opacity: 0, x: 60 },
+    enter: { opacity: 0, x: 20 },
     center: { opacity: 1, x: 0 },
-    exit: { opacity: 0, x: -40 },
+    exit: { opacity: 0, x: -20 },
 };
 
 export default function Onboarding() {
@@ -130,27 +130,37 @@ export default function Onboarding() {
                     setCurrentStep(currentStep + 1);
                     setSelectedValue(null);
                 } else {
-                    success();
-                    localStorage.setItem('onboardingComplete', 'true');
-                    localStorage.setItem('userProfile', JSON.stringify(nextAnswers));
-
-                    // Track onboarding in Amplitude
-                    setUserProperties(nextAnswers);
-                    analytics.onboardingCompleted({ ...nextAnswers, language: i18n.language });
-
-                    // Save demographics to Firestore for analytics, then redirect
-                    addDoc(collection(db, 'userDemographics'), {
-                        ...nextAnswers,
-                        language: i18n.language,
-                        createdAt: serverTimestamp()
-                    }).catch(() => { }).finally(() => {
-                        window.location.href = '/';
-                    });
+                    finishOnboarding(nextAnswers);
                 }
                 return nextAnswers;
             });
-        }, 500);
-    }, [currentStep, selection, success, impactHeavy]);
+        }, 150); // extremely fast selection delay
+    }, [currentStep, selection]);
+
+    const finishOnboarding = useCallback((finalAnswers) => {
+        success();
+        localStorage.setItem('onboardingComplete', 'true');
+        localStorage.setItem('userProfile', JSON.stringify(finalAnswers));
+        setUserProperties(finalAnswers);
+        analytics.onboardingCompleted({ ...finalAnswers, language: i18n.language });
+        addDoc(collection(db, 'userDemographics'), {
+            ...finalAnswers,
+            language: i18n.language,
+            createdAt: serverTimestamp()
+        }).catch(() => { }).finally(() => {
+            window.location.href = '/';
+        });
+    }, [success, i18n.language]);
+
+    const handleSkip = useCallback(() => {
+        selection();
+        if (currentStep < steps.length - 1) {
+            setCurrentStep(prev => prev + 1);
+            setSelectedValue(null);
+        } else {
+            finishOnboarding(answers);
+        }
+    }, [currentStep, steps.length, selection, finishOnboarding, answers]);
 
     return (
         <div className="min-h-screen bg-[#021a0f] flex flex-col relative overflow-hidden">
@@ -158,19 +168,32 @@ export default function Onboarding() {
             <div className="absolute top-[-30%] left-1/2 -translate-x-1/2 w-[500px] h-[500px] rounded-full blur-[150px] opacity-25 bg-islamic-green/30" />
             <div className="absolute bottom-[-20%] right-[-10%] w-[350px] h-[350px] rounded-full blur-[120px] opacity-15 bg-islamic-gold/20" />
 
-            <div className="flex-1 flex flex-col relative z-10 px-6 pt-20 pb-12 safe-area-inset">
-                <ProgressBar current={currentStep} total={steps.length} />
+            <div className="flex-1 flex flex-col relative z-10 px-6 pt-16 pb-12 safe-area-inset">
+                {/* Skip button */}
+                <div className="flex justify-end mb-4 relative z-50">
+                    <button
+                        onClick={handleSkip}
+                        className="flex items-center gap-1 px-4 py-2 rounded-full text-white/30 hover:text-white/50 active:scale-95 transition-all text-sm font-medium"
+                    >
+                        {t('skip')}
+                        <ChevronRight size={16} />
+                    </button>
+                </div>
+
+                <div className="relative z-20">
+                    <ProgressBar current={currentStep} total={steps.length} />
+                </div>
 
                 {/* Smooth slide transition between steps */}
-                <AnimatePresence mode="wait">
+                <AnimatePresence mode="sync">
                     <motion.div
                         key={currentStep}
                         variants={slideVariants}
                         initial="enter"
                         animate="center"
                         exit="exit"
-                        transition={{ duration: 0.35, ease: [0.4, 0, 0.2, 1] }}
-                        className="flex-1 flex flex-col"
+                        transition={{ duration: 0.25, ease: [0.32, 0.72, 0, 1] }}
+                        className="flex-1 flex flex-col absolute w-full left-0 px-6 pt-24" // fixed absolute positioning for overlapping slides
                     >
                         {/* Header */}
                         <div className="text-center mb-10">

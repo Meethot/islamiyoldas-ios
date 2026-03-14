@@ -39,7 +39,7 @@
         "purpose_value": "Erstellung personalisierter spiritueller Ratschläge, Dhikr-Empfehlungen und Koranvers-Vorschläge basierend auf Ihren Fragen.",
         "storage_label": "Datenspeicherung",
         "storage_value": "Ihre Nachrichten werden in Echtzeit verarbeitet und nach der Antwortgenerierung nicht dauerhaft auf Google- oder unseren Servern gespeichert.",
-        "accept": "Ich stimme zu — Daten an Google Gemini senden",
+        "accept": "Ich stimme zu",
         "decline": "Ablehnen — KI nicht nutzen",
         "privacy_note": "Alle Details in unserer",
         "privacy_link": "Datenschutzerklärung"

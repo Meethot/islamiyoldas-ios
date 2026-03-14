@@ -26,7 +26,7 @@
             "irregular": "Henüz başlamadım"
         },
         "quranLevel": {
-            "title": "Kuran Bilginiz",
+            "title": "Kur'an Bilginiz",
             "subtitle": "Öğrenme seviyenizi belirleyelim",
             "advanced": "Akıcı okuyorum",
             "reading": "Yavaş okuyorum",
@@ -37,7 +37,7 @@
             "title": "Ana Hedefiniz",
             "subtitle": "Size nasıl yardımcı olabiliriz?",
             "prayer": "Namazlarımı düzene sokmak",
-            "quran": "Kuran öğrenmek",
+            "quran": "Kur'an öğrenmek",
             "spirituality": "Maneviyatımı güçlendirmek",
             "knowledge": "İslami bilgi edinmek"
         }
@@ -47,6 +47,7 @@
         "subtitle": "Size özel bir deneyim hazırlayalım"
     },
     "progress": "Adım {{current}} / {{total}}",
+    "skip": "Atla",
     "buttons": {
         "next": "Devam Et",
         "start": "Başla"

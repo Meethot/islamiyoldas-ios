@@ -47,6 +47,7 @@
         "subtitle": "Sizə xüsusi bir təcrübə hazırlayaq"
     },
     "progress": "Addım {{current}} / {{total}}",
+    "skip": "Keç",
     "buttons": {
         "next": "Davam Et",
         "start": "Başla"

@@ -2,7 +2,7 @@
     "aiMentor": {
         "title": "Manevi Asistan",
         "subtitle": "Yapay Zeka Destekli Asistan",
-        "welcomeMessage": "Selamün aleyküm güzel kardeşim. Ben senin Manevi Asistanınım. Kalbinde ne var, seni daraltan veya şükrettiren nedir? Bana anlat, sana Kuran ve Sünnet ışığında bir reçete hazırlayayım.",
+        "welcomeMessage": "Selamün aleyküm güzel kardeşim. Ben senin Manevi Asistanınım. Kalbinde ne var, seni daraltan veya şükrettiren nedir? Bana anlat, sana Kur'an ve Sünnet ışığında bir reçete hazırlayayım.",
         "thinking": "Tefekkür ediliyor...",
         "placeholder": "Derdim var, içim daralıyor...",
         "errorPrefix": "Hata oluştu:",
@@ -36,10 +36,10 @@
         "provider_label": "Üçüncü Taraf Hizmet Sağlayıcı",
         "provider_value": "Google LLC — Google Gemini AI API, Firebase Cloud Functions üzerinden işlenir (Google sunucuları).",
         "purpose_label": "Veri Paylaşım Amacı",
-        "purpose_value": "Sorularınıza dayalı kişiselleştirilmiş manevi tavsiye, zikir önerisi ve Kuran ayeti tavsiyesi oluşturmak.",
+        "purpose_value": "Sorularınıza dayalı kişiselleştirilmiş manevi tavsiye, zikir önerisi ve Kur'an ayeti tavsiyesi oluşturmak.",
         "storage_label": "Veri Saklama",
         "storage_value": "Mesajlarınız anlık işlenir ve yanıt oluşturulduktan sonra Google veya bizim sunucularımızda kalıcı olarak saklanmaz.",
-        "accept": "Kabul Ediyorum — Verilerimi Google Gemini'ye Gönder",
+        "accept": "Kabul Ediyorum",
         "decline": "Reddet — Yapay Zekayı Kullanma",
         "privacy_note": "Tüm detaylar için",
         "privacy_link": "Gizlilik Politikası"

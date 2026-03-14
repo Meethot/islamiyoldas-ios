@@ -47,6 +47,7 @@
         "subtitle": "دعنا نخصّص تجربتك"
     },
     "progress": "الخطوة {{current}} / {{total}}",
+    "skip": "تخطي",
     "buttons": {
         "next": "متابعة",
         "start": "ابدأ"

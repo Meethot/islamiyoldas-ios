@@ -17,7 +17,10 @@ initAnalytics();
 // Disable selection and context menu globally for security
 document.addEventListener('contextmenu', (e) => e.preventDefault());
 
-createRoot(document.getElementById('root')).render(
+const container = document.getElementById('root');
+const root = createRoot(container);
+
+root.render(
   <StrictMode>
     <ErrorBoundary>
       <QueryProvider>
@@ -30,5 +33,5 @@ createRoot(document.getElementById('root')).render(
         </LocationProvider>
       </QueryProvider>
     </ErrorBoundary>
-  </StrictMode>,
-)
+  </StrictMode>
+);

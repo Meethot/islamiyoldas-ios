@@ -34,11 +34,9 @@ export function usePrayers() {
             return cleanTime;
         };
 
-        // Turkish & Azerbaijani convention: İmsak (fasting start time)
-        // International convention: Fajr (dawn prayer time)
-        const lang = (i18n.language || 'en').split('-')[0];
-        const useImsak = lang === 'tr' || lang === 'az';
-        const firstPrayerTime = useImsak ? rawTimes.Imsak : rawTimes.Fajr;
+        // In Turkey (Method 13), Aladhan's "Fajr" is the official Diyanet "İmsak".
+        // Aladhan's "Imsak" is a 10-minute safety buffer. For TR/AZ, we want the official time in Fajr.
+        const firstPrayerTime = rawTimes.Fajr;
 
         return [
             { id: 'fajr', name: t('prayer.fajr'), time: formatTime(firstPrayerTime), icon: Moon },

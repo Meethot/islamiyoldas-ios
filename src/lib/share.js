@@ -107,10 +107,8 @@ export async function shareProgress(elementId = 'share-card', streak = 0, naviga
 /**
  * Generates a referral link for inviting friends
  */
-export function generateReferralLink(userId = 'default') {
-    const baseUrl = 'https://islamiyoldas.com';
-    const referralCode = btoa(userId).substring(0, 8);
-    return `${baseUrl}/invite?ref=${referralCode}`;
+export function generateReferralLink() {
+    return 'https://apps.apple.com/app/id6759666173';
 }
 
 /**

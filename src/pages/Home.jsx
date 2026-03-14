@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
     Moon, Sunrise, Sun, Sunset, Sparkles, Star, Wind, MessageCircle, X, Download,
-    ChevronRight, Heart, Share2, Bot, Crown
+    ChevronRight, Heart, Share2, Bot, Crown, Flower2
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -19,6 +19,7 @@ import {
 } from '@/components/HomeComponents';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import ShareCard, { SHARE_THEMES } from '@/components/ShareCard';
 import { shareProgress, shareInvite, shareVerse } from '@/lib/share';
 import PrayerTimeOverlay from '@/components/PrayerTimeOverlay';
 import { triggerReviewPrompt } from '@/components/ReviewPrompt';
@@ -39,13 +40,8 @@ const ESMA_UL_HUSNA = [
     { name: 'Es-Selam', meaning: 'Esenlik veren, selamete çıkaran.', meaning_en: 'The Source of Peace, who delivers to safety.', meaning_de: 'Die Quelle des Friedens, der Seine Diener in Sicherheit bringt.', meaning_ru: 'Источник мира, дарующий безопасность Своим рабам.', meaning_az: 'Əsənlik verən, salamatlığa çıxaran.', ebced: 131, virtue: 'Huzur, barış ve selamete ermek, hastalıklardan şifa bulmak için.', virtue_en: 'For peace, tranquility, safety and healing from illnesses.', virtue_de: 'Für Frieden, Ruhe und Erreichen der Sicherheit.', virtue_ru: 'Для покоя, умиротворения и обретения безопасности.', virtue_az: 'Hüzur, barış və salamatlığa yetişmək, xəstəliklərdən şəfa tapmaq üçün.', calligraphy: 'السَّلَامُ' },
 ];
 
-const SHARE_THEMES = [
-    { id: 'emerald', name: 'Koyu Zümrüt', class: 'bg-gradient-to-br from-[#044d29] to-[#065f33] text-white' },
-    { id: 'golden', name: 'Altın Işık', class: 'bg-gradient-to-br from-[#d97706] to-[#b45309] text-white' },
-    { id: 'gray', name: 'Gece', class: 'bg-gradient-to-br from-[#374151] to-[#1f2937] text-white' },
-    { id: 'blue', name: 'Okyanus', class: 'bg-gradient-to-br from-[#1e40af] to-[#1e3a8a] text-white' },
-    { id: 'friday', name: 'Cuma Özel', class: 'bg-gradient-to-br from-islamic-green to-[#065f33] text-white border-2 border-islamic-gold shadow-[0_0_20px_rgba(212,175,55,0.3)]' },
-];
+// SHARE_THEMES is now imported from ShareCard.jsx
+
 
 const RELIGIOUS_DAYS = [
     { name: 'Miraç Kandili', name_en: 'Night of Ascension', name_de: 'Nacht der Himmelfahrt', name_ru: 'Ночь Вознесения', name_ar: 'ليلة الإسراء والمعراج', name_az: 'Merac Gecəsi', date: '2026-01-15' },
@@ -100,7 +96,7 @@ export default function Home() {
     });
 
     const [showShareModal, setShowShareModal] = useState(false);
-    const [activeTheme, setActiveTheme] = useState(SHARE_THEMES[0]);
+    const [activeTheme, setActiveTheme] = useState(SHARE_THEMES.emerald);
     const [deedRevealed, setDeedRevealed] = useState(false);
     const [currentDeed, setCurrentDeed] = useState("");
     const [selectedEsma, setSelectedEsma] = useState(null);
@@ -259,9 +255,9 @@ export default function Home() {
         setCurrentDeed(Array.isArray(deedItems) ? deedItems[dayOfYear % deedItems.length] : '');
 
         if (isFriday && hasPremium) {
-            setActiveTheme(SHARE_THEMES.find(t => t.id === 'friday'));
+            setActiveTheme(SHARE_THEMES.floral || SHARE_THEMES.emerald);
         } else {
-            setActiveTheme(SHARE_THEMES[0]);
+            setActiveTheme(SHARE_THEMES.emerald);
         }
 
         // Persistent Deed Reveal Logic
@@ -506,16 +502,59 @@ export default function Home() {
                                 </button>
                             </div>
                             <div className="p-6">
-                                <div id="verse-share-card" className={cn("aspect-square rounded-[2rem] p-8 flex flex-col justify-center items-center text-center transition-all duration-500 mb-6 relative shadow-inner", activeTheme.class)}>
-                                    <div className="absolute top-4 left-1/2 -translate-x-1/2 opacity-20"><Heart className="w-12 h-12" /></div>
-                                    <p className="font-serif text-xl leading-relaxed italic mb-4">"{isFriday ? FRIDAY_CONTENT.text : DAILY_VERSE.text}"</p>
-                                    <p className="text-xs font-bold tracking-widest uppercase opacity-70">- {isFriday ? FRIDAY_CONTENT.source : DAILY_VERSE.source}</p>
-                                    {isFriday && <div className="mt-8 text-[10px] font-black uppercase tracking-[0.2em] border-t border-white/20 pt-4">{t('friday.message')}</div>}
+                                <div 
+                                    id="verse-share-card" 
+                                    className={cn(
+                                        "aspect-[4/5] w-full min-h-[400px] rounded-[2rem] p-8 sm:p-10 flex flex-col justify-center items-center text-center transition-all duration-500 mb-6 relative overflow-hidden",
+                                        activeTheme.cardBg || "bg-white",
+                                        activeTheme.archShadow
+                                    )}
+                                    style={{ background: activeTheme.background }}
+                                >
+                                    {/* Mihrab / Arch Frame */}
+                                    <div className={cn(
+                                        "absolute inset-4 rounded-t-full rounded-b-[1.5rem] pointer-events-none z-0",
+                                        activeTheme.archClass
+                                    )} />
+
+                                    {/* Decorative Top Icon */}
+                                    <div className={cn("absolute top-10 left-1/2 -translate-x-1/2 opacity-20 z-10", activeTheme.accentColor)}>
+                                        {activeTheme.id === 'floral' ? (
+                                            <Flower2 className="w-12 h-12" />
+                                        ) : (
+                                            <Heart className="w-12 h-12" />
+                                        )}
+                                    </div>
+
+                                    <p className={cn("font-serif text-lg sm:text-xl leading-loose italic mb-10 z-10 px-4", activeTheme.textColor || "")} style={{ textWrap: 'balance' }}>
+                                        "{isFriday ? FRIDAY_CONTENT.text : DAILY_VERSE.text}"
+                                    </p>
+                                    
+                                    {/* Divider */}
+                                    <div className="flex items-center justify-center gap-4 mb-6 z-10 opacity-30">
+                                        <div className={cn("h-px w-10", activeTheme.textColor?.replace('text-', 'bg-') || "bg-current")}></div>
+                                        {activeTheme.id === 'floral' ? <Flower2 className="w-3 h-3" /> : <Star className="w-3 h-3" />}
+                                        <div className={cn("h-px w-10", activeTheme.textColor?.replace('text-', 'bg-') || "bg-current")}></div>
+                                    </div>
+
+                                    <p className={cn("text-[11px] sm:text-xs font-bold tracking-[0.2em] uppercase opacity-80 z-10", activeTheme.accentColor || "")}>
+                                        - {isFriday ? FRIDAY_CONTENT.source : DAILY_VERSE.source}
+                                    </p>
+
+                                    {isFriday && (
+                                        <div className={cn(
+                                            "mt-8 text-[11px] font-black uppercase tracking-[0.25em] border-t pt-6 z-10 w-2/3 mx-auto", 
+                                            activeTheme.borderColor || "border-white/20",
+                                            activeTheme.textColor
+                                        )}>
+                                            {t('friday.message')}
+                                        </div>
+                                    )}
                                 </div>
                                 <div className="space-y-4">
                                     <p className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest text-center">{t('theme_select')}</p>
                                     <div className="flex justify-center gap-4">
-                                        {SHARE_THEMES.map((theme, index) => {
+                                        {Object.values(SHARE_THEMES).map((theme, index) => {
                                             const isFree = index === 0;
                                             const isLocked = !isFree && !hasPremium;
                                             return (
@@ -526,13 +565,9 @@ export default function Home() {
                                                 }}
                                                     aria-label={`Tema: ${theme.name}`}
                                                     className={cn("touch-target w-12 h-12 rounded-full border-2 transition-all active:scale-95 relative",
-                                                        activeTheme.id === theme.id ? "border-islamic-gold scale-110 shadow-lg" : "border-transparent",
+                                                        activeTheme.id === theme.id ? "border-islamic-gold scale-110 shadow-lg" : "border-transparent text-white",
                                                         isLocked && "opacity-50",
-                                                        theme.id === 'emerald' ? "bg-islamic-green" :
-                                                            theme.id === 'golden' ? "bg-amber-500" :
-                                                                theme.id === 'gray' ? "bg-gray-500" :
-                                                                    theme.id === 'blue' ? "bg-blue-600" :
-                                                                        theme.id === 'friday' ? "bg-[#134951]" : "bg-gray-200"
+                                                        theme.preview || "bg-gray-200"
                                                     )}
                                                 >
                                                     {isLocked && (

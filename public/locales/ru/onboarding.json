@@ -47,6 +47,7 @@
         "subtitle": "Давайте настроим ваш опыт"
     },
     "progress": "Шаг {{current}} / {{total}}",
+    "skip": "Пропустить",
     "buttons": {
         "next": "Продолжить",
         "start": "Начать"

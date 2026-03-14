@@ -81,24 +81,29 @@ function AppContent() {
     return () => clearTimeout(max);
   }, []);
 
-  // AdMob init
-  useEffect(() => { initAdMob(); }, []);
-
-  // Crashlytics init
-  useEffect(() => { initCrashlytics(); }, []);
-
-  // OneSignal init
-  useEffect(() => { initOneSignal(); }, []);
+  // Defer non-critical third-party initializations to prevent blocking JS thread on mount
+  useEffect(() => {
+    const t1 = setTimeout(initAdMob, 2000);
+    const t2 = setTimeout(initCrashlytics, 3000);
+    const t3 = setTimeout(initOneSignal, 4000);
+    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
+  }, []);
 
   // Sync app language to OneSignal for segment-based notifications
   const { i18n } = useTranslation();
-  useEffect(() => { setLanguageTag(i18n.language); }, [i18n.language]);
+  useEffect(() => {
+    const t = setTimeout(() => setLanguageTag(i18n.language), 4500);
+    return () => clearTimeout(t);
+  }, [i18n.language]);
 
   // IAP init — sets up transaction listeners + verifies subscription
   useEffect(() => {
-    import('@/services/purchaseService').then(({ initializePurchases }) => {
-      initializePurchases();
-    }).catch(() => { });
+    const t = setTimeout(() => {
+      import('@/services/purchaseService').then(({ initializePurchases }) => {
+        initializePurchases();
+      }).catch(() => { });
+    }, 1000);
+    return () => clearTimeout(t);
   }, []);
 
   // Dismiss ezan notifications when app comes to foreground

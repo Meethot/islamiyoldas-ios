@@ -14,50 +14,58 @@ export const SHARE_THEMES = {
     emerald: {
         id: 'emerald',
         name: 'Zümrüt',
-        preview: 'bg-emerald-700',
-        background: 'radial-gradient(circle at center, #064e3b 0%, #022c22 40%, #000000 100%)',
+        preview: 'bg-[#064e3b]',
+        background: 'linear-gradient(135deg, #064e3b 0%, #022c22 100%)',
         cardBg: 'bg-emerald-950',
-        accentColor: 'text-islamic-gold',
+        accentColor: 'text-[#d4af37]', // Gold accent
         textColor: 'text-white',
         treeColor: 'text-emerald-400',
         glowColor: 'bg-emerald-500/20',
-        borderColor: 'border-islamic-gold/10'
+        borderColor: 'border-[#d4af37]/20',
+        archClass: 'border-[4px] border-[#d4af37]/30 shadow-[inset_0_0_0_10px_#022c22,inset_0_0_0_12px_#d4af37/10]',
+        archShadow: 'shadow-[0_0_30px_rgba(212,175,55,0.15)]'
     },
     gold: {
         id: 'gold',
         name: 'Altın',
-        preview: 'bg-amber-500',
-        background: 'radial-gradient(circle at center, #92400e 0%, #78350f 40%, #451a03 100%)',
-        cardBg: 'bg-amber-900',
-        accentColor: 'text-amber-200',
-        textColor: 'text-white',
-        treeColor: 'text-amber-300',
-        glowColor: 'bg-amber-500/20',
-        borderColor: 'border-amber-300/10'
+        preview: 'bg-[#d97706]',
+        background: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)', // Light gold/cream background for better legibility
+        cardBg: 'bg-[#fef3c7]',
+        accentColor: 'text-[#92400e]', // Rich brown/bronze
+        textColor: 'text-[#451a03]',
+        treeColor: 'text-[#d97706]',
+        glowColor: 'bg-amber-500/10',
+        borderColor: 'border-[#92400e]/20',
+        archClass: 'border-[5px] border-[#92400e]/30 shadow-[inset_0_0_0_10px_#fef3c7,inset_0_0_0_12px_#92400e/10]',
+        archShadow: 'shadow-[0_0_30px_rgba(146,64,14,0.1)]'
     },
     gray: {
         id: 'gray',
         name: 'Gece',
-        preview: 'bg-gray-600',
-        background: 'radial-gradient(circle at center, #374151 0%, #1f2937 40%, #111827 100%)',
-        cardBg: 'bg-gray-800',
+        preview: 'bg-gray-800',
+        background: 'linear-gradient(135deg, #1f2937 0%, #111827 100%)',
+        cardBg: 'bg-gray-950',
         accentColor: 'text-blue-300',
         textColor: 'text-white',
-        treeColor: 'text-gray-300',
-        glowColor: 'bg-gray-500/20',
-        borderColor: 'border-gray-400/10'
+        treeColor: 'text-gray-400',
+        glowColor: 'bg-gray-500/10',
+        borderColor: 'border-white/10',
+        archClass: 'border-[3px] border-white/20 shadow-[inset_0_0_0_10px_#111827,inset_0_0_0_12px_white/5]',
+        archShadow: 'shadow-[0_0_30px_rgba(255,255,255,0.05)]'
     },
     blue: {
         id: 'blue',
         name: 'Okyanus',
-        preview: 'bg-blue-700',
-        background: 'radial-gradient(circle at center, #1e40af 0%, #1e3a8a 40%, #0f172a 100%)',
-        cardBg: 'bg-blue-900',
+        preview: 'bg-blue-800',
+        background: 'linear-gradient(135deg, #1e3a8a 0%, #0f172a 100%)',
+        cardBg: 'bg-blue-950',
         accentColor: 'text-cyan-300',
         textColor: 'text-white',
-        treeColor: 'text-blue-300',
-        glowColor: 'bg-blue-500/20',
-        borderColor: 'border-blue-300/10'
+        treeColor: 'text-blue-400',
+        glowColor: 'bg-blue-500/10',
+        borderColor: 'border-cyan-300/20',
+        archClass: 'border-[3px] border-cyan-300/20 shadow-[inset_0_0_0_10px_#0f172a,inset_0_0_0_12px_cyan-300/5]',
+        archShadow: 'shadow-[0_0_30px_rgba(6,182,212,0.1)]'
     },
     cream: {
         id: 'cream',
@@ -65,11 +73,27 @@ export const SHARE_THEMES = {
         preview: 'bg-amber-100',
         background: 'radial-gradient(circle at center, #fef3c7 0%, #fde68a 40%, #fcd34d 100%)',
         cardBg: 'bg-amber-50',
-        accentColor: 'text-emerald-700',
-        textColor: 'text-emerald-900',
-        treeColor: 'text-emerald-600',
-        glowColor: 'bg-emerald-500/10',
-        borderColor: 'border-emerald-700/10'
+        accentColor: 'text-amber-700',
+        textColor: 'text-amber-900',
+        treeColor: 'text-amber-600',
+        glowColor: 'bg-amber-500/10',
+        borderColor: 'border-amber-700/10',
+        archClass: 'border-[4px] border-amber-700/30 shadow-[inset_0_0_0_10px_#fffbeb,inset_0_0_0_12px_amber-700/5]',
+        archShadow: 'shadow-[0_0_20px_rgba(180,83,9,0.1)]'
+    },
+    floral: {
+        id: 'floral',
+        name: 'Gül',
+        preview: 'bg-[#eecbd0]',
+        background: '#f8f4ed', 
+        cardBg: 'bg-[#f8f4ed]',
+        accentColor: 'text-[#ab7e5c]', 
+        textColor: 'text-[#3c2a21]',
+        treeColor: 'text-[#eecbd0]',
+        glowColor: 'bg-[#eecbd0]/20',
+        borderColor: 'border-transparent',
+        archClass: 'border-[6px] border-[#8cb3b8] shadow-[inset_0_0_0_12px_#f8f4ed,inset_0_0_0_14px_#eecbd0]',
+        archShadow: 'shadow-[0_0_30px_rgba(140,179,184,0.2)]'
     }
 };
 

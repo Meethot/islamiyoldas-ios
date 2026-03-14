@@ -47,6 +47,7 @@
         "subtitle": "Lass uns dein Erlebnis personalisieren"
     },
     "progress": "Schritt {{current}} / {{total}}",
+    "skip": "Überspringen",
     "buttons": {
         "next": "Weiter",
         "start": "Starten"
