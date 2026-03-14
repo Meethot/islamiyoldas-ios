@@ -69,8 +69,6 @@ export const PrayerTimesProvider = ({ children }) => {
 
     // Schedule notifications when prayer times or relevant settings change (debounced)
     useEffect(() => {
-        if (!prayerTimes) return;
-
         // Clear any pending debounce
         if (scheduleDebounceRef.current) {
             clearTimeout(scheduleDebounceRef.current);
@@ -159,6 +157,16 @@ export const PrayerTimesProvider = ({ children }) => {
                     importance: 5,
                     description: 'Ezan vakti bildirimleri',
                     sound: 'ezan.mp3',
+                    visibility: 1,
+                    vibration: true
+                });
+
+                await LocalNotifications.createChannel({
+                    id: 'ezan_vakti_silent',
+                    name: 'Ezan Vakti (Sessiz)',
+                    importance: 5,
+                    description: 'Sessiz ezan vakti bildirimleri',
+                    sound: null,
                     visibility: 1,
                     vibration: true
                 });
@@ -439,7 +447,7 @@ export const PrayerTimesProvider = ({ children }) => {
             const cancelIds = Array.from({ length: 35 }, (_, i) => ({ id: i + 1 }));
             await LocalNotifications.cancel({ notifications: cancelIds });
 
-            if (!settings.adhanEnabled) return;
+            if (!settings.adhanEnabled || !todayTimings) return;
 
             const lang = i18n.language || 'en';
 
@@ -626,7 +634,7 @@ export const PrayerTimesProvider = ({ children }) => {
                         id,
                         schedule: { at: date, allowWhileIdle: true },
                         sound: soundValue,
-                        channelId: 'ezan_vakti',
+                        channelId: settings.vibrateOnly ? 'ezan_vakti_silent' : 'ezan_vakti',
                         smallIcon: 'ic_stat_icon_config_sample',
                     };
 
@@ -783,6 +791,7 @@ export const PrayerTimesProvider = ({ children }) => {
                         allowWhileIdle: true
                     },
                     sound: soundValue,
+                    channelId: settings.vibrateOnly ? 'ezan_vakti_silent' : 'ezan_vakti',
                     smallIcon: 'ic_stat_icon_config_sample'
                 }]
             });
