@@ -1,205 +1,187 @@
 import { Capacitor } from '@capacitor/core';
+import { Purchases, LOG_LEVEL } from '@revenuecat/purchases-capacitor';
 
-// Product IDs — must match App Store Connect & Google Play Console
 export const PRODUCT_IDS = {
     MONTHLY: 'com.islamiyoldas.app.monthly',
     YEARLY: 'com.islamiyoldas.app.yearly',
 };
 
 const PREMIUM_KEY = 'aminKumbara_premium';
-let NativePurchases = null;
+
+// RevenueCat API Keys
+const RC_API_KEY_APPLE = 'appl_hKXYxTRTsDPOKptWBGGHoFltKZc';
+const RC_API_KEY_GOOGLE = ''; // TODO: Android key
+
 let isInitialized = false;
 let purchaseListeners = [];
 
-function isNative() {
-    return Capacitor.isNativePlatform();
-}
-
-// Plugin readiness promise — resolves to undefined (NOT the Proxy!) to avoid thenable deadlock
-let pluginReadyResolve;
-const pluginReadyPromise = new Promise(resolve => { pluginReadyResolve = resolve; });
-
-// Load plugin eagerly — NEVER return the Proxy from an async function
-if (isNative()) {
-    import('@capgo/native-purchases').then(mod => {
-        NativePurchases = mod.NativePurchases;
-        pluginReadyResolve();
-    }).catch(() => {
-        pluginReadyResolve();
-    });
-} else {
-    pluginReadyResolve();
-}
-
 /**
- * Wait for plugin import to complete. Returns VOID — never the Proxy!
- * After this resolves, access NativePurchases directly from module scope.
+ * Herhangi bir aktif entitlement varsa premium kabul et.
+ * Entitlement ID uyumsuzluk sorunlarını tamamen ortadan kaldırır.
  */
-async function waitForPlugin() {
-    await pluginReadyPromise;
+function hasAnyActiveEntitlement(customerInfo) {
+    const active = customerInfo?.entitlements?.active;
+    if (!active || typeof active !== 'object') return false;
+    const keys = Object.keys(active);
+    console.log('[RevenueCat] Active entitlements:', keys);
+    return keys.length > 0;
 }
 
-/**
- * Initialize IAP — call once on app startup.
- * Sets up transaction listeners for StoreKit 2 updates.
- */
 export async function initializePurchases() {
     if (isInitialized) return;
-    await waitForPlugin();
-    if (!NativePurchases) return;
     try {
-        NativePurchases.addListener('transactionUpdated', (transaction) => {
-            const active = isTransactionActive(transaction);
-            localStorage.setItem(PREMIUM_KEY, active ? 'true' : 'false');
-            purchaseListeners.forEach(fn => fn(active, transaction));
-        }).catch(() => {});
+        const platform = Capacitor.getPlatform();
+        if (platform === 'ios') {
+            await Purchases.setLogLevel({ level: LOG_LEVEL.DEBUG });
+            await Purchases.configure({ apiKey: RC_API_KEY_APPLE });
+        } else if (platform === 'android') {
+            if (!RC_API_KEY_GOOGLE) {
+                console.warn('[RevenueCat] Android API Key is missing');
+                return;
+            }
+            await Purchases.setLogLevel({ level: LOG_LEVEL.DEBUG });
+            await Purchases.configure({ apiKey: RC_API_KEY_GOOGLE });
+        } else {
+            return; // Web
+        }
+
+        // Dinamik güncelleme dinleyicisi
+        await Purchases.addCustomerInfoUpdateListener((info) => {
+            const isPremium = hasAnyActiveEntitlement(info);
+            console.log('[RevenueCat] CustomerInfo update → isPremium:', isPremium);
+            localStorage.setItem(PREMIUM_KEY, isPremium ? 'true' : 'false');
+            purchaseListeners.forEach(fn => fn(isPremium, info));
+        });
+
         isInitialized = true;
-        verifySubscription().catch(() => {});
+        await verifySubscription();
     } catch (err) {
-        console.warn('[IAP] Init error:', err);
-        isInitialized = true;
+        console.warn('[RevenueCat] Init error:', err);
     }
 }
 
-/**
- * Fetch subscription products with real localized prices from the store.
- * Returns array of products or fallback mocks on web/error.
- */
 export async function getProducts() {
-    await waitForPlugin();
-    if (!NativePurchases) {
+    if (!Capacitor.isNativePlatform()) {
         return [
-            { identifier: PRODUCT_IDS.MONTHLY, priceString: '₺124,99', price: 124.99, currencyCode: 'TRY', title: 'Aylık Premium', description: 'Aylık abonelik', introductoryPrice: null, discounts: [] },
-            { identifier: PRODUCT_IDS.YEARLY, priceString: '₺979,99', price: 979.99, currencyCode: 'TRY', title: 'Yıllık Premium', description: 'Yıllık abonelik', introductoryPrice: null, discounts: [] },
+            { identifier: PRODUCT_IDS.MONTHLY, priceString: '₺124,99', title: 'Aylık Premium', description: 'Aylık abonelik' },
+            { identifier: PRODUCT_IDS.YEARLY, priceString: '₺979,99', title: 'Yıllık Premium', description: 'Yıllık abonelik' },
         ];
     }
     try {
-        const result = await NativePurchases.getProducts({
-            productIdentifiers: [PRODUCT_IDS.MONTHLY, PRODUCT_IDS.YEARLY],
-            productType: 'subs',
-        });
-        return result?.products || [];
+        const offerings = await Purchases.getOfferings();
+        if (offerings.current && offerings.current.availablePackages.length > 0) {
+            return offerings.current.availablePackages.map(pkg => ({
+                identifier: pkg.product.identifier,
+                rcPackage: pkg,
+                priceString: pkg.product.priceString,
+                price: pkg.product.price,
+                currencyCode: pkg.product.currencyCode,
+                title: pkg.product.title,
+                description: pkg.product.description,
+            }));
+        }
     } catch (err) {
-        console.warn('[IAP] getProducts error:', err);
-        return [];
+        console.warn('[RevenueCat] getProducts error:', err);
     }
+    return [];
 }
 
-/**
- * Purchase a subscription product. Triggers native StoreKit/Play Billing flow.
- * @param {string} productId - PRODUCT_IDS.MONTHLY or PRODUCT_IDS.YEARLY
- * @returns {Promise<{success: boolean, transaction?: object, error?: string}>}
- */
-export async function purchaseProduct(productId) {
-    await waitForPlugin();
-    if (!NativePurchases) {
+export async function purchaseProduct(productIdOrObj) {
+    if (!Capacitor.isNativePlatform()) {
         localStorage.setItem(PREMIUM_KEY, 'true');
-        return { success: true, transaction: { productIdentifier: productId, transactionId: 'web-dev-mock' } };
+        return { success: true };
     }
     try {
-        const transaction = await NativePurchases.purchaseProduct({
-            productIdentifier: productId,
-            productType: 'subs',
-        });
-        const active = isTransactionActive(transaction);
-        localStorage.setItem(PREMIUM_KEY, active ? 'true' : 'false');
-        return { success: active, transaction };
+        let packageToBuy;
+
+        if (typeof productIdOrObj === 'object' && productIdOrObj.rcPackage) {
+            packageToBuy = productIdOrObj.rcPackage;
+        } else {
+            console.log('[RevenueCat] Looking up package for:', productIdOrObj);
+            const offerings = await Purchases.getOfferings();
+            if (offerings.current) {
+                packageToBuy = offerings.current.availablePackages.find(
+                    p => p.product?.identifier === productIdOrObj
+                );
+            }
+        }
+
+        if (!packageToBuy) {
+            console.error('[RevenueCat] Package not found for:', productIdOrObj);
+            return { success: false, error: 'Product not found' };
+        }
+
+        console.log('[RevenueCat] Purchasing:', packageToBuy.identifier, packageToBuy.product?.identifier);
+        const result = await Purchases.purchasePackage({ aPackage: packageToBuy });
+        const customerInfo = result?.customerInfo;
+
+        // Loglama amaçlı entitlement kontrolü
+        const isPremium = hasAnyActiveEntitlement(customerInfo);
+        console.log('[RevenueCat] Purchase done → isPremium:', isPremium);
+
+        // purchasePackage hata fırlatmadan tamamlandıysa satın alma BAŞARILI demektir.
+        // Entitlement eşleşmesi olsun-olmasın premium olarak işaretle.
+        localStorage.setItem(PREMIUM_KEY, 'true');
+        return { success: true };
     } catch (err) {
-        const message = err?.message || String(err);
-        if (message.includes('cancel') || message.includes('Cancel') || message.includes('SKError Code=2')) {
+        console.error('[RevenueCat] Purchase error:', JSON.stringify(err));
+        const msg = err?.message || String(err);
+        if (err?.code === 1 || msg.includes('cancel') || msg.includes('Cancel') || msg.includes('PURCHASE_CANCELLED')) {
             return { success: false, error: 'cancelled' };
         }
-        return { success: false, error: message };
+        return { success: false, error: msg };
     }
 }
 
-/**
- * Restore previous purchases.
- * @returns {Promise<{success: boolean, isPremium: boolean}>}
- */
 export async function restorePurchases() {
-    await waitForPlugin();
-    if (!NativePurchases) {
+    if (!Capacitor.isNativePlatform()) {
         return { success: false, isPremium: false };
     }
     try {
-        await NativePurchases.restorePurchases();
-        const isPremium = await verifySubscription();
+        const result = await Purchases.restorePurchases();
+        const customerInfo = result?.customerInfo;
+        const isPremium = hasAnyActiveEntitlement(customerInfo);
+        console.log('[RevenueCat] Restore → isPremium:', isPremium);
+        localStorage.setItem(PREMIUM_KEY, isPremium ? 'true' : 'false');
         return { success: true, isPremium };
     } catch (err) {
-        console.warn('[IAP] Restore error:', err);
+        console.warn('[RevenueCat] Restore error:', err);
         return { success: false, isPremium: false };
     }
 }
 
-/**
- * Verify whether the user currently has an active subscription.
- * Queries the native store, updates localStorage cache.
- * @returns {Promise<boolean>} true if user is premium
- */
 export async function verifySubscription() {
-    await waitForPlugin();
-    if (!NativePurchases) {
+    if (!Capacitor.isNativePlatform()) {
         return localStorage.getItem(PREMIUM_KEY) === 'true';
     }
     try {
-        const { purchases } = await NativePurchases.getPurchases({ productType: 'subs' });
-        const hasActive = purchases.some(t => isTransactionActive(t));
-        localStorage.setItem(PREMIUM_KEY, hasActive ? 'true' : 'false');
-        return hasActive;
+        const result = await Purchases.getCustomerInfo();
+        const customerInfo = result?.customerInfo;
+        const isPremium = hasAnyActiveEntitlement(customerInfo);
+        console.log('[RevenueCat] Verify → isPremium:', isPremium);
+        localStorage.setItem(PREMIUM_KEY, isPremium ? 'true' : 'false');
+        return isPremium;
     } catch (err) {
+        console.warn('[RevenueCat] Verify error:', err);
         return localStorage.getItem(PREMIUM_KEY) === 'true';
     }
 }
 
-/**
- * Check if billing is supported on this device.
- */
 export async function isBillingSupported() {
-    await waitForPlugin();
-    if (!NativePurchases) return false;
-    try {
-        const { isBillingSupported: supported } = await NativePurchases.isBillingSupported();
-        return supported;
-    } catch {
-        return false;
-    }
+    return Capacitor.isNativePlatform();
 }
 
-/**
- * Open native subscription management page.
- */
 export async function manageSubscriptions() {
-    await waitForPlugin();
-    if (!NativePurchases) return;
-    try {
-        await NativePurchases.manageSubscriptions();
-    } catch (err) {
-        console.warn('[IAP] manageSubscriptions error:', err);
+    if (Capacitor.getPlatform() === 'ios') {
+        window.open('https://apps.apple.com/account/subscriptions', '_blank');
+    } else if (Capacitor.getPlatform() === 'android') {
+        window.open('https://play.google.com/store/account/subscriptions', '_blank');
     }
 }
 
-/**
- * Register a listener for purchase state changes.
- * @param {(isPremium: boolean, transaction: object) => void} callback
- * @returns {() => void} unsubscribe function
- */
 export function onPurchaseUpdate(callback) {
     purchaseListeners.push(callback);
     return () => {
         purchaseListeners = purchaseListeners.filter(fn => fn !== callback);
     };
-}
-
-// ─── Helpers ───
-
-function isTransactionActive(transaction) {
-    if (transaction.isActive === true) return true;
-    if (transaction.isActive === false) return false;
-    if (transaction.expirationDate) {
-        return new Date(transaction.expirationDate) > new Date();
-    }
-    if (transaction.purchaseState === '1') return true;
-    if (transaction.isInGracePeriod) return true;
-    return false;
 }

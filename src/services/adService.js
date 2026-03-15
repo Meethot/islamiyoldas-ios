@@ -43,56 +43,90 @@ export async function initAdMob() {
 // ─── REWARDED AD (Amin Kumbarası: +5 kredi) ───
 
 export async function showRewardedAd() {
+    console.log('[AdMob] showRewardedAd tetiklendi. ADS_ENABLED:', ADS_ENABLED, 'IS_NATIVE:', IS_NATIVE);
+    
     if (!ADS_ENABLED) return { rewarded: false, disabled: true };
     if (!IS_NATIVE) {
+        console.log('[AdMob] Web/Simule ortam - 2 saniye bekletip sahte ödül veriliyor.');
         await new Promise(resolve => setTimeout(resolve, 2000));
         return { rewarded: true, simulated: true };
     }
 
-    const adId = Capacitor.getPlatform() === 'ios'
+    const platform = Capacitor.getPlatform();
+    const adId = platform === 'ios'
         ? AD_IDS.REWARDED.ios
         : AD_IDS.REWARDED.android;
 
+    console.log(`[AdMob] Platform: ${platform}, Reklam ID: ${adId}`);
+
     return new Promise(async (resolve, reject) => {
         let wasRewarded = false;
+        let listeners = [];
 
-        const rewardListener = AdMob.addListener(
-            RewardAdPluginEvents.Rewarded,
-            () => { wasRewarded = true; }
-        );
-
-        const dismissListener = AdMob.addListener(
-            RewardAdPluginEvents.Dismissed,
-            () => {
-                rewardListener.remove();
-                dismissListener.remove();
-                failedListener.remove();
-                resolve({ rewarded: wasRewarded });
-            }
-        );
-
-        const failedListener = AdMob.addListener(
-            RewardAdPluginEvents.FailedToLoad,
-            (error) => {
-                rewardListener.remove();
-                dismissListener.remove();
-                failedListener.remove();
-                reject(error);
-            }
-        );
+        // Yardımcı fonksiyon: Bütün event listener'ları temizle
+        const clearListeners = () => {
+            console.log('[AdMob] Event Listenerlar temizleniyor...');
+            listeners.forEach(listener => listener.remove());
+            listeners = [];
+        };
 
         try {
+            // 1. Ödül kazanma event'i
+            const rewardListener = await AdMob.addListener(
+                RewardAdPluginEvents.Rewarded,
+                (reward) => {
+                    console.log('[AdMob] Ödül kazanıldı event i tetiklendi!', reward);
+                    wasRewarded = true;
+                }
+            );
+            listeners.push(rewardListener);
+
+            // 2. Reklamın kapatılma event'i (Kullanıcı çarpıya basınca)
+            const dismissListener = await AdMob.addListener(
+                RewardAdPluginEvents.Dismissed,
+                () => {
+                    console.log('[AdMob] Reklam kapatıldı. Ödül durumu:', wasRewarded);
+                    clearListeners();
+                    resolve({ rewarded: wasRewarded });
+                }
+            );
+            listeners.push(dismissListener);
+
+            // 3. Reklamın yüklenirken veya gösterilirken hata vermesi
+            const failedToLoadListener = await AdMob.addListener(
+                RewardAdPluginEvents.FailedToLoad,
+                (error) => {
+                    console.error('[AdMob] Reklam yüklenemedi:', error);
+                    clearListeners();
+                    reject(error);
+                }
+            );
+            listeners.push(failedToLoadListener);
+            
+            const failedToShowListener = await AdMob.addListener(
+                RewardAdPluginEvents.FailedToShow,
+                (error) => {
+                    console.error('[AdMob] Reklam gösterilemedi:', error);
+                    clearListeners();
+                    reject(error);
+                }
+            );
+            listeners.push(failedToShowListener);
+
+            console.log('[AdMob] prepareRewardVideoAd çağrılıyor...');
             await AdMob.prepareRewardVideoAd({
                 adId,
-                // Production'a geçerken false yapıldı
-                isTesting: false,
+                isTesting: false, // Production modda olduğumuzdan emin olalım
                 ssv: { userId: 'user', customData: 'aminKumbara' },
             });
+            
+            console.log('[AdMob] showRewardVideoAd çağrılıyor...');
             await AdMob.showRewardVideoAd();
+            console.log('[AdMob] Reklam gösterim isteği başarıyla iletildi.');
+            
         } catch (error) {
-            rewardListener.remove();
-            dismissListener.remove();
-            failedListener.remove();
+            console.error('[AdMob] Hazırlık veya gösterim aşamasında beklenmeyen hata:', error);
+            clearListeners();
             reject(error);
         }
     });
@@ -101,44 +135,73 @@ export async function showRewardedAd() {
 // ─── INTERSTITIAL AD (30 saniye sonra otomatik, 5 saniyede atlanabilir) ───
 
 export async function showInterstitialAd() {
+    console.log('[AdMob] showInterstitialAd tetiklendi. ADS_ENABLED:', ADS_ENABLED, 'IS_NATIVE:', IS_NATIVE);
     if (!ADS_ENABLED) return;
     if (!IS_NATIVE) {
+        console.log('[AdMob] Web/Simule ortam - Interstitial atlandı.');
         return;
     }
 
-    const adId = Capacitor.getPlatform() === 'ios'
+    const platform = Capacitor.getPlatform();
+    const adId = platform === 'ios'
         ? AD_IDS.INTERSTITIAL.ios
         : AD_IDS.INTERSTITIAL.android;
 
-    return new Promise(async (resolve) => {
-        const dismissListener = AdMob.addListener(
-            InterstitialAdPluginEvents.Dismissed,
-            () => {
-                dismissListener.remove();
-                failedListener.remove();
-                resolve();
-            }
-        );
+    console.log(`[AdMob] Interstitial Platform: ${platform}, Reklam ID: ${adId}`);
 
-        const failedListener = AdMob.addListener(
-            InterstitialAdPluginEvents.FailedToLoad,
-            () => {
-                dismissListener.remove();
-                failedListener.remove();
-                resolve(); // Sessizce devam et
-            }
-        );
+    return new Promise(async (resolve) => {
+        let listeners = [];
+
+        const clearListeners = () => {
+            console.log('[AdMob] Interstitial Event Listenerlar temizleniyor...');
+            listeners.forEach(listener => listener.remove());
+            listeners = [];
+        };
 
         try {
+            const dismissListener = await AdMob.addListener(
+                InterstitialAdPluginEvents.Dismissed,
+                () => {
+                    console.log('[AdMob] Interstitial Reklam kapatıldı.');
+                    clearListeners();
+                    resolve();
+                }
+            );
+            listeners.push(dismissListener);
+
+            const failedToLoadListener = await AdMob.addListener(
+                InterstitialAdPluginEvents.FailedToLoad,
+                (error) => {
+                    console.error('[AdMob] Interstitial yüklenemedi:', error);
+                    clearListeners();
+                    resolve(); // Hata verse de sessizce devam et, akış kesilmesin
+                }
+            );
+            listeners.push(failedToLoadListener);
+            
+            const failedToShowListener = await AdMob.addListener(
+                InterstitialAdPluginEvents.FailedToShow,
+                (error) => {
+                    console.error('[AdMob] Interstitial gösterilemedi:', error);
+                    clearListeners();
+                    resolve(); // Hata verse de sessizce devam et
+                }
+            );
+            listeners.push(failedToShowListener);
+
+            console.log('[AdMob] prepareInterstitial çağrılıyor...');
             await AdMob.prepareInterstitial({
                 adId,
-                // Production'a geçerken false yapıldı
                 isTesting: false,
             });
+            
+            console.log('[AdMob] showInterstitial çağrılıyor...');
             await AdMob.showInterstitial();
-        } catch {
-            dismissListener.remove();
-            failedListener.remove();
+            console.log('[AdMob] Interstitial gösterim isteği başarıyla iletildi.');
+            
+        } catch (error) {
+            console.error('[AdMob] Interstitial hazırlık/gösterim aşamasında beklenmeyen hata:', error);
+            clearListeners();
             resolve();
         }
     });
