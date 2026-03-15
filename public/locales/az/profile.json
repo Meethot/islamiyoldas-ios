@@ -70,7 +70,7 @@
     },
     "delete_account": {
         "title": "Hesabı Sil",
-        "confirm": "Hesabınız və bütün məlumatlarınız silinəcək. Bu əməliyyat geri qaytarıla bilməz. Əminsiniz?"
+        "confirm": "Hesabınız ve bütün məlumatlarınız silinəcək. Bu əməliyyat geri qaytarıla bilməz. Əminsiniz?"
     },
     "avatar": {
         "male": "Bəy",
@@ -92,5 +92,14 @@
     "version": "Versiya 2.1.0 (Pro Max)",
     "theme_select_title": "Tema Seçin",
     "fill_dates": "Tarixləri doldurun",
-    "calc_complete": "Hesablama tamamlandı."
+    "calc_complete": "Hesablama tamamlandı.",
+    "font_size": {
+        "title": "Yazı Ölçüsü",
+        "modal_title": "Yazı Ölçüsü",
+        "desc": "Tətbiq daxilindəki yazı ölçüsünü istəyinizə görə tənzimləyə bilərsiniz.",
+        "small": "Kiçik",
+        "normal": "Normal",
+        "large": "Böyük",
+        "xlarge": "Çox Böyük"
+    }
 }

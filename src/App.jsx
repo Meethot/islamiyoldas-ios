@@ -8,6 +8,7 @@ import { PrayerTimesProvider, usePrayerTimes } from './context/PrayerTimesContex
 import { useLocation } from './context/LocationContext';
 import { App as CapApp } from '@capacitor/app';
 import { LocalNotifications } from '@capacitor/local-notifications';
+import { FontSizeProvider } from './context/FontSizeContext';
 
 import { initAdMob } from './services/adService';
 import { isPremium } from './services/creditService';
@@ -44,7 +45,9 @@ const PremiumPaywall = React.lazy(() => import('./pages/PremiumPaywall'));
 function App() {
   return (
     <PrayerTimesProvider>
-      <AppContent />
+      <FontSizeProvider>
+        <AppContent />
+      </FontSizeProvider>
     </PrayerTimesProvider>
   );
 }

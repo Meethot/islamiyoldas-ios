@@ -92,5 +92,14 @@
     "version": "Sürüm 2.1.0 (Pro Max)",
     "theme_select_title": "Tema Seç",
     "fill_dates": "Lütfen tarihleri doldurun",
-    "calc_complete": "Hesaplama tamamlandı."
+    "calc_complete": "Hesaplama tamamlandı.",
+    "font_size": {
+        "title": "Yazı Boyutu",
+        "modal_title": "Yazı Boyutu",
+        "desc": "Uygulama genelindeki yazı boyutunu tercihinize göre ölçeklendirebilirsiniz.",
+        "small": "Küçük",
+        "normal": "Normal",
+        "large": "Büyük",
+        "xlarge": "Çok Büyük"
+    }
 }

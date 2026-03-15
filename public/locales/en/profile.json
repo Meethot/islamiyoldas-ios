@@ -92,5 +92,14 @@
     "version": "Version 2.1.0 (Pro Max)",
     "theme_select_title": "Select Theme",
     "fill_dates": "Please fill in the dates",
-    "calc_complete": "Calculation completed."
+    "calc_complete": "Calculation completed.",
+    "font_size": {
+        "title": "Font Size",
+        "modal_title": "Font Size",
+        "desc": "You can scale the font size across the application according to your preference.",
+        "small": "Small",
+        "normal": "Normal",
+        "large": "Large",
+        "xlarge": "Huge"
+    }
 }

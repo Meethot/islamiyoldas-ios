@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import {
     User, Settings, Shield, Bell, HelpCircle, RefreshCw,
     ChevronRight, LogOut, Heart, Crown, Check, Moon, Sun, Download, Trash2, X,
-    BookOpen, Box, Landmark, Camera, Pen, Share2, UserPlus, Globe, Bug, Ticket, Gift, Sparkles
+    BookOpen, Box, Landmark, Camera, Pen, Share2, UserPlus, Globe, Bug, Ticket, Gift, Sparkles, Type
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
@@ -15,6 +15,7 @@ import { useUser } from '@/context/UserContext';
 import { useTranslation } from 'react-i18next';
 import { handleLanguageChange } from '@/i18n';
 import { useTheme } from '@/context/ThemeContext';
+import { useFontSize } from '@/context/FontSizeContext';
 import AvatarIcon from '@/components/AvatarIcon';
 import ShareCard, { SHARE_THEMES } from '@/components/ShareCard';
 import { Capacitor } from '@capacitor/core';
@@ -24,6 +25,7 @@ import { Share } from '@capacitor/share';
 
 export default function Profile() {
     const { isDarkMode, toggleTheme } = useTheme();
+    const { fontSize, updateFontSize, FONT_SIZES } = useFontSize();
     const { t, i18n } = useTranslation('profile');
     const navigate = useNavigate();
     const { selection, success, heavy } = useHaptics();
@@ -64,6 +66,7 @@ export default function Profile() {
     const [notifications, setNotifications] = useState(true);
     const [showPrivacyModal, setShowPrivacyModal] = useState(false);
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+    const [showFontSizeModal, setShowFontSizeModal] = useState(false);
 
     // Name Editing State
     const [showNameModal, setShowNameModal] = useState(false);
@@ -587,6 +590,25 @@ export default function Profile() {
                         <ChevronRight className="w-5 h-5 text-stone-400 dark:text-gray-300 group-hover:translate-x-1 transition-transform" />
                     </div>
 
+                    {/* Font Size Adjustment */}
+                    <div
+                        className="p-5 flex items-center justify-between hover:bg-stone-50 dark:hover:bg-white/5 transition-colors cursor-pointer group"
+                        onClick={() => { selection(); setShowFontSizeModal(true); }}
+                    >
+                        <div className="flex items-center gap-4">
+                            <div className="p-3 bg-stone-100 dark:bg-white/5 text-stone-600 dark:text-gray-400 rounded-2xl group-hover:scale-110 transition-transform">
+                                <Type size={20} />
+                            </div>
+                            <div className="text-left">
+                                <p className="text-sm font-bold text-stone-800 dark:text-white">{t('font_size.title', 'Yazı Boyutu')}</p>
+                                <p className="text-xs text-stone-500 dark:text-gray-400 font-medium">
+                                    {t(`font_size.${fontSize}`)}
+                                </p>
+                            </div>
+                        </div>
+                        <ChevronRight className="w-5 h-5 text-stone-400 dark:text-gray-300 group-hover:translate-x-1 transition-transform" />
+                    </div>
+
                     {/* Privacy Modal Trigger */}
                     <div className="p-5 flex items-center justify-between hover:bg-stone-50 dark:hover:bg-white/5 transition-colors cursor-pointer group" onClick={() => setShowPrivacyModal(true)}>
                         <div className="flex items-center gap-4">
@@ -726,6 +748,84 @@ export default function Profile() {
                                     className="flex-1 h-11 bg-red-500 text-white hover:bg-red-600 rounded-xl"
                                 >
                                     {t('privacy.delete_yes')}
+                                </Button>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* Font Size Modal */}
+            <AnimatePresence>
+                {showFontSizeModal && (
+                    <motion.div
+                        initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+                        onClick={() => setShowFontSizeModal(false)}
+                    >
+                        <motion.div
+                            initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }}
+                            onClick={(e) => e.stopPropagation()}
+                            className="bg-white dark:bg-[#032e18] w-full max-w-sm rounded-[2.5rem] p-6 shadow-2xl border dark:border-white/10"
+                        >
+                            <div className="flex justify-between items-center mb-6">
+                                <div className="flex items-center gap-2">
+                                    <div className="p-2 bg-islamic-gold/10 rounded-xl">
+                                        <Type className="w-6 h-6 text-islamic-gold" />
+                                    </div>
+                                    <h3 className="text-xl font-bold font-serif text-islamic-green dark:text-islamic-gold">
+                                        {t('font_size.modal_title', 'Yazı Boyutu')}
+                                    </h3>
+                                </div>
+                                <Button size="icon" variant="ghost" onClick={() => setShowFontSizeModal(false)}><X className="w-5 h-5" /></Button>
+                            </div>
+
+                            <div className="space-y-4">
+                                <p className="text-xs text-stone-500 dark:text-gray-400 text-center mb-4 px-4">
+                                    {t('font_size.desc', 'Uygulama genelindeki yazı boyutunu tercihinize göre ölçeklendirebilirsiniz.')}
+                                </p>
+                                
+                                <div className="grid grid-cols-1 gap-2">
+                                    {Object.values(FONT_SIZES).map((size) => (
+                                        <button
+                                            key={size.id}
+                                            onClick={() => {
+                                                if (size.id === fontSize) return;
+                                                success();
+                                                updateFontSize(size.id);
+                                            }}
+                                            className={cn(
+                                                "w-full p-4 rounded-2xl flex items-center justify-between transition-all active:scale-[0.98] border-2",
+                                                fontSize === size.id
+                                                    ? "bg-islamic-green/10 border-islamic-green dark:bg-islamic-gold/10 dark:border-islamic-gold"
+                                                    : "bg-gray-50 dark:bg-white/5 border-transparent hover:bg-gray-100 dark:hover:bg-white/10"
+                                            )}
+                                        >
+                                            <div className="flex flex-col items-start gap-0.5">
+                                                <span className={cn(
+                                                    "font-bold font-serif",
+                                                    fontSize === size.id ? "text-islamic-green dark:text-islamic-gold" : "text-stone-700 dark:text-white"
+                                                )} style={{ fontSize: `${size.scale}rem` }}>
+                                                    {t(`font_size.${size.id}`)}
+                                                </span>
+                                                <span className="text-[10px] text-stone-400 dark:text-gray-500 uppercase tracking-widest font-bold">
+                                                    {(size.scale * 100).toFixed(0)}%
+                                                </span>
+                                            </div>
+                                            {fontSize === size.id && (
+                                                <div className="w-6 h-6 rounded-full bg-islamic-green dark:bg-islamic-gold flex items-center justify-center">
+                                                    <Check size={14} className="text-white dark:text-[#032e18]" strokeWidth={3} />
+                                                </div>
+                                            )}
+                                        </button>
+                                    ))}
+                                </div>
+                                
+                                <Button
+                                    onClick={() => setShowFontSizeModal(false)}
+                                    className="w-full h-12 mt-4 bg-islamic-green dark:bg-islamic-gold text-white dark:text-[#032e18] rounded-2xl font-bold shadow-lg shadow-islamic-green/10"
+                                >
+                                    {t('common.done', 'Tamam')}
                                 </Button>
                             </div>
                         </motion.div>
