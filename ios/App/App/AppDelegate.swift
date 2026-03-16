@@ -3,6 +3,7 @@ import UIKit
 import Capacitor
 import AVFoundation
 import FirebaseCore
+import OneSignalFramework
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -12,6 +13,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Initialize Firebase (Crashlytics + Analytics)
         FirebaseApp.configure()
+        
+        // Initialize OneSignal
+        OneSignal.initialize("3445d1b5-779e-4001-a900-88331b78500c", withLaunchOptions: launchOptions)
         
         // Configure audio session for background notification sounds
         do {

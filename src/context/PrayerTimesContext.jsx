@@ -5,7 +5,7 @@ import { LocalNotifications } from '@capacitor/local-notifications';
 import { Preferences } from '@capacitor/preferences';
 import { Capacitor } from '@capacitor/core';
 import { useLocation } from '@/context/LocationContext';
-import { DAILY_VERSES, DAILY_VERSES_EN, DAILY_VERSES_DE, DAILY_VERSES_RU, DAILY_VERSES_AZ } from '@/data/dailyVerses';
+import { DAILY_VERSES, DAILY_VERSES_EN, DAILY_VERSES_DE, DAILY_VERSES_RU, DAILY_VERSES_AZ, DAILY_VERSES_AR } from '@/data/dailyVerses';
 import { getAppDate, getTodayString } from '@/lib/testDate';
 
 const PrayerTimesContext = createContext();
@@ -666,7 +666,7 @@ export const PrayerTimesProvider = ({ children }) => {
 
             const lang = i18n.language || 'en';
 
-            const versesMap = { tr: DAILY_VERSES, en: DAILY_VERSES_EN, de: DAILY_VERSES_DE, ru: DAILY_VERSES_RU, az: DAILY_VERSES_AZ };
+            const versesMap = { tr: DAILY_VERSES, en: DAILY_VERSES_EN, de: DAILY_VERSES_DE, ru: DAILY_VERSES_RU, az: DAILY_VERSES_AZ, ar: DAILY_VERSES_AR };
             const verses = versesMap[lang] || DAILY_VERSES_EN;
             const getRandomVerse = () => verses[Math.floor(Math.random() * verses.length)];
             const slotLabels = {

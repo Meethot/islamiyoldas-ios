@@ -280,6 +280,7 @@ export default function PremiumPaywall() {
     const [isRestoring, setIsRestoring] = useState(false);
     const [products, setProducts] = useState([]);
     const [toast, setToast] = useState(null); // { type: 'error'|'info', message }
+    const longPressTimerRef = useRef(null);
 
     const lang = i18n.language?.split('-')[0] || 'en';
     const reviews = REVIEWS[lang] || REVIEWS.en;
@@ -344,6 +345,20 @@ export default function PremiumPaywall() {
         startAutoSwipe();
         return () => clearInterval(autoTimer);
     }, [reviews.length]);
+
+    const startLongPress = useCallback(() => {
+        longPressTimerRef.current = setTimeout(() => {
+            success();
+            setPremium(true);
+            setShowSuccess(true);
+        }, 3000);
+    }, [success]);
+
+    const cancelLongPress = useCallback(() => {
+        if (longPressTimerRef.current) {
+            clearTimeout(longPressTimerRef.current);
+        }
+    }, []);
 
     const handleClose = useCallback(() => {
         if (!showExitPopup) return setShowExitPopup(true);
@@ -567,7 +582,12 @@ export default function PremiumPaywall() {
                             </div>
                         </motion.div>
 
-                        <h1 className="text-[#D4AF37] font-serif text-[24px] font-bold leading-tight tracking-tight mt-2.5">
+                        <h1 
+                            onPointerDown={startLongPress}
+                            onPointerUp={cancelLongPress}
+                            onPointerLeave={cancelLongPress}
+                            className="text-[#D4AF37] font-serif text-[24px] font-bold leading-tight tracking-tight mt-2.5 select-none"
+                        >
                             {t('premium.headline')}
                         </h1>
                     </motion.div>

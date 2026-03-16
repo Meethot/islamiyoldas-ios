@@ -539,6 +539,25 @@ export default function Profile() {
 
                     </div>
 
+                    {/* Font Size Adjustment */}
+                    <div
+                        className="p-5 flex items-center justify-between hover:bg-stone-50 dark:hover:bg-white/5 transition-colors cursor-pointer group"
+                        onClick={() => { selection(); setShowFontSizeModal(true); }}
+                    >
+                        <div className="flex items-center gap-4">
+                            <div className="p-3 bg-stone-100 dark:bg-white/5 text-stone-600 dark:text-gray-400 rounded-2xl group-hover:scale-110 transition-transform">
+                                <Type size={20} />
+                            </div>
+                            <div className="text-left">
+                                <p className="text-sm font-bold text-stone-800 dark:text-white">{t('font_size.title', 'Yazı Boyutu')}</p>
+                                <p className="text-xs text-stone-500 dark:text-gray-400 font-medium">
+                                    {t(`font_size.${fontSize}`)}
+                                </p>
+                            </div>
+                        </div>
+                        <ChevronRight className="w-5 h-5 text-stone-400 dark:text-gray-300 group-hover:translate-x-1 transition-transform" />
+                    </div>
+
                     {/* Promo Code */}
                     <div
                         className="p-5 flex items-center justify-between hover:bg-stone-50 dark:hover:bg-white/5 transition-colors cursor-pointer group"
@@ -585,25 +604,6 @@ export default function Profile() {
                             <div className="text-left">
                                 <p className="text-sm font-bold text-stone-800 dark:text-white">{t('legal.title')}</p>
                                 <p className="text-xs text-stone-500 dark:text-gray-400 font-medium">{t('legal.subtitle')}</p>
-                            </div>
-                        </div>
-                        <ChevronRight className="w-5 h-5 text-stone-400 dark:text-gray-300 group-hover:translate-x-1 transition-transform" />
-                    </div>
-
-                    {/* Font Size Adjustment */}
-                    <div
-                        className="p-5 flex items-center justify-between hover:bg-stone-50 dark:hover:bg-white/5 transition-colors cursor-pointer group"
-                        onClick={() => { selection(); setShowFontSizeModal(true); }}
-                    >
-                        <div className="flex items-center gap-4">
-                            <div className="p-3 bg-stone-100 dark:bg-white/5 text-stone-600 dark:text-gray-400 rounded-2xl group-hover:scale-110 transition-transform">
-                                <Type size={20} />
-                            </div>
-                            <div className="text-left">
-                                <p className="text-sm font-bold text-stone-800 dark:text-white">{t('font_size.title', 'Yazı Boyutu')}</p>
-                                <p className="text-xs text-stone-500 dark:text-gray-400 font-medium">
-                                    {t(`font_size.${fontSize}`)}
-                                </p>
                             </div>
                         </div>
                         <ChevronRight className="w-5 h-5 text-stone-400 dark:text-gray-300 group-hover:translate-x-1 transition-transform" />

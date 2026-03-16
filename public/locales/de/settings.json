@@ -25,7 +25,7 @@
     "gettingLocation": "Standort wird ermittelt...",
     "waitingGPS": "Warte auf GPS-Signal",
     "gpsActive": "GPS aktiv",
-    "live": "Live",
+    "live": "Aktiv",
     "locationDetected": "Dein Standort wurde automatisch erkannt",
     "locationFailed": "Standortermittlung fehlgeschlagen",
     "defaultLocation": "Standardstandort wird verwendet (Istanbul)",
