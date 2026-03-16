@@ -11,6 +11,7 @@ import { cn } from '@/lib/utils';
 import { db } from '@/lib/firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { analytics, setUserProperties } from '@/services/analyticsService';
+import { storageService } from '@/services/storageService';
 
 // Progress bar — pure CSS transitions
 const ProgressBar = ({ current, total }) => (
@@ -139,8 +140,8 @@ export default function Onboarding() {
 
     const finishOnboarding = useCallback((finalAnswers) => {
         success();
-        localStorage.setItem('onboardingComplete', 'true');
-        localStorage.setItem('userProfile', JSON.stringify(finalAnswers));
+        storageService.setItem('onboardingComplete', 'true');
+        storageService.setItem('userProfile', JSON.stringify(finalAnswers));
         setUserProperties(finalAnswers);
         analytics.onboardingCompleted({ ...finalAnswers, language: i18n.language });
         addDoc(collection(db, 'userDemographics'), {

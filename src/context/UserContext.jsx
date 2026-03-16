@@ -1,4 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { storageService } from '../services/storageService';
+import { isPremium as checkIsPremium } from '../services/creditService';
 
 // Create the UserContext
 const UserContext = createContext(null);
@@ -14,29 +16,56 @@ const DEFAULT_USER_DATA = {
 
 // UserProvider component
 export function UserProvider({ children }) {
-    const [userData, setUserData] = useState(() => {
-        // Initialize from localStorage or use defaults
+    const [userData, setUserData] = useState(DEFAULT_USER_DATA);
+    const [isLoaded, setIsLoaded] = useState(false);
+    const [premiumStatus, setPremiumStatus] = useState(false);
+
+    // Initial load and sync with storage
+    const syncWithStorage = () => {
         const stored = localStorage.getItem('userData');
         if (stored) {
             try {
                 const parsed = JSON.parse(stored);
-                // Migration: Ensure installDate exists for existing users
-                if (!parsed.installDate) {
-                    parsed.installDate = new Date().toISOString();
-                }
-                return parsed;
+                if (!parsed.installDate) parsed.installDate = new Date().toISOString();
+                setUserData(parsed);
             } catch (e) {
-                console.error('Failed to parse userData from localStorage:', e);
-                return DEFAULT_USER_DATA;
+                console.error('Failed to parse userData:', e);
             }
         }
-        return DEFAULT_USER_DATA;
-    });
+        setIsLoaded(true);
+    };
 
-    // Persist to localStorage whenever userData changes
+    // Listen for storage completion and premium changes
     useEffect(() => {
-        localStorage.setItem('userData', JSON.stringify(userData));
-    }, [userData]);
+        const updatePremium = () => setPremiumStatus(checkIsPremium());
+        
+        const handleStorageReady = () => {
+            console.log('[UserContext] Storage ready, syncing...');
+            syncWithStorage();
+            updatePremium();
+        };
+
+        // KRİTİK: storageService.initialize() tamamlanmadan ASLA premium okuma!
+        // storageReady event'ini kaçırmış olabiliriz — isReady flag ile kontrol et
+        if (storageService.isReady) {
+            handleStorageReady();
+        }
+
+        window.addEventListener('storageReady', handleStorageReady);
+        window.addEventListener('premiumStatusChanged', updatePremium);
+        
+        return () => {
+            window.removeEventListener('storageReady', handleStorageReady);
+            window.removeEventListener('premiumStatusChanged', updatePremium);
+        };
+    }, []);
+
+    // Persist to storage ONLY after initial load is complete
+    useEffect(() => {
+        if (isLoaded) {
+            storageService.setItem('userData', userData);
+        }
+    }, [userData, isLoaded]);
 
     // Function to update avatar
     const updateAvatar = (newAvatar) => {
@@ -67,6 +96,7 @@ export function UserProvider({ children }) {
         updateAvatar,
         updateName,
         updateUserData,
+        isPremium: premiumStatus,
     };
 
     return (

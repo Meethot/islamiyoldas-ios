@@ -1823,27 +1823,37 @@ export const ReligiousCalendarWidget = memo(({ days }) => {
     const { t, i18n } = useTranslation('home');
     const lang = (i18n.language || 'en').split('-')[0];
 
-    // Data Parsing
+    // Normalize today to local midnight
     const now = new Date();
+    const todayMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+    // Data Parsing and Filtering
     const upcoming = days
-        .map(d => ({ ...d, dateObj: new Date(d.date) }))
-        .filter(d => d.dateObj.getTime() >= (now.getTime() - 86400000))
-        .sort((a, b) => a.dateObj - b.dateObj);
+        .map(d => {
+            const dateObj = new Date(d.date);
+            // Construct the event's local midnight date using UTC components
+            const eventMidnight = new Date(dateObj.getUTCFullYear(), dateObj.getUTCMonth(), dateObj.getUTCDate());
+            const dayDiff = Math.round((eventMidnight - todayMidnight) / (1000 * 60 * 60 * 24));
+            
+            return { ...d, dateObj, eventMidnight, dayDiff };
+        })
+        .filter(d => d.dayDiff >= 0) // Strictly hide past events
+        .sort((a, b) => a.dayDiff - b.dayDiff);
 
     const nextEvent = upcoming[0];
-    if (!nextEvent) return null; // Or show empty state
+    if (!nextEvent) return null;
 
-    // Normalize to local midnight to avoid timezone offset bugs
-    const todayMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const eventMidnight = new Date(nextEvent.dateObj.getUTCFullYear(), nextEvent.dateObj.getUTCMonth(), nextEvent.dateObj.getUTCDate());
-    const diff = Math.round((eventMidnight - todayMidnight) / (1000 * 60 * 60 * 24));
+    const diff = nextEvent.dayDiff;
 
     const months = t('calendar.months', { returnObjects: true });
     const formatDate = (date) => {
         return `${date.getUTCDate()} ${months[date.getUTCMonth()]}`;
     };
 
-    const diffLabel = diff === 0 ? t('calendar.today') : diff === 1 ? t('calendar.tomorrow') : t('calendar.daysLeft', { count: diff });
+    // diff <= 0 means event is today or started yesterday evening (Islamic days begin at Maghrib)
+    const diffLabel = diff <= 0 ? (lang === 'tr' ? 'Bugün gerçekleşiyor' : t('calendar.today')) 
+        : diff === 1 ? (lang === 'tr' ? 'Yarın' : t('calendar.tomorrow')) 
+        : (lang === 'tr' ? `${diff} Gün Kaldı` : t('calendar.daysLeft', { count: diff }));
 
     // Body Scroll Lock
     useEffect(() => {
@@ -1941,6 +1951,18 @@ export const ReligiousCalendarWidget = memo(({ days }) => {
 
                                 <div className="space-y-10">
                                     {upcoming.map((day, i) => {
+                                        const dayDiff = day.dayDiff;
+                                        
+                                        // Badge label based on user request
+                                        let badgeText = '';
+                                        if (dayDiff <= 0) {
+                                            badgeText = lang === 'tr' ? 'BUGÜN GERÇEKLEŞİYOR' : t('calendar.today').toUpperCase();
+                                        } else if (dayDiff === 1) {
+                                            badgeText = lang === 'tr' ? 'YARIN' : t('calendar.tomorrow').toUpperCase();
+                                        } else {
+                                            badgeText = lang === 'tr' ? `${dayDiff} GÜN KALDI` : t('calendar.daysLeft', { count: dayDiff }).toUpperCase();
+                                        }
+
                                         const isFirst = i === 0;
                                         return (
                                             <motion.div
@@ -1968,15 +1990,19 @@ export const ReligiousCalendarWidget = memo(({ days }) => {
                                                         )}>
                                                             {day[`name_${lang}`] || day.name}
                                                         </h4>
-                                                        {isFirst && (
-                                                            <span className="text-[9px] bg-islamic-gold/10 text-islamic-gold px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">
-                                                                {t('calendar.approaching')}
+                                                        {(isFirst || dayDiff <= 30) && (
+                                                            <span className={cn(
+                                                                "text-[9px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider ml-2 shrink-0",
+                                                                dayDiff <= 0 ? "bg-islamic-green text-white dark:bg-islamic-gold dark:text-black" 
+                                                                : "bg-islamic-gold/10 text-islamic-gold"
+                                                            )}>
+                                                                {badgeText}
                                                             </span>
                                                         )}
                                                     </div>
 
                                                     <p className="text-sm font-medium text-gray-500 dark:text-emerald-100/50">
-                                                        {new Date(day.dateObj.getUTCFullYear(), day.dateObj.getUTCMonth(), day.dateObj.getUTCDate()).toLocaleDateString(lang, { weekday: 'long', day: 'numeric', month: 'long' })}
+                                                        {new Date(day.dateObj.getUTCFullYear(), day.dateObj.getUTCMonth(), day.dateObj.getUTCDate()).toLocaleDateString(lang, { day: 'numeric', month: 'long' })}
                                                     </p>
                                                 </div>
                                             </motion.div>

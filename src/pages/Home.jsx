@@ -12,6 +12,7 @@ import { getAppDate, getDailyPrayersKey, getTodayString } from '@/lib/testDate';
 import { safeGetStorage, safeSetStorage } from '@/utils/storageHelper';
 import { useHaptics } from '@/hooks/useMobile';
 import { usePrayers } from '@/hooks/usePrayers';
+import { useUser } from '@/context/UserContext';
 import {
     WeeklyStreakWidget, VerseOfDayCard, DailyDeedCard, EsmaUlHusnaWidget,
     PrayerCountdownWidget, AllEsmaModal,
@@ -28,6 +29,7 @@ import { useTranslation } from 'react-i18next';
 import { Capacitor } from '@capacitor/core';
 import { AdMob } from '@capacitor-community/admob';
 import { isPremium } from '@/services/creditService';
+import { storageService } from '@/services/storageService';
 
 // Static Constants moved outside to prevent re-creation
 // FRIDAY_CONTENT is now dynamic - moved inside component to use t()
@@ -100,7 +102,7 @@ export default function Home() {
     const [esmaCounts, setEsmaCounts] = useState(() => safeGetStorage('esma_counts', {})); // Stores count for each Esma: { "Allah": 5, "Rahman": 10 }
     const [sharing, setSharing] = useState(false);
     const [debugOverlay, setDebugOverlay] = useState(false); // Debug: Force show overlay
-    const [hasPremium, setHasPremium] = useState(isPremium());
+    const { isPremium: hasPremium } = useUser();
 
     // Prayer Focus Detection (Blur Mode)
     const { activePrayer, shouldShowOverlay, snooze, clearSnooze } = usePrayerFocus(
@@ -168,13 +170,11 @@ export default function Home() {
         return () => window.removeEventListener('debugShowPrayerOverlay', handleDebugOverlay);
     }, []);
 
-    // Listen for premium status changes
+    // Debug: Listen for debug overlay trigger
     useEffect(() => {
-        const handlePremiumChange = () => {
-            setHasPremium(isPremium());
-        };
-        window.addEventListener('premiumStatusChanged', handlePremiumChange);
-        return () => window.removeEventListener('premiumStatusChanged', handlePremiumChange);
+        const handleDebugOverlay = () => setDebugOverlay(true);
+        window.addEventListener('debugShowPrayerOverlay', handleDebugOverlay);
+        return () => window.removeEventListener('debugShowPrayerOverlay', handleDebugOverlay);
     }, []);
 
     // Midnight Transition Detection (Check every minute)
@@ -242,7 +242,7 @@ export default function Home() {
         }
 
         setTubaData(initialTuba);
-        localStorage.setItem('tubaAgaci_data', JSON.stringify(initialTuba));
+        storageService.setItem('tubaAgaci_data', initialTuba);
 
         const appToday = getAppDate();
         const startOfYear = new Date(appToday.getFullYear(), 0, 0);
@@ -279,7 +279,7 @@ export default function Home() {
         selection();
         setDeedRevealed(true);
         const deedKey = `deedRevealed_${getTodayString()}`;
-        localStorage.setItem(deedKey, 'true');
+        storageService.setItem(deedKey, 'true');
     }, [selection]);
 
     const openEsma = useCallback((esma) => {

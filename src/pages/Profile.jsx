@@ -22,6 +22,7 @@ import { Capacitor } from '@capacitor/core';
 import { isPremium as checkIsPremium, setPremium } from '@/services/creditService';
 import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
 import { Share } from '@capacitor/share';
+import { storageService } from '@/services/storageService';
 
 export default function Profile() {
     const { isDarkMode, toggleTheme } = useTheme();
@@ -29,7 +30,7 @@ export default function Profile() {
     const { t, i18n } = useTranslation('profile');
     const navigate = useNavigate();
     const { selection, success, heavy } = useHaptics();
-    const { userData, updateAvatar, updateName } = useUser();
+    const { userData, updateAvatar, updateName, isPremium } = useUser();
 
     // Constants
     const AVATAR_PRESETS = [
@@ -61,7 +62,6 @@ export default function Profile() {
     // State
     const [selectedAvatar, setSelectedAvatar] = useState('male');
     const [showAvatarModal, setShowAvatarModal] = useState(false);
-    const [isPremium, setIsPremium] = useState(false);
     const [streak, setStreak] = useState('0');
     const [notifications, setNotifications] = useState(true);
     const [showPrivacyModal, setShowPrivacyModal] = useState(false);
@@ -124,13 +124,12 @@ export default function Profile() {
     // Load Data
     useEffect(() => {
         setStreak(localStorage.getItem('userStreak') || '7');
-        setIsPremium(checkIsPremium());
         setNotifications(localStorage.getItem('notifications') !== 'false');
         // Migration: kaaba -> tuba
         let currentAvatar = localStorage.getItem('userAvatar') || 'male';
         if (currentAvatar === 'kaaba') {
             currentAvatar = 'tuba';
-            localStorage.setItem('userAvatar', 'tuba');
+            storageService.setItem('userAvatar', 'tuba');
         }
         setSelectedAvatar(currentAvatar);
 
@@ -203,8 +202,8 @@ export default function Profile() {
     const handleAvatarSelect = (id) => {
         selection();
         setSelectedAvatar(id);
-        // Save to localStorage for cross-component sync
-        localStorage.setItem('userAvatar', id);
+        // Save to storage for cross-component sync
+        storageService.setItem('userAvatar', id);
 
         // Update global avatar via UserContext (store ID now)
         updateAvatar(id);
@@ -233,15 +232,18 @@ export default function Profile() {
         selection();
         const newState = !notifications;
         setNotifications(newState);
-        localStorage.setItem('notifications', newState.toString());
+        storageService.setItem('notifications', newState.toString());
     };
 
 
 
-    const deleteAccount = () => {
+    const deleteAccount = async () => {
         heavy();
         if (confirm(t('delete_account.confirm'))) {
+            // Tamamen sıfırla
             localStorage.clear();
+            const { Preferences } = await import('@capacitor/preferences');
+            await Preferences.clear();
             window.location.href = '/';
         }
     };

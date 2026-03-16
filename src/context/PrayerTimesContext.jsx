@@ -52,7 +52,15 @@ export const PrayerTimesProvider = ({ children }) => {
         const CACHE_VERSION = 'v3_final_sync'; // Final sync with Diyanet official calendar
         const version = localStorage.getItem('app_data_version');
         if (version !== CACHE_VERSION) {
-            localStorage.clear();
+            // Sadece cache ve namaz vakti anahtarlarını temizle, TÜM veriyi (Premium, Onboarding vb.) DEĞİL!
+            const keysToRemove = [];
+            for (let i = 0; i < localStorage.length; i++) {
+                const k = localStorage.key(i);
+                if (k.startsWith('diyanet_') || k.startsWith('prayers_') || k.startsWith('cached_')) {
+                    keysToRemove.push(k);
+                }
+            }
+            keysToRemove.forEach(k => localStorage.removeItem(k));
             localStorage.setItem('app_data_version', CACHE_VERSION);
         }
         

@@ -14,6 +14,7 @@ import { initAdMob } from './services/adService';
 import { isPremium } from './services/creditService';
 import { initCrashlytics, logPageView } from './services/crashService';
 import { initOneSignal, setLanguageTag } from './services/pushService';
+import { storageService } from './services/storageService';
 
 import ScrollToTop from './components/ScrollToTop';
 import SwipeBackHandler from './components/SwipeBackHandler';
@@ -60,7 +61,10 @@ function CrashBreadcrumbs() {
 
 function AppContent() {
   const [showSplash, setShowSplash] = useState(true);
-  const onboardingComplete = localStorage.getItem('onboardingComplete') === 'true';
+  const [storageReady, setStorageReady] = useState(false);
+  
+  // Storage hazır olduktan sonra onboarding durumunu al
+  const onboardingComplete = storageService.getItem('onboardingComplete') === 'true';
 
   // Real data readiness signals
   const { hasLocation, loading: locationLoading } = useLocation();
@@ -68,7 +72,16 @@ function AppContent() {
 
   const locationReady = hasLocation && !locationLoading;
   const prayerReady = !!prayerTimes && !prayerLoading;
-  const dataReady = locationReady && prayerReady;
+  const dataReady = locationReady && prayerReady && storageReady;
+
+  // Initialize Storage Service
+  useEffect(() => {
+    storageService.initialize().then(() => {
+        setStorageReady(true);
+    }).catch(() => {
+        setStorageReady(true); // Fallback to proceed even if async storage fails
+    });
+  }, []);
 
   // Dismiss when splash's internal progress completes (or via safety max)
   useEffect(() => {
@@ -101,13 +114,14 @@ function AppContent() {
 
   // IAP init — sets up transaction listeners + verifies subscription
   useEffect(() => {
+    if (!storageReady) return;
     const t = setTimeout(() => {
       import('@/services/purchaseService').then(({ initializePurchases }) => {
         initializePurchases();
       }).catch(() => { });
-    }, 1000);
+    }, 100);
     return () => clearTimeout(t);
-  }, []);
+  }, [storageReady]);
 
   // Dismiss ezan notifications when app comes to foreground
   useEffect(() => {
