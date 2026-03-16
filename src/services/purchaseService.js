@@ -50,11 +50,23 @@ export async function initializePurchases() {
             const isPremium = hasAnyActiveEntitlement(info);
             console.log('[RevenueCat] CustomerInfo update → isPremium:', isPremium);
             localStorage.setItem(PREMIUM_KEY, isPremium ? 'true' : 'false');
+            window.dispatchEvent(new Event('premiumStatusChanged')); // Notify components
             purchaseListeners.forEach(fn => fn(isPremium, info));
         });
 
         isInitialized = true;
-        await verifySubscription();
+        
+        // İlk açılışta aboneliği doğrula
+        const isPremium = await verifySubscription();
+        
+        // KRİTİK: Eğer localStorage'da premium idik ama RC 'false' diyorsa,
+        // sessiz bir 'restore' tetikleyerek StoreKit makbuzunu tazeleyelim.
+        // Bu durum genelde uygulama güncellemelerinden sonra yaşanır.
+        const wasPremium = localStorage.getItem(PREMIUM_KEY) === 'true';
+        if (wasPremium && !isPremium) {
+            console.log('[RevenueCat] Discrepancy detected, attempting quiet sync...');
+            await restorePurchases();
+        }
     } catch (err) {
         console.warn('[RevenueCat] Init error:', err);
     }
@@ -122,6 +134,7 @@ export async function purchaseProduct(productIdOrObj) {
         // purchasePackage hata fırlatmadan tamamlandıysa satın alma BAŞARILI demektir.
         // Entitlement eşleşmesi olsun-olmasın premium olarak işaretle.
         localStorage.setItem(PREMIUM_KEY, 'true');
+        window.dispatchEvent(new Event('premiumStatusChanged'));
         return { success: true };
     } catch (err) {
         console.error('[RevenueCat] Purchase error:', JSON.stringify(err));
@@ -143,6 +156,7 @@ export async function restorePurchases() {
         const isPremium = hasAnyActiveEntitlement(customerInfo);
         console.log('[RevenueCat] Restore → isPremium:', isPremium);
         localStorage.setItem(PREMIUM_KEY, isPremium ? 'true' : 'false');
+        window.dispatchEvent(new Event('premiumStatusChanged'));
         return { success: true, isPremium };
     } catch (err) {
         console.warn('[RevenueCat] Restore error:', err);
@@ -160,6 +174,7 @@ export async function verifySubscription() {
         const isPremium = hasAnyActiveEntitlement(customerInfo);
         console.log('[RevenueCat] Verify → isPremium:', isPremium);
         localStorage.setItem(PREMIUM_KEY, isPremium ? 'true' : 'false');
+        window.dispatchEvent(new Event('premiumStatusChanged'));
         return isPremium;
     } catch (err) {
         console.warn('[RevenueCat] Verify error:', err);
