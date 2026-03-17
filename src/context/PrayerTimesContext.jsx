@@ -331,6 +331,7 @@ export const PrayerTimesProvider = ({ children }) => {
                 const searchTerms = [district, city].filter(Boolean);
                 if (searchTerms.length === 0 && turkish) searchTerms.push('Istanbul');
 
+                let diyanetSuccess = false;
                 for (const term of searchTerms) {
                     const locationId = await resolveDiyanetLocationId(term);
                     if (locationId) {
@@ -340,6 +341,23 @@ export const PrayerTimesProvider = ({ children }) => {
                             findNextPrayer(diyanetTimings);
                             schedulePrayerNotifications(diyanetTimings);
                             setLoading(false); // Manually set loading false before return
+                            diyanetSuccess = true;
+                            return;
+                        }
+                    }
+                }
+                
+                // If we failed all specific queries but we are IN TURKEY, 
+                // do an absolute final fallback to Istanbul via Diyanet before Aladhan to avoid 10 min Isha shift
+                if (!diyanetSuccess && turkish) {
+                    const lastResortId = await resolveDiyanetLocationId('Istanbul');
+                    if (lastResortId) {
+                        const diyanetTimings = await fetchDiyanetTimes(lastResortId);
+                        if (diyanetTimings) {
+                            setPrayerTimes(diyanetTimings);
+                            findNextPrayer(diyanetTimings);
+                            schedulePrayerNotifications(diyanetTimings);
+                            setLoading(false);
                             return;
                         }
                     }
