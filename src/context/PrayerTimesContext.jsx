@@ -29,7 +29,9 @@ export const PrayerTimesProvider = ({ children }) => {
         prayerFocusMode: true,
         spiritualRewards: true,
         fridayMessage: true,
-        dhikrReminder: true
+        dhikrReminder: true,
+        preReminderEnabled: false,
+        preReminderMinutes: 30
     });
 
     const [locationSource, setLocationSource] = useState('loading');
@@ -109,6 +111,11 @@ export const PrayerTimesProvider = ({ children }) => {
         scheduleDhikrReminder();
     }, [settings.dhikrReminder, i18n.language]);
 
+    // Schedule pre-prayer reminders when setting changes
+    useEffect(() => {
+        if (prayerTimes) schedulePreReminderNotifications(prayerTimes);
+    }, [settings.preReminderEnabled, settings.preReminderMinutes, i18n.language]);
+
 
     const loadSettings = async () => {
         try {
@@ -119,6 +126,8 @@ export const PrayerTimesProvider = ({ children }) => {
             const { value: spiritualRewards } = await Preferences.get({ key: 'spiritualRewards' });
             const { value: fridayMessage } = await Preferences.get({ key: 'fridayMessage' });
             const { value: dhikrReminder } = await Preferences.get({ key: 'dhikrReminder' });
+            const { value: preReminderEnabled } = await Preferences.get({ key: 'preReminderEnabled' });
+            const { value: preReminderMinutes } = await Preferences.get({ key: 'preReminderMinutes' });
 
             setSettings({
                 adhanEnabled: adhanEnabled === null ? true : adhanEnabled === 'true',
@@ -127,7 +136,9 @@ export const PrayerTimesProvider = ({ children }) => {
                 prayerFocusMode: prayerFocusMode === null ? true : prayerFocusMode === 'true',
                 spiritualRewards: spiritualRewards === null ? true : spiritualRewards === 'true',
                 fridayMessage: fridayMessage === null ? true : fridayMessage === 'true',
-                dhikrReminder: dhikrReminder === null ? true : dhikrReminder === 'true'
+                dhikrReminder: dhikrReminder === null ? true : dhikrReminder === 'true',
+                preReminderEnabled: preReminderEnabled === 'true',
+                preReminderMinutes: preReminderMinutes ? parseInt(preReminderMinutes, 10) : 30
             });
         } catch (error) {
             console.error('Error loading settings:', error);
@@ -340,6 +351,7 @@ export const PrayerTimesProvider = ({ children }) => {
                             setPrayerTimes(diyanetTimings);
                             findNextPrayer(diyanetTimings);
                             schedulePrayerNotifications(diyanetTimings);
+                            schedulePreReminderNotifications(diyanetTimings);
                             setLoading(false); // Manually set loading false before return
                             diyanetSuccess = true;
                             return;
@@ -357,6 +369,7 @@ export const PrayerTimesProvider = ({ children }) => {
                             setPrayerTimes(diyanetTimings);
                             findNextPrayer(diyanetTimings);
                             schedulePrayerNotifications(diyanetTimings);
+                            schedulePreReminderNotifications(diyanetTimings);
                             setLoading(false);
                             return;
                         }
@@ -383,6 +396,7 @@ export const PrayerTimesProvider = ({ children }) => {
             setPrayerTimes(normalized);
             findNextPrayer(normalized);
             schedulePrayerNotifications(normalized);
+            schedulePreReminderNotifications(normalized);
         } catch (error) {
             console.error('Error fetching prayer times:', error);
         } finally {
@@ -901,6 +915,112 @@ export const PrayerTimesProvider = ({ children }) => {
         }
     }, [settings.dhikrReminder, i18n.language]);
 
+    // ─── Pre-Prayer Reminder Notifications (100-114, 3 days × 5 prayers) ───
+    const MAX_PREREMINDER_DAYS = 3;
+
+    const schedulePreReminderNotifications = useCallback(async (todayTimings) => {
+        if (!Capacitor.isNativePlatform()) return;
+
+        try {
+            // Cancel all existing pre-reminder notifications (IDs 100-114)
+            const cancelIds = Array.from({ length: 15 }, (_, i) => ({ id: 100 + i }));
+            await LocalNotifications.cancel({ notifications: cancelIds });
+
+            if (!settings.preReminderEnabled || !todayTimings) return;
+
+            const minutes = settings.preReminderMinutes || 30;
+            const lang = i18n.language || 'en';
+
+            const prayerNames = {
+                tr: ['Sabah Namazı', 'Öğle Namazı', 'İkindi Namazı', 'Akşam Namazı', 'Yatsı Namazı'],
+                en: ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'],
+                de: ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'],
+                ru: ['Фаджр', 'Зухр', 'Аср', 'Магриб', 'Иша'],
+                ar: ['الفجر', 'الظهر', 'العصر', 'المغرب', 'العشاء'],
+                az: ['Sübh', 'Günorta', 'İkindi', 'Axşam', 'Yatsı']
+            };
+            const reminderTitle = {
+                tr: '⏰ Namaz Hatırlatma',
+                en: '⏰ Prayer Reminder',
+                de: '⏰ Gebetserinnerung',
+                ru: '⏰ Напоминание о намазе',
+                ar: '⏰ تذكير بالصلاة',
+                az: '⏰ Namaz Xatırlatması'
+            };
+            const reminderBody = {
+                tr: `{{name}} vaktine {{min}} dakika kaldı`,
+                en: `{{min}} minutes until {{name}}`,
+                de: `Noch {{min}} Minuten bis {{name}}`,
+                ru: `{{min}} минут до {{name}}`,
+                ar: `{{min}} دقيقة حتى {{name}}`,
+                az: `{{name}} vaxtına {{min}} dəqiqə qaldı`
+            };
+            const names = prayerNames[lang] || prayerNames.en;
+
+            const isIOS = Capacitor.getPlatform() === 'ios';
+            const notifications = [];
+            const appDate = getAppDate();
+            const now = appDate;
+
+            for (let day = 0; day < MAX_PREREMINDER_DAYS; day++) {
+                const targetDate = new Date(appDate);
+                targetDate.setDate(targetDate.getDate() + day);
+
+                const dd = String(targetDate.getDate()).padStart(2, '0');
+                const mm = String(targetDate.getMonth() + 1).padStart(2, '0');
+                const yyyy = targetDate.getFullYear();
+                const dateKey = `${dd}-${mm}-${yyyy}`;
+
+                // Reuse today's timings — pre-reminder doesn't need multi-day calendar precision
+                const dayTimings = todayTimings;
+
+                const prayerKeys = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
+                prayerKeys.forEach((key, idx) => {
+                    const rawTime = dayTimings[key];
+                    if (!rawTime) return;
+                    const timeStr = rawTime.split(' ')[0];
+                    const [h, m] = timeStr.split(':').map(Number);
+                    if (isNaN(h) || isNaN(m)) return;
+
+                    // Schedule `minutes` before the prayer time
+                    const date = new Date(targetDate);
+                    date.setHours(h, m, 0, 0);
+                    date.setMinutes(date.getMinutes() - minutes);
+
+                    if (date <= now) return;
+
+                    const id = 100 + day * 5 + idx;
+                    const bodyTemplate = reminderBody[lang] || reminderBody.en;
+                    const body = bodyTemplate
+                        .replace('{{name}}', names[idx])
+                        .replace('{{min}}', String(minutes));
+
+                    const notif = {
+                        title: reminderTitle[lang] || reminderTitle.en,
+                        body,
+                        id,
+                        schedule: { at: date, allowWhileIdle: true },
+                        sound: '',
+                        smallIcon: 'ic_stat_icon_config_sample',
+                    };
+
+                    if (isIOS) {
+                        notif.interruptionLevel = 'active';
+                    }
+
+                    notifications.push(notif);
+                });
+            }
+
+            if (notifications.length > 0) {
+                await LocalNotifications.schedule({ notifications });
+                console.log(`[PreReminder] Scheduled ${notifications.length} notifications (${minutes}min before)`);
+            }
+        } catch (error) {
+            console.error('Error scheduling pre-reminder notifications:', error);
+        }
+    }, [settings.preReminderEnabled, settings.preReminderMinutes, i18n.language]);
+
     const value = useMemo(() => ({
         prayerTimes,
         nextPrayer,
@@ -914,6 +1034,7 @@ export const PrayerTimesProvider = ({ children }) => {
         updateSettings,
         refreshPrayerTimes: fetchPrayerTimes,
         schedulePrayerNotifications,
+        schedulePreReminderNotifications,
     }), [
         prayerTimes, 
         nextPrayer, 
@@ -927,7 +1048,8 @@ export const PrayerTimesProvider = ({ children }) => {
         settings, 
         updateSettings, 
         fetchPrayerTimes, 
-        schedulePrayerNotifications
+        schedulePrayerNotifications,
+        schedulePreReminderNotifications
     ]);
 
     return (

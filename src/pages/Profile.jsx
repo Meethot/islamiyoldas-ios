@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import {
     User, Settings, Shield, Bell, HelpCircle, RefreshCw,
     ChevronRight, LogOut, Heart, Crown, Check, Moon, Sun, Download, Trash2, X,
-    BookOpen, Box, Landmark, Camera, Pen, Share2, UserPlus, Globe, Bug, Ticket, Gift, Sparkles, Type
+    BookOpen, Box, Landmark, Camera, Pen, Share2, UserPlus, Globe, Bug, Ticket, Gift, Sparkles, Type, Clock
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
@@ -23,6 +23,7 @@ import { isPremium as checkIsPremium, setPremium } from '@/services/creditServic
 import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
 import { Share } from '@capacitor/share';
 import { storageService } from '@/services/storageService';
+import { usePrayerTimes } from '@/context/PrayerTimesContext';
 
 export default function Profile() {
     const { isDarkMode, toggleTheme } = useTheme();
@@ -31,6 +32,20 @@ export default function Profile() {
     const navigate = useNavigate();
     const { selection, success, heavy } = useHaptics();
     const { userData, updateAvatar, updateName, isPremium } = useUser();
+    const { settings: prayerSettings, updateSettings } = usePrayerTimes();
+    const { t: tSettings } = useTranslation('settings');
+    const [customMinuteInput, setCustomMinuteInput] = useState('');
+    const [customMinuteError, setCustomMinuteError] = useState(false);
+
+    const handleCustomMinuteSubmit = () => {
+        const val = parseInt(customMinuteInput, 10);
+        if (val >= 1 && val <= 120) {
+            selection();
+            updateSettings({ preReminderMinutes: val });
+            setCustomMinuteInput('');
+            setCustomMinuteError(false);
+        }
+    };
 
     // Constants
     const AVATAR_PRESETS = [
@@ -426,6 +441,107 @@ export default function Profile() {
                             </div>
                         </div>
                         <ChevronRight className="w-5 h-5 text-stone-400 dark:text-gray-300 group-hover:translate-x-1 transition-transform" />
+                    </div>
+
+                    {/* Pre-Prayer Reminder — Inline */}
+                    <div className="overflow-hidden">
+                        <div
+                            className="p-5 flex items-center justify-between hover:bg-stone-50 dark:hover:bg-white/5 transition-colors cursor-pointer group"
+                            onClick={() => {
+                                selection();
+                                updateSettings({ preReminderEnabled: !prayerSettings.preReminderEnabled });
+                            }}
+                        >
+                            <div className="flex items-center gap-4">
+                                <div className={cn(
+                                    "p-3 rounded-2xl group-hover:scale-110 transition-all",
+                                    prayerSettings.preReminderEnabled
+                                        ? "bg-islamic-green/10 text-islamic-green dark:bg-islamic-gold/20 dark:text-islamic-gold"
+                                        : "bg-stone-100 text-stone-400 dark:bg-white/5 dark:text-gray-500"
+                                )}>
+                                    <Clock size={20} />
+                                </div>
+                                <div className="text-left">
+                                    <p className="text-sm font-bold text-stone-800 dark:text-white">{tSettings('preReminder')}</p>
+                                    <p className="text-xs text-stone-500 dark:text-gray-400 font-medium">
+                                        {prayerSettings.preReminderEnabled
+                                            ? tSettings('preReminderActive', { count: prayerSettings.preReminderMinutes || 30 })
+                                            : tSettings('preReminderSubtitle')
+                                        }
+                                    </p>
+                                </div>
+                            </div>
+                            <div className={cn(
+                                "w-12 h-6 rounded-full p-1 transition-colors relative",
+                                prayerSettings.preReminderEnabled ? "bg-islamic-green dark:bg-islamic-gold" : "bg-stone-300 dark:bg-white/10"
+                            )}>
+                                <div className={cn(
+                                    "w-4 h-4 bg-white rounded-full shadow-sm transition-transform",
+                                    prayerSettings.preReminderEnabled ? "translate-x-6" : "translate-x-0"
+                                )} />
+                            </div>
+                        </div>
+
+                        {/* Chips — visible only when enabled */}
+                        {prayerSettings.preReminderEnabled && (
+                            <div className="px-5 pb-4 pt-1 space-y-2">
+                                <div className="flex gap-2">
+                                    {[15, 30, 45, 60].map(min => (
+                                        <button
+                                            key={min}
+                                            onClick={() => { selection(); updateSettings({ preReminderMinutes: min }); }}
+                                            className={cn(
+                                                "flex-1 py-2 rounded-xl text-xs font-bold transition-all active:scale-95",
+                                                (prayerSettings.preReminderMinutes || 30) === min
+                                                    ? "bg-islamic-green dark:bg-islamic-gold text-white dark:text-[#021a0f] shadow-md"
+                                                    : "bg-stone-100 dark:bg-white/[0.06] text-stone-500 dark:text-gray-400"
+                                            )}
+                                        >
+                                            {min} {tSettings('preReminderMin')}
+                                        </button>
+                                    ))}
+                                </div>
+                                {/* Custom input row */}
+                                <div className="space-y-1">
+                                    <div className="flex gap-2">
+                                        <input
+                                            type="text"
+                                            inputMode="numeric"
+                                            pattern="[0-9]*"
+                                            maxLength={3}
+                                            value={customMinuteInput}
+                                            onChange={e => {
+                                                const raw = e.target.value.replace(/\D/g, '').replace(/^0+/, '').slice(0, 3);
+                                                setCustomMinuteInput(raw);
+                                                setCustomMinuteError(parseInt(raw, 10) > 120);
+                                            }}
+                                            onKeyDown={e => {
+                                                if (e.key === 'Enter') handleCustomMinuteSubmit();
+                                            }}
+                                            placeholder={tSettings('preReminderCustomPlaceholder')}
+                                            className={cn(
+                                                "flex-1 px-3 py-2 rounded-xl text-xs font-semibold bg-stone-100 dark:bg-white/[0.06] text-stone-900 dark:text-white outline-none transition-colors placeholder:text-stone-400",
+                                                customMinuteError
+                                                    ? "border border-red-500 dark:border-red-400"
+                                                    : "border border-stone-200/60 dark:border-white/10 focus:border-islamic-green dark:focus:border-islamic-gold"
+                                            )}
+                                        />
+                                        <button
+                                            onClick={handleCustomMinuteSubmit}
+                                            disabled={!customMinuteInput || customMinuteError || parseInt(customMinuteInput, 10) < 1}
+                                            className="px-4 py-2 rounded-xl text-sm font-bold bg-islamic-green dark:bg-islamic-gold text-white dark:text-[#021a0f] disabled:opacity-30 active:scale-95 transition-all"
+                                        >
+                                            ✓
+                                        </button>
+                                    </div>
+                                    {customMinuteError && (
+                                        <p className="text-[10px] font-bold text-red-500 dark:text-red-400 px-1">
+                                            {tSettings('preReminderMaxError')}
+                                        </p>
+                                    )}
+                                </div>
+                            </div>
+                        )}
                     </div>
 
                     {/* Appearance - Direct Toggle (no sub-page needed) */}
