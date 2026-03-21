@@ -15,8 +15,9 @@ function getNextInterval(index) {
 }
 
 export default function InterstitialAdManager() {
-    // 🔴 Kill switch — no intervals created when ads disabled
-    if (!ADS_ENABLED) return null;
+    // 🔴 Tam ekran geçiş reklamları kullanıcının talebi üzerine KULLANILMIYOR
+    // Sadece 'Amin' kumbarasındaki Ödüllü Reklamlar aktif.
+    return null;
     const location = useLocation();
     const elapsedRef = useRef(0);
     const nextAdTimeRef = useRef(AD_INTERVALS[0]); // İlk reklam 30s

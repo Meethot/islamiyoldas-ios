@@ -8,7 +8,7 @@ const IS_NATIVE = Capacitor.isNativePlatform();
 
 const AD_IDS = {
     REWARDED: {
-        ios: 'ca-app-pub-3345957146167395/3831462313',
+        ios: 'ca-app-pub-3345957146167395/6853507594',
         android: 'ca-app-pub-3345957146167395/7443404265',
     },
     INTERSTITIAL: {
