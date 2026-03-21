@@ -151,9 +151,9 @@ export const PrayerTimesProvider = ({ children }) => {
         if (!Capacitor.isNativePlatform()) return;
         try {
             const permStatus = await LocalNotifications.checkPermissions();
-            if (permStatus.display !== 'granted') {
-                await LocalNotifications.requestPermissions();
-            }
+            // ⚠️ Onboarding zaten izin soruyor. Burada TEKRAR sormak, iOS'ta kullanıcı
+            // reddetmişse "Open Settings" popup'ı çıkarır. Sessizce kontrol et, yeter.
+            if (permStatus.display !== 'granted') return;
 
             // Android notification channel — sound is baked into the channel
             // IMPORTANT: Once created, Android caches the channel. Changing sound requires

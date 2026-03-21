@@ -97,6 +97,19 @@ function AppContent() {
     return () => clearTimeout(max);
   }, []);
 
+  // Prefetch popular pages after splash — eliminates first-nav delay
+  useEffect(() => {
+    if (showSplash) return;
+    const t = setTimeout(() => {
+      import('./pages/Tracking');
+      import('./pages/Dhikr');
+      import('./pages/Learn');
+      import('./pages/Stories');
+      import('./pages/Profile');
+    }, 500);
+    return () => clearTimeout(t);
+  }, [showSplash]);
+
   // Defer non-critical third-party initializations to prevent blocking JS thread on mount
   useEffect(() => {
     const t1 = setTimeout(initAdMob, 2000);

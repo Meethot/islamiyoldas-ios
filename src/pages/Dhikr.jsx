@@ -109,7 +109,7 @@ export default function Dhikr() {
         const savedCount = localStorage.getItem(`dhikr_count_${activePreset.id}`) || '0';
         const savedTarget = isPremium()
             ? (localStorage.getItem(`dhikr_target_${activePreset.id}`) || activePreset.defaultTarget.toString())
-            : '33';
+            : activePreset.defaultTarget.toString();
 
         setCount(parseInt(savedCount, 10));
         setTarget(parseInt(savedTarget, 10));
@@ -119,12 +119,12 @@ export default function Dhikr() {
     const increment = () => {
         if (isCountdownMode) {
             // COUNTDOWN MODE: Decrement (resets at 0 for next round)
-            // Daily dhikr limit for non-premium users (33 free per day)
+            // Daily dhikr limit for non-premium users (100 free per day)
             if (!isPremium()) {
                 const stored = JSON.parse(localStorage.getItem('zikirmatik_daily_limit') || '{}');
                 const today = getAppDate().toISOString().slice(0, 10);
                 const dailyCount = stored.date === today ? (stored.count || 0) : 0;
-                if (dailyCount >= 33) {
+                if (dailyCount >= 100) {
                     setShowDhikrLimit(true);
                     return;
                 }
@@ -145,7 +145,7 @@ export default function Dhikr() {
                 if (newCount === 0) {
                     haptics.targetReached();
                 } else if (hapticsMode === 'all') {
-                    haptics.medium();
+                    haptics.heavy();
                 }
             }
 
@@ -166,12 +166,12 @@ export default function Dhikr() {
             }
         } else {
             // STANDARD MODE: Increment
-            // Daily dhikr limit for non-premium users (33 free per day)
+            // Daily dhikr limit for non-premium users (100 free per day)
             if (!isPremium()) {
                 const stored = JSON.parse(localStorage.getItem('zikirmatik_daily_limit') || '{}');
                 const today = getAppDate().toISOString().slice(0, 10);
                 const dailyCount = stored.date === today ? (stored.count || 0) : 0;
-                if (dailyCount >= 33) {
+                if (dailyCount >= 100) {
                     setShowDhikrLimit(true);
                     return;
                 }
@@ -195,7 +195,7 @@ export default function Dhikr() {
                 if (isTargetReached) {
                     haptics.targetReached();
                 } else if (hapticsMode === 'all') {
-                    haptics.medium();
+                    haptics.heavy();
                 }
             }
 
@@ -526,8 +526,8 @@ export default function Dhikr() {
                                         </defs>
                                     </svg>
                                     <div className="absolute inset-0 flex flex-col items-center justify-center">
-                                        <span className="text-2xl font-black text-islamic-gold">33</span>
-                                        <span className="text-[9px] text-islamic-gold/50 font-bold uppercase tracking-widest">/ 33</span>
+                                        <span className="text-2xl font-black text-islamic-gold">100</span>
+                                        <span className="text-[9px] text-islamic-gold/50 font-bold uppercase tracking-widest">/ 100</span>
                                     </div>
                                 </div>
                             </div>
@@ -538,7 +538,7 @@ export default function Dhikr() {
                             </h3>
 
                             <p className="text-[13px] text-white/45 leading-relaxed mb-8">
-                                {t('dhikrLimit.desc1', { defaultValue: 'Ücretsiz olarak günde' })} <span className="text-islamic-gold/80 font-semibold">{t('dhikrLimit.count', { count: 33, defaultValue: '33 zikir' })}</span> {t('dhikrLimit.desc2', { defaultValue: 'çekebilirsiniz.' })}<br />
+                                {t('dhikrLimit.desc1', { defaultValue: 'Ücretsiz olarak günde' })} <span className="text-islamic-gold/80 font-semibold">{t('dhikrLimit.count', { count: 100, defaultValue: '100 zikir' })}</span> {t('dhikrLimit.desc2', { defaultValue: 'çekebilirsiniz.' })}<br />
                                 {t('dhikrLimit.desc3', { defaultValue: 'Sınırsız zikir için Premium\'a yükseltin.' })}
                             </p>
 

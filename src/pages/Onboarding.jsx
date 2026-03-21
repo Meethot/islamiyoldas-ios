@@ -174,7 +174,7 @@ export default function Onboarding() {
                 <div className="flex justify-end mb-4 relative z-50">
                     <button
                         onClick={handleSkip}
-                        className="flex items-center gap-1 px-4 py-2 rounded-full text-white/30 hover:text-white/50 active:scale-95 transition-all text-sm font-medium"
+                        className="flex items-center gap-1 px-4 py-2 rounded-full bg-white/[0.06] border border-white/10 text-white/50 hover:text-white/70 active:scale-95 transition-all text-sm font-medium"
                     >
                         {t('skip')}
                         <ChevronRight size={16} />

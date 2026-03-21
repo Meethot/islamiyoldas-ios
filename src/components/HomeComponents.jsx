@@ -251,7 +251,7 @@ export const WeeklyStreakWidget = memo(({ tubaData, setTubaData }) => {
             return;
         }
 
-        if (totalWateredDays >= 1 && !isPremium()) {
+        if (totalWateredDays >= 3 && !isPremium()) {
             navigate('/premium');
             return;
         }
@@ -500,7 +500,7 @@ export const WeeklyStreakWidget = memo(({ tubaData, setTubaData }) => {
                                     <CheckCircle2 size={18} />
                                     {t('tuba.btnDone')}
                                 </>
-                            ) : totalWateredDays >= 1 && !isPremium() ? (
+                            ) : totalWateredDays >= 3 && !isPremium() ? (
                                 <>
                                     <span className="text-base">👑</span>
                                     {t('tuba.btnWater')}

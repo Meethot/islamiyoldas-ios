@@ -1,4 +1,7 @@
 PODS:
+  - AparajitaCapacitorSecureStorage (8.0.0):
+    - Capacitor
+    - KeychainSwift (~> 21.0)
   - Capacitor (8.0.2):
     - CapacitorCordova
   - CapacitorApp (8.0.0):
@@ -91,6 +94,7 @@ PODS:
     - GoogleUtilities/Privacy
   - IONFilesystemLib (1.1.1)
   - IONGeolocationLib (2.0.0)
+  - KeychainSwift (21.0.0)
   - nanopb (3.30910.0):
     - nanopb/decode (= 3.30910.0)
     - nanopb/encode (= 3.30910.0)
@@ -149,6 +153,7 @@ PODS:
     - PromisesObjC (= 2.4.0)
 
 DEPENDENCIES:
+  - "AparajitaCapacitorSecureStorage (from `../../node_modules/@aparajita/capacitor-secure-storage`)"
   - "Capacitor (from `../../node_modules/@capacitor/ios`)"
   - "CapacitorApp (from `../../node_modules/@capacitor/app`)"
   - "CapacitorCommunityAdmob (from `../../node_modules/@capacitor-community/admob`)"
@@ -185,12 +190,15 @@ SPEC REPOS:
     - GoogleUtilities
     - IONFilesystemLib
     - IONGeolocationLib
+    - KeychainSwift
     - nanopb
     - OneSignalXCFramework
     - PromisesObjC
     - PromisesSwift
 
 EXTERNAL SOURCES:
+  AparajitaCapacitorSecureStorage:
+    :path: "../../node_modules/@aparajita/capacitor-secure-storage"
   Capacitor:
     :path: "../../node_modules/@capacitor/ios"
   CapacitorApp:
@@ -231,6 +239,7 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/@odion-cloud/capacitor-volume-control"
 
 SPEC CHECKSUMS:
+  AparajitaCapacitorSecureStorage: 8128d05cafcb13b00448e20fb388a0edccd44b12
   Capacitor: 2b79172ad27f3be2d103cce88b8eb9803fdcc744
   CapacitorApp: 3963a84197280757b84f126afd1520a85ae3b092
   CapacitorCommunityAdmob: 9c36b466f46da413e5c105f7484e7603178c6223
@@ -262,12 +271,13 @@ SPEC CHECKSUMS:
   GoogleUtilities: 00c88b9a86066ef77f0da2fab05f65d7768ed8e1
   IONFilesystemLib: dfa8706539ac9ab77ccfd6e5b3830ce9b5e57f6c
   IONGeolocationLib: a5e40b54edc2ee9902036eda5aaa41ddf07bb68d
+  KeychainSwift: 4a71a45c802fd9e73906457c2dcbdbdc06c9419d
   nanopb: fad817b59e0457d11a5dfbde799381cd727c1275
   OdionCloudCapacitorVolumeControl: e8d89e76ce55f9c84c709f726b6881fa4ef35588
   OneSignalXCFramework: 0b85a8d949247f80809a9d5598200cc263591129
   PromisesObjC: f5707f49cb48b9636751c5b2e7d227e43fba9f47
   PromisesSwift: 9d77319bbe72ebf6d872900551f7eeba9bce2851
 
-PODFILE CHECKSUM: 75fb8ffe3f0c76fc27b85c40908b5d21f6d5ff1f
+PODFILE CHECKSUM: 514d584f5743a5f87f7b86d82235fcee8db367bc
 
 COCOAPODS: 1.16.2

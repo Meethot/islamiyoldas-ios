@@ -976,17 +976,36 @@ export default function Learn() {
     const langGuides = GUIDES_MAP[lang] || {};
     const activeGuides = { ...GUIDES, ...langGuides };
     const guide = activeGuides[selectedCategory];
+
+    // Dualar: ilk 10 dua ücretsiz, Sureler: ilk 1 sure ücretsiz
+    // Tümü gösterilir, limitten sonra next butonunda taç + premium yönlendirme
+    const FREE_DUA_COUNT = 10;
+    const FREE_SURE_COUNT = 1;
+    const isDualarGated = selectedCategory === 'dualar' && !isPremium();
+    const isSurelerGated = selectedCategory === 'sureler' && !isPremium();
     const step = guide?.steps[currentStep];
     const totalSteps = guide?.steps.length || 0;
     totalStepsRef.current = totalSteps;
+    // Limitin sonuna gelince next butonunda taç göster
+    const showCrownOnNext = (isDualarGated && currentStep >= FREE_DUA_COUNT - 1)
+        || (isSurelerGated && currentStep >= FREE_SURE_COUNT - 1);
 
     const next = useCallback(() => {
         light();
         setCurrentStep(prev => {
+            // Dualar: 10 adımdan sonra → premium
+            if (isDualarGated && prev >= FREE_DUA_COUNT - 1) {
+                setTimeout(() => navigate('/premium'), 0);
+                return prev;
+            }
+            // Sureler: limit aşılınca → premium
+            if (isSurelerGated && prev >= FREE_SURE_COUNT - 1) {
+                setTimeout(() => navigate('/premium'), 0);
+                return prev;
+            }
             if (prev < totalStepsRef.current - 1) {
                 return prev + 1;
             } else {
-                // Schedule completion outside the setter
                 setTimeout(() => {
                     success();
                     setIsComplete(true);
@@ -994,7 +1013,7 @@ export default function Learn() {
                 return prev;
             }
         });
-    }, [light, success]);
+    }, [light, success, isDualarGated, isSurelerGated, navigate]);
 
     const prev = useCallback(() => {
         light();
@@ -1142,7 +1161,9 @@ export default function Learn() {
                 {CATEGORIES.map((cat, index) => {
                     const Icon = cat.icon;
                     const isActive = selectedCategory === cat.id;
-                    const isFree = index === 0;
+                    // Ücretsiz: abdest (0), dualar (1), sureler (2)
+                    // Premium: namazlar (3), kadinNamaz (4)
+                    const isFree = index <= 2;
                     const isLocked = !isFree && !isPremium();
                     return (
                         <motion.button
@@ -1228,7 +1249,9 @@ export default function Learn() {
                             : "bg-islamic-green dark:bg-islamic-gold text-white dark:text-[#032e18]"
                     )}
                 >
-                    {currentStep === totalSteps - 1 ? (
+                    {showCrownOnNext ? (
+                        <><span className="text-base">👑</span> Premium</>
+                    ) : currentStep === totalSteps - 1 ? (
                         <>{t('navComplete')} <CheckCircle2 className="ml-1.5 h-4 w-4" /></>
                     ) : (
                         <>{t('navNext')} <ChevronRight className="ml-1.5 h-4 w-4" /></>

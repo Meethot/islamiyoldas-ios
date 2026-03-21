@@ -1,8 +1,8 @@
-/* English */
-"CFBundleDisplayName" = "Islamic Companion";
-"CFBundleName" = "Islamic Companion";
-"NSLocationAlwaysAndWhenInUseUsageDescription" = "We need your location to notify you about prayer times.";
-"NSLocationWhenInUseUsageDescription" = "We need your location to calculate prayer times and Qibla direction.";
-"NSMotionUsageDescription" = "We need access to motion sensors to calculate the Qibla direction accurately.";
-"NSPhotoLibraryAddUsageDescription" = "We need your permission to save shared content to your photo library.";
-"NSPrivacyTrackingUsageDescription" = "We request permission to provide you with better service and improve your app experience.";
+/* Turkish */
+"CFBundleDisplayName" = "İslami Yoldaş";
+"CFBundleName" = "İslami Yoldaş";
+"NSLocationAlwaysAndWhenInUseUsageDescription" = "Namaz vakitlerini size bildirmek için konumunuza ihtiyacımız var.";
+"NSLocationWhenInUseUsageDescription" = "Namaz vakitlerini ve Kıble yönünü hesaplamak için konumunuza ihtiyacımız var.";
+"NSMotionUsageDescription" = "Kıble yönünü doğru hesaplamak için hareket sensörlerine erişmemiz gerekiyor.";
+"NSPhotoLibraryAddUsageDescription" = "Paylaştığınız içerikleri galerinize kaydedebilmek için izninize ihtiyacımız var.";
+"NSPrivacyTrackingUsageDescription" = "Size daha uygun hizmet ve uygulama deneyiminizi iyileştirmek için izin istiyoruz.";

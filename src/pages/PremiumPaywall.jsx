@@ -559,6 +559,17 @@ export default function PremiumPaywall() {
                             <PremiumHeroVisual />
                         </div>
 
+                        {/* Social proof */}
+                        <motion.p
+                            className="text-[#D4AF37]/80 text-[11px] font-semibold tracking-[0.12em] uppercase mb-1"
+                            style={{ textShadow: '0 0 6px rgba(212,175,55,0.6), 0 0 18px rgba(212,175,55,0.35), 0 0 40px rgba(212,175,55,0.15)' }}
+                            initial={{ opacity: 0, y: 6 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.2, duration: 0.5 }}
+                        >
+                            ✦ {t('premium.social_proof')} ✦
+                        </motion.p>
+
                         {/* Premium badge — centered */}
                         <motion.div
                             className="flex justify-center mt-1"

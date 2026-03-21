@@ -178,7 +178,7 @@ export default function Stories() {
             {/* Story Grid */}
             <div className="grid gap-5">
                 {(activeStories[activeCategory] || []).map((story, index) => {
-                    const isFree = activeCategory === 'prophets' && index === 0;
+                    const isFree = index === 0;
                     const isLocked = !isFree && !isPremium();
                     return (
                         <div key={story.id} className="relative">

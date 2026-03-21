@@ -240,10 +240,8 @@ export default function Profile() {
     const deleteAccount = async () => {
         heavy();
         if (confirm(t('delete_account.confirm'))) {
-            // Tamamen sıfırla
-            localStorage.clear();
-            const { Preferences } = await import('@capacitor/preferences');
-            await Preferences.clear();
+            // Tamamen sıfırla (localStorage + Preferences + Keychain)
+            await storageService.clearAll();
             window.location.href = '/';
         }
     };
@@ -743,8 +741,8 @@ export default function Profile() {
                                     {t('privacy.delete_cancel')}
                                 </Button>
                                 <Button
-                                    onClick={() => {
-                                        localStorage.clear();
+                                    onClick={async () => {
+                                        await storageService.clearAll();
                                         window.location.href = '/';
                                     }}
                                     className="flex-1 h-11 bg-red-500 text-white hover:bg-red-600 rounded-xl"

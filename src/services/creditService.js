@@ -7,7 +7,7 @@ const STORAGE_KEYS = {
 };
 
 export const CREDIT_COSTS = {
-    POST_DUA: 50,
+    POST_DUA: 30,
     AMIN_REWARD: 1,
     AD_REWARD: 5,
 };

@@ -709,13 +709,13 @@ function EsmaDetailModal({ esma, count, setCount, onClose }) {
     const strokeDashoffset = circumference - progress * circumference;
 
     const handleIncrement = () => {
-        // Daily dhikr limit for non-premium users (33 free per day)
+        // Daily dhikr limit for non-premium users (100 free per day)
         if (!isPremium()) {
             const stored = JSON.parse(localStorage.getItem('esma_daily_limit') || '{}');
             const today = getAppDate().toISOString().slice(0, 10); // "YYYY-MM-DD"
             // Reset if different day
             const dailyCount = stored.date === today ? (stored.count || 0) : 0;
-            if (dailyCount >= 33) {
+            if (dailyCount >= 100) {
                 setShowDhikrLimit(true);
                 return;
             }
@@ -1044,8 +1044,8 @@ function EsmaDetailModal({ esma, count, setCount, onClose }) {
                                                 </defs>
                                             </svg>
                                             <div className="absolute inset-0 flex flex-col items-center justify-center">
-                                                <span className="text-2xl font-black text-islamic-gold">33</span>
-                                                <span className="text-[9px] text-islamic-gold/50 font-bold uppercase tracking-widest">/ 33</span>
+                                                <span className="text-2xl font-black text-islamic-gold">100</span>
+                                                <span className="text-[9px] text-islamic-gold/50 font-bold uppercase tracking-widest">/ 100</span>
                                             </div>
                                         </div>
                                     </div>
@@ -1058,7 +1058,7 @@ function EsmaDetailModal({ esma, count, setCount, onClose }) {
 
                                     {/* Description */}
                                     <p className="text-[13px] text-white/45 leading-relaxed mb-8">
-                                        {t('dhikrLimit.desc1')} <span className="text-islamic-gold/80 font-semibold">{t('dhikrLimit.count', { count: 33 })}</span> {t('dhikrLimit.desc2')}<br />
+                                        {t('dhikrLimit.desc1')} <span className="text-islamic-gold/80 font-semibold">{t('dhikrLimit.count', { count: 100 })}</span> {t('dhikrLimit.desc2')}<br />
                                         {t('dhikrLimit.desc3')}
                                     </p>
 
