@@ -1,5 +1,5 @@
 import { Capacitor } from '@capacitor/core';
-import { AdMob, RewardAdPluginEvents, InterstitialAdPluginEvents, AdmobConsentStatus } from '@capacitor-community/admob';
+import { AdMob, RewardAdPluginEvents, InterstitialAdPluginEvents } from '@capacitor-community/admob';
 
 // 🔴 Reklamlar şu an kapalı — aktif etmek için true yap
 export const ADS_ENABLED = true;
@@ -28,11 +28,6 @@ export async function initAdMob() {
             // Production'a geçerken false yapıldı
             initializeForTesting: false,
         });
-
-        const consentInfo = await AdMob.requestConsentInfo();
-        if (consentInfo.isConsentFormAvailable && consentInfo.status === AdmobConsentStatus.REQUIRED) {
-            await AdMob.showConsentForm();
-        }
 
         initialized = true;
     } catch (error) {

@@ -145,7 +145,29 @@ export const PrayerTimesProvider = ({ children }) => {
         }
     };
 
+    const NOTIFICATION_KEYS = ['adhanEnabled', 'verseEnabled', 'fridayMessage', 'dhikrReminder', 'spiritualRewards', 'preReminderEnabled'];
+
     const updateSettings = useCallback(async (newSettings) => {
+        // If enabling any notification toggle, check OS permission first
+        if (Capacitor.isNativePlatform()) {
+            const isEnablingNotification = NOTIFICATION_KEYS.some(k => newSettings[k] === true);
+            if (isEnablingNotification) {
+                try {
+                    const perm = await LocalNotifications.checkPermissions();
+                    if (perm.display !== 'granted') {
+                        // Permission not granted — silently revert toggle(s)
+                        const reverted = {};
+                        NOTIFICATION_KEYS.forEach(k => { if (newSettings[k] === true) reverted[k] = false; });
+                        setSettings(prev => ({ ...prev, ...reverted }));
+                        return; // Don't persist
+                    }
+                } catch (e) {
+                    console.error('Permission check error:', e);
+                    return;
+                }
+            }
+        }
+
         setSettings(prev => ({ ...prev, ...newSettings }));
         try {
             for (const [key, value] of Object.entries(newSettings)) {
@@ -162,8 +184,24 @@ export const PrayerTimesProvider = ({ children }) => {
         if (!Capacitor.isNativePlatform()) return;
         try {
             const permStatus = await LocalNotifications.checkPermissions();
-            // ⚠️ Onboarding zaten izin soruyor. Burada TEKRAR sormak, iOS'ta kullanıcı
-            // reddetmişse "Open Settings" popup'ı çıkarır. Sessizce kontrol et, yeter.
+
+            // Only turn off toggles if user explicitly DENIED permission
+            // 'prompt' means not yet asked — leave defaults, OneSignal will ask
+            if (permStatus.display === 'denied') {
+                const offSettings = {
+                    adhanEnabled: false,
+                    verseEnabled: false,
+                    fridayMessage: false,
+                    dhikrReminder: false,
+                    spiritualRewards: false,
+                    preReminderEnabled: false
+                };
+                // Only update UI, do NOT persist — so original settings survive for restoration
+                setSettings(prev => ({ ...prev, ...offSettings }));
+                return;
+            }
+
+            // If not granted yet (prompt), skip channel setup — will be done after permission
             if (permStatus.display !== 'granted') return;
 
             // Android notification channel — sound is baked into the channel
@@ -415,6 +453,29 @@ export const PrayerTimesProvider = ({ children }) => {
             } catch (e) {
                 console.warn('Could not clear delivered notifications', e);
             }
+
+            // Sync notification toggles with OS permission on every resume
+            try {
+                const perm = await LocalNotifications.checkPermissions();
+                if (perm.display === 'denied') {
+                    // iOS Settings'ten bildirimler kapatılmış — sadece UI'ı kapat, Preferences'a dokunma
+                    const offSettings = {
+                        adhanEnabled: false,
+                        verseEnabled: false,
+                        fridayMessage: false,
+                        dhikrReminder: false,
+                        spiritualRewards: false,
+                        preReminderEnabled: false
+                    };
+                    setSettings(prev => ({ ...prev, ...offSettings }));
+                } else if (perm.display === 'granted') {
+                    // iOS Settings'ten bildirimler açılmış — kayıtlı ayarları geri yükle
+                    await loadSettings();
+                }
+            } catch (e) {
+                console.warn('Could not sync notification permission', e);
+            }
+
             fetchPrayerTimes();
         };
 

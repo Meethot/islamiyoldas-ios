@@ -12,9 +12,20 @@ export async function initOneSignal() {
     try {
         OneSignal.initialize(APP_ID);
 
-        OneSignal.Notifications.requestPermission(true).then((accepted) => {
-            console.log("User accepted notifications: " + accepted);
-        });
+        // Only request permission if not yet determined
+        // This prevents the iOS "Open Settings" popup on subsequent launches
+        const hasPermission = OneSignal.Notifications.hasPermission();
+        if (!hasPermission) {
+            // Check if we already asked before (stored flag)
+            const { Preferences } = await import('@capacitor/preferences');
+            const { value: asked } = await Preferences.get({ key: 'onesignal_permission_asked' });
+            if (!asked) {
+                OneSignal.Notifications.requestPermission(true).then((accepted) => {
+                    console.log("User accepted notifications: " + accepted);
+                });
+                await Preferences.set({ key: 'onesignal_permission_asked', value: 'true' });
+            }
+        }
 
         OneSignal.Notifications.addEventListener('click', (event) => {
             console.log('OneSignal: notification clicked:', event);
