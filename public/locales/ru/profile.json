@@ -27,8 +27,8 @@
     },
     "appearance": {
         "title": "Внешний вид",
-        "dark_active": "Тёмная тема активна",
-        "light_active": "Светлая тема активна"
+        "dark_active": "Тема умиротворения",
+        "light_active": "Свежая тема"
     },
     "location": {
         "title": "Местоположение",

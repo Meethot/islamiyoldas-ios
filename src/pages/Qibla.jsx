@@ -261,20 +261,20 @@ export default function Qibla() {
         const readings = [];
         let sensorVerified = false;
 
-        // After 4s, check if sensor is truly working (not just sending static values)
+        // After 6s, check if sensor is truly working (not just sending static values)
         const sensorCheck = setTimeout(() => {
             if (sensorVerified || !mountedRef.current) return;
 
-            // If fewer than 3 readings OR all readings are the same = dead sensor
-            const uniqueReadings = new Set(readings.map(r => Math.round(r)));
-            const sensorDead = readings.length < 3 || uniqueReadings.size < 2;
+            // If completely NO readings received within 6 seconds = dead sensor
+            // Note: Being too aggressive with uniqueReadings checking causes false positives when phone is perfectly still
+            const sensorDead = readings.length === 0;
 
             if (sensorDead) {
-                console.warn(`Sensor dead: ${readings.length} readings, ${uniqueReadings.size} unique`);
+                console.warn(`Sensor dead: ${readings.length} readings received.`);
                 setSensorMissing(true);
             }
             if (mountedRef.current) setCompassReady(true);
-        }, 4000);
+        }, 6000);
 
         const startCompass = async () => {
             if (!mountedRef.current) return;
@@ -655,12 +655,23 @@ export default function Qibla() {
                                 <p className="text-[10px] text-amber-400/70 mt-1 font-medium">{t('sensorMissing.hadithSource')}</p>
                             </div>
 
-                            <button
-                                onClick={() => setSensorMissing(false)}
-                                className="w-full bg-gradient-to-r from-emerald-800 to-emerald-700 hover:from-emerald-700 hover:to-emerald-600 rounded-xl py-3 text-emerald-50 font-medium tracking-wide transition-all"
-                            >
-                                {t('sensorMissing.close')}
-                            </button>
+                            <div className="flex flex-col gap-2 w-full">
+                                <button
+                                    onClick={() => setSensorMissing(false)}
+                                    className="w-full bg-gradient-to-r from-emerald-800 to-emerald-700 hover:from-emerald-700 hover:to-emerald-600 rounded-xl py-3 text-emerald-50 font-medium tracking-wide transition-all"
+                                >
+                                    {t('sensorMissing.close')}
+                                </button>
+                                <button
+                                    onClick={() => {
+                                        setSensorMissing(false);
+                                        try { window.open('app-settings:', '_blank'); } catch(e) { console.warn('Could not open settings', e?.message); }
+                                    }}
+                                    className="w-full bg-emerald-950/40 hover:bg-emerald-900/40 border border-emerald-500/20 rounded-xl py-3 text-emerald-400 font-medium tracking-wide transition-all"
+                                >
+                                    {t('sensorMissing.openSettings')}
+                                </button>
+                            </div>
                         </motion.div>
                     </motion.div>
                 )}

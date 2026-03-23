@@ -26,10 +26,6 @@ export function LocationProvider({ children }) {
         // Also update cached_district and cached_address for Diyanet API prayer time lookup
         localStorage.setItem('cached_district', city);
         localStorage.setItem('cached_address', city);
-        
-        // VITAL FIX: Clear GPS location so that fallback APIs (Aladhan) don't use stale GPS coordinates
-        setLocation(null);
-        localStorage.removeItem('cached_location');
         setAddress(city);
     }, []);
 

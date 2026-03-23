@@ -30,13 +30,15 @@
     "sensorMissing": {
         "title": "Pusula Sensoru Tapılmadı",
         "subtitle": "Avadanlıq Məhdudiyyəti",
-        "reason": "Cihazınızda maqnitometr yoxdur",
-        "reasonDesc": "Bu telefonda pusula funksiyası üçün lazım olan maqnit sensor yoxdur. Bu avadanlıq məhdudiyyətidir, proqramla həll edilə bilməz.",
+        "reason": "Məkan və ya Sensor Xətası",
+        "reasonDesc": "Kompasın çalışması üçün məkan xidmətlərinə icazə verməlisiniz. Məkan açıldıqda bu ekran aktiv olacaq.",
         "alternative": "Alternativ üsul",
         "alternativeDesc": "Xəritədə konumunuzdan Kəbəyə olan istiqaməti görə bilərsiniz.",
         "openMaps": "Kəbəni Xəritədə Göstər",
         "hadith": "\"Şərq də Qərb də Allahındır. Hara dönsəniz, Allahın üzü oradadır.\"",
         "hadithSource": "— Bəqərə Surəsi, 115",
-        "close": "Anladım 🧭"
+        "close": "Anladım 🧭",
+        "openSettings": "Məkan Ayarlarına Keç",
+        "openSettingsDesc": "Məkanı açıb yenidən yoxlayın."
     }
 }

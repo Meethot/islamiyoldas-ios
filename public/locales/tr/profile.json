@@ -27,8 +27,8 @@
     },
     "appearance": {
         "title": "Görünüm",
-        "dark_active": "Gece modu aktif",
-        "light_active": "Gündüz modu aktif"
+        "dark_active": "Huzur Teması",
+        "light_active": "Ferah Tema"
     },
     "location": {
         "title": "Konum",

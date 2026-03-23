@@ -27,8 +27,8 @@
     },
     "appearance": {
         "title": "Appearance",
-        "dark_active": "Dark mode active",
-        "light_active": "Light mode active"
+        "dark_active": "Serenity Theme",
+        "light_active": "Refreshing Theme"
     },
     "location": {
         "title": "Location",

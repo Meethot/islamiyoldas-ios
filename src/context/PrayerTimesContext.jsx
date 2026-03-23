@@ -476,8 +476,8 @@ export const PrayerTimesProvider = ({ children }) => {
             const method = turkish ? 13 : 3; 
 
             let response;
-            // If GPS is unavailable but we have a manual city, use Aladhan's byCity endpoint
-            if (!hasLocation && manualCity) {
+            // Always prioritize manual city for Aladhan if set, regardless of background physical GPS state
+            if (manualCity) {
                 // Determine country (assuming Turkey if 'turkish' is true, otherwise default to user's setting or null)
                 const queryCountry = turkish ? 'Turkey' : (localStorage.getItem('cached_country_code') || '');
                 response = await axios.get(`https://api.aladhan.com/v1/timingsByCity/${dateStr}`, {

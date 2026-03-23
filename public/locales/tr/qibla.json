@@ -30,13 +30,15 @@
     "sensorMissing": {
         "title": "Pusula Sensörü Bulunamadı",
         "subtitle": "Donanım Kısıtlaması",
-        "reason": "Cihazınızda manyetometre yok",
-        "reasonDesc": "Bu telefonda pusula için gerekli manyetik sensör bulunmuyor. Bu donanımsal bir kısıtlamadır, yazılımla çözülemez.",
+        "reason": "Konum veya Sensör Hatası",
+        "reasonDesc": "Pusulanın çalışması için konum servislerine izin vermeniz gerekir. Konum açıldığında bu ekran aktif hale gelecektir.",
         "alternative": "Alternatif yöntem",
         "alternativeDesc": "Kıble yönünü bulmak için haritada konumunuzdan Kâbe'ye olan yönü görebilirsiniz.",
         "openMaps": "Haritada Kâbe'yi Göster",
         "hadith": "\"Doğu da Batı da Allah'ındır. Nereye dönerseniz, Allah'ın yüzü oradadır.\"",
         "hadithSource": "— Bakara Suresi, 115",
-        "close": "Anladım 🧭"
+        "close": "Anladım 🧭",
+        "openSettings": "Konum Ayarlarına Git",
+        "openSettingsDesc": "Konumu açıp tekrar deneyin."
     }
 }

@@ -27,8 +27,8 @@
     },
     "appearance": {
         "title": "Erscheinungsbild",
-        "dark_active": "Dunkelmodus aktiv",
-        "light_active": "Hellmodus aktiv"
+        "dark_active": "Design der Ruhe",
+        "light_active": "Frisches Design"
     },
     "location": {
         "title": "Standort",
