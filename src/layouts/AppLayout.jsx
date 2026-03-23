@@ -1,7 +1,7 @@
 import { Capacitor } from '@capacitor/core';
 import React, { useRef, useEffect } from 'react';
 import { Outlet, NavLink, useLocation, useNavigate } from 'react-router-dom';
-import { Home, BookOpen, Target, User, Heart, Star, Brain, Sparkles } from 'lucide-react';
+import { Home, BookOpen, Target, Settings, Heart, Star, Brain, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useHaptics } from '@/hooks/useMobile';
 import { useUser } from '@/context/UserContext';
@@ -117,7 +117,7 @@ export default function AppLayout() {
                             <NavLinkItem to="/learn" icon={BookOpen} label={tNav('nav.learn')} onClick={selection} />
                             <NavLinkItem to="/stories" icon={Heart} label={tNav('nav.stories')} onClick={selection} />
                             <NavLinkItem to="/tracking" icon={Target} label={tNav('nav.worship')} onClick={selection} />
-                            <NavLinkItem to="/profile" icon={User} label={tNav('nav.profile')} onClick={selection} />
+                            <NavLinkItem to="/profile" icon={Settings} label={tNav('nav.profile')} onClick={selection} />
                         </div>
                     </nav>
                 )}

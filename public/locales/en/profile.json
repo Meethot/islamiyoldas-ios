@@ -1,5 +1,5 @@
 {
-    "title": "Profile",
+    "title": "Settings",
     "user": {
         "default_name": "Faithful User",
         "streak_desc": "Day {{count}} of the journey"

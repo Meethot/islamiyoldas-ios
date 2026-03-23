@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { LocalNotifications } from '@capacitor/local-notifications';
 import { Preferences } from '@capacitor/preferences';
 import { Capacitor } from '@capacitor/core';
+import { App as NativeApp } from '@capacitor/app';
 import { useLocation } from '@/context/LocationContext';
 import { DAILY_VERSES, DAILY_VERSES_EN, DAILY_VERSES_DE, DAILY_VERSES_RU, DAILY_VERSES_AZ, DAILY_VERSES_AR } from '@/data/dailyVerses';
 import { getAppDate, getTodayString } from '@/lib/testDate';
@@ -43,18 +44,28 @@ export const PrayerTimesProvider = ({ children }) => {
     const scheduleDebounceRef = useRef(null);
     // Mutex to prevent overlapping schedule operations (cancel + schedule race condition)
     const schedulingRef = useRef(false);
+    // Ref to always hold the latest fetchPrayerTimes (avoids stale closure in effects)
+    const fetchPrayerTimesRef = useRef(null);
+    const prevManualCityRef = useRef(null);
 
-    const { latitude, longitude, hasLocation } = useLocation();
+    const { latitude, longitude, hasLocation, manualCity } = useLocation();
     const { i18n } = useTranslation();
 
     const FALLBACK_COORDS = { lat: 41.0082, lng: 28.9784 };
 
+    // Stable refresh function that always calls the latest fetchPrayerTimes
+    const refreshPrayerTimesStable = useCallback(() => {
+        if (fetchPrayerTimesRef.current) {
+            return fetchPrayerTimesRef.current();
+        }
+    }, []);
+
     // Initial Setup & Cache Validation
     useEffect(() => {
-        const CACHE_VERSION = 'v3_final_sync'; // Final sync with Diyanet official calendar
+        const CACHE_VERSION = 'v4_city_norm'; // v4: Turkish char normalization for Diyanet API
         const version = localStorage.getItem('app_data_version');
         if (version !== CACHE_VERSION) {
-            // Sadece cache ve namaz vakti anahtarlarını temizle, TÜM veriyi (Premium, Onboarding vb.) DEĞİL!
+            // Clear cache and prayer time keys only, NOT all data
             const keysToRemove = [];
             for (let i = 0; i < localStorage.length; i++) {
                 const k = localStorage.key(i);
@@ -72,10 +83,26 @@ export const PrayerTimesProvider = ({ children }) => {
         }
     }, []);
 
-    // Fetch prayer times immediately and re-fetch when location updates
+    // Fetch prayer times immediately and re-fetch when location or manual city changes
     useEffect(() => {
-        fetchPrayerTimes();
-    }, [latitude, longitude, hasLocation]);
+        // When manual city changes, clear old Diyanet location cache to force fresh API lookup
+        if (manualCity && manualCity !== prevManualCityRef.current) {
+            prevManualCityRef.current = manualCity;
+            // Clear all diyanet location caches to ensure fresh lookup
+            const keysToRemove = [];
+            for (let i = 0; i < localStorage.length; i++) {
+                const k = localStorage.key(i);
+                if (k && k.startsWith('diyanet_loc_')) {
+                    keysToRemove.push(k);
+                }
+            }
+            keysToRemove.forEach(k => localStorage.removeItem(k));
+        }
+        // Use ref to always call the latest version of fetchPrayerTimes
+        if (fetchPrayerTimesRef.current) {
+            fetchPrayerTimesRef.current();
+        }
+    }, [latitude, longitude, hasLocation, manualCity]);
 
     // Schedule notifications when prayer times or relevant settings change (debounced)
     useEffect(() => {
@@ -153,9 +180,23 @@ export const PrayerTimesProvider = ({ children }) => {
             const isEnablingNotification = NOTIFICATION_KEYS.some(k => newSettings[k] === true);
             if (isEnablingNotification) {
                 try {
-                    const perm = await LocalNotifications.checkPermissions();
+                    let perm = await LocalNotifications.checkPermissions();
+
+                    if (perm.display === 'prompt') {
+                        // First time — request permission
+                        perm = await LocalNotifications.requestPermissions();
+                    }
+
                     if (perm.display !== 'granted') {
-                        // Permission not granted — silently revert toggle(s)
+                        // Permission denied — redirect user to iOS/Android Settings
+                        // Note: iOS only allows opening the app's main settings page via 'app-settings:'
+                        // Deep-linking to the notifications sub-page is not supported by Apple's public API
+                        try {
+                            window.open('app-settings:', '_blank');
+                        } catch (e) {
+                            console.warn('[NOTIF] Could not open settings:', e?.message);
+                        }
+                        // Revert toggle(s) since permission is still denied
                         const reverted = {};
                         NOTIFICATION_KEYS.forEach(k => { if (newSettings[k] === true) reverted[k] = false; });
                         setSettings(prev => ({ ...prev, ...reverted }));
@@ -185,9 +226,9 @@ export const PrayerTimesProvider = ({ children }) => {
         try {
             const permStatus = await LocalNotifications.checkPermissions();
 
-            // Only turn off toggles if user explicitly DENIED permission
-            // 'prompt' means not yet asked — leave defaults, OneSignal will ask
-            if (permStatus.display === 'denied') {
+            // If permission is NOT granted (denied or never asked),
+            // show all notification toggles as OFF
+            if (permStatus.display !== 'granted') {
                 const offSettings = {
                     adhanEnabled: false,
                     verseEnabled: false,
@@ -196,13 +237,10 @@ export const PrayerTimesProvider = ({ children }) => {
                     spiritualRewards: false,
                     preReminderEnabled: false
                 };
-                // Only update UI, do NOT persist — so original settings survive for restoration
+                // Only update UI, do NOT persist — so saved settings survive for restoration
                 setSettings(prev => ({ ...prev, ...offSettings }));
                 return;
             }
-
-            // If not granted yet (prompt), skip channel setup — will be done after permission
-            if (permStatus.display !== 'granted') return;
 
             // Android notification channel — sound is baked into the channel
             // IMPORTANT: Once created, Android caches the channel. Changing sound requires
@@ -247,6 +285,12 @@ export const PrayerTimesProvider = ({ children }) => {
     // ─── Diyanet API helpers ───
     const DIYANET_API = 'https://prayertimes.api.abdus.dev/api/diyanet';
 
+    // Turkish → ASCII normalization (Diyanet API rejects İ, ı, Ş, ş, etc.)
+    const normalizeTurkishChars = (str) => {
+        const map = { 'İ': 'I', 'ı': 'i', 'Ş': 'S', 'ş': 's', 'Ğ': 'G', 'ğ': 'g', 'Ü': 'U', 'ü': 'u', 'Ö': 'O', 'ö': 'o', 'Ç': 'C', 'ç': 'c' };
+        return str.replace(/[İıŞşĞğÜüÖöÇç]/g, c => map[c] || c);
+    };
+
     // Resolve Diyanet location_id from district name (cached)
     const resolveDiyanetLocationId = async (districtName) => {
         if (!districtName) return null;
@@ -256,19 +300,27 @@ export const PrayerTimesProvider = ({ children }) => {
         const cached = localStorage.getItem(cacheKey);
         if (cached) return parseInt(cached, 10);
 
+        // Normalize Turkish characters for API compatibility
+        const searchQuery = normalizeTurkishChars(districtName);
+
         try {
             const res = await axios.get(`${DIYANET_API}/search`, {
-                params: { q: districtName },
+                params: { q: searchQuery },
                 timeout: 5000,
             });
             const results = res.data;
             if (results && results.length > 0) {
-                // Try exact match on district OR city
-                const exact = results.find(
-                    r => (r.district?.toLowerCase() === districtName.toLowerCase()) || 
-                         (r.region?.toLowerCase() === districtName.toLowerCase()) || 
-                         (r.city?.toLowerCase() === districtName.toLowerCase())
-                );
+                // Safely convert everything to english alphabet BEFORE lowercasing to avoid 'İ'.toLowerCase() -> 'i̇' bug
+                const normalizedQuery = normalizeTurkishChars(districtName).toLowerCase();
+                
+                const exact = results.find(r => {
+                    const normDistrict = normalizeTurkishChars(r.district || '').toLowerCase();
+                    const normRegion = normalizeTurkishChars(r.region || '').toLowerCase();
+                    
+                    // CRITICAL FIX: To prevent returning 'Bismil' or 'Aliağa' when the user wants 'Diyarbakır' or 'İzmir',
+                    // we must ONLY match on region or district, NOT on the parent city property.
+                    return normDistrict === normalizedQuery || normRegion === normalizedQuery;
+                });
                 const id = (exact || results[0]).id;
                 localStorage.setItem(cacheKey, String(id));
                 return id;
@@ -423,9 +475,19 @@ export const PrayerTimesProvider = ({ children }) => {
             // We should warn or try harder for Diyanet.
             const method = turkish ? 13 : 3; 
 
-            const response = await axios.get(`https://api.aladhan.com/v1/timings/${dateStr}`, {
-                params: { latitude: lat, longitude: lng, method }
-            });
+            let response;
+            // If GPS is unavailable but we have a manual city, use Aladhan's byCity endpoint
+            if (!hasLocation && manualCity) {
+                // Determine country (assuming Turkey if 'turkish' is true, otherwise default to user's setting or null)
+                const queryCountry = turkish ? 'Turkey' : (localStorage.getItem('cached_country_code') || '');
+                response = await axios.get(`https://api.aladhan.com/v1/timingsByCity/${dateStr}`, {
+                    params: { city: manualCity, country: queryCountry, method }
+                });
+            } else {
+                response = await axios.get(`https://api.aladhan.com/v1/timings/${dateStr}`, {
+                    params: { latitude: lat, longitude: lng, method }
+                });
+            }
 
             const rawTimings = response.data.data.timings;
             const normalized = normalizeTimings(rawTimings, turkish);
@@ -440,7 +502,15 @@ export const PrayerTimesProvider = ({ children }) => {
         } finally {
             setLoading(false);
         }
-    }, [latitude, longitude, hasLocation]);
+    }, [latitude, longitude, hasLocation, manualCity]);
+
+    // Keep ref always pointing to the latest fetchPrayerTimes
+    fetchPrayerTimesRef.current = fetchPrayerTimes;
+
+    // On first mount, trigger initial fetch (ref is now set)
+    useEffect(() => {
+        fetchPrayerTimesRef.current?.();
+    }, []);
 
     // Re-fetch prayer times + re-schedule notifications every time app becomes active
     // This handles: 7-day notification expiry, date changes, and stale cached data
@@ -457,8 +527,8 @@ export const PrayerTimesProvider = ({ children }) => {
             // Sync notification toggles with OS permission on every resume
             try {
                 const perm = await LocalNotifications.checkPermissions();
-                if (perm.display === 'denied') {
-                    // iOS Settings'ten bildirimler kapatılmış — sadece UI'ı kapat, Preferences'a dokunma
+                if (perm.display !== 'granted') {
+                    // Permission not granted (denied/prompt) — show all toggles as OFF
                     const offSettings = {
                         adhanEnabled: false,
                         verseEnabled: false,
@@ -468,8 +538,8 @@ export const PrayerTimesProvider = ({ children }) => {
                         preReminderEnabled: false
                     };
                     setSettings(prev => ({ ...prev, ...offSettings }));
-                } else if (perm.display === 'granted') {
-                    // iOS Settings'ten bildirimler açılmış — kayıtlı ayarları geri yükle
+                } else {
+                    // Permission granted — restore saved settings from Preferences
                     await loadSettings();
                 }
             } catch (e) {
@@ -481,18 +551,13 @@ export const PrayerTimesProvider = ({ children }) => {
 
         LocalNotifications.removeAllDeliveredNotifications().catch(() => { });
 
-        const importApp = async () => {
-            try {
-                const { App } = await import('@capacitor/app');
-                App.addListener('resume', handleAppResume);
-                return () => App.removeAllListeners('resume');
-            } catch (e) {
-                console.warn('Could not add resume listener', e);
-            }
+        const setupResumeListener = async () => {
+            NativeApp.addListener('resume', handleAppResume);
+            return () => NativeApp.removeAllListeners('resume');
         };
 
         let cleanup;
-        importApp().then(fn => { cleanup = fn; });
+        setupResumeListener().then(fn => { cleanup = fn; });
 
         return () => { if (cleanup) cleanup(); };
     }, [fetchPrayerTimes]);
@@ -1093,7 +1158,7 @@ export const PrayerTimesProvider = ({ children }) => {
         isTurkishLocation,
         settings,
         updateSettings,
-        refreshPrayerTimes: fetchPrayerTimes,
+        refreshPrayerTimes: refreshPrayerTimesStable,
         schedulePrayerNotifications,
         schedulePreReminderNotifications,
     }), [
@@ -1108,7 +1173,7 @@ export const PrayerTimesProvider = ({ children }) => {
         isTurkishLocation, 
         settings, 
         updateSettings, 
-        fetchPrayerTimes, 
+        refreshPrayerTimesStable, 
         schedulePrayerNotifications,
         schedulePreReminderNotifications
     ]);

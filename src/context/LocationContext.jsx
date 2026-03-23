@@ -18,6 +18,20 @@ export function LocationProvider({ children }) {
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(true);
     const [permissionStatus, setPermissionStatus] = useState('prompt');
+    const [manualCity, setManualCityState] = useState(localStorage.getItem('userCity') || null);
+
+    const setManualCity = useCallback((city) => {
+        setManualCityState(city);
+        localStorage.setItem('userCity', city);
+        // Also update cached_district and cached_address for Diyanet API prayer time lookup
+        localStorage.setItem('cached_district', city);
+        localStorage.setItem('cached_address', city);
+        
+        // VITAL FIX: Clear GPS location so that fallback APIs (Aladhan) don't use stale GPS coordinates
+        setLocation(null);
+        localStorage.removeItem('cached_location');
+        setAddress(city);
+    }, []);
 
     const checkPermissions = useCallback(async () => {
         try {
@@ -67,17 +81,25 @@ export function LocationProvider({ children }) {
         }
     }, []);
 
-    // Simple, fast position getter — no two-phase complexity
     const getCurrentPosition = useCallback(async () => {
         setError(null);
 
         try {
+            // Capacitor 6 Geolocation has a known bug where it can hang indefinitely without throwing a timeout error
+            // if the user just returned from iOS settings. We wrap it in a JS-level Promise.race to guarantee a timeout.
+            const timeoutPromise = new Promise((_, reject) => 
+                setTimeout(() => reject(new Error('Location request timed out (JS forced)')), 6000)
+            );
+
             // Fast position: cell/wifi, 5s timeout, accepts 5-min cached readings
-            const position = await Geolocation.getCurrentPosition({
-                enableHighAccuracy: false,
-                timeout: 5000,
-                maximumAge: 300000
-            });
+            const position = await Promise.race([
+                Geolocation.getCurrentPosition({
+                    enableHighAccuracy: false,
+                    timeout: 5000,
+                    maximumAge: 300000
+                }),
+                timeoutPromise
+            ]);
 
             const coords = {
                 latitude: position.coords.latitude,
@@ -138,6 +160,7 @@ export function LocationProvider({ children }) {
 
         if (status === 'granted') {
             localStorage.setItem('location_permission_granted', 'true');
+            await new Promise(resolve => setTimeout(resolve, 500)); // iOS Resume Bug workaround
             return await getCurrentPosition();
         }
 
@@ -151,6 +174,7 @@ export function LocationProvider({ children }) {
         const wasGranted = localStorage.getItem('location_permission_granted') === 'true';
         if (wasGranted) {
             try {
+                await new Promise(resolve => setTimeout(resolve, 500));
                 const result = await getCurrentPosition();
                 if (result) return result;
             } catch {
@@ -162,6 +186,7 @@ export function LocationProvider({ children }) {
         const newStatus = await requestPermissions();
         if (newStatus === 'granted') {
             localStorage.setItem('location_permission_granted', 'true');
+            await new Promise(resolve => setTimeout(resolve, 500));
             return await getCurrentPosition();
         }
 
@@ -197,8 +222,14 @@ export function LocationProvider({ children }) {
                     await getCurrentPosition();
                 }
             } else {
-                // Fresh install — need to request permission
-                await refreshLocation();
+                // If it's a completely fresh install (no location granted and NO manual city chose)
+                // then request permission as the onboarding loop.
+                const manualCitySaved = localStorage.getItem('userCity');
+                if (!manualCitySaved) {
+                    await refreshLocation();
+                } else {
+                    setLoading(false);
+                }
             }
         };
 
@@ -212,10 +243,12 @@ export function LocationProvider({ children }) {
         loading,
         permissionStatus,
         refreshLocation,
+        setManualCity,
+        manualCity,
         latitude: location?.latitude || null,
         longitude: location?.longitude || null,
         hasLocation: !!location,
-        cityName: address || 'İstanbul',
+        cityName: address || manualCity || 'İstanbul',
         districtName: localStorage.getItem('cached_district') || null,
         countryCode: localStorage.getItem('cached_country_code') || null,
     };

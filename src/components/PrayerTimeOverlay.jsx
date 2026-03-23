@@ -1,30 +1,17 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
 import { useHaptics } from '@/hooks/useMobile';
 import { useTranslation } from 'react-i18next';
 
 /**
- * PrayerTimeOverlay
- * 
- * Full-screen blur overlay that appears during prayer time.
- * Gently interrupts user to encourage prayer completion.
- * 
- * @param {boolean} isOpen - Controls overlay visibility
- * @param {object} prayer - Current prayer { id, name, time, icon }
- * @param {function} onPray - Callback when "I'm praying" is clicked (receives prayer.id)
- * @param {function} onSnooze - Callback when "Remind later" is clicked (receives prayer.id)
- * @param {function} onDismiss - Callback when overlay is dismissed
+ * PrayerTimeOverlay — Premium centered popup for prayer time reminder.
+ * Tap backdrop to dismiss. Not forced — user can close freely.
  */
 export default function PrayerTimeOverlay({ isOpen, prayer, onPray, onSnooze, onDismiss }) {
     const { success, heavy } = useHaptics();
     const { t } = useTranslation('home');
 
     if (!prayer) return null;
-
-    const PrayerIcon = prayer.icon;
 
     const handlePray = () => {
         success();
@@ -36,113 +23,208 @@ export default function PrayerTimeOverlay({ isOpen, prayer, onPray, onSnooze, on
         onSnooze(prayer.id || prayer.name);
     };
 
-    const handleDismiss = () => {
-        onDismiss();
-    };
-
     return (
         <AnimatePresence>
             {isOpen && (
                 <>
-                    {/* Full-screen Backdrop with Heavy Blur */}
+                    {/* Backdrop — tap anywhere to dismiss */}
                     <motion.div
-                        initial={{ opacity: 0, backdropFilter: 'blur(0px)' }}
-                        animate={{ opacity: 1, backdropFilter: 'blur(16px)' }}
-                        exit={{ opacity: 0, backdropFilter: 'blur(0px)' }}
-                        transition={{ duration: 0.6, ease: 'easeInOut' }}
-                        className="fixed inset-0 bg-black/50 z-[9999]"
-                        style={{ backdropFilter: 'blur(16px)' }}
-                    >
-                        {/* Close button (subtle, top-right) */}
-                        <button
-                            onClick={handleDismiss}
-                            className="absolute top-6 right-6 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors backdrop-blur-sm z-10"
-                            aria-label={t('prayerOverlay.close')}
-                        >
-                            <X className="w-5 h-5 text-white" />
-                        </button>
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.3 }}
+                        className="fixed inset-0 z-[9999]"
+                        style={{ background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(8px)' }}
+                        onClick={onDismiss}
+                    />
 
-                        {/* Central Content */}
-                        <motion.div
-                            initial={{ opacity: 0, scale: 0.9, y: 30 }}
-                            animate={{ opacity: 1, scale: 1, y: 0 }}
-                            exit={{ opacity: 0, scale: 0.95, y: 15 }}
-                            transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1], delay: 0.2 }}
-                            className="flex items-center justify-center h-full p-6"
+                    {/* Centered popup card */}
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.85, y: 40 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                        className="fixed inset-0 z-[10000] flex items-center justify-center px-6 pointer-events-none"
+                    >
+                        <div
+                            className="relative max-w-sm w-full rounded-3xl overflow-hidden pointer-events-auto"
+                            style={{
+                                background: 'linear-gradient(165deg, #1a3a24 0%, #0d2818 40%, #0a1f14 100%)',
+                                border: '1px solid rgba(212,175,55,0.2)',
+                                boxShadow: '0 24px 80px rgba(0,0,0,0.6), 0 0 60px rgba(212,175,55,0.08)',
+                            }}
+                            onClick={(e) => e.stopPropagation()}
                         >
-                            <div className="max-w-md w-full space-y-8 text-center">
-                                {/* Mosque Icon with Glow */}
+                            {/* Top decorative gold line */}
+                            <div
+                                className="absolute top-0 left-1/2 -translate-x-1/2 h-[2px] w-24 rounded-full"
+                                style={{
+                                    background: 'linear-gradient(90deg, transparent, rgba(212,175,55,0.6), transparent)',
+                                }}
+                            />
+
+                            {/* Radial glow behind icon */}
+                            <div
+                                className="absolute left-1/2 -translate-x-1/2"
+                                style={{
+                                    top: '20px',
+                                    width: '200px',
+                                    height: '200px',
+                                    background: 'radial-gradient(circle, rgba(212,175,55,0.1) 0%, transparent 70%)',
+                                    borderRadius: '50%',
+                                }}
+                            />
+
+                            <div className="relative px-6 pt-8 pb-6 text-center space-y-5">
+                                {/* Mosque SVG icon */}
                                 <motion.div
-                                    initial={{ scale: 0, rotate: -10 }}
-                                    animate={{ scale: 1, rotate: 0 }}
-                                    transition={{ delay: 0.4, duration: 0.8, type: 'spring', bounce: 0.3 }}
-                                    className="relative mx-auto w-32 h-32"
+                                    initial={{ scale: 0 }}
+                                    animate={{ scale: 1 }}
+                                    transition={{ delay: 0.15, duration: 0.6, type: 'spring', bounce: 0.3 }}
+                                    className="relative mx-auto"
+                                    style={{ width: '80px', height: '80px' }}
                                 >
-                                    {/* Glow effect */}
-                                    <div className="absolute inset-0 bg-islamic-gold/30 rounded-full blur-3xl animate-pulse" />
+                                    {/* Rotating outer ring */}
+                                    <motion.div
+                                        className="absolute inset-[-6px] rounded-full"
+                                        style={{ border: '1.5px solid rgba(212,175,55,0.25)' }}
+                                        animate={{ rotate: 360 }}
+                                        transition={{ duration: 25, repeat: Infinity, ease: 'linear' }}
+                                    />
 
                                     {/* Icon container */}
-                                    <div className="relative w-full h-full bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center border-2 border-white/30 shadow-2xl">
-                                        <span className="text-7xl">🕌</span>
+                                    <div
+                                        className="w-full h-full rounded-full relative"
+                                        style={{
+                                            background: 'rgba(212,175,55,0.08)',
+                                            border: '1px solid rgba(212,175,55,0.2)',
+                                        }}
+                                    >
+                                        <span
+                                            className="absolute text-[2.5rem]"
+                                            style={{
+                                                top: '50%',
+                                                left: '50%',
+                                                transform: 'translate(-50%, -50%)',
+                                            }}
+                                        >🕌</span>
                                     </div>
                                 </motion.div>
 
-                                {/* Prayer Name */}
+                                {/* Divider */}
                                 <motion.div
-                                    initial={{ opacity: 0, y: 20 }}
+                                    initial={{ scaleX: 0 }}
+                                    animate={{ scaleX: 1 }}
+                                    transition={{ delay: 0.3, duration: 0.6 }}
+                                    className="mx-auto"
+                                    style={{
+                                        width: '40px',
+                                        height: '1px',
+                                        background: 'linear-gradient(90deg, transparent, rgba(212,175,55,0.4), transparent)',
+                                    }}
+                                />
+
+                                {/* Prayer info */}
+                                <motion.div
+                                    initial={{ opacity: 0, y: 10 }}
                                     animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: 0.6, duration: 0.7 }}
-                                    className="space-y-3"
+                                    transition={{ delay: 0.25, duration: 0.5 }}
+                                    className="space-y-1.5"
                                 >
-                                    <p className="text-sm font-bold text-white/70 uppercase tracking-widest">
+                                    <p
+                                        className="text-[10px] font-semibold uppercase tracking-[0.25em]"
+                                        style={{ color: 'rgba(212,175,55,0.6)' }}
+                                    >
                                         {t('prayerOverlay.prayerTime')}
                                     </p>
-                                    <h1 className="text-5xl font-serif font-bold text-white drop-shadow-2xl">
+                                    <h1
+                                        className="text-4xl font-bold"
+                                        style={{
+                                            fontFamily: "'Georgia', serif",
+                                            background: 'linear-gradient(180deg, #FFFFFF 20%, rgba(212,175,55,0.8) 100%)',
+                                            WebkitBackgroundClip: 'text',
+                                            WebkitTextFillColor: 'transparent',
+                                        }}
+                                    >
                                         {prayer.name}
                                     </h1>
-                                    <p className="text-lg text-white/80 font-medium">
+                                    <p
+                                        className="text-xl font-light tracking-wider"
+                                        style={{ color: 'rgba(255,255,255,0.5)' }}
+                                    >
                                         {prayer.time}
                                     </p>
                                 </motion.div>
 
-                                {/* Motivational Message */}
+                                {/* Motivational text */}
                                 <motion.p
                                     initial={{ opacity: 0 }}
                                     animate={{ opacity: 1 }}
-                                    transition={{ delay: 0.8, duration: 0.7 }}
-                                    className="text-white/90 italic font-serif text-lg leading-relaxed px-6"
+                                    transition={{ delay: 0.4, duration: 0.6 }}
+                                    className="text-sm italic leading-relaxed"
+                                    style={{
+                                        fontFamily: "'Georgia', serif",
+                                        color: 'rgba(255,255,255,0.45)',
+                                    }}
                                 >
                                     {t('prayerOverlay.motivational')}
                                 </motion.p>
 
-                                {/* Action Buttons */}
+                                {/* Action buttons */}
                                 <motion.div
-                                    initial={{ opacity: 0, y: 20 }}
+                                    initial={{ opacity: 0, y: 12 }}
                                     animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: 1, duration: 0.7 }}
-                                    className="flex flex-col gap-4 pt-6"
+                                    transition={{ delay: 0.5, duration: 0.5 }}
+                                    className="flex flex-col gap-2.5 pt-2"
                                 >
-                                    {/* Primary: I'm praying */}
-                                    <Button
+                                    {/* Primary — Kılıyorum */}
+                                    <motion.button
                                         onClick={handlePray}
-                                        className="w-full h-16 text-xl font-bold bg-gradient-to-r from-islamic-green to-islamic-green/90 hover:from-islamic-green/90 hover:to-islamic-green text-white shadow-2xl shadow-islamic-green/50 hover:shadow-islamic-green/70 transition-all duration-300 rounded-2xl"
+                                        whileTap={{ scale: 0.97 }}
+                                        className="relative w-full overflow-hidden rounded-2xl py-3.5 text-base font-bold tracking-wide"
+                                        style={{
+                                            background: 'linear-gradient(135deg, #1a6b3c 0%, #0d4a28 100%)',
+                                            color: '#ffffff',
+                                            boxShadow: '0 6px 24px rgba(26,107,60,0.35), inset 0 1px 0 rgba(255,255,255,0.12)',
+                                            border: '1px solid rgba(212,175,55,0.2)',
+                                        }}
                                     >
-                                        {t('prayerOverlay.praying')}
-                                    </Button>
+                                        {/* Shimmer */}
+                                        <motion.div
+                                            className="absolute inset-0"
+                                            style={{
+                                                background: 'linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.06) 50%, transparent 60%)',
+                                            }}
+                                            animate={{ x: ['-100%', '200%'] }}
+                                            transition={{ duration: 3, repeat: Infinity, repeatDelay: 2, ease: 'easeInOut' }}
+                                        />
+                                        <span className="relative z-10">{t('prayerOverlay.praying')}</span>
+                                    </motion.button>
 
-                                    {/* Secondary: Snooze */}
-                                    <Button
+                                    {/* Secondary — 10 dk Sonra Hatırlat */}
+                                    <motion.button
                                         onClick={handleSnooze}
-                                        variant="outline"
-                                        className="w-full h-14 text-lg font-semibold bg-white/10 hover:bg-white/20 text-white border-2 border-white/30 hover:border-white/50 backdrop-blur-md transition-all duration-300 rounded-2xl"
+                                        whileTap={{ scale: 0.97 }}
+                                        className="w-full rounded-2xl py-3 text-sm font-medium"
+                                        style={{
+                                            background: 'rgba(255,255,255,0.05)',
+                                            color: 'rgba(255,255,255,0.55)',
+                                            border: '1px solid rgba(255,255,255,0.08)',
+                                        }}
                                     >
                                         {t('prayerOverlay.remindLater')}
-                                    </Button>
+                                    </motion.button>
                                 </motion.div>
-
-
                             </div>
-                        </motion.div>
+
+                            {/* Bottom decorative gold line */}
+                            <div
+                                className="absolute bottom-0 left-1/2 -translate-x-1/2 h-[1px] w-16 rounded-full"
+                                style={{
+                                    background: 'linear-gradient(90deg, transparent, rgba(212,175,55,0.3), transparent)',
+                                }}
+                            />
+                        </div>
                     </motion.div>
                 </>
             )}

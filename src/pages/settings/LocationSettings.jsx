@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
     ChevronLeft, ChevronRight, MapPin, Crosshair, Navigation, Loader2,
@@ -10,6 +10,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useHaptics } from '@/hooks/useMobile';
 import { useLocation } from '../../context/LocationContext';
 import { useTranslation } from 'react-i18next';
+import { Geolocation } from '@capacitor/geolocation';
 
 const TURKEY_CITIES = [
     "İstanbul", "Ankara", "İzmir", "Adana", "Adıyaman", "Afyonkarahisar", "Ağrı", "Aksaray", "Amasya", "Antalya",
@@ -154,7 +155,6 @@ function CitySelectionModal({ currentCity, onSelect, onClose, t }) {
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                             className="w-full bg-gray-100 dark:bg-white/5 border-none rounded-2xl pl-12 pr-4 py-4 text-gray-900 dark:text-white placeholder:text-gray-400 focus:ring-2 focus:ring-islamic-green dark:focus:ring-islamic-gold transition-all"
-                            autoFocus
                         />
                     </div>
                 </div>
@@ -200,15 +200,80 @@ export default function LocationSettings() {
     const navigate = useNavigate();
     const { t } = useTranslation('settings');
     const { selection, success, medium } = useHaptics();
-    const { latitude, longitude, loading: locationLoading, hasLocation, error: locationError, refreshLocation } = useLocation();
+    const { latitude, longitude, loading: locationLoading, hasLocation, error: locationError, refreshLocation, permissionStatus, setManualCity } = useLocation();
 
     const [city, setCityState] = useState(localStorage.getItem('userCity') || 'İstanbul');
     const [isCityModalOpen, setIsCityModalOpen] = useState(false);
-    const [useAutoLocation, setUseAutoLocation] = useState(true);
+    const [useAutoLocation, setUseAutoLocation] = useState(false);
+
+    // Sync toggle with actual OS permission state
+    useEffect(() => {
+        const syncPermission = async () => {
+            try {
+                const status = await Geolocation.checkPermissions();
+                setUseAutoLocation(status.location === 'granted');
+            } catch {
+                setUseAutoLocation(false);
+            }
+        };
+        syncPermission();
+
+        // Re-check when page becomes visible (user returns from iOS Settings)
+        const handleVisibility = () => {
+            if (!document.hidden) syncPermission();
+        };
+        document.addEventListener('visibilitychange', handleVisibility);
+        return () => document.removeEventListener('visibilitychange', handleVisibility);
+    }, []);
+
+    const handleAutoLocationToggle = async () => {
+        selection();
+
+        if (useAutoLocation) {
+            // Turning OFF — redirect to iOS Settings to revoke permission
+            setUseAutoLocation(false);
+            try {
+                window.open('app-settings:', '_blank');
+            } catch (e) {
+                console.warn('[LOCATION] Could not open settings:', e?.message);
+            }
+            return;
+        }
+
+        // Turning ON — check permission
+        try {
+            let status = await Geolocation.checkPermissions();
+
+            if (status.location === 'prompt') {
+                // First time — request permission
+                status = await Geolocation.requestPermissions();
+            }
+
+            if (status.location === 'granted') {
+                setUseAutoLocation(true);
+                localStorage.setItem('location_permission_granted', 'true');
+                refreshLocation();
+            } else {
+                // Denied — redirect to iOS Settings
+                try {
+                    window.open('app-settings:', '_blank');
+                } catch (e) {
+                    console.warn('[LOCATION] Could not open settings:', e?.message);
+                }
+                setUseAutoLocation(false);
+            }
+        } catch (e) {
+            console.error('[LOCATION] Permission error:', e);
+            setUseAutoLocation(false);
+        }
+    };
 
     const setCity = (newCity) => {
         setCityState(newCity);
-        localStorage.setItem('userCity', newCity);
+        setManualCity(newCity);
+        // Automatically disable auto-location if they pick a manual city to prevent GPS re-overwriting it
+        setUseAutoLocation(false);
+        localStorage.setItem('location_permission_granted', 'false');
         success();
         setIsCityModalOpen(false);
     };
@@ -251,10 +316,7 @@ export default function LocationSettings() {
                             label={t('autoLocation')}
                             subtitle={t('autoLocationSubtitle')}
                             active={useAutoLocation}
-                            onToggle={() => {
-                                selection();
-                                setUseAutoLocation(!useAutoLocation);
-                            }}
+                            onToggle={handleAutoLocationToggle}
                         />
 
                         {/* GPS Status Indicator */}
