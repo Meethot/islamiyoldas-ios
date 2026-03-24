@@ -1834,7 +1834,7 @@ export const ReligiousCalendarWidget = memo(({ days }) => {
             // Construct the event's local midnight date using UTC components
             const eventMidnight = new Date(dateObj.getUTCFullYear(), dateObj.getUTCMonth(), dateObj.getUTCDate());
             const dayDiff = Math.round((eventMidnight - todayMidnight) / (1000 * 60 * 60 * 24));
-            
+
             return { ...d, dateObj, eventMidnight, dayDiff };
         })
         .filter(d => d.dayDiff >= 0) // Strictly hide past events
@@ -1851,9 +1851,9 @@ export const ReligiousCalendarWidget = memo(({ days }) => {
     };
 
     // diff <= 0 means event is today or started yesterday evening (Islamic days begin at Maghrib)
-    const diffLabel = diff <= 0 ? (lang === 'tr' ? 'Bugün gerçekleşiyor' : t('calendar.today')) 
-        : diff === 1 ? (lang === 'tr' ? 'Yarın' : t('calendar.tomorrow')) 
-        : (lang === 'tr' ? `${diff} Gün Kaldı` : t('calendar.daysLeft', { count: diff }));
+    const diffLabel = diff <= 0 ? (lang === 'tr' ? 'Bugün gerçekleşiyor' : t('calendar.today'))
+        : diff === 1 ? (lang === 'tr' ? 'Yarın' : t('calendar.tomorrow'))
+            : (lang === 'tr' ? `${diff} Gün Kaldı` : t('calendar.daysLeft', { count: diff }));
 
     // Body Scroll Lock
     useEffect(() => {
@@ -1952,7 +1952,7 @@ export const ReligiousCalendarWidget = memo(({ days }) => {
                                 <div className="space-y-10">
                                     {upcoming.map((day, i) => {
                                         const dayDiff = day.dayDiff;
-                                        
+
                                         // Badge label based on user request
                                         let badgeText = '';
                                         if (dayDiff <= 0) {
@@ -1993,8 +1993,8 @@ export const ReligiousCalendarWidget = memo(({ days }) => {
                                                         {(isFirst || dayDiff <= 30) && (
                                                             <span className={cn(
                                                                 "text-[9px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider ml-2 shrink-0",
-                                                                dayDiff <= 0 ? "bg-islamic-green text-white dark:bg-islamic-gold dark:text-black" 
-                                                                : "bg-islamic-gold/10 text-islamic-gold"
+                                                                dayDiff <= 0 ? "bg-islamic-green text-white dark:bg-islamic-gold dark:text-black"
+                                                                    : "bg-islamic-gold/10 text-islamic-gold"
                                                             )}>
                                                                 {badgeText}
                                                             </span>

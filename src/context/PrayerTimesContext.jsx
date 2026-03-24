@@ -8,6 +8,7 @@ import { App as NativeApp } from '@capacitor/app';
 import { useLocation } from '@/context/LocationContext';
 import { DAILY_VERSES, DAILY_VERSES_EN, DAILY_VERSES_DE, DAILY_VERSES_RU, DAILY_VERSES_AZ, DAILY_VERSES_AR } from '@/data/dailyVerses';
 import { getAppDate, getTodayString } from '@/lib/testDate';
+import { syncPrayerTimesToWidget } from '@/services/widgetService';
 
 const PrayerTimesContext = createContext();
 
@@ -47,8 +48,10 @@ export const PrayerTimesProvider = ({ children }) => {
     // Ref to always hold the latest fetchPrayerTimes (avoids stale closure in effects)
     const fetchPrayerTimesRef = useRef(null);
     const prevManualCityRef = useRef(null);
+    // Circuit breaker: skip Diyanet API for 60s after a network failure
+    const diyanetDownUntilRef = useRef(0);
 
-    const { latitude, longitude, hasLocation, manualCity } = useLocation();
+    const { latitude, longitude, hasLocation, manualCity, cityName } = useLocation();
     const { i18n } = useTranslation();
 
     const FALLBACK_COORDS = { lat: 41.0082, lng: 28.9784 };
@@ -76,7 +79,7 @@ export const PrayerTimesProvider = ({ children }) => {
             keysToRemove.forEach(k => localStorage.removeItem(k));
             localStorage.setItem('app_data_version', CACHE_VERSION);
         }
-        
+
         loadSettings();
         if (Capacitor.isNativePlatform()) {
             initializeNotifications();
@@ -295,6 +298,11 @@ export const PrayerTimesProvider = ({ children }) => {
     const resolveDiyanetLocationId = async (districtName) => {
         if (!districtName) return null;
 
+        // Circuit breaker: skip if Diyanet API was down recently
+        if (Date.now() < diyanetDownUntilRef.current) {
+            return null;
+        }
+
         // Check cache first
         const cacheKey = `diyanet_loc_${districtName.toLowerCase()}`;
         const cached = localStorage.getItem(cacheKey);
@@ -310,15 +318,11 @@ export const PrayerTimesProvider = ({ children }) => {
             });
             const results = res.data;
             if (results && results.length > 0) {
-                // Safely convert everything to english alphabet BEFORE lowercasing to avoid 'İ'.toLowerCase() -> 'i̇' bug
                 const normalizedQuery = normalizeTurkishChars(districtName).toLowerCase();
-                
+
                 const exact = results.find(r => {
                     const normDistrict = normalizeTurkishChars(r.district || '').toLowerCase();
                     const normRegion = normalizeTurkishChars(r.region || '').toLowerCase();
-                    
-                    // CRITICAL FIX: To prevent returning 'Bismil' or 'Aliağa' when the user wants 'Diyarbakır' or 'İzmir',
-                    // we must ONLY match on region or district, NOT on the parent city property.
                     return normDistrict === normalizedQuery || normRegion === normalizedQuery;
                 });
                 const id = (exact || results[0]).id;
@@ -326,7 +330,9 @@ export const PrayerTimesProvider = ({ children }) => {
                 return id;
             }
         } catch (e) {
-            console.warn('Diyanet location search failed:', e.message);
+            // Network error → activate circuit breaker for 60 seconds
+            console.warn('Diyanet API unreachable, skipping for 60s:', e.message);
+            diyanetDownUntilRef.current = Date.now() + 60000;
         }
         return null;
     };
@@ -334,7 +340,7 @@ export const PrayerTimesProvider = ({ children }) => {
     // Today's normalization helper
     const normalizeTimings = (rawTimes, isTurkish) => {
         if (!rawTimes) return null;
-        
+
         const addMinutes = (timeStr, mins) => {
             if (!timeStr) return timeStr;
             const [h, m] = timeStr.split(':').map(Number);
@@ -344,27 +350,27 @@ export const PrayerTimesProvider = ({ children }) => {
         };
 
         const result = { ...rawTimes };
-        
+
         // Diyanet standard offsets for Turkey
         if (isTurkish) {
             // Priority: Fajr is always Imsak in TR
             result.Imsak = rawTimes.Fajr || rawTimes.Imsak;
             result.Fajr = rawTimes.Fajr || rawTimes.Imsak;
-            
+
             // Diyanet Safety Buffers (Emniyet Payı)
             // Diyanet officially adds +2 mins to Dhuhr and Asr calculations
             result.Dhuhr = addMinutes(rawTimes.Dhuhr, 2);
-            result.Asr = addMinutes(rawTimes.Asr, 2); 
-            
+            result.Asr = addMinutes(rawTimes.Asr, 2);
+
             // Diyanet adds +1 to Sunrise for atmospheric refraction/safety
             result.Sunrise = addMinutes(rawTimes.Sunrise, 1);
-            
+
             // Maghrib and Isha are usually exactly what the API (Diyanet scraper) provides
             result.Maghrib = rawTimes.Maghrib;
             result.Isha = rawTimes.Isha;
             result.Sunset = result.Maghrib;
         }
-        
+
         return result;
     };
 
@@ -427,7 +433,7 @@ export const PrayerTimesProvider = ({ children }) => {
             if (turkish) {
                 const district = localStorage.getItem('cached_district');
                 const city = localStorage.getItem('cached_address');
-                
+
                 // Try district first, then city, then fallback to Istanbul if we are SURE it's Turkey
                 const searchTerms = [district, city].filter(Boolean);
                 if (searchTerms.length === 0 && turkish) searchTerms.push('Istanbul');
@@ -442,13 +448,14 @@ export const PrayerTimesProvider = ({ children }) => {
                             findNextPrayer(diyanetTimings);
                             schedulePrayerNotifications(diyanetTimings);
                             schedulePreReminderNotifications(diyanetTimings);
+                            syncWidgetData(diyanetTimings);
                             setLoading(false); // Manually set loading false before return
                             diyanetSuccess = true;
                             return;
                         }
                     }
                 }
-                
+
                 // If we failed all specific queries but we are IN TURKEY, 
                 // do an absolute final fallback to Istanbul via Diyanet before Aladhan to avoid 10 min Isha shift
                 if (!diyanetSuccess && turkish) {
@@ -460,6 +467,7 @@ export const PrayerTimesProvider = ({ children }) => {
                             findNextPrayer(diyanetTimings);
                             schedulePrayerNotifications(diyanetTimings);
                             schedulePreReminderNotifications(diyanetTimings);
+                            syncWidgetData(diyanetTimings);
                             setLoading(false);
                             return;
                         }
@@ -470,10 +478,10 @@ export const PrayerTimesProvider = ({ children }) => {
             // ── Fallback: Aladhan API ──
             const appDate = getAppDate();
             const dateStr = `${appDate.getDate()}-${appDate.getMonth() + 1}-${appDate.getFullYear()}`;
-            
+
             // If we are in Turkey, Aladhan is NOT accurate (Method 13 is only an approximation)
             // We should warn or try harder for Diyanet.
-            const method = turkish ? 13 : 3; 
+            const method = turkish ? 13 : 3;
 
             let response;
             // Always prioritize manual city for Aladhan if set, regardless of background physical GPS state
@@ -492,11 +500,12 @@ export const PrayerTimesProvider = ({ children }) => {
             const rawTimings = response.data.data.timings;
             const normalized = normalizeTimings(rawTimings, turkish);
             normalized._source = turkish ? 'aladhan_tr_norm' : 'aladhan';
-            
+
             setPrayerTimes(normalized);
             findNextPrayer(normalized);
             schedulePrayerNotifications(normalized);
             schedulePreReminderNotifications(normalized);
+            syncWidgetData(normalized);
         } catch (error) {
             console.error('Error fetching prayer times:', error);
         } finally {
@@ -504,8 +513,42 @@ export const PrayerTimesProvider = ({ children }) => {
         }
     }, [latitude, longitude, hasLocation, manualCity]);
 
+    // Push prayer times to iOS Widget via App Group UserDefaults
+    const syncWidgetData = useCallback((timings) => {
+        if (!timings) return;
+        const lang = (i18n.language || 'en').split('-')[0];
+        const useImsak = lang === 'tr' || lang === 'az';
+        const city = cityName || 'Bilinmiyor';
+        const prayerNames = {
+            tr: { fajr: 'İmsak', dhuhr: 'Öğle', asr: 'İkindi', maghrib: 'Akşam', isha: 'Yatsı' },
+            en: { fajr: 'Fajr', dhuhr: 'Dhuhr', asr: 'Asr', maghrib: 'Maghrib', isha: 'Isha' },
+            de: { fajr: 'Fajr', dhuhr: 'Dhuhr', asr: 'Asr', maghrib: 'Maghrib', isha: 'Isha' },
+            ru: { fajr: 'Фаджр', dhuhr: 'Зухр', asr: 'Аср', maghrib: 'Магриб', isha: 'Иша' },
+            ar: { fajr: 'الفجر', dhuhr: 'الظهر', asr: 'العصر', maghrib: 'المغرب', isha: 'العشاء' },
+            az: { fajr: 'Sübh', dhuhr: 'Günorta', asr: 'İkindi', maghrib: 'Axşam', isha: 'Yatsı' },
+        };
+        const names = prayerNames[lang] || prayerNames.en;
+        const prayers = [
+            { id: 'fajr', name: names.fajr, time: (timings.Fajr || timings.Imsak || '').split(' ')[0] },
+            { id: 'dhuhr', name: names.dhuhr, time: (timings.Dhuhr || '').split(' ')[0] },
+            { id: 'asr', name: names.asr, time: (timings.Asr || '').split(' ')[0] },
+            { id: 'maghrib', name: names.maghrib, time: (timings.Maghrib || '').split(' ')[0] },
+            { id: 'isha', name: names.isha, time: (timings.Isha || '').split(' ')[0] },
+        ];
+        syncPrayerTimesToWidget({ prayerTimes: prayers, city });
+    }, [cityName, i18n.language]);
+
     // Keep ref always pointing to the latest fetchPrayerTimes
     fetchPrayerTimesRef.current = fetchPrayerTimes;
+
+    // Re-sync widget data when cityName or prayerTimes change
+    // This ensures the widget is updated regardless of how/when data arrives
+    useEffect(() => {
+        if (prayerTimes && cityName) {
+            console.log('[PrayerTimesContext] Widget sync triggered. city:', cityName, 'prayerTimes:', !!prayerTimes);
+            syncWidgetData(prayerTimes);
+        }
+    }, [cityName, prayerTimes, syncWidgetData]);
 
     // On first mount, trigger initial fetch (ref is now set)
     useEffect(() => {
@@ -1162,18 +1205,18 @@ export const PrayerTimesProvider = ({ children }) => {
         schedulePrayerNotifications,
         schedulePreReminderNotifications,
     }), [
-        prayerTimes, 
-        nextPrayer, 
-        countdown, 
-        loading, 
-        error, 
-        locationError, 
-        location, 
-        address, 
-        isTurkishLocation, 
-        settings, 
-        updateSettings, 
-        refreshPrayerTimesStable, 
+        prayerTimes,
+        nextPrayer,
+        countdown,
+        loading,
+        error,
+        locationError,
+        location,
+        address,
+        isTurkishLocation,
+        settings,
+        updateSettings,
+        refreshPrayerTimesStable,
         schedulePrayerNotifications,
         schedulePreReminderNotifications
     ]);

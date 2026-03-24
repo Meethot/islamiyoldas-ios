@@ -108,6 +108,11 @@ export function LocationProvider({ children }) {
             setLoading(false);
             localStorage.setItem('cached_location', JSON.stringify(coords));
 
+            // Clear stale district/address so prayer times don't use old cached data
+            // Reverse geocode below will set the correct values shortly
+            localStorage.removeItem('cached_district');
+            localStorage.removeItem('cached_address');
+
             // Reverse geocode in background — never blocks
             getReverseGeocode(coords.latitude, coords.longitude);
 

@@ -4,61 +4,114 @@ import Capacitor
 import AVFoundation
 import FirebaseCore
 import OneSignalFramework
+import WidgetKit
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
+    private var widgetSyncTimer: Timer?
+    private var lastSyncedValue: String?
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        // Initialize Firebase (Crashlytics + Analytics)
         FirebaseApp.configure()
-        
-        // Initialize OneSignal
         OneSignal.initialize("3445d1b5-779e-4001-a900-88331b78500c", withLaunchOptions: launchOptions)
         
-        // Configure audio session for background notification sounds
         do {
             try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default, options: [.mixWithOthers, .duckOthers])
             try AVAudioSession.sharedInstance().setActive(true)
         } catch {
             print("Failed to configure audio session: \(error)")
         }
+        
+        // Try to copy any existing data from previous session
+        copyWidgetDataToAppGroup()
+        
+        // Start polling for new data from JS Preferences writes
+        startWidgetSyncTimer()
+        
         return true
+    }
+    
+    // MARK: - Widget Data Sync (Preferences → App Group)
+    
+    /// Poll standard UserDefaults every 3 seconds for new widget data.
+    /// When JS calls Preferences.set(), data appears in standard UserDefaults.
+    /// This timer detects changes and copies them to App Group UserDefaults.
+    private func startWidgetSyncTimer() {
+        widgetSyncTimer?.invalidate()
+        widgetSyncTimer = Timer.scheduledTimer(withTimeInterval: 3.0, repeats: true) { [weak self] _ in
+            self?.copyWidgetDataToAppGroup()
+        }
+    }
+    
+    private func stopWidgetSyncTimer() {
+        widgetSyncTimer?.invalidate()
+        widgetSyncTimer = nil
+    }
+    
+    private func copyWidgetDataToAppGroup() {
+        let standardDefaults = UserDefaults.standard
+        let appGroupSuite = "group.H5GZ9H5MX8.islamiyoldas"
+        // Capacitor 8 Preferences uses "CapacitorStorage." + key (DOT, not DASH)
+        // Verified from: node_modules/@capacitor/preferences/ios/Sources/PreferencesPlugin/Preferences.swift line 27
+        let bridgeKey = "CapacitorStorage.widget_prayer_data_bridge"
+        let widgetKey = "widget_prayer_data"
+        
+        guard let jsonString = standardDefaults.string(forKey: bridgeKey) else {
+            return  // No data yet — silent
+        }
+        
+        // Skip if we already synced this exact value
+        if jsonString == lastSyncedValue {
+            return
+        }
+        
+        guard let appGroupDefaults = UserDefaults(suiteName: appGroupSuite) else {
+            print("[AppDelegate] FATAL: Cannot access App Group: \(appGroupSuite)")
+            return
+        }
+        
+        appGroupDefaults.set(jsonString, forKey: widgetKey)
+        appGroupDefaults.synchronize()
+        lastSyncedValue = jsonString
+        
+        print("[AppDelegate] ✅ Widget data synced to App Group. len=\(jsonString.count)")
+        print("[AppDelegate] preview: \(jsonString.prefix(120))")
+        
+        if #available(iOS 14.0, *) {
+            WidgetCenter.shared.reloadAllTimelines()
+            print("[AppDelegate] Widget timelines reloaded")
+        }
     }
 
     func applicationWillResignActive(_ application: UIApplication) {
-        // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
-        // Use this method to pause ongoing tasks, disable timers, and invalidate graphics rendering callbacks. Games should use this method to pause the game.
     }
 
     func applicationDidEnterBackground(_ application: UIApplication) {
-        // Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later.
-        // If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits.
+        // Copy latest data before going to background
+        copyWidgetDataToAppGroup()
+        stopWidgetSyncTimer()
     }
 
     func applicationWillEnterForeground(_ application: UIApplication) {
-        // Called as part of the transition from the background to the active state; here you can undo many of the changes made on entering the background.
+        startWidgetSyncTimer()
     }
 
     func applicationDidBecomeActive(_ application: UIApplication) {
-        // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
+        copyWidgetDataToAppGroup()
     }
 
     func applicationWillTerminate(_ application: UIApplication) {
-        // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
+        copyWidgetDataToAppGroup()
+        stopWidgetSyncTimer()
     }
 
     func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey: Any] = [:]) -> Bool {
-        // Called when the app was launched with a url. Feel free to add additional processing here,
-        // but if you want the App API to support tracking app url opens, make sure to keep this call
         return ApplicationDelegateProxy.shared.application(app, open: url, options: options)
     }
 
     func application(_ application: UIApplication, continue userActivity: NSUserActivity, restorationHandler: @escaping ([UIUserActivityRestoring]?) -> Void) -> Bool {
-        // Called when the app was launched with an activity, including Universal Links.
-        // Feel free to add additional processing here, but if you want the App API to support
-        // tracking app url opens, make sure to keep this call
         return ApplicationDelegateProxy.shared.application(application, continue: userActivity, restorationHandler: restorationHandler)
     }
 
