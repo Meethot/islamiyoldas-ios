@@ -17,6 +17,7 @@ import { safeGetStorage } from '@/utils/storageHelper';
 import { triggerReviewPrompt } from '@/components/ReviewPrompt';
 import { useTranslation } from 'react-i18next';
 import { isPremium } from '@/services/creditService';
+import { analytics } from '@/services/analyticsService';
 
 const PRAYER_TYPES = [
     { key: 'sabah', labelKey: 'prayerTypes.sabah' },
@@ -168,11 +169,14 @@ export default function Tracking() {
         const prayerKey = getDailyPrayersKey();
 
         setCompletedPrayers(prev => {
-            const next = prev.includes(name) ? prev.filter(p => p !== name) : [...prev, name];
+            const wasCompleted = prev.includes(name);
+            const next = wasCompleted ? prev.filter(p => p !== name) : [...prev, name];
             localStorage.setItem(prayerKey, JSON.stringify(next));
 
+            analytics.prayerMarked(name, wasCompleted ? 'removed' : 'completed');
+
             // Check if all 5 prayers are completed (streak trigger)
-            if (next.length === 5 && !prev.includes(name)) {
+            if (next.length === 5 && !wasCompleted) {
                 recordDayComplete();
             }
 

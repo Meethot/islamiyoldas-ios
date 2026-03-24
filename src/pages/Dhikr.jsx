@@ -8,6 +8,7 @@ import { useTranslation } from 'react-i18next';
 import { isPremium } from '@/services/creditService';
 import { getAppDate } from '@/lib/testDate';
 import { AnimatePresence, motion } from 'framer-motion';
+import { analytics } from '@/services/analyticsService';
 
 const DHIKR_PRESETS = [
     { id: 'subhanallah', name: 'Sübhanallah', arabic: 'سُبْحَانَ اللَّهِ', meaning: 'Allah noksan sıfatlardan uzaktır', defaultTarget: 33 },
@@ -48,6 +49,13 @@ export default function Dhikr() {
     const [countdownRounds, setCountdownRounds] = useState(0);
 
     const haptics = useHaptics();
+
+    // Track dhikr session start
+    useEffect(() => {
+        const name = isCountdownMode ? countdownName : activePreset.name;
+        const t = isCountdownMode ? countdownTarget : target;
+        analytics.dhikrStarted(name, t);
+    }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     // Web Audio API Context and Buffer
     const audioContextRef = useRef(null);
@@ -160,6 +168,7 @@ export default function Dhikr() {
                 setCountdownRounds(prev => prev + 1);
                 setCelebrating(true);
                 triggerReviewPrompt('dhikr');
+                analytics.dhikrCompleted(countdownName, countdownTarget);
                 setTimeout(() => setCelebrating(false), 3000);
             } else {
                 setCount(newCount);
@@ -207,6 +216,7 @@ export default function Dhikr() {
             if (isTargetReached) {
                 setCelebrating(true);
                 triggerReviewPrompt('dhikr');
+                analytics.dhikrCompleted(activePreset.name, newCount);
                 setTimeout(() => setCelebrating(false), 2000);
             }
         }

@@ -8,6 +8,7 @@ import { triggerReviewPrompt } from '@/components/ReviewPrompt';
 import { useTranslation } from 'react-i18next';
 import { isPremium } from '@/services/creditService';
 import { AnimatePresence, motion } from 'framer-motion';
+import { analytics } from '@/services/analyticsService';
 
 // Background Mode Helper (Cordova Plugin)
 const BackgroundMode = {
@@ -140,6 +141,8 @@ export default function SleepMode() {
         const handleEnded = () => {
             if (!isMulkLooping) {
                 setIsPlaying(false);
+                const durationMin = Math.round((mulkAudio.duration || 0) / 60);
+                analytics.sleepModeCompleted(durationMin);
             }
         };
         mulkAudio.addEventListener('ended', handleEnded);
@@ -219,6 +222,7 @@ export default function SleepMode() {
             mulkAudio.play().catch(() => { });
             setIsPlaying(true);
             markSleepUsed();
+            analytics.sleepModeStarted('mulk_surah');
         }
     };
 

@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { Geolocation } from '@capacitor/geolocation';
 import i18n from '@/i18n';
+import { analytics } from '@/services/analyticsService';
 
 const LocationContext = createContext(null);
 
@@ -42,12 +43,19 @@ export function LocationProvider({ children }) {
 
     const requestPermissions = useCallback(async () => {
         try {
+            analytics.permissionRequested('location');
             const status = await Geolocation.requestPermissions();
             setPermissionStatus(status.location);
+            if (status.location === 'granted') {
+                analytics.permissionGranted('location');
+            } else {
+                analytics.permissionDenied('location');
+            }
             return status.location;
         } catch (err) {
             console.error('Permission request error:', err);
             setError(i18n.t('common:errors.permissionDenied'));
+            analytics.permissionDenied('location');
             return 'denied';
         }
     }, []);

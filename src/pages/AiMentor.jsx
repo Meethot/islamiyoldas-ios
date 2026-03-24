@@ -11,6 +11,7 @@ import { useTranslation } from 'react-i18next';
 import { useHaptics } from '@/hooks/useMobile';
 import { isPremium } from '@/services/creditService';
 import { getAppDate } from '@/lib/testDate';
+import { analytics } from '@/services/analyticsService';
 
 
 const DAILY_LIMIT_FREE = 1;
@@ -103,9 +104,15 @@ export default function AiMentor() {
         setInput('');
         setIsLoading(true);
 
+        analytics.aiQuestionAsked('spiritual');
+        const requestStart = performance.now();
+
         try {
             // Call AI Service
             const adviceData = await getSpiritualAdvice(userMsg.text, i18n.language);
+
+            const responseTime = Math.round(performance.now() - requestStart);
+            analytics.aiResponseReceived(responseTime);
 
             // Increment usage on successful response
             incrementUsed();

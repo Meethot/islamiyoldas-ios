@@ -94,20 +94,14 @@ export default function PrayerTimeOverlay({ isOpen, prayer, onPray, onSnooze, on
 
                                     {/* Icon container */}
                                     <div
-                                        className="w-full h-full rounded-full relative"
+                                        className="w-full h-full rounded-full relative flex items-center justify-center"
                                         style={{
                                             background: 'rgba(212,175,55,0.08)',
                                             border: '1px solid rgba(212,175,55,0.2)',
+                                            transform: 'translateZ(0)', /* Force hardware acceleration layer early */
                                         }}
                                     >
-                                        <span
-                                            className="absolute text-[2.5rem]"
-                                            style={{
-                                                top: '50%',
-                                                left: '50%',
-                                                transform: 'translate(-50%, -50%)',
-                                            }}
-                                        >🕌</span>
+                                        <span className="text-[2.5rem] leading-none inline-block">🕌</span>
                                     </div>
                                 </motion.div>
 

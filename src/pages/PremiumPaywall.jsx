@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { useHaptics } from '@/hooks/useMobile';
 import { setPremium } from '@/services/creditService';
 import { getProducts, purchaseProduct, restorePurchases, PRODUCT_IDS } from '@/services/purchaseService';
+import { analytics } from '@/services/analyticsService';
 
 // ─── Gold Dust Particles (Canvas) ────────────────────────
 function GoldParticles() {
@@ -293,6 +294,7 @@ export default function PremiumPaywall() {
 
     // Fetch real product prices from the store on mount
     useEffect(() => {
+        analytics.premiumPageViewed('direct');
         getProducts().then(p => {
             if (p.length > 0) setProducts(p);
         });
@@ -372,32 +374,41 @@ export default function PremiumPaywall() {
         setIsLoading(true);
         setToast(null);
 
+        const planName = selectedPlan;
+        analytics.premiumPurchaseStarted();
+
         // 60-second timeout (Apple sandbox can be slow)
         const timeoutId = setTimeout(() => {
             setIsLoading(false);
             setToast({ type: 'error', message: t('premium.iap_timeout') });
+            analytics.premiumPurchaseFailed('timeout');
         }, 60000);
 
         try {
             const productId = selectedPlan === 'yearly' ? PRODUCT_IDS.YEARLY : PRODUCT_IDS.MONTHLY;
+            const product = products.find(p => p.identifier === productId);
             const result = await purchaseProduct(productId);
             clearTimeout(timeoutId);
             if (result.success) {
                 success();
                 setPremium(true);
                 setShowSuccess(true);
+                analytics.premiumPurchaseCompleted(planName, product?.price || 0);
             } else if (result.error && result.error !== 'cancelled') {
                 const msg = getErrorMessage(result.error);
                 if (msg) setToast({ type: 'error', message: msg });
+                analytics.premiumPurchaseFailed(result.error);
+            } else if (result.error === 'cancelled') {
+                analytics.premiumCancelled('user_cancelled');
             }
-            // cancelled = silently close, no message
         } catch (err) {
             clearTimeout(timeoutId);
             setToast({ type: 'error', message: t('premium.iap_error_generic') });
+            analytics.premiumPurchaseFailed('exception');
         } finally {
             setIsLoading(false);
         }
-    }, [isLoading, selectedPlan, success, t, getErrorMessage]);
+    }, [isLoading, selectedPlan, success, t, getErrorMessage, products]);
 
     const handleRestore = useCallback(async () => {
         if (isRestoring) return;
@@ -677,7 +688,7 @@ export default function PremiumPaywall() {
                     >
                         {/* Monthly */}
                         <button
-                            onClick={() => { selection(); setSelectedPlan('monthly'); }}
+                            onClick={() => { selection(); setSelectedPlan('monthly'); analytics.premiumPlanSelected('monthly', getPrice(PRODUCT_IDS.MONTHLY)); }}
                             className={`flex-1 relative text-left p-3 rounded-xl border-2 transition-all overflow-hidden ${selectedPlan === 'monthly' ? 'border-white/25 bg-white/[0.05]' : 'border-white/[0.06] bg-white/[0.015]'}`}
                             style={selectedPlan === 'monthly' ? { animation: 'pw-card-glow 2.5s ease-in-out infinite' } : {}}
                         >
@@ -699,7 +710,7 @@ export default function PremiumPaywall() {
 
                         {/* Yearly — HERO */}
                         <button
-                            onClick={() => { selection(); setSelectedPlan('yearly'); }}
+                            onClick={() => { selection(); setSelectedPlan('yearly'); analytics.premiumPlanSelected('yearly', getPrice(PRODUCT_IDS.YEARLY)); }}
                             className={`flex-1 relative text-left p-3 rounded-xl border-2 transition-all overflow-hidden ${selectedPlan === 'yearly' ? 'border-[#D4AF37]/50 bg-[#D4AF37]/[0.06]' : 'border-[#D4AF37]/15 bg-[#D4AF37]/[0.02]'}`}
                             style={{ animation: 'pw-card-glow 2.5s ease-in-out infinite' }}
                         >

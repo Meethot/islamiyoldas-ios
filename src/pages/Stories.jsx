@@ -8,6 +8,7 @@ import { AnimatePresence, motion, useDragControls } from 'framer-motion';
 import StoryCard from '@/components/StoryCard';
 import { useTranslation } from 'react-i18next';
 import { isPremium } from '@/services/creditService';
+import { analytics } from '@/services/analyticsService';
 
 import { STORIES } from '@/data/spiritualData';
 import { STORIES_DE } from '@/data/spiritualDataDE';
@@ -83,6 +84,9 @@ export default function Stories() {
     const handleEnded = () => {
         setIsPlaying(false);
         setCurrentTime(0);
+        if (selectedStory) {
+            analytics.storyCompleted(selectedStory.title, 100);
+        }
     };
 
     const handleSeek = (e) => {
@@ -188,6 +192,7 @@ export default function Stories() {
                                     onClick={() => {
                                         if (isLocked) { navigate('/premium'); return; }
                                         setSelectedStory(story);
+                                        analytics.storyStarted(story.title, story.duration || 0);
                                     }}
                                 />
                             </div>

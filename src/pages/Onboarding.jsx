@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useHaptics } from '@/hooks/useMobile';
@@ -46,6 +46,23 @@ export default function Onboarding() {
     const [answers, setAnswers] = useState({});
     const [selectedValue, setSelectedValue] = useState(null);
     const { selection, success, impactHeavy } = useHaptics();
+    const currentStepRef = useRef(currentStep);
+
+    // Keep ref in sync with state
+    useEffect(() => { currentStepRef.current = currentStep; }, [currentStep]);
+
+    // Track onboarding step views
+    useEffect(() => {
+        analytics.onboardingStepViewed(currentStep + 1, steps[currentStep]?.id);
+    }, [currentStep]);
+
+    // Track abandonment only on true component unmount
+    useEffect(() => {
+        return () => {
+            const completed = storageService.getItem('onboardingComplete') === 'true';
+            if (!completed) analytics.onboardingAbandoned(currentStepRef.current + 1);
+        };
+    }, []);
 
     const steps = useMemo(() => [
         {
@@ -123,6 +140,8 @@ export default function Onboarding() {
             i18n.changeLanguage(value);
         }
 
+        analytics.onboardingStepCompleted(currentStep + 1, steps[currentStep].id, value);
+
         setTimeout(() => {
             setAnswers(prev => {
                 const nextAnswers = { ...prev, [steps[currentStep].id]: value };
@@ -155,6 +174,7 @@ export default function Onboarding() {
 
     const handleSkip = useCallback(() => {
         selection();
+        analytics.onboardingStepSkipped(currentStep + 1);
         if (currentStep < steps.length - 1) {
             setCurrentStep(prev => prev + 1);
             setSelectedValue(null);

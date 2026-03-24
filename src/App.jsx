@@ -15,6 +15,7 @@ import { isPremium } from './services/creditService';
 import { initCrashlytics, logPageView } from './services/crashService';
 import { initOneSignal, setLanguageTag } from './services/pushService';
 import { storageService } from './services/storageService';
+import { analytics } from './services/analyticsService';
 
 import ScrollToTop from './components/ScrollToTop';
 import SwipeBackHandler from './components/SwipeBackHandler';
@@ -59,6 +60,8 @@ function CrashBreadcrumbs() {
   return null;
 }
 
+const APP_START_TIME = performance.now();
+
 function AppContent() {
   const [showSplash, setShowSplash] = useState(true);
   const [storageReady, setStorageReady] = useState(false);
@@ -87,7 +90,14 @@ function AppContent() {
   useEffect(() => {
     if (!dataReady) return;
     // Small delay for splash to fill to 100% visually
-    const timer = setTimeout(() => setShowSplash(false), 800);
+    const timer = setTimeout(() => {
+      setShowSplash(false);
+      const loadTime = Math.round(performance.now() - APP_START_TIME);
+      const isFirstOpen = !storageService.getItem('has_launched_before');
+      analytics.appLoaded(loadTime, isFirstOpen);
+      analytics.firstScreenVisible(onboardingComplete ? 'home' : 'onboarding', loadTime);
+      if (isFirstOpen) storageService.setItem('has_launched_before', 'true');
+    }, 800);
     return () => clearTimeout(timer);
   }, [dataReady]);
 
@@ -136,9 +146,10 @@ function AppContent() {
     return () => clearTimeout(t);
   }, [storageReady]);
 
-  // Dismiss ezan notifications when app comes to foreground
+  // Track app lifecycle + dismiss ezan notifications on foreground
   useEffect(() => {
     const listener = CapApp.addListener('appStateChange', (state) => {
+      analytics.appStateChanged(state.isActive ? 'foreground' : 'background');
       if (state.isActive) {
         LocalNotifications.removeAllDeliveredNotifications().catch(() => { });
       }

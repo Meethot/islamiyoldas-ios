@@ -1,5 +1,6 @@
 import { Capacitor } from '@capacitor/core';
 import OneSignal from 'onesignal-cordova-plugin';
+import { analytics } from './analyticsService';
 
 export const APP_ID = '3445d1b5-779e-4001-a900-88331b78500c';
 
@@ -20,8 +21,14 @@ export async function initOneSignal() {
             const { Preferences } = await import('@capacitor/preferences');
             const { value: asked } = await Preferences.get({ key: 'onesignal_permission_asked' });
             if (!asked) {
+                analytics.permissionRequested('notification');
                 OneSignal.Notifications.requestPermission(true).then((accepted) => {
                     console.log("User accepted notifications: " + accepted);
+                    if (accepted) {
+                        analytics.permissionGranted('notification');
+                    } else {
+                        analytics.permissionDenied('notification');
+                    }
                 });
                 await Preferences.set({ key: 'onesignal_permission_asked', value: 'true' });
             }
@@ -29,6 +36,8 @@ export async function initOneSignal() {
 
         OneSignal.Notifications.addEventListener('click', (event) => {
             console.log('OneSignal: notification clicked:', event);
+            const data = event?.notification?.additionalData || {};
+            analytics.pushNotificationOpened(data.type || 'general', data.prayer || undefined);
         });
 
         console.log('OneSignal initialized successfully.');
