@@ -977,12 +977,12 @@ export const PrayerCountdownWidget = memo(({ loading, city, nextPrayerInfo, pray
             const found = mainPrayers.find(p => p.id === selectedPrayerId);
             if (found) return found;
         }
-        // Default: auto (next prayer from system)
-        if (nextPrayerInfo && mainPrayers.length > 0) {
-            return mainPrayers.find(p => p.name === nextPrayerInfo.name) || mainPrayers[0];
+        // Default: auto (next prayer from system). Use prayerTimes to include Sunrise (Güneş)
+        if (nextPrayerInfo && prayerTimes && prayerTimes.length > 0) {
+            return prayerTimes.find(p => p.name === nextPrayerInfo.name) || prayerTimes[0];
         }
         return null;
-    }, [selectedPrayerId, mainPrayers, nextPrayerInfo]);
+    }, [selectedPrayerId, mainPrayers, nextPrayerInfo, prayerTimes]);
 
     // Calculate countdown for selected prayer
     useEffect(() => {

@@ -42,28 +42,27 @@ export default function ReviewPrompt() {
     const pendingRef = useRef(false);
     const { t } = useTranslation('common');
 
+    const [totalSeconds, setTotalSeconds] = useState(() => parseInt(localStorage.getItem('total_app_time_seconds') || '0', 10));
+    const isOnHome = location.pathname === '/';
+
     useEffect(() => {
-        // App açılış sayacı
         const data = getReviewData();
         if (data.reviewed) return;
 
-        data.appOpens = (data.appOpens || 0) + 1;
-        saveReviewData(data);
-
-        // 🔹 Tetikleyici 4: 5. app açılış (onboarding tamamlanmışsa)
-        const onboardingDone = localStorage.getItem('onboardingComplete') === 'true';
-        if (data.appOpens >= 5 && !isCooldownActive() && onboardingDone) {
-            setTimeout(() => {
-                if (!isCooldownActive()) setShow(true);
-            }, 5000);
+        // Sayacı güncelle ancak mount/unmount koruması için sadece bir kez
+        if (!window.appOpenedLogged) {
+            data.appOpens = (data.appOpens || 0) + 1;
+            saveReviewData(data);
+            window.appOpenedLogged = true;
         }
 
-        // reviewTrigger event listener
         const handleTrigger = (e) => {
             if (isCooldownActive()) return;
-            // Onboarding tamamlanmamışsa review gösterme
             if (localStorage.getItem('onboardingComplete') !== 'true') return;
-            if (window.location.hash.includes('/dhikr')) {
+            
+            // Anasayfa dışında isek beklemeye alıyoruz
+            const hash = window.location.hash;
+            if (hash && hash !== '#/' && hash !== '#') {
                 pendingRef.current = true;
                 return;
             }
@@ -72,33 +71,46 @@ export default function ReviewPrompt() {
 
         window.addEventListener('reviewTrigger', handleTrigger);
 
-        // 🔹 Tetikleyici 7: 30 dk passive fallback
-        const startPassiveTimer = () => {
-            if (passiveTimerRef.current) clearTimeout(passiveTimerRef.current);
-            passiveTimerRef.current = setTimeout(() => {
-                if (!isCooldownActive()) {
-                    setShow(true);
-                }
-            }, PASSIVE_TIMEOUT);
-        };
-
-        startPassiveTimer();
+        // Toplam geçirilen süreyi sayan interval (10 saniyede bir günceller)
+        const timeInterval = setInterval(() => {
+            setTotalSeconds(prev => {
+                const next = prev + 10;
+                localStorage.setItem('total_app_time_seconds', next.toString());
+                return next;
+            });
+        }, 10000);
 
         return () => {
             window.removeEventListener('reviewTrigger', handleTrigger);
-            if (passiveTimerRef.current) clearTimeout(passiveTimerRef.current);
+            clearInterval(timeInterval);
         };
     }, []);
 
-    // Zikirmatik'te popup gösterme ama pending varsa sayfadan çıkınca göster
-    const isOnDhikr = location.pathname === '/dhikr';
-
+    // Ana sayfa kontrolü ve otomatik popup görünme koşulları
     useEffect(() => {
-        if (!isOnDhikr && pendingRef.current) {
+        const data = getReviewData();
+        
+        // Şartlar sağlanmıyorsa erken dön
+        if (show || data.reviewed || isCooldownActive() || !isOnHome) return;
+        if (localStorage.getItem('onboardingComplete') !== 'true') return;
+
+        // Daha önce beklemeye alınmış bir istek varsa anasayfada (kısa gecikmeli) göster
+        if (pendingRef.current) {
             pendingRef.current = false;
-            if (!isCooldownActive()) setShow(true);
+            const timer = setTimeout(() => setShow(true), 1500);
+            return () => clearTimeout(timer);
         }
-    }, [isOnDhikr]);
+
+        // Eğer en az 3 kere açılmışsa ve total süre 6 dakikayı (360 saniye) geçmişse
+        if (data.appOpens >= 3 && totalSeconds >= 360) {
+            const autoTimer = setTimeout(() => {
+                if (!isCooldownActive() && location.pathname === '/') {
+                    setShow(true);
+                }
+            }, 3000);
+            return () => clearTimeout(autoTimer);
+        }
+    }, [location.pathname, totalSeconds, show]);
 
     const handleRate = () => {
         saveReviewData({ ...getReviewData(), reviewed: true });
@@ -123,7 +135,7 @@ export default function ReviewPrompt() {
 
     return (
         <AnimatePresence>
-            {show && !isOnDhikr && (
+            {show && isOnHome && (
                 <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
