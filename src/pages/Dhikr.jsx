@@ -393,9 +393,20 @@ export default function Dhikr() {
 
                     {/* Main Button */}
                     <button
-                        onClick={increment}
+                        onTouchStart={(e) => {
+                            e.preventDefault(); // Prevent long-press context menu on iOS
+                        }}
+                        onTouchEnd={(e) => {
+                            e.preventDefault(); // Prevent ghost click
+                            increment();
+                        }}
+                        onClick={(e) => {
+                            // Desktop/web fallback — touch devices already handled above
+                            if (e.detail > 0) increment(); // Only keyboard/mouse, not synthetic from touch
+                        }}
+                        onContextMenu={(e) => e.preventDefault()} // Block long-press context menu
                         className={cn(
-                            "w-60 h-60 rounded-full bg-gradient-to-br from-white/10 to-black/30 border border-white/20 flex flex-col items-center justify-center relative shadow-[0_0_80px_rgba(0,0,0,0.5)] active:scale-95 transition-all duration-75 backdrop-blur-lg group",
+                            "w-60 h-60 rounded-full bg-gradient-to-br from-white/10 to-black/30 border border-white/20 flex flex-col items-center justify-center relative shadow-[0_0_80px_rgba(0,0,0,0.5)] active:scale-95 transition-all duration-75 backdrop-blur-lg group select-none touch-manipulation",
                             celebrating && "border-emerald-500/50 shadow-emerald-500/20"
                         )}
                     >

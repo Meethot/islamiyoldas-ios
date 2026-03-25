@@ -65,7 +65,7 @@ const APP_START_TIME = performance.now();
 function AppContent() {
   const [showSplash, setShowSplash] = useState(true);
   const [storageReady, setStorageReady] = useState(false);
-  
+
   // Storage hazır olduktan sonra onboarding durumunu al
   // [DISABLED] Onboarding devre dışı — tekrar aktif etmek için aşağıdaki satırı aç ve route'u eski haline getir
   // const onboardingComplete = storageService.getItem('onboardingComplete') === 'true';
@@ -75,16 +75,16 @@ function AppContent() {
   const { hasLocation, loading: locationLoading } = useLocation();
   const { prayerTimes, loading: prayerLoading } = usePrayerTimes();
 
-  const locationReady = hasLocation && !locationLoading;
+  const locationReady = !locationLoading; // Loading finished (permission granted or not — doesn't matter)
   const prayerReady = !!prayerTimes && !prayerLoading;
   const dataReady = locationReady && prayerReady && storageReady;
 
   // Initialize Storage Service
   useEffect(() => {
     storageService.initialize().then(() => {
-        setStorageReady(true);
+      setStorageReady(true);
     }).catch(() => {
-        setStorageReady(true); // Fallback to proceed even if async storage fails
+      setStorageReady(true); // Fallback to proceed even if async storage fails
     });
   }, []);
 
@@ -165,41 +165,41 @@ function AppContent() {
     <>
       {/* Full-screen app container — no phone frame for native builds */}
       <div className="w-full h-[100dvh] bg-background relative overflow-hidden font-sans">
-          <Router>
-            <ScrollToTop />
-            <SwipeBackHandler />
-            <CrashBreadcrumbs />
-            <ReviewPrompt />
-            <Suspense fallback={<div className="min-h-screen bg-background" />}>
-              <Routes>
-                <Route path="/onboarding" element={<Onboarding />} />
-                <Route path="/premium" element={<PremiumPaywall />} />
+        <Router>
+          <ScrollToTop />
+          <SwipeBackHandler />
+          <CrashBreadcrumbs />
+          <ReviewPrompt />
+          <Suspense fallback={<div className="min-h-screen bg-background" />}>
+            <Routes>
+              <Route path="/onboarding" element={<Onboarding />} />
+              <Route path="/premium" element={<PremiumPaywall />} />
 
-                <Route element={<AppLayout />}>
-                  {/* [DISABLED] Onboarding gate — tekrar aktif etmek için: onboardingComplete ? <Home /> : <Navigate to="/onboarding" replace /> */}
-                  <Route path="/" element={<Home />} />
-                  <Route path="/learn" element={<Learn />} />
-                  <Route path="/stories" element={<Stories />} />
-                  <Route path="/tracking" element={<Tracking />} />
-                  <Route path="/profile" element={<Profile />} />
-                  <Route path="/dhikr" element={<Dhikr />} />
-                  <Route path="/tefekkur" element={<Tefekkur />} />
-                  <Route path="/uyku" element={<SleepMode />} />
-                  <Route path="/dua" element={<DuaKosesi />} />
-                  <Route path="/quran" element={<Quran />} />
-                  <Route path="/quran/:surahId" element={<SurahDetail />} />
-                  <Route path="/qibla" element={<Qibla />} />
-                  <Route path="/ai-mentor" element={<AiMentor />} />
-                  <Route path="/oruc-takibi" element={<FastingTracker />} />
-                  <Route path="/settings/notifications" element={<NotificationSettings />} />
-                  <Route path="/settings/location" element={<LocationSettings />} />
-                  <Route path="/settings/language" element={<LanguageSettings />} />
-                  <Route path="/settings/legal" element={<LegalSettings />} />
-                  <Route path="/legal/:type" element={<Legal />} />
-                </Route>
-              </Routes>
-            </Suspense>
-          </Router>
+              <Route element={<AppLayout />}>
+                {/* [DISABLED] Onboarding gate — tekrar aktif etmek için: onboardingComplete ? <Home /> : <Navigate to="/onboarding" replace /> */}
+                <Route path="/" element={<Home />} />
+                <Route path="/learn" element={<Learn />} />
+                <Route path="/stories" element={<Stories />} />
+                <Route path="/tracking" element={<Tracking />} />
+                <Route path="/profile" element={<Profile />} />
+                <Route path="/dhikr" element={<Dhikr />} />
+                <Route path="/tefekkur" element={<Tefekkur />} />
+                <Route path="/uyku" element={<SleepMode />} />
+                <Route path="/dua" element={<DuaKosesi />} />
+                <Route path="/quran" element={<Quran />} />
+                <Route path="/quran/:surahId" element={<SurahDetail />} />
+                <Route path="/qibla" element={<Qibla />} />
+                <Route path="/ai-mentor" element={<AiMentor />} />
+                <Route path="/oruc-takibi" element={<FastingTracker />} />
+                <Route path="/settings/notifications" element={<NotificationSettings />} />
+                <Route path="/settings/location" element={<LocationSettings />} />
+                <Route path="/settings/language" element={<LanguageSettings />} />
+                <Route path="/settings/legal" element={<LegalSettings />} />
+                <Route path="/legal/:type" element={<Legal />} />
+              </Route>
+            </Routes>
+          </Suspense>
+        </Router>
       </div>
     </>
   );

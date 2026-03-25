@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { Capacitor } from '@capacitor/core';
+import { LocalNotifications } from '@capacitor/local-notifications';
 
 const PERM_KEYS = {
     location: { count: 'perm_loc_count_v2', time: 'perm_loc_time_v2' },
@@ -22,6 +23,18 @@ function shouldShowPermission(type) {
     if (lastDismiss && (Date.now() - lastDismiss < COOLDOWN_MS)) return false;
 
     return true;
+}
+
+// Check actual OS notification permission before showing card
+async function shouldShowNotificationCard() {
+    if (!shouldShowPermission('notification')) return false;
+    try {
+        const { display } = await LocalNotifications.checkPermissions();
+        // Only show if OS permission is NOT granted
+        return display !== 'granted';
+    } catch {
+        return false; // Can't check — don't annoy user
+    }
 }
 
 export function useSmartPermissions(locationStatus) {
@@ -47,6 +60,13 @@ export function useSmartPermissions(locationStatus) {
         localStorage.setItem(keys.count, String(MAX_ASKS)); // Never ask again
     }, []);
 
+    // Helper: try to show notification card (checks OS permission first)
+    const tryShowNotification = useCallback(async () => {
+        if (await shouldShowNotificationCard()) {
+            setPermissionCard('notification');
+        }
+    }, []);
+
     // Single entry point — runs exactly ONCE per app session
     useEffect(() => {
         if (!Capacitor.isNativePlatform()) return;
@@ -54,11 +74,7 @@ export function useSmartPermissions(locationStatus) {
         // If there's a pending notification from a previous mount (user navigated away and came back)
         if (_notificationPending) {
             _notificationPending = false;
-            const timer = setTimeout(() => {
-                if (shouldShowPermission('notification')) {
-                    setPermissionCard('notification');
-                }
-            }, 1500); // shorter delay since user is returning
+            const timer = setTimeout(() => tryShowNotification(), 1500);
             return () => clearTimeout(timer);
         }
         
@@ -75,11 +91,7 @@ export function useSmartPermissions(locationStatus) {
                 setPermissionCard('location');
             } else {
                 // Location already granted or exhausted — go straight to notification
-                setTimeout(() => {
-                    if (shouldShowPermission('notification')) {
-                        setPermissionCard('notification');
-                    }
-                }, 1500);
+                setTimeout(() => tryShowNotification(), 1500);
             }
         }, 2500);
 
@@ -93,12 +105,8 @@ export function useSmartPermissions(locationStatus) {
             return;
         }
         // User stayed on Home (dismissed via backdrop/drag or accepted)
-        setTimeout(() => {
-            if (shouldShowPermission('notification')) {
-                setPermissionCard('notification');
-            }
-        }, 3500);
-    }, []);
+        setTimeout(() => tryShowNotification(), 3500);
+    }, [tryShowNotification]);
 
     const dismissCurrentCard = useCallback(() => {
         const current = cardRef.current;

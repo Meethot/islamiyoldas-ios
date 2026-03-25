@@ -159,7 +159,7 @@ export const PrayerTimesProvider = ({ children }) => {
             const { value: preReminderEnabled } = await Preferences.get({ key: 'preReminderEnabled' });
             const { value: preReminderMinutes } = await Preferences.get({ key: 'preReminderMinutes' });
 
-            setSettings({
+            const loaded = {
                 adhanEnabled: adhanEnabled === null ? true : adhanEnabled === 'true',
                 vibrateOnly: vibrateOnly === 'true',
                 verseEnabled: verseEnabled === null ? true : verseEnabled === 'true',
@@ -169,7 +169,23 @@ export const PrayerTimesProvider = ({ children }) => {
                 dhikrReminder: dhikrReminder === null ? true : dhikrReminder === 'true',
                 preReminderEnabled: preReminderEnabled === 'true',
                 preReminderMinutes: preReminderMinutes ? parseInt(preReminderMinutes, 10) : 30
-            });
+            };
+
+            // If OS notification permission is NOT granted, show all notification toggles as OFF
+            if (Capacitor.isNativePlatform()) {
+                try {
+                    const permStatus = await LocalNotifications.checkPermissions();
+                    if (permStatus.display !== 'granted') {
+                        loaded.adhanEnabled = false;
+                        loaded.verseEnabled = false;
+                        loaded.fridayMessage = false;
+                        loaded.dhikrReminder = false;
+                        loaded.preReminderEnabled = false;
+                    }
+                } catch { /* permission check failed, keep loaded values */ }
+            }
+
+            setSettings(loaded);
         } catch (error) {
             console.error('Error loading settings:', error);
         }
@@ -227,24 +243,6 @@ export const PrayerTimesProvider = ({ children }) => {
     const initializeNotifications = async () => {
         if (!Capacitor.isNativePlatform()) return;
         try {
-            const permStatus = await LocalNotifications.checkPermissions();
-
-            // If permission is NOT granted (denied or never asked),
-            // show all notification toggles as OFF
-            if (permStatus.display !== 'granted') {
-                const offSettings = {
-                    adhanEnabled: false,
-                    verseEnabled: false,
-                    fridayMessage: false,
-                    dhikrReminder: false,
-                    spiritualRewards: false,
-                    preReminderEnabled: false
-                };
-                // Only update UI, do NOT persist — so saved settings survive for restoration
-                setSettings(prev => ({ ...prev, ...offSettings }));
-                return;
-            }
-
             // Android notification channel — sound is baked into the channel
             // IMPORTANT: Once created, Android caches the channel. Changing sound requires
             // the user to uninstall/reinstall or manually reset in system settings.
