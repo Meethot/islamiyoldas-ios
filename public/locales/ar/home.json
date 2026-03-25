@@ -269,5 +269,23 @@
         "desc3": "ترقَّ إلى بريميوم لذكر غير محدود.",
         "cta": "ذكر غير محدود — بريميوم",
         "dismiss": "عُد غداً"
+    },
+    "permission": {
+        "location_title": "🕌 ضبط أوقات الصلاة",
+        "location_desc": "نحتاج إلى موقعك لعرض أوقات الصلاة الدقيقة واتجاه القبلة لمدينتك.",
+        "location_accept": "استخدم موقعي",
+        "location_skip": "ليس الآن",
+        "notification_title": "🔔 لا تفوّت صلاتك",
+        "notification_desc": "احصل على إشعارات في أوقات الصلاة وتابع عباداتك اليومية بتذكيرات لطيفة.",
+        "notification_accept": "تفعيل الإشعارات",
+        "notification_skip": "ليس الآن",
+        "badge_prayer": "🕌 أوقات الصلاة",
+        "badge_qibla": "🧭 اتجاه القبلة",
+        "badge_city": "📍 المدينة",
+        "badge_adhan": "🔔 تنبيه الأذان",
+        "badge_dhikr": "📿 الذكر اليومي",
+        "badge_reminder": "🌙 التذكيرات",
+        "location_manual": "ضبط يدوي",
+        "notification_manual": "فتح من الإعدادات"
     }
 }

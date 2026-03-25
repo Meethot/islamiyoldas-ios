@@ -67,7 +67,9 @@ function AppContent() {
   const [storageReady, setStorageReady] = useState(false);
   
   // Storage hazır olduktan sonra onboarding durumunu al
-  const onboardingComplete = storageService.getItem('onboardingComplete') === 'true';
+  // [DISABLED] Onboarding devre dışı — tekrar aktif etmek için aşağıdaki satırı aç ve route'u eski haline getir
+  // const onboardingComplete = storageService.getItem('onboardingComplete') === 'true';
+  const onboardingComplete = true; // Always skip onboarding
 
   // Real data readiness signals
   const { hasLocation, loading: locationLoading } = useLocation();
@@ -174,7 +176,8 @@ function AppContent() {
                 <Route path="/premium" element={<PremiumPaywall />} />
 
                 <Route element={<AppLayout />}>
-                  <Route path="/" element={onboardingComplete ? <Home /> : <Navigate to="/onboarding" replace />} />
+                  {/* [DISABLED] Onboarding gate — tekrar aktif etmek için: onboardingComplete ? <Home /> : <Navigate to="/onboarding" replace /> */}
+                  <Route path="/" element={<Home />} />
                   <Route path="/learn" element={<Learn />} />
                   <Route path="/stories" element={<Stories />} />
                   <Route path="/tracking" element={<Tracking />} />

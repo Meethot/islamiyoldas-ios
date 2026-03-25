@@ -13,26 +13,8 @@ export async function initOneSignal() {
     try {
         OneSignal.initialize(APP_ID);
 
-        // Only request permission if not yet determined
-        // This prevents the iOS "Open Settings" popup on subsequent launches
-        const hasPermission = OneSignal.Notifications.hasPermission();
-        if (!hasPermission) {
-            // Check if we already asked before (stored flag)
-            const { Preferences } = await import('@capacitor/preferences');
-            const { value: asked } = await Preferences.get({ key: 'onesignal_permission_asked' });
-            if (!asked) {
-                analytics.permissionRequested('notification');
-                OneSignal.Notifications.requestPermission(true).then((accepted) => {
-                    console.log("User accepted notifications: " + accepted);
-                    if (accepted) {
-                        analytics.permissionGranted('notification');
-                    } else {
-                        analytics.permissionDenied('notification');
-                    }
-                });
-                await Preferences.set({ key: 'onesignal_permission_asked', value: 'true' });
-            }
-        }
+        // Permission is now requested separately via requestNotificationPermission()
+        // This prevents the iOS notification popup from firing on app launch.
 
         OneSignal.Notifications.addEventListener('click', (event) => {
             console.log('OneSignal: notification clicked:', event);
@@ -43,6 +25,36 @@ export async function initOneSignal() {
         console.log('OneSignal initialized successfully.');
     } catch (error) {
         console.error('OneSignal initialization error:', error);
+    }
+}
+
+/**
+ * Request notification permission — call this contextually, not on boot.
+ * Uses a persistent flag to ensure the iOS prompt is shown at most once.
+ */
+export async function requestNotificationPermission() {
+    if (!Capacitor.isNativePlatform()) return;
+
+    try {
+        const hasPermission = OneSignal.Notifications.hasPermission();
+        if (hasPermission) return;
+
+        const { Preferences } = await import('@capacitor/preferences');
+        const { value: asked } = await Preferences.get({ key: 'onesignal_permission_asked' });
+        if (asked) return;
+
+        analytics.permissionRequested('notification');
+        OneSignal.Notifications.requestPermission(true).then((accepted) => {
+            console.log("User accepted notifications: " + accepted);
+            if (accepted) {
+                analytics.permissionGranted('notification');
+            } else {
+                analytics.permissionDenied('notification');
+            }
+        });
+        await Preferences.set({ key: 'onesignal_permission_asked', value: 'true' });
+    } catch (error) {
+        console.error('Notification permission request error:', error);
     }
 }
 

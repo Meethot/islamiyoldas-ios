@@ -393,7 +393,7 @@ export default function PremiumPaywall() {
                 success();
                 setPremium(true);
                 setShowSuccess(true);
-                analytics.premiumPurchaseCompleted(planName, product?.price || 0);
+                analytics.premiumPurchaseCompleted(planName, product?.price || 0, productId);
             } else if (result.error && result.error !== 'cancelled') {
                 const msg = getErrorMessage(result.error);
                 if (msg) setToast({ type: 'error', message: msg });

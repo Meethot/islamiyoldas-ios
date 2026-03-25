@@ -269,5 +269,23 @@
         "desc3": "Upgrade to Premium for unlimited dhikr.",
         "cta": "Unlimited Dhikr — Premium",
         "dismiss": "Come back tomorrow"
+    },
+    "permission": {
+        "location_title": "🕌 Set Up Prayer Times",
+        "location_desc": "We need your location to show accurate prayer times and Qibla direction for your city.",
+        "location_accept": "Use My Location",
+        "location_skip": "Not Now",
+        "notification_title": "🔔 Never Miss a Prayer",
+        "notification_desc": "Get notified at prayer times and track your daily worship with gentle reminders.",
+        "notification_accept": "Enable Notifications",
+        "notification_skip": "Not Now",
+        "badge_prayer": "🕌 Prayer Times",
+        "badge_qibla": "🧭 Qibla Direction",
+        "badge_city": "📍 City",
+        "badge_adhan": "🔔 Adhan Alert",
+        "badge_dhikr": "📿 Daily Dhikr",
+        "badge_reminder": "🌙 Reminders",
+        "location_manual": "Set Up Manually",
+        "notification_manual": "Open in Settings"
     }
 }

@@ -40,6 +40,15 @@ export const trackEvent = (eventName, properties = {}) => {
     amplitude.track(eventName, properties);
 };
 
+export const trackRevenue = (productId, price, quantity = 1) => {
+    const event = new amplitude.Revenue()
+        .setProductId(productId)
+        .setPrice(price)
+        .setQuantity(quantity)
+        .setRevenueType('subscription');
+    amplitude.revenue(event);
+};
+
 export const setUserProperties = (properties) => {
     const identify = new amplitude.Identify();
     Object.entries(properties).forEach(([key, value]) => {
@@ -70,7 +79,10 @@ export const analytics = {
     premiumPageViewed: (source) => trackEvent('premium_page_viewed', { source }),
     premiumPlanSelected: (plan, price) => trackEvent('premium_plan_selected', { plan, price }),
     premiumPurchaseStarted: () => trackEvent('premium_purchase_started'),
-    premiumPurchaseCompleted: (plan, revenue) => trackEvent('premium_purchase_completed', { plan, revenue }),
+    premiumPurchaseCompleted: (plan, price, productId) => {
+        trackEvent('premium_purchase_completed', { plan, revenue: price });
+        if (price > 0) trackRevenue(productId, price);
+    },
     premiumPurchaseFailed: (reason) => trackEvent('premium_purchase_failed', { reason }),
     premiumCancelled: (reason) => trackEvent('premium_cancelled', { reason }),
 

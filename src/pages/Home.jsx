@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
     Moon, Sunrise, Sun, Sunset, Sparkles, Star, Wind, MessageCircle, X, Download,
-    ChevronRight, Heart, Share2, Bot, Crown, Flower2
+    ChevronRight, Heart, Share2, Bot, Crown, Flower2, MapPin, Bell
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -13,6 +13,7 @@ import { safeGetStorage, safeSetStorage } from '@/utils/storageHelper';
 import { useHaptics } from '@/hooks/useMobile';
 import { usePrayers } from '@/hooks/usePrayers';
 import { useUser } from '@/context/UserContext';
+import { useLocation } from '@/context/LocationContext';
 import {
     WeeklyStreakWidget, VerseOfDayCard, DailyDeedCard, EsmaUlHusnaWidget,
     PrayerCountdownWidget, AllEsmaModal,
@@ -25,9 +26,10 @@ import { shareProgress, shareInvite, shareVerse } from '@/lib/share';
 import PrayerTimeOverlay from '@/components/PrayerTimeOverlay';
 import { triggerReviewPrompt } from '@/components/ReviewPrompt';
 import { usePrayerFocus } from '@/hooks/usePrayerFocus';
+import { useSmartPermissions } from '@/hooks/useSmartPermissions';
+import SmartPermissionModal from '@/components/home/SmartPermissionModal';
 import { useTranslation } from 'react-i18next';
 import { Capacitor } from '@capacitor/core';
-import { AdMob } from '@capacitor-community/admob';
 import { isPremium } from '@/services/creditService';
 import { storageService } from '@/services/storageService';
 
@@ -39,6 +41,7 @@ import { ALL_ESMA } from '@/data/esmaData';
 const ESMA_UL_HUSNA = ALL_ESMA.filter(e => [2, 3, 4, 5, 6].includes(e.id));
 
 // SHARE_THEMES is now imported from ShareCard.jsx
+
 
 
 const RELIGIOUS_DAYS = [
@@ -76,6 +79,15 @@ export default function Home() {
     const navigate = useNavigate();
     const { selection, success, heavy } = useHaptics();
     const { prayerTimes, loadingPrayers, nextPrayerInfo, city, country } = usePrayers();
+    const { refreshLocation, permissionStatus } = useLocation();
+
+    // Smart Permission Flow (Clean Architecture)
+    const { 
+        permissionCard, 
+        dismissCurrentCard, 
+        markCurrentSuccess, 
+        handleManualRedirect 
+    } = useSmartPermissions(permissionStatus);
 
     // Get today's verse using global test date system
     const DAILY_VERSE = getDailyVerse((i18n.language || 'en').split('-')[0]);
@@ -99,9 +111,9 @@ export default function Home() {
     const [currentDeed, setCurrentDeed] = useState("");
     const [selectedEsma, setSelectedEsma] = useState(null);
     const [showAllEsma, setShowAllEsma] = useState(false);
-    const [esmaCounts, setEsmaCounts] = useState(() => safeGetStorage('esma_counts', {})); // Stores count for each Esma: { "Allah": 5, "Rahman": 10 }
+    const [esmaCounts, setEsmaCounts] = useState(() => safeGetStorage('esma_counts', {}));
     const [sharing, setSharing] = useState(false);
-    const [debugOverlay, setDebugOverlay] = useState(false); // Debug: Force show overlay
+    const [debugOverlay, setDebugOverlay] = useState(false);
     const { isPremium: hasPremium } = useUser();
 
     // Prayer Focus Detection (Blur Mode)
@@ -109,24 +121,6 @@ export default function Home() {
         prayerTimes,
         completedPrayers
     );
-
-    // iOS ATT izleme izni — onboarding sonrası anasayfaya ilk gelişte 1 kez sor
-    useEffect(() => {
-        if (!Capacitor.isNativePlatform() || Capacitor.getPlatform() !== 'ios') return;
-        if (localStorage.getItem('att_requested')) return;
-
-        const timer = setTimeout(async () => {
-            try {
-                await AdMob.requestTrackingAuthorization();
-            } catch (e) {
-                console.warn('ATT request failed:', e);
-            }
-            localStorage.setItem('att_requested', 'true');
-        }, 2000);
-
-        return () => clearTimeout(timer);
-    }, []);
-
 
     const isFriday = getAppDate().getDay() === 5;
 
@@ -460,6 +454,14 @@ export default function Home() {
             />
 
             <ReligiousCalendarWidget days={RELIGIOUS_DAYS} />
+
+            <SmartPermissionModal
+                cardType={permissionCard}
+                onSilentDismiss={dismissCurrentCard}
+                onSuccess={markCurrentSuccess}
+                onManualRedirect={handleManualRedirect}
+                refreshLocationFn={refreshLocation}
+            />
 
             {/* Prayer Time Blur Mode Overlay */}
             <PrayerTimeOverlay

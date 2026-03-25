@@ -231,14 +231,10 @@ export function LocationProvider({ children }) {
                     await getCurrentPosition();
                 }
             } else {
-                // If it's a completely fresh install (no location granted and NO manual city chose)
-                // then request permission as the onboarding loop.
-                const manualCitySaved = localStorage.getItem('userCity');
-                if (!manualCitySaved) {
-                    await refreshLocation();
-                } else {
-                    setLoading(false);
-                }
+                // Fresh install: don't auto-request permission.
+                // Home.jsx will trigger the permission request contextually
+                // after the user has completed onboarding and seen the home screen.
+                setLoading(false);
             }
         };
 

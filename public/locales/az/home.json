@@ -269,5 +269,23 @@
         "desc3": "Limitsiz zikir üçün Premiuma yüksəlin.",
         "cta": "Limitsiz Zikir — Premium",
         "dismiss": "Sabah yenidən gəl"
+    },
+    "permission": {
+        "location_title": "🕌 Namaz Vaxtlarını Quraq",
+        "location_desc": "Şəhərinə uyğun dəqiq namaz vaxtlarını və qiblə istiqamətini göstərmək üçün yerinə ehtiyacımız var.",
+        "location_accept": "Yerimi İstifadə Et",
+        "location_skip": "İndi Deyil",
+        "notification_title": "🔔 Namazı Qaçırma",
+        "notification_desc": "Namaz vaxtlarında xəbərdar ol, gündəlik ibadətlərini yumşaq xatırlatmalarla izlə.",
+        "notification_accept": "Bildirişləri Aç",
+        "notification_skip": "İndi Deyil",
+        "badge_prayer": "🕌 Namaz Vaxtı",
+        "badge_qibla": "🧭 Qiblə İstiqaməti",
+        "badge_city": "📍 Şəhər",
+        "badge_adhan": "🔔 Azan Xəbərdarlığı",
+        "badge_dhikr": "📿 Gündəlik Zikir",
+        "badge_reminder": "🌙 Xatırlatmalar",
+        "location_manual": "Əl ilə Qur",
+        "notification_manual": "Ayarlardan Aç"
     }
 }

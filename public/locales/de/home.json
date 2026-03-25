@@ -269,5 +269,23 @@
         "desc3": "Wechseln Sie zu Premium für unbegrenztes Dhikr.",
         "cta": "Unbegrenztes Dhikr — Premium",
         "dismiss": "Komm morgen wieder"
+    },
+    "permission": {
+        "location_title": "🕌 Gebetszeiten einrichten",
+        "location_desc": "Wir benötigen deinen Standort, um genaue Gebetszeiten und die Qibla-Richtung für deine Stadt anzuzeigen.",
+        "location_accept": "Meinen Standort verwenden",
+        "location_skip": "Nicht jetzt",
+        "notification_title": "🔔 Verpasse kein Gebet",
+        "notification_desc": "Lass dich zu Gebetszeiten benachrichtigen und verfolge deine tägliche Ibadah mit sanften Erinnerungen.",
+        "notification_accept": "Benachrichtigungen aktivieren",
+        "notification_skip": "Nicht jetzt",
+        "badge_prayer": "🕌 Gebetszeiten",
+        "badge_qibla": "🧭 Qibla-Richtung",
+        "badge_city": "📍 Stadt",
+        "badge_adhan": "🔔 Gebetsruf",
+        "badge_dhikr": "📿 Täglicher Dhikr",
+        "badge_reminder": "🌙 Erinnerungen",
+        "location_manual": "Manuell einrichten",
+        "notification_manual": "In Einstellungen öffnen"
     }
 }
