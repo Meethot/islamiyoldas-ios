@@ -220,6 +220,11 @@ const VERSES_MAP = {
     ar: DAILY_VERSES_AR,
 };
 
+// Get ALL verses for the current language (for carousel widget)
+export const getAllDailyVerses = (lang = 'en') => {
+    return VERSES_MAP[lang] || DAILY_VERSES_EN;
+};
+
 // Get a consistent verse for the day (same verse for all users on the same day)
 // Uses global test date system for testing day progression
 export const getDailyVerse = (lang = 'en') => {
@@ -237,3 +242,4 @@ export const getDailyVerse = (lang = 'en') => {
     // In test mode, we want to see the sequence. Out of test mode, give them Duha Surah first so they see the emotional impact immediately.
     return verses[verseIndex];
 };
+

@@ -222,7 +222,8 @@ export default function SleepMode() {
             mulkAudio.play().catch(() => { });
             setIsPlaying(true);
             markSleepUsed();
-            analytics.sleepModeStarted('mulk_surah');
+            const durationMin = Math.round((mulkAudio.duration || 0) / 60);
+            analytics.sleepModeStarted('mulk_surah', durationMin);
         }
     };
 

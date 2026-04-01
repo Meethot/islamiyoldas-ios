@@ -610,55 +610,124 @@ export const WeeklyStreakWidget = memo(({ tubaData, setTubaData }) => {
     );
 });
 
-// --- Verse Card ---
+// --- Verse of the Day Widget (Premium Theme) ---
 export const VerseOfDayCard = memo(({ isFriday, verse, fridayContent, onShare }) => {
     const { t } = useTranslation('home');
+    const currentVerse = isFriday ? { text: fridayContent.text, source: fridayContent.source } : verse;
+
+    // Islamic arch SVG decoration
+    const MihrabDecoration = () => (
+        <svg className="absolute inset-0 w-full h-full pointer-events-none opacity-[0.04]" viewBox="0 0 400 500" preserveAspectRatio="xMidYMid slice">
+            <defs>
+                <pattern id="islamicPattern" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
+                    <path d="M20 0 L40 20 L20 40 L0 20 Z" fill="none" stroke="currentColor" strokeWidth="0.5" />
+                    <circle cx="20" cy="20" r="3" fill="none" stroke="currentColor" strokeWidth="0.3" />
+                </pattern>
+            </defs>
+            <rect width="400" height="500" fill="url(#islamicPattern)" />
+            {/* Mihrab Arch */}
+            <path d="M80 480 L80 200 Q80 80 200 80 Q320 80 320 200 L320 480" fill="none" stroke="currentColor" strokeWidth="1.5" opacity="0.5" />
+            <path d="M100 480 L100 210 Q100 100 200 100 Q300 100 300 210 L300 480" fill="none" stroke="currentColor" strokeWidth="0.8" opacity="0.3" />
+        </svg>
+    );
+
     return (
         <motion.div variants={itemVariants}>
             <Card className={cn(
-                "border-none shadow-xl relative overflow-hidden group transition-all duration-700",
+                "border-none shadow-xl relative overflow-hidden transition-all duration-700 rounded-[2.5rem]",
                 isFriday
-                    ? "bg-gradient-to-br from-islamic-green to-[#065f33] text-white border-2 border-islamic-gold shadow-[0_0_30px_rgba(212,175,55,0.2)]"
-                    : "bg-gradient-to-br from-islamic-green to-[#065f33] text-white glow-green"
+                    ? "bg-gradient-to-br from-[#062e19] via-[#0a4528] to-[#062e19] text-white shadow-[0_8px_40px_rgba(212,175,55,0.15)] border border-islamic-gold/20"
+                    : "bg-gradient-to-br from-[#062e19] via-[#0a4528] to-[#062e19] text-white shadow-[0_8px_40px_rgba(4,77,41,0.3)]"
             )}>
-                {isFriday && <div className="absolute inset-0 bg-islamic-gold/5 animate-pulse" />}
-                <div className="absolute -top-10 -right-10 opacity-10 group-hover:opacity-20 transition-opacity duration-700">
-                    {isFriday ? (
-                        <Star className="w-40 h-40 text-islamic-gold animate-spin-slow" />
-                    ) : (
-                        <svg width="200" height="200" viewBox="0 0 100 100" fill="white">
-                            <path d="M50 0 L60 40 L100 50 L60 60 L50 100 L40 60 L0 50 L40 40 Z" />
-                        </svg>
-                    )}
-                </div>
-                <CardHeader className="relative z-10 pb-2 flex flex-row items-center justify-between">
-                    <CardTitle className="text-islamic-gold text-sm tracking-widest uppercase font-serif font-bold">
-                        {isFriday ? t('verse.fridayTitle') : t('verse.dailyTitle')}
-                    </CardTitle>
+                {/* Background Decorations */}
+                <MihrabDecoration />
+                
+                {/* Ambient glow orbs */}
+                <div className="absolute -top-20 -right-20 w-40 h-40 bg-islamic-gold/8 rounded-full blur-3xl" />
+                <div className="absolute -bottom-16 -left-16 w-32 h-32 bg-islamic-green/10 rounded-full blur-3xl" />
+
+                {/* Friday special shimmer */}
+                {isFriday && (
+                    <>
+                        <motion.div
+                            className="absolute inset-0 bg-gradient-to-r from-transparent via-islamic-gold/5 to-transparent"
+                            animate={{ x: ['-100%', '200%'] }}
+                            transition={{ duration: 4, repeat: Infinity, ease: 'linear' }}
+                        />
+                        <div className="absolute top-4 right-4 z-20">
+                            <motion.div
+                                animate={{ rotate: 360 }}
+                                transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
+                            >
+                                <Star className="w-6 h-6 text-islamic-gold/30 fill-islamic-gold/10" />
+                            </motion.div>
+                        </div>
+                    </>
+                )}
+
+                {/* Header */}
+                <div className="relative z-10 px-6 pt-5 pb-2 flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                        {/* Ornamental icon */}
+                        <div className="w-10 h-10 rounded-2xl bg-islamic-gold/10 border border-islamic-gold/20 flex items-center justify-center backdrop-blur-sm">
+                            {isFriday ? (
+                                <Sparkles className="w-5 h-5 text-islamic-gold" />
+                            ) : (
+                                <svg className="w-5 h-5 text-islamic-gold" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                                    <path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z" />
+                                </svg>
+                            )}
+                        </div>
+                        <h3 className="text-islamic-gold text-[10px] tracking-[0.2em] uppercase font-bold">
+                            {isFriday ? t('verse.fridayTitle') : t('verse.dailyTitle')}
+                        </h3>
+                    </div>
                     <button
                         onClick={onShare}
                         aria-label={t('verse_share_title')}
-                        className="touch-target bg-white/10 hover:bg-white/20 rounded-full transition-all active:scale-95 backdrop-blur-sm"
+                        className="w-10 h-10 flex items-center justify-center bg-white/5 hover:bg-white/10 rounded-2xl transition-all active:scale-95 border border-white/5"
                     >
-                        <Share2 className="w-5 h-5 text-islamic-gold" />
+                        <Share2 className="w-4 h-4 text-islamic-gold" />
                     </button>
-                </CardHeader>
-                <CardContent className="relative z-10 p-5 sm:p-6">
-                    <p className="font-serif text-xl leading-relaxed italic text-white/95 text-shadow-sm">
-                        "{isFriday ? fridayContent.text : verse.text}"
+                </div>
+
+                {/* Verse Content */}
+                <div className="relative z-10 px-6 pb-5">
+                    {/* Decorative top ornament */}
+                    <div className="flex justify-center mb-4 opacity-20">
+                        <svg width="60" height="12" viewBox="0 0 60 12" fill="none">
+                            <path d="M0 6 L10 2 L20 6 L30 0 L40 6 L50 2 L60 6" stroke="#D4AF37" strokeWidth="0.8" />
+                            <circle cx="30" cy="6" r="2" fill="#D4AF37" opacity="0.5" />
+                        </svg>
+                    </div>
+
+                    <p className="font-serif text-[17px] sm:text-lg leading-[1.8] text-white/90 text-center" style={{ textWrap: 'balance' }}>
+                        "{currentVerse.text}"
                     </p>
-                    <p className="text-right mt-4 text-xs font-medium text-islamic-gold/80 uppercase tracking-wider">
-                        - {isFriday ? fridayContent.source : verse.source}
+
+                    {/* Divider */}
+                    <div className="flex items-center justify-center gap-3 mt-5 mb-2">
+                        <div className="h-px w-8 bg-islamic-gold/20" />
+                        <div className="w-1.5 h-1.5 rounded-full bg-islamic-gold/30" />
+                        <div className="h-px w-8 bg-islamic-gold/20" />
+                    </div>
+
+                    <p className="text-center text-[10px] font-bold text-islamic-gold/60 uppercase tracking-[0.15em]">
+                        — {currentVerse.source}
                     </p>
-                    {isFriday && (
+                </div>
+
+                {/* Friday CTA */}
+                {isFriday && (
+                    <div className="relative z-10 px-6 pb-5">
                         <Button
-                            className="w-full mt-6 bg-islamic-gold hover:bg-islamic-gold/90 text-[#0d2a2e] font-bold rounded-xl h-14 shadow-lg gap-2 active:scale-95 transition-transform"
+                            className="w-full bg-islamic-gold hover:bg-islamic-gold/90 text-[#0d2a2e] font-bold rounded-2xl h-14 shadow-lg shadow-islamic-gold/20 gap-2 active:scale-95 transition-transform"
                             onClick={onShare}
                         >
                             <Sparkles className="w-5 h-5" /> {t('verse.shareBtn')}
                         </Button>
-                    )}
-                </CardContent>
+                    </div>
+                )}
             </Card>
         </motion.div>
     );

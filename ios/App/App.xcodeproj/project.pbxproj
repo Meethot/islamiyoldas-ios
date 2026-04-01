@@ -7,14 +7,30 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		14BF344F12D72DDE0B75EFC1 /* HourlyVerseEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F4568495A7729AE65380603 /* HourlyVerseEntry.swift */; };
 		2FAD9763203C412B000D30F8 /* config.xml in Resources */ = {isa = PBXBuildFile; fileRef = 2FAD9762203C412B000D30F8 /* config.xml */; };
+		4586D69F9DB0F6A7632CD184 /* MotivationSmallWidgetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DEFFC91C8998597F9B4E2BB /* MotivationSmallWidgetView.swift */; };
+		460C41CEF79B8BA2DA128BEF /* MotivationProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9310A7A3DA0CEB5B4D32B3BE /* MotivationProvider.swift */; };
 		50379B232058CBB4000EE86E /* capacitor.config.json in Resources */ = {isa = PBXBuildFile; fileRef = 50379B222058CBB4000EE86E /* capacitor.config.json */; };
 		504EC3081FED79650016851F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 504EC3071FED79650016851F /* AppDelegate.swift */; };
 		504EC30D1FED79650016851F /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 504EC30B1FED79650016851F /* Main.storyboard */; };
 		504EC30F1FED79650016851F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 504EC30E1FED79650016851F /* Assets.xcassets */; };
 		504EC3121FED79650016851F /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 504EC3101FED79650016851F /* LaunchScreen.storyboard */; };
 		50B271D11FEDC1A000F3C39B /* public in Resources */ = {isa = PBXBuildFile; fileRef = 50B271D01FEDC1A000F3C39B /* public */; };
+		55655962C3DD36DECD0CFC15 /* VerseLockScreenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC01C92512331C4565B384E0 /* VerseLockScreenView.swift */; };
+		79D22CBDDC24981835948099 /* HourlyVerseSmallWidgetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F42928A1954CB9B9652868EC /* HourlyVerseSmallWidgetView.swift */; };
+		81157D489F3994F77D54D7B7 /* HourlyEsmaSmallWidgetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D6FAD41BAD9E2D38B5835C6 /* HourlyEsmaSmallWidgetView.swift */; };
+		83A3CCE47DED0B3B924F116B /* HourlyVerseMediumWidgetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FB880A49D28D7BE0B3A5857 /* HourlyVerseMediumWidgetView.swift */; };
+		889F9B708DBDA3EA16C76275 /* HourlyVerseProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F01A4A3E835FB569AC9BE79 /* HourlyVerseProvider.swift */; };
+		8A8833274C235FC7EFB10551 /* MotivationEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB4ACBA0E7BEDC9E8C5D9FCB /* MotivationEntry.swift */; };
+		92529C83337DE42EC614DB6B /* HourlyEsmaProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 941640D93A7B012B73939378 /* HourlyEsmaProvider.swift */; };
+		9535C347EEE498DCD1C6E3B9 /* MotivationMediumWidgetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B89027793E3ED675327F0B40 /* MotivationMediumWidgetView.swift */; };
+		987DD127D17401CD7ABFD52F /* HourlyEsmaMediumWidgetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25FAA9497E73B76B5FA05335 /* HourlyEsmaMediumWidgetView.swift */; };
 		A11BCC592F3D000100996C74 /* sahur_alarm.caf in Resources */ = {isa = PBXBuildFile; fileRef = A11BCC5A2F3D000100996C74 /* sahur_alarm.caf */; };
+		E2A9F9000000000000B00001 /* EsmaEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2A9F9000000000000F00001 /* EsmaEntry.swift */; };
+		E2A9F9000000000000B00002 /* EsmaProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2A9F9000000000000F00002 /* EsmaProvider.swift */; };
+		E2A9F9000000000000B00003 /* EsmaSmallWidgetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2A9F9000000000000F00003 /* EsmaSmallWidgetView.swift */; };
+		E2A9F9000000000000B00004 /* EsmaMediumWidgetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2A9F9000000000000F00004 /* EsmaMediumWidgetView.swift */; };
 		E44ECC572F36282700996C74 /* beep.caf in Resources */ = {isa = PBXBuildFile; fileRef = E44ECC552F36282700996C74 /* beep.caf */; };
 		E44ECC582F36282700996C74 /* ezan.caf in Resources */ = {isa = PBXBuildFile; fileRef = E44ECC562F36282700996C74 /* ezan.caf */; };
 		E48DDD312F45063500B2FBF8 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = E48DDD302F45063500B2FBF8 /* GoogleService-Info.plist */; };
@@ -23,6 +39,10 @@
 		F486CB2CE132492AC134CE67 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = EDF92D19185FF9E333BBAF22 /* InfoPlist.strings */; };
 		FDC19C72B4872EDDE8A4F115 /* Pods_App.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 08BF80F130E618CCA04DF7D9 /* Pods_App.framework */; };
 		PRIV001122334455660002 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = PRIV001122334455660001 /* PrivacyInfo.xcprivacy */; };
+		V1E8F8000000000000B00001 /* VerseEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = V1E8F8000000000000F00001 /* VerseEntry.swift */; };
+		V1E8F8000000000000B00002 /* VerseProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = V1E8F8000000000000F00002 /* VerseProvider.swift */; };
+		V1E8F8000000000000B00003 /* VerseSmallWidgetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = V1E8F8000000000000F00003 /* VerseSmallWidgetView.swift */; };
+		V1E8F8000000000000B00004 /* VerseMediumWidgetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = V1E8F8000000000000F00004 /* VerseMediumWidgetView.swift */; };
 		W1D6E7000000000000B00001 /* IslamiWidgetsBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = W1D6E7000000000000F00001 /* IslamiWidgetsBundle.swift */; };
 		W1D6E7000000000000B00002 /* PrayerTimesEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = W1D6E7000000000000F00002 /* PrayerTimesEntry.swift */; };
 		W1D6E7000000000000B00003 /* PrayerTimesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = W1D6E7000000000000F00003 /* PrayerTimesProvider.swift */; };
@@ -62,11 +82,15 @@
 /* Begin PBXFileReference section */
 		08BF80F130E618CCA04DF7D9 /* Pods_App.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_App.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		172C1152F3A95B22D5E879E8 /* de */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		1F01A4A3E835FB569AC9BE79 /* HourlyVerseProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = HourlyVerseProvider.swift; sourceTree = "<group>"; };
+		1FB880A49D28D7BE0B3A5857 /* HourlyVerseMediumWidgetView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = HourlyVerseMediumWidgetView.swift; sourceTree = "<group>"; };
+		25FAA9497E73B76B5FA05335 /* HourlyEsmaMediumWidgetView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = HourlyEsmaMediumWidgetView.swift; sourceTree = "<group>"; };
 		274564766FE2D56945CD055D /* ar */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = ar; path = ar.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		2C9E4A3AFA302A9961CB41A6 /* Pods-App.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-App.release.xcconfig"; path = "Target Support Files/Pods-App/Pods-App.release.xcconfig"; sourceTree = "<group>"; };
 		2FAD9762203C412B000D30F8 /* config.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = config.xml; sourceTree = "<group>"; };
 		3F7A4A4432A2FD4104D389A3 /* az */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = az; path = az.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		46622A09AAA8C4ACEF22C8F0 /* tr */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = tr; path = tr.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		4F4568495A7729AE65380603 /* HourlyVerseEntry.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = HourlyVerseEntry.swift; sourceTree = "<group>"; };
 		50379B222058CBB4000EE86E /* capacitor.config.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = capacitor.config.json; sourceTree = "<group>"; };
 		504EC3041FED79650016851F /* App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = App.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		504EC3071FED79650016851F /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -76,8 +100,19 @@
 		504EC3131FED79650016851F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		50B271D01FEDC1A000F3C39B /* public */ = {isa = PBXFileReference; lastKnownFileType = folder; path = public; sourceTree = "<group>"; };
 		58B24A785D1C2CF6A6A30160 /* en */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		5DEFFC91C8998597F9B4E2BB /* MotivationSmallWidgetView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MotivationSmallWidgetView.swift; sourceTree = "<group>"; };
+		8D6FAD41BAD9E2D38B5835C6 /* HourlyEsmaSmallWidgetView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = HourlyEsmaSmallWidgetView.swift; sourceTree = "<group>"; };
+		9310A7A3DA0CEB5B4D32B3BE /* MotivationProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MotivationProvider.swift; sourceTree = "<group>"; };
+		941640D93A7B012B73939378 /* HourlyEsmaProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = HourlyEsmaProvider.swift; sourceTree = "<group>"; };
 		A11BCC5A2F3D000100996C74 /* sahur_alarm.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = sahur_alarm.caf; sourceTree = "<group>"; };
+		AB4ACBA0E7BEDC9E8C5D9FCB /* MotivationEntry.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MotivationEntry.swift; sourceTree = "<group>"; };
+		B89027793E3ED675327F0B40 /* MotivationMediumWidgetView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MotivationMediumWidgetView.swift; sourceTree = "<group>"; };
 		BFAEAACB5F8DB34B47F86538 /* Pods-App.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-App.debug.xcconfig"; path = "Target Support Files/Pods-App/Pods-App.debug.xcconfig"; sourceTree = "<group>"; };
+		CC01C92512331C4565B384E0 /* VerseLockScreenView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = VerseLockScreenView.swift; sourceTree = "<group>"; };
+		E2A9F9000000000000F00001 /* EsmaEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EsmaEntry.swift; sourceTree = "<group>"; };
+		E2A9F9000000000000F00002 /* EsmaProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EsmaProvider.swift; sourceTree = "<group>"; };
+		E2A9F9000000000000F00003 /* EsmaSmallWidgetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EsmaSmallWidgetView.swift; sourceTree = "<group>"; };
+		E2A9F9000000000000F00004 /* EsmaMediumWidgetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EsmaMediumWidgetView.swift; sourceTree = "<group>"; };
 		E44ECC552F36282700996C74 /* beep.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = beep.caf; sourceTree = "<group>"; };
 		E44ECC562F36282700996C74 /* ezan.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = ezan.caf; sourceTree = "<group>"; };
 		E47CC69E2F34FFB6001653B3 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
@@ -86,7 +121,12 @@
 		E49259D72F61982100F71080 /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
 		E49259DC2F61A46D00F71080 /* İslami Yoldaş: Namaz, Ramazan.storekit */ = {isa = PBXFileReference; lastKnownFileType = text; path = "İslami Yoldaş: Namaz, Ramazan.storekit"; sourceTree = "<group>"; };
 		F1A3FE3AFBB91DCFB076CBC7 /* ru */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		F42928A1954CB9B9652868EC /* HourlyVerseSmallWidgetView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = HourlyVerseSmallWidgetView.swift; sourceTree = "<group>"; };
 		PRIV001122334455660001 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		V1E8F8000000000000F00001 /* VerseEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VerseEntry.swift; sourceTree = "<group>"; };
+		V1E8F8000000000000F00002 /* VerseProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VerseProvider.swift; sourceTree = "<group>"; };
+		V1E8F8000000000000F00003 /* VerseSmallWidgetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VerseSmallWidgetView.swift; sourceTree = "<group>"; };
+		V1E8F8000000000000F00004 /* VerseMediumWidgetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VerseMediumWidgetView.swift; sourceTree = "<group>"; };
 		W1D6E7000000000000000001 /* IslamiWidgetsExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = IslamiWidgetsExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		W1D6E7000000000000F00001 /* IslamiWidgetsBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IslamiWidgetsBundle.swift; sourceTree = "<group>"; };
 		W1D6E7000000000000F00002 /* PrayerTimesEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrayerTimesEntry.swift; sourceTree = "<group>"; };
@@ -192,9 +232,29 @@
 				W1D6E7000000000000F00004 /* SmallWidgetView.swift */,
 				W1D6E7000000000000F00005 /* MediumWidgetView.swift */,
 				W1D6E7000000000000F00006 /* LockScreenWidgetView.swift */,
+				V1E8F8000000000000F00001 /* VerseEntry.swift */,
+				V1E8F8000000000000F00002 /* VerseProvider.swift */,
+				V1E8F8000000000000F00003 /* VerseSmallWidgetView.swift */,
+				V1E8F8000000000000F00004 /* VerseMediumWidgetView.swift */,
+				E2A9F9000000000000F00001 /* EsmaEntry.swift */,
+				E2A9F9000000000000F00002 /* EsmaProvider.swift */,
+				E2A9F9000000000000F00003 /* EsmaSmallWidgetView.swift */,
+				E2A9F9000000000000F00004 /* EsmaMediumWidgetView.swift */,
 				W1D6E7000000000000F00007 /* Assets.xcassets */,
 				W1D6E7000000000000F00008 /* IslamiWidgets.entitlements */,
 				W1D6E7000000000000F00009 /* Info.plist */,
+				4F4568495A7729AE65380603 /* HourlyVerseEntry.swift */,
+				1F01A4A3E835FB569AC9BE79 /* HourlyVerseProvider.swift */,
+				F42928A1954CB9B9652868EC /* HourlyVerseSmallWidgetView.swift */,
+				1FB880A49D28D7BE0B3A5857 /* HourlyVerseMediumWidgetView.swift */,
+				941640D93A7B012B73939378 /* HourlyEsmaProvider.swift */,
+				8D6FAD41BAD9E2D38B5835C6 /* HourlyEsmaSmallWidgetView.swift */,
+				25FAA9497E73B76B5FA05335 /* HourlyEsmaMediumWidgetView.swift */,
+				AB4ACBA0E7BEDC9E8C5D9FCB /* MotivationEntry.swift */,
+				9310A7A3DA0CEB5B4D32B3BE /* MotivationProvider.swift */,
+				5DEFFC91C8998597F9B4E2BB /* MotivationSmallWidgetView.swift */,
+				B89027793E3ED675327F0B40 /* MotivationMediumWidgetView.swift */,
+				CC01C92512331C4565B384E0 /* VerseLockScreenView.swift */,
 			);
 			path = IslamiWidgets;
 			sourceTree = "<group>";
@@ -425,6 +485,26 @@
 				W1D6E7000000000000B00004 /* SmallWidgetView.swift in Sources */,
 				W1D6E7000000000000B00005 /* MediumWidgetView.swift in Sources */,
 				W1D6E7000000000000B00006 /* LockScreenWidgetView.swift in Sources */,
+				V1E8F8000000000000B00001 /* VerseEntry.swift in Sources */,
+				V1E8F8000000000000B00002 /* VerseProvider.swift in Sources */,
+				V1E8F8000000000000B00003 /* VerseSmallWidgetView.swift in Sources */,
+				V1E8F8000000000000B00004 /* VerseMediumWidgetView.swift in Sources */,
+				E2A9F9000000000000B00001 /* EsmaEntry.swift in Sources */,
+				E2A9F9000000000000B00002 /* EsmaProvider.swift in Sources */,
+				E2A9F9000000000000B00003 /* EsmaSmallWidgetView.swift in Sources */,
+				E2A9F9000000000000B00004 /* EsmaMediumWidgetView.swift in Sources */,
+				14BF344F12D72DDE0B75EFC1 /* HourlyVerseEntry.swift in Sources */,
+				889F9B708DBDA3EA16C76275 /* HourlyVerseProvider.swift in Sources */,
+				79D22CBDDC24981835948099 /* HourlyVerseSmallWidgetView.swift in Sources */,
+				83A3CCE47DED0B3B924F116B /* HourlyVerseMediumWidgetView.swift in Sources */,
+				92529C83337DE42EC614DB6B /* HourlyEsmaProvider.swift in Sources */,
+				81157D489F3994F77D54D7B7 /* HourlyEsmaSmallWidgetView.swift in Sources */,
+				987DD127D17401CD7ABFD52F /* HourlyEsmaMediumWidgetView.swift in Sources */,
+				8A8833274C235FC7EFB10551 /* MotivationEntry.swift in Sources */,
+				460C41CEF79B8BA2DA128BEF /* MotivationProvider.swift in Sources */,
+				4586D69F9DB0F6A7632CD184 /* MotivationSmallWidgetView.swift in Sources */,
+				9535C347EEE498DCD1C6E3B9 /* MotivationMediumWidgetView.swift in Sources */,
+				55655962C3DD36DECD0CFC15 /* VerseLockScreenView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

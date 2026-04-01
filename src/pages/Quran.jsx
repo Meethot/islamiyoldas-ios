@@ -14,6 +14,7 @@ import { safeGetStorage, safeSetStorage } from '@/utils/storageHelper';
 import { getSurahSummary } from '@/data/surahSummaries';
 import { App } from '@capacitor/app';
 import { isPremium } from '@/services/creditService';
+import { analytics } from '@/services/analyticsService';
 import { useTranslation } from 'react-i18next';
 
 // Background Mode Helper (Cordova Plugin)
@@ -137,8 +138,17 @@ export default function Quran() {
         String(surah.id) === searchQuery.trim()
     );
 
+    useEffect(() => {
+        if (!searchQuery) return;
+        const timer = setTimeout(() => {
+            analytics.searchPerformed(searchQuery, filteredSurahs.length);
+        }, 1000);
+        return () => clearTimeout(timer);
+    }, [searchQuery, filteredSurahs.length]);
+
     const handleSurahSelect = (surah) => {
         selection();
+        if (searchQuery) analytics.searchResultClicked();
         navigate(`/quran/${surah.id}`);
     };
 

@@ -15,6 +15,7 @@ import { safeGetStorage, safeSetStorage } from '@/utils/storageHelper';
 import ShareCard, { SHARE_THEMES } from '@/components/ShareCard';
 import { shareHiddenElement } from '@/lib/share';
 import { isPremium } from '@/services/creditService';
+import { analytics } from '@/services/analyticsService';
 
 import { useTranslation } from 'react-i18next';
 
@@ -64,41 +65,40 @@ const VerseItem = React.memo(({ verse, index, isBookmarked, toggleBookmark, hand
                             </div>
 
                             <div className="flex gap-2">
-                                <Button
-                                    variant="ghost"
-                                    size="icon"
+                                <button
+                                    type="button"
                                     onClick={() => toggleBookmark(verse)}
                                     className={cn(
-                                        "rounded-xl transition-all w-10 h-10 hover:bg-islamic-gold/10",
+                                        "rounded-xl transition-colors w-10 h-10 flex items-center justify-center active:scale-95",
                                         isBookmarked
                                             ? "text-islamic-gold bg-islamic-gold/10"
-                                            : "text-gray-400 hover:text-islamic-gold"
+                                            : "text-gray-400 active:text-islamic-gold active:bg-islamic-gold/10"
                                     )}
                                 >
                                     {isBookmarked
                                         ? <BookmarkCheck className="w-5 h-5 fill-current" />
                                         : <Bookmark className="w-5 h-5" />
                                     }
-                                </Button>
-                                <Button
-                                    variant="ghost"
-                                    size="icon"
+                                </button>
+                                <button
+                                    type="button"
                                     onClick={() => handlePlayAyah(verse)}
                                     className={cn(
-                                        "rounded-xl transition-all w-10 h-10 hover:bg-islamic-gold/10",
-                                        isPlaying ? "text-islamic-gold bg-islamic-gold/10" : "text-gray-400 hover:text-islamic-gold"
+                                        "rounded-xl transition-colors w-10 h-10 flex items-center justify-center active:scale-95",
+                                        isPlaying
+                                            ? "text-islamic-gold bg-islamic-gold/10"
+                                            : "text-gray-400 active:text-islamic-gold active:bg-islamic-gold/10"
                                     )}
                                 >
                                     {isPlaying ? <Pause className="w-5 h-5 fill-current" /> : <Play className="w-5 h-5 fill-current" />}
-                                </Button>
-                                <Button
-                                    variant="ghost"
-                                    size="icon"
+                                </button>
+                                <button
+                                    type="button"
                                     onClick={() => handleShareClick(verse)}
-                                    className="rounded-xl text-gray-400 hover:text-islamic-gold hover:bg-islamic-gold/10 w-10 h-10"
+                                    className="rounded-xl text-gray-400 active:text-islamic-gold active:bg-islamic-gold/10 transition-colors w-10 h-10 flex items-center justify-center active:scale-95"
                                 >
                                     <Share2 className="w-5 h-5" />
-                                </Button>
+                                </button>
                             </div>
                         </div>
 
@@ -208,6 +208,12 @@ export default function SurahDetail() {
         queryFn: () => fetchChapterInfo(surahId, currentLang),
     });
 
+    useEffect(() => {
+        if (surahInfo?.name) {
+            analytics.quranOpened(surahInfo.name, 'all');
+        }
+    }, [surahInfo?.name]);
+
     // TanStack Query: Infinite Verses
     const {
         data: verseData,
@@ -237,6 +243,7 @@ export default function SurahDetail() {
             if (exists) {
                 updated = prev.filter(b => b.verseKey !== verse.verseKey);
             } else {
+                analytics.quranBookmarkAdded(surahInfo?.name || String(surahId), verse.verseNumber);
                 updated = [...prev, {
                     verseKey: verse.verseKey,
                     verseNumber: verse.verseNumber,
@@ -274,6 +281,7 @@ export default function SurahDetail() {
                 `"${shareModalData.translation}"\n\n${surahInfo?.name || t('quran:pageTitle')} ${shareModalData.verseNumber}. ${t('quran:ayat', { number: '' }).trim()} - ${t('quran:bgTitle')} 🤲`,
                 t('quran:shareVerse')
             );
+            analytics.contentShared('quran_verse', 'system_share');
             setShareModalData(null);
         } catch (e) {
             console.error(e);
@@ -312,6 +320,7 @@ export default function SurahDetail() {
 
             if (isSameAudio && audio.currentTime > 0) {
                 audio.play();
+                analytics.quranAudioPlayed(surahInfo?.name || String(surahId), 'chapter_resume');
                 setIsSurahPlaying(true);
                 BackgroundMode.enable(surahInfo?.name, t('quran:listeningTo', { name: surahInfo?.name }));
             } else {
@@ -333,6 +342,7 @@ export default function SurahDetail() {
 
                     const onCanPlay = () => {
                         audio.play();
+                        analytics.quranAudioPlayed(surahInfo?.name || String(surahId), 'chapter');
                         setIsSurahPlaying(true);
                         setIsSurahLoading(false);
                         setDuration(audio.duration);
@@ -394,6 +404,7 @@ export default function SurahDetail() {
             audio.volume = volume;
             audio.muted = isMuted;
             audio.play();
+            analytics.quranAudioPlayed(surahInfo?.name || String(surahId), 'verse_recitation');
 
             audio.onended = () => {
                 setPlayingAyahKey(null);

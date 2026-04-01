@@ -103,9 +103,9 @@ function AppContent() {
     return () => clearTimeout(timer);
   }, [dataReady]);
 
-  // Max safety: 8s
+  // Max safety: 5s (cache-first strategy makes normal path much faster)
   useEffect(() => {
-    const max = setTimeout(() => setShowSplash(false), 8000);
+    const max = setTimeout(() => setShowSplash(false), 5000);
     return () => clearTimeout(max);
   }, []);
 
@@ -156,7 +156,48 @@ function AppContent() {
         LocalNotifications.removeAllDeliveredNotifications().catch(() => { });
       }
     });
-    return () => { listener.then(l => l.remove()); };
+
+    let notifReceivedListener;
+    let notifActionListener;
+
+    const setupNotificationListeners = async () => {
+      try {
+        notifReceivedListener = await LocalNotifications.addListener('localNotificationReceived', (notification) => {
+          let type = 'general';
+          if (notification.extra && notification.extra.type) {
+            type = notification.extra.type;
+          } else if (notification.id >= 1001 && notification.id <= 1003) {
+            type = 'prayer_time';
+          } else if (notification.id === 2000) {
+            type = 'dhikr_reminder';
+          }
+          analytics.notificationReceived(type);
+        });
+
+        notifActionListener = await LocalNotifications.addListener('localNotificationActionPerformed', (notificationAction) => {
+          const notification = notificationAction.notification;
+          let type = 'general';
+          if (notification.extra && notification.extra.type) {
+            type = notification.extra.type;
+          } else if (notification.id >= 1001 && notification.id <= 1003) {
+            type = 'prayer_time';
+          } else if (notification.id === 2000) {
+            type = 'dhikr_reminder';
+          }
+          analytics.notificationTapped(type);
+        });
+      } catch (e) {
+        console.log('Notification listener setup error:', e);
+      }
+    };
+
+    setupNotificationListeners();
+
+    return () => { 
+      listener.then(l => l.remove()); 
+      if (notifReceivedListener) notifReceivedListener.remove();
+      if (notifActionListener) notifActionListener.remove();
+    };
   }, []);
 
   if (showSplash) return <SplashScreen dataReady={dataReady} />;

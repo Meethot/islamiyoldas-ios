@@ -1,6 +1,7 @@
 import { Capacitor } from '@capacitor/core';
 import { NativePurchases } from '@capgo/native-purchases';
 import { storageService } from './storageService';
+import { setPremiumUserProperties } from './analyticsService';
 
 export const PRODUCT_IDS = {
     MONTHLY: 'com.islamiyoldas.app.monthly',
@@ -29,15 +30,17 @@ function isTransactionActive(transaction) {
 }
 
 /**
- * Premium durumunu güncelle ve tüm UI'ı bilgilendir.
+ * Premium durumunu güncelle ve tüm UI'ı/Analytics'i bilgilendir.
  */
-function updatePremiumStatus(isPremium) {
+function updatePremiumStatus(isPremium, planId = 'free') {
     const current = storageService.getItem(PREMIUM_KEY) === 'true';
     if (current !== isPremium) {
         storageService.setItem(PREMIUM_KEY, isPremium ? 'true' : 'false');
         window.dispatchEvent(new Event('premiumStatusChanged'));
         console.log('[IAP] Premium status →', isPremium);
     }
+    // Set Amplitude User Properties on init/update
+    setPremiumUserProperties(isPremium, planId);
 }
 
 export async function initializePurchases() {
@@ -49,7 +52,7 @@ export async function initializePurchases() {
         await NativePurchases.addListener('transactionUpdated', (transaction) => {
             console.log('[IAP] Transaction updated:', transaction?.productIdentifier);
             const active = isTransactionActive(transaction);
-            updatePremiumStatus(active);
+            updatePremiumStatus(active, active ? transaction?.productIdentifier : 'free');
             purchaseListeners.forEach(fn => fn(active, transaction));
         });
 
@@ -93,8 +96,10 @@ export async function getProducts() {
 
 export async function purchaseProduct(productIdOrObj) {
     if (!Capacitor.isNativePlatform()) {
-        storageService.setItem(PREMIUM_KEY, 'true');
-        window.dispatchEvent(new Event('premiumStatusChanged'));
+        const productIdentifier = typeof productIdOrObj === 'object'
+            ? (productIdOrObj.identifier || productIdOrObj.productIdentifier)
+            : productIdOrObj;
+        updatePremiumStatus(true, productIdentifier);
         return { success: true };
     }
     try {
@@ -112,8 +117,7 @@ export async function purchaseProduct(productIdOrObj) {
         console.log('[IAP] Purchase result:', transaction?.transactionId);
 
         // purchaseProduct hata fırlatmadıysa başarılı demektir
-        storageService.setItem(PREMIUM_KEY, 'true');
-        window.dispatchEvent(new Event('premiumStatusChanged'));
+        updatePremiumStatus(true, productIdentifier);
         return { success: true };
     } catch (err) {
         console.error('[IAP] Purchase error:', JSON.stringify(err));
@@ -140,8 +144,9 @@ export async function restorePurchases() {
         
         console.log('[IAP] Restore result:', purchases?.length, 'transactions');
         
-        const hasActive = (purchases || []).some(t => isTransactionActive(t));
-        updatePremiumStatus(hasActive);
+        const activeTran = (purchases || []).find(t => isTransactionActive(t));
+        const hasActive = !!activeTran;
+        updatePremiumStatus(hasActive, activeTran ? activeTran.productIdentifier : 'free');
         
         return { success: true, isPremium: hasActive };
     } catch (err) {
@@ -160,10 +165,11 @@ export async function verifySubscription() {
             productType: 'subs',
         });
         
-        const hasActive = (purchases || []).some(t => isTransactionActive(t));
+        const activeTran = (purchases || []).find(t => isTransactionActive(t));
+        const hasActive = !!activeTran;
         console.log('[IAP] Verify → isPremium:', hasActive, '(', (purchases || []).length, 'transactions)');
         
-        updatePremiumStatus(hasActive);
+        updatePremiumStatus(hasActive, activeTran ? activeTran.productIdentifier : 'free');
         return hasActive;
     } catch (err) {
         console.warn('[IAP] Verify error:', err);

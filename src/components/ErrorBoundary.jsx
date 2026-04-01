@@ -2,6 +2,7 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { RefreshCcw, AlertTriangle, Mail } from 'lucide-react';
 import i18n from '@/i18n';
+import { analytics } from '@/services/analyticsService';
 
 class ErrorBoundary extends React.Component {
     constructor(props) {
@@ -15,6 +16,7 @@ class ErrorBoundary extends React.Component {
 
     componentDidCatch(error, errorInfo) {
         console.error("Uncaught error:", error, errorInfo);
+        analytics.errorOccurred(error?.name || 'ReactError', window.location.pathname);
         this.setState({ error, errorInfo });
     }
 

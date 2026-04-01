@@ -57,11 +57,19 @@ export const setUserProperties = (properties) => {
     amplitude.identify(identify);
 };
 
+export const setPremiumUserProperties = (isPremium, planId = 'free') => {
+    setUserProperties({
+        is_premium: isPremium,
+        subscription_status: isPremium ? 'active' : 'inactive',
+        subscription_plan: isPremium ? planId : 'free',
+    });
+};
+
 export const analytics = {
     // ── Permission Events ──
-    permissionRequested: (type) => trackEvent('permission_requested', { type }),
-    permissionGranted: (type) => trackEvent('permission_granted', { type }),
-    permissionDenied: (type) => trackEvent('permission_denied', { type }),
+    permissionRequested: (type) => trackEvent('permission_requested', { permission_type: type }),
+    permissionGranted: (type) => trackEvent('permission_granted', { permission_type: type }),
+    permissionDenied: (type) => trackEvent('permission_denied', { permission_type: type }),
 
     // ── Performance & Lifecycle Events ──
     appLoaded: (loadTimeMs, isFirstOpen) => trackEvent('app_loaded', { load_time_ms: loadTimeMs, is_first_open: isFirstOpen }),
@@ -78,12 +86,12 @@ export const analytics = {
     // ── Premium Funnel Events ──
     premiumPageViewed: (source) => trackEvent('premium_page_viewed', { source }),
     premiumPlanSelected: (plan, price) => trackEvent('premium_plan_selected', { plan, price }),
-    premiumPurchaseStarted: () => trackEvent('premium_purchase_started'),
+    premiumPurchaseStarted: (plan) => trackEvent('premium_purchase_started', { plan }),
     premiumPurchaseCompleted: (plan, price, productId) => {
         trackEvent('premium_purchase_completed', { plan, revenue: price });
         if (price > 0) trackRevenue(productId, price);
     },
-    premiumPurchaseFailed: (reason) => trackEvent('premium_purchase_failed', { reason }),
+    premiumPurchaseFailed: (plan, reason) => trackEvent('premium_purchase_failed', { plan, error_code: reason }),
     premiumCancelled: (reason) => trackEvent('premium_cancelled', { reason }),
 
     // ── Feature Usage Events ──
@@ -91,14 +99,30 @@ export const analytics = {
     dhikrStarted: (dhikrName, target) => trackEvent('dhikr_started', { dhikr_name: dhikrName, target }),
     dhikrCompleted: (dhikrName, count) => trackEvent('dhikr_completed', { dhikr_name: dhikrName, count }),
     aiQuestionAsked: (category) => trackEvent('ai_question_asked', { category }),
-    aiResponseReceived: (responseTimeMs) => trackEvent('ai_response_received', { response_time_ms: responseTimeMs }),
-    sleepModeStarted: (content) => trackEvent('sleep_mode_started', { content }),
-    sleepModeCompleted: (durationMin) => trackEvent('sleep_mode_completed', { duration_min: durationMin }),
+    aiResponseReceived: (category, isPremiumUser, responseTimeMs) => trackEvent('ai_response_received', { category, is_premium_user: isPremiumUser, response_time_ms: responseTimeMs }),
+    sleepModeStarted: (content, durationMinutes) => trackEvent('sleep_mode_started', { content, duration_minutes: durationMinutes }),
+    sleepModeCompleted: (durationMinutes) => trackEvent('sleep_mode_completed', { duration_minutes: durationMinutes }),
     storyStarted: (title, durationMin) => trackEvent('story_started', { title, duration_min: durationMin }),
     storyCompleted: (title, completionPct) => trackEvent('story_completed', { title, completion_pct: completionPct }),
 
     // ── Push Notification Events ──
     pushNotificationOpened: (type, prayer) => trackEvent('push_notification_opened', { type, prayer }),
+    notificationReceived: (type) => trackEvent('notification_received', { type }),
+    notificationTapped: (type) => trackEvent('notification_tapped', { type }),
+    notificationDismissed: (type) => trackEvent('notification_dismissed', { type }),
+
+    // ── Search & Discovery ──
+    searchPerformed: (query, resultsCount) => trackEvent('search_performed', { query, results_count: resultsCount }),
+    searchResultClicked: () => trackEvent('search_result_clicked', {}),
+
+    // ── Health & Error ──
+    errorOccurred: (errorType, screen) => trackEvent('error_occurred', { error_type: errorType, screen }),
+
+    // ── Quran Content Tracking ──
+    quranOpened: (surah, ayah) => trackEvent('quran_opened', { surah, ayah }),
+    quranBookmarkAdded: (surah, ayah) => trackEvent('quran_bookmark_added', { surah, ayah }),
+    quranAudioPlayed: (surah, reciter) => trackEvent('quran_audio_played', { surah, reciter }),
+    contentShared: (contentType, platform) => trackEvent('content_shared', { content_type: contentType, platform }),
 
     // ── Misc Events ──
     languageChanged: (lang) => trackEvent('language_changed', { language: lang }),

@@ -1,4 +1,5 @@
 import { storageService } from './storageService';
+import { setPremiumUserProperties } from './analyticsService';
 
 const STORAGE_KEYS = {
     CREDITS: 'aminKumbara_credits',
@@ -42,9 +43,10 @@ export function isPremium() {
     return storageService.getItem(STORAGE_KEYS.PREMIUM) === 'true';
 }
 
-export function setPremium(value) {
+export function setPremium(value, planId = 'promo') {
     storageService.setItem(STORAGE_KEYS.PREMIUM, value ? 'true' : 'false');
     window.dispatchEvent(new Event('premiumStatusChanged'));
+    setPremiumUserProperties(value, planId);
 }
 
 /**

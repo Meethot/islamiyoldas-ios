@@ -112,7 +112,7 @@ export default function AiMentor() {
             const adviceData = await getSpiritualAdvice(userMsg.text, i18n.language);
 
             const responseTime = Math.round(performance.now() - requestStart);
-            analytics.aiResponseReceived(responseTime);
+            analytics.aiResponseReceived('spiritual', premium, responseTime);
 
             // Increment usage on successful response
             incrementUsed();

@@ -56,6 +56,25 @@ export const PrayerTimesProvider = ({ children }) => {
 
     const FALLBACK_COORDS = { lat: 41.0082, lng: 28.9784 };
 
+    // ─── Prayer times cache helpers (instant splash dismiss) ───
+    const PRAYER_CACHE_KEY = 'cached_prayer_times';
+    const cachePrayerTimes = (timings) => {
+        try {
+            const payload = { date: getTodayString(), timings };
+            localStorage.setItem(PRAYER_CACHE_KEY, JSON.stringify(payload));
+        } catch { /* quota exceeded — ignore */ }
+    };
+    const restoreCachedPrayerTimes = () => {
+        try {
+            const raw = localStorage.getItem(PRAYER_CACHE_KEY);
+            if (!raw) return null;
+            const { date, timings } = JSON.parse(raw);
+            // Only use cache if it's from today
+            if (date === getTodayString() && timings) return timings;
+        } catch { /* corrupt cache — ignore */ }
+        return null;
+    };
+
     // Stable refresh function that always calls the latest fetchPrayerTimes
     const refreshPrayerTimesStable = useCallback(() => {
         if (fetchPrayerTimesRef.current) {
@@ -404,9 +423,9 @@ export const PrayerTimesProvider = ({ children }) => {
         }
     };
 
-    const fetchPrayerTimes = useCallback(async () => {
+    const fetchPrayerTimes = useCallback(async (isBackgroundRefresh = false) => {
         try {
-            setLoading(true);
+            if (!isBackgroundRefresh) setLoading(true);
 
             let lat, lng;
             if (hasLocation && latitude && longitude) {
@@ -447,7 +466,8 @@ export const PrayerTimesProvider = ({ children }) => {
                             schedulePrayerNotifications(diyanetTimings);
                             schedulePreReminderNotifications(diyanetTimings);
                             syncWidgetData(diyanetTimings);
-                            setLoading(false); // Manually set loading false before return
+                            cachePrayerTimes(diyanetTimings);
+                            setLoading(false);
                             diyanetSuccess = true;
                             return;
                         }
@@ -466,6 +486,7 @@ export const PrayerTimesProvider = ({ children }) => {
                             schedulePrayerNotifications(diyanetTimings);
                             schedulePreReminderNotifications(diyanetTimings);
                             syncWidgetData(diyanetTimings);
+                            cachePrayerTimes(diyanetTimings);
                             setLoading(false);
                             return;
                         }
@@ -504,6 +525,7 @@ export const PrayerTimesProvider = ({ children }) => {
             schedulePrayerNotifications(normalized);
             schedulePreReminderNotifications(normalized);
             syncWidgetData(normalized);
+            cachePrayerTimes(normalized);
         } catch (error) {
             console.error('Error fetching prayer times:', error);
         } finally {
@@ -548,9 +570,20 @@ export const PrayerTimesProvider = ({ children }) => {
         }
     }, [cityName, prayerTimes, syncWidgetData]);
 
-    // On first mount, trigger initial fetch (ref is now set)
+    // On first mount: restore cache instantly (unblocks splash), then refresh in background
     useEffect(() => {
-        fetchPrayerTimesRef.current?.();
+        const cached = restoreCachedPrayerTimes();
+        if (cached) {
+            // Cache hit — UI is ready, fetch fresh data silently
+            setPrayerTimes(cached);
+            findNextPrayer(cached);
+            setLoading(false);
+            // Background refresh (won't set loading=true)
+            setTimeout(() => fetchPrayerTimesRef.current?.(true), 100);
+        } else {
+            // No cache — normal blocking fetch
+            fetchPrayerTimesRef.current?.();
+        }
     }, []);
 
     // Re-fetch prayer times + re-schedule notifications every time app becomes active

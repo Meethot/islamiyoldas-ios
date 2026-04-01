@@ -375,13 +375,13 @@ export default function PremiumPaywall() {
         setToast(null);
 
         const planName = selectedPlan;
-        analytics.premiumPurchaseStarted();
+        analytics.premiumPurchaseStarted(planName);
 
         // 60-second timeout (Apple sandbox can be slow)
         const timeoutId = setTimeout(() => {
             setIsLoading(false);
             setToast({ type: 'error', message: t('premium.iap_timeout') });
-            analytics.premiumPurchaseFailed('timeout');
+            analytics.premiumPurchaseFailed(planName, 'timeout');
         }, 60000);
 
         try {
@@ -397,14 +397,14 @@ export default function PremiumPaywall() {
             } else if (result.error && result.error !== 'cancelled') {
                 const msg = getErrorMessage(result.error);
                 if (msg) setToast({ type: 'error', message: msg });
-                analytics.premiumPurchaseFailed(result.error);
+                analytics.premiumPurchaseFailed(planName, result.error);
             } else if (result.error === 'cancelled') {
                 analytics.premiumCancelled('user_cancelled');
             }
         } catch (err) {
             clearTimeout(timeoutId);
             setToast({ type: 'error', message: t('premium.iap_error_generic') });
-            analytics.premiumPurchaseFailed('exception');
+            analytics.premiumPurchaseFailed(planName, 'exception');
         } finally {
             setIsLoading(false);
         }

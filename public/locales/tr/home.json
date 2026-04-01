@@ -16,7 +16,8 @@
     "verse": {
         "fridayTitle": "Cuma Hatırlatması",
         "dailyTitle": "Günün Ayeti",
-        "shareBtn": "Mesajı Paylaş"
+        "shareBtn": "Mesajı Paylaş",
+        "swipeHint": "kaydırarak diğer ayetleri keşfet"
     },
     "deed": {
         "title": "Bugünün İyiliği",

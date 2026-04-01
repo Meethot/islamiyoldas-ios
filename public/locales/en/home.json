@@ -16,7 +16,8 @@
     "verse": {
         "fridayTitle": "Friday Reminder",
         "dailyTitle": "Verse of the Day",
-        "shareBtn": "Share Message"
+        "shareBtn": "Share Message",
+        "swipeHint": "swipe to discover more verses"
     },
     "deed": {
         "title": "Today's Kindness",

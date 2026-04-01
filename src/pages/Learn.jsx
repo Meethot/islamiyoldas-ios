@@ -24,9 +24,9 @@ const SecdeIcon = ({ className }) => (
 );
 
 const CATEGORIES = [
-    { id: 'abdest', labelKey: 'catAbdest', icon: Droplets },
-    { id: 'dualar', labelKey: 'catDualar', icon: Heart },
     { id: 'sureler', labelKey: 'catSureler', icon: BookOpen },
+    { id: 'dualar', labelKey: 'catDualar', icon: Heart },
+    { id: 'abdest', labelKey: 'catAbdest', icon: Droplets },
     { id: 'namazlar', labelKey: 'catErkekNamaz', icon: SecdeIcon },
     { id: 'kadinNamaz', labelKey: 'catKadinNamaz', icon: SparklesIcon },
 ];
@@ -962,7 +962,7 @@ const GuideStepCard = memo(({ step }) => {
 
 export default function Learn() {
     const navigate = useNavigate();
-    const [selectedCategory, setSelectedCategory] = useState('abdest');
+    const [selectedCategory, setSelectedCategory] = useState('sureler');
     const [currentStep, setCurrentStep] = useState(0);
     const [isComplete, setIsComplete] = useState(false);
     const totalStepsRef = React.useRef(0);

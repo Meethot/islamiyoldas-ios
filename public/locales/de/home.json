@@ -16,7 +16,8 @@
     "verse": {
         "fridayTitle": "Freitagserinnerung",
         "dailyTitle": "Vers des Tages",
-        "shareBtn": "Nachricht teilen"
+        "shareBtn": "Nachricht teilen",
+        "swipeHint": "wische, um weitere Verse zu entdecken"
     },
     "deed": {
         "title": "Heutige Güte",

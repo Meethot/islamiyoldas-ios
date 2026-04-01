@@ -354,6 +354,7 @@ export default function Home() {
                 verse={DAILY_VERSE}
                 fridayContent={FRIDAY_CONTENT}
                 onShare={handleShare}
+
             />
 
             <PrayerCountdownWidget loading={loadingPrayers} city={city} nextPrayerInfo={nextPrayerInfo} prayerTimes={prayerTimes} />

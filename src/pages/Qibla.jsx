@@ -178,9 +178,17 @@ export default function Qibla() {
                 setDegreeDiff(absAngleDiff);
 
                 if (isWarmedUp) {
-                    // Direction
+                    // Direction with hysteresis to prevent jitter
                     if (absAngleDiff >= DEFAULT_ALIGNMENT_THRESHOLD) {
-                        setTurnDirection(angleDiff > 0 ? 'right' : 'left');
+                        const newDir = angleDiff > 0 ? 'right' : 'left';
+                        // Only switch direction if angle difference is significant (>8°)
+                        // This prevents rapid left/right flipping near the threshold
+                        setTurnDirection(prev => {
+                            if (prev === null) return newDir;
+                            if (prev === newDir) return newDir;
+                            // Require >8° to switch direction
+                            return absAngleDiff > 8 ? newDir : prev;
+                        });
                     } else {
                         setTurnDirection(null);
                     }
@@ -300,7 +308,12 @@ export default function Qibla() {
                         }
                     }
 
-                    let trueHeading = (data.value + declinationRef.current + 360) % 360;
+                    // iOS: plugin returns CLHeading.trueHeading (already declination-corrected)
+                    // Android: plugin returns raw magnetic heading, needs declination added
+                    const isIOS = Capacitor.getPlatform() === 'ios';
+                    let trueHeading = isIOS
+                        ? (data.value + 360) % 360
+                        : (data.value + declinationRef.current + 360) % 360;
                     if (debugAligned) trueHeading = qiblaAngleRef.current;
 
                     // First reading: jump directly, don't smooth from 0
@@ -441,47 +454,49 @@ export default function Qibla() {
                             )}
                         </AnimatePresence>
 
-                        {/* Turn Direction Arrows — TOP, above compass */}
-                        <div className="flex items-center justify-center gap-16 h-12">
-                            {!isAligned && (
-                                <>
-                                    {/* Left arrow */}
+                        {/* Turn Direction Indicator — always centered */}
+                        <div className="flex items-center justify-center h-14">
+                            <AnimatePresence mode="wait">
+                                {!isAligned && turnDirection && (
                                     <motion.div
-                                        animate={{
-                                            opacity: turnDirection === 'left' ? 1 : 0.06,
-                                            x: turnDirection === 'left' ? [0, -12, 0] : 0,
-                                            scale: turnDirection === 'left' ? [1, 1.2, 1] : 0.6
-                                        }}
-                                        transition={{ duration: 0.8, repeat: turnDirection === 'left' ? Infinity : 0 }}
-                                        className="relative flex items-center justify-center"
+                                        key="direction-badge"
+                                        initial={{ opacity: 0, scale: 0.9 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        exit={{ opacity: 0, scale: 0.9 }}
+                                        transition={{ duration: 0.3 }}
+                                        className="flex items-center gap-2.5 px-5 py-2.5 rounded-2xl bg-amber-400/[0.08] border border-amber-400/20 backdrop-blur-sm"
                                     >
-                                        {turnDirection === 'left' && (
-                                            <div className="absolute w-16 h-16 rounded-full bg-amber-400/20 blur-xl" />
-                                        )}
-                                        <svg width="44" height="44" viewBox="0 0 24 24" fill="none" className="relative z-10">
-                                            <path d="M15 4L7 12L15 20" stroke={turnDirection === 'left' ? '#FBBF24' : '#ffffff10'} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-                                        </svg>
-                                    </motion.div>
+                                        {/* Left chevron */}
+                                        <motion.svg
+                                            width="22" height="22" viewBox="0 0 24 24" fill="none"
+                                            animate={{
+                                                opacity: turnDirection === 'left' ? 1 : 0.15,
+                                                x: turnDirection === 'left' ? [0, -4, 0] : 0
+                                            }}
+                                            transition={{ duration: 1, repeat: turnDirection === 'left' ? Infinity : 0, ease: "easeInOut" }}
+                                        >
+                                            <path d="M15 5L8 12L15 19" stroke={turnDirection === 'left' ? '#FBBF24' : '#ffffff30'} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                                        </motion.svg>
 
-                                    {/* Right arrow */}
-                                    <motion.div
-                                        animate={{
-                                            opacity: turnDirection === 'right' ? 1 : 0.06,
-                                            x: turnDirection === 'right' ? [0, 12, 0] : 0,
-                                            scale: turnDirection === 'right' ? [1, 1.2, 1] : 0.6
-                                        }}
-                                        transition={{ duration: 0.8, repeat: turnDirection === 'right' ? Infinity : 0 }}
-                                        className="relative flex items-center justify-center"
-                                    >
-                                        {turnDirection === 'right' && (
-                                            <div className="absolute w-16 h-16 rounded-full bg-amber-400/20 blur-xl" />
-                                        )}
-                                        <svg width="44" height="44" viewBox="0 0 24 24" fill="none" className="relative z-10">
-                                            <path d="M9 4L17 12L9 20" stroke={turnDirection === 'right' ? '#FBBF24' : '#ffffff10'} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-                                        </svg>
+                                        {/* Direction text */}
+                                        <span className="text-sm font-semibold tracking-wide text-amber-400 min-w-[100px] text-center">
+                                            {turnDirection === 'left' ? t('turnLeft') : t('turnRight')}
+                                        </span>
+
+                                        {/* Right chevron */}
+                                        <motion.svg
+                                            width="22" height="22" viewBox="0 0 24 24" fill="none"
+                                            animate={{
+                                                opacity: turnDirection === 'right' ? 1 : 0.15,
+                                                x: turnDirection === 'right' ? [0, 4, 0] : 0
+                                            }}
+                                            transition={{ duration: 1, repeat: turnDirection === 'right' ? Infinity : 0, ease: "easeInOut" }}
+                                        >
+                                            <path d="M9 5L16 12L9 19" stroke={turnDirection === 'right' ? '#FBBF24' : '#ffffff30'} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                                        </motion.svg>
                                     </motion.div>
-                                </>
-                            )}
+                                )}
+                            </AnimatePresence>
                         </div>
 
                         {/* THE COMPASS */}
