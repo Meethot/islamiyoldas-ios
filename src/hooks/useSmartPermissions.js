@@ -28,6 +28,12 @@ function shouldShowPermission(type) {
 // Check actual OS notification permission before showing card
 async function shouldShowNotificationCard() {
     if (!shouldShowPermission('notification')) return false;
+
+    // Web platform fallback functionality for development
+    if (Capacitor.getPlatform() === 'web') {
+        return localStorage.getItem('web_notification_prompted') !== 'true';
+    }
+
     try {
         const { display } = await LocalNotifications.checkPermissions();
         // Only show if OS permission is NOT granted
@@ -39,14 +45,20 @@ async function shouldShowNotificationCard() {
 
 export function useSmartPermissions(locationStatus) {
     const [permissionCard, setPermissionCard] = useState(null);
-    
-    // Refs to hold stable references for timers (no stale closures)
     const locationStatusRef = useRef(locationStatus);
     const cardRef = useRef(null);
-    
-    // Sync refs with latest values — must be in effect, not render (react-hooks/refs)
+    const timeoutRef = useRef(null);
+
+    // Güncel referansların tutulması
     useEffect(() => { locationStatusRef.current = locationStatus; }, [locationStatus]);
     useEffect(() => { cardRef.current = permissionCard; }, [permissionCard]);
+    
+    // Unmount (sayfa değişimi vs) durumunda var olan timer'ları temizleriz (hafıza kaçağını önlemek için)
+    useEffect(() => {
+        return () => {
+            if (timeoutRef.current) clearTimeout(timeoutRef.current);
+        };
+    }, []);
 
     const recordDismiss = useCallback((type) => {
         const keys = PERM_KEYS[type];
@@ -57,56 +69,29 @@ export function useSmartPermissions(locationStatus) {
 
     const recordSuccess = useCallback((type) => {
         const keys = PERM_KEYS[type];
-        localStorage.setItem(keys.count, String(MAX_ASKS)); // Never ask again
+        localStorage.setItem(keys.count, String(MAX_ASKS)); // Bir daha sormaması için kalıcı doldur
     }, []);
 
-    // Helper: try to show notification card (checks OS permission first)
-    const tryShowNotification = useCallback(async () => {
-        if (await shouldShowNotificationCard()) {
-            setPermissionCard('notification');
-        }
-    }, []);
-
-    // Single entry point — runs exactly ONCE per app session
-    useEffect(() => {
-        if (!Capacitor.isNativePlatform()) return;
-        
-        // If there's a pending notification from a previous mount (user navigated away and came back)
-        if (_notificationPending) {
-            _notificationPending = false;
-            const timer = setTimeout(() => tryShowNotification(), 1500);
-            return () => clearTimeout(timer);
-        }
-        
-        if (_sessionFlowStarted) return;
-        _sessionFlowStarted = true;
-
-        // Phase 1: Wait 2.5s, then decide what to show
-        const initialTimer = setTimeout(() => {
-            const locGranted = 
-                localStorage.getItem('location_permission_granted') === 'true' || 
-                locationStatusRef.current === 'granted';
-
-            if (!locGranted && shouldShowPermission('location')) {
-                setPermissionCard('location');
-            } else {
-                // Location already granted or exhausted — go straight to notification
-                setTimeout(() => tryShowNotification(), 1500);
-            }
-        }, 2500);
-
-        return () => clearTimeout(initialTimer);
-    }, []); // Intentionally empty — runs once, reads refs for latest values
-
+    // Konum izni bittikten sonra olacaklar: Ya hemen başka sayfaya gidecek ya da 6.5s bekleyecek
     const scheduleNotificationAfterLocation = useCallback((willNavigateAway = false) => {
+        _notificationPending = true;
+
         if (willNavigateAway) {
-            // User is navigating to settings — flag it for when they return to Home
-            _notificationPending = true;
+            // Ayarlara vs gidiyor, geldiğinde göstereceğiz
             return;
         }
-        // User stayed on Home (dismissed via backdrop/drag or accepted)
-        setTimeout(() => tryShowNotification(), 3500);
-    }, [tryShowNotification]);
+
+        // Anasayfada kalıyorsa, arka arkaya bombardıman yapmamak için 6.5 saniye bekle
+        if (timeoutRef.current) clearTimeout(timeoutRef.current);
+        timeoutRef.current = setTimeout(async () => {
+            if (_notificationPending && await shouldShowNotificationCard()) {
+                setPermissionCard('notification');
+                _notificationPending = false;
+            } else {
+                _notificationPending = false;
+            }
+        }, 6500);
+    }, []);
 
     const dismissCurrentCard = useCallback(() => {
         const current = cardRef.current;
@@ -132,9 +117,54 @@ export function useSmartPermissions(locationStatus) {
         setPermissionCard(null);
         recordDismiss(type);
         if (type === 'location') {
-            scheduleNotificationAfterLocation(true); // will navigate away
+            scheduleNotificationAfterLocation(true); // Ayarlara gidiyor
         }
     }, [recordDismiss, scheduleNotificationAfterLocation]);
+
+    // Ana tetikleyici - Bileşen her mount olduğunda tek sefer
+    useEffect(() => {
+        // Önceden bekleyen bir bildirim kartı akışı var mı? (Gezinip geri gelmişse)
+        if (_notificationPending) {
+            if (timeoutRef.current) clearTimeout(timeoutRef.current);
+            timeoutRef.current = setTimeout(async () => {
+                if (_notificationPending && await shouldShowNotificationCard()) {
+                    setPermissionCard('notification');
+                    _notificationPending = false;
+                } else {
+                    _notificationPending = false;
+                }
+            }, 1000); // Geri döndüğünde de hemen çıkmasın diye çok ufak (1s) bir ara
+            return;
+        }
+
+        // Akış zaten aktifse tekrar tekrar başlatma
+        if (_sessionFlowStarted) return;
+        _sessionFlowStarted = true;
+
+        // Faz 1: Onboarding sonrası veya ilk açılışta 2.5s bekle, sonra karar ver
+        if (timeoutRef.current) clearTimeout(timeoutRef.current);
+        timeoutRef.current = setTimeout(() => {
+            const locGranted = 
+                localStorage.getItem('location_permission_granted') === 'true' || 
+                locationStatusRef.current === 'granted';
+
+            if (!locGranted && shouldShowPermission('location')) {
+                setPermissionCard('location');
+            } else {
+                // Konum izni zaten verilmişse (veya reddedilme hakkı dolmuşsa), yavaşça bildirim sırasına geç
+                _notificationPending = true;
+                timeoutRef.current = setTimeout(async () => {
+                    if (_notificationPending && await shouldShowNotificationCard()) {
+                        setPermissionCard('notification');
+                        _notificationPending = false;
+                    } else {
+                        _notificationPending = false;
+                    }
+                }, 1000);
+            }
+        }, 2500);
+
+    }, []); // Sadece mount'ta çalışır
 
     return {
         permissionCard,

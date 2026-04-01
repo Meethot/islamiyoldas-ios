@@ -88,9 +88,9 @@ export default function SmartPermissionModal({
                                     {t('permission.location_desc', 'Bulunduğun şehre göre doğru namaz vakitlerini ve kıble yönünü gösterebilmemiz için konumuna ihtiyacımız var.')}
                                 </p>
 
-                                <div className="flex items-center justify-center gap-2.5 mb-7">
-                                    {[t('permission.badge_prayer', '🕌 Namaz Vakti'), t('permission.badge_qibla', '🧭 Kıble Yönü'), t('permission.badge_city', '📍 Şehir')].map((badge) => (
-                                        <span key={badge} className="px-3 py-1.5 rounded-full bg-white/[0.06] border border-white/[0.08] text-[11px] text-emerald-100/50 font-medium whitespace-nowrap">
+                                <div className="flex flex-wrap items-center justify-center gap-3 mb-7 px-2">
+                                    {[t('permission.badge_prayer', '🕌 Namaz Vakti'), t('permission.badge_qibla', '🧭 Kıble Yönü')].map((badge) => (
+                                        <span key={badge} className="px-3.5 py-1.5 rounded-full bg-white/[0.08] border border-white/[0.12] text-xs text-emerald-100/80 font-bold whitespace-nowrap shadow-sm">
                                             {badge}
                                         </span>
                                     ))}
@@ -122,9 +122,9 @@ export default function SmartPermissionModal({
                                     {t('permission.notification_desc', 'Ezan vakitlerinde seni bilgilendirelim, günlük hatırlatmalarla ibadetlerini takip et.')}
                                 </p>
 
-                                <div className="flex items-center justify-center gap-2.5 mb-7">
+                                <div className="flex flex-wrap items-center justify-center gap-3 mb-7 px-2">
                                     {[t('permission.badge_adhan', '🔔 Ezan Vakti'), t('permission.badge_dhikr', '📿 Günlük Zikir'), t('permission.badge_reminder', '🌙 Hatırlatma')].map((badge) => (
-                                        <span key={badge} className="px-3 py-1.5 rounded-full bg-white/[0.06] border border-white/[0.08] text-[11px] text-amber-100/50 font-medium whitespace-nowrap">
+                                        <span key={badge} className="px-3.5 py-1.5 rounded-full bg-white/[0.08] border border-white/[0.12] text-xs text-amber-100/80 font-bold whitespace-nowrap shadow-sm">
                                             {badge}
                                         </span>
                                     ))}
