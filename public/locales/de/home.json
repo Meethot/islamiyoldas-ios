@@ -288,5 +288,21 @@
         "badge_reminder": "🌙 Erinnerungen",
         "location_manual": "Manuell einrichten",
         "notification_manual": "In Einstellungen öffnen"
+    },
+    "widget_guide": {
+        "title": "Widget-Anleitung",
+        "subtitle": "Verfolge deine Ibadah direkt vom Startbildschirm und Sperrbildschirm",
+        "available_widgets": "Verfügbare Widgets",
+        "tab_home": "Startbildschirm",
+        "tab_lock": "Sperrbildschirm",
+        "how_home": "Wie füge ich es zum Startbildschirm hinzu?",
+        "how_lock": "Wie füge ich es zum Sperrbildschirm hinzu?",
+        "swipe_hint": "Wische oder tippe zwischen den Schritten",
+        "tip_title": "Info",
+        "tip_desc": "Widgets aktualisieren sich stündlich automatisch. Der Vers des Tages und Asma ul-Husna Widgets zeigen stündlich unterschiedliche Inhalte.",
+        "premium_note": "👑 Alle Widgets sind während deines Premium-Abonnements aktiv.",
+        "free_note": "⏳ Widgets sind für kostenlose Nutzer 1 Tag aktiv. Mit Premium unbegrenzt nutzen.",
+        "ios_note_title": "iOS 16+",
+        "ios_note_desc": "Sperrbildschirm-Widgets sind ab iOS 16 verfügbar. Startbildschirm-Widgets unterstützen iOS 14+."
     }
 }

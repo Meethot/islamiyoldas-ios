@@ -288,5 +288,21 @@
         "badge_reminder": "🌙 Reminders",
         "location_manual": "Set Up Manually",
         "notification_manual": "Open in Settings"
+    },
+    "widget_guide": {
+        "title": "Widget Guide",
+        "subtitle": "Track your worship from your home screen and lock screen",
+        "available_widgets": "Available Widgets",
+        "tab_home": "Home Screen",
+        "tab_lock": "Lock Screen",
+        "how_home": "How to Add to Home Screen?",
+        "how_lock": "How to Add to Lock Screen?",
+        "swipe_hint": "Swipe or tap between steps",
+        "tip_title": "Info",
+        "tip_desc": "Widgets auto-update every hour. The Verse of the Day and Asma ul-Husna widgets show different content each hour.",
+        "premium_note": "👑 All widgets are active throughout your Premium subscription.",
+        "free_note": "⏳ Widgets are active for 1 day for free users. Go unlimited with Premium.",
+        "ios_note_title": "iOS 16+",
+        "ios_note_desc": "Lock screen widgets are available on iOS 16 and later. Home screen widgets support iOS 14+."
     }
 }

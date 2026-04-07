@@ -429,8 +429,8 @@ export default function WidgetGuide() {
                                     lineHeight: 1.5,
                                 }}>
                                     {isPremium
-                                        ? t('widget_guide.premium_note', '👑 Premium kullanıcı olarak tüm widget\'lar süresiz aktiftir.')
-                                        : t('widget_guide.free_note', '⏳ Ücretsiz kullanıcılar için widget\'lar 1 gün aktif olarak çalışır.')
+                                        ? t('widget_guide.premium_note', '👑 Premium aboneliğiniz süresince tüm widget\'lar aktiftir.')
+                                        : t('widget_guide.free_note', '⏳ Ücretsiz kullanıcılar için widget\'lar 1 gün aktif olarak çalışır. Premium ile süresiz kullanabilirsiniz.')
                                     }
                                 </p>
                             </div>

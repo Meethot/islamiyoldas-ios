@@ -641,7 +641,7 @@ export default function PremiumPaywall() {
                         transition={{ delay: 0.3 }}
                     >
                         {[
-                            { emoji: '🤖', title: t('premium.feat_ai_title'), desc: t('premium.feat_ai_desc') },
+                            { emoji: '📱', title: t('premium.feat_ai_title'), desc: t('premium.feat_ai_desc') },
                             { emoji: '🎧', title: t('premium.feat_audio_title'), desc: t('premium.feat_audio_desc') },
                             { emoji: '📿', title: t('premium.feat_worship_title'), desc: t('premium.feat_worship_desc') },
                             { emoji: '🤝', title: t('premium.feat_community_title'), desc: t('premium.feat_community_desc') },
