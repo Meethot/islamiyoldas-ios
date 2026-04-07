@@ -404,7 +404,7 @@ export default function PremiumPaywall() {
         try {
             const productId = planName === 'yearly' ? PRODUCT_IDS.YEARLY : PRODUCT_IDS.MONTHLY;
             const product = products.find(p => p.identifier === productId);
-            const result = await purchaseProduct(productId);
+            const result = await purchaseProduct(product || productId);
             clearTimeout(timeoutId);
             if (result.success) {
                 success();

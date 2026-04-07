@@ -81,7 +81,7 @@ export function useSmartPermissions(locationStatus) {
             return;
         }
 
-        // Anasayfada kalıyorsa, arka arkaya bombardıman yapmamak için 6.5 saniye bekle
+        // Anasayfada kalıyorsa, arka arkaya bombardıman yapmamak için 3 saniye bekle
         if (timeoutRef.current) clearTimeout(timeoutRef.current);
         timeoutRef.current = setTimeout(async () => {
             if (_notificationPending && await shouldShowNotificationCard()) {
@@ -90,7 +90,7 @@ export function useSmartPermissions(locationStatus) {
             } else {
                 _notificationPending = false;
             }
-        }, 6500);
+        }, 3000);
     }, []);
 
     const dismissCurrentCard = useCallback(() => {

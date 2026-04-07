@@ -4,10 +4,14 @@ import { useRef, useCallback } from 'react';
  * Smart Paywall Hook — Akıllı Paywall Gösterim Sistemi
  * 
  * Mantık:
- * - Kullanıcı anasayfadan 3 farklı yere gidip geri döndüğünde paywall açılır
- * - Paywall anasayfaya dönüşte tetiklenir (giderken değil)
+ * - Kullanıcı tab'lar arası veya anasayfadan sub-page'lere her gittiğinde sayaç artar
+ * - Her 3. navigasyondan sonra anasayfaya dönüşte paywall açılır
  * - Oturum başına maksimum 3 kez
  * - Günlük maksimum 8 kez
+ * 
+ * Dahil olan sayfalar:
+ * - Anasayfa kartları: /dhikr, /qibla, /sleep, /fasting, /dua-brotherhood, /dua-kosesi vs.
+ * - Tab navigasyonu: /stories, /tracking, /learn, /profile
  */
 
 const SESSION_MAX = 3;
@@ -15,11 +19,14 @@ const DAILY_MAX = 8;
 const NAV_TRIGGER_EVERY = 3;
 
 // Bu sayfalara gidiş navigasyon sayacına DAHİL EDİLMEZ
-const EXCLUDED_PATHS = ['/premium', '/onboarding', '/profile', '/ai-mentor'];
+const EXCLUDED_PATHS = ['/premium', '/onboarding', '/ai-mentor'];
+
+// Ana tab path'leri (anasayfa dahil)
+const TAB_PATHS = ['/', '/learn', '/stories', '/tracking', '/profile'];
 
 export function useSmartPaywall(isPremium) {
     const sessionShows = useRef(0);
-    const outboundCount = useRef(0);
+    const navCount = useRef(0);
     const pendingPaywall = useRef(false);
     const lastPath = useRef('/');
 
@@ -30,22 +37,30 @@ export function useSmartPaywall(isPremium) {
         const prevPath = lastPath.current;
         lastPath.current = newPath;
 
-        // Premium sayfasına gidiyorsa veya gidiyorduysa sayma
+        // Aynı sayfaya gidiyorsa sayma
+        if (newPath === prevPath) return false;
+
+        // Hariç tutulan sayfalara gidiyorsa veya onlardan geliyorsa sayma
         if (EXCLUDED_PATHS.includes(newPath) || EXCLUDED_PATHS.includes(prevPath)) return false;
 
-        // Anasayfadan ÇIKIŞ: sub-page'e gidiyor → sayacı artır
-        if (prevPath === '/' && newPath !== '/') {
-            outboundCount.current += 1;
+        // Herhangi bir sayfa değişikliği → sayacı artır
+        // (Tab'lar arası, anasayfadan alt sayfaya, alt sayfadan anasayfaya hepsi dahil)
+        const isNavigatingToHome = newPath === '/';
+        const isComingFromHome = prevPath === '/';
 
-            // 3'ün katına ulaştıysa, geri dönüşte paywall gösterilecek
-            if (outboundCount.current % NAV_TRIGGER_EVERY === 0) {
+        // Anasayfaya dönüş DEĞİLSE → sadece sayacı artır
+        if (!isNavigatingToHome) {
+            navCount.current += 1;
+
+            // 3'ün katına ulaştıysa, anasayfaya dönüşte paywall gösterilecek
+            if (navCount.current % NAV_TRIGGER_EVERY === 0) {
                 pendingPaywall.current = true;
             }
-            return false; // Çıkarken değil, dönüşte göster
+            return false;
         }
 
         // Anasayfaya DÖNÜŞ: bekleyen paywall varsa göster
-        if (newPath === '/' && pendingPaywall.current) {
+        if (isNavigatingToHome && pendingPaywall.current) {
             pendingPaywall.current = false;
 
             // Oturum limiti kontrolü

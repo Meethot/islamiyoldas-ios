@@ -252,16 +252,25 @@ export default function Profile() {
 
 
 
+    const [showDeleteSuccess, setShowDeleteSuccess] = useState(false);
+
     const deleteAccount = async () => {
         heavy();
         if (confirm(t('delete_account.confirm'))) {
-            // Önce premium'u açıkça kapat (3 katmanlı: localStorage + Preferences + Keychain)
-            setPremium(false);
-            // Tamamen sıfırla (localStorage + Preferences + Keychain)
-            await storageService.clearAll();
-            // Keychain async temizliğinin tamamlanması için kısa bekleme
-            await new Promise(r => setTimeout(r, 500));
-            window.location.href = '/';
+            // ÖNCE başarı ekranını göster
+            setShowDeleteSuccess(true);
+            // SONRA arkaplanda temizlik yap (1 saniye sonra — ekran göründükten sonra)
+            setTimeout(async () => {
+                setPremium(false);
+                // RevenueCat'ten çıkış yap — premium durumu sıfırla
+                try {
+                    const { Purchases } = await import('@revenuecat/purchases-capacitor');
+                    await Purchases.logOut();
+                } catch (e) {
+                    // Hata olursa sessizce devam et
+                }
+                await storageService.clearAll();
+            }, 1000);
         }
     };
 
@@ -1226,6 +1235,67 @@ export default function Profile() {
                                 <Share2 size={20} className="mr-2" />
                                 Paylaş
                             </Button>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+            {/* Hesap Silme Başarı Ekranı */}
+            <AnimatePresence>
+                {showDeleteSuccess && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        className="fixed inset-0 z-[100] flex items-center justify-center bg-[#032e18] p-6"
+                    >
+                        <motion.div
+                            initial={{ scale: 0.8, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            transition={{ delay: 0.2, type: 'spring', damping: 20 }}
+                            className="text-center max-w-sm"
+                        >
+                            {/* Checkmark Circle */}
+                            <motion.div
+                                initial={{ scale: 0 }}
+                                animate={{ scale: 1 }}
+                                transition={{ delay: 0.3, type: 'spring', damping: 15 }}
+                                className="w-24 h-24 mx-auto mb-8 rounded-full bg-red-500/20 flex items-center justify-center"
+                            >
+                                <motion.div
+                                    initial={{ scale: 0 }}
+                                    animate={{ scale: 1 }}
+                                    transition={{ delay: 0.5, type: 'spring', damping: 12 }}
+                                    className="w-16 h-16 rounded-full bg-red-500/30 flex items-center justify-center"
+                                >
+                                    <Check className="w-8 h-8 text-red-400" />
+                                </motion.div>
+                            </motion.div>
+
+                            <motion.h2
+                                initial={{ y: 20, opacity: 0 }}
+                                animate={{ y: 0, opacity: 1 }}
+                                transition={{ delay: 0.6 }}
+                                className="text-2xl font-serif font-bold text-white mb-3"
+                            >
+                                {t('delete_account.success_title', 'Hesabınız Silindi')}
+                            </motion.h2>
+
+                            <motion.p
+                                initial={{ y: 20, opacity: 0 }}
+                                animate={{ y: 0, opacity: 1 }}
+                                transition={{ delay: 0.7 }}
+                                className="text-white/60 text-sm leading-relaxed mb-10"
+                            >
+                                {t('delete_account.success_desc', 'Hesabınız ve tüm verileriniz başarıyla silindi. Uygulamadan güvenle çıkabilirsiniz.')}
+                            </motion.p>
+
+                            <motion.p
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: [0, 0.5, 1, 0.5] }}
+                                transition={{ delay: 1.2, repeat: Infinity, duration: 2 }}
+                                className="text-white/30 text-xs"
+                            >
+                                {t('delete_account.success_hint', 'Uygulamayı kapatabilirsiniz')}
+                            </motion.p>
                         </motion.div>
                     </motion.div>
                 )}

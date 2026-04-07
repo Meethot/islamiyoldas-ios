@@ -34,8 +34,6 @@ PODS:
     - Capacitor
   - CapgoCapacitorCompass (8.1.9):
     - Capacitor
-  - CapgoNativePurchases (8.2.3):
-    - Capacitor
   - CordovaPlugins (8.0.2):
     - CapacitorCordova
     - OneSignalXCFramework (= 5.4.1)
@@ -151,6 +149,12 @@ PODS:
   - PromisesObjC (2.4.0)
   - PromisesSwift (2.4.0):
     - PromisesObjC (= 2.4.0)
+  - PurchasesHybridCommon (17.54.0):
+    - RevenueCat (= 5.67.0)
+  - RevenueCat (5.67.0)
+  - RevenuecatPurchasesCapacitor (12.3.1):
+    - Capacitor
+    - PurchasesHybridCommon (= 17.54.0)
 
 DEPENDENCIES:
   - "AparajitaCapacitorSecureStorage (from `../../node_modules/@aparajita/capacitor-secure-storage`)"
@@ -168,12 +172,12 @@ DEPENDENCIES:
   - "CapacitorShare (from `../../node_modules/@capacitor/share`)"
   - "CapacitorStatusBar (from `../../node_modules/@capacitor/status-bar`)"
   - "CapgoCapacitorCompass (from `../../node_modules/@capgo/capacitor-compass`)"
-  - "CapgoNativePurchases (from `../../node_modules/@capgo/native-purchases`)"
   - CordovaPlugins (from `../capacitor-cordova-ios-plugins`)
   - CordovaPluginsResources (from `../capacitor-cordova-ios-plugins`)
   - CordovaPluginsStatic (from `../capacitor-cordova-ios-plugins`)
   - "OdionCloudCapacitorVolumeControl (from `../../node_modules/@odion-cloud/capacitor-volume-control`)"
   - OneSignalXCFramework (= 5.4.1)
+  - "RevenuecatPurchasesCapacitor (from `../../node_modules/@revenuecat/purchases-capacitor`)"
 
 SPEC REPOS:
   trunk:
@@ -195,6 +199,8 @@ SPEC REPOS:
     - OneSignalXCFramework
     - PromisesObjC
     - PromisesSwift
+    - PurchasesHybridCommon
+    - RevenueCat
 
 EXTERNAL SOURCES:
   AparajitaCapacitorSecureStorage:
@@ -227,8 +233,6 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/@capacitor/status-bar"
   CapgoCapacitorCompass:
     :path: "../../node_modules/@capgo/capacitor-compass"
-  CapgoNativePurchases:
-    :path: "../../node_modules/@capgo/native-purchases"
   CordovaPlugins:
     :path: "../capacitor-cordova-ios-plugins"
   CordovaPluginsResources:
@@ -237,6 +241,8 @@ EXTERNAL SOURCES:
     :path: "../capacitor-cordova-ios-plugins"
   OdionCloudCapacitorVolumeControl:
     :path: "../../node_modules/@odion-cloud/capacitor-volume-control"
+  RevenuecatPurchasesCapacitor:
+    :path: "../../node_modules/@revenuecat/purchases-capacitor"
 
 SPEC CHECKSUMS:
   AparajitaCapacitorSecureStorage: 8128d05cafcb13b00448e20fb388a0edccd44b12
@@ -254,7 +260,6 @@ SPEC CHECKSUMS:
   CapacitorShare: 12f1d192170cbcf9f108fd675ac8e343761a4638
   CapacitorStatusBar: 312e2e67928dfe9514c4a8916a1fd610552f5f35
   CapgoCapacitorCompass: c022080dea4313bdedb0e300a0702b96220de8a9
-  CapgoNativePurchases: 8e73c6878bccafee0c379c1bbcddb6c588716bd6
   CordovaPlugins: 2e67310d05e26fcedee4c9f9f1c6e0c82db57b0a
   CordovaPluginsResources: da93847212bf7b16ba770e4d6c3e7dba820174c7
   CordovaPluginsStatic: fbb89c15aa320448886c34928ea16eabe2af123e
@@ -277,7 +282,10 @@ SPEC CHECKSUMS:
   OneSignalXCFramework: 0b85a8d949247f80809a9d5598200cc263591129
   PromisesObjC: f5707f49cb48b9636751c5b2e7d227e43fba9f47
   PromisesSwift: 9d77319bbe72ebf6d872900551f7eeba9bce2851
+  PurchasesHybridCommon: 6a8f4e30952167d2afaccf17ebcf8f8107060e4c
+  RevenueCat: f0d05079b59c33c645293bbc1fa78469ea7fcae7
+  RevenuecatPurchasesCapacitor: 3356e6e8b9ae8d9e7386990b53adeedac59aa6e8
 
-PODFILE CHECKSUM: 514d584f5743a5f87f7b86d82235fcee8db367bc
+PODFILE CHECKSUM: 7ceb79ed96a41cc8e3d19306276e84f8acae233f
 
 COCOAPODS: 1.16.2

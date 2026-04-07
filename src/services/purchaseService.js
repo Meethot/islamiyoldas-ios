@@ -1,7 +1,13 @@
 import { Capacitor } from '@capacitor/core';
-import { NativePurchases } from '@capgo/native-purchases';
+import { Purchases, LOG_LEVEL } from '@revenuecat/purchases-capacitor';
 import { storageService } from './storageService';
 import { setPremiumUserProperties } from './analyticsService';
+
+// RevenueCat Public API Key (iOS)
+const RC_API_KEY = 'appl_hKXYxTRTsDPOKptWBGGHoFltKZc';
+
+// Entitlement ID — RevenueCat Dashboard'da tanımlı (tam olarak eşleşmeli!)
+const ENTITLEMENT_ID = 'İslami Yoldas Pro';
 
 export const PRODUCT_IDS = {
     MONTHLY: 'com.islamiyoldas.app.monthly',
@@ -9,91 +15,178 @@ export const PRODUCT_IDS = {
 };
 
 const PREMIUM_KEY = 'aminKumbara_premium';
+const MIGRATION_KEY = 'rc_sdk_migration_done';
 
 let isInitialized = false;
 let purchaseListeners = [];
-
-/**
- * Transaction'un aktif bir abonelik olup olmadığını kontrol et.
- * StoreKit 2 revocationDate null ise ve expiryDate gelecekteyse → aktif.
- */
-function isTransactionActive(transaction) {
-    if (!transaction) return false;
-    // Revoke edilmişse iptal
-    if (transaction.revocationDate) return false;
-    // Expiry tarihi varsa kontrol et
-    if (transaction.expiryDate) {
-        return new Date(transaction.expiryDate) > new Date();
-    }
-    // Expiry yoksa (lifetime/consumable) → aktif kabul et
-    return true;
-}
+let cachedOfferings = null;
 
 /**
  * Premium durumunu güncelle ve tüm UI'ı/Analytics'i bilgilendir.
+ * migration=true ise, sadece premium VERME yönünde güncelle (asla iptal etme).
  */
-function updatePremiumStatus(isPremium, planId = 'free') {
+function updatePremiumStatus(isPremium, planId = 'free', isMigration = false) {
     const current = storageService.getItem(PREMIUM_KEY) === 'true';
+
+    // ⚠️ GÖÇ GÜVENLİĞİ: Göç sırasında premium'u ASLA iptal etme.
+    // RC henüz receipt'i işlememiş olabilir. Sadece premium VER, alma.
+    if (isMigration && current && !isPremium) {
+        console.warn('[RC] ⚠️ Migration safety: RC says NOT premium, but local cache says premium. KEEPING premium.');
+        return;
+    }
+
     if (current !== isPremium) {
         storageService.setItem(PREMIUM_KEY, isPremium ? 'true' : 'false');
         window.dispatchEvent(new Event('premiumStatusChanged'));
-        console.log('[IAP] Premium status →', isPremium);
+        console.log('[RC] Premium status →', isPremium);
     }
-    // Set Amplitude User Properties on init/update
     setPremiumUserProperties(isPremium, planId);
 }
 
+/**
+ * CustomerInfo'dan premium durumunu çıkar.
+ */
+function checkEntitlements(customerInfo) {
+    if (!customerInfo?.entitlements?.active) return { isPremium: false, planId: 'free' };
+
+    const premiumEntitlement = customerInfo.entitlements.active[ENTITLEMENT_ID];
+    if (premiumEntitlement) {
+        return {
+            isPremium: true,
+            planId: premiumEntitlement.productIdentifier || 'premium',
+        };
+    }
+    return { isPremium: false, planId: 'free' };
+}
+
+/**
+ * RevenueCat SDK'yı başlat.
+ */
 export async function initializePurchases() {
     if (isInitialized) return;
     if (!Capacitor.isNativePlatform()) return;
 
+    const isMigrating = !storageService.getItem(MIGRATION_KEY);
+    const hadPremiumBefore = storageService.getItem(PREMIUM_KEY) === 'true';
+
+    if (isMigrating) {
+        console.log('[RC] 🔄 First SDK init — migration mode active. Current premium:', hadPremiumBefore);
+    }
+
     try {
-        // Transaction güncellemelerini dinle (yenilenme, iptal, geri ödeme)
-        await NativePurchases.addListener('transactionUpdated', (transaction) => {
-            console.log('[IAP] Transaction updated:', transaction?.productIdentifier);
-            const active = isTransactionActive(transaction);
-            updatePremiumStatus(active, active ? transaction?.productIdentifier : 'free');
-            purchaseListeners.forEach(fn => fn(active, transaction));
+        // SDK'yı yapılandır
+        await Purchases.configure({
+            apiKey: RC_API_KEY,
+        });
+
+        // Debug modda verbose log
+        if (import.meta.env.DEV) {
+            await Purchases.setLogLevel({ level: LOG_LEVEL.DEBUG });
+        }
+
+        // Müşteri bilgisi değişikliklerini dinle (yenilenme, iptal, geri ödeme)
+        await Purchases.addCustomerInfoUpdateListener((customerInfo) => {
+            console.log('[RC] Customer info updated');
+            const { isPremium, planId } = checkEntitlements(customerInfo);
+            // Migration tamamlandıktan sonra listener normal çalışır
+            updatePremiumStatus(isPremium, planId, false);
+            purchaseListeners.forEach(fn => fn(isPremium, customerInfo));
         });
 
         isInitialized = true;
 
-        // Uygulama açılışında mevcut abonelikleri doğrula
-        await verifySubscription();
-        
-        console.log('[IAP] Initialization complete ✓');
+        // Uygulama açılışında mevcut abonelikleri doğrula (migration güvenli)
+        await verifySubscription(isMigrating);
+
+        // Migration başarılı — işaretle
+        if (isMigrating) {
+            storageService.setItem(MIGRATION_KEY, 'true');
+            console.log('[RC] ✅ Migration complete. Flag set.');
+
+            // 30 saniye sonra tekrar doğrula (RC receipt işleme gecikmesi için)
+            if (hadPremiumBefore) {
+                setTimeout(async () => {
+                    console.log('[RC] 🔄 Delayed post-migration re-verification...');
+                    await verifySubscription(false);
+                }, 30000);
+            }
+        }
+
+        console.log('[RC] Initialization complete ✓');
     } catch (err) {
-        console.warn('[IAP] Init error:', err);
+        console.warn('[RC] Init error:', err);
+        // Hata durumunda mevcut premium durumunu koru
+        if (hadPremiumBefore) {
+            console.warn('[RC] ⚠️ Init failed, keeping existing premium status');
+        }
     }
 }
 
+/**
+ * Offerings'i al (A/B test desteği).
+ * RevenueCat Dashboard'dan kontrol edilen farklı paketleri döndürür.
+ */
+export async function getOfferings() {
+    if (!Capacitor.isNativePlatform()) return null;
+    try {
+        const offerings = await Purchases.getOfferings();
+        cachedOfferings = offerings;
+        console.log('[RC] Offerings loaded:', offerings?.current?.identifier);
+        return offerings;
+    } catch (err) {
+        console.warn('[RC] getOfferings error:', err);
+        return null;
+    }
+}
+
+/**
+ * Ürünleri getir — önce Offerings'den, yoksa doğrudan product ID ile.
+ * A/B test: RevenueCat Dashboard'daki "current" offering otomatik seçilir.
+ */
 export async function getProducts() {
     if (!Capacitor.isNativePlatform()) {
         return [
             { identifier: PRODUCT_IDS.MONTHLY, priceString: '₺124,99', title: 'Aylık Premium', description: 'Aylık abonelik' },
-            { identifier: PRODUCT_IDS.YEARLY, priceString: '₺979,99', title: 'Yıllık Premium', description: 'Yıllık abonelik' },
+            { identifier: PRODUCT_IDS.YEARLY, priceString: '₺499,99', title: 'Yıllık Premium', description: 'Yıllık abonelik' },
         ];
     }
     try {
-        const { products } = await NativePurchases.getProducts({
+        // Önce Offerings'den çek (A/B test desteği)
+        const offerings = await getOfferings();
+        if (offerings?.current?.availablePackages?.length) {
+            return offerings.current.availablePackages.map(pkg => ({
+                identifier: pkg.product.identifier,
+                priceString: pkg.product.priceString,
+                price: pkg.product.price,
+                currencyCode: pkg.product.currencyCode,
+                title: pkg.product.title,
+                description: pkg.product.description,
+                rcPackage: pkg, // RevenueCat package objesi — purchasePackage için
+                offeringId: offerings.current.identifier,
+            }));
+        }
+
+        // Fallback: Offerings yoksa doğrudan ürün ID ile sorgula
+        const products = await Purchases.getProducts({
             productIdentifiers: [PRODUCT_IDS.MONTHLY, PRODUCT_IDS.YEARLY],
-            productType: 'subs',
         });
-        return (products || []).map(p => ({
-            identifier: p.productIdentifier,
+        return (products?.products || []).map(p => ({
+            identifier: p.identifier,
             priceString: p.priceString,
             price: p.price,
             currencyCode: p.currencyCode,
-            title: p.title || p.displayName,
+            title: p.title,
             description: p.description,
-            product: p, // Native objeyi sakla — purchaseProduct için
         }));
     } catch (err) {
-        console.warn('[IAP] getProducts error:', err);
+        console.warn('[RC] getProducts error:', err);
     }
     return [];
 }
 
+/**
+ * Satın alma — önce RevenueCat Package ile, yoksa product ID ile.
+ */
 export async function purchaseProduct(productIdOrObj) {
     if (!Capacitor.isNativePlatform()) {
         const productIdentifier = typeof productIdOrObj === 'object'
@@ -103,91 +196,99 @@ export async function purchaseProduct(productIdOrObj) {
         return { success: true };
     }
     try {
-        const productIdentifier = typeof productIdOrObj === 'object'
-            ? (productIdOrObj.identifier || productIdOrObj.productIdentifier)
-            : productIdOrObj;
+        let result;
 
-        console.log('[IAP] Purchasing:', productIdentifier);
-        
-        const transaction = await NativePurchases.purchaseProduct({
-            productIdentifier,
-            productType: 'subs',
-        });
+        // RevenueCat Package objesi varsa onu kullan (Offerings/A/B test)
+        if (typeof productIdOrObj === 'object' && productIdOrObj.rcPackage) {
+            console.log('[RC] Purchasing package:', productIdOrObj.rcPackage.identifier);
+            result = await Purchases.purchasePackage({
+                aPackage: productIdOrObj.rcPackage,
+            });
+        } else {
+            // Doğrudan product ID ile satın al
+            const productIdentifier = typeof productIdOrObj === 'object'
+                ? (productIdOrObj.identifier || productIdOrObj.productIdentifier)
+                : productIdOrObj;
 
-        console.log('[IAP] Purchase result:', transaction?.transactionId);
+            console.log('[RC] Purchasing product:', productIdentifier);
 
-        // purchaseProduct hata fırlatmadıysa başarılı demektir
-        updatePremiumStatus(true, productIdentifier);
+            // Önce ürünü bul
+            const productsResult = await Purchases.getProducts({
+                productIdentifiers: [productIdentifier],
+            });
+            const product = productsResult?.products?.[0];
+            if (!product) throw new Error('Product not found: ' + productIdentifier);
+
+            result = await Purchases.purchaseStoreProduct({
+                product,
+            });
+        }
+
+        // Başarılı — entitlement'ları kontrol et
+        const { isPremium, planId } = checkEntitlements(result?.customerInfo);
+        updatePremiumStatus(isPremium, planId);
         return { success: true };
     } catch (err) {
-        console.error('[IAP] Purchase error:', JSON.stringify(err));
+        console.error('[RC] Purchase error:', JSON.stringify(err));
         const msg = err?.message || String(err);
-        if (msg.includes('cancel') || msg.includes('Cancel') || msg.includes('SKError') || err?.code === 2) {
+        if (msg.includes('cancel') || msg.includes('Cancel') || msg.includes('PURCHASE_CANCELLED') || err?.code === 1) {
             return { success: false, error: 'cancelled' };
         }
         return { success: false, error: msg };
     }
 }
 
+/**
+ * Satın almaları geri yükle.
+ */
 export async function restorePurchases() {
     if (!Capacitor.isNativePlatform()) {
         return { success: false, isPremium: false };
     }
     try {
-        // App Store / Google Play'den makbuzları yenile (Apple ID şifre sorabilir)
-        await NativePurchases.restorePurchases();
-        
-        // Sonra da aktif abonelik var mı diye kontrol et (şifre sormadan cihazdaki makbuzu okur)
-        const { purchases } = await NativePurchases.getPurchases({
-            productType: 'subs',
-        });
-        
-        console.log('[IAP] Restore result:', purchases?.length, 'transactions');
-        
-        const activeTran = (purchases || []).find(t => isTransactionActive(t));
-        const hasActive = !!activeTran;
-        updatePremiumStatus(hasActive, activeTran ? activeTran.productIdentifier : 'free');
-        
-        return { success: true, isPremium: hasActive };
+        const { customerInfo } = await Purchases.restorePurchases();
+        console.log('[RC] Restore complete');
+        const { isPremium, planId } = checkEntitlements(customerInfo);
+        updatePremiumStatus(isPremium, planId);
+        return { success: true, isPremium };
     } catch (err) {
-        console.warn('[IAP] Restore error:', err);
+        console.warn('[RC] Restore error:', err);
         return { success: false, isPremium: false };
     }
 }
 
-export async function verifySubscription() {
+/**
+ * Abonelik durumunu doğrula (açılışta ve periyodik olarak).
+ * isMigration=true ise, premium iptal etmez (güvenli göç).
+ */
+export async function verifySubscription(isMigration = false) {
     if (!Capacitor.isNativePlatform()) {
         return storageService.getItem(PREMIUM_KEY) === 'true';
     }
     try {
-        // getPurchases → cihazdaki receipt'i sessizce okur, Apple ID şifresi SORMAZ
-        const { purchases } = await NativePurchases.getPurchases({
-            productType: 'subs',
-        });
-        
-        const activeTran = (purchases || []).find(t => isTransactionActive(t));
-        const hasActive = !!activeTran;
-        console.log('[IAP] Verify → isPremium:', hasActive, '(', (purchases || []).length, 'transactions)');
-        
-        updatePremiumStatus(hasActive, activeTran ? activeTran.productIdentifier : 'free');
-        return hasActive;
+        const { customerInfo } = await Purchases.getCustomerInfo();
+        const { isPremium, planId } = checkEntitlements(customerInfo);
+        console.log('[RC] Verify → isPremium:', isPremium, isMigration ? '(migration mode)' : '');
+        updatePremiumStatus(isPremium, planId, isMigration);
+        return isPremium;
     } catch (err) {
-        console.warn('[IAP] Verify error:', err);
-        // Hata durumunda mevcut cache'i koru
+        console.warn('[RC] Verify error:', err);
+        // Hata durumunda mevcut cache'i ASLA silme
         return storageService.getItem(PREMIUM_KEY) === 'true';
     }
 }
 
+/**
+ * Billing desteği kontrolü.
+ */
 export async function isBillingSupported() {
     if (!Capacitor.isNativePlatform()) return false;
-    try {
-        const { isBillingSupported } = await NativePurchases.isBillingSupported();
-        return isBillingSupported;
-    } catch {
-        return false;
-    }
+    return true;
 }
 
+/**
+ * Abonelik yönetimi sayfasını aç.
+ */
 export async function manageSubscriptions() {
     if (Capacitor.getPlatform() === 'ios') {
         window.open('https://apps.apple.com/account/subscriptions', '_blank');
@@ -196,6 +297,9 @@ export async function manageSubscriptions() {
     }
 }
 
+/**
+ * Satın alma güncelleme dinleyicisi.
+ */
 export function onPurchaseUpdate(callback) {
     purchaseListeners.push(callback);
     return () => {
