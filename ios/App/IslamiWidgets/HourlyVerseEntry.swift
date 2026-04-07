@@ -114,12 +114,22 @@ struct HourlyVerseEntry: TimelineEntry {
         HourlyVerse(text: "Siz ancak alemlerin Rabbi olan Allah dilerse dileyebilirsiniz.", source: "İnsan Suresi, 30")
     ]
 
+    /// Returns the full verse array for the given language.
+    /// TR uses the large 101-verse pool; others reuse the 31 daily verses.
+    static func allVersesForLanguage(_ lang: String) -> [HourlyVerse] {
+        if lang == "tr" { return allVerses }
+        // Map VerseEntry's localized daily verses to HourlyVerse type
+        return VerseEntry.allVerses(for: lang).map { HourlyVerse(text: $0.text, source: $0.source) }
+    }
+
     static func verseForDate(_ date: Date) -> HourlyVerse {
+        let lang = WidgetLanguageHelper.currentLanguage
+        let verses = allVersesForLanguage(lang)
         let calendar = Calendar.current
         let dayOfYear = calendar.ordinality(of: .day, in: .year, for: date) ?? 1
         let hour = calendar.component(.hour, from: date)
-        let index = abs(dayOfYear * 24 + hour) % allVerses.count
-        return allVerses[index]
+        let index = abs(dayOfYear * 24 + hour) % verses.count
+        return verses[index]
     }
 
     static var placeholder: HourlyVerseEntry {

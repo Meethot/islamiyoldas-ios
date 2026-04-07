@@ -1,0 +1,21 @@
+/* Turkish - Default Language */
+
+/* Widget Names */
+"widget_prayer_times" = "Namaz Vakitleri";
+"widget_prayer_lock" = "Namaz Vakti";
+"widget_daily_verse" = "Günün Ayeti";
+"widget_daily_verse_transparent" = "Günün Ayeti (Şeffaf)";
+"widget_daily_esma" = "Günün Esması";
+"widget_hourly_esma" = "Saatlik Esma";
+"widget_daily_motivation" = "Günün Motivasyonu";
+"widget_hourly_verse" = "Saatlik Ayet";
+
+/* Widget Descriptions */
+"desc_prayer_times" = "Namaz vakitlerini takip edin";
+"desc_prayer_lock" = "Kilit ekranında bir sonraki namaz vaktini görün";
+"desc_daily_verse" = "Her gün ruhunuza iyi gelecek bir ayet";
+"desc_daily_verse_transparent" = "Şeffaf arkafonla günün ayeti";
+"desc_daily_esma" = "Her gün farklı bir Esma-ül Hüsnâ";
+"desc_hourly_esma" = "Her saat başı yeni bir Esma-ül Hüsnâ";
+"desc_daily_motivation" = "Her gün ruhunuza iyi gelecek motivasyon veren bir ayet";
+"desc_hourly_verse" = "Her saat başı yeni bir ilham veren ayet";

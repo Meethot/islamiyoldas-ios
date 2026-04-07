@@ -255,8 +255,12 @@ export default function Profile() {
     const deleteAccount = async () => {
         heavy();
         if (confirm(t('delete_account.confirm'))) {
+            // Önce premium'u açıkça kapat (3 katmanlı: localStorage + Preferences + Keychain)
+            setPremium(false);
             // Tamamen sıfırla (localStorage + Preferences + Keychain)
             await storageService.clearAll();
+            // Keychain async temizliğinin tamamlanması için kısa bekleme
+            await new Promise(r => setTimeout(r, 500));
             window.location.href = '/';
         }
     };

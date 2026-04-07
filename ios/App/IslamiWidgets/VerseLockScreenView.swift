@@ -1,7 +1,7 @@
 import SwiftUI
 import WidgetKit
 
-// MARK: - Lock Screen / Fallback View Router for Verse
+// MARK: - Lock Screen / Fallback View Router for Verse (Oval Style)
 
 struct VerseLockScreenOrFallbackView: View {
     @Environment(\.widgetFamily) var family
@@ -10,10 +10,30 @@ struct VerseLockScreenOrFallbackView: View {
     var body: some View {
         if #available(iOSApplicationExtension 16.0, *) {
             switch family {
-            case .accessoryCircular:
-                VerseLockScreenCircularView(entry: entry)
             case .accessoryRectangular:
                 VerseLockScreenRectangularView(entry: entry)
+            case .accessoryInline:
+                VerseLockScreenInlineView(entry: entry)
+            default:
+                VerseSmallWidgetView(entry: entry)
+            }
+        } else {
+            VerseSmallWidgetView(entry: entry)
+        }
+    }
+}
+
+// MARK: - Lock Screen / Fallback View Router for Verse (Transparent Style)
+
+struct VerseLockScreenTransparentOrFallbackView: View {
+    @Environment(\.widgetFamily) var family
+    let entry: VerseEntry
+    
+    var body: some View {
+        if #available(iOSApplicationExtension 16.0, *) {
+            switch family {
+            case .accessoryRectangular:
+                VerseLockScreenTransparentRectangularView(entry: entry)
             case .accessoryInline:
                 VerseLockScreenInlineView(entry: entry)
             default:
@@ -43,57 +63,75 @@ private func parseVerseNumber(from source: String) -> String {
     return ""
 }
 
-// MARK: - Verse Circular Lock Screen View
-
-@available(iOSApplicationExtension 16.0, *)
-struct VerseLockScreenCircularView: View {
-    let entry: VerseEntry
-    
-    var body: some View {
-        ZStack {
-            AccessoryWidgetBackground()
-            
-            VStack(spacing: 1) {
-                Text("📖")
-                    .font(.system(size: 14))
-                
-                Text(parseVerseNumber(from: entry.verse.source))
-                    .font(.system(size: 12, weight: .heavy, design: .rounded))
-                    .minimumScaleFactor(0.6)
-                    .lineLimit(1)
-            }
-        }
-    }
-}
-
-// MARK: - Verse Rectangular Lock Screen View
+// MARK: - Verse Rectangular Lock Screen View (OVAL Background)
 
 @available(iOSApplicationExtension 16.0, *)
 struct VerseLockScreenRectangularView: View {
     let entry: VerseEntry
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 3) {
-            // Top row: emoji + surah/verse ref
-            HStack(spacing: 4) {
+        ZStack {
+            // Oval/rounded background
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                .fill(.ultraThinMaterial)
+            
+            VStack(alignment: .leading, spacing: 1) {
+                // Top row: tiny emoji + small surah/verse ref
+                HStack(spacing: 3) {
+                    Text("📖")
+                        .font(.system(size: 8))
+                    
+                    Text(parseSurahName(from: entry.verse.source) + " " + parseVerseNumber(from: entry.verse.source))
+                        .font(.system(size: 11, weight: .semibold, design: .serif).italic())
+                        .widgetAccentable()
+                    
+                    Spacer()
+                }
+                
+                // Verse text — maximized space, scales down for long verses
+                Text(entry.verse.text)
+                    .font(.system(size: 13, weight: .medium))
+                    .lineLimit(4)
+                    .minimumScaleFactor(0.55)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            .padding(.horizontal, 10)
+            .padding(.vertical, 4)
+        }
+    }
+}
+
+// MARK: - Verse Rectangular Lock Screen View (TRANSPARENT / No Background)
+
+@available(iOSApplicationExtension 16.0, *)
+struct VerseLockScreenTransparentRectangularView: View {
+    let entry: VerseEntry
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 1) {
+            // Top row: tiny emoji + small surah/verse ref
+            HStack(spacing: 3) {
                 Text("📖")
-                    .font(.system(size: 10))
+                    .font(.system(size: 8))
                 
                 Text(parseSurahName(from: entry.verse.source) + " " + parseVerseNumber(from: entry.verse.source))
-                    .font(.system(size: 13, weight: .bold))
+                    .font(.system(size: 11, weight: .semibold, design: .serif).italic())
                     .widgetAccentable()
+                
+                Spacer()
             }
             
-            // Verse text — big and readable
+            // Verse text — maximized space, scales down for long verses
             Text(entry.verse.text)
                 .font(.system(size: 13, weight: .medium))
-                .lineLimit(2)
+                .lineLimit(4)
+                .minimumScaleFactor(0.55)
                 .fixedSize(horizontal: false, vertical: true)
         }
     }
 }
 
-// MARK: - Verse Inline Lock Screen View
+// MARK: - Verse Inline Lock Screen View (shared)
 
 @available(iOSApplicationExtension 16.0, *)
 struct VerseLockScreenInlineView: View {

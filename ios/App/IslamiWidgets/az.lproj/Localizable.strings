@@ -1,0 +1,21 @@
+/* Azerbaijani */
+
+/* Widget Names */
+"widget_prayer_times" = "Namaz Vaxtları";
+"widget_prayer_lock" = "Namaz Vaxtı";
+"widget_daily_verse" = "Günün Ayəsi";
+"widget_daily_verse_transparent" = "Günün Ayəsi (Şəffaf)";
+"widget_daily_esma" = "Günün Əsması";
+"widget_hourly_esma" = "Saatlıq Əsma";
+"widget_daily_motivation" = "Günün Motivasiyası";
+"widget_hourly_verse" = "Saatlıq Ayə";
+
+/* Widget Descriptions */
+"desc_prayer_times" = "Namaz vaxtlarını izləyin";
+"desc_prayer_lock" = "Kilit ekranında növbəti namaz vaxtını görün";
+"desc_daily_verse" = "Hər gün ruhunuza yaxşı gələcək bir ayə";
+"desc_daily_verse_transparent" = "Şəffaf arxa fonla günün ayəsi";
+"desc_daily_esma" = "Hər gün fərqli bir Əsma-ül Hüsna";
+"desc_hourly_esma" = "Hər saat başı yeni bir Əsma-ül Hüsna";
+"desc_daily_motivation" = "Hər gün ruhunuzu ilhamlandıracaq bir ayə";
+"desc_hourly_verse" = "Hər saat başı yeni bir ilham verən ayə";

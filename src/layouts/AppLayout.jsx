@@ -1,20 +1,29 @@
 import { Capacitor } from '@capacitor/core';
 import React, { useRef, useEffect } from 'react';
 import { Outlet, NavLink, useLocation, useNavigate } from 'react-router-dom';
-import { Home, BookOpen, Target, Settings, Heart, Star, Brain, Sparkles } from 'lucide-react';
+import { Home, BookOpen, Target, Settings, Heart, Star, Brain, Sparkles, Crown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useHaptics } from '@/hooks/useMobile';
 import { useUser } from '@/context/UserContext';
 import { useTranslation } from 'react-i18next';
 import AvatarIcon from '@/components/AvatarIcon';
 import DebugMenu from '@/components/DebugMenu';
+import { useSmartPaywall } from '@/hooks/useSmartPaywall';
+
+/* Premium button shimmer animation */
+const premiumBtnStyle = `
+@keyframes premium-btn-shimmer {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+`;
 
 export default function AppLayout() {
     const { selection } = useHaptics();
     const { pathname } = useLocation();
     const navigate = useNavigate();
     const mainContentRef = useRef(null);
-    const { userData } = useUser();
+    const { userData, isPremium: hasPremium } = useUser();
     const { t } = useTranslation('home'); // Use home namespace for greetings
     const { t: tNav } = useTranslation('common'); // Use common for nav items
     const isIOS = Capacitor.getPlatform() === 'ios';
@@ -37,9 +46,16 @@ export default function AppLayout() {
         return () => window.removeEventListener('avatarChanged', updateHeaderAvatar);
     }, []);
 
+    // Smart Paywall: agresif ama kontrollü paywall gösterimi
+    const { checkNavigation } = useSmartPaywall(hasPremium);
+
     useEffect(() => {
         if (mainContentRef.current) {
             mainContentRef.current.scrollTo(0, 0);
+        }
+        // Smart Paywall: her 3. navigasyonda paywall'a yönlendir
+        if (checkNavigation(pathname)) {
+            navigate('/premium', { replace: true });
         }
     }, [pathname]);
 
@@ -50,6 +66,9 @@ export default function AppLayout() {
                 "h-full flex flex-col relative parchment-texture",
                 pathname === '/qibla' ? "bg-[#010a05]" : "bg-[#FBF9F4] dark:bg-[#032e18]"
             )}>
+
+                {/* Premium button shimmer CSS */}
+                <style>{premiumBtnStyle}</style>
 
                 {/* Top Bar (Dynamic Greeting) */}
                 {pathname !== '/qibla' && pathname !== '/ai-mentor' && (
@@ -71,7 +90,36 @@ export default function AppLayout() {
                                 })()}
                             </h1>
                         </div>
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-2">
+                            {/* Premium CTA Button — only for non-premium users */}
+                            {!hasPremium && (
+                                <button
+                                    onClick={() => {
+                                        selection();
+                                        navigate('/premium');
+                                    }}
+                                    className="relative flex items-center gap-1.5 px-3 py-2 rounded-2xl transition-all active:scale-95 border border-[#D4AF37]/40 overflow-hidden"
+                                    style={{
+                                        background: 'linear-gradient(135deg, rgba(212,175,55,0.15) 0%, rgba(212,175,55,0.05) 100%)',
+                                    }}
+                                >
+                                    {/* Shimmer sweep overlay */}
+                                    <div
+                                        className="absolute inset-0 pointer-events-none"
+                                        style={{
+                                            backgroundImage: 'linear-gradient(105deg, transparent 35%, rgba(212,175,55,0.2) 45%, rgba(255,215,0,0.35) 50%, rgba(212,175,55,0.2) 55%, transparent 65%)',
+                                            backgroundSize: '200% 100%',
+                                            animation: 'premium-btn-shimmer 3s ease-in-out infinite',
+                                        }}
+                                    />
+                                    <Crown size={14} className="text-[#D4AF37] relative z-10" fill="#D4AF37" fillOpacity={0.3} />
+                                    <span className="text-[11px] font-black tracking-wider text-[#D4AF37] uppercase relative z-10"
+                                          style={{ textShadow: '0 0 8px rgba(212,175,55,0.3)' }}>
+                                        Premium
+                                    </span>
+                                </button>
+                            )}
+
                             <button
                                 onClick={() => {
                                     selection();

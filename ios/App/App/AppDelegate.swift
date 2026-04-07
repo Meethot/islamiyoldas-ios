@@ -57,18 +57,34 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Verified from: node_modules/@capacitor/preferences/ios/Sources/PreferencesPlugin/Preferences.swift line 27
         let bridgeKey = "CapacitorStorage.widget_prayer_data_bridge"
         let widgetKey = "widget_prayer_data"
+        let langBridgeKey = "CapacitorStorage.widget_language_bridge"
+        let langWidgetKey = "widget_language"
         
+        guard let appGroupDefaults = UserDefaults(suiteName: appGroupSuite) else {
+            print("[AppDelegate] FATAL: Cannot access App Group: \(appGroupSuite)")
+            return
+        }
+        
+        // Sync language to App Group
+        if let langValue = standardDefaults.string(forKey: langBridgeKey) {
+            let currentLang = appGroupDefaults.string(forKey: langWidgetKey)
+            if langValue != currentLang {
+                appGroupDefaults.set(langValue, forKey: langWidgetKey)
+                print("[AppDelegate] ✅ Widget language synced: \(langValue)")
+                // Reload widget timelines when language changes
+                if #available(iOS 14.0, *) {
+                    WidgetCenter.shared.reloadAllTimelines()
+                }
+            }
+        }
+        
+        // Sync prayer data to App Group
         guard let jsonString = standardDefaults.string(forKey: bridgeKey) else {
             return  // No data yet — silent
         }
         
         // Skip if we already synced this exact value
         if jsonString == lastSyncedValue {
-            return
-        }
-        
-        guard let appGroupDefaults = UserDefaults(suiteName: appGroupSuite) else {
-            print("[AppDelegate] FATAL: Cannot access App Group: \(appGroupSuite)")
             return
         }
         

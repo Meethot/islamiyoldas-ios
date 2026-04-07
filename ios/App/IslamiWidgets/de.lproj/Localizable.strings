@@ -1,0 +1,21 @@
+/* German */
+
+/* Widget Names */
+"widget_prayer_times" = "Gebetszeiten";
+"widget_prayer_lock" = "Gebetszeit";
+"widget_daily_verse" = "Vers des Tages";
+"widget_daily_verse_transparent" = "Vers des Tages (Klar)";
+"widget_daily_esma" = "Name des Tages";
+"widget_hourly_esma" = "Stündlicher Name";
+"widget_daily_motivation" = "Tägliche Motivation";
+"widget_hourly_verse" = "Stündlicher Vers";
+
+/* Widget Descriptions */
+"desc_prayer_times" = "Verfolgen Sie Ihre Gebetszeiten";
+"desc_prayer_lock" = "Sehen Sie die nächste Gebetszeit auf dem Sperrbildschirm";
+"desc_daily_verse" = "Ein täglicher Vers für Ihre Seele";
+"desc_daily_verse_transparent" = "Täglicher Vers mit transparentem Hintergrund";
+"desc_daily_esma" = "Jeden Tag ein anderer schöner Name Allahs";
+"desc_hourly_esma" = "Jede Stunde ein neuer schöner Name Allahs";
+"desc_daily_motivation" = "Ein motivierender Vers, der Sie jeden Tag inspiriert";
+"desc_hourly_verse" = "Jede Stunde ein neuer inspirierender Vers";

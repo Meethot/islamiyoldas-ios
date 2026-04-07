@@ -281,6 +281,22 @@ export default function PremiumPaywall() {
     const [isRestoring, setIsRestoring] = useState(false);
     const [products, setProducts] = useState([]);
     const [toast, setToast] = useState(null); // { type: 'error'|'info', message }
+    
+    // Timer State
+    const [timeLeft, setTimeLeft] = useState(3600); // 1 hour
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setTimeLeft((prev) => (prev > 0 ? prev - 1 : 0));
+        }, 1000);
+        return () => clearInterval(interval);
+    }, []);
+
+    const formatTime = (seconds) => {
+        const m = Math.floor(seconds / 60);
+        const s = seconds % 60;
+        return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+    };
 
     const lang = i18n.language?.split('-')[0] || 'en';
     const reviews = REVIEWS[lang] || REVIEWS.en;
@@ -369,12 +385,13 @@ export default function PremiumPaywall() {
         return t('premium.iap_error_generic');
     }, [t]);
 
-    const handleSubscribe = useCallback(async () => {
+    const handleSubscribe = useCallback(async (explicitPlan) => {
         if (isLoading) return;
         setIsLoading(true);
         setToast(null);
 
-        const planName = selectedPlan;
+        // Allow passing explicitPlan directly from onClick without waiting for React state to batch update
+        const planName = typeof explicitPlan === 'string' ? explicitPlan : selectedPlan;
         analytics.premiumPurchaseStarted(planName);
 
         // 60-second timeout (Apple sandbox can be slow)
@@ -385,7 +402,7 @@ export default function PremiumPaywall() {
         }, 60000);
 
         try {
-            const productId = selectedPlan === 'yearly' ? PRODUCT_IDS.YEARLY : PRODUCT_IDS.MONTHLY;
+            const productId = planName === 'yearly' ? PRODUCT_IDS.YEARLY : PRODUCT_IDS.MONTHLY;
             const product = products.find(p => p.identifier === productId);
             const result = await purchaseProduct(productId);
             clearTimeout(timeoutId);
@@ -567,10 +584,28 @@ export default function PremiumPaywall() {
                         >
                             ✦ {t('premium.social_proof')} ✦
                         </motion.p>
+                        
+                        {/* Flash Sale Timer */}
+                        <motion.div
+                            className="flex justify-center mt-3 mb-1"
+                            initial={{ opacity: 0, scale: 0.9 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ delay: 0.22, duration: 0.5 }}
+                        >
+                            <div className="flex items-center gap-2 bg-gradient-to-r from-red-500/10 via-red-500/20 to-red-500/10 border border-red-500/30 px-3 py-1 rounded-full">
+                                <span className="text-red-400 text-[10px] font-bold uppercase tracking-wider">
+                                    {t('premium.flash_offer') || "Özel Teklif Sona Eriyor"}
+                                </span>
+                                <span className="text-red-300 font-mono text-[13px] font-black tracking-tight"
+                                      style={{ textShadow: '0 0 10px rgba(239,68,68,0.5)' }}>
+                                    {formatTime(timeLeft)}
+                                </span>
+                            </div>
+                        </motion.div>
 
                         {/* Premium badge — centered */}
                         <motion.div
-                            className="flex justify-center mt-1"
+                            className="flex justify-center mt-1.5"
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.25, duration: 0.5 }}
@@ -688,7 +723,15 @@ export default function PremiumPaywall() {
                     >
                         {/* Monthly */}
                         <button
-                            onClick={() => { selection(); setSelectedPlan('monthly'); analytics.premiumPlanSelected('monthly', getPrice(PRODUCT_IDS.MONTHLY)); }}
+                            onClick={() => { 
+                                if (selectedPlan === 'monthly') {
+                                    handleSubscribe('monthly');
+                                } else {
+                                    selection(); 
+                                    setSelectedPlan('monthly'); 
+                                    analytics.premiumPlanSelected('monthly', getPrice(PRODUCT_IDS.MONTHLY)); 
+                                }
+                            }}
                             className={`flex-1 relative text-left p-3 rounded-xl border-2 transition-all overflow-hidden ${selectedPlan === 'monthly' ? 'border-white/25 bg-white/[0.05]' : 'border-white/[0.06] bg-white/[0.015]'}`}
                             style={selectedPlan === 'monthly' ? { animation: 'pw-card-glow 2.5s ease-in-out infinite' } : {}}
                         >
@@ -710,7 +753,15 @@ export default function PremiumPaywall() {
 
                         {/* Yearly — HERO */}
                         <button
-                            onClick={() => { selection(); setSelectedPlan('yearly'); analytics.premiumPlanSelected('yearly', getPrice(PRODUCT_IDS.YEARLY)); }}
+                            onClick={() => { 
+                                if (selectedPlan === 'yearly') {
+                                    handleSubscribe('yearly');
+                                } else {
+                                    selection(); 
+                                    setSelectedPlan('yearly'); 
+                                    analytics.premiumPlanSelected('yearly', getPrice(PRODUCT_IDS.YEARLY));
+                                }
+                            }}
                             className={`flex-1 relative text-left p-3 rounded-xl border-2 transition-all overflow-hidden ${selectedPlan === 'yearly' ? 'border-[#D4AF37]/50 bg-[#D4AF37]/[0.06]' : 'border-[#D4AF37]/15 bg-[#D4AF37]/[0.02]'}`}
                             style={{ animation: 'pw-card-glow 2.5s ease-in-out infinite' }}
                         >
@@ -729,7 +780,7 @@ export default function PremiumPaywall() {
                             </div>
                             <p className="text-[#D4AF37] font-bold text-[13px] mt-2">{t('premium.plan_yearly')}</p>
                             <p className="text-white/35 text-[10px] mt-0.5">{getMonthlyEquivalent() ? t('premium.monthly_label', { price: getMonthlyEquivalent() }) : t('premium.plan_yearly_per_month')}</p>
-                            <p className="text-[#D4AF37] font-bold text-base mt-1">{getPrice(PRODUCT_IDS.YEARLY) || '₺979,99'}</p>
+                            <p className="text-[#D4AF37] font-bold text-base mt-1">{getPrice(PRODUCT_IDS.YEARLY) || '₺499,99'}</p>
                             <p className="text-[#D4AF37]/40 text-[10px]">/ {t('premium.year')}</p>
                             <div className="mt-1.5 pt-1.5 border-t border-[#D4AF37]/10">
                                 <p className="text-[#D4AF37]/60 text-[12px] font-semibold text-center">{getDailyPrice(PRODUCT_IDS.YEARLY) ? `🔥 ${t('premium.daily_label', { price: getDailyPrice(PRODUCT_IDS.YEARLY) })}` : t('premium.daily_yearly')}</p>
@@ -777,15 +828,15 @@ export default function PremiumPaywall() {
                             🔔 {selectedPlan === 'yearly' ? t('premium.disclaimer_yearly') : t('premium.disclaimer_monthly')}
                         </p>
 
-                        {/* Trial badge — only for yearly */}
-                        {selectedPlan === 'yearly' && (
-                            <div className="flex items-center justify-center gap-1.5 mt-2">
-                                <div className="w-4 h-4 rounded-md bg-[#D4AF37]/12 flex items-center justify-center">
-                                    <BookOpen size={10} className="text-[#D4AF37]" />
-                                </div>
-                                <span className="text-[#D4AF37]/60 text-[11px] font-bold">{t('premium.trial_included')}</span>
+                        {/* Trial badge — for both plans */}
+                        <div className="flex items-center justify-center gap-1.5 mt-2">
+                            <div className="w-4 h-4 rounded-md bg-[#D4AF37]/12 flex items-center justify-center">
+                                <BookOpen size={10} className="text-[#D4AF37]" />
                             </div>
-                        )}
+                            <span className="text-[#D4AF37]/60 text-[11px] font-bold">
+                                {selectedPlan === 'yearly' ? t('premium.trial_included_yearly') : t('premium.trial_included_monthly')}
+                            </span>
+                        </div>
 
 
                         <motion.div

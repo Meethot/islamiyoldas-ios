@@ -1,0 +1,21 @@
+/* Russian */
+
+/* Widget Names */
+"widget_prayer_times" = "Время намаза";
+"widget_prayer_lock" = "Время намаза";
+"widget_daily_verse" = "Аят дня";
+"widget_daily_verse_transparent" = "Аят дня (Прозр.)";
+"widget_daily_esma" = "Имя дня";
+"widget_hourly_esma" = "Имя часа";
+"widget_daily_motivation" = "Мотивация дня";
+"widget_hourly_verse" = "Аят часа";
+
+/* Widget Descriptions */
+"desc_prayer_times" = "Следите за временем намаза";
+"desc_prayer_lock" = "Следующее время намаза на экране блокировки";
+"desc_daily_verse" = "Ежедневный аят для вашей души";
+"desc_daily_verse_transparent" = "Ежедневный аят с прозрачным фоном";
+"desc_daily_esma" = "Каждый день новое Прекрасное Имя Аллаха";
+"desc_hourly_esma" = "Каждый час новое Прекрасное Имя Аллаха";
+"desc_daily_motivation" = "Мотивирующий аят, вдохновляющий вас каждый день";
+"desc_hourly_verse" = "Каждый час новый вдохновляющий аят";

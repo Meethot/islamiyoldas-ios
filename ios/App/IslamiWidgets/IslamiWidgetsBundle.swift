@@ -1,6 +1,28 @@
 import WidgetKit
 import SwiftUI
 
+// MARK: - Widget Language Helper
+
+/// Reads the user's app language from App Group UserDefaults.
+/// Falls back to system language, then to "tr" if unavailable.
+struct WidgetLanguageHelper {
+    private static let suiteName = "group.H5GZ9H5MX8.islamiyoldas"
+    private static let langKey = "widget_language"
+    private static let supportedLanguages = ["tr", "en", "de", "ru", "az", "ar"]
+    
+    static var currentLanguage: String {
+        if let defaults = UserDefaults(suiteName: suiteName),
+           let lang = defaults.string(forKey: langKey),
+           supportedLanguages.contains(lang) {
+            return lang
+        }
+        
+        let systemLang = Locale.preferredLanguages.first?.prefix(2).lowercased() ?? "tr"
+        if supportedLanguages.contains(String(systemLang)) { return String(systemLang) }
+        return "tr"
+    }
+}
+
 // MARK: - Home Screen Prayer Widget
 
 struct PrayerTimesWidget: Widget {
@@ -25,8 +47,8 @@ struct PrayerTimesWidget: Widget {
                 PrayerWidgetEntryView(entry: entry)
             }
         }
-        .configurationDisplayName("Namaz Vakitleri")
-        .description("Sonraki namaz vaktini ve geri sayımı takip edin")
+        .configurationDisplayName(NSLocalizedString("widget_prayer_times", comment: ""))
+        .description(NSLocalizedString("desc_prayer_times", comment: ""))
         .supportedFamilies([.systemSmall, .systemMedium])
         .contentMarginsDisabledIfAvailable()
     }
@@ -48,8 +70,8 @@ struct PrayerLockScreenWidget: Widget {
                 LockScreenOrFallbackView(entry: entry)
             }
         }
-        .configurationDisplayName("Namaz Vakti")
-        .description("Kilidi ekranından namaz vaktini takip edin")
+        .configurationDisplayName(NSLocalizedString("widget_prayer_lock", comment: ""))
+        .description(NSLocalizedString("desc_prayer_lock", comment: ""))
         .supportedFamilies(lockScreenFamilies)
     }
     
@@ -86,8 +108,8 @@ struct VerseWidget: Widget {
                 VerseWidgetEntryView(entry: entry)
             }
         }
-        .configurationDisplayName("Günün Ayeti")
-        .description("Her gün yeni bir ayet ile ilham alın")
+        .configurationDisplayName(NSLocalizedString("widget_daily_verse", comment: ""))
+        .description(NSLocalizedString("desc_daily_verse", comment: ""))
         .supportedFamilies([.systemSmall, .systemMedium])
         .contentMarginsDisabledIfAvailable()
     }
@@ -107,14 +129,42 @@ struct VerseLockScreenWidget: Widget {
                 VerseLockScreenOrFallbackView(entry: entry)
             }
         }
-        .configurationDisplayName("Günün Ayeti")
-        .description("Kilit ekranından her gün yeni bir ayet ile ilham alın")
+        .configurationDisplayName(NSLocalizedString("widget_daily_verse", comment: ""))
+        .description(NSLocalizedString("desc_daily_verse", comment: ""))
         .supportedFamilies(lockScreenFamilies)
     }
     
     private var lockScreenFamilies: [WidgetFamily] {
         if #available(iOSApplicationExtension 16.0, *) {
-            return [.accessoryCircular, .accessoryRectangular, .accessoryInline]
+            return [.accessoryRectangular, .accessoryInline]
+        } else {
+            return []
+        }
+    }
+}
+
+// MARK: - Lock Screen Verse Widget (Transparent)
+
+struct VerseLockScreenTransparentWidget: Widget {
+    let kind: String = "VerseLockScreenTransparentWidget"
+    
+    var body: some WidgetConfiguration {
+        StaticConfiguration(kind: kind, provider: VerseProvider()) { entry in
+            if #available(iOSApplicationExtension 17.0, *) {
+                VerseLockScreenTransparentOrFallbackView(entry: entry)
+                    .containerBackground(.clear, for: .widget)
+            } else {
+                VerseLockScreenTransparentOrFallbackView(entry: entry)
+            }
+        }
+        .configurationDisplayName(NSLocalizedString("widget_daily_verse_transparent", comment: ""))
+        .description(NSLocalizedString("desc_daily_verse_transparent", comment: ""))
+        .supportedFamilies(lockScreenFamilies)
+    }
+    
+    private var lockScreenFamilies: [WidgetFamily] {
+        if #available(iOSApplicationExtension 16.0, *) {
+            return [.accessoryRectangular, .accessoryInline]
         } else {
             return []
         }
@@ -145,8 +195,8 @@ struct EsmaWidget: Widget {
                 EsmaWidgetEntryView(entry: entry)
             }
         }
-        .configurationDisplayName("Günün Esması")
-        .description("99 Esma-ül Hüsna'dan her gün farklı bir isim")
+        .configurationDisplayName(NSLocalizedString("widget_daily_esma", comment: ""))
+        .description(NSLocalizedString("desc_daily_esma", comment: ""))
         .supportedFamilies([.systemSmall, .systemMedium])
         .contentMarginsDisabledIfAvailable()
     }
@@ -176,8 +226,8 @@ struct HourlyEsmaWidget: Widget {
                 HourlyEsmaWidgetEntryView(entry: entry)
             }
         }
-        .configurationDisplayName("Saatlik Esma")
-        .description("Her saat başı farklı bir Esma-ül Hüsna")
+        .configurationDisplayName(NSLocalizedString("widget_hourly_esma", comment: ""))
+        .description(NSLocalizedString("desc_hourly_esma", comment: ""))
         .supportedFamilies([.systemSmall, .systemMedium])
         .contentMarginsDisabledIfAvailable()
     }
@@ -207,10 +257,18 @@ struct MotivationWidget: Widget {
                 MotivationWidgetEntryView(entry: entry)
             }
         }
-        .configurationDisplayName("Günün Motivasyonu")
-        .description("Her gün ruhunuza iyi gelecek motivasyon veren bir ayet")
-        .supportedFamilies([.systemSmall, .systemMedium])
+        .configurationDisplayName(NSLocalizedString("widget_daily_motivation", comment: ""))
+        .description(NSLocalizedString("desc_daily_motivation", comment: ""))
+        .supportedFamilies(motivationFamilies)
         .contentMarginsDisabledIfAvailable()
+    }
+    
+    private var motivationFamilies: [WidgetFamily] {
+        if #available(iOSApplicationExtension 16.0, *) {
+            return [.systemSmall, .systemMedium, .accessoryRectangular, .accessoryInline]
+        } else {
+            return [.systemSmall, .systemMedium]
+        }
     }
 }
 
@@ -238,10 +296,18 @@ struct HourlyVerseWidget: Widget {
                 HourlyVerseWidgetEntryView(entry: entry)
             }
         }
-        .configurationDisplayName("Saatlik Ayet")
-        .description("Her saat başı yeni bir ilham veren ayet")
-        .supportedFamilies([.systemSmall, .systemMedium])
+        .configurationDisplayName(NSLocalizedString("widget_hourly_verse", comment: ""))
+        .description(NSLocalizedString("desc_hourly_verse", comment: ""))
+        .supportedFamilies(hourlyVerseFamilies)
         .contentMarginsDisabledIfAvailable()
+    }
+    
+    private var hourlyVerseFamilies: [WidgetFamily] {
+        if #available(iOSApplicationExtension 16.0, *) {
+            return [.systemSmall, .systemMedium, .accessoryRectangular, .accessoryInline]
+        } else {
+            return [.systemSmall, .systemMedium]
+        }
     }
 }
 
@@ -348,13 +414,28 @@ struct HourlyVerseWidgetEntryView: View {
     let entry: HourlyVerseEntry
     
     var body: some View {
-        switch family {
-        case .systemSmall:
-            HourlyVerseSmallWidgetView(entry: entry)
-        case .systemMedium:
-            HourlyVerseMediumWidgetView(entry: entry)
-        default:
-            HourlyVerseSmallWidgetView(entry: entry)
+        if #available(iOSApplicationExtension 16.0, *) {
+            switch family {
+            case .systemSmall:
+                HourlyVerseSmallWidgetView(entry: entry)
+            case .systemMedium:
+                HourlyVerseMediumWidgetView(entry: entry)
+            case .accessoryRectangular:
+                HourlyVerseLockScreenRectangularView(entry: entry)
+            case .accessoryInline:
+                HourlyVerseLockScreenInlineView(entry: entry)
+            default:
+                HourlyVerseSmallWidgetView(entry: entry)
+            }
+        } else {
+            switch family {
+            case .systemSmall:
+                HourlyVerseSmallWidgetView(entry: entry)
+            case .systemMedium:
+                HourlyVerseMediumWidgetView(entry: entry)
+            default:
+                HourlyVerseSmallWidgetView(entry: entry)
+            }
         }
     }
 }
@@ -365,14 +446,35 @@ struct MotivationWidgetEntryView: View {
     @Environment(\.widgetFamily) var family
     let entry: MotivationEntry
     
+    /// Home screen should always show DAILY motivation (not hourly)
+    private var dailyEntry: MotivationEntry {
+        let dailyMotivation = MotivationEntry.motivationForDate(entry.date)
+        return MotivationEntry(date: entry.date, motivation: dailyMotivation)
+    }
+    
     var body: some View {
-        switch family {
-        case .systemSmall:
-            MotivationSmallWidgetView(entry: entry)
-        case .systemMedium:
-            MotivationMediumWidgetView(entry: entry)
-        default:
-            MotivationSmallWidgetView(entry: entry)
+        if #available(iOSApplicationExtension 16.0, *) {
+            switch family {
+            case .systemSmall:
+                MotivationSmallWidgetView(entry: dailyEntry)
+            case .systemMedium:
+                MotivationMediumWidgetView(entry: dailyEntry)
+            case .accessoryRectangular:
+                MotivationLockScreenRectangularView(entry: entry)
+            case .accessoryInline:
+                MotivationLockScreenInlineView(entry: entry)
+            default:
+                MotivationSmallWidgetView(entry: dailyEntry)
+            }
+        } else {
+            switch family {
+            case .systemSmall:
+                MotivationSmallWidgetView(entry: dailyEntry)
+            case .systemMedium:
+                MotivationMediumWidgetView(entry: dailyEntry)
+            default:
+                MotivationSmallWidgetView(entry: dailyEntry)
+            }
         }
     }
 }
@@ -386,6 +488,7 @@ struct IslamiWidgetsBundle: WidgetBundle {
         PrayerLockScreenWidget()
         VerseWidget()
         VerseLockScreenWidget()
+        VerseLockScreenTransparentWidget()
         HourlyVerseWidget()
         EsmaWidget()
         HourlyEsmaWidget()
@@ -416,13 +519,13 @@ struct PrayerTimesWidget_Previews: PreviewProvider {
                 .previewDisplayName("Verse Medium")
                 
             if #available(iOSApplicationExtension 16.0, *) {
-                VerseLockScreenCircularView(entry: .placeholder)
-                    .previewContext(WidgetPreviewContext(family: .accessoryCircular))
-                    .previewDisplayName("Verse Lock Circular")
-                
                 VerseLockScreenRectangularView(entry: .placeholder)
                     .previewContext(WidgetPreviewContext(family: .accessoryRectangular))
-                    .previewDisplayName("Verse Lock Rectangular")
+                    .previewDisplayName("Verse Lock Oval")
+                
+                VerseLockScreenTransparentRectangularView(entry: .placeholder)
+                    .previewContext(WidgetPreviewContext(family: .accessoryRectangular))
+                    .previewDisplayName("Verse Lock Transparent")
                 
                 VerseLockScreenInlineView(entry: .placeholder)
                     .previewContext(WidgetPreviewContext(family: .accessoryInline))

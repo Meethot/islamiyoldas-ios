@@ -1,0 +1,21 @@
+/* Arabic */
+
+/* Widget Names */
+"widget_prayer_times" = "أوقات الصلاة";
+"widget_prayer_lock" = "وقت الصلاة";
+"widget_daily_verse" = "آية اليوم";
+"widget_daily_verse_transparent" = "آية اليوم (شفاف)";
+"widget_daily_esma" = "اسم اليوم";
+"widget_hourly_esma" = "اسم الساعة";
+"widget_daily_motivation" = "تحفيز اليوم";
+"widget_hourly_verse" = "آية الساعة";
+
+/* Widget Descriptions */
+"desc_prayer_times" = "تتبّع أوقات الصلاة";
+"desc_prayer_lock" = "مشاهدة وقت الصلاة التالي على شاشة القفل";
+"desc_daily_verse" = "آية يومية لتنعش روحك";
+"desc_daily_verse_transparent" = "آية اليوم بخلفية شفافة";
+"desc_daily_esma" = "اسم جميل من أسماء الله الحسنى كل يوم";
+"desc_hourly_esma" = "اسم جديد من أسماء الله الحسنى كل ساعة";
+"desc_daily_motivation" = "آية تحفيزية تلهمك كل يوم";
+"desc_hourly_verse" = "آية ملهمة جديدة كل ساعة";

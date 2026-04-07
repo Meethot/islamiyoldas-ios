@@ -51,6 +51,25 @@ export async function syncPrayerTimesToWidget({ prayerTimes, city, hijriDate = '
 }
 
 /**
+ * Sync the current app language to widget via Preferences bridge.
+ * Called when user changes language in-app.
+ * 
+ * @param {string} lang - Language code (tr, en, de, ru, az, ar)
+ */
+export async function syncLanguageToWidget(lang = 'tr') {
+    if (!Capacitor.isNativePlatform() || Capacitor.getPlatform() !== 'ios') {
+        return;
+    }
+
+    try {
+        await Preferences.set({ key: 'widget_language_bridge', value: lang });
+        console.log('[WidgetService] Language synced to widget:', lang);
+    } catch (error) {
+        console.warn('[WidgetService] Failed to sync language:', error?.message || error);
+    }
+}
+
+/**
  * Force refresh all widget timelines.
  */
 export async function refreshWidgets() {

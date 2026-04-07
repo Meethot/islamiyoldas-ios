@@ -15,7 +15,7 @@ struct VerseProvider: TimelineProvider {
             date: Date(),
             verse: verse,
             dayNumber: day,
-            totalVerses: VerseEntry.allVerses.count
+            totalVerses: VerseEntry.allVerses(for: WidgetLanguageHelper.currentLanguage).count
         ))
     }
     
@@ -29,7 +29,7 @@ struct VerseProvider: TimelineProvider {
             date: now,
             verse: todayVerse,
             dayNumber: todayDay,
-            totalVerses: VerseEntry.allVerses.count
+            totalVerses: VerseEntry.allVerses(for: WidgetLanguageHelper.currentLanguage).count
         )
         
         // Calculate next midnight for refresh
@@ -41,7 +41,7 @@ struct VerseProvider: TimelineProvider {
             date: tomorrow,
             verse: tomorrowVerse,
             dayNumber: tomorrowDay,
-            totalVerses: VerseEntry.allVerses.count
+            totalVerses: VerseEntry.allVerses(for: WidgetLanguageHelper.currentLanguage).count
         )
         
         let timeline = Timeline(

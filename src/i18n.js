@@ -11,6 +11,8 @@ export const handleLanguageChange = (langCode) => {
     localStorage.setItem('i18nextLng', langCode);
     document.documentElement.dir = dir(langCode);
     document.documentElement.lang = langCode;
+    // Sync language to iOS widget before reload
+    import('./services/widgetService.js').then(m => m.syncLanguageToWidget(langCode)).catch(() => {});
     window.location.reload();
 };
 
@@ -57,6 +59,8 @@ i18n.on('languageChanged', (lng) => {
     const baseLang = lng?.split('-')[0] || 'en';
     document.documentElement.dir = dir(baseLang);
     document.documentElement.lang = baseLang;
+    // Always sync current language to iOS widget
+    import('./services/widgetService.js').then(m => m.syncLanguageToWidget(baseLang)).catch(() => {});
 });
 
 export default i18n;

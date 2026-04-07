@@ -1,0 +1,21 @@
+/* English */
+
+/* Widget Names */
+"widget_prayer_times" = "Prayer Times";
+"widget_prayer_lock" = "Prayer Time";
+"widget_daily_verse" = "Verse of the Day";
+"widget_daily_verse_transparent" = "Verse of the Day (Clear)";
+"widget_daily_esma" = "Name of the Day";
+"widget_hourly_esma" = "Hourly Divine Name";
+"widget_daily_motivation" = "Daily Motivation";
+"widget_hourly_verse" = "Hourly Verse";
+
+/* Widget Descriptions */
+"desc_prayer_times" = "Track your prayer times";
+"desc_prayer_lock" = "See the next prayer time on your lock screen";
+"desc_daily_verse" = "A daily verse to uplift your spirit";
+"desc_daily_verse_transparent" = "Daily verse with a transparent background";
+"desc_daily_esma" = "A different Beautiful Name of Allah every day";
+"desc_hourly_esma" = "A new Beautiful Name of Allah every hour";
+"desc_daily_motivation" = "A motivational verse to inspire you every day";
+"desc_hourly_verse" = "A new inspiring verse every hour";
