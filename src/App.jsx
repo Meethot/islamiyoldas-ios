@@ -42,6 +42,7 @@ const LegalSettings = React.lazy(() => import('./pages/settings/LegalSettings'))
 const LanguageSettings = React.lazy(() => import('./pages/settings/LanguageSettings'));
 const AiMentor = React.lazy(() => import('./pages/AiMentor'));
 const FastingTracker = React.lazy(() => import('./pages/FastingTracker'));
+const WidgetGuide = React.lazy(() => import('./pages/WidgetGuide'));
 const PremiumPaywall = React.lazy(() => import('./pages/PremiumPaywall'));
 
 function App() {
@@ -232,6 +233,7 @@ function AppContent() {
                 <Route path="/qibla" element={<Qibla />} />
                 <Route path="/ai-mentor" element={<AiMentor />} />
                 <Route path="/oruc-takibi" element={<FastingTracker />} />
+                <Route path="/widget-rehberi" element={<WidgetGuide />} />
                 <Route path="/settings/notifications" element={<NotificationSettings />} />
                 <Route path="/settings/location" element={<LocationSettings />} />
                 <Route path="/settings/language" element={<LanguageSettings />} />

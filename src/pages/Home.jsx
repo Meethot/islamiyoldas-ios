@@ -417,6 +417,7 @@ export default function Home() {
             </motion.div>
 
 
+            {/* RAMAZAN SONRASI: Oruç Takibi kartı kaldırıldı — bir sonraki Ramazan'da geri eklenecek
             <motion.div variants={itemVariants} className="px-1 cursor-pointer group" onClick={() => handleNavigate('/oruc-takibi')}>
                 <div className="glass-panel rounded-[2.5rem] p-6 flex items-center justify-between transition-all active:scale-95 group-hover:bg-white/60 dark:group-hover:bg-white/10">
                     <div className="flex items-center gap-4">
@@ -429,6 +430,24 @@ export default function Home() {
                         </div>
                     </div>
                     <ChevronRight size={16} className="text-islamic-gold group-hover:translate-x-1 transition-transform" />
+                </div>
+            </motion.div>
+            */}
+
+            {/* Widget Rehberi Kartı */}
+            <motion.div variants={itemVariants} className="px-1 cursor-pointer group" onClick={() => handleNavigate('/widget-rehberi')}>
+                <div className="glass-panel rounded-[2.5rem] p-6 flex items-center justify-between transition-all active:scale-95 group-hover:bg-white/60 dark:group-hover:bg-white/10 relative overflow-hidden">
+                    <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 via-transparent to-islamic-gold/5 opacity-60" />
+                    <div className="flex items-center gap-4 relative z-10">
+                        <div className="p-4 bg-gradient-to-br from-blue-500/15 to-islamic-gold/15 rounded-2xl text-islamic-gold">
+                            <Download size={24} />
+                        </div>
+                        <div>
+                            <h4 className="font-bold text-gray-900 dark:text-islamic-gold uppercase text-xs tracking-widest font-serif">{t('quickAction.widgetGuide', 'Widget Rehberi')}</h4>
+                            <p className="text-[10px] text-gray-500 dark:text-emerald-100/40 font-medium opacity-80">{t('quickAction.widgetGuideSub', 'Ana ekran & kilit ekranı')}</p>
+                        </div>
+                    </div>
+                    <ChevronRight size={16} className="text-islamic-gold group-hover:translate-x-1 transition-transform relative z-10" />
                 </div>
             </motion.div>
 
