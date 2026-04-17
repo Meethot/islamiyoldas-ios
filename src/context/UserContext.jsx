@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { storageService } from '../services/storageService';
 import { isPremium as checkIsPremium } from '../services/creditService';
+import { syncPremiumStatusToWidget } from '../services/widgetService';
 
 // Create the UserContext
 const UserContext = createContext(null);
@@ -37,7 +38,11 @@ export function UserProvider({ children }) {
 
     // Listen for storage completion and premium changes
     useEffect(() => {
-        const updatePremium = () => setPremiumStatus(checkIsPremium());
+        const updatePremium = () => {
+            const status = checkIsPremium();
+            setPremiumStatus(status);
+            syncPremiumStatusToWidget(status);
+        };
         
         const handleStorageReady = () => {
             console.log('[UserContext] Storage ready, syncing...');

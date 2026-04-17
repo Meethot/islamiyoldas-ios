@@ -41,6 +41,8 @@
 		E9AD63757027425035C30D59 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 1F028E53F29912EE2DF5543B /* Localizable.strings */; };
 		F486CB2CE132492AC134CE67 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = EDF92D19185FF9E333BBAF22 /* InfoPlist.strings */; };
 		FDC19C72B4872EDDE8A4F115 /* Pods_App.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 08BF80F130E618CCA04DF7D9 /* Pods_App.framework */; };
+		PREM00000000000000B00001 /* WidgetAccessHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = PREM00000000000000F00001 /* WidgetAccessHelper.swift */; };
+		PREM00000000000000B00002 /* PremiumRequiredView.swift in Sources */ = {isa = PBXBuildFile; fileRef = PREM00000000000000F00002 /* PremiumRequiredView.swift */; };
 		PRIV001122334455660002 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = PRIV001122334455660001 /* PrivacyInfo.xcprivacy */; };
 		V1E8F8000000000000B00001 /* VerseEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = V1E8F8000000000000F00001 /* VerseEntry.swift */; };
 		V1E8F8000000000000B00002 /* VerseProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = V1E8F8000000000000F00002 /* VerseProvider.swift */; };
@@ -133,6 +135,8 @@
 		E49259DC2F61A46D00F71080 /* İslami Yoldaş: Namaz, Ramazan.storekit */ = {isa = PBXFileReference; lastKnownFileType = text; path = "İslami Yoldaş: Namaz, Ramazan.storekit"; sourceTree = "<group>"; };
 		F1A3FE3AFBB91DCFB076CBC7 /* ru */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		F42928A1954CB9B9652868EC /* HourlyVerseSmallWidgetView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = HourlyVerseSmallWidgetView.swift; sourceTree = "<group>"; };
+		PREM00000000000000F00001 /* WidgetAccessHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetAccessHelper.swift; sourceTree = "<group>"; };
+		PREM00000000000000F00002 /* PremiumRequiredView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PremiumRequiredView.swift; sourceTree = "<group>"; };
 		PRIV001122334455660001 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		V1E8F8000000000000F00001 /* VerseEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VerseEntry.swift; sourceTree = "<group>"; };
 		V1E8F8000000000000F00002 /* VerseProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VerseProvider.swift; sourceTree = "<group>"; };
@@ -268,6 +272,8 @@
 				CC01C92512331C4565B384E0 /* VerseLockScreenView.swift */,
 				A5597A4B530F8B3CB9BF4632 /* HourlyVerseLockScreenView.swift */,
 				4D95D8CB79D8F542DFED9B17 /* MotivationLockScreenView.swift */,
+				PREM00000000000000F00001 /* WidgetAccessHelper.swift */,
+				PREM00000000000000F00002 /* PremiumRequiredView.swift */,
 				1F028E53F29912EE2DF5543B /* Localizable.strings */,
 			);
 			path = IslamiWidgets;
@@ -349,7 +355,7 @@
 			};
 			buildConfigurationList = 504EC2FF1FED79650016851F /* Build configuration list for PBXProject "App" */;
 			compatibilityVersion = "Xcode 8.0";
-			developmentRegion = en;
+			developmentRegion = tr;
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
@@ -522,6 +528,8 @@
 				55655962C3DD36DECD0CFC15 /* VerseLockScreenView.swift in Sources */,
 				658561D04E94F18110235ECA /* HourlyVerseLockScreenView.swift in Sources */,
 				9AC45FD5F4E310686CEF81C5 /* MotivationLockScreenView.swift in Sources */,
+				PREM00000000000000B00001 /* WidgetAccessHelper.swift in Sources */,
+				PREM00000000000000B00002 /* PremiumRequiredView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -710,7 +718,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = App/App.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 9;
+				CURRENT_PROJECT_VERSION = 10;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				INFOPLIST_FILE = App/Info.plist;
@@ -719,7 +727,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0.7;
+				MARKETING_VERSION = 1.0.8;
 				OTHER_SWIFT_FLAGS = "$(inherited) \"-D\" \"COCOAPODS\" \"-DDEBUG\"";
 				PRODUCT_BUNDLE_IDENTIFIER = com.islamiyoldas.app;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -736,7 +744,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = App/App.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 9;
+				CURRENT_PROJECT_VERSION = 10;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				INFOPLIST_FILE = App/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
@@ -744,7 +752,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0.7;
+				MARKETING_VERSION = 1.0.8;
 				PRODUCT_BUNDLE_IDENTIFIER = com.islamiyoldas.app;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "";
@@ -760,7 +768,7 @@
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
 				CODE_SIGN_ENTITLEMENTS = IslamiWidgets/IslamiWidgets.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 9;
+				CURRENT_PROJECT_VERSION = 10;
 				DEVELOPMENT_TEAM = H5GZ9H5MX8;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = NO;
@@ -773,7 +781,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.0.7;
+				MARKETING_VERSION = 1.0.8;
 				PRODUCT_BUNDLE_IDENTIFIER = com.islamiyoldas.app.widgets;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -790,7 +798,7 @@
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
 				CODE_SIGN_ENTITLEMENTS = IslamiWidgets/IslamiWidgets.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 9;
+				CURRENT_PROJECT_VERSION = 10;
 				DEVELOPMENT_TEAM = H5GZ9H5MX8;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = NO;
@@ -803,7 +811,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.0.7;
+				MARKETING_VERSION = 1.0.8;
 				PRODUCT_BUNDLE_IDENTIFIER = com.islamiyoldas.app.widgets;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;

@@ -112,29 +112,6 @@ export default function Profile() {
 
     const [calcData, setCalcData] = useState({ birthDate: '', startDate: '', gender: 'Erkek' });
 
-    // Promo Code State
-    const [showPromoModal, setShowPromoModal] = useState(false);
-    const [promoCode, setPromoCode] = useState('');
-    const VALID_CODES = [];
-
-    const handlePromoSubmit = () => {
-        const code = promoCode.trim().toUpperCase();
-        if (VALID_CODES.includes(code)) {
-            success();
-            setPremium(true);
-            setShowPromoModal(false);
-            setPromoCode('');
-            alert(t('promo.success'));
-            window.confetti({
-                particleCount: 100,
-                spread: 70,
-                origin: { y: 0.6 }
-            });
-        } else {
-            heavy();
-            alert(t('promo.invalid'));
-        }
-    };
 
     // Load Data
     useEffect(() => {
@@ -687,22 +664,6 @@ export default function Profile() {
                         <ChevronRight className="w-5 h-5 text-stone-400 dark:text-gray-300 group-hover:translate-x-1 transition-transform" />
                     </div>
 
-                    {/* Promo Code */}
-                    <div
-                        className="p-5 flex items-center justify-between hover:bg-stone-50 dark:hover:bg-white/5 transition-colors cursor-pointer group"
-                        onClick={() => setShowPromoModal(true)}
-                    >
-                        <div className="flex items-center gap-4">
-                            <div className="p-3 bg-purple-100/80 dark:bg-purple-900/20 text-purple-700 dark:text-purple-400 rounded-2xl group-hover:scale-110 transition-transform">
-                                <Ticket size={20} />
-                            </div>
-                            <div className="text-left">
-                                <p className="text-sm font-bold text-stone-800 dark:text-white">{t('promo.title')}</p>
-                                <p className="text-xs text-stone-500 dark:text-gray-400 font-medium">{t('promo.subtitle')}</p>
-                            </div>
-                        </div>
-                        <ChevronRight className="w-5 h-5 text-stone-400 dark:text-gray-300 group-hover:translate-x-1 transition-transform" />
-                    </div>
 
                     {/* Report Bug */}
                     <div
@@ -1004,54 +965,6 @@ export default function Profile() {
                 )}
             </AnimatePresence>
 
-            {/* Promo Code Modal */}
-            <AnimatePresence>
-                {showPromoModal && (
-                    <motion.div
-                        initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
-                        onClick={() => setShowPromoModal(false)}
-                    >
-                        <motion.div
-                            initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }}
-                            onClick={(e) => e.stopPropagation()}
-                            className="bg-white dark:bg-[#032e18] w-full max-w-sm rounded-[2.5rem] p-6 shadow-2xl border dark:border-white/10"
-                        >
-                            <div className="flex justify-between items-center mb-6">
-                                <h3 className="text-xl font-bold font-serif text-islamic-green dark:text-islamic-gold flex items-center gap-2">
-                                    <Gift className="w-6 h-6" /> {t('promo.title')}
-                                </h3>
-                                <Button size="icon" variant="ghost" onClick={() => setShowPromoModal(false)}><X className="w-5 h-5" /></Button>
-                            </div>
-
-                            <div className="space-y-4">
-                                {/* <p className="text-sm text-gray-600 dark:text-gray-300 text-center">
-                                    Youtuber veya Influencer'lardan aldığınız kodu aşağıya girerek Premium özellikleri ücretsiz açabilirsiniz.
-                                </p> */}
-
-                                <div className="space-y-2">
-                                    <label className="text-xs font-bold text-gray-500 uppercase ml-1">{t('promo.label')}</label>
-                                    <input
-                                        type="text"
-                                        value={promoCode}
-                                        onChange={(e) => setPromoCode(e.target.value)}
-                                        placeholder="KOD GİRİNİZ"
-                                        className="w-full p-4 bg-gray-50 dark:bg-white/5 border-2 border-gray-200 dark:border-white/10 rounded-xl text-lg font-bold text-center tracking-widest uppercase focus:outline-none focus:border-islamic-gold transition-colors"
-                                    />
-                                </div>
-
-                                <Button
-                                    onClick={handlePromoSubmit}
-                                    disabled={!promoCode.trim()}
-                                    className="w-full h-12 bg-islamic-gold hover:bg-islamic-gold/90 text-[#032e18] font-bold text-base rounded-xl shadow-lg shadow-islamic-gold/20 active:scale-95 transition-all"
-                                >
-                                    {t('promo.submit')}
-                                </Button>
-                            </div>
-                        </motion.div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
 
             {/* Editable Name Modal */}
             <AnimatePresence>

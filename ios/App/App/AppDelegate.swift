@@ -59,10 +59,25 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let widgetKey = "widget_prayer_data"
         let langBridgeKey = "CapacitorStorage.widget_language_bridge"
         let langWidgetKey = "widget_language"
+        let premiumBridgeKey = "CapacitorStorage.widget_is_premium_bridge"
+        let premiumWidgetKey = "widget_is_premium"
         
         guard let appGroupDefaults = UserDefaults(suiteName: appGroupSuite) else {
             print("[AppDelegate] FATAL: Cannot access App Group: \(appGroupSuite)")
             return
+        }
+        
+        // Sync premium status to App Group
+        if let premiumValue = standardDefaults.string(forKey: premiumBridgeKey) {
+            let isPremium = premiumValue == "true"
+            let currentPremium = appGroupDefaults.bool(forKey: premiumWidgetKey)
+            if isPremium != currentPremium {
+                appGroupDefaults.set(isPremium, forKey: premiumWidgetKey)
+                print("[AppDelegate] ✅ Widget premium status synced: \(isPremium)")
+                if #available(iOS 14.0, *) {
+                    WidgetCenter.shared.reloadAllTimelines()
+                }
+            }
         }
         
         // Sync language to App Group
@@ -124,6 +139,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
     func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey: Any] = [:]) -> Bool {
+        // Handle widget deep link: islamiyoldas://premium
+        if url.scheme == "islamiyoldas" && url.host == "premium" {
+            // Store the deep link path for the web view to pick up
+            UserDefaults.standard.set("premium", forKey: "widget_deep_link")
+            NotificationCenter.default.post(name: Notification.Name("WidgetDeepLink"), object: nil, userInfo: ["path": "premium"])
+        }
         return ApplicationDelegateProxy.shared.application(app, open: url, options: options)
     }
 

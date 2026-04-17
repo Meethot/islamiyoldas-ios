@@ -207,7 +207,9 @@
     },
     "quickAction": {
         "fasting": "Fasten-Tracker",
-        "fastingSub": "Verfolge dein Fasten, halte die Serie"
+        "fastingSub": "Verfolge dein Fasten, halte die Serie",
+        "widgetGuide": "Widget- / Sperrbildschirm-Anleitung",
+        "widgetGuideSub": "Startbildschirm & Sperrbildschirm"
     },
     "reminder": {
         "title": "Erinnerung setzen",
@@ -290,7 +292,7 @@
         "notification_manual": "In Einstellungen öffnen"
     },
     "widget_guide": {
-        "title": "Widget-Anleitung",
+        "title": "Widget- / Sperrbildschirm-Anleitung",
         "subtitle": "Verfolge deine Ibadah direkt vom Startbildschirm und Sperrbildschirm",
         "available_widgets": "Verfügbare Widgets",
         "tab_home": "Startbildschirm",

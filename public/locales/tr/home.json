@@ -207,7 +207,9 @@
     },
     "quickAction": {
         "fasting": "Oruç Takibi",
-        "fastingSub": "Orucunu takip et, seriyi koru"
+        "fastingSub": "Orucunu takip et, seriyi koru",
+        "widgetGuide": "Widget / Kilit Ekranı Rehberi",
+        "widgetGuideSub": "Ana ekran & kilit ekranı"
     },
     "reminder": {
         "title": "Hatırlatıcı Kur",
@@ -290,7 +292,7 @@
         "notification_manual": "Ayarlardan Aç"
     },
     "widget_guide": {
-        "title": "Widget Rehberi",
+        "title": "Widget / Kilit Ekranı Rehberi",
         "subtitle": "İbadetlerini ana ekranından ve kilit ekranından takip et",
         "available_widgets": "Mevcut Widget'lar",
         "tab_home": "Ana Ekran",

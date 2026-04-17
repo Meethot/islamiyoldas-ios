@@ -1,5 +1,5 @@
 import React, { useState, useEffect, Suspense } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate, useLocation as useRouterLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation as useRouterLocation, useNavigate } from 'react-router-dom';
 import Onboarding from './pages/Onboarding';
 import Home from './pages/Home';
 import AppLayout from './layouts/AppLayout';
@@ -58,6 +58,21 @@ function App() {
 function CrashBreadcrumbs() {
   const location = useRouterLocation();
   useEffect(() => { logPageView(location.pathname); }, [location.pathname]);
+  return null;
+}
+
+// Widget deep link handler — navigates to /premium when widget is tapped
+function DeepLinkHandler() {
+  const navigate = useNavigate();
+  useEffect(() => {
+    const listener = CapApp.addListener('appUrlOpen', (event) => {
+      const url = event.url || '';
+      if (url.includes('islamiyoldas://premium')) {
+        navigate('/premium');
+      }
+    });
+    return () => { listener.then(l => l.remove()); };
+  }, [navigate]);
   return null;
 }
 
@@ -211,6 +226,7 @@ function AppContent() {
           <ScrollToTop />
           <SwipeBackHandler />
           <CrashBreadcrumbs />
+          <DeepLinkHandler />
           <ReviewPrompt />
           <Suspense fallback={<div className="min-h-screen bg-background" />}>
             <Routes>

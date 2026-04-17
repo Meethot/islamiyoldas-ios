@@ -108,6 +108,18 @@ export async function shareProgress(elementId = 'share-card', streak = 0, naviga
  * Generates a referral link for inviting friends
  */
 export function generateReferralLink() {
+    const lang = i18n.language || 'tr';
+    if (lang.startsWith('tr')) {
+        return 'https://apps.apple.com/tr/app/id6759666173';
+    } else if (lang.startsWith('de')) {
+        return 'https://apps.apple.com/de/app/id6759666173';
+    } else if (lang.startsWith('ru')) {
+        return 'https://apps.apple.com/ru/app/id6759666173';
+    } else if (lang.startsWith('az')) {
+        return 'https://apps.apple.com/az/app/id6759666173';
+    } else if (lang.startsWith('ar')) {
+        return 'https://apps.apple.com/sa/app/id6759666173';
+    }
     return 'https://apps.apple.com/app/id6759666173';
 }
 

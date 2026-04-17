@@ -673,9 +673,10 @@ export const PrayerTimesProvider = ({ children }) => {
 
     // iOS limit: 64 pending notifications
     // Budget: 3 repeating verse + 1 repeating friday + 1 dhikr = 5 permanent
-    // Prayer: 7 days × 5 prayers = 35 slots (IDs 1-35)
-    // Reserved: 24 slots for future features
-    const MAX_PRAYER_DAYS = 7;
+    // Prayer: 3 days × 5 prayers = 15 slots (IDs 1-15)
+    // Pre-reminder: 3 days x 5 = 15 slots
+    // This totals to ~35 scheduled notifications, giving 100% safety buffer against iOS limit crashes.
+    const MAX_PRAYER_DAYS = 3;
 
     const schedulePrayerNotifications = useCallback(async (todayTimings) => {
         if (!Capacitor.isNativePlatform()) return;

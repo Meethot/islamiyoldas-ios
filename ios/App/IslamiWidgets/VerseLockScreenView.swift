@@ -8,7 +8,20 @@ struct VerseLockScreenOrFallbackView: View {
     let entry: VerseEntry
     
     var body: some View {
-        if #available(iOSApplicationExtension 16.0, *) {
+        if WidgetAccessHelper.checkAccess() == .expired {
+            if #available(iOSApplicationExtension 16.0, *) {
+                switch family {
+                case .accessoryRectangular:
+                    PremiumRequiredLockRectangularView()
+                case .accessoryInline:
+                    PremiumRequiredLockInlineView()
+                default:
+                    PremiumRequiredSmallView()
+                }
+            } else {
+                PremiumRequiredSmallView()
+            }
+        } else if #available(iOSApplicationExtension 16.0, *) {
             switch family {
             case .accessoryRectangular:
                 VerseLockScreenRectangularView(entry: entry)
@@ -30,7 +43,20 @@ struct VerseLockScreenTransparentOrFallbackView: View {
     let entry: VerseEntry
     
     var body: some View {
-        if #available(iOSApplicationExtension 16.0, *) {
+        if WidgetAccessHelper.checkAccess() == .expired {
+            if #available(iOSApplicationExtension 16.0, *) {
+                switch family {
+                case .accessoryRectangular:
+                    PremiumRequiredLockRectangularView()
+                case .accessoryInline:
+                    PremiumRequiredLockInlineView()
+                default:
+                    PremiumRequiredSmallView()
+                }
+            } else {
+                PremiumRequiredSmallView()
+            }
+        } else if #available(iOSApplicationExtension 16.0, *) {
             switch family {
             case .accessoryRectangular:
                 VerseLockScreenTransparentRectangularView(entry: entry)

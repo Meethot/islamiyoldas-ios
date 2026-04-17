@@ -23,7 +23,7 @@ const LOCK_STEPS = [
 ];
 
 const WIDGETS = [
-    { emoji: '🕌', name: 'Namaz Vakitleri', desc: 'Küçük · Orta' },
+    { emoji: '🕌', name: 'Namaz Vakitleri', desc: 'Küçük · Orta · Kilit' },
     { emoji: '📖', name: 'Günün Ayeti', desc: 'Küçük · Orta · Kilit' },
     { emoji: '📿', name: 'Esma-ül Hüsna', desc: 'Küçük · Orta' },
     { emoji: '💬', name: 'Motivasyon', desc: 'Küçük · Orta · Kilit' },
@@ -275,7 +275,7 @@ export default function WidgetGuide() {
                     letterSpacing: '-0.02em',
                     marginBottom: 4,
                 }}>
-                    {t('widget_guide.title', 'Widget Rehberi')}
+                    {t('widget_guide.title', 'Widget / Kilit Ekranı Rehberi')}
                 </h1>
                 <p style={{
                     fontSize: 13,
@@ -285,6 +285,47 @@ export default function WidgetGuide() {
                 }}>
                     {t('widget_guide.subtitle', 'İbadetlerini ana ekranından ve kilit ekranından takip et')}
                 </p>
+
+                {/* 24-Hour Free Trial Badge — shimmering gold */}
+                {!isPremium && (
+                    <div className="wg-trial-shimmer" style={{
+                        marginTop: 16,
+                        padding: '10px 20px',
+                        background: 'linear-gradient(135deg, rgba(212,160,83,0.18), rgba(251,191,36,0.12), rgba(212,160,83,0.18))',
+                        border: '1px solid rgba(251,191,36,0.35)',
+                        borderRadius: 24,
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 10,
+                        boxShadow: '0 4px 20px rgba(212,160,83,0.15), inset 0 1px 0 rgba(255,255,255,0.08)',
+                        position: 'relative',
+                        overflow: 'hidden',
+                    }}>
+                        {/* Shimmer sweep overlay */}
+                        <div className="wg-shimmer-sweep" style={{
+                            position: 'absolute',
+                            top: 0,
+                            left: '-100%',
+                            width: '100%',
+                            height: '100%',
+                            background: 'linear-gradient(90deg, transparent, rgba(255,215,0,0.15), transparent)',
+                            pointerEvents: 'none',
+                        }} />
+                        <span style={{ fontSize: 18, zIndex: 1 }}>✨</span>
+                        <span style={{
+                            fontSize: 14,
+                            fontWeight: 800,
+                            zIndex: 1,
+                            background: 'linear-gradient(135deg, #fbbf24, #f59e0b, #d4a053)',
+                            WebkitBackgroundClip: 'text',
+                            WebkitTextFillColor: 'transparent',
+                            letterSpacing: '-0.01em',
+                        }}>
+                            {t('widget_guide.trial_badge', '24 Saat Ücretsiz Dene — Hemen Başla!')}
+                        </span>
+                        <span style={{ fontSize: 14, zIndex: 1 }}>→</span>
+                    </div>
+                )}
             </div>
 
             {/* ── Content ── */}
@@ -476,8 +517,22 @@ export default function WidgetGuide() {
                     from { opacity: 0; transform: translateY(10px); }
                     to { opacity: 1; transform: translateY(0); }
                 }
+                @keyframes wg-pulse {
+                    0%, 100% { transform: scale(1); }
+                    50% { transform: scale(1.15); }
+                }
+                @keyframes wg-shimmer-sweep {
+                    0% { left: -100%; }
+                    100% { left: 200%; }
+                }
+                @keyframes wg-golden-glow {
+                    0%, 100% { box-shadow: 0 4px 20px rgba(212,160,83,0.15), inset 0 1px 0 rgba(255,255,255,0.08); }
+                    50% { box-shadow: 0 4px 28px rgba(251,191,36,0.3), inset 0 1px 0 rgba(255,255,255,0.12); }
+                }
                 .wg-float { animation: wg-float 3s ease-in-out infinite; }
                 .wg-fadein { animation: wg-fadein 0.4s ease-out both; }
+                .wg-shimmer-sweep { animation: wg-shimmer-sweep 3s ease-in-out infinite; }
+                .wg-trial-shimmer { animation: wg-golden-glow 2.5s ease-in-out infinite; }
             `}</style>
         </div>
     );

@@ -443,7 +443,7 @@ export default function Home() {
                             <Download size={24} />
                         </div>
                         <div>
-                            <h4 className="font-bold text-gray-900 dark:text-islamic-gold uppercase text-xs tracking-widest font-serif">{t('quickAction.widgetGuide', 'Widget Rehberi')}</h4>
+                            <h4 className="font-bold text-gray-900 dark:text-islamic-gold uppercase text-xs tracking-widest font-serif">{t('quickAction.widgetGuide', 'Widget / Kilit Ekranı Rehberi')}</h4>
                             <p className="text-[10px] text-gray-500 dark:text-emerald-100/40 font-medium opacity-80">{t('quickAction.widgetGuideSub', 'Ana ekran & kilit ekranı')}</p>
                         </div>
                     </div>

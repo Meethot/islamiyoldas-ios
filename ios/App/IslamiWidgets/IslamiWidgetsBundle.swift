@@ -318,7 +318,22 @@ struct LockScreenOrFallbackView: View {
     let entry: PrayerTimesEntry
     
     var body: some View {
-        if #available(iOSApplicationExtension 16.0, *) {
+        if WidgetAccessHelper.checkAccess() == .expired {
+            if #available(iOSApplicationExtension 16.0, *) {
+                switch family {
+                case .accessoryCircular:
+                    PremiumRequiredLockCircularView()
+                case .accessoryRectangular:
+                    PremiumRequiredLockRectangularView()
+                case .accessoryInline:
+                    PremiumRequiredLockInlineView()
+                default:
+                    PremiumRequiredSmallView()
+                }
+            } else {
+                PremiumRequiredSmallView()
+            }
+        } else if #available(iOSApplicationExtension 16.0, *) {
             switch family {
             case .accessoryCircular:
                 LockScreenCircularView(entry: entry)
@@ -342,13 +357,22 @@ struct PrayerWidgetEntryView: View {
     let entry: PrayerTimesEntry
     
     var body: some View {
-        switch family {
-        case .systemSmall:
-            SmallWidgetView(entry: entry)
-        case .systemMedium:
-            MediumWidgetView(entry: entry)
-        default:
-            SmallWidgetView(entry: entry)
+        if WidgetAccessHelper.checkAccess() == .expired {
+            switch family {
+            case .systemMedium:
+                PremiumRequiredMediumView()
+            default:
+                PremiumRequiredSmallView()
+            }
+        } else {
+            switch family {
+            case .systemSmall:
+                SmallWidgetView(entry: entry)
+            case .systemMedium:
+                MediumWidgetView(entry: entry)
+            default:
+                SmallWidgetView(entry: entry)
+            }
         }
     }
 }
@@ -360,13 +384,22 @@ struct VerseWidgetEntryView: View {
     let entry: VerseEntry
     
     var body: some View {
-        switch family {
-        case .systemSmall:
-            VerseSmallWidgetView(entry: entry)
-        case .systemMedium:
-            VerseMediumWidgetView(entry: entry)
-        default:
-            VerseSmallWidgetView(entry: entry)
+        if WidgetAccessHelper.checkAccess() == .expired {
+            switch family {
+            case .systemMedium:
+                PremiumRequiredMediumView()
+            default:
+                PremiumRequiredSmallView()
+            }
+        } else {
+            switch family {
+            case .systemSmall:
+                VerseSmallWidgetView(entry: entry)
+            case .systemMedium:
+                VerseMediumWidgetView(entry: entry)
+            default:
+                VerseSmallWidgetView(entry: entry)
+            }
         }
     }
 }
@@ -378,13 +411,22 @@ struct EsmaWidgetEntryView: View {
     let entry: EsmaEntry
     
     var body: some View {
-        switch family {
-        case .systemSmall:
-            EsmaSmallWidgetView(entry: entry)
-        case .systemMedium:
-            EsmaMediumWidgetView(entry: entry)
-        default:
-            EsmaSmallWidgetView(entry: entry)
+        if WidgetAccessHelper.checkAccess() == .expired {
+            switch family {
+            case .systemMedium:
+                PremiumRequiredMediumView()
+            default:
+                PremiumRequiredSmallView()
+            }
+        } else {
+            switch family {
+            case .systemSmall:
+                EsmaSmallWidgetView(entry: entry)
+            case .systemMedium:
+                EsmaMediumWidgetView(entry: entry)
+            default:
+                EsmaSmallWidgetView(entry: entry)
+            }
         }
     }
 }
@@ -396,13 +438,22 @@ struct HourlyEsmaWidgetEntryView: View {
     let entry: EsmaEntry
     
     var body: some View {
-        switch family {
-        case .systemSmall:
-            HourlyEsmaSmallWidgetView(entry: entry)
-        case .systemMedium:
-            HourlyEsmaMediumWidgetView(entry: entry)
-        default:
-            HourlyEsmaSmallWidgetView(entry: entry)
+        if WidgetAccessHelper.checkAccess() == .expired {
+            switch family {
+            case .systemMedium:
+                PremiumRequiredMediumView()
+            default:
+                PremiumRequiredSmallView()
+            }
+        } else {
+            switch family {
+            case .systemSmall:
+                HourlyEsmaSmallWidgetView(entry: entry)
+            case .systemMedium:
+                HourlyEsmaMediumWidgetView(entry: entry)
+            default:
+                HourlyEsmaSmallWidgetView(entry: entry)
+            }
         }
     }
 }
@@ -414,7 +465,27 @@ struct HourlyVerseWidgetEntryView: View {
     let entry: HourlyVerseEntry
     
     var body: some View {
-        if #available(iOSApplicationExtension 16.0, *) {
+        if WidgetAccessHelper.checkAccess() == .expired {
+            if #available(iOSApplicationExtension 16.0, *) {
+                switch family {
+                case .accessoryRectangular:
+                    PremiumRequiredLockRectangularView()
+                case .accessoryInline:
+                    PremiumRequiredLockInlineView()
+                case .systemMedium:
+                    PremiumRequiredMediumView()
+                default:
+                    PremiumRequiredSmallView()
+                }
+            } else {
+                switch family {
+                case .systemMedium:
+                    PremiumRequiredMediumView()
+                default:
+                    PremiumRequiredSmallView()
+                }
+            }
+        } else if #available(iOSApplicationExtension 16.0, *) {
             switch family {
             case .systemSmall:
                 HourlyVerseSmallWidgetView(entry: entry)
@@ -453,7 +524,27 @@ struct MotivationWidgetEntryView: View {
     }
     
     var body: some View {
-        if #available(iOSApplicationExtension 16.0, *) {
+        if WidgetAccessHelper.checkAccess() == .expired {
+            if #available(iOSApplicationExtension 16.0, *) {
+                switch family {
+                case .accessoryRectangular:
+                    PremiumRequiredLockRectangularView()
+                case .accessoryInline:
+                    PremiumRequiredLockInlineView()
+                case .systemMedium:
+                    PremiumRequiredMediumView()
+                default:
+                    PremiumRequiredSmallView()
+                }
+            } else {
+                switch family {
+                case .systemMedium:
+                    PremiumRequiredMediumView()
+                default:
+                    PremiumRequiredSmallView()
+                }
+            }
+        } else if #available(iOSApplicationExtension 16.0, *) {
             switch family {
             case .systemSmall:
                 MotivationSmallWidgetView(entry: dailyEntry)

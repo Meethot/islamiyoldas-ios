@@ -207,7 +207,9 @@
     },
     "quickAction": {
         "fasting": "Fasting Tracker",
-        "fastingSub": "Track your fasts, keep the streak"
+        "fastingSub": "Track your fasts, keep the streak",
+        "widgetGuide": "Widget / Lock Screen Guide",
+        "widgetGuideSub": "Home screen & lock screen"
     },
     "reminder": {
         "title": "Set Reminder",
@@ -290,7 +292,7 @@
         "notification_manual": "Open in Settings"
     },
     "widget_guide": {
-        "title": "Widget Guide",
+        "title": "Widget / Lock Screen Guide",
         "subtitle": "Track your worship from your home screen and lock screen",
         "available_widgets": "Available Widgets",
         "tab_home": "Home Screen",

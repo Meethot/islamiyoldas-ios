@@ -282,22 +282,6 @@ export default function PremiumPaywall() {
     const [products, setProducts] = useState([]);
     const [toast, setToast] = useState(null); // { type: 'error'|'info', message }
     
-    // Timer State
-    const [timeLeft, setTimeLeft] = useState(3600); // 1 hour
-
-    useEffect(() => {
-        const interval = setInterval(() => {
-            setTimeLeft((prev) => (prev > 0 ? prev - 1 : 0));
-        }, 1000);
-        return () => clearInterval(interval);
-    }, []);
-
-    const formatTime = (seconds) => {
-        const m = Math.floor(seconds / 60);
-        const s = seconds % 60;
-        return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-    };
-
     const lang = i18n.language?.split('-')[0] || 'en';
     const reviews = REVIEWS[lang] || REVIEWS.en;
 
@@ -584,24 +568,7 @@ export default function PremiumPaywall() {
                         >
                             ✦ {t('premium.social_proof')} ✦
                         </motion.p>
-                        
-                        {/* Flash Sale Timer */}
-                        <motion.div
-                            className="flex justify-center mt-3 mb-1"
-                            initial={{ opacity: 0, scale: 0.9 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            transition={{ delay: 0.22, duration: 0.5 }}
-                        >
-                            <div className="flex items-center gap-2 bg-gradient-to-r from-red-500/10 via-red-500/20 to-red-500/10 border border-red-500/30 px-3 py-1 rounded-full">
-                                <span className="text-red-400 text-[10px] font-bold uppercase tracking-wider">
-                                    {t('premium.flash_offer') || "Özel Teklif Sona Eriyor"}
-                                </span>
-                                <span className="text-red-300 font-mono text-[13px] font-black tracking-tight"
-                                      style={{ textShadow: '0 0 10px rgba(239,68,68,0.5)' }}>
-                                    {formatTime(timeLeft)}
-                                </span>
-                            </div>
-                        </motion.div>
+
 
                         {/* Premium badge — centered */}
                         <motion.div

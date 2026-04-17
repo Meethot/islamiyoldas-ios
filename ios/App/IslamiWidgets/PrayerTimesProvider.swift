@@ -146,7 +146,22 @@ struct PrayerTimesProvider: TimelineProvider {
             )
         }
         
-        let nextPrayer = prayers.first(where: { !$0.isPassed })
+        // Find next upcoming prayer; if all passed, wrap to tomorrow's first prayer (Fajr)
+        let nextPrayer: PrayerTimesEntry.PrayerItem?
+        if let upcoming = prayers.first(where: { !$0.isPassed }) {
+            nextPrayer = upcoming
+        } else if let first = prayers.first {
+            // All prayers passed — show tomorrow's first prayer
+            let tomorrowTime = Calendar.current.date(byAdding: .day, value: 1, to: first.time) ?? first.time
+            nextPrayer = PrayerTimesEntry.PrayerItem(
+                id: first.id,
+                name: first.name,
+                time: tomorrowTime,
+                isPassed: false
+            )
+        } else {
+            nextPrayer = nil
+        }
         
         return PrayerTimesEntry(
             date: date,

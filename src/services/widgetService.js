@@ -75,3 +75,23 @@ export async function syncLanguageToWidget(lang = 'tr') {
 export async function refreshWidgets() {
     // No-op on JS side — AppDelegate handles timeline reload
 }
+
+/**
+ * Sync the user's premium status to widget via Preferences bridge.
+ * Called when premium status changes (purchase, restore, or app launch).
+ * 
+ * @param {boolean} isPremium - Whether the user has an active premium subscription
+ */
+export async function syncPremiumStatusToWidget(isPremium = false) {
+    if (!Capacitor.isNativePlatform() || Capacitor.getPlatform() !== 'ios') {
+        return;
+    }
+
+    try {
+        await Preferences.set({ key: 'widget_is_premium_bridge', value: isPremium ? 'true' : 'false' });
+        console.log('[WidgetService] Premium status synced to widget:', isPremium);
+    } catch (error) {
+        console.warn('[WidgetService] Failed to sync premium status:', error?.message || error);
+    }
+}
+

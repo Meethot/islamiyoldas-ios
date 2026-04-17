@@ -23,11 +23,11 @@ struct LockScreenCircularView: View {
                     .padding(2)
                 
                 // Center content: prayer time
-                VStack(spacing: 0) {
+                VStack(spacing: -1) {
                     Image(systemName: iconForPrayer(next.id))
-                        .font(.system(size: 11, weight: .bold))
+                        .font(.system(size: 14, weight: .bold))
                     Text(formatTime(next.time))
-                        .font(.system(size: 12, weight: .heavy, design: .monospaced))
+                        .font(.system(size: 14, weight: .black, design: .monospaced))
                         .minimumScaleFactor(0.7)
                 }
             }
@@ -80,25 +80,25 @@ struct LockScreenRectangularView: View {
                 ZStack {
                     Circle()
                         .fill(.ultraThinMaterial)
-                        .frame(width: 28, height: 28)
+                        .frame(width: 34, height: 34)
                     Image(systemName: iconForPrayer(next.id))
-                        .font(.system(size: 13, weight: .semibold))
+                        .font(.system(size: 16, weight: .bold))
                 }
                 
                 // Right: Prayer info — two rows
-                VStack(alignment: .leading, spacing: 2) {
+                VStack(alignment: .leading, spacing: 0) {
                     // Row 1: Name + Time
                     HStack(spacing: 6) {
                         Text(next.name)
-                            .font(.system(size: 14, weight: .bold))
+                            .font(.system(size: 15, weight: .bold))
                         Text(formatTime(next.time))
-                            .font(.system(size: 12, weight: .medium, design: .monospaced))
+                            .font(.system(size: 14, weight: .semibold, design: .monospaced))
                             .foregroundStyle(.secondary)
                     }
                     
                     // Row 2: Countdown only
                     Text(next.time, style: .timer)
-                        .font(.system(size: 12, weight: .bold, design: .monospaced))
+                        .font(.system(size: 15, weight: .bold, design: .monospaced))
                         .monospacedDigit()
                         .foregroundStyle(.primary)
                 }
