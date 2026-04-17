@@ -93,13 +93,17 @@ export const analytics = {
     },
     premiumPurchaseFailed: (plan, reason) => trackEvent('premium_purchase_failed', { plan, error_code: reason }),
     premiumCancelled: (reason) => trackEvent('premium_cancelled', { reason }),
+    paywallDismissed: (source) => trackEvent('paywall_dismissed', { source }),
+    premiumDowngradeViewed: () => trackEvent('premium_downgrade_viewed'),
 
     // ── Feature Usage Events ──
     prayerMarked: (prayer, status) => trackEvent('prayer_marked', { prayer, status }),
     dhikrStarted: (dhikrName, target) => trackEvent('dhikr_started', { dhikr_name: dhikrName, target }),
     dhikrCompleted: (dhikrName, count) => trackEvent('dhikr_completed', { dhikr_name: dhikrName, count }),
+    aiFeatureDiscovered: (source) => trackEvent('ai_feature_discovered', { source }),
     aiQuestionAsked: (category) => trackEvent('ai_question_asked', { category }),
     aiResponseReceived: (category, isPremiumUser, responseTimeMs) => trackEvent('ai_response_received', { category, is_premium_user: isPremiumUser, response_time_ms: responseTimeMs }),
+    aiResponseRated: (rating, category) => trackEvent('ai_response_rated', { rating, category }),
     sleepModeStarted: (content, durationMinutes) => trackEvent('sleep_mode_started', { content, duration_minutes: durationMinutes }),
     sleepModeCompleted: (durationMinutes) => trackEvent('sleep_mode_completed', { duration_minutes: durationMinutes }),
     storyStarted: (title, durationMin) => trackEvent('story_started', { title, duration_min: durationMin }),
@@ -107,23 +111,35 @@ export const analytics = {
 
     // ── Push Notification Events ──
     pushNotificationOpened: (type, prayer) => trackEvent('push_notification_opened', { type, prayer }),
-    notificationReceived: (type) => trackEvent('notification_received', { type }),
-    notificationTapped: (type) => trackEvent('notification_tapped', { type }),
+    notificationReceived: (type) => trackEvent('notification_received', { notification_type: type }),
+    notificationTapped: (type) => trackEvent('notification_tapped', { notification_type: type }),
     notificationDismissed: (type) => trackEvent('notification_dismissed', { type }),
 
     // ── Search & Discovery ──
-    searchPerformed: (query, resultsCount) => trackEvent('search_performed', { query, results_count: resultsCount }),
+    searchPerformed: (query, resultsCount) => trackEvent('search_performed', { search_query_text: query, results_count: resultsCount }),
+    searchNoResults: (query) => trackEvent('search_no_results', { search_query_text: query }),
     searchResultClicked: () => trackEvent('search_result_clicked', {}),
 
     // ── Health & Error ──
     errorOccurred: (errorType, screen) => trackEvent('error_occurred', { error_type: errorType, screen }),
+    appCrash: (errorDetails) => trackEvent('app_crash', { details: errorDetails }),
+    appUpdatePrompted: () => trackEvent('app_update_prompted'),
 
     // ── Quran Content Tracking ──
     quranOpened: (surah, ayah) => trackEvent('quran_opened', { surah, ayah }),
+    quranPageScrolled: (surah) => trackEvent('quran_page_scrolled', { surah }),
+    quranReadingCompleted: (surah) => trackEvent('quran_reading_completed', { surah }),
     quranBookmarkAdded: (surah, ayah) => trackEvent('quran_bookmark_added', { surah, ayah }),
     quranAudioPlayed: (surah, reciter) => trackEvent('quran_audio_played', { surah, reciter }),
     contentShared: (contentType, platform) => trackEvent('content_shared', { content_type: contentType, platform }),
 
     // ── Misc Events ──
     languageChanged: (lang) => trackEvent('language_changed', { language: lang }),
+    dailyStreakAchieved: (streakCount) => trackEvent('daily_streak_achieved', { streak: streakCount }),
+    habitGoalSet: (goalType, target) => trackEvent('habit_goal_set', { goal_type: goalType, target }),
+    habitGoalCompleted: (goalType) => trackEvent('habit_goal_completed', { goal_type: goalType }),
+    widgetUsed: (widgetType) => trackEvent('widget_used', { widget_type: widgetType }),
+    duaRead: (duaName) => trackEvent('dua_read', { dua_name: duaName }),
+    duaBookmarked: (duaName) => trackEvent('dua_bookmarked', { dua_name: duaName }),
+    takvimViewed: () => trackEvent('takvim_viewed'),
 };

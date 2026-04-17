@@ -18,6 +18,7 @@ import { initAdMob, showRewardedAd } from '@/services/adService';
 import { useTranslation } from 'react-i18next';
 import { getFakePrayersByLang, normalizeLang } from '@/data/fakePrayers';
 import CreditPaywallModal from '@/components/CreditPaywallModal';
+import { analytics } from '@/services/analyticsService';
 
 
 
@@ -376,6 +377,8 @@ export default function DuaKosesi() {
         const newAmined = { ...aminedPrayers, [id]: true };
         setAminedPrayers(newAmined);
         localStorage.setItem('aminedPrayers', JSON.stringify(newAmined));
+
+        analytics.duaRead(id);
 
         // OPTIMISTIC UPDATE: Update realDuas state instantly
         // This ensures the count increments on screen immediately without waiting for Firestore

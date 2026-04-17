@@ -22,6 +22,7 @@ import { isPremium } from '@/services/creditService';
 import { useNavigate } from 'react-router-dom';
 import PrayerRewardModal from './PrayerRewardModal';
 import { PRAYER_CONTENT } from '@/data/hadithData';
+import { analytics } from '@/services/analyticsService';
 
 // Force Refresh
 // --- Animation Variants ---
@@ -278,6 +279,11 @@ export const WeeklyStreakWidget = memo(({ tubaData, setTubaData }) => {
             totalWateredDays: totalWateredDays + 1,
             lastWateredDate: todayStr
         };
+
+        if (newStreak > currentStreak) {
+            analytics.dailyStreakAchieved(newStreak);
+        }
+        analytics.habitGoalCompleted('tuba_watered');
 
         // ── INSTANT haptic: Heavy impact on press for satisfying "thump" ──
         if (Capacitor.isNativePlatform()) {
@@ -1948,7 +1954,7 @@ export const ReligiousCalendarWidget = memo(({ days }) => {
                 {/* COMPACT WIDGET */}
                 <Card
                     className="glass-panel border-none p-5 relative overflow-hidden group active:scale-[0.98] transition-all duration-300 cursor-pointer"
-                    onClick={() => { selection(); setShowModal(true); }}
+                    onClick={() => { selection(); setShowModal(true); analytics.takvimViewed(); }}
                 >
                     <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-islamic-gold to-transparent" />
 

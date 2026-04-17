@@ -67,6 +67,9 @@ function DeepLinkHandler() {
   useEffect(() => {
     const listener = CapApp.addListener('appUrlOpen', (event) => {
       const url = event.url || '';
+      if (url.includes('widget') || url.includes('PrayerTimesProvider')) {
+          analytics.widgetUsed(url);
+      }
       if (url.includes('islamiyoldas://premium')) {
         navigate('/premium');
       }

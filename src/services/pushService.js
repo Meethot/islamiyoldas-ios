@@ -16,9 +16,15 @@ export async function initOneSignal() {
         // Permission is now requested separately via requestNotificationPermission()
         // This prevents the iOS notification popup from firing on app launch.
 
+        OneSignal.Notifications.addEventListener('foregroundWillDisplay', (event) => {
+            const data = event?.notification?.additionalData || {};
+            analytics.notificationReceived(data.type || 'push_general');
+        });
+
         OneSignal.Notifications.addEventListener('click', (event) => {
             console.log('OneSignal: notification clicked:', event);
             const data = event?.notification?.additionalData || {};
+            analytics.notificationTapped(data.type || 'push_general');
             analytics.pushNotificationOpened(data.type || 'general', data.prayer || undefined);
         });
 

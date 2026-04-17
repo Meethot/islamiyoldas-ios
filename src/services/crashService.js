@@ -1,5 +1,6 @@
 import { Capacitor } from '@capacitor/core';
 import { FirebaseCrashlytics } from '@capacitor-firebase/crashlytics';
+import { analytics } from './analyticsService';
 
 let initialized = false;
 
@@ -28,14 +29,17 @@ export async function initCrashlytics() {
 
     // Global JS error handler → log to Crashlytics
     window.addEventListener('error', (event) => {
+        const errorDetails = `JS Error: ${event.message} at ${event.filename}:${event.lineno}:${event.colno}`;
+        try { analytics.appCrash(errorDetails); } catch(e) {}
         FirebaseCrashlytics.recordException({
-            message: `JS Error: ${event.message} at ${event.filename}:${event.lineno}:${event.colno}`,
+            message: errorDetails,
         }).catch(() => { });
     });
 
     // Unhandled promise rejection → log to Crashlytics
     window.addEventListener('unhandledrejection', (event) => {
         const msg = event.reason?.message || event.reason?.toString() || 'Unhandled promise rejection';
+        try { analytics.appCrash(`Promise rejection: ${msg}`); } catch(e) {}
         FirebaseCrashlytics.recordException({ message: `Promise rejection: ${msg}` }).catch(() => { });
     });
 }

@@ -427,6 +427,7 @@ export default function SurahDetail() {
 
     const loadMore = () => {
         if (hasNextPage && !isFetchingNextPage) {
+            analytics.quranPageScrolled(surahId);
             fetchNextPage();
         }
     };
@@ -483,6 +484,13 @@ export default function SurahDetail() {
             }
         }
     }, [pendingJumpVerse, verses.length, hasNextPage, isFetchingNextPage, fetchNextPage, selection]);
+
+    // Reading completed tracking
+    useEffect(() => {
+        if (!hasNextPage && verses.length > 0) {
+            analytics.quranReadingCompleted(surahId);
+        }
+    }, [hasNextPage, verses.length, surahId]);
 
     // Initial Loading State
     if (infoLoading || (versesLoading && !verseData)) {

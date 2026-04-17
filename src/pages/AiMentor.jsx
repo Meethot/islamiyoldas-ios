@@ -66,6 +66,10 @@ export default function AiMentor() {
     };
 
     useEffect(() => {
+        analytics.aiFeatureDiscovered('direct');
+    }, []);
+
+    useEffect(() => {
         scrollToBottom();
     }, [messages]);
 

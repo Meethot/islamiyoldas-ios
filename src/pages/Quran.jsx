@@ -142,6 +142,9 @@ export default function Quran() {
         if (!searchQuery) return;
         const timer = setTimeout(() => {
             analytics.searchPerformed(searchQuery, filteredSurahs.length);
+            if (filteredSurahs.length === 0) {
+                analytics.searchNoResults(searchQuery);
+            }
         }, 1000);
         return () => clearTimeout(timer);
     }, [searchQuery, filteredSurahs.length]);
