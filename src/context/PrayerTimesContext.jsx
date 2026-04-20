@@ -9,6 +9,7 @@ import { useLocation } from '@/context/LocationContext';
 import { DAILY_VERSES, DAILY_VERSES_EN, DAILY_VERSES_DE, DAILY_VERSES_RU, DAILY_VERSES_AZ, DAILY_VERSES_AR } from '@/data/dailyVerses';
 import { getAppDate, getTodayString } from '@/lib/testDate';
 import { syncPrayerTimesToWidget } from '@/services/widgetService';
+import { analytics } from '@/services/analyticsService';
 
 const PrayerTimesContext = createContext();
 
@@ -296,6 +297,27 @@ export const PrayerTimesProvider = ({ children }) => {
                     vibration: true
                 });
             }
+
+            // Track when notifications are delivered (even if app is in foreground)
+            await LocalNotifications.addListener('localNotificationReceived', (notification) => {
+                const type = notification.id <= 35 ? 'prayer' :
+                             notification.id >= 100 && notification.id <= 114 ? 'pre_reminder' :
+                             notification.id >= 1001 && notification.id <= 1003 ? 'verse' :
+                             notification.id === 2000 ? 'friday' :
+                             notification.id === 3000 ? 'dhikr' : 'other';
+                analytics.notificationReceived(type);
+            });
+
+            // Track when user taps on a notification
+            await LocalNotifications.addListener('localNotificationActionPerformed', (action) => {
+                const id = action.notification?.id;
+                const type = id <= 35 ? 'prayer' :
+                             id >= 100 && id <= 114 ? 'pre_reminder' :
+                             id >= 1001 && id <= 1003 ? 'verse' :
+                             id === 2000 ? 'friday' :
+                             id === 3000 ? 'dhikr' : 'other';
+                analytics.notificationTapped(type);
+            });
         } catch (error) {
             console.error('Notification initialization error:', error);
         }
@@ -360,7 +382,8 @@ export const PrayerTimesProvider = ({ children }) => {
 
         const addMinutes = (timeStr, mins) => {
             if (!timeStr) return timeStr;
-            const [h, m] = timeStr.split(':').map(Number);
+            const pureTime = timeStr.split(' ')[0]; // Strip timezone like "(+03)"
+            const [h, m] = pureTime.split(':').map(Number);
             const d = new Date();
             d.setHours(h, m + mins);
             return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
@@ -684,9 +707,16 @@ export const PrayerTimesProvider = ({ children }) => {
         schedulingRef.current = true;
 
         try {
-            // Cancel all existing prayer notifications (IDs 1-35)
-            const cancelIds = Array.from({ length: 35 }, (_, i) => ({ id: i + 1 }));
-            await LocalNotifications.cancel({ notifications: cancelIds });
+            // Cancel all existing prayer notifications (IDs 1-35) safely
+            try {
+                const pending = await LocalNotifications.getPending();
+                if (pending && pending.notifications) {
+                    const toCancel = pending.notifications.filter(n => n.id >= 1 && n.id <= 35).map(n => ({ id: n.id }));
+                    if (toCancel.length > 0) {
+                        await LocalNotifications.cancel({ notifications: toCancel });
+                    }
+                }
+            } catch (ce) { console.warn('Cancel prayers fail', ce); }
 
             if (!settings.adhanEnabled || !todayTimings) return;
 
@@ -834,7 +864,7 @@ export const PrayerTimesProvider = ({ children }) => {
             const notifications = [];
 
             const soundValue = settings.vibrateOnly
-                ? null
+                ? undefined
                 : (isIOS ? 'ezan.caf' : 'ezan.mp3');
 
             const appDate = getAppDate();
@@ -874,10 +904,17 @@ export const PrayerTimesProvider = ({ children }) => {
                         body: `${names[idx]} ${notifBody[lang] || notifBody.en}`,
                         id,
                         schedule: { at: date, allowWhileIdle: true },
-                        sound: soundValue,
-                        channelId: settings.vibrateOnly ? 'ezan_vakti_silent' : 'ezan_vakti',
                         smallIcon: 'ic_stat_icon_config_sample',
                     };
+
+                    if (soundValue) {
+                        notif.sound = soundValue;
+                    }
+                    if (!settings.vibrateOnly) {
+                        notif.channelId = 'ezan_vakti';
+                    } else {
+                        notif.channelId = 'ezan_vakti_silent';
+                    }
 
                     if (isIOS) {
                         notif.interruptionLevel = 'timeSensitive';
@@ -901,7 +938,15 @@ export const PrayerTimesProvider = ({ children }) => {
         if (!Capacitor.isNativePlatform()) return;
 
         try {
-            await LocalNotifications.cancel({ notifications: [{ id: 1001 }, { id: 1002 }, { id: 1003 }] });
+            try {
+                const pending = await LocalNotifications.getPending();
+                if (pending && pending.notifications) {
+                    const toCancel = pending.notifications.filter(n => [1001, 1002, 1003].includes(n.id)).map(n => ({ id: n.id }));
+                    if (toCancel.length > 0) {
+                        await LocalNotifications.cancel({ notifications: toCancel });
+                    }
+                }
+            } catch (ce) {}
 
             if (!settings.verseEnabled) return;
 
@@ -946,8 +991,7 @@ export const PrayerTimesProvider = ({ children }) => {
                         every: 'day',
                         allowWhileIdle: true
                     },
-                    smallIcon: 'ic_stat_icon_config_sample',
-                    sound: '' // Silent — no sound for verse notifications
+                    smallIcon: 'ic_stat_icon_config_sample'
                 };
             });
 
@@ -962,7 +1006,15 @@ export const PrayerTimesProvider = ({ children }) => {
         if (!Capacitor.isNativePlatform()) return;
 
         try {
-            await LocalNotifications.cancel({ notifications: [{ id: 2000 }] });
+            try {
+                const pending = await LocalNotifications.getPending();
+                if (pending && pending.notifications) {
+                    const toCancel = pending.notifications.filter(n => n.id === 2000).map(n => ({ id: n.id }));
+                    if (toCancel.length > 0) {
+                        await LocalNotifications.cancel({ notifications: toCancel });
+                    }
+                }
+            } catch (ce) {}
 
             if (!settings.fridayMessage) return;
 
@@ -1018,10 +1070,10 @@ export const PrayerTimesProvider = ({ children }) => {
             const isIOS = Capacitor.getPlatform() === 'ios';
             const isAndroid = Capacitor.getPlatform() === 'android';
             const soundValue = settings.vibrateOnly
-                ? null
+                ? undefined
                 : (isIOS ? 'beep.caf' : 'beep.wav');
 
-            await LocalNotifications.schedule({
+            const notifPayload = {
                 notifications: [{
                     id: 2000,
                     title: fridayTitle[lang] || fridayTitle.en,
@@ -1031,11 +1083,16 @@ export const PrayerTimesProvider = ({ children }) => {
                         every: 'week',
                         allowWhileIdle: true
                     },
-                    sound: soundValue,
                     channelId: settings.vibrateOnly ? 'ezan_vakti_silent' : 'ezan_vakti',
                     smallIcon: 'ic_stat_icon_config_sample'
                 }]
-            });
+            };
+
+            if (soundValue) {
+                notifPayload.notifications[0].sound = soundValue;
+            }
+
+            await LocalNotifications.schedule(notifPayload);
 
         } catch (error) {
             console.error('Error scheduling Friday message:', error);
@@ -1046,7 +1103,15 @@ export const PrayerTimesProvider = ({ children }) => {
         if (!Capacitor.isNativePlatform()) return;
 
         try {
-            await LocalNotifications.cancel({ notifications: [{ id: 3000 }] });
+            try {
+                const pending = await LocalNotifications.getPending();
+                if (pending && pending.notifications) {
+                    const toCancel = pending.notifications.filter(n => n.id === 3000).map(n => ({ id: n.id }));
+                    if (toCancel.length > 0) {
+                        await LocalNotifications.cancel({ notifications: toCancel });
+                    }
+                }
+            } catch (ce) {}
 
             if (!settings.dhikrReminder) return;
 
@@ -1106,7 +1171,6 @@ export const PrayerTimesProvider = ({ children }) => {
                         every: 'day',
                         allowWhileIdle: true
                     },
-                    sound: '',
                     smallIcon: 'ic_stat_icon_config_sample'
                 }]
             });
@@ -1123,9 +1187,16 @@ export const PrayerTimesProvider = ({ children }) => {
         if (!Capacitor.isNativePlatform()) return;
 
         try {
-            // Cancel all existing pre-reminder notifications (IDs 100-114)
-            const cancelIds = Array.from({ length: 15 }, (_, i) => ({ id: 100 + i }));
-            await LocalNotifications.cancel({ notifications: cancelIds });
+            // Cancel all existing pre-reminder notifications (IDs 100-114) safely
+            try {
+                const pending = await LocalNotifications.getPending();
+                if (pending && pending.notifications) {
+                    const toCancel = pending.notifications.filter(n => n.id >= 100 && n.id <= 114).map(n => ({ id: n.id }));
+                    if (toCancel.length > 0) {
+                        await LocalNotifications.cancel({ notifications: toCancel });
+                    }
+                }
+            } catch (ce) {}
 
             if (!settings.preReminderEnabled || !todayTimings) return;
 
@@ -1201,7 +1272,6 @@ export const PrayerTimesProvider = ({ children }) => {
                         body,
                         id,
                         schedule: { at: date, allowWhileIdle: true },
-                        sound: '',
                         smallIcon: 'ic_stat_icon_config_sample',
                     };
 

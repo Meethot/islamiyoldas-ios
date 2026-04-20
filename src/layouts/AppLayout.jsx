@@ -159,7 +159,7 @@ export default function AppLayout() {
 
                 {/* Bottom Navigation */}
                 {pathname !== '/ai-mentor' && (
-                    <nav className="fixed bottom-0 left-0 right-0 w-full bg-[#FBF9F4]/90 dark:bg-[#032e18]/90 backdrop-blur-xl border-t border-amber-100/50 dark:border-white/5 z-50 shadow-[0_-8px_20px_-6px_rgba(0,0,0,0.1)]">
+                    <nav className="absolute bottom-0 left-0 right-0 w-full bg-[#FBF9F4]/90 dark:bg-[#032e18]/90 backdrop-blur-xl border-t border-amber-100/50 dark:border-white/5 z-50 shadow-[0_-8px_20px_-6px_rgba(0,0,0,0.1)]">
                         <div className="flex justify-around items-center px-4 py-2 pb-safe max-w-2xl mx-auto">
                             <NavLinkItem to="/" icon={Home} label={tNav('nav.home')} onClick={selection} />
                             <NavLinkItem to="/learn" icon={BookOpen} label={tNav('nav.learn')} onClick={selection} />

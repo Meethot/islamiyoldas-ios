@@ -569,7 +569,7 @@ export default function SurahDetail() {
                     </Button>
                     <div className="flex-1 min-w-0">
                         <h1 className="text-lg font-serif font-bold text-white truncate leading-tight">
-                            {surahInfo?.name}
+                            {currentLang === 'tr' ? (surahInfo?.translatedName || surahInfo?.name) : surahInfo?.name}
                         </h1>
                         <p className="text-[11px] text-white/60 font-medium">
                             {surahInfo?.ayahCount} {t('quran:ayahCount', { count: surahInfo?.ayahCount || 0 }).split(' ').slice(1).join(' ')}

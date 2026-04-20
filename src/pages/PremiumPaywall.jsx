@@ -351,11 +351,10 @@ export default function PremiumPaywall() {
 
     const handleClose = useCallback(() => {
         if (!showExitPopup) {
-            analytics.paywallDismissed('initial_close');
             analytics.premiumDowngradeViewed();
             return setShowExitPopup(true);
         }
-        analytics.paywallDismissed('exit_popup_close');
+        analytics.paywallDismissed('confirmed');
         navigate('/');
     }, [navigate, showExitPopup]);
 

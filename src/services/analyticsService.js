@@ -1,4 +1,5 @@
 import * as amplitude from '@amplitude/analytics-browser';
+import { Capacitor } from '@capacitor/core';
 
 const AMPLITUDE_API_KEY = import.meta.env.VITE_AMPLITUDE_API_KEY;
 
@@ -10,6 +11,13 @@ export const initAnalytics = () => {
         console.warn('[Analytics] VITE_AMPLITUDE_API_KEY missing — tracking disabled');
         return;
     }
+
+    // Detect real platform from Capacitor
+    const nativePlatform = Capacitor.getPlatform(); // 'ios' | 'android' | 'web'
+    const platformLabel = nativePlatform === 'ios' ? 'iOS'
+                        : nativePlatform === 'android' ? 'Android'
+                        : 'Web';
+
     amplitude.init(AMPLITUDE_API_KEY, {
         autocapture: {
             elementInteractions: {
@@ -33,6 +41,14 @@ export const initAnalytics = () => {
             fileDownloads: false,
         },
     });
+
+    // Override platform so Amplitude shows iOS/Android instead of "Web"
+    const identify = new amplitude.Identify();
+    identify.set('platform', platformLabel);
+    identify.set('os_name', platformLabel);
+    identify.set('device_type', nativePlatform === 'web' ? 'desktop' : 'mobile');
+    amplitude.identify(identify);
+
     initialized = true;
 };
 
@@ -93,6 +109,7 @@ export const analytics = {
     },
     premiumPurchaseFailed: (plan, reason) => trackEvent('premium_purchase_failed', { plan, error_code: reason }),
     premiumCancelled: (reason) => trackEvent('premium_cancelled', { reason }),
+    premiumCancelReasonSelected: (reason) => trackEvent('premium_cancel_reason_selected', { cancel_reason: reason }),
     paywallDismissed: (source) => trackEvent('paywall_dismissed', { source }),
     premiumDowngradeViewed: () => trackEvent('premium_downgrade_viewed'),
 
@@ -122,11 +139,12 @@ export const analytics = {
 
     // ── Health & Error ──
     errorOccurred: (errorType, screen) => trackEvent('error_occurred', { error_type: errorType, screen }),
-    appCrash: (errorDetails) => trackEvent('app_crash', { details: errorDetails }),
+    appCrash: (crashReason, screenName) => trackEvent('app_crash', { crash_reason: crashReason, screen_name: screenName || 'unknown' }),
     appUpdatePrompted: () => trackEvent('app_update_prompted'),
 
     // ── Quran Content Tracking ──
     quranOpened: (surah, ayah) => trackEvent('quran_opened', { surah, ayah }),
+    quranVerseRead: (surah, ayah) => trackEvent('quran_verse_read', { surah, ayah }),
     quranPageScrolled: (surah) => trackEvent('quran_page_scrolled', { surah }),
     quranReadingCompleted: (surah) => trackEvent('quran_reading_completed', { surah }),
     quranBookmarkAdded: (surah, ayah) => trackEvent('quran_bookmark_added', { surah, ayah }),

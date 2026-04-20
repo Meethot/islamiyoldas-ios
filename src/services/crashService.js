@@ -29,17 +29,19 @@ export async function initCrashlytics() {
 
     // Global JS error handler → log to Crashlytics
     window.addEventListener('error', (event) => {
-        const errorDetails = `JS Error: ${event.message} at ${event.filename}:${event.lineno}:${event.colno}`;
-        try { analytics.appCrash(errorDetails); } catch(e) {}
+        const crashReason = `${event.message} at ${event.filename}:${event.lineno}:${event.colno}`;
+        const screenName = window.location?.pathname || 'unknown';
+        try { analytics.appCrash(crashReason, screenName); } catch(e) {}
         FirebaseCrashlytics.recordException({
-            message: errorDetails,
+            message: `JS Error: ${crashReason}`,
         }).catch(() => { });
     });
 
     // Unhandled promise rejection → log to Crashlytics
     window.addEventListener('unhandledrejection', (event) => {
         const msg = event.reason?.message || event.reason?.toString() || 'Unhandled promise rejection';
-        try { analytics.appCrash(`Promise rejection: ${msg}`); } catch(e) {}
+        const screenName = window.location?.pathname || 'unknown';
+        try { analytics.appCrash(`Promise: ${msg}`, screenName); } catch(e) {}
         FirebaseCrashlytics.recordException({ message: `Promise rejection: ${msg}` }).catch(() => { });
     });
 }

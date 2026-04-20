@@ -41,6 +41,7 @@ const BackgroundMode = {
 };
 
 const BOOKMARKS_KEY = 'quran_bookmarks';
+const SURAH_BOOKMARKS_KEY = 'quran_surah_bookmarks';
 
 export default function Quran() {
     const navigate = useNavigate();
@@ -60,6 +61,7 @@ export default function Quran() {
     const [showSurahList, setShowSurahList] = useState(true);
     const [activeTab, setActiveTab] = useState('surahs'); // 'surahs' | 'bookmarks'
     const [bookmarks, setBookmarks] = useState(() => safeGetStorage(BOOKMARKS_KEY, []));
+    const [surahBookmarks, setSurahBookmarks] = useState(() => safeGetStorage(SURAH_BOOKMARKS_KEY, []));
 
     // Audio Playback State
     const [audio] = useState(() => new Audio());
@@ -72,7 +74,7 @@ export default function Quran() {
     const [showVolumeSlider, setShowVolumeSlider] = useState(false);
     const [isAudioLoading, setIsAudioLoading] = useState(false);
 
-    // Remove bookmark
+    // Remove verse bookmark
     const removeBookmark = (verseKey) => {
         selection();
         setBookmarks(prev => {
@@ -81,6 +83,23 @@ export default function Quran() {
             return updated;
         });
     };
+
+    // Toggle surah bookmark
+    const toggleSurahBookmark = (e, surah) => {
+        e.stopPropagation();
+        selection();
+        setSurahBookmarks(prev => {
+            const isBookmarked = prev.some(b => b.id === surah.id);
+            const updated = isBookmarked
+                ? prev.filter(b => b.id !== surah.id)
+                : [...prev, { id: surah.id, name: surah.name, nameSimple: surah.nameSimple, arabic: surah.arabic, ayahCount: surah.ayahCount, revelationPlace: surah.revelationPlace, savedAt: Date.now() }];
+            safeSetStorage(SURAH_BOOKMARKS_KEY, updated);
+            if (!isBookmarked) success();
+            return updated;
+        });
+    };
+
+    const isSurahBookmarked = (surahId) => surahBookmarks.some(b => b.id === surahId);
 
     // Auto-Resume Audio on App Foreground
     // This fixes "ses gitti" when switching apps
@@ -368,9 +387,9 @@ export default function Quran() {
                         >
                             <Bookmark className="w-4 h-4 inline-block mr-2" />
                             {t('tabBookmarks')}
-                            {bookmarks.length > 0 && (
+                            {(bookmarks.length + surahBookmarks.length) > 0 && (
                                 <span className="absolute -top-1 -right-1 w-5 h-5 bg-emerald-500 text-white text-xs rounded-full flex items-center justify-center">
-                                    {bookmarks.length}
+                                    {bookmarks.length + surahBookmarks.length}
                                 </span>
                             )}
                         </button>
@@ -437,15 +456,31 @@ export default function Quran() {
                                                     <h3 className="text-xl font-bold text-gray-900 dark:text-white font-serif tracking-tight">
                                                         {surah.name}
                                                     </h3>
-                                                    <div className="flex items-center gap-3">
+                                                    <div className="flex items-center gap-2">
                                                         <span className="font-arabic text-2xl text-islamic-gold group-hover:scale-110 transition-transform duration-300">
                                                             {surah.arabic}
                                                         </span>
-                                                        {/* Play Button - Always visible on mobile */}
+                                                        {/* Bookmark Button */}
+                                                        <button
+                                                            onClick={(e) => toggleSurahBookmark(e, surah)}
+                                                            className={cn(
+                                                                "w-9 h-9 rounded-full flex items-center justify-center transition-all duration-300",
+                                                                isSurahBookmarked(surah.id)
+                                                                    ? "bg-islamic-gold/20 text-islamic-gold"
+                                                                    : "bg-islamic-green/10 dark:bg-islamic-gold/10 text-islamic-green/50 dark:text-islamic-gold/50 hover:text-islamic-gold"
+                                                            )}
+                                                        >
+                                                            {isSurahBookmarked(surah.id) ? (
+                                                                <BookmarkCheck className="w-4 h-4" />
+                                                            ) : (
+                                                                <Bookmark className="w-4 h-4" />
+                                                            )}
+                                                        </button>
+                                                        {/* Play Button */}
                                                         <button
                                                             onClick={(e) => handlePlaySurah(e, surah)}
                                                             className={cn(
-                                                                "w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300",
+                                                                "w-9 h-9 rounded-full flex items-center justify-center transition-all duration-300",
                                                                 currentlyPlaying?.id === surah.id
                                                                     ? "bg-islamic-gold text-[#032e18] shadow-lg shadow-islamic-gold/20 scale-110"
                                                                     : "bg-islamic-green/10 dark:bg-islamic-gold/10 text-islamic-green dark:text-islamic-gold hover:bg-islamic-gold/20"
@@ -455,12 +490,12 @@ export default function Quran() {
                                                                 isAudioLoading ? (
                                                                     <Loader2 className="w-4 h-4 animate-spin" />
                                                                 ) : isAudioPlaying ? (
-                                                                    <Pause className="w-5 h-5 fill-current" />
+                                                                    <Pause className="w-4 h-4 fill-current" />
                                                                 ) : (
-                                                                    <Play className="w-5 h-5 fill-current ml-0.5" />
+                                                                    <Play className="w-4 h-4 fill-current ml-0.5" />
                                                                 )
                                                             ) : (
-                                                                <Play className="w-5 h-5 fill-current ml-0.5" />
+                                                                <Play className="w-4 h-4 fill-current ml-0.5" />
                                                             )}
                                                         </button>
                                                     </div>
@@ -509,7 +544,7 @@ export default function Quran() {
                         exit={{ opacity: 0, y: -20 }}
                         className="p-5 space-y-3"
                     >
-                        {bookmarks.length === 0 ? (
+                        {bookmarks.length === 0 && surahBookmarks.length === 0 ? (
                             <div className="text-center py-16 space-y-4">
                                 <div className="w-20 h-20 mx-auto rounded-full bg-islamic-gold/10 flex items-center justify-center">
                                     <Bookmark className="w-10 h-10 text-islamic-gold/50" />
@@ -522,70 +557,136 @@ export default function Quran() {
                                 </div>
                             </div>
                         ) : (
-                            bookmarks.map((bookmark, index) => (
-                                <motion.div
-                                    key={bookmark.verseKey}
-                                    initial={{ opacity: 0, x: -20 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    transition={{ delay: Math.min(index * 0.05, 0.3) }}
-                                >
-                                    <div className="relative mb-6">
-                                        <Card className="border-none shadow-xl rounded-[2.5rem] bg-white dark:bg-white/5 overflow-hidden p-6 relative dark:text-white">
-                                            <div className="space-y-6">
-                                                {/* Header: Number & Actions */}
-                                                <div className="flex items-start justify-between">
-                                                    <div className="flex items-center gap-3">
-                                                        <div className="w-14 h-14 bg-islamic-green dark:bg-islamic-gold rounded-2xl flex items-center justify-center text-white dark:text-[#032e18] font-bold text-lg shadow-lg shrink-0">
-                                                            {bookmark.verseNumber}
-                                                        </div>
-                                                        <div>
-                                                            <button
-                                                                onClick={() => {
-                                                                    selection();
-                                                                    navigate(`/quran/${bookmark.surahId}`);
-                                                                }}
-                                                                className="text-lg font-bold text-islamic-green dark:text-islamic-gold hover:underline font-serif"
-                                                            >
-                                                                {bookmark.surahName}
-                                                            </button>
-                                                            <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">
-                                                                {t('ayat', { number: bookmark.verseNumber })}
-                                                            </p>
-                                                        </div>
-                                                    </div>
-
-                                                    <Button
-                                                        variant="ghost"
-                                                        size="icon"
-                                                        onClick={() => removeBookmark(bookmark.verseKey)}
-                                                        className="rounded-xl text-red-400 hover:text-red-500 hover:bg-red-500/10 w-10 h-10 transition-all"
+                            <>
+                                {/* Saved Surahs */}
+                                {surahBookmarks.length > 0 && (
+                                    <div className="mb-6">
+                                        <h3 className="text-sm font-bold text-islamic-green/60 dark:text-islamic-gold/60 uppercase tracking-widest mb-3 px-1">
+                                            <BookOpen className="w-4 h-4 inline-block mr-2" />
+                                            {t('savedSurahs', { defaultValue: 'Kaydedilen Sureler' })}
+                                        </h3>
+                                        <div className="space-y-2">
+                                            {surahBookmarks.map((surah, index) => {
+                                                const summaryData = getSurahSummary(surah.id, currentLang);
+                                                return (
+                                                    <motion.div
+                                                        key={`surah-${surah.id}`}
+                                                        initial={{ opacity: 0, x: -20 }}
+                                                        animate={{ opacity: 1, x: 0 }}
+                                                        transition={{ delay: Math.min(index * 0.05, 0.3) }}
                                                     >
-                                                        <Trash2 className="w-5 h-5" />
-                                                    </Button>
-                                                </div>
-
-                                                {/* Content Box: Arabic, Transcription, Translation */}
-                                                <div className="bg-islamic-green/[0.03] dark:bg-islamic-gold/5 border border-islamic-green/10 dark:border-islamic-gold/10 rounded-3xl p-6 text-center space-y-6 shadow-inner">
-                                                    {/* Arabic */}
-                                                    <p className="font-arabic text-3xl leading-[2.2] text-islamic-gold break-words">
-                                                        {bookmark.arabic}
-                                                    </p>
-
-                                                    <div className="space-y-4">
-                                                        {/* Separator */}
-                                                        <div className="w-16 h-1 bg-islamic-gold/20 rounded-full mx-auto" />
-
-                                                        {/* Translation (Meal) */}
-                                                        <div className="text-gray-800 dark:text-emerald-50 font-medium text-lg leading-relaxed font-sans">
-                                                            <span dangerouslySetInnerHTML={{ __html: bookmark.translation }} />
+                                                        <div
+                                                            onClick={() => { selection(); navigate(`/quran/${surah.id}`); }}
+                                                            className="group relative overflow-hidden rounded-[2.5rem] bg-islamic-green/[0.03] dark:bg-islamic-gold/5 border border-islamic-green/10 dark:border-islamic-gold/10 hover:border-islamic-gold/30 transition-all cursor-pointer hover:shadow-xl active:scale-[0.98]"
+                                                        >
+                                                            <div className="p-5 flex items-center gap-4 relative z-10">
+                                                                <div className="w-12 h-12 rounded-2xl bg-islamic-green/10 dark:bg-islamic-gold/10 flex items-center justify-center text-islamic-green dark:text-islamic-gold font-bold text-lg shadow-sm shrink-0">
+                                                                    {surah.id}
+                                                                </div>
+                                                                <div className="flex-1 min-w-0">
+                                                                    <div className="flex items-center justify-between">
+                                                                        <h3 className="text-lg font-bold text-gray-900 dark:text-white font-serif">{surah.name}</h3>
+                                                                        <span className="font-arabic text-xl text-islamic-gold">{surah.arabic}</span>
+                                                                    </div>
+                                                                    <div className="flex items-center gap-2 mt-1">
+                                                                        <span className="text-[10px] uppercase tracking-[0.15em] font-extrabold text-islamic-green/60 dark:text-islamic-gold/60">
+                                                                            {t(`revelation.${surah.revelationPlace}`)}
+                                                                        </span>
+                                                                        <div className="w-1 h-1 rounded-full bg-gray-300 dark:bg-gray-700" />
+                                                                        <span className="text-[11px] font-semibold text-gray-500 dark:text-gray-400">
+                                                                            {t('ayahCount', { count: surah.ayahCount })}
+                                                                        </span>
+                                                                    </div>
+                                                                </div>
+                                                                <button
+                                                                    onClick={(e) => { e.stopPropagation(); toggleSurahBookmark(e, surah); }}
+                                                                    className="w-10 h-10 rounded-full flex items-center justify-center text-red-400 hover:text-red-500 hover:bg-red-500/10 transition-all shrink-0"
+                                                                >
+                                                                    <Trash2 className="w-5 h-5" />
+                                                                </button>
+                                                            </div>
                                                         </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </Card>
+                                                    </motion.div>
+                                                );
+                                            })}
+                                        </div>
                                     </div>
-                                </motion.div>
-                            ))
+                                )}
+
+                                {/* Saved Verses */}
+                                {bookmarks.length > 0 && (
+                                    <div>
+                                        <h3 className="text-sm font-bold text-islamic-green/60 dark:text-islamic-gold/60 uppercase tracking-widest mb-3 px-1">
+                                            <Bookmark className="w-4 h-4 inline-block mr-2" />
+                                            {t('savedVerses', { defaultValue: 'Kaydedilen Ayetler' })}
+                                        </h3>
+                                        {bookmarks.map((bookmark, index) => (
+                                            <motion.div
+                                                key={bookmark.verseKey}
+                                                initial={{ opacity: 0, x: -20 }}
+                                                animate={{ opacity: 1, x: 0 }}
+                                                transition={{ delay: Math.min(index * 0.05, 0.3) }}
+                                            >
+                                                <div className="relative mb-6">
+                                                    <Card className="border-none shadow-xl rounded-[2.5rem] bg-white dark:bg-white/5 overflow-hidden p-6 relative dark:text-white">
+                                                        <div className="space-y-6">
+                                                            {/* Header: Number & Actions */}
+                                                            <div className="flex items-start justify-between">
+                                                                <div className="flex items-center gap-3">
+                                                                    <div className="w-14 h-14 bg-islamic-green dark:bg-islamic-gold rounded-2xl flex items-center justify-center text-white dark:text-[#032e18] font-bold text-lg shadow-lg shrink-0">
+                                                                        {bookmark.verseNumber}
+                                                                    </div>
+                                                                    <div>
+                                                                        <button
+                                                                            onClick={() => {
+                                                                                selection();
+                                                                                navigate(`/quran/${bookmark.surahId}`);
+                                                                            }}
+                                                                            className="text-lg font-bold text-islamic-green dark:text-islamic-gold hover:underline font-serif"
+                                                                        >
+                                                                            {bookmark.surahName}
+                                                                        </button>
+                                                                        <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">
+                                                                            {t('ayat', { number: bookmark.verseNumber })}
+                                                                        </p>
+                                                                    </div>
+                                                                </div>
+
+                                                                <Button
+                                                                    variant="ghost"
+                                                                    size="icon"
+                                                                    onClick={() => removeBookmark(bookmark.verseKey)}
+                                                                    className="rounded-xl text-red-400 hover:text-red-500 hover:bg-red-500/10 w-10 h-10 transition-all"
+                                                                >
+                                                                    <Trash2 className="w-5 h-5" />
+                                                                </Button>
+                                                            </div>
+
+                                                            {/* Content Box: Arabic, Transcription, Translation */}
+                                                            <div className="bg-islamic-green/[0.03] dark:bg-islamic-gold/5 border border-islamic-green/10 dark:border-islamic-gold/10 rounded-3xl p-6 text-center space-y-6 shadow-inner">
+                                                                {/* Arabic */}
+                                                                <p className="font-arabic text-3xl leading-[2.2] text-islamic-gold break-words">
+                                                                    {bookmark.arabic}
+                                                                </p>
+
+                                                                <div className="space-y-4">
+                                                                    {/* Separator */}
+                                                                    <div className="w-16 h-1 bg-islamic-gold/20 rounded-full mx-auto" />
+
+                                                                    {/* Translation (Meal) */}
+                                                                    <div className="text-gray-800 dark:text-emerald-50 font-medium text-lg leading-relaxed font-sans">
+                                                                        <span dangerouslySetInnerHTML={{ __html: bookmark.translation }} />
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </Card>
+                                                </div>
+                                            </motion.div>
+                                        ))}
+                                    </div>
+                                )}
+                            </>
                         )}
                     </motion.div>
                 )}

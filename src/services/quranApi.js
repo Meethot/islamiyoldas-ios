@@ -8,14 +8,14 @@ const CDN_BASE_URL = 'https://cdn.jsdelivr.net/gh/fawazahmed0/quran-api@1/editio
 const EDITIONS = {
     arabic: 'ara-quranuthmanihaf',
     transliteration: 'tur-latinalphabet1',
-    translation_tr: 'tur-diyanetisleri', // Diyanet İşleri
+    translation_tr: 'tur-diyanetvakfi', // Diyanet Vakfı (1:1 mapping instead of grouped)
     translation_en: 'eng-ummmuhammad', // Sahih International (Umm Muhammad)
     translation_de: 'deu-aburidamuhammad', // Abu Rida Muhammad ibn Ahmad ibn Rassoul
     translation_ru: 'rus-abuadel' // Abu Adel (concise, mobile-friendly)
 };
 
 // Caching helper
-const CACHE_KEY_PREFIX = 'surah_content_v5_';
+const CACHE_KEY_PREFIX = 'surah_content_v6_';
 
 async function getCachedSurah(surahId, language) {
     const { value } = await Preferences.get({ key: `${CACHE_KEY_PREFIX}${surahId}_${language}` });

@@ -221,10 +221,15 @@ function AppContent() {
 
   if (showSplash) return <SplashScreen dataReady={dataReady} />;
 
+  const isWebTest = !Capacitor.isNativePlatform();
+
   return (
-    <>
-      {/* Full-screen app container — no phone frame for native builds */}
-      <div className="w-full h-[100dvh] bg-background relative overflow-hidden font-sans">
+    <div className={isWebTest ? "w-full min-h-[100dvh] bg-[#0a0a0a] flex justify-center font-sans" : ""}>
+      <div 
+        className={`bg-background relative overflow-hidden font-sans ${
+          isWebTest ? 'w-full max-w-[480px] h-[100dvh]' : 'w-full h-[100dvh]'
+        }`}
+      >
         <Router>
           <ScrollToTop />
           <SwipeBackHandler />
@@ -263,7 +268,7 @@ function AppContent() {
           </Suspense>
         </Router>
       </div>
-    </>
+    </div>
   );
 }
 

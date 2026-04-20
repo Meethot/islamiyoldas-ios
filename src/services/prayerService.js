@@ -87,72 +87,80 @@ export function getApprovedPrayers(callback, startDate) {
 }
 
 /**
- * Fetches a random set of approved prayers using randomIndex, filtered by language.
+ * Fetches prayers approved in the last 24 hours (newest first).
+ * Fills the remaining slots with random approved prayers.
  * @param {number} count - Number of prayers to fetch.
  * @param {string} lang - Language code to filter prayers by.
  * @returns {Promise<Array>} - Array of prayer objects.
  */
 export async function getRandomApprovedPrayers(count = 6, lang = 'en') {
     const normalizedLang = lang?.split('-')[0] || 'en';
-    const startAt = Math.floor(Math.random() * 10000000);
     const colRef = collection(db, COLLECTION_NAME);
     const results = [];
     const seenIds = new Set();
+    const twentyFourHoursAgo = new Date();
+    twentyFourHoursAgo.setHours(twentyFourHoursAgo.getHours() - 24);
 
     try {
-        // Query 1: Forward from random point, filtered by lang
-        const q1 = query(
+        // Step 1: Fetch NEWEST prayers approved within the last 24 hours
+        const qRecent = query(
             colRef,
             where('status', '==', 'approved'),
             where('lang', '==', normalizedLang),
-            where('randomIndex', '>=', startAt),
-            orderBy('randomIndex'),
+            where('timestamp', '>=', twentyFourHoursAgo),
+            orderBy('timestamp', 'desc'),
             limit(count)
         );
-        const snap1 = await getDocs(q1);
-        snap1.docs.forEach(d => {
+        const snapRecent = await getDocs(qRecent);
+        snapRecent.docs.forEach(d => {
             results.push({ id: d.id, ...d.data(), date: d.data().timestamp?.toDate?.().toISOString() || new Date().toISOString() });
             seenIds.add(d.id);
         });
 
-        // Fallback: If we got fewer than needed, wrap around from 0
+        // Step 2: If we still need more to reach `count`, fetch random ones
         if (results.length < count) {
             const remaining = count - results.length;
-            const q2 = query(
+            const startAt = Math.floor(Math.random() * 10000000);
+
+            // Query: Forward from random point
+            const qRandom = query(
                 colRef,
                 where('status', '==', 'approved'),
                 where('lang', '==', normalizedLang),
-                where('randomIndex', '>=', 0),
+                where('randomIndex', '>=', startAt),
                 orderBy('randomIndex'),
-                limit(remaining + seenIds.size)
+                limit(remaining)
             );
-            const snap2 = await getDocs(q2);
-            snap2.docs.forEach(d => {
-                if (!seenIds.has(d.id) && results.length < count) {
+            const snapRandom = await getDocs(qRandom);
+            snapRandom.docs.forEach(d => {
+                if (!seenIds.has(d.id)) {
                     results.push({ id: d.id, ...d.data(), date: d.data().timestamp?.toDate?.().toISOString() || new Date().toISOString() });
                     seenIds.add(d.id);
                 }
             });
+
+            // Fallback: If still not enough, wrap around from 0
+            if (results.length < count) {
+                const stillRemaining = count - results.length;
+                const qWrap = query(
+                    colRef,
+                    where('status', '==', 'approved'),
+                    where('lang', '==', normalizedLang),
+                    where('randomIndex', '>=', 0),
+                    orderBy('randomIndex'),
+                    limit(stillRemaining + seenIds.size)
+                );
+                const snapWrap = await getDocs(qWrap);
+                snapWrap.docs.forEach(d => {
+                    if (!seenIds.has(d.id) && results.length < count) {
+                        results.push({ id: d.id, ...d.data(), date: d.data().timestamp?.toDate?.().toISOString() || new Date().toISOString() });
+                        seenIds.add(d.id);
+                    }
+                });
+            }
         }
     } catch (error) {
-        console.error("Error fetching random prayers:", error);
-        try {
-            const fallbackQ = query(
-                colRef,
-                where('status', '==', 'approved'),
-                where('lang', '==', normalizedLang),
-                orderBy('timestamp', 'desc'),
-                limit(count)
-            );
-            const fallbackSnap = await getDocs(fallbackQ);
-            fallbackSnap.docs.forEach(d => {
-                if (!seenIds.has(d.id)) {
-                    results.push({ id: d.id, ...d.data(), date: d.data().timestamp?.toDate?.().toISOString() || new Date().toISOString() });
-                }
-            });
-        } catch (fallbackError) {
-            console.error("Fallback query also failed:", fallbackError);
-        }
+        console.error("Error fetching prayers:", error);
     }
 
     return results;
