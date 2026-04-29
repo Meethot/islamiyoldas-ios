@@ -29,8 +29,8 @@ const PRAYER_TYPES = [
 ];
 
 const TABS = [
-    { id: 'namaz', labelKey: 'tabs.namaz', icon: Calendar },
     { id: 'kuran', labelKey: 'tabs.quran', icon: BookOpen },
+    { id: 'namaz', labelKey: 'tabs.namaz', icon: Calendar },
     { id: 'kaza', labelKey: 'tabs.kaza', icon: Target },
     { id: 'murakabe', labelKey: 'tabs.murakabe', icon: Eye },
 ];
@@ -43,7 +43,7 @@ export default function Tracking() {
     const { t } = useTranslation('tracking');
 
     // Tab State
-    const [activeTab, setActiveTab] = useState('namaz');
+    const [activeTab, setActiveTab] = useState('kuran');
 
     // Prayer Checklist State
     const [completedPrayers, setCompletedPrayers] = useState([]);
@@ -451,7 +451,7 @@ export default function Tracking() {
                         exit={{ opacity: 0, y: -20 }}
                         transition={{ duration: 0.3 }}
                     >
-                        <Quran />
+                        <Quran isTrackingTab={true} />
                     </motion.div>
                 )}
 

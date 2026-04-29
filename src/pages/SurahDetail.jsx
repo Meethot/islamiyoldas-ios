@@ -9,7 +9,7 @@ import {
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useHaptics } from '@/hooks/useMobile';
-import { fetchSurahContent, fetchChapterInfo, fetchSurahAudio, fetchAyahAudio } from '@/services/quranApi';
+import { fetchSurahContent, fetchChapterInfo, fetchSurahAudio, fetchAyahAudio, fetchChapterAudioFiles } from '@/services/quranApi';
 import { useQuery, useInfiniteQuery } from '@tanstack/react-query';
 import { safeGetStorage, safeSetStorage } from '@/utils/storageHelper';
 import ShareCard, { SHARE_THEMES } from '@/components/ShareCard';
@@ -43,6 +43,11 @@ const BackgroundMode = {
 };
 
 const BOOKMARKS_KEY = 'quran_bookmarks';
+
+const arabicNumerals = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
+const toArabicNumber = (num) => {
+    return String(num).split('').map(digit => arabicNumerals[digit]).join('');
+};
 
 // Memoized individual verse to prevent list re-renders
 const VerseItem = React.memo(({ verse, index, isBookmarked, toggleBookmark, handleShareClick, handlePlayAyah, playingAyahKey, t, verseRef }) => {
@@ -152,6 +157,23 @@ export default function SurahDetail() {
     // State
     const [bookmarks, setBookmarks] = useState(() => safeGetStorage(BOOKMARKS_KEY, []));
 
+    // Reading Mode State
+    const [viewMode, setViewMode] = useState(() => safeGetStorage('quran_default_view_mode', 'reading'));
+    const [readingSubMode, setReadingSubMode] = useState(() => safeGetStorage('quran_default_sub_mode', 'tr'));
+    const [zoomLevel, setZoomLevel] = useState(() => safeGetStorage('quran_reading_zoom', 1));
+
+    useEffect(() => {
+        safeSetStorage('quran_reading_zoom', zoomLevel);
+    }, [zoomLevel]);
+
+    useEffect(() => {
+        safeSetStorage('quran_default_view_mode', viewMode);
+    }, [viewMode]);
+
+    useEffect(() => {
+        safeSetStorage('quran_default_sub_mode', readingSubMode);
+    }, [readingSubMode]);
+
     // Jump to Verse State
     const verseRefs = React.useRef({});
     const [jumpTarget, setJumpTarget] = useState('');
@@ -167,6 +189,8 @@ export default function SurahDetail() {
     const [isSurahPlaying, setIsSurahPlaying] = useState(false);
     const [isSurahLoading, setIsSurahLoading] = useState(false);
     const [playingAyahKey, setPlayingAyahKey] = useState(null);
+    const [audioPlaylist, setAudioPlaylist] = useState([]); // Array of {verseKey, url}
+    const [playlistIndex, setPlaylistIndex] = useState(-1);
     const [audioProgress, setAudioProgress] = useState(0);
     const [currentTime, setCurrentTime] = useState(0);
     const [duration, setDuration] = useState(0);
@@ -201,6 +225,42 @@ export default function SurahDetail() {
             }
         }
     };
+
+    const toggleZoom = () => {
+        selection();
+        setZoomLevel(prev => prev >= 4 ? 1 : prev + 1);
+    };
+
+    const getArabicZoomClass = () => {
+        switch (zoomLevel) {
+            case 2: return 'text-4xl leading-[2.5]';
+            case 3: return 'text-5xl leading-[2.2]';
+            case 4: return 'text-[50px] leading-[2.1]';
+            default: return 'text-3xl leading-[3]'; // level 1
+        }
+    };
+
+    const getLatinZoomClass = () => {
+        switch (zoomLevel) {
+            case 2: return 'text-xl leading-relaxed';
+            case 3: return 'text-2xl leading-relaxed';
+            case 4: return 'text-3xl leading-relaxed';
+            default: return 'text-lg leading-relaxed'; // level 1
+        }
+    };
+
+    // Auto-Scroll to Playing Ayah (for Reading Mode)
+    useEffect(() => {
+        if (playingAyahKey && viewMode === 'reading') {
+            const verseElement = verseRefs.current[playingAyahKey];
+            if (verseElement) {
+                // adding a small timeout helps avoiding scroll jumps if DOM is mid-paint
+                setTimeout(() => {
+                    verseElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }, 50);
+            }
+        }
+    }, [playingAyahKey, viewMode]);
 
     // TanStack Query: Surah Info
     const { data: surahInfo, isLoading: infoLoading, error: infoError } = useQuery({
@@ -303,89 +363,90 @@ export default function SurahDetail() {
     const toggleSurahAudio = async () => {
         selection();
         if (!isPremium()) { navigate('/premium'); return; }
-        if (playingAyahKey) {
-            audio.pause();
-            setPlayingAyahKey(null);
-        }
 
         if (isSurahPlaying) {
             audio.pause();
             setIsSurahPlaying(false);
             BackgroundMode.disable();
-        } else {
-            // Check if we are resuming the SAME surah
-            // We use a simplified check: if audio.src is set and we've already loaded duration/metadata
-            // and we are just paused.
-            const isSameAudio = audio.src && (audio.src.includes(`chapter_recitations/${surahId}.mp3`) || audio.src.includes(`/${surahId}.mp3`));
-
-            if (isSameAudio && audio.currentTime > 0) {
-                audio.play();
-                analytics.quranAudioPlayed(surahInfo?.name || String(surahId), 'chapter_resume');
-                setIsSurahPlaying(true);
-                BackgroundMode.enable(surahInfo?.name, t('quran:listeningTo', { name: surahInfo?.name }));
-            } else {
-                try {
-                    setIsSurahLoading(true);
-                    const url = await fetchSurahAudio(surahId);
-
-                    // Only reload if URL is different to avoid resetting
-                    if (audio.src !== url) {
-                        audio.src = url;
-                        audio.load();
-                        audio.volume = volume;
-                        audio.muted = isMuted;
-                    } else {
-                        // If URL is same but we seeked or stopped, just ensure volume/mute
-                        audio.volume = volume;
-                        audio.muted = isMuted;
-                    }
-
-                    const onCanPlay = () => {
-                        audio.play();
-                        analytics.quranAudioPlayed(surahInfo?.name || String(surahId), 'chapter');
-                        setIsSurahPlaying(true);
-                        setIsSurahLoading(false);
-                        setDuration(audio.duration);
-                        BackgroundMode.enable(surahInfo?.name, t('quran:listeningTo', { name: surahInfo?.name }));
-                        audio.removeEventListener('canplay', onCanPlay);
-                    };
-
-                    if (audio.readyState >= 3) { // HAVE_FUTURE_DATA or HAVE_ENOUGH_DATA
-                        onCanPlay();
-                    } else {
-                        audio.addEventListener('canplay', onCanPlay);
-                    }
-
-                    audio.addEventListener('loadedmetadata', () => {
-                        setDuration(audio.duration);
-                    });
-
-                    audio.ontimeupdate = () => {
-                        setCurrentTime(audio.currentTime);
-                        setAudioProgress((audio.currentTime / audio.duration) * 100);
-                    };
-
-                    audio.onended = () => {
-                        setIsSurahPlaying(false);
-                        setAudioProgress(0);
-                        setCurrentTime(0);
-                        BackgroundMode.disable();
-                    };
-                } catch (e) {
-                    console.error(e);
-                    setIsSurahLoading(false);
-                }
-            }
+            return;
         }
+
+        // If we have a playlist and were paused, just resume
+        if (audioPlaylist.length > 0 && playlistIndex >= 0 && audio.src) {
+            audio.play();
+            setIsSurahPlaying(true);
+            BackgroundMode.enable(surahInfo?.name, t('quran:listeningTo', { name: surahInfo?.name }));
+            return;
+        }
+
+        // Start fresh playlist playback
+        try {
+            setIsSurahLoading(true);
+            const files = await fetchChapterAudioFiles(surahId);
+            if (!files || files.length === 0) throw new Error("Could not load audio files");
+
+            setAudioPlaylist(files);
+            analytics.quranAudioPlayed(surahInfo?.name || String(surahId), 'chapter'); // RE-ADDED ANALYTICS
+            playFromPlaylist(0, files);
+        } catch (e) {
+            console.error(e);
+            setIsSurahLoading(false);
+        }
+    };
+
+    const playFromPlaylist = (index, playlist = audioPlaylist) => {
+        if (!playlist || index >= playlist.length) {
+            setIsSurahPlaying(false);
+            setPlayingAyahKey(null);
+            setPlaylistIndex(-1);
+            BackgroundMode.disable();
+            return;
+        }
+
+        const track = playlist[index];
+        setPlaylistIndex(index);
+        setPlayingAyahKey(track.verseKey);
+        setIsSurahPlaying(true);
+        setIsSurahLoading(false);
+
+        audio.src = track.url;
+        audio.load();
+        audio.volume = volume;
+        audio.muted = isMuted;
+
+        audio.onloadedmetadata = () => {
+            setDuration(audio.duration);
+        };
+
+        const onPlay = () => {
+            audio.play().catch(err => console.error("Playback error", err));
+            BackgroundMode.enable(surahInfo?.name, `${surahInfo?.name} - ${index + 1}/${playlist.length}`);
+            audio.removeEventListener('canplay', onPlay);
+        };
+
+        audio.addEventListener('canplay', onPlay);
+
+        audio.onended = () => {
+            playFromPlaylist(index + 1, playlist);
+        };
+
+        // Progress tracking
+        audio.ontimeupdate = () => {
+            setCurrentTime(audio.currentTime);
+            setAudioProgress((audio.currentTime / (audio.duration || 1)) * 100);
+        };
     };
 
     const handlePlayAyah = async (verse) => {
         selection();
         if (!isPremium()) { navigate('/premium'); return; }
+
+        // Stop current playlist if running
         if (isSurahPlaying) {
             audio.pause();
             setIsSurahPlaying(false);
-            BackgroundMode.disable();
+            setAudioPlaylist([]);
+            setPlaylistIndex(-1);
         }
 
         if (playingAyahKey === verse.verseKey) {
@@ -421,6 +482,10 @@ export default function SurahDetail() {
         return () => {
             audio.pause();
             audio.src = '';
+            // CLEANUP EVENTS
+            audio.onended = null;
+            audio.ontimeupdate = null;
+            audio.onloadedmetadata = null;
             BackgroundMode.disable();
         };
     }, [surahId, audio]);
@@ -529,7 +594,7 @@ export default function SurahDetail() {
                         </div>
                         <div className="flex gap-3 justify-center">
                             <Button
-                                onClick={() => navigate('/quran')}
+                                onClick={() => { selection(); navigate(-1); }}
                                 variant="outline"
                                 className="border-gray-200 dark:border-white/10"
                             >
@@ -552,78 +617,83 @@ export default function SurahDetail() {
 
     return (
         <div className="min-h-screen bg-gradient-to-b from-white to-gray-50 dark:from-[#032e18] dark:to-[#021a0f] pb-24">
-            {/* Header */}
-            <div className="bg-islamic-green dark:bg-[#032e18] px-4 py-3 sticky top-0 z-40 border-b border-white/10 shadow-lg">
-                {/* Row 1: Back + Surah Name + Arabic Name + Listen Button */}
-                <div className="flex items-center gap-3">
-                    <Button
-                        onClick={() => {
-                            selection();
-                            navigate('/quran');
-                        }}
-                        variant="ghost"
-                        size="icon"
-                        className="text-white hover:bg-white/10 w-9 h-9 shrink-0"
-                    >
-                        <ArrowLeft className="w-5 h-5" />
-                    </Button>
-                    <div className="flex-1 min-w-0">
-                        <h1 className="text-lg font-serif font-bold text-white truncate leading-tight">
-                            {currentLang === 'tr' ? (surahInfo?.translatedName || surahInfo?.name) : surahInfo?.name}
-                        </h1>
-                        <p className="text-[11px] text-white/60 font-medium">
-                            {surahInfo?.ayahCount} {t('quran:ayahCount', { count: surahInfo?.ayahCount || 0 }).split(' ').slice(1).join(' ')}
+            <>
+                <div className="bg-islamic-green dark:bg-[#032e18] px-4 py-2 sticky top-0 z-40 border-b border-white/10 shadow-lg">
+                    <div className="flex items-center gap-3">
+                        <Button
+                            onClick={() => {
+                                selection();
+                                navigate(-1);
+                            }}
+                            variant="ghost"
+                            size="icon"
+                            className="text-white hover:bg-white/10 w-8 h-8 shrink-0"
+                        >
+                            <ArrowLeft className="w-5 h-5" />
+                        </Button>
+                        <div className="flex-1 min-w-0">
+                            <h1 className="text-base font-serif font-bold text-white truncate leading-tight">
+                                {currentLang === 'tr' ? (surahInfo?.translatedName || surahInfo?.name) : surahInfo?.name}
+                            </h1>
+                            <div className="flex gap-2 text-[10px] text-white/60 font-medium">
+                                <p>{surahInfo?.ayahCount} {t('quran:ayahCount', { count: surahInfo?.ayahCount || 0 }).split(' ').slice(1).join(' ')}</p>
+                                <span>•</span>
+                                <p>{t(`quran:revelation.${surahInfo?.revelationPlace}`)}</p>
+                            </div>
+                        </div>
+                        <p className="text-lg font-arabic text-islamic-gold shrink-0">
+                            {surahInfo?.nameArabic}
                         </p>
-                        <p className="text-[11px] text-white/60 font-medium">
-                            {t(`quran:revelation.${surahInfo?.revelationPlace}`)}
-                        </p>
+                        <div className="flex items-center gap-2 shrink-0">
+                            <Button
+                                onClick={toggleZoom}
+                                variant="ghost"
+                                className="bg-white/10 hover:bg-white/20 text-white h-10 w-10 p-0 rounded-xl border border-white/10 flex items-center justify-center shadow-sm"
+                            >
+                                <span className="font-serif text-base">A<span className="text-xs ml-[1px]">a</span></span>
+                            </Button>
+                            <Button
+                                onClick={toggleSurahAudio}
+                                disabled={isSurahLoading}
+                                className="bg-islamic-gold text-[#032e18] hover:bg-islamic-gold/90 h-10 px-6 rounded-xl shadow-lg shadow-islamic-gold/20 flex items-center gap-2 font-bold text-sm shrink-0 min-w-[100px]"
+                            >
+                                {isSurahLoading ? (
+                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                ) : isSurahPlaying ? (
+                                    <><Pause size={18} fill="currentColor" /> {t('quran:stop')}</>
+                                ) : (
+                                    <><Play size={18} fill="currentColor" className="ml-0.5" /> {t('quran:listen')}</>
+                                )}
+                            </Button>
+                        </div>
                     </div>
-                    <p className="text-xl font-arabic text-islamic-gold shrink-0">
-                        {surahInfo?.nameArabic}
-                    </p>
-                    <Button
-                        onClick={toggleSurahAudio}
-                        disabled={isSurahLoading}
-                        className="bg-islamic-gold text-[#032e18] hover:bg-islamic-gold/90 h-9 px-3 rounded-xl shadow-lg shadow-islamic-gold/20 flex items-center gap-1.5 font-bold text-sm shrink-0"
-                    >
-                        {isSurahLoading ? (
-                            <Loader2 className="w-4 h-4 animate-spin" />
-                        ) : isSurahPlaying ? (
-                            <><Pause size={16} fill="currentColor" /> {t('quran:stop')}</>
-                        ) : (
-                            <><Play size={16} fill="currentColor" className="ml-0.5" /> {t('quran:listen')}</>
-                        )}
-                    </Button>
+                    
+                    <div className="mt-2 border-t border-white/5 pt-2">
+                        <div className="bg-black/5 dark:bg-white/5 p-1 rounded-xl flex gap-1 overflow-hidden relative">
+                            {['tr', 'ar', 'translit'].map(mode => (
+                                <button
+                                    key={`submode-${mode}`}
+                                    onClick={() => { selection(); setReadingSubMode(mode); }}
+                                    className={cn(
+                                        "flex-1 py-2 text-[12px] font-bold rounded-lg transition-all duration-300 relative z-10 capitalize",
+                                        readingSubMode === mode ? "text-white" : "text-white/60 hover:text-white/80"
+                                    )}
+                                >
+                                    {readingSubMode === mode && (
+                                        <motion.div
+                                            layoutId="readingSubModeBg"
+                                            className="absolute inset-0 bg-white/20 rounded-lg -z-10"
+                                        />
+                                    )}
+                                    {mode === 'tr' ? 'Meâl' : mode === 'ar' ? 'Arapça' : 'Okunuş'}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
                 </div>
+            </>
 
-                {/* Row 2: Jump to Verse Input (compact) */}
-                <form onSubmit={handleJumpToVerse} className="mt-2 flex items-center gap-2">
-                    <div className="relative flex-1">
-                        <input
-                            type="number"
-                            inputMode="numeric"
-                            pattern="[0-9]*"
-                            placeholder={t('quran:verseNumber')}
-                            value={jumpTarget}
-                            onChange={(e) => setJumpTarget(e.target.value)}
-                            onKeyDown={(e) => e.key === 'Enter' && handleJumpToVerse(e)}
-                            className="w-full bg-white/10 border border-white/10 rounded-xl px-4 py-2 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-islamic-gold/50 backdrop-blur-sm transition-all text-base font-medium [&::-webkit-inner-spin-button]:appearance-none"
-                        />
-                    </div>
-                    <Button
-                        type="button"
-                        onClick={handleJumpToVerse}
-                        disabled={!jumpTarget}
-                        className="bg-islamic-gold text-[#032e18] hover:bg-islamic-gold/90 border-none rounded-xl w-10 h-10 flex items-center justify-center shadow-lg shadow-islamic-gold/10 active:scale-95 transition-all"
-                    >
-                        <CornerDownLeft className="w-6 h-6" />
-                    </Button>
-                </form>
-            </div>
-
-            {/* Verses */}
             <div className="p-4 space-y-4">
-                {/* Bismillah - Show for all except Fatiha (1) and Tawbah (9) */}
                 {surahInfo?.id !== 1 && surahInfo?.id !== 9 && (
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
@@ -639,30 +709,125 @@ export default function SurahDetail() {
                     </motion.div>
                 )}
 
-                {/* Verse Cards */}
-                <AnimatePresence>
-                    {verses.map((verse, index) => (
-                        <VerseItem
-                            key={verse.id}
-                            verse={verse}
-                            verseRef={(el) => {
-                                if (el) {
-                                    verseRefs.current[verse.verseNumber] = el;
-                                    verseRefs.current[`idx-${index + 1}`] = el;
-                                }
-                            }}
-                            index={index}
-                            isBookmarked={isBookmarked(verse.verseKey)}
-                            toggleBookmark={toggleBookmark}
-                            handleShareClick={handleShareClick}
-                            handlePlayAyah={handlePlayAyah}
-                            playingAyahKey={playingAyahKey}
-                            t={t}
-                        />
-                    ))}
+                <AnimatePresence mode="wait">
+                    {viewMode === 'verses' ? (
+                        <motion.div
+                            key="verses-view"
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.98 }}
+                            className="space-y-4"
+                        >
+                            {verses.map((verse, index) => (
+                                <VerseItem
+                                    key={verse.id}
+                                    verse={verse}
+                                    verseRef={(el) => {
+                                        if (el) {
+                                            verseRefs.current[verse.verseKey] = el;
+                                            verseRefs.current[verse.verseNumber] = el;
+                                            verseRefs.current[`idx-${index + 1}`] = el;
+                                        }
+                                    }}
+                                    index={index}
+                                    isBookmarked={isBookmarked(verse.verseKey)}
+                                    toggleBookmark={toggleBookmark}
+                                    handleShareClick={handleShareClick}
+                                    handlePlayAyah={handlePlayAyah}
+                                    playingAyahKey={playingAyahKey}
+                                    t={t}
+                                />
+                            ))}
+                        </motion.div>
+                    ) : (
+                        <motion.div
+                            key="reading-view"
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.98 }}
+                        >
+                            <Card className="border-none shadow-xl rounded-[2.5rem] bg-white dark:bg-white/5 overflow-hidden p-8 dark:text-white">
+                                {readingSubMode === 'ar' && (
+                                    <div className="text-right font-arabic" dir="rtl">
+                                        {verses.map((verse) => (
+                                            <span
+                                                key={verse.id}
+                                                id={`verse-${verse.verseKey}`}
+                                                ref={(el) => { if (el) verseRefs.current[verse.verseKey] = el; }}
+                                                className={cn(
+                                                    "inline transition-all duration-700",
+                                                    getArabicZoomClass(),
+                                                    playingAyahKey === verse.verseKey
+                                                        ? "text-islamic-gold drop-shadow-[0_0_8px_rgba(212,175,55,0.4)]"
+                                                        : "text-islamic-green dark:text-islamic-gold"
+                                                )}
+                                            >
+                                                {verse.arabic} <span className={cn(
+                                                    "text-islamic-gold/70 inline-flex items-center justify-center mr-1 ml-2 relative top-1",
+                                                    zoomLevel >= 3 ? "text-4xl" : "text-2xl"
+                                                )}>۝<span className={cn(
+                                                    "absolute font-sans font-bold text-islamic-green dark:text-white/80",
+                                                    zoomLevel >= 3 ? "text-sm" : "text-[11px]"
+                                                )}>{toArabicNumber(verse.verseNumber)}</span></span>
+                                            </span>
+                                        ))}
+                                    </div>
+                                )}
+
+                                {readingSubMode === 'tr' && (
+                                    <div className="text-left space-y-2">
+                                        {verses.map((verse) => (
+                                            <span
+                                                key={verse.id}
+                                                id={`verse-${verse.verseKey}`}
+                                                ref={(el) => { if (el) verseRefs.current[verse.verseKey] = el; }}
+                                                className={cn(
+                                                    "font-sans transition-all duration-700 inline rounded-md py-0.5",
+                                                    getLatinZoomClass(),
+                                                    playingAyahKey === verse.verseKey
+                                                        ? "bg-islamic-gold/20 dark:bg-islamic-gold/30 text-gray-900 dark:text-white font-semibold"
+                                                        : "text-gray-800 dark:text-emerald-50"
+                                                )}
+                                            >
+                                                <span className="text-[10px] font-bold bg-islamic-green/10 text-islamic-green dark:bg-islamic-gold/10 dark:text-islamic-gold px-1.5 py-0.5 rounded-md mx-1 relative -top-0.5">
+                                                    {verse.verseNumber}
+                                                </span>
+                                                <span dangerouslySetInnerHTML={{ __html: verse.translation }} />
+                                                {" "}
+                                            </span>
+                                        ))}
+                                    </div>
+                                )}
+
+                                {readingSubMode === 'translit' && (
+                                    <div className="text-left space-y-2">
+                                        {verses.map((verse) => (
+                                            <span
+                                                key={verse.id}
+                                                id={`verse-${verse.verseKey}`}
+                                                ref={(el) => { if (el) verseRefs.current[verse.verseKey] = el; }}
+                                                className={cn(
+                                                    "font-sans transition-all duration-700 inline rounded-md py-0.5",
+                                                    getLatinZoomClass(),
+                                                    playingAyahKey === verse.verseKey
+                                                        ? "bg-islamic-gold/20 dark:bg-islamic-gold/30 text-gray-900 dark:text-white font-semibold"
+                                                        : "text-gray-800 dark:text-emerald-50"
+                                                )}
+                                            >
+                                                <span className="text-[10px] font-bold bg-islamic-green/10 text-islamic-green dark:bg-islamic-gold/10 dark:text-islamic-gold px-1.5 py-0.5 rounded-md mx-1 relative -top-0.5">
+                                                    {verse.verseNumber}
+                                                </span>
+                                                {verse.transliteration}
+                                                {" "}
+                                            </span>
+                                        ))}
+                                    </div>
+                                )}
+                            </Card>
+                        </motion.div>
+                    )}
                 </AnimatePresence>
 
-                {/* Load More Button */}
                 {hasNextPage && (
                     <motion.div
                         initial={{ opacity: 0 }}
@@ -689,7 +854,6 @@ export default function SurahDetail() {
                     </motion.div>
                 )}
 
-                {/* End of Surah */}
                 {!hasNextPage && (
                     <motion.div
                         initial={{ opacity: 0 }}
@@ -705,7 +869,6 @@ export default function SurahDetail() {
                     </motion.div>
                 )}
 
-                {/* Next Surah Button */}
                 {!pagination?.next_page && verses.length > 0 && parseInt(surahId) < 114 && (
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
@@ -726,7 +889,6 @@ export default function SurahDetail() {
                 )}
             </div>
 
-            {/* SHARE MODAL */}
             <AnimatePresence>
                 {shareModalData && (
                     <motion.div
@@ -755,7 +917,6 @@ export default function SurahDetail() {
                                 </button>
                             </div>
 
-                            {/* Theme Grid */}
                             <div className="grid grid-cols-5 gap-3 mb-8">
                                 {Object.values(SHARE_THEMES).map((theme, index) => {
                                     const isFree = index === 0;
@@ -794,7 +955,6 @@ export default function SurahDetail() {
                                 })}
                             </div>
 
-                            {/* Action Button */}
                             <Button
                                 onClick={handleShare}
                                 disabled={sharing}
@@ -817,17 +977,13 @@ export default function SurahDetail() {
                 )}
             </AnimatePresence>
 
-            {/* Hidden Share Card */}
-            {
-                shareModalData && (
-                    <ShareCard
-                        theme={activeTheme.id}
-                        data={shareModalData}
-                    />
-                )
-            }
+            {shareModalData && (
+                <ShareCard
+                    theme={activeTheme.id}
+                    data={shareModalData}
+                />
+            )}
 
-            {/* Mini Player for Surah Playback */}
             <AnimatePresence>
                 {isSurahPlaying && (
                     <motion.div
@@ -837,7 +993,6 @@ export default function SurahDetail() {
                         className="fixed bottom-24 left-4 right-4 z-50 px-2 max-w-sm mx-auto"
                     >
                         <div className="bg-[#032e18]/95 backdrop-blur-2xl border border-white/10 rounded-[2.5rem] p-3 pl-3 pr-5 flex items-center gap-4 shadow-[0_20px_50px_rgba(0,0,0,0.5)] border-t-white/20">
-                            {/* Play/Pause Button */}
                             <motion.button
                                 whileTap={{ scale: 0.95 }}
                                 onClick={toggleSurahAudio}
@@ -852,7 +1007,6 @@ export default function SurahDetail() {
                                 )}
                             </motion.button>
 
-                            {/* Info & Progress */}
                             <div className="flex-1 min-w-0 py-1">
                                 <div className="flex justify-between items-end mb-2">
                                     <div className="truncate mr-2">
@@ -866,7 +1020,6 @@ export default function SurahDetail() {
                                     </div>
                                 </div>
 
-                                {/* Progress Bar */}
                                 <div className="h-1.5 bg-white/10 rounded-full relative group">
                                     <motion.div
                                         className="h-full bg-islamic-gold rounded-full shadow-[0_0_15px_rgba(212,175,55,0.8)] relative z-10"
@@ -885,7 +1038,6 @@ export default function SurahDetail() {
                                 </div>
                             </div>
 
-                            {/* Actions */}
                             <div className="flex flex-col gap-2">
                                 <button
                                     onClick={() => {
@@ -908,16 +1060,11 @@ export default function SurahDetail() {
                                                 className="absolute bottom-full mb-0 left-0 w-10 bg-[#032e18]/95 backdrop-blur-xl border border-islamic-gold/20 rounded-t-full shadow-2xl z-50 flex flex-col items-center justify-end overflow-hidden origin-bottom pb-1"
                                             >
                                                 <div className="relative w-full h-full group flex flex-col items-center">
-                                                    {/* Background Track */}
                                                     <div className="absolute inset-x-3 bottom-0 top-3 bg-white/10 rounded-full" />
-
-                                                    {/* Active Volume Level (Gold Fill) */}
                                                     <div
                                                         className="absolute bottom-0 inset-x-3 bg-islamic-gold transition-all duration-75 ease-out rounded-b-full rounded-t-sm"
                                                         style={{ height: `${volume * 100}%`, maxHeight: 'calc(100% - 12px)' }}
                                                     />
-
-                                                    {/* Invisible Input for Touch Interaction */}
                                                     <input
                                                         type="range"
                                                         min="0"

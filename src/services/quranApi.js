@@ -213,6 +213,27 @@ export async function fetchAyahAudio(verseKey, recitationId = 7) {
 }
 
 /**
+ * Fetch all ayah recitation audio URLs for a specific chapter
+ * @param {number} chapterId 
+ * @param {number} recitationId - Default to Mishary Rashid Alafasy (7)
+ */
+export async function fetchChapterAudioFiles(chapterId, recitationId = 7) {
+    try {
+        const response = await fetch(`${BASE_URL}/recitations/${recitationId}/by_chapter/${chapterId}`);
+        if (!response.ok) throw new Error('Sure ses dosyaları alınamadı');
+        const data = await response.json();
+        
+        return data.audio_files.map(file => ({
+            verseKey: file.verse_key,
+            url: file.url.startsWith('http') ? file.url : `https://verses.quran.com/${file.url}`
+        }));
+    } catch (error) {
+        console.error('Chapter Audio Files Error:', error);
+        return [];
+    }
+}
+
+/**
  * Formats academic transliteration into a cleaner user-friendly version
  * @param {string} text 
  */

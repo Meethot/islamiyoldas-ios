@@ -43,7 +43,7 @@ const BackgroundMode = {
 const BOOKMARKS_KEY = 'quran_bookmarks';
 const SURAH_BOOKMARKS_KEY = 'quran_surah_bookmarks';
 
-export default function Quran() {
+export default function Quran({ isTrackingTab = false }) {
     const navigate = useNavigate();
     const { t, i18n } = useTranslation('quran');
     const { selection, success } = useHaptics();
@@ -156,6 +156,23 @@ export default function Quran() {
         surah.arabic.includes(searchQuery) ||
         String(surah.id) === searchQuery.trim()
     );
+
+    const filteredSurahBookmarks = surahBookmarks.filter(surah =>
+        !searchQuery || 
+        surah.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        surah.nameSimple?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        surah.arabic?.includes(searchQuery) ||
+        String(surah.id) === searchQuery.trim()
+    );
+
+    const filteredVerseBookmarks = bookmarks.filter(b => 
+        !searchQuery || 
+        (b.surahName || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (b.translation || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (b.arabic || '').includes(searchQuery) ||
+        String(b.verseNumber) === searchQuery.trim()
+    );
+
 
     useEffect(() => {
         if (!searchQuery) return;
@@ -305,50 +322,54 @@ export default function Quran() {
         <div className="min-h-screen bg-gradient-to-b from-background to-muted dark:from-[#032e18] dark:to-[#021a0f] pb-24">
             {/* Header */}
             <div className="bg-gradient-to-br from-primary via-primary to-emerald-800 dark:from-[#032e18] dark:via-[#032e18] dark:to-[#021a0f] p-5 sticky top-0 z-40 border-b border-primary/10 dark:border-white/10 shadow-lg shadow-primary/10 dark:shadow-black/20">
-                <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center gap-3">
-                        <button
-                            onClick={() => navigate(-1)}
-                            className="p-2 -ml-2 rounded-xl hover:bg-white/10 active:bg-white/20 transition-colors"
-                        >
-                            <ChevronLeft className="w-6 h-6 text-white" />
-                        </button>
-                        <div className="p-3 bg-white/10 rounded-2xl backdrop-blur-sm">
-                            <BookOpen className="w-6 h-6 text-white" />
-                        </div>
-                        <div>
-                            <h1 className="text-2xl font-serif font-bold text-white">
-                                {selectedSurah ? selectedSurah.name : t('pageTitle')}
-                            </h1>
-                            {selectedSurah && (
-                                <>
-                                    <p className="text-xs text-white/70 font-medium">
-                                        {selectedSurah.ayahCount} {t('ayahCount', { count: selectedSurah.ayahCount }).split(' ').slice(1).join(' ')}
-                                    </p>
-                                    <p className="text-xs text-white/70 font-medium">
-                                        {t(`revelation.${selectedSurah.revelationPlace}`)}
-                                    </p>
-                                </>
+                {!(isTrackingTab && !selectedSurah) && (
+                    <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center gap-3">
+                            {!isTrackingTab && (
+                                <button
+                                    onClick={() => navigate(-1)}
+                                    className="p-2 -ml-2 rounded-xl hover:bg-white/10 active:bg-white/20 transition-colors"
+                                >
+                                    <ChevronLeft className="w-6 h-6 text-white" />
+                                </button>
                             )}
+                            <div className="p-3 bg-white/10 rounded-2xl backdrop-blur-sm">
+                                <BookOpen className="w-6 h-6 text-white" />
+                            </div>
+                            <div>
+                                <h1 className="text-2xl font-serif font-bold text-white">
+                                    {selectedSurah ? selectedSurah.name : t('pageTitle')}
+                                </h1>
+                                {selectedSurah && (
+                                    <>
+                                        <p className="text-xs text-white/70 font-medium">
+                                            {selectedSurah.ayahCount} {t('ayahCount', { count: selectedSurah.ayahCount }).split(' ').slice(1).join(' ')}
+                                        </p>
+                                        <p className="text-xs text-white/70 font-medium">
+                                            {t(`revelation.${selectedSurah.revelationPlace}`)}
+                                        </p>
+                                    </>
+                                )}
+                            </div>
                         </div>
+                        {selectedSurah && (
+                            <Button
+                                onClick={() => {
+                                    selection();
+                                    setSelectedSurah(null);
+                                    setShowSurahList(true);
+                                }}
+                                variant="ghost"
+                                className="text-white hover:bg-white/10"
+                            >
+                                <X className="w-5 h-5" />
+                            </Button>
+                        )}
                     </div>
-                    {selectedSurah && (
-                        <Button
-                            onClick={() => {
-                                selection();
-                                setSelectedSurah(null);
-                                setShowSurahList(true);
-                            }}
-                            variant="ghost"
-                            className="text-white hover:bg-white/10"
-                        >
-                            <X className="w-5 h-5" />
-                        </Button>
-                    )}
-                </div>
+                )}
 
                 {/* Search Bar */}
-                {showSurahList && activeTab === 'surahs' && (
+                {showSurahList && (
                     <div className="relative mb-3">
                         <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/50" />
                         <input
@@ -556,17 +577,21 @@ export default function Quran() {
                                     </p>
                                 </div>
                             </div>
+                        ) : filteredSurahBookmarks.length === 0 && filteredVerseBookmarks.length === 0 ? (
+                            <div className="text-center py-12">
+                                <p className="text-gray-400">{t('noResults')}</p>
+                            </div>
                         ) : (
                             <>
                                 {/* Saved Surahs */}
-                                {surahBookmarks.length > 0 && (
+                                {filteredSurahBookmarks.length > 0 && (
                                     <div className="mb-6">
                                         <h3 className="text-sm font-bold text-islamic-green/60 dark:text-islamic-gold/60 uppercase tracking-widest mb-3 px-1">
                                             <BookOpen className="w-4 h-4 inline-block mr-2" />
                                             {t('savedSurahs', { defaultValue: 'Kaydedilen Sureler' })}
                                         </h3>
                                         <div className="space-y-2">
-                                            {surahBookmarks.map((surah, index) => {
+                                            {filteredSurahBookmarks.map((surah, index) => {
                                                 const summaryData = getSurahSummary(surah.id, currentLang);
                                                 return (
                                                     <motion.div
@@ -614,13 +639,13 @@ export default function Quran() {
                                 )}
 
                                 {/* Saved Verses */}
-                                {bookmarks.length > 0 && (
+                                {filteredVerseBookmarks.length > 0 && (
                                     <div>
                                         <h3 className="text-sm font-bold text-islamic-green/60 dark:text-islamic-gold/60 uppercase tracking-widest mb-3 px-1">
                                             <Bookmark className="w-4 h-4 inline-block mr-2" />
                                             {t('savedVerses', { defaultValue: 'Kaydedilen Ayetler' })}
                                         </h3>
-                                        {bookmarks.map((bookmark, index) => (
+                                        {filteredVerseBookmarks.map((bookmark, index) => (
                                             <motion.div
                                                 key={bookmark.verseKey}
                                                 initial={{ opacity: 0, x: -20 }}

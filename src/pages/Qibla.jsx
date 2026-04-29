@@ -269,20 +269,7 @@ export default function Qibla() {
         const readings = [];
         let sensorVerified = false;
 
-        // After 6s, check if sensor is truly working (not just sending static values)
-        const sensorCheck = setTimeout(() => {
-            if (sensorVerified || !mountedRef.current) return;
-
-            // If completely NO readings received within 6 seconds = dead sensor
-            // Note: Being too aggressive with uniqueReadings checking causes false positives when phone is perfectly still
-            const sensorDead = readings.length === 0;
-
-            if (sensorDead) {
-                console.warn(`Sensor dead: ${readings.length} readings received.`);
-                setSensorMissing(true);
-            }
-            if (mountedRef.current) setCompassReady(true);
-        }, 6000);
+        let sensorCheckTimeout;
 
         const startCompass = async () => {
             if (!mountedRef.current) return;
@@ -346,6 +333,18 @@ export default function Qibla() {
                     minHeadingChange: 0.5  // Filter sensor noise at hardware level
                 });
 
+                // Start 6s timeout to verify sensor is actually sending data
+                sensorCheckTimeout = setTimeout(() => {
+                    if (sensorVerified || !mountedRef.current) return;
+
+                    const sensorDead = readings.length === 0;
+                    if (sensorDead) {
+                        console.warn(`Sensor dead: ${readings.length} readings received.`);
+                        setSensorMissing(true);
+                    }
+                    if (mountedRef.current) setCompassReady(true);
+                }, 6000);
+
             } catch (e) {
                 console.error("Compass Error", e);
                 setSensorMissing(true);
@@ -356,7 +355,7 @@ export default function Qibla() {
         startCompass();
 
         return () => {
-            clearTimeout(sensorCheck);
+            if (sensorCheckTimeout) clearTimeout(sensorCheckTimeout);
             Compass.stopListening();
             Compass.removeAllListeners();
         };
