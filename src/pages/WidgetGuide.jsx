@@ -25,8 +25,8 @@ const LOCK_STEPS = [
 const WIDGETS = [
     { emoji: '🕌', name: 'Namaz Vakitleri', desc: 'Küçük · Orta · Kilit' },
     { emoji: '📖', name: 'Günün Ayeti', desc: 'Küçük · Orta · Kilit' },
-    { emoji: '📿', name: 'Esma-ül Hüsna', desc: 'Küçük · Orta' },
-    { emoji: '💬', name: 'Motivasyon', desc: 'Küçük · Orta · Kilit' },
+    { emoji: '📿', name: 'Zikirmatik', desc: 'Küçük · Orta' },
+    { emoji: '🤲', name: 'Esma-ül Hüsna', desc: 'Küçük · Orta' },
 ];
 
 /* ─── CSS-only step indicator ─── */

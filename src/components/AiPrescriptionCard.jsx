@@ -161,16 +161,16 @@ export default function AiPrescriptionCard({ data }) {
             animate={{ opacity: 1, y: 0 }}
             className="w-full max-w-sm mx-auto mt-4 mb-2"
         >
-            <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#032e18] to-[#0a4a2e] border border-islamic-gold/20 shadow-xl">
+            <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-stone-50 to-stone-100 dark:from-[#032e18] dark:to-[#0a4a2e] border border-stone-200 dark:border-islamic-gold/20 shadow-xl">
                 {/* Decorative Background */}
-                <div className="absolute top-0 right-0 w-32 h-32 bg-islamic-gold/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
-                <div className="absolute bottom-0 left-0 w-24 h-24 bg-emerald-500/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
+                <div className="absolute top-0 right-0 w-32 h-32 bg-islamic-green/5 dark:bg-islamic-gold/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+                <div className="absolute bottom-0 left-0 w-24 h-24 bg-emerald-500/5 dark:bg-emerald-500/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
 
                 <div className="p-6 space-y-5 relative z-10">
                     {/* Header */}
-                    <div className="flex items-center gap-2 border-b border-white/10 pb-3">
-                        <Sparkles className="w-5 h-5 text-islamic-gold" />
-                        <h3 className="text-islamic-gold font-serif font-bold text-lg tracking-wide">
+                    <div className="flex items-center gap-2 border-b border-stone-200 dark:border-white/10 pb-3">
+                        <Sparkles className="w-5 h-5 text-islamic-green dark:text-islamic-gold" />
+                        <h3 className="text-islamic-green dark:text-islamic-gold font-serif font-bold text-lg tracking-wide">
                             {t('prescription.title')}
                         </h3>
                     </div>
@@ -178,22 +178,22 @@ export default function AiPrescriptionCard({ data }) {
                     {/* 1. Tavsiye Metni */}
                     <div className="space-y-1">
                         <p className="text-[10px] text-gray-500 uppercase tracking-widest font-bold">{t('prescription.adviceLabel')}</p>
-                        <p className="text-white text-sm leading-relaxed">
+                        <p className="text-stone-700 dark:text-white text-sm leading-relaxed">
                             {advice}
                         </p>
                     </div>
 
                     {/* 2. Zikir Reçetesi */}
                     {enrichedZikr && (
-                        <div className="bg-islamic-gold/10 rounded-2xl p-4 border border-islamic-gold/20">
+                        <div className="bg-islamic-green/10 dark:bg-islamic-gold/10 rounded-2xl p-4 border border-islamic-green/20 dark:border-islamic-gold/20">
                             <p className="text-[10px] text-islamic-gold/60 uppercase tracking-widest font-bold mb-3">📿 {t('prescription.dhikrLabel')}</p>
                             <div className="flex justify-between items-start mb-3">
                                 <div>
                                     {enrichedZikr.arabic && (
                                         <p className="text-islamic-gold font-serif text-xl mb-1" dir="rtl">{enrichedZikr.arabic}</p>
                                     )}
-                                    <p className="text-white font-bold text-base">{enrichedZikr.name}</p>
-                                    <p className="text-xs text-white/60">{enrichedZikr.meaning}</p>
+                                    <p className="text-stone-800 dark:text-white font-bold text-base">{enrichedZikr.name}</p>
+                                    <p className="text-xs text-stone-500 dark:text-white/60">{enrichedZikr.meaning}</p>
                                 </div>
                                 <div className="bg-islamic-gold text-[#032e18] px-2 py-1 rounded-lg text-xs font-bold whitespace-nowrap">
                                     {enrichedZikr.count} {enrichedZikr.isEsma ? t('prescription.ebced') : t('prescription.count')}
@@ -211,7 +211,7 @@ export default function AiPrescriptionCard({ data }) {
                     )}
 
                     {/* 3. Şifa Ayeti (Audio Verse) */}
-                    <div className="bg-white/5 rounded-2xl p-4 border border-white/5">
+                    <div className="bg-stone-100 dark:bg-white/5 rounded-2xl p-4 border border-stone-200 dark:border-white/5">
                         <p className="text-[10px] text-emerald-400/60 uppercase tracking-widest font-bold mb-3">📖 {t('prescription.verseLabel')}</p>
 
                         {loadingVerse ? (
@@ -221,7 +221,7 @@ export default function AiPrescriptionCard({ data }) {
                                 <p className="text-right font-arabic text-xl text-islamic-gold/90 leading-loose mb-3">
                                     {verseData?.arabic}
                                 </p>
-                                <p className="text-gray-300 text-sm italic leading-relaxed mb-2">
+                                <p className="text-stone-600 dark:text-gray-300 text-sm italic leading-relaxed mb-2">
                                     "{verseData?.translation}"
                                 </p>
 

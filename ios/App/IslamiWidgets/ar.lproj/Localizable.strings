@@ -19,3 +19,8 @@
 "desc_hourly_esma" = "اسم جديد من أسماء الله الحسنى كل ساعة";
 "desc_daily_motivation" = "آية تحفيزية تلهمك كل يوم";
 "desc_hourly_verse" = "آية ملهمة جديدة كل ساعة";
+
+"widget_dhikr" = "عداد الأذكار";
+"desc_dhikr" = "سبّح من الويدجت";
+"widget_dhikr_lock" = "مسبحة الأذكار (شاشة القفل)";
+"desc_dhikr_lock" = "قم بالتسبيح بسرعة من شاشة القفل.";

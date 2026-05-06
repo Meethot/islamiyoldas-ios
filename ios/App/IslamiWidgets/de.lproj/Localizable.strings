@@ -19,3 +19,8 @@
 "desc_hourly_esma" = "Jede Stunde ein neuer schöner Name Allahs";
 "desc_daily_motivation" = "Ein motivierender Vers, der Sie jeden Tag inspiriert";
 "desc_hourly_verse" = "Jede Stunde ein neuer inspirierender Vers";
+
+"widget_dhikr" = "Dhikr-Zähler";
+"desc_dhikr" = "Zähle dein Dhikr über das Widget";
+"widget_dhikr_lock" = "Dhikr-Zähler (Sperrbildschirm)";
+"desc_dhikr_lock" = "Zählen Sie Ihren Dhikr schnell vom Sperrbildschirm aus.";

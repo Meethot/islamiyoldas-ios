@@ -19,3 +19,7 @@
 "desc_hourly_esma" = "Her saat başı yeni bir Esma-ül Hüsnâ";
 "desc_daily_motivation" = "Her gün ruhunuza iyi gelecek motivasyon veren bir ayet";
 "desc_hourly_verse" = "Her saat başı yeni bir ilham veren ayet";
+"widget_dhikr" = "Zikirmatik";
+"desc_dhikr" = "Widget üzerinden zikir çekin";
+"widget_dhikr_lock" = "Zikirmatik (Kilit Ekranı)";
+"desc_dhikr_lock" = "Kilit ekranından hızlıca zikir çekin.";

@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<?xml version='1.0' encoding='UTF-8'?>
 <plist version="1.0">
 <dict>
 	<key>CAPACITOR_DEBUG</key>
@@ -45,9 +44,9 @@
 		</dict>
 	</array>
 	<key>ITSAppUsesNonExemptEncryption</key>
-	<false/>
+	<false />
 	<key>LSRequiresIPhoneOS</key>
-	<true/>
+	<true />
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 	<string>Namaz vakitlerini size bildirmek için konumunuza ihtiyacımız var.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
@@ -84,6 +83,48 @@
 		<string>UIInterfaceOrientationPortraitUpsideDown</string>
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
-	<true/>
+	<true />
+	<key>UIApplicationShortcutItems</key>
+	<array>
+		<dict>
+			<key>UIApplicationShortcutItemIconSymbolName</key>
+			<string>exclamationmark.triangle</string>
+			<key>UIApplicationShortcutItemTitle</key>
+			<string>Dur! Lütfen Silme!</string>
+			<key>UIApplicationShortcutItemSubtitle</key>
+			<string>Tüm serini ve ilerlemeni kaybedeceksin</string>
+			<key>UIApplicationShortcutItemType</key>
+			<string>com.islamiyoldas.app.warning</string>
+		</dict>
+		<dict>
+			<key>UIApplicationShortcutItemIconSymbolName</key>
+			<string>book</string>
+			<key>UIApplicationShortcutItemTitle</key>
+			<string>Günün Ayetini Oku</string>
+			<key>UIApplicationShortcutItemSubtitle</key>
+			<string>Kaldığın yerden okumaya devam et</string>
+			<key>UIApplicationShortcutItemType</key>
+			<string>com.islamiyoldas.app.read</string>
+		</dict>
+		<dict>
+			<key>UIApplicationShortcutItemIconSymbolName</key>
+			<string>envelope</string>
+			<key>UIApplicationShortcutItemTitle</key>
+			<string>Destek Al</string>
+			<key>UIApplicationShortcutItemSubtitle</key>
+			<string>Bize e-posta göndererek ulaş</string>
+			<key>UIApplicationShortcutItemType</key>
+			<string>com.islamiyoldas.app.help</string>
+		</dict>
+	<dict>
+                <key>UIApplicationShortcutItemIconSymbolName</key>
+                <string>clock.fill</string>
+                <key>UIApplicationShortcutItemTitle</key>
+                <string>Namaz Vakitleri</string>
+                <key>UIApplicationShortcutItemSubtitle</key>
+                <string>Günlük vakitleri hızlıca gör</string>
+                <key>UIApplicationShortcutItemType</key>
+                <string>com.islamiyoldas.app.times</string>
+            </dict></array>
 </dict>
 </plist>

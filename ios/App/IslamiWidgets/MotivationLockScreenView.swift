@@ -27,8 +27,7 @@ struct MotivationLockScreenRectangularView: View {
     
     var body: some View {
         ZStack {
-            RoundedRectangle(cornerRadius: 14, style: .continuous)
-                .fill(.ultraThinMaterial)
+            // Transparent background
             
             VStack(alignment: .leading, spacing: 1) {
                 HStack(spacing: 3) {

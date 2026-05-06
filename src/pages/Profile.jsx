@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import {
     User, Settings, Shield, Bell, HelpCircle, RefreshCw,
     ChevronRight, LogOut, Heart, Crown, Check, Moon, Sun, Download, Trash2, X,
-    BookOpen, Box, Landmark, Camera, Pen, Share2, UserPlus, Globe, Bug, Ticket, Gift, Sparkles, Type, Clock
+    BookOpen, Box, Landmark, Camera, Pen, Share2, UserPlus, Globe, Bug, Ticket, Gift, Sparkles, Type, Clock, Activity
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
@@ -578,6 +578,8 @@ export default function Profile() {
                     </div>
 
 
+
+
                     {/* Share Progress */}
                     <div
                         className="p-5 flex items-center justify-between hover:bg-stone-50 dark:hover:bg-white/5 transition-colors cursor-pointer group"
@@ -662,6 +664,31 @@ export default function Profile() {
                             </div>
                         </div>
                         <ChevronRight className="w-5 h-5 text-stone-400 dark:text-gray-300 group-hover:translate-x-1 transition-transform" />
+                    </div>
+
+                    {/* Haptics Toggle */}
+                    <div
+                        className="p-5 flex items-center justify-between hover:bg-stone-50 dark:hover:bg-white/5 transition-colors cursor-pointer group"
+                        onClick={() => { selection(); updateSettings({ hapticsEnabled: !prayerSettings.hapticsEnabled }); }}
+                    >
+                        <div className="flex items-center gap-4">
+                            <div className="p-3 bg-rose-100/80 dark:bg-rose-900/20 text-rose-700 dark:text-rose-400 rounded-2xl group-hover:scale-110 transition-transform">
+                                <Activity size={20} />
+                            </div>
+                            <div className="text-left">
+                                <p className="text-sm font-bold text-stone-800 dark:text-white">{t('haptics.title', 'Titreşim')}</p>
+                                <p className="text-xs text-stone-500 dark:text-gray-400 font-medium">{t('haptics.subtitle', 'Uygulama içi dokunma hissi')}</p>
+                            </div>
+                        </div>
+                        <div className={cn(
+                            "w-12 h-6 rounded-full p-1 transition-colors relative",
+                            prayerSettings.hapticsEnabled ? "bg-islamic-green dark:bg-islamic-gold" : "bg-stone-300 dark:bg-white/10"
+                        )}>
+                            <div className={cn(
+                                "w-4 h-4 bg-white rounded-full shadow-sm transition-transform",
+                                prayerSettings.hapticsEnabled ? "translate-x-6" : "translate-x-0"
+                            )} />
+                        </div>
                     </div>
 
 

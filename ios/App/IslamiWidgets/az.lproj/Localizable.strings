@@ -19,3 +19,8 @@
 "desc_hourly_esma" = "Hər saat başı yeni bir Əsma-ül Hüsna";
 "desc_daily_motivation" = "Hər gün ruhunuzu ilhamlandıracaq bir ayə";
 "desc_hourly_verse" = "Hər saat başı yeni bir ilham verən ayə";
+
+"widget_dhikr" = "Zikr Sayğacı";
+"desc_dhikr" = "Widget üzərindən zikr edin";
+"widget_dhikr_lock" = "Zikr (Kilit Ekranı)";
+"desc_dhikr_lock" = "Kilit ekranından zikr edin.";

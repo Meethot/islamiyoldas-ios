@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import {
@@ -150,9 +150,11 @@ const VerseItem = React.memo(({ verse, index, isBookmarked, toggleBookmark, hand
 export default function SurahDetail() {
     const { surahId } = useParams();
     const navigate = useNavigate();
+    const location = useLocation();
     const { selection, success } = useHaptics();
     const { t, i18n } = useTranslation();
     const currentLang = i18n.language?.split('-')[0] || 'en';
+    const autoPlayKey = useRef(null);
 
     // State
     const [bookmarks, setBookmarks] = useState(() => safeGetStorage(BOOKMARKS_KEY, []));
@@ -179,6 +181,39 @@ export default function SurahDetail() {
     const [jumpTarget, setJumpTarget] = useState('');
     const [pendingJumpVerse, setPendingJumpVerse] = useState(null);
 
+    // Premium Trial State
+    const hasTrialAccess = () => {
+        if (isPremium()) return true;
+        const trialStart = safeGetStorage('quran_audio_trial_start', null);
+        if (!trialStart) return false;
+        const minPassed = (Date.now() - trialStart) / (1000 * 60);
+        return minPassed < 60; // 1 hour
+    };
+
+    const [trialTimeLeft, setTrialTimeLeft] = useState(null);
+
+    useEffect(() => {
+        if (isPremium()) return;
+        const trialStart = safeGetStorage('quran_audio_trial_start', null);
+        if (!trialStart) return;
+        
+        const updateTimer = () => {
+            const hoursPassed = (Date.now() - trialStart) / (1000 * 60 * 60);
+            if (hoursPassed >= 24) {
+                setTrialTimeLeft(null);
+            } else {
+                const msLeft = (24 * 60 * 60 * 1000) - (Date.now() - trialStart);
+                const h = Math.floor(msLeft / (1000 * 60 * 60));
+                const m = Math.floor((msLeft % (1000 * 60 * 60)) / (1000 * 60));
+                setTrialTimeLeft(`${h}s ${m}d`);
+            }
+        };
+        
+        updateTimer();
+        const intval = setInterval(updateTimer, 60000);
+        return () => clearInterval(intval);
+    }, []);
+
     // Share State
     const [shareModalData, setShareModalData] = useState(null);
     const [activeTheme, setActiveTheme] = useState(SHARE_THEMES.emerald);
@@ -197,6 +232,29 @@ export default function SurahDetail() {
     const [volume, setVolume] = useState(1);
     const [showVolumeSlider, setShowVolumeSlider] = useState(false);
     const [isMuted, setIsMuted] = useState(false);
+
+    const [isPlayerVisible, setIsPlayerVisible] = useState(true);
+    const playerTimeoutRef = useRef(null);
+
+    const showPlayerTemporarily = useCallback(() => {
+        setIsPlayerVisible(true);
+        if (playerTimeoutRef.current) clearTimeout(playerTimeoutRef.current);
+        playerTimeoutRef.current = setTimeout(() => {
+            setIsPlayerVisible(false);
+        }, 5000);
+    }, []);
+
+    useEffect(() => {
+        if (isSurahPlaying) {
+            showPlayerTemporarily();
+        } else {
+            setIsPlayerVisible(true);
+            if (playerTimeoutRef.current) clearTimeout(playerTimeoutRef.current);
+        }
+        return () => {
+            if (playerTimeoutRef.current) clearTimeout(playerTimeoutRef.current);
+        };
+    }, [isSurahPlaying, showPlayerTemporarily]);
 
     const handleJumpToVerse = (e) => {
         e.preventDefault();
@@ -273,6 +331,7 @@ export default function SurahDetail() {
             analytics.quranOpened(surahInfo.name, 'all');
         }
     }, [surahInfo?.name]);
+
 
     // TanStack Query: Infinite Verses
     const {
@@ -362,7 +421,7 @@ export default function SurahDetail() {
     // Audio Logic
     const toggleSurahAudio = async () => {
         selection();
-        if (!isPremium()) { navigate('/premium'); return; }
+        if (!hasTrialAccess()) { navigate('/premium'); return; }
 
         if (isSurahPlaying) {
             audio.pause();
@@ -393,6 +452,20 @@ export default function SurahDetail() {
             setIsSurahLoading(false);
         }
     };
+
+    // Auto-play when navigated with autoPlay state
+    useEffect(() => {
+        const ts = location.state?._ts;
+        if (location.state?.autoPlay && ts && ts !== autoPlayKey.current && surahInfo && verses.length > 0) {
+            autoPlayKey.current = ts;
+            // Clear the state so back/forward doesn't re-trigger
+            window.history.replaceState({}, '');
+            const timer = setTimeout(() => {
+                toggleSurahAudio();
+            }, 600);
+            return () => clearTimeout(timer);
+        }
+    }, [location.state, surahInfo, verses.length]);
 
     const playFromPlaylist = (index, playlist = audioPlaylist) => {
         if (!playlist || index >= playlist.length) {
@@ -439,7 +512,7 @@ export default function SurahDetail() {
 
     const handlePlayAyah = async (verse) => {
         selection();
-        if (!isPremium()) { navigate('/premium'); return; }
+        if (!hasTrialAccess()) { navigate('/premium'); return; }
 
         // Stop current playlist if running
         if (isSurahPlaying) {
@@ -616,7 +689,12 @@ export default function SurahDetail() {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-b from-white to-gray-50 dark:from-[#032e18] dark:to-[#021a0f] pb-24">
+        <div 
+            className="min-h-screen bg-gradient-to-b from-white to-gray-50 dark:from-[#032e18] dark:to-[#021a0f] pb-24"
+            onClick={() => {
+                if (isSurahPlaying) showPlayerTemporarily();
+            }}
+        >
             <>
                 <div className="bg-islamic-green dark:bg-[#032e18] px-4 py-2 sticky top-0 z-40 border-b border-white/10 shadow-lg">
                     <div className="flex items-center gap-3">
@@ -635,10 +713,11 @@ export default function SurahDetail() {
                             <h1 className="text-base font-serif font-bold text-white truncate leading-tight">
                                 {currentLang === 'tr' ? (surahInfo?.translatedName || surahInfo?.name) : surahInfo?.name}
                             </h1>
-                            <div className="flex gap-2 text-[10px] text-white/60 font-medium">
+                            <div className="flex gap-2 text-[10px] text-white/60 font-medium items-center">
                                 <p>{surahInfo?.ayahCount} {t('quran:ayahCount', { count: surahInfo?.ayahCount || 0 }).split(' ').slice(1).join(' ')}</p>
                                 <span>•</span>
                                 <p>{t(`quran:revelation.${surahInfo?.revelationPlace}`)}</p>
+        
                             </div>
                         </div>
                         <p className="text-lg font-arabic text-islamic-gold shrink-0">
@@ -985,7 +1064,7 @@ export default function SurahDetail() {
             )}
 
             <AnimatePresence>
-                {isSurahPlaying && (
+                {isSurahPlaying && isPlayerVisible && (
                     <motion.div
                         initial={{ y: 100 }}
                         animate={{ y: 0 }}

@@ -751,7 +751,7 @@ export default function PremiumPaywall() {
                             </div>
                             <p className="text-[#D4AF37] font-bold text-[13px] mt-2">{t('premium.plan_yearly')}</p>
                             <p className="text-white/35 text-[10px] mt-0.5">{getMonthlyEquivalent() ? t('premium.monthly_label', { price: getMonthlyEquivalent() }) : t('premium.plan_yearly_per_month')}</p>
-                            <p className="text-[#D4AF37] font-bold text-base mt-1">{getPrice(PRODUCT_IDS.YEARLY) || '₺499,99'}</p>
+                            <p className="text-[#D4AF37] font-bold text-base mt-1">{getPrice(PRODUCT_IDS.YEARLY) || '₺739,99'}</p>
                             <p className="text-[#D4AF37]/40 text-[10px]">/ {t('premium.year')}</p>
                             <div className="mt-1.5 pt-1.5 border-t border-[#D4AF37]/10">
                                 <p className="text-[#D4AF37]/60 text-[12px] font-semibold text-center">{getDailyPrice(PRODUCT_IDS.YEARLY) ? `🔥 ${t('premium.daily_label', { price: getDailyPrice(PRODUCT_IDS.YEARLY) })}` : t('premium.daily_yearly')}</p>

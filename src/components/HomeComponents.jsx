@@ -642,15 +642,15 @@ export const VerseOfDayCard = memo(({ isFriday, verse, fridayContent, onShare })
             <Card className={cn(
                 "border-none shadow-xl relative overflow-hidden transition-all duration-700 rounded-[2.5rem]",
                 isFriday
-                    ? "bg-gradient-to-br from-[#062e19] via-[#0a4528] to-[#062e19] text-white shadow-[0_8px_40px_rgba(212,175,55,0.15)] border border-islamic-gold/20"
-                    : "bg-gradient-to-br from-[#062e19] via-[#0a4528] to-[#062e19] text-white shadow-[0_8px_40px_rgba(4,77,41,0.3)]"
+                    ? "bg-gradient-to-br from-stone-50 via-amber-50/50 to-stone-50 dark:from-[#062e19] dark:via-[#0a4528] dark:to-[#062e19] text-stone-800 dark:text-white shadow-[0_8px_40px_rgba(212,175,55,0.1)] dark:shadow-[0_8px_40px_rgba(212,175,55,0.15)] border border-islamic-gold/15 dark:border-islamic-gold/20"
+                    : "bg-gradient-to-br from-stone-50 via-emerald-50/40 to-stone-50 dark:from-[#062e19] dark:via-[#0a4528] dark:to-[#062e19] text-stone-800 dark:text-white shadow-[0_8px_40px_rgba(4,77,41,0.08)] dark:shadow-[0_8px_40px_rgba(4,77,41,0.3)] border border-stone-200/60 dark:border-transparent"
             )}>
                 {/* Background Decorations */}
                 <MihrabDecoration />
                 
                 {/* Ambient glow orbs */}
-                <div className="absolute -top-20 -right-20 w-40 h-40 bg-islamic-gold/8 rounded-full blur-3xl" />
-                <div className="absolute -bottom-16 -left-16 w-32 h-32 bg-islamic-green/10 rounded-full blur-3xl" />
+                <div className="absolute -top-20 -right-20 w-40 h-40 bg-islamic-gold/5 dark:bg-islamic-gold/8 rounded-full blur-3xl" />
+                <div className="absolute -bottom-16 -left-16 w-32 h-32 bg-islamic-green/5 dark:bg-islamic-green/10 rounded-full blur-3xl" />
 
                 {/* Friday special shimmer */}
                 {isFriday && (
@@ -675,50 +675,50 @@ export const VerseOfDayCard = memo(({ isFriday, verse, fridayContent, onShare })
                 <div className="relative z-10 px-6 pt-5 pb-2 flex items-center justify-between">
                     <div className="flex items-center gap-3">
                         {/* Ornamental icon */}
-                        <div className="w-10 h-10 rounded-2xl bg-islamic-gold/10 border border-islamic-gold/20 flex items-center justify-center backdrop-blur-sm">
+                        <div className="w-10 h-10 rounded-2xl bg-islamic-green/10 dark:bg-islamic-gold/10 border border-islamic-green/20 dark:border-islamic-gold/20 flex items-center justify-center backdrop-blur-sm">
                             {isFriday ? (
-                                <Sparkles className="w-5 h-5 text-islamic-gold" />
+                                <Sparkles className="w-5 h-5 text-islamic-green dark:text-islamic-gold" />
                             ) : (
-                                <svg className="w-5 h-5 text-islamic-gold" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                                <svg className="w-5 h-5 text-islamic-green dark:text-islamic-gold" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
                                     <path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z" />
                                 </svg>
                             )}
                         </div>
-                        <h3 className="text-islamic-gold text-[10px] tracking-[0.2em] uppercase font-bold">
+                        <h3 className="text-islamic-green dark:text-islamic-gold text-[10px] tracking-[0.2em] uppercase font-bold">
                             {isFriday ? t('verse.fridayTitle') : t('verse.dailyTitle')}
                         </h3>
                     </div>
                     <button
                         onClick={onShare}
                         aria-label={t('verse_share_title')}
-                        className="w-10 h-10 flex items-center justify-center bg-white/5 hover:bg-white/10 rounded-2xl transition-all active:scale-95 border border-white/5"
+                        className="w-10 h-10 flex items-center justify-center bg-islamic-green/5 hover:bg-islamic-green/10 dark:bg-white/5 dark:hover:bg-white/10 rounded-2xl transition-all active:scale-95 border border-islamic-green/10 dark:border-white/5"
                     >
-                        <Share2 className="w-4 h-4 text-islamic-gold" />
+                        <Share2 className="w-4 h-4 text-islamic-green dark:text-islamic-gold" />
                     </button>
                 </div>
 
                 {/* Verse Content */}
                 <div className="relative z-10 px-6 pb-5">
                     {/* Decorative top ornament */}
-                    <div className="flex justify-center mb-4 opacity-20">
+                    <div className="flex justify-center mb-4 opacity-30 dark:opacity-20">
                         <svg width="60" height="12" viewBox="0 0 60 12" fill="none">
-                            <path d="M0 6 L10 2 L20 6 L30 0 L40 6 L50 2 L60 6" stroke="#D4AF37" strokeWidth="0.8" />
-                            <circle cx="30" cy="6" r="2" fill="#D4AF37" opacity="0.5" />
+                            <path d="M0 6 L10 2 L20 6 L30 0 L40 6 L50 2 L60 6" stroke="currentColor" strokeWidth="0.8" className="text-islamic-green dark:text-[#D4AF37]" />
+                            <circle cx="30" cy="6" r="2" fill="currentColor" opacity="0.5" className="text-islamic-green dark:text-[#D4AF37]" />
                         </svg>
                     </div>
 
-                    <p className="font-serif text-[17px] sm:text-lg leading-[1.8] text-white/90 text-center" style={{ textWrap: 'balance' }}>
+                    <p className="font-serif text-[17px] sm:text-lg leading-[1.8] text-stone-700 dark:text-white/90 text-center" style={{ textWrap: 'balance' }}>
                         "{currentVerse.text}"
                     </p>
 
                     {/* Divider */}
                     <div className="flex items-center justify-center gap-3 mt-5 mb-2">
-                        <div className="h-px w-8 bg-islamic-gold/20" />
-                        <div className="w-1.5 h-1.5 rounded-full bg-islamic-gold/30" />
-                        <div className="h-px w-8 bg-islamic-gold/20" />
+                        <div className="h-px w-8 bg-islamic-green/20 dark:bg-islamic-gold/20" />
+                        <div className="w-1.5 h-1.5 rounded-full bg-islamic-green/30 dark:bg-islamic-gold/30" />
+                        <div className="h-px w-8 bg-islamic-green/20 dark:bg-islamic-gold/20" />
                     </div>
 
-                    <p className="text-center text-[10px] font-bold text-islamic-gold/60 uppercase tracking-[0.15em]">
+                    <p className="text-center text-[10px] font-bold text-islamic-green/50 dark:text-islamic-gold/60 uppercase tracking-[0.15em]">
                         — {currentVerse.source}
                     </p>
                 </div>
@@ -727,7 +727,7 @@ export const VerseOfDayCard = memo(({ isFriday, verse, fridayContent, onShare })
                 {isFriday && (
                     <div className="relative z-10 px-6 pb-5">
                         <Button
-                            className="w-full bg-islamic-gold hover:bg-islamic-gold/90 text-[#0d2a2e] font-bold rounded-2xl h-14 shadow-lg shadow-islamic-gold/20 gap-2 active:scale-95 transition-transform"
+                            className="w-full bg-islamic-green dark:bg-islamic-gold hover:bg-islamic-green/90 dark:hover:bg-islamic-gold/90 text-white dark:text-[#0d2a2e] font-bold rounded-2xl h-14 shadow-lg shadow-islamic-green/20 dark:shadow-islamic-gold/20 gap-2 active:scale-95 transition-transform"
                             onClick={onShare}
                         >
                             <Sparkles className="w-5 h-5" /> {t('verse.shareBtn')}

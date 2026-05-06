@@ -19,3 +19,7 @@
 "desc_hourly_esma" = "A new Beautiful Name of Allah every hour";
 "desc_daily_motivation" = "A motivational verse to inspire you every day";
 "desc_hourly_verse" = "A new inspiring verse every hour";
+"widget_dhikr" = "Dhikr Counter";
+"desc_dhikr" = "Count your dhikr from the widget";
+"widget_dhikr_lock" = "Dhikr Counter (Lock Screen)";
+"desc_dhikr_lock" = "Quickly count your dhikr from the lock screen.";

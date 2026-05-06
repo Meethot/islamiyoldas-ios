@@ -34,7 +34,8 @@ export const PrayerTimesProvider = ({ children }) => {
         fridayMessage: true,
         dhikrReminder: true,
         preReminderEnabled: false,
-        preReminderMinutes: 30
+        preReminderMinutes: 30,
+        hapticsEnabled: true
     });
 
     const [locationSource, setLocationSource] = useState('loading');
@@ -178,6 +179,7 @@ export const PrayerTimesProvider = ({ children }) => {
             const { value: dhikrReminder } = await Preferences.get({ key: 'dhikrReminder' });
             const { value: preReminderEnabled } = await Preferences.get({ key: 'preReminderEnabled' });
             const { value: preReminderMinutes } = await Preferences.get({ key: 'preReminderMinutes' });
+            const { value: hapticsEnabled } = await Preferences.get({ key: 'hapticsEnabled' });
 
             const loaded = {
                 adhanEnabled: adhanEnabled === null ? true : adhanEnabled === 'true',
@@ -188,7 +190,8 @@ export const PrayerTimesProvider = ({ children }) => {
                 fridayMessage: fridayMessage === null ? true : fridayMessage === 'true',
                 dhikrReminder: dhikrReminder === null ? true : dhikrReminder === 'true',
                 preReminderEnabled: preReminderEnabled === 'true',
-                preReminderMinutes: preReminderMinutes ? parseInt(preReminderMinutes, 10) : 30
+                preReminderMinutes: preReminderMinutes ? parseInt(preReminderMinutes, 10) : 30,
+                hapticsEnabled: hapticsEnabled === null ? true : hapticsEnabled === 'true'
             };
 
             // If OS notification permission is NOT granted, show all notification toggles as OFF
@@ -1067,12 +1070,6 @@ export const PrayerTimesProvider = ({ children }) => {
 
             const randomMessage = messages[Math.floor(Math.random() * messages.length)];
 
-            const isIOS = Capacitor.getPlatform() === 'ios';
-            const isAndroid = Capacitor.getPlatform() === 'android';
-            const soundValue = settings.vibrateOnly
-                ? undefined
-                : (isIOS ? 'beep.caf' : 'beep.wav');
-
             const notifPayload = {
                 notifications: [{
                     id: 2000,
@@ -1083,14 +1080,11 @@ export const PrayerTimesProvider = ({ children }) => {
                         every: 'week',
                         allowWhileIdle: true
                     },
-                    channelId: settings.vibrateOnly ? 'ezan_vakti_silent' : 'ezan_vakti',
+                    sound: settings.vibrateOnly ? undefined : 'default',
+                    channelId: settings.vibrateOnly ? 'ezan_vakti_silent' : 'default',
                     smallIcon: 'ic_stat_icon_config_sample'
                 }]
             };
-
-            if (soundValue) {
-                notifPayload.notifications[0].sound = soundValue;
-            }
 
             await LocalNotifications.schedule(notifPayload);
 

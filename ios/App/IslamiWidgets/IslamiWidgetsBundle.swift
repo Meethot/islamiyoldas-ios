@@ -23,6 +23,33 @@ struct WidgetLanguageHelper {
     }
 }
 
+// MARK: - Smart Widget Background
+
+struct SmartWidgetBackground: View {
+    @Environment(\.widgetFamily) var family
+    let gradientColors: [Color]
+    
+    var body: some View {
+        if #available(iOSApplicationExtension 16.0, *) {
+            if family == .accessoryCircular || family == .accessoryRectangular || family == .accessoryInline {
+                Color.clear
+            } else {
+                LinearGradient(
+                    colors: gradientColors,
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+            }
+        } else {
+            LinearGradient(
+                colors: gradientColors,
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+        }
+    }
+}
+
 // MARK: - Home Screen Prayer Widget
 
 struct PrayerTimesWidget: Widget {
@@ -65,7 +92,7 @@ struct PrayerLockScreenWidget: Widget {
         StaticConfiguration(kind: kind, provider: PrayerTimesProvider()) { entry in
             if #available(iOSApplicationExtension 17.0, *) {
                 LockScreenOrFallbackView(entry: entry)
-                    .containerBackground(.fill.tertiary, for: .widget)
+                    .containerBackground(.clear, for: .widget)
             } else {
                 LockScreenOrFallbackView(entry: entry)
             }
@@ -124,7 +151,7 @@ struct VerseLockScreenWidget: Widget {
         StaticConfiguration(kind: kind, provider: VerseProvider()) { entry in
             if #available(iOSApplicationExtension 17.0, *) {
                 VerseLockScreenOrFallbackView(entry: entry)
-                    .containerBackground(.fill.tertiary, for: .widget)
+                    .containerBackground(.clear, for: .widget)
             } else {
                 VerseLockScreenOrFallbackView(entry: entry)
             }
@@ -143,33 +170,7 @@ struct VerseLockScreenWidget: Widget {
     }
 }
 
-// MARK: - Lock Screen Verse Widget (Transparent)
 
-struct VerseLockScreenTransparentWidget: Widget {
-    let kind: String = "VerseLockScreenTransparentWidget"
-    
-    var body: some WidgetConfiguration {
-        StaticConfiguration(kind: kind, provider: VerseProvider()) { entry in
-            if #available(iOSApplicationExtension 17.0, *) {
-                VerseLockScreenTransparentOrFallbackView(entry: entry)
-                    .containerBackground(.clear, for: .widget)
-            } else {
-                VerseLockScreenTransparentOrFallbackView(entry: entry)
-            }
-        }
-        .configurationDisplayName(NSLocalizedString("widget_daily_verse_transparent", comment: ""))
-        .description(NSLocalizedString("desc_daily_verse_transparent", comment: ""))
-        .supportedFamilies(lockScreenFamilies)
-    }
-    
-    private var lockScreenFamilies: [WidgetFamily] {
-        if #available(iOSApplicationExtension 16.0, *) {
-            return [.accessoryRectangular, .accessoryInline]
-        } else {
-            return []
-        }
-    }
-}
 
 // MARK: - Esma-ül Hüsna Widget
 
@@ -243,15 +244,11 @@ struct MotivationWidget: Widget {
             if #available(iOSApplicationExtension 17.0, *) {
                 MotivationWidgetEntryView(entry: entry)
                     .containerBackground(for: .widget) {
-                        LinearGradient(
-                            colors: [
-                                Color(red: 0.012, green: 0.180, blue: 0.094),
-                                Color(red: 0.040, green: 0.271, blue: 0.157),
-                                Color(red: 0.012, green: 0.180, blue: 0.094)
-                            ],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
+                        SmartWidgetBackground(gradientColors: [
+                            Color(red: 0.012, green: 0.180, blue: 0.094),
+                            Color(red: 0.040, green: 0.271, blue: 0.157),
+                            Color(red: 0.012, green: 0.180, blue: 0.094)
+                        ])
                     }
             } else {
                 MotivationWidgetEntryView(entry: entry)
@@ -282,15 +279,11 @@ struct HourlyVerseWidget: Widget {
             if #available(iOSApplicationExtension 17.0, *) {
                 HourlyVerseWidgetEntryView(entry: entry)
                     .containerBackground(for: .widget) {
-                        LinearGradient(
-                            colors: [
-                                Color(red: 0.012, green: 0.180, blue: 0.094),
-                                Color(red: 0.030, green: 0.250, blue: 0.140),
-                                Color(red: 0.012, green: 0.180, blue: 0.094)
-                            ],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
+                        SmartWidgetBackground(gradientColors: [
+                            Color(red: 0.012, green: 0.180, blue: 0.094),
+                            Color(red: 0.030, green: 0.250, blue: 0.140),
+                            Color(red: 0.012, green: 0.180, blue: 0.094)
+                        ])
                     }
             } else {
                 HourlyVerseWidgetEntryView(entry: entry)
@@ -570,6 +563,131 @@ struct MotivationWidgetEntryView: View {
     }
 }
 
+// MARK: - Dhikr (Tasbih) Counter Widget
+
+struct DhikrWidget: Widget {
+    let kind: String = "DhikrWidget"
+    
+    var body: some WidgetConfiguration {
+        StaticConfiguration(kind: kind, provider: DhikrProvider()) { entry in
+            if #available(iOS 17.0, *) {
+                DhikrWidgetEntryView(entry: entry)
+                    .containerBackground(for: .widget) {
+                        LinearGradient(
+                            colors: [
+                                Color(red: 0.012, green: 0.180, blue: 0.094),
+                                Color(red: 0.024, green: 0.235, blue: 0.125),
+                                Color(red: 0.012, green: 0.180, blue: 0.094)
+                            ],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    }
+            } else {
+                DhikrWidgetEntryView(entry: entry)
+            }
+        }
+        .configurationDisplayName(NSLocalizedString("widget_dhikr", comment: ""))
+        .description(NSLocalizedString("desc_dhikr", comment: ""))
+        .supportedFamilies([.systemSmall, .systemMedium])
+        .contentMarginsDisabledIfAvailable()
+    }
+}
+
+// MARK: - Dhikr Lock Screen Widget
+
+struct DhikrLockScreenWidget: Widget {
+    let kind: String = "DhikrLockScreenWidget"
+    
+    var body: some WidgetConfiguration {
+        StaticConfiguration(kind: kind, provider: DhikrProvider()) { entry in
+            if #available(iOSApplicationExtension 17.0, *) {
+                DhikrLockScreenOrFallbackView(entry: entry)
+                    .containerBackground(.clear, for: .widget)
+            } else {
+                DhikrLockScreenOrFallbackView(entry: entry)
+            }
+        }
+        .configurationDisplayName(NSLocalizedString("widget_dhikr_lock", comment: ""))
+        .description(NSLocalizedString("desc_dhikr_lock", comment: ""))
+        .supportedFamilies(lockScreenFamilies)
+    }
+    
+    private var lockScreenFamilies: [WidgetFamily] {
+        if #available(iOSApplicationExtension 16.0, *) {
+            return [.accessoryRectangular]
+        } else {
+            return []
+        }
+    }
+}
+
+// MARK: - Dhikr Entry View Router
+
+struct DhikrWidgetEntryView: View {
+    @Environment(\.widgetFamily) var family
+    let entry: DhikrEntry
+    
+    var body: some View {
+        if WidgetAccessHelper.checkAccess() == .expired {
+            switch family {
+            case .systemMedium:
+                PremiumRequiredMediumView()
+            default:
+                PremiumRequiredSmallView()
+            }
+        } else {
+            switch family {
+            case .systemSmall:
+                DhikrSmallWidgetView(entry: entry)
+            case .systemMedium:
+                DhikrMediumWidgetView(entry: entry)
+            default:
+                DhikrSmallWidgetView(entry: entry)
+            }
+        }
+    }
+}
+
+// MARK: - Dhikr Lock Screen Router
+
+struct DhikrLockScreenOrFallbackView: View {
+    @Environment(\.widgetFamily) var family
+    let entry: DhikrEntry
+    
+    var body: some View {
+        if WidgetAccessHelper.checkAccess() == .expired {
+            if #available(iOSApplicationExtension 16.0, *) {
+                switch family {
+                case .accessoryCircular:
+                    PremiumRequiredLockCircularView()
+                case .accessoryRectangular:
+                    PremiumRequiredLockRectangularView()
+                case .accessoryInline:
+                    PremiumRequiredLockInlineView()
+                default:
+                    PremiumRequiredSmallView()
+                }
+            } else {
+                PremiumRequiredSmallView()
+            }
+        } else if #available(iOSApplicationExtension 16.0, *) {
+            switch family {
+            case .accessoryCircular:
+                DhikrLockScreenCircularView(entry: entry)
+            case .accessoryRectangular:
+                DhikrLockScreenRectangularView(entry: entry)
+            case .accessoryInline:
+                DhikrLockScreenInlineView(entry: entry)
+            default:
+                DhikrSmallWidgetView(entry: entry)
+            }
+        } else {
+            DhikrSmallWidgetView(entry: entry)
+        }
+    }
+}
+
 // MARK: - Widget Bundle
 
 @main
@@ -579,11 +697,13 @@ struct IslamiWidgetsBundle: WidgetBundle {
         PrayerLockScreenWidget()
         VerseWidget()
         VerseLockScreenWidget()
-        VerseLockScreenTransparentWidget()
+
         HourlyVerseWidget()
         EsmaWidget()
         HourlyEsmaWidget()
         MotivationWidget()
+        DhikrWidget()
+        DhikrLockScreenWidget()
     }
 }
 
@@ -614,10 +734,7 @@ struct PrayerTimesWidget_Previews: PreviewProvider {
                     .previewContext(WidgetPreviewContext(family: .accessoryRectangular))
                     .previewDisplayName("Verse Lock Oval")
                 
-                VerseLockScreenTransparentRectangularView(entry: .placeholder)
-                    .previewContext(WidgetPreviewContext(family: .accessoryRectangular))
-                    .previewDisplayName("Verse Lock Transparent")
-                
+
                 VerseLockScreenInlineView(entry: .placeholder)
                     .previewContext(WidgetPreviewContext(family: .accessoryInline))
                     .previewDisplayName("Verse Lock Inline")

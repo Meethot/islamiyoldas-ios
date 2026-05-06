@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import {
     BookOpen, Search, Play, Pause, SkipBack, SkipForward,
-    ChevronDown, ChevronUp, Bookmark, BookmarkCheck, Share2, X, Loader2, Trash2, ChevronLeft
+    ChevronDown, ChevronUp, Bookmark, BookmarkCheck, Share2, X, Loader2, Trash2, ChevronLeft, Volume2, Crown
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -62,6 +62,41 @@ export default function Quran({ isTrackingTab = false }) {
     const [activeTab, setActiveTab] = useState('surahs'); // 'surahs' | 'bookmarks'
     const [bookmarks, setBookmarks] = useState(() => safeGetStorage(BOOKMARKS_KEY, []));
     const [surahBookmarks, setSurahBookmarks] = useState(() => safeGetStorage(SURAH_BOOKMARKS_KEY, []));
+
+    // Premium Trial State
+    const TRIAL_DURATION = 1 * 60 * 60 * 1000; // 1 hour
+    const [trialState, setTrialState] = useState({ h: 24, m: 0, s: 0, progress: 1, expired: false, started: false });
+    const trialInterval = useRef(null);
+
+    useEffect(() => {
+        if (isPremium()) return;
+        
+        // Auto-start trial when user first visits Quran page
+        let trialStart = safeGetStorage('quran_audio_trial_start', null);
+        if (!trialStart) {
+            trialStart = Date.now();
+            safeSetStorage('quran_audio_trial_start', trialStart);
+        }
+        
+        const tick = () => {
+            const elapsed = Date.now() - trialStart;
+            if (elapsed >= TRIAL_DURATION) {
+                setTrialState({ h: 0, m: 0, s: 0, progress: 0, expired: true, started: true });
+                if (trialInterval.current) clearInterval(trialInterval.current);
+                return;
+            }
+            const remaining = TRIAL_DURATION - elapsed;
+            const h = Math.floor(remaining / (1000 * 60 * 60));
+            const m = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
+            const s = Math.floor((remaining % (1000 * 60)) / 1000);
+            const progress = remaining / TRIAL_DURATION;
+            setTrialState({ h, m, s, progress, expired: false, started: true });
+        };
+        
+        tick();
+        trialInterval.current = setInterval(tick, 1000);
+        return () => { if (trialInterval.current) clearInterval(trialInterval.current); };
+    }, []);
 
     // Audio Playback State
     const [audio] = useState(() => new Audio());
@@ -321,31 +356,31 @@ export default function Quran({ isTrackingTab = false }) {
     return (
         <div className="min-h-screen bg-gradient-to-b from-background to-muted dark:from-[#032e18] dark:to-[#021a0f] pb-24">
             {/* Header */}
-            <div className="bg-gradient-to-br from-primary via-primary to-emerald-800 dark:from-[#032e18] dark:via-[#032e18] dark:to-[#021a0f] p-5 sticky top-0 z-40 border-b border-primary/10 dark:border-white/10 shadow-lg shadow-primary/10 dark:shadow-black/20">
+            <div className="bg-white dark:bg-gradient-to-br dark:from-[#032e18] dark:via-[#032e18] dark:to-[#021a0f] p-5 sticky top-0 z-40 border-b border-stone-200 dark:border-white/10 shadow-sm dark:shadow-lg dark:shadow-black/20">
                 {!(isTrackingTab && !selectedSurah) && (
                     <div className="flex items-center justify-between mb-4">
                         <div className="flex items-center gap-3">
                             {!isTrackingTab && (
                                 <button
                                     onClick={() => navigate(-1)}
-                                    className="p-2 -ml-2 rounded-xl hover:bg-white/10 active:bg-white/20 transition-colors"
+                                    className="p-2 -ml-2 rounded-xl hover:bg-stone-100 dark:hover:bg-white/10 active:bg-stone-200 dark:active:bg-white/20 transition-colors"
                                 >
-                                    <ChevronLeft className="w-6 h-6 text-white" />
+                                    <ChevronLeft className="w-6 h-6 text-stone-700 dark:text-white" />
                                 </button>
                             )}
-                            <div className="p-3 bg-white/10 rounded-2xl backdrop-blur-sm">
-                                <BookOpen className="w-6 h-6 text-white" />
+                            <div className="p-3 bg-islamic-green/10 dark:bg-white/10 rounded-2xl backdrop-blur-sm">
+                                <BookOpen className="w-6 h-6 text-islamic-green dark:text-white" />
                             </div>
                             <div>
-                                <h1 className="text-2xl font-serif font-bold text-white">
+                                <h1 className="text-2xl font-serif font-bold text-stone-800 dark:text-white">
                                     {selectedSurah ? selectedSurah.name : t('pageTitle')}
                                 </h1>
                                 {selectedSurah && (
                                     <>
-                                        <p className="text-xs text-white/70 font-medium">
+                                        <p className="text-xs text-stone-500 dark:text-white/70 font-medium">
                                             {selectedSurah.ayahCount} {t('ayahCount', { count: selectedSurah.ayahCount }).split(' ').slice(1).join(' ')}
                                         </p>
-                                        <p className="text-xs text-white/70 font-medium">
+                                        <p className="text-xs text-stone-500 dark:text-white/70 font-medium">
                                             {t(`revelation.${selectedSurah.revelationPlace}`)}
                                         </p>
                                     </>
@@ -360,7 +395,7 @@ export default function Quran({ isTrackingTab = false }) {
                                     setShowSurahList(true);
                                 }}
                                 variant="ghost"
-                                className="text-white hover:bg-white/10"
+                                className="text-stone-600 dark:text-white hover:bg-stone-100 dark:hover:bg-white/10"
                             >
                                 <X className="w-5 h-5" />
                             </Button>
@@ -371,13 +406,13 @@ export default function Quran({ isTrackingTab = false }) {
                 {/* Search Bar */}
                 {showSurahList && (
                     <div className="relative mb-3">
-                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/50" />
+                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-stone-400 dark:text-white/50" />
                         <input
                             type="text"
                             placeholder={t('searchPlaceholder')}
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className="w-full pl-12 pr-4 py-3 bg-white/15 dark:bg-[#0d2a18] border border-white/20 rounded-2xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-islamic-gold"
+                            className="w-full pl-12 pr-4 py-3 bg-stone-100 dark:bg-[#0d2a18] border border-stone-200 dark:border-white/20 rounded-2xl text-stone-800 dark:text-white placeholder-stone-400 dark:placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-islamic-green dark:focus:ring-islamic-gold"
                         />
                     </div>
                 )}
@@ -390,8 +425,8 @@ export default function Quran({ isTrackingTab = false }) {
                             className={cn(
                                 "flex-1 py-2.5 rounded-xl text-sm font-medium transition-all",
                                 activeTab === 'surahs'
-                                    ? "bg-islamic-gold text-white"
-                                    : "bg-white/10 text-white/60 hover:bg-white/15"
+                                    ? "bg-islamic-green dark:bg-islamic-gold text-white"
+                                    : "bg-stone-100 dark:bg-white/10 text-stone-500 dark:text-white/60 hover:bg-stone-200 dark:hover:bg-white/15"
                             )}
                         >
                             <BookOpen className="w-4 h-4 inline-block mr-2" />
@@ -402,8 +437,8 @@ export default function Quran({ isTrackingTab = false }) {
                             className={cn(
                                 "flex-1 py-2.5 rounded-xl text-sm font-medium transition-all relative",
                                 activeTab === 'bookmarks'
-                                    ? "bg-islamic-gold text-white"
-                                    : "bg-white/10 text-white/60 hover:bg-white/15"
+                                    ? "bg-islamic-green dark:bg-islamic-gold text-white"
+                                    : "bg-stone-100 dark:bg-white/10 text-stone-500 dark:text-white/60 hover:bg-stone-200 dark:hover:bg-white/15"
                             )}
                         >
                             <Bookmark className="w-4 h-4 inline-block mr-2" />
@@ -427,6 +462,98 @@ export default function Quran({ isTrackingTab = false }) {
                         exit={{ opacity: 0, y: -20 }}
                         className="p-5 space-y-2"
                     >
+                        {/* Trial Banner — Premium Glassmorphic */}
+                        {!isPremium() && trialState.started && (
+                            <div className={`mb-5 relative overflow-visible ${!trialState.expired ? 'mt-4' : ''}`}>
+                                {/* "Hemen Dene" pill — only when trial active */}
+                                {!trialState.expired && (
+                                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-20">
+                                        <span className="px-5 py-1.5 rounded-full bg-islamic-gold text-[#032e18] text-[11px] font-extrabold tracking-wider uppercase shadow-lg shadow-islamic-gold/30 whitespace-nowrap">
+                                            ✦ Hemen Dene
+                                        </span>
+                                    </div>
+                                )}
+
+                                <div className="relative overflow-hidden rounded-[1.75rem]">
+                                {/* Background layers */}
+                                <div className="absolute inset-0 bg-gradient-to-br from-[#0a3d22] via-[#0d4a2a] to-[#063018]" />
+                                <div className="absolute inset-0 bg-gradient-to-r from-islamic-gold/[0.06] via-transparent to-islamic-gold/[0.03]" />
+                                <div className="absolute -top-10 -right-10 w-32 h-32 rounded-full bg-islamic-gold/[0.08] blur-2xl" />
+                                <div className="absolute bottom-0 left-0 w-24 h-24 rounded-full bg-emerald-500/[0.06] blur-2xl" />
+                                
+                                {/* Content */}
+                                <div className="relative z-10 p-4 flex items-center gap-4">
+                                    {/* Countdown Ring */}
+                                    <div className="relative w-14 h-14 shrink-0">
+                                        <svg viewBox="0 0 44 44" className="w-full h-full -rotate-90">
+                                            <circle cx="22" cy="22" r="18" fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="3" />
+                                            <circle
+                                                cx="22" cy="22" r="18" fill="none"
+                                                stroke="url(#trialGrad)"
+                                                strokeWidth="3"
+                                                strokeLinecap="round"
+                                                strokeDasharray={`${2 * Math.PI * 18}`}
+                                                strokeDashoffset={`${2 * Math.PI * 18 * (1 - trialState.progress)}`}
+                                                className="transition-all duration-1000"
+                                            />
+                                            <defs>
+                                                <linearGradient id="trialGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                                    <stop offset="0%" stopColor="#D4AF37" />
+                                                    <stop offset="100%" stopColor="#34d399" />
+                                                </linearGradient>
+                                            </defs>
+                                        </svg>
+                                        <div className="absolute inset-0 flex items-center justify-center">
+                                            <Volume2 className="w-5 h-5 text-islamic-gold" />
+                                        </div>
+                                    </div>
+                                    
+                                    {/* Text */}
+                                    <div className="flex-1 min-w-0">
+                                        <p className="text-[13px] font-bold text-white leading-tight mb-0.5">
+                                            Sesli Kur'an Dinleme
+                                        </p>
+                                        <p className="text-[11px] text-emerald-200/60 leading-tight">
+                                            {trialState.expired ? 'Deneme süreniz doldu' : 'Mealli sesli dinleme aktif'}
+                                        </p>
+                                    </div>
+                                    
+                                    {/* Timer or Premium button */}
+                                    <div className="shrink-0 text-right">
+                                        {trialState.expired ? (
+                                            <button
+                                                onClick={() => { selection(); navigate('/premium'); }}
+                                                className="px-4 py-2 rounded-xl bg-islamic-gold text-[#032e18] text-xs font-bold shadow-lg shadow-islamic-gold/20 active:scale-95 transition-transform"
+                                            >
+                                                <Crown className="w-3.5 h-3.5 inline mr-1" />
+                                                Premium
+                                            </button>
+                                        ) : (
+                                            <div className="flex items-baseline gap-[2px] tabular-nums">
+                                                <span className="text-lg font-black text-white">{String(trialState.h).padStart(2,'0')}</span>
+                                                <span className="text-[10px] text-white/40 font-bold">:</span>
+                                                <span className="text-lg font-black text-white">{String(trialState.m).padStart(2,'0')}</span>
+                                                <span className="text-[10px] text-white/40 font-bold">:</span>
+                                                <span className="text-lg font-black text-islamic-gold">{String(trialState.s).padStart(2,'0')}</span>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                                
+                                {/* Bottom progress bar — only when active */}
+                                {!trialState.expired && (
+                                    <div className="relative z-10 h-[2px] mx-4 mb-3 rounded-full bg-white/[0.06] overflow-hidden">
+                                        <div
+                                            className="h-full rounded-full bg-gradient-to-r from-islamic-gold to-emerald-400 transition-all duration-1000"
+                                            style={{ width: `${trialState.progress * 100}%` }}
+                                        />
+                                    </div>
+                                )}
+                                </div>
+                            </div>
+                        )}
+                        
+
                         {/* Loading State */}
                         {isLoadingSurahs && (
                             <div className="flex flex-col items-center justify-center py-20 gap-4">
@@ -499,25 +626,14 @@ export default function Quran({ isTrackingTab = false }) {
                                                         </button>
                                                         {/* Play Button */}
                                                         <button
-                                                            onClick={(e) => handlePlaySurah(e, surah)}
-                                                            className={cn(
-                                                                "w-9 h-9 rounded-full flex items-center justify-center transition-all duration-300",
-                                                                currentlyPlaying?.id === surah.id
-                                                                    ? "bg-islamic-gold text-[#032e18] shadow-lg shadow-islamic-gold/20 scale-110"
-                                                                    : "bg-islamic-green/10 dark:bg-islamic-gold/10 text-islamic-green dark:text-islamic-gold hover:bg-islamic-gold/20"
-                                                            )}
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                selection();
+                                                                navigate(`/quran/${surah.id}`, { state: { autoPlay: true, _ts: Date.now() } });
+                                                            }}
+                                                            className="w-9 h-9 rounded-full flex items-center justify-center transition-all duration-300 bg-islamic-green/10 dark:bg-islamic-gold/10 text-islamic-green dark:text-islamic-gold hover:bg-islamic-gold/20"
                                                         >
-                                                            {currentlyPlaying?.id === surah.id ? (
-                                                                isAudioLoading ? (
-                                                                    <Loader2 className="w-4 h-4 animate-spin" />
-                                                                ) : isAudioPlaying ? (
-                                                                    <Pause className="w-4 h-4 fill-current" />
-                                                                ) : (
-                                                                    <Play className="w-4 h-4 fill-current ml-0.5" />
-                                                                )
-                                                            ) : (
-                                                                <Play className="w-4 h-4 fill-current ml-0.5" />
-                                                            )}
+                                                            <Play className="w-4 h-4 fill-current ml-0.5" />
                                                         </button>
                                                     </div>
                                                 </div>

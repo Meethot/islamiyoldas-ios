@@ -150,22 +150,22 @@ export default function AiMentor() {
     };
 
     return (
-        <div className="fixed inset-0 flex flex-col bg-[#021a0f] text-white overflow-hidden">
+        <div className="fixed inset-0 flex flex-col bg-stone-50 dark:bg-[#021a0f] text-stone-800 dark:text-white overflow-hidden">
 
             {/* Header */}
-            <div className="pt-safe px-4 py-3 relative flex items-center justify-center bg-[#032e18]/90 backdrop-blur-xl z-20 border-b border-white/5 shrink-0 shadow-sm min-h-[60px]">
+            <div className="pt-safe px-4 py-3 relative flex items-center justify-center bg-white/90 dark:bg-[#032e18]/90 backdrop-blur-xl z-20 border-b border-stone-200 dark:border-white/5 shrink-0 shadow-sm min-h-[60px]">
                 {/* Back Button - absolute left */}
-                <Button variant="ghost" size="icon" onClick={() => navigate(-1)} className="absolute left-2 text-white/70 hover:text-white rounded-full hover:bg-white/5">
+                <Button variant="ghost" size="icon" onClick={() => navigate(-1)} className="absolute left-2 text-stone-500 dark:text-white/70 hover:text-stone-800 dark:hover:text-white rounded-full hover:bg-stone-100 dark:hover:bg-white/5">
                     <ChevronLeft />
                 </Button>
 
                 {/* Centered Title */}
                 <div className="flex flex-col items-center">
                     <div className="flex items-center gap-2">
-                        <span className="w-2 h-2 rounded-full bg-islamic-gold animate-pulse shadow-[0_0_10px_rgba(212,175,55,0.5)]" />
-                        <h1 className="font-serif font-bold text-lg text-islamic-gold tracking-wide">{t('aiMentor.title')}</h1>
+                        <span className="w-2 h-2 rounded-full bg-islamic-green dark:bg-islamic-gold animate-pulse shadow-[0_0_10px_rgba(4,77,41,0.3)] dark:shadow-[0_0_10px_rgba(212,175,55,0.5)]" />
+                        <h1 className="font-serif font-bold text-lg text-islamic-green dark:text-islamic-gold tracking-wide">{t('aiMentor.title')}</h1>
                     </div>
-                    <p className="text-[10px] text-white/50 font-medium tracking-wider uppercase">{t('aiMentor.subtitle')}</p>
+                    <p className="text-[10px] text-stone-400 dark:text-white/50 font-medium tracking-wider uppercase">{t('aiMentor.subtitle')}</p>
                 </div>
 
                 {/* Credit Badge - absolute right */}
@@ -212,7 +212,7 @@ export default function AiMentor() {
                         <span className="text-[11px] text-islamic-gold/70 font-medium">
                             Premium
                         </span>
-                        <span className="text-[10px] text-white/20 mx-0.5">·</span>
+                        <span className="text-[10px] text-stone-300 dark:text-white/20 mx-0.5">·</span>
                         <span className="text-[11px] text-islamic-gold/60 font-medium">
                             {t('aiMentor.premiumQuota', { count: remaining })}
                         </span>
@@ -223,7 +223,7 @@ export default function AiMentor() {
                         <span className="text-[11px] text-islamic-gold/60 font-medium">
                             {t('aiMentor.freeQuota', { count: remaining })}
                         </span>
-                        <span className="text-[10px] text-white/20 mx-1">|</span>
+                        <span className="text-[10px] text-stone-300 dark:text-white/20 mx-1">|</span>
                         <button
                             onClick={() => navigate('/premium')}
                             className="text-[11px] text-islamic-gold font-semibold flex items-center gap-1 hover:underline"
@@ -259,15 +259,15 @@ export default function AiMentor() {
                         className={`flex gap-3 ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}
                     >
                         {/* Avatar */}
-                        <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 shadow-lg ${msg.role === 'user' ? 'bg-gradient-to-br from-emerald-500 to-emerald-700' : 'bg-gradient-to-br from-islamic-gold to-amber-600'
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 shadow-lg ${msg.role === 'user' ? 'bg-gradient-to-br from-islamic-green to-emerald-700' : 'bg-gradient-to-br from-islamic-gold to-amber-600'
                             }`}>
-                            {msg.role === 'user' ? <User size={14} className="text-white" /> : <Bot size={14} className="text-[#032e18]" />}
+                            {msg.role === 'user' ? <User size={14} className="text-white" /> : <Bot size={14} className="text-white dark:text-[#032e18]" />}
                         </div>
 
                         {/* Bubble */}
                         <div className={`max-w-[85%] rounded-2xl p-4 shadow-md ${msg.role === 'user'
-                            ? 'bg-gradient-to-br from-emerald-600/30 to-emerald-900/30 border border-emerald-500/20 text-white rounded-tr-sm backdrop-blur-sm'
-                            : 'bg-white/5 border border-white/10 text-gray-100 rounded-tl-sm w-full backdrop-blur-md'
+                            ? 'bg-islamic-green/10 dark:bg-gradient-to-br dark:from-emerald-600/30 dark:to-emerald-900/30 border border-islamic-green/20 dark:border-emerald-500/20 text-stone-800 dark:text-white rounded-tr-sm backdrop-blur-sm'
+                            : 'bg-white dark:bg-white/5 border border-stone-200 dark:border-white/10 text-stone-700 dark:text-gray-100 rounded-tl-sm w-full backdrop-blur-md shadow-sm'
                             }`}>
                             {msg.isPrescription ? (
                                 <AiPrescriptionCard data={msg.data} />
@@ -284,7 +284,7 @@ export default function AiMentor() {
                         <div className="w-8 h-8 rounded-full bg-islamic-gold flex items-center justify-center shrink-0">
                             <Bot size={14} className="text-[#032e18]" />
                         </div>
-                        <div className="bg-white/5 border border-white/10 rounded-2xl p-4 rounded-tl-sm flex items-center gap-3">
+                        <div className="bg-white dark:bg-white/5 border border-stone-200 dark:border-white/10 rounded-2xl p-4 rounded-tl-sm flex items-center gap-3">
                             <div className="flex gap-1.5">
                                 {[0, 1, 2].map(i => (
                                     <motion.div
@@ -304,10 +304,10 @@ export default function AiMentor() {
             </div>
 
             {/* Input Area - Fixed Bottom */}
-            <div className="p-4 bg-[#021a0f]/95 backdrop-blur-xl border-t border-white/5 pb-safe shrink-0 z-50 shadow-[0_-10px_30px_-10px_rgba(0,0,0,0.5)]">
+            <div className="p-4 bg-white/95 dark:bg-[#021a0f]/95 backdrop-blur-xl border-t border-stone-200 dark:border-white/5 pb-safe shrink-0 z-50 shadow-[0_-10px_30px_-10px_rgba(0,0,0,0.05)] dark:shadow-[0_-10px_30px_-10px_rgba(0,0,0,0.5)]">
                 <div className={`relative max-w-2xl mx-auto flex items-end gap-2 border rounded-[24px] p-2 pl-4 transition-all ${remaining <= 0 && !premium
                     ? 'bg-red-500/5 border-red-500/15 opacity-60'
-                    : 'bg-black/20 border-white/10 focus-within:border-islamic-gold/50 focus-within:bg-black/40 focus-within:shadow-[0_0_15px_rgba(212,175,55,0.1)]'
+                    : 'bg-stone-100 dark:bg-black/20 border-stone-200 dark:border-white/10 focus-within:border-islamic-green/50 dark:focus-within:border-islamic-gold/50 focus-within:bg-stone-50 dark:focus-within:bg-black/40 focus-within:shadow-[0_0_15px_rgba(4,77,41,0.05)] dark:focus-within:shadow-[0_0_15px_rgba(212,175,55,0.1)]'
                     }`}>
                     <textarea
                         value={input}
@@ -316,7 +316,7 @@ export default function AiMentor() {
                         onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleSend()}
                         placeholder={remaining <= 0 && !premium ? t('aiMentor.limitReachedPlaceholder') : t('aiMentor.placeholder')}
                         disabled={remaining <= 0 && !premium}
-                        className="w-full bg-transparent text-white placeholder-white/30 resize-none outline-none py-3 max-h-32 min-h-[50px] text-[15px] leading-relaxed scrollbar-hide disabled:cursor-not-allowed"
+                        className="w-full bg-transparent text-stone-800 dark:text-white placeholder-stone-400 dark:placeholder-white/30 resize-none outline-none py-3 max-h-32 min-h-[50px] text-[15px] leading-relaxed scrollbar-hide disabled:cursor-not-allowed"
                         rows={1}
                         style={{ minHeight: '52px' }}
                     />
@@ -339,7 +339,7 @@ export default function AiMentor() {
                 </div>
                 {/* Character Counter */}
                 <div className="flex justify-end pr-4 mt-1.5">
-                    <span className={`text-[10px] font-medium transition-colors ${input.length >= 1000 ? 'text-red-500/90' : 'text-white/30'}`}>
+                    <span className={`text-[10px] font-medium transition-colors ${input.length >= 1000 ? 'text-red-500/90' : 'text-stone-400 dark:text-white/30'}`}>
                         {input.length}/1000
                     </span>
                 </div>

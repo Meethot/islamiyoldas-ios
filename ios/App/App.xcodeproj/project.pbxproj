@@ -20,6 +20,7 @@
 		55655962C3DD36DECD0CFC15 /* VerseLockScreenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC01C92512331C4565B384E0 /* VerseLockScreenView.swift */; };
 		658561D04E94F18110235ECA /* HourlyVerseLockScreenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5597A4B530F8B3CB9BF4632 /* HourlyVerseLockScreenView.swift */; };
 		79D22CBDDC24981835948099 /* HourlyVerseSmallWidgetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F42928A1954CB9B9652868EC /* HourlyVerseSmallWidgetView.swift */; };
+		7CBC222261674AD7BBAF2FB1 /* Pods_App.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9F5150799EA0F15B9ED12EDD /* Pods_App.framework */; };
 		81157D489F3994F77D54D7B7 /* HourlyEsmaSmallWidgetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D6FAD41BAD9E2D38B5835C6 /* HourlyEsmaSmallWidgetView.swift */; };
 		83A3CCE47DED0B3B924F116B /* HourlyVerseMediumWidgetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FB880A49D28D7BE0B3A5857 /* HourlyVerseMediumWidgetView.swift */; };
 		889F9B708DBDA3EA16C76275 /* HourlyVerseProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F01A4A3E835FB569AC9BE79 /* HourlyVerseProvider.swift */; };
@@ -29,6 +30,11 @@
 		987DD127D17401CD7ABFD52F /* HourlyEsmaMediumWidgetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25FAA9497E73B76B5FA05335 /* HourlyEsmaMediumWidgetView.swift */; };
 		9AC45FD5F4E310686CEF81C5 /* MotivationLockScreenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D95D8CB79D8F542DFED9B17 /* MotivationLockScreenView.swift */; };
 		A11BCC592F3D000100996C74 /* sahur_alarm.caf in Resources */ = {isa = PBXBuildFile; fileRef = A11BCC5A2F3D000100996C74 /* sahur_alarm.caf */; };
+		DHKR00000000000000B00001 /* DhikrEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = DHKR00000000000000F00001 /* DhikrEntry.swift */; };
+		DHKR00000000000000B00002 /* DhikrIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = DHKR00000000000000F00002 /* DhikrIntent.swift */; };
+		DHKR00000000000000B00003 /* DhikrProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = DHKR00000000000000F00003 /* DhikrProvider.swift */; };
+		DHKR00000000000000B00004 /* DhikrSmallWidgetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DHKR00000000000000F00004 /* DhikrSmallWidgetView.swift */; };
+		DHKR00000000000000B00005 /* DhikrMediumWidgetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DHKR00000000000000F00005 /* DhikrMediumWidgetView.swift */; };
 		E2A9F9000000000000B00001 /* EsmaEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2A9F9000000000000F00001 /* EsmaEntry.swift */; };
 		E2A9F9000000000000B00002 /* EsmaProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2A9F9000000000000F00002 /* EsmaProvider.swift */; };
 		E2A9F9000000000000B00003 /* EsmaSmallWidgetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2A9F9000000000000F00003 /* EsmaSmallWidgetView.swift */; };
@@ -40,7 +46,6 @@
 		E49259DD2F61A46D00F71080 /* İslami Yoldaş: Namaz, Ramazan.storekit in Resources */ = {isa = PBXBuildFile; fileRef = E49259DC2F61A46D00F71080 /* İslami Yoldaş: Namaz, Ramazan.storekit */; };
 		E9AD63757027425035C30D59 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 1F028E53F29912EE2DF5543B /* Localizable.strings */; };
 		F486CB2CE132492AC134CE67 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = EDF92D19185FF9E333BBAF22 /* InfoPlist.strings */; };
-		FDC19C72B4872EDDE8A4F115 /* Pods_App.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 08BF80F130E618CCA04DF7D9 /* Pods_App.framework */; };
 		PREM00000000000000B00001 /* WidgetAccessHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = PREM00000000000000F00001 /* WidgetAccessHelper.swift */; };
 		PREM00000000000000B00002 /* PremiumRequiredView.swift in Sources */ = {isa = PBXBuildFile; fileRef = PREM00000000000000F00002 /* PremiumRequiredView.swift */; };
 		PRIV001122334455660002 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = PRIV001122334455660001 /* PrivacyInfo.xcprivacy */; };
@@ -85,14 +90,12 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		08BF80F130E618CCA04DF7D9 /* Pods_App.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_App.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		172C1152F3A95B22D5E879E8 /* de */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		1EC040273B0D114749C5C8FE /* tr */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = tr; path = tr.lproj/Localizable.strings; sourceTree = "<group>"; };
 		1F01A4A3E835FB569AC9BE79 /* HourlyVerseProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = HourlyVerseProvider.swift; sourceTree = "<group>"; };
 		1FB880A49D28D7BE0B3A5857 /* HourlyVerseMediumWidgetView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = HourlyVerseMediumWidgetView.swift; sourceTree = "<group>"; };
 		25FAA9497E73B76B5FA05335 /* HourlyEsmaMediumWidgetView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = HourlyEsmaMediumWidgetView.swift; sourceTree = "<group>"; };
 		274564766FE2D56945CD055D /* ar */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = ar; path = ar.lproj/InfoPlist.strings; sourceTree = "<group>"; };
-		2C9E4A3AFA302A9961CB41A6 /* Pods-App.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-App.release.xcconfig"; path = "Target Support Files/Pods-App/Pods-App.release.xcconfig"; sourceTree = "<group>"; };
 		2FAD9762203C412B000D30F8 /* config.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = config.xml; sourceTree = "<group>"; };
 		3F7A4A4432A2FD4104D389A3 /* az */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = az; path = az.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		439B6CED9826E7A302D233E3 /* ar */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = ar; path = ar.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -116,12 +119,19 @@
 		8D6FAD41BAD9E2D38B5835C6 /* HourlyEsmaSmallWidgetView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = HourlyEsmaSmallWidgetView.swift; sourceTree = "<group>"; };
 		9310A7A3DA0CEB5B4D32B3BE /* MotivationProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MotivationProvider.swift; sourceTree = "<group>"; };
 		941640D93A7B012B73939378 /* HourlyEsmaProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = HourlyEsmaProvider.swift; sourceTree = "<group>"; };
+		9E9822D4A75D9936BA4B9B97 /* Pods-App.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-App.debug.xcconfig"; path = "Target Support Files/Pods-App/Pods-App.debug.xcconfig"; sourceTree = "<group>"; };
+		9F5150799EA0F15B9ED12EDD /* Pods_App.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_App.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		A11BCC5A2F3D000100996C74 /* sahur_alarm.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = sahur_alarm.caf; sourceTree = "<group>"; };
 		A5597A4B530F8B3CB9BF4632 /* HourlyVerseLockScreenView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = HourlyVerseLockScreenView.swift; sourceTree = "<group>"; };
 		AB4ACBA0E7BEDC9E8C5D9FCB /* MotivationEntry.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MotivationEntry.swift; sourceTree = "<group>"; };
 		B89027793E3ED675327F0B40 /* MotivationMediumWidgetView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MotivationMediumWidgetView.swift; sourceTree = "<group>"; };
-		BFAEAACB5F8DB34B47F86538 /* Pods-App.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-App.debug.xcconfig"; path = "Target Support Files/Pods-App/Pods-App.debug.xcconfig"; sourceTree = "<group>"; };
 		CC01C92512331C4565B384E0 /* VerseLockScreenView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = VerseLockScreenView.swift; sourceTree = "<group>"; };
+		D8F51D3D3345779FC82B3F78 /* Pods-App.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-App.release.xcconfig"; path = "Target Support Files/Pods-App/Pods-App.release.xcconfig"; sourceTree = "<group>"; };
+		DHKR00000000000000F00001 /* DhikrEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DhikrEntry.swift; sourceTree = "<group>"; };
+		DHKR00000000000000F00002 /* DhikrIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DhikrIntent.swift; sourceTree = "<group>"; };
+		DHKR00000000000000F00003 /* DhikrProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DhikrProvider.swift; sourceTree = "<group>"; };
+		DHKR00000000000000F00004 /* DhikrSmallWidgetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DhikrSmallWidgetView.swift; sourceTree = "<group>"; };
+		DHKR00000000000000F00005 /* DhikrMediumWidgetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DhikrMediumWidgetView.swift; sourceTree = "<group>"; };
 		E2A9F9000000000000F00001 /* EsmaEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EsmaEntry.swift; sourceTree = "<group>"; };
 		E2A9F9000000000000F00002 /* EsmaProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EsmaProvider.swift; sourceTree = "<group>"; };
 		E2A9F9000000000000F00003 /* EsmaSmallWidgetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EsmaSmallWidgetView.swift; sourceTree = "<group>"; };
@@ -159,8 +169,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				FDC19C72B4872EDDE8A4F115 /* Pods_App.framework in Frameworks */,
 				E49259D82F61982100F71080 /* StoreKit.framework in Frameworks */,
+				7CBC222261674AD7BBAF2FB1 /* Pods_App.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -221,8 +231,8 @@
 		B85FD53605CBE27D0FD42B6C /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				BFAEAACB5F8DB34B47F86538 /* Pods-App.debug.xcconfig */,
-				2C9E4A3AFA302A9961CB41A6 /* Pods-App.release.xcconfig */,
+				9E9822D4A75D9936BA4B9B97 /* Pods-App.debug.xcconfig */,
+				D8F51D3D3345779FC82B3F78 /* Pods-App.release.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -233,7 +243,7 @@
 				E49259D72F61982100F71080 /* StoreKit.framework */,
 				E47CC69E2F34FFB6001653B3 /* WidgetKit.framework */,
 				E47CC6A02F34FFB7001653B3 /* SwiftUI.framework */,
-				08BF80F130E618CCA04DF7D9 /* Pods_App.framework */,
+				9F5150799EA0F15B9ED12EDD /* Pods_App.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -274,6 +284,11 @@
 				4D95D8CB79D8F542DFED9B17 /* MotivationLockScreenView.swift */,
 				PREM00000000000000F00001 /* WidgetAccessHelper.swift */,
 				PREM00000000000000F00002 /* PremiumRequiredView.swift */,
+				DHKR00000000000000F00001 /* DhikrEntry.swift */,
+				DHKR00000000000000F00002 /* DhikrIntent.swift */,
+				DHKR00000000000000F00003 /* DhikrProvider.swift */,
+				DHKR00000000000000F00004 /* DhikrSmallWidgetView.swift */,
+				DHKR00000000000000F00005 /* DhikrMediumWidgetView.swift */,
 				1F028E53F29912EE2DF5543B /* Localizable.strings */,
 			);
 			path = IslamiWidgets;
@@ -286,14 +301,14 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 504EC3161FED79650016851F /* Build configuration list for PBXNativeTarget "App" */;
 			buildPhases = (
-				98DAAE379E8EB8D213F13EEC /* [CP] Check Pods Manifest.lock */,
+				AF776A2CFFD703A881B81055 /* [CP] Check Pods Manifest.lock */,
 				504EC3001FED79650016851F /* Sources */,
 				504EC3011FED79650016851F /* Frameworks */,
 				504EC3021FED79650016851F /* Resources */,
 				E47CC6AF2F34FFB8001653B3 /* Embed Foundation Extensions */,
 				E48DDD372F4511E100B2FBF8 /* ShellScript */,
-				2B1743174FFFA655E68C6FF4 /* [CP] Embed Pods Frameworks */,
-				DA40A547D808DBAD3A06FAE8 /* [CP] Copy Pods Resources */,
+				89DC0ED4D324F5FE4D5ADAE1 /* [CP] Embed Pods Frameworks */,
+				4C6C265DBD9D011972E25832 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -410,7 +425,22 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		2B1743174FFFA655E68C6FF4 /* [CP] Embed Pods Frameworks */ = {
+		4C6C265DBD9D011972E25832 /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-App/Pods-App-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		89DC0ED4D324F5FE4D5ADAE1 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -425,7 +455,7 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-App/Pods-App-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		98DAAE379E8EB8D213F13EEC /* [CP] Check Pods Manifest.lock */ = {
+		AF776A2CFFD703A881B81055 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -445,21 +475,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
-		DA40A547D808DBAD3A06FAE8 /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "[CP] Copy Pods Resources";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-App/Pods-App-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		E48DDD372F4511E100B2FBF8 /* ShellScript */ = {
@@ -530,6 +545,11 @@
 				9AC45FD5F4E310686CEF81C5 /* MotivationLockScreenView.swift in Sources */,
 				PREM00000000000000B00001 /* WidgetAccessHelper.swift in Sources */,
 				PREM00000000000000B00002 /* PremiumRequiredView.swift in Sources */,
+				DHKR00000000000000B00001 /* DhikrEntry.swift in Sources */,
+				DHKR00000000000000B00002 /* DhikrIntent.swift in Sources */,
+				DHKR00000000000000B00003 /* DhikrProvider.swift in Sources */,
+				DHKR00000000000000B00004 /* DhikrSmallWidgetView.swift in Sources */,
+				DHKR00000000000000B00005 /* DhikrMediumWidgetView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -713,12 +733,12 @@
 		};
 		504EC3171FED79650016851F /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = BFAEAACB5F8DB34B47F86538 /* Pods-App.debug.xcconfig */;
+			baseConfigurationReference = 9E9822D4A75D9936BA4B9B97 /* Pods-App.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = App/App.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 11;
+				CURRENT_PROJECT_VERSION = 12;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				INFOPLIST_FILE = App/Info.plist;
@@ -727,7 +747,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0.9;
+				MARKETING_VERSION = 1.1.0;
 				OTHER_SWIFT_FLAGS = "$(inherited) \"-D\" \"COCOAPODS\" \"-DDEBUG\"";
 				PRODUCT_BUNDLE_IDENTIFIER = com.islamiyoldas.app;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -739,12 +759,12 @@
 		};
 		504EC3181FED79650016851F /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 2C9E4A3AFA302A9961CB41A6 /* Pods-App.release.xcconfig */;
+			baseConfigurationReference = D8F51D3D3345779FC82B3F78 /* Pods-App.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = App/App.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 11;
+				CURRENT_PROJECT_VERSION = 12;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				INFOPLIST_FILE = App/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
@@ -752,7 +772,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0.9;
+				MARKETING_VERSION = 1.1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.islamiyoldas.app;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "";
@@ -768,7 +788,7 @@
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
 				CODE_SIGN_ENTITLEMENTS = IslamiWidgets/IslamiWidgets.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 11;
+				CURRENT_PROJECT_VERSION = 12;
 				DEVELOPMENT_TEAM = H5GZ9H5MX8;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = NO;
@@ -781,7 +801,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.0.9;
+				MARKETING_VERSION = 1.1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.islamiyoldas.app.widgets;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -798,7 +818,7 @@
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
 				CODE_SIGN_ENTITLEMENTS = IslamiWidgets/IslamiWidgets.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 11;
+				CURRENT_PROJECT_VERSION = 12;
 				DEVELOPMENT_TEAM = H5GZ9H5MX8;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = NO;
@@ -811,7 +831,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.0.9;
+				MARKETING_VERSION = 1.1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.islamiyoldas.app.widgets;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;

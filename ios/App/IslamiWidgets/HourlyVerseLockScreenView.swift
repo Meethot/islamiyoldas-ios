@@ -27,9 +27,7 @@ struct HourlyVerseLockScreenRectangularView: View {
     
     var body: some View {
         ZStack {
-            // Oval/rounded background
-            RoundedRectangle(cornerRadius: 14, style: .continuous)
-                .fill(.ultraThinMaterial)
+            // Transparent background
             
             VStack(alignment: .leading, spacing: 1) {
                 // Top row: clock emoji + surah/verse ref
