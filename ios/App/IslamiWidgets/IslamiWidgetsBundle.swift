@@ -589,7 +589,7 @@ struct DhikrWidget: Widget {
         }
         .configurationDisplayName(NSLocalizedString("widget_dhikr", comment: ""))
         .description(NSLocalizedString("desc_dhikr", comment: ""))
-        .supportedFamilies([.systemSmall, .systemMedium])
+        .supportedFamilies([.systemSmall, .systemMedium, .systemLarge])
         .contentMarginsDisabledIfAvailable()
     }
 }
@@ -631,7 +631,7 @@ struct DhikrWidgetEntryView: View {
     var body: some View {
         if WidgetAccessHelper.checkAccess() == .expired {
             switch family {
-            case .systemMedium:
+            case .systemMedium, .systemLarge:
                 PremiumRequiredMediumView()
             default:
                 PremiumRequiredSmallView()
@@ -642,6 +642,8 @@ struct DhikrWidgetEntryView: View {
                 DhikrSmallWidgetView(entry: entry)
             case .systemMedium:
                 DhikrMediumWidgetView(entry: entry)
+            case .systemLarge:
+                DhikrLargeWidgetView(entry: entry)
             default:
                 DhikrSmallWidgetView(entry: entry)
             }

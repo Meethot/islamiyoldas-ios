@@ -7,6 +7,7 @@ struct DhikrEntry: TimelineEntry {
     let currentPresetIndex: Int
     let count: Int
     let target: Int
+    let total: Int
     
     /// A single dhikr preset
     struct DhikrPreset {
@@ -58,11 +59,14 @@ struct DhikrEntry: TimelineEntry {
         let count = defaults.integer(forKey: countKey)
         let preset = allPresets[max(0, min(presetIndex, allPresets.count - 1))]
         
+        let total = defaults.integer(forKey: totalKey)
+        
         return DhikrEntry(
             date: Date(),
             currentPresetIndex: presetIndex,
             count: count,
-            target: preset.defaultTarget
+            target: preset.defaultTarget,
+            total: total
         )
     }
     
@@ -90,7 +94,8 @@ struct DhikrEntry: TimelineEntry {
             date: Date(),
             currentPresetIndex: 0,
             count: 0,
-            target: 33
+            target: 33,
+            total: 0
         )
     }
 }

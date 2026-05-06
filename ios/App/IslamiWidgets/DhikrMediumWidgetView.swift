@@ -10,36 +10,26 @@ struct DhikrMediumWidgetView: View {
     private let darkGreen1 = Color(red: 0.012, green: 0.180, blue: 0.094)
     private let darkGreen2 = Color(red: 0.016, green: 0.302, blue: 0.161)
     
-    // Progress ring dimensions
+    
     // Progress ring dimensions
     private let ringRadius: CGFloat = 42
     private let ringStroke: CGFloat = 6
     
     var body: some View {
         ZStack {
-            // Islamic gradient background
-            LinearGradient(
-                colors: [darkGreen1, darkGreen2, darkGreen1],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
-            
-            // Geometric pattern
-            GeometricPatternOverlay()
-                .opacity(0.03)
-            
-            // Ambient glows
-            Circle()
-                .fill(goldColor.opacity(0.08))
-                .frame(width: 120, height: 120)
-                .blur(radius: 30)
-                .offset(x: -60, y: -30)
-            
-            Circle()
-                .fill(Color.green.opacity(0.06))
-                .frame(width: 80, height: 80)
-                .blur(radius: 20)
-                .offset(x: 70, y: 30)
+            // Background only needed for iOS 14-16 (iOS 17+ uses containerBackground)
+            if #available(iOS 17.0, *) {
+                // No background needed — containerBackground handles it
+            } else {
+                LinearGradient(
+                    colors: [darkGreen1, darkGreen2, darkGreen1],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+                
+                GeometricPatternOverlay()
+                    .opacity(0.03)
+            }
             
             // Content
             if #available(iOS 17.0, *) {
@@ -55,17 +45,8 @@ struct DhikrMediumWidgetView: View {
     @available(iOS 17.0, *)
     private var interactiveContent: some View {
         Button(intent: IncrementDhikrIntent()) {
-            HStack(spacing: 14) {
-                // Left: Dhikr info
-                leftColumn
-                
-                Spacer()
-                
-                // Right: Interactive counter ring
-                counterRing
-            }
-            .padding(16)
-            .contentShape(Rectangle())
+            contentBody
+                .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
     }
@@ -73,12 +54,42 @@ struct DhikrMediumWidgetView: View {
     // MARK: - iOS 14-16 Static Content
     
     private var staticContent: some View {
+        contentBody
+    }
+    
+    // MARK: - Shared Content Body
+    
+    private var contentBody: some View {
         HStack(spacing: 14) {
             leftColumn
             Spacer()
             counterRing
         }
+        .overlay(alignment: .top) {
+            cycleBadge
+                .offset(y: -4) // Align perfectly with the header text
+        }
         .padding(16)
+        .animation(.snappy, value: entry.count)
+    }
+    
+    // MARK: - Cycle Badge
+    
+    private var cycleBadge: some View {
+        let cycleCount = entry.total / 33
+        return HStack(spacing: 3) {
+            Image(systemName: "arrow.triangle.2.circlepath")
+                .font(.system(size: 8, weight: .bold))
+            Text("\(cycleCount) Tur")
+                .font(.system(size: 10, weight: .bold))
+                .modifier(NumericTransitionModifier())
+        }
+        .foregroundColor(goldColor)
+        .padding(.horizontal, 6)
+        .padding(.vertical, 3)
+        .background(goldColor.opacity(0.15))
+        .overlay(Capsule().strokeBorder(goldColor.opacity(0.3), lineWidth: 0.5))
+        .clipShape(Capsule())
     }
     
     // MARK: - Left Column (Dhikr Info)
@@ -102,10 +113,10 @@ struct DhikrMediumWidgetView: View {
             Text(entry.currentPreset.arabic)
                 .font(.system(size: 22, weight: .bold))
                 .foregroundColor(.white)
-                .shadow(color: .black.opacity(0.4), radius: 2, y: 1)
                 .minimumScaleFactor(0.6)
                 .lineLimit(1)
                 .padding(.bottom, 2)
+                .id(entry.currentPresetIndex)
             
             // Transliteration
             Text(entry.currentPreset.name)
@@ -151,7 +162,6 @@ struct DhikrMediumWidgetView: View {
                     ),
                     style: StrokeStyle(lineWidth: ringStroke, lineCap: .round)
                 )
-                .shadow(color: goldColor.opacity(0.6), radius: 5, x: 0, y: 0)
                 .frame(width: ringRadius * 2, height: ringRadius * 2)
                 .rotationEffect(.degrees(-90))
             
@@ -160,7 +170,7 @@ struct DhikrMediumWidgetView: View {
                 Text("\(entry.count)")
                     .font(.system(size: 36, weight: .black, design: .rounded))
                     .foregroundColor(goldColor)
-                    .shadow(color: goldColor.opacity(0.4), radius: 5, y: 2)
+                    .modifier(NumericTransitionModifier())
                 
                 Text("/ \(entry.target)")
                     .font(.system(size: 12, weight: .bold, design: .monospaced))
@@ -199,7 +209,6 @@ struct DhikrMediumWidgetView: View {
                             endPoint: .trailing
                         )
                     )
-                    .shadow(color: goldColor.opacity(0.5), radius: 2, y: 0)
                     .frame(width: geo.size.width * entry.progress, height: 4)
             }
         }

@@ -136,3 +136,16 @@ struct GeometricPatternOverlay: View {
         }
     }
 }
+
+// MARK: - Numeric Transition Modifier (iOS 16+ safe)
+
+struct NumericTransitionModifier: ViewModifier {
+    func body(content: Content) -> some View {
+        if #available(iOS 16.0, *) {
+            content.contentTransition(.numericText())
+        } else {
+            content
+        }
+    }
+}
+

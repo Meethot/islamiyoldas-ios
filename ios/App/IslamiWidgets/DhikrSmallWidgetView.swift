@@ -12,23 +12,19 @@ struct DhikrSmallWidgetView: View {
     
     var body: some View {
         ZStack {
-            // Islamic gradient background
-            LinearGradient(
-                colors: [darkGreen1, darkGreen2, darkGreen1],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
-            
-            // Geometric pattern overlay
-            GeometricPatternOverlay()
-                .opacity(0.03)
-            
-            // Ambient glow
-            Circle()
-                .fill(goldColor.opacity(0.15))
-                .frame(width: 120, height: 120)
-                .blur(radius: 30)
-                .offset(x: 0, y: -10)
+            // Background only needed for iOS 14-16 (iOS 17+ uses containerBackground)
+            if #available(iOS 17.0, *) {
+                // No background needed — containerBackground handles it
+            } else {
+                LinearGradient(
+                    colors: [darkGreen1, darkGreen2, darkGreen1],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+                
+                GeometricPatternOverlay()
+                    .opacity(0.03)
+            }
             
             // Content
             if #available(iOS 17.0, *) {
@@ -77,6 +73,7 @@ struct DhikrSmallWidgetView: View {
                 Text("\(entry.count)/\(entry.target)")
                     .font(.system(size: 10, weight: .bold, design: .monospaced))
                     .foregroundColor(.white.opacity(0.4))
+                    .modifier(NumericTransitionModifier())
             }
             .padding(.bottom, 4)
             
@@ -86,10 +83,10 @@ struct DhikrSmallWidgetView: View {
             Text(entry.currentPreset.arabic)
                 .font(.system(size: 24, weight: .bold))
                 .foregroundColor(.white)
-                .shadow(color: .black.opacity(0.4), radius: 2, y: 1)
                 .minimumScaleFactor(0.5)
                 .lineLimit(1)
                 .padding(.bottom, 2)
+                .id(entry.currentPresetIndex)
             
             // Transliteration
             Text(entry.currentPreset.name)
@@ -105,7 +102,7 @@ struct DhikrSmallWidgetView: View {
                 Text("\(entry.count)")
                     .font(.system(size: 38, weight: .black, design: .rounded))
                     .foregroundColor(goldColor)
-                    .shadow(color: goldColor.opacity(0.35), radius: 6, y: 2)
+                    .modifier(NumericTransitionModifier())
             }
             .padding(.bottom, 4)
             
@@ -130,13 +127,13 @@ struct DhikrSmallWidgetView: View {
                                 endPoint: .trailing
                             )
                         )
-                        .shadow(color: goldColor.opacity(0.6), radius: 3, y: 0)
                         .frame(width: geo.size.width * entry.progress, height: 5)
                 }
             }
             .frame(height: 5)
         }
         .padding(14)
+        .animation(.snappy, value: entry.count)
     }
 }
 import SwiftUI

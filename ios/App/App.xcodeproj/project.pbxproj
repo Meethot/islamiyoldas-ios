@@ -35,6 +35,7 @@
 		DHKR00000000000000B00003 /* DhikrProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = DHKR00000000000000F00003 /* DhikrProvider.swift */; };
 		DHKR00000000000000B00004 /* DhikrSmallWidgetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DHKR00000000000000F00004 /* DhikrSmallWidgetView.swift */; };
 		DHKR00000000000000B00005 /* DhikrMediumWidgetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DHKR00000000000000F00005 /* DhikrMediumWidgetView.swift */; };
+		DHKR00000000000000B00006 /* DhikrLargeWidgetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DHKR00000000000000F00006 /* DhikrLargeWidgetView.swift */; };
 		E2A9F9000000000000B00001 /* EsmaEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2A9F9000000000000F00001 /* EsmaEntry.swift */; };
 		E2A9F9000000000000B00002 /* EsmaProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2A9F9000000000000F00002 /* EsmaProvider.swift */; };
 		E2A9F9000000000000B00003 /* EsmaSmallWidgetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2A9F9000000000000F00003 /* EsmaSmallWidgetView.swift */; };
@@ -132,6 +133,7 @@
 		DHKR00000000000000F00003 /* DhikrProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DhikrProvider.swift; sourceTree = "<group>"; };
 		DHKR00000000000000F00004 /* DhikrSmallWidgetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DhikrSmallWidgetView.swift; sourceTree = "<group>"; };
 		DHKR00000000000000F00005 /* DhikrMediumWidgetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DhikrMediumWidgetView.swift; sourceTree = "<group>"; };
+		DHKR00000000000000F00006 /* DhikrLargeWidgetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DhikrLargeWidgetView.swift; sourceTree = "<group>"; };
 		E2A9F9000000000000F00001 /* EsmaEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EsmaEntry.swift; sourceTree = "<group>"; };
 		E2A9F9000000000000F00002 /* EsmaProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EsmaProvider.swift; sourceTree = "<group>"; };
 		E2A9F9000000000000F00003 /* EsmaSmallWidgetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EsmaSmallWidgetView.swift; sourceTree = "<group>"; };
@@ -289,6 +291,7 @@
 				DHKR00000000000000F00003 /* DhikrProvider.swift */,
 				DHKR00000000000000F00004 /* DhikrSmallWidgetView.swift */,
 				DHKR00000000000000F00005 /* DhikrMediumWidgetView.swift */,
+				DHKR00000000000000F00006 /* DhikrLargeWidgetView.swift */,
 				1F028E53F29912EE2DF5543B /* Localizable.strings */,
 			);
 			path = IslamiWidgets;
@@ -550,6 +553,7 @@
 				DHKR00000000000000B00003 /* DhikrProvider.swift in Sources */,
 				DHKR00000000000000B00004 /* DhikrSmallWidgetView.swift in Sources */,
 				DHKR00000000000000B00005 /* DhikrMediumWidgetView.swift in Sources */,
+				DHKR00000000000000B00006 /* DhikrLargeWidgetView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
