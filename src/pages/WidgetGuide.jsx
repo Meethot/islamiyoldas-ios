@@ -321,7 +321,7 @@ export default function WidgetGuide() {
                             WebkitTextFillColor: 'transparent',
                             letterSpacing: '-0.01em',
                         }}>
-                            {t('widget_guide.trial_badge', '24 Saat Ücretsiz Dene — Hemen Başla!')}
+                            {t('widget_guide.trial_badge', '1 Saat Ücretsiz Dene — Hemen Başla!')}
                         </span>
                         <span style={{ fontSize: 14, zIndex: 1 }}>→</span>
                     </div>
@@ -471,7 +471,7 @@ export default function WidgetGuide() {
                                 }}>
                                     {isPremium
                                         ? t('widget_guide.premium_note', '👑 Premium aboneliğiniz süresince tüm widget\'lar aktiftir.')
-                                        : t('widget_guide.free_note', '⏳ Ücretsiz kullanıcılar için widget\'lar 1 gün aktif olarak çalışır. Premium ile süresiz kullanabilirsiniz.')
+                                        : t('widget_guide.free_note', '⏳ Ücretsiz kullanıcılar için widget\'lar 1 saat aktif olarak çalışır. Premium ile süresiz kullanabilirsiniz.')
                                     }
                                 </p>
                             </div>

@@ -255,6 +255,21 @@ export default function Home() {
         setDeedRevealed(localStorage.getItem(deedKey) === 'true');
     }, [isFriday, currentDateKey]);
 
+    // Auto-paywall: show once after notification permission dialog clears
+    // OneSignal inits at ~4s, so 9s total gives user ~5s after seeing notification prompt
+    useEffect(() => {
+        if (hasPremium) return;
+        const alreadyShown = storageService.getItem('paywall_auto_shown') === 'true';
+        if (alreadyShown) return;
+
+        const timer = setTimeout(() => {
+            storageService.setItem('paywall_auto_shown', 'true');
+            navigate('/premium');
+        }, 9000);
+
+        return () => clearTimeout(timer);
+    }, [hasPremium, navigate]);
+
 
 
     const togglePrayer = useCallback((prayerId) => {

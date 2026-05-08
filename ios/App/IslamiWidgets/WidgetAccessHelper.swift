@@ -2,18 +2,18 @@ import Foundation
 
 /// Central access control for widget premium/trial logic.
 /// Reads isPremium from App Group UserDefaults (synced from JS via AppDelegate).
-/// Tracks widget_first_seen per widget — 24h trial for free users.
+/// Tracks widget_first_seen per widget — 1h trial for free users.
 enum WidgetAccessLevel {
     case fullAccess   // Premium user
-    case trial        // Free user, within 24h
-    case expired      // Free user, past 24h
+    case trial        // Free user, within 1h
+    case expired      // Free user, past 1h
 }
 
 struct WidgetAccessHelper {
     private static let suiteName = "group.H5GZ9H5MX8.islamiyoldas"
     private static let premiumKey = "widget_is_premium"
     private static let firstSeenKey = "widget_first_seen"
-    private static let trialDuration: TimeInterval = 24 * 60 * 60 // 24 saat ücretsiz deneme
+    private static let trialDuration: TimeInterval = 1 * 60 * 60 // 1 saat ücretsiz deneme
     
     /// Check if widget access is allowed. Records first-seen timestamp on first call.
     static func checkAccess() -> WidgetAccessLevel {
