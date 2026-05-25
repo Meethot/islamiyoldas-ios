@@ -10,10 +10,22 @@ struct DhikrMediumWidgetView: View {
     private let darkGreen1 = Color(red: 0.012, green: 0.180, blue: 0.094)
     private let darkGreen2 = Color(red: 0.016, green: 0.302, blue: 0.161)
     
-    
     // Progress ring dimensions
     private let ringRadius: CGFloat = 42
-    private let ringStroke: CGFloat = 6
+    private let beadSize: CGFloat = 6.0
+    
+    private func goldenBeadGradient(size: CGFloat) -> RadialGradient {
+        RadialGradient(
+            colors: [
+                Color(red: 1.0, green: 0.95, blue: 0.8),  // Specular highlight
+                Color(red: 0.933, green: 0.776, blue: 0.314), // Main gold
+                Color(red: 0.588, green: 0.435, blue: 0.118)  // Deep shadow gold
+            ],
+            center: .init(x: 0.35, y: 0.35),
+            startRadius: 0,
+            endRadius: size * 0.7
+        )
+    }
     
     var body: some View {
         ZStack {
@@ -63,7 +75,19 @@ struct DhikrMediumWidgetView: View {
         HStack(spacing: 14) {
             leftColumn
             Spacer()
-            counterRing
+            VStack(spacing: 8) {
+                counterRing
+                
+                // "+ Zikret" pill button under the circle
+                Text("+ Zikret")
+                    .font(.system(size: 11, weight: .bold))
+                    .foregroundColor(darkGreen1)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 6)
+                    .background(goldColor)
+                    .clipShape(Capsule())
+            }
+            .padding(.top, 4)
         }
         .overlay(alignment: .top) {
             cycleBadge
@@ -131,12 +155,12 @@ struct DhikrMediumWidgetView: View {
                 .lineLimit(2)
                 .padding(.top, 2)
             
-            Spacer()
+            Spacer(minLength: 0)
             
-            // Progress bar
+            // Progress bar (Restored per user request)
             progressBar
             
-            // Tesbih sequence indicator
+            // Tesbih sequence indicator (Restored per user request)
             tesbihSequence
                 .padding(.top, 6)
         }
@@ -146,46 +170,56 @@ struct DhikrMediumWidgetView: View {
     
     private var counterRing: some View {
         ZStack {
-            // Ring background
+            // Background Thread Ring
             Circle()
-                .stroke(.white.opacity(0.12), lineWidth: ringStroke)
+                .stroke(goldColor.opacity(0.12), lineWidth: 0.5)
                 .frame(width: ringRadius * 2, height: ringRadius * 2)
             
-            // Ring progress
-            Circle()
-                .trim(from: 0, to: entry.progress)
-                .stroke(
-                    LinearGradient(
-                        colors: [goldColor.opacity(0.6), goldColor, .white.opacity(0.9)],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    ),
-                    style: StrokeStyle(lineWidth: ringStroke, lineCap: .round)
-                )
-                .frame(width: ringRadius * 2, height: ringRadius * 2)
-                .rotationEffect(.degrees(-90))
+            // Beads
+            ForEach(0..<33, id: \.self) { i in
+                let angle = Double(i) * (2 * .pi / 33) - (.pi / 2)
+                let x = ringRadius * CGFloat(cos(angle))
+                let y = ringRadius * CGFloat(sin(angle))
+                
+                let progress = Double(entry.count) / Double(entry.target)
+                let threshold = Double(i) / 33.0
+                let isFilled = progress > threshold
+                
+                // Only the last completed bead glows
+                let isActive = entry.count > 0 && isFilled && (i == 32 || progress <= Double(i + 1) / 33.0)
+                
+                if isFilled {
+                    Circle()
+                        .fill(goldenBeadGradient(size: beadSize))
+                        .frame(width: beadSize, height: beadSize)
+                        .shadow(color: goldColor.opacity(isActive ? 0.45 : 0.2), radius: isActive ? 2.5 : 1.0, x: 0, y: 0)
+                        .scaleEffect(isActive ? 1.25 : 1.0)
+                        .offset(x: x, y: y)
+                } else {
+                    Circle()
+                        .fill(Color.white.opacity(0.06))
+                        .frame(width: beadSize, height: beadSize)
+                        .overlay(
+                            Circle()
+                                .stroke(goldColor.opacity(0.25), lineWidth: 0.5)
+                        )
+                        .offset(x: x, y: y)
+                    }
+                }
             
             // Count text
             VStack(spacing: 0) {
                 Text("\(entry.count)")
-                    .font(.system(size: 36, weight: .black, design: .rounded))
+                    .font(.system(size: 30, weight: .black, design: .rounded))
                     .foregroundColor(goldColor)
                     .modifier(NumericTransitionModifier())
                 
                 Text("/ \(entry.target)")
-                    .font(.system(size: 12, weight: .bold, design: .monospaced))
+                    .font(.system(size: 11, weight: .bold, design: .monospaced))
                     .foregroundColor(.white.opacity(0.4))
             }
-            
-            // Tap hint (subtle "+" at bottom)
-            if #available(iOSApplicationExtension 17.0, *) {
-                Image(systemName: "plus.circle.fill")
-                    .font(.system(size: 14, weight: .bold))
-                    .foregroundColor(goldColor.opacity(0.4))
-                    .offset(y: ringRadius + 10)
-            }
         }
-        .frame(width: ringRadius * 2 + 24, height: ringRadius * 2 + 24)
+        .frame(width: ringRadius * 2, height: ringRadius * 2)
     }
     
     // MARK: - Progress Bar
@@ -215,19 +249,19 @@ struct DhikrMediumWidgetView: View {
         .frame(height: 4)
     }
     
-    // MARK: - Tesbih Sequence Dots
+    // MARK: - Tesbih Sequence Dots (Restored per user request)
     
     private var tesbihSequence: some View {
-        HStack(spacing: 4) {
+        HStack(spacing: 8) {
             ForEach(0..<3, id: \.self) { i in
-                HStack(spacing: 2) {
+                HStack(spacing: 3) {
                     Circle()
                         .fill(i == entry.currentPresetIndex ? goldColor : .white.opacity(0.15))
-                        .frame(width: 4, height: 4)
+                        .frame(width: 5, height: 5)
                     
                     Text(DhikrEntry.allPresets[i].name)
-                        .font(.system(size: 6, weight: .bold))
-                        .foregroundColor(i == entry.currentPresetIndex ? goldColor.opacity(0.8) : .white.opacity(0.2))
+                        .font(.system(size: 9, weight: .bold))
+                        .foregroundColor(i == entry.currentPresetIndex ? goldColor.opacity(0.9) : .white.opacity(0.3))
                 }
             }
         }

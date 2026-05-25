@@ -10,6 +10,23 @@ struct DhikrSmallWidgetView: View {
     private let darkGreen1 = Color(red: 0.012, green: 0.180, blue: 0.094)
     private let darkGreen2 = Color(red: 0.040, green: 0.271, blue: 0.157)
     
+    // Ring and bead dimensions for small widget
+    private let ringRadius: CGFloat = 34
+    private let beadSize: CGFloat = 5.0
+    
+    private func goldenBeadGradient(size: CGFloat) -> RadialGradient {
+        RadialGradient(
+            colors: [
+                Color(red: 1.0, green: 0.95, blue: 0.8),  // Specular highlight
+                Color(red: 0.933, green: 0.776, blue: 0.314), // Main gold
+                Color(red: 0.588, green: 0.435, blue: 0.118)  // Deep shadow gold
+            ],
+            center: .init(x: 0.35, y: 0.35),
+            startRadius: 0,
+            endRadius: size * 0.7
+        )
+    }
+    
     var body: some View {
         ZStack {
             // Background only needed for iOS 14-16 (iOS 17+ uses containerBackground)
@@ -57,82 +74,84 @@ struct DhikrSmallWidgetView: View {
     private var contentLayout: some View {
         VStack(spacing: 0) {
             // Header
-            HStack(spacing: 4) {
+            HStack(spacing: 3) {
                 Image(systemName: "sparkles")
-                    .font(.system(size: 9, weight: .bold))
+                    .font(.system(size: 8, weight: .bold))
                     .foregroundColor(goldColor)
                 
                 Text("ZİKİR")
-                    .font(.system(size: 9, weight: .heavy))
+                    .font(.system(size: 8, weight: .heavy))
                     .tracking(1.5)
                     .foregroundColor(goldColor)
                 
                 Spacer()
+            }
+            .padding(.bottom, 2)
+            
+            Spacer(minLength: 0)
+            
+            // Center: Bead Ring with Count
+            ZStack {
+                // Background Thread Ring
+                Circle()
+                    .stroke(goldColor.opacity(0.12), lineWidth: 0.5)
+                    .frame(width: ringRadius * 2, height: ringRadius * 2)
                 
-                // Count / Target badge
-                Text("\(entry.count)/\(entry.target)")
-                    .font(.system(size: 10, weight: .bold, design: .monospaced))
-                    .foregroundColor(.white.opacity(0.4))
-                    .modifier(NumericTransitionModifier())
-            }
-            .padding(.bottom, 4)
-            
-            Spacer()
-            
-            // Arabic text (prominent)
-            Text(entry.currentPreset.arabic)
-                .font(.system(size: 24, weight: .bold))
-                .foregroundColor(.white)
-                .minimumScaleFactor(0.5)
-                .lineLimit(1)
-                .padding(.bottom, 2)
-                .id(entry.currentPresetIndex)
-            
-            // Transliteration
-            Text(entry.currentPreset.name)
-                .font(.system(size: 14, weight: .bold, design: .serif))
-                .foregroundColor(goldColor.opacity(0.9))
-                .lineLimit(1)
-                .minimumScaleFactor(0.7)
-            
-            Spacer()
-            
-            // Large count display
-            HStack(spacing: 0) {
-                Text("\(entry.count)")
-                    .font(.system(size: 38, weight: .black, design: .rounded))
-                    .foregroundColor(goldColor)
-                    .modifier(NumericTransitionModifier())
-            }
-            .padding(.bottom, 4)
-            
-            // Progress bar
-            GeometryReader { geo in
-                ZStack(alignment: .leading) {
-                    // Track (Glassmorphism)
-                    RoundedRectangle(cornerRadius: 2.5)
-                        .fill(.white.opacity(0.1))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 2.5)
-                                .stroke(.white.opacity(0.15), lineWidth: 0.5)
-                        )
-                        .frame(height: 5)
+                // Beads
+                ForEach(0..<33, id: \.self) { i in
+                    let angle = Double(i) * (2 * .pi / 33) - (.pi / 2)
+                    let x = ringRadius * CGFloat(cos(angle))
+                    let y = ringRadius * CGFloat(sin(angle))
                     
-                    // Fill (Neon)
-                    RoundedRectangle(cornerRadius: 2.5)
-                        .fill(
-                            LinearGradient(
-                                colors: [goldColor.opacity(0.7), goldColor, .white.opacity(0.8)],
-                                startPoint: .leading,
-                                endPoint: .trailing
+                    let progress = Double(entry.count) / Double(entry.target)
+                    let threshold = Double(i) / 33.0
+                    let isFilled = progress > threshold
+                    
+                    let isActive = entry.count > 0 && isFilled && (i == 32 || progress <= Double(i + 1) / 33.0)
+                    
+                    if isFilled {
+                        Circle()
+                            .fill(goldenBeadGradient(size: beadSize))
+                            .frame(width: beadSize, height: beadSize)
+                            .shadow(color: goldColor.opacity(isActive ? 0.45 : 0.2), radius: isActive ? 2.0 : 1.0, x: 0, y: 0)
+                            .scaleEffect(isActive ? 1.25 : 1.0)
+                            .offset(x: x, y: y)
+                    } else {
+                        Circle()
+                            .fill(Color.white.opacity(0.06))
+                            .frame(width: beadSize, height: beadSize)
+                            .overlay(
+                                Circle()
+                                    .stroke(goldColor.opacity(0.25), lineWidth: 0.5)
                             )
-                        )
-                        .frame(width: geo.size.width * entry.progress, height: 5)
+                            .offset(x: x, y: y)
+                    }
+                }
+                
+                // Center count text
+                VStack(spacing: -2) {
+                    Text("\(entry.count)")
+                        .font(.system(size: 22, weight: .black, design: .rounded))
+                        .foregroundColor(goldColor)
+                        .modifier(NumericTransitionModifier())
+                    
+                    Text("/ \(entry.target)")
+                        .font(.system(size: 9, weight: .bold, design: .monospaced))
+                        .foregroundColor(.white.opacity(0.4))
                 }
             }
-            .frame(height: 5)
+            .frame(width: ringRadius * 2 + 16, height: ringRadius * 2 + 16)
+            
+            Spacer(minLength: 0)
+            
+            // Zikir Name (footer)
+            Text(entry.currentPreset.name)
+                .font(.system(size: 11, weight: .bold, design: .serif))
+                .foregroundColor(.white)
+                .lineLimit(1)
+                .minimumScaleFactor(0.8)
         }
-        .padding(14)
+        .padding(12)
         .animation(.snappy, value: entry.count)
     }
 }

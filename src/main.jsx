@@ -19,19 +19,40 @@ initAnalytics();
 // Intercept Haptics globally to respect user settings
 const originalImpact = Haptics.impact;
 const originalVibrate = Haptics.vibrate;
+const originalSelectionStart = Haptics.selectionStart;
+const originalSelectionChanged = Haptics.selectionChanged;
+const originalSelectionEnd = Haptics.selectionEnd;
+const originalNotification = Haptics.notification;
 
-Haptics.impact = async (options) => {
+const isHapticsEnabled = async () => {
     try {
         const { value } = await Preferences.get({ key: 'hapticsEnabled' });
-        if (value !== 'false') return originalImpact.call(Haptics, options);
-    } catch { return originalImpact.call(Haptics, options); }
+        return value !== 'false';
+    } catch { return true; }
+};
+
+Haptics.impact = async (options) => {
+    if (await isHapticsEnabled()) return originalImpact.call(Haptics, options);
 };
 
 Haptics.vibrate = async (options) => {
-    try {
-        const { value } = await Preferences.get({ key: 'hapticsEnabled' });
-        if (value !== 'false') return originalVibrate.call(Haptics, options);
-    } catch { return originalVibrate.call(Haptics, options); }
+    if (await isHapticsEnabled()) return originalVibrate.call(Haptics, options);
+};
+
+Haptics.selectionStart = async () => {
+    if (await isHapticsEnabled()) return originalSelectionStart.call(Haptics);
+};
+
+Haptics.selectionChanged = async () => {
+    if (await isHapticsEnabled()) return originalSelectionChanged.call(Haptics);
+};
+
+Haptics.selectionEnd = async () => {
+    if (await isHapticsEnabled()) return originalSelectionEnd.call(Haptics);
+};
+
+Haptics.notification = async (options) => {
+    if (await isHapticsEnabled()) return originalNotification.call(Haptics, options);
 };
 
 // Disable selection and context menu globally for security

@@ -187,7 +187,7 @@ function NavLinkItem({ to, icon: Icon, label, onClick }) {
                     "flex flex-col items-center justify-center px-3 py-2.5 rounded-2xl transition-all duration-300 min-w-[64px] min-h-[48px] active:scale-90",
                     isActive
                         ? "text-islamic-green dark:text-islamic-gold bg-islamic-green/5 dark:bg-islamic-gold/10 font-bold"
-                        : "text-gray-400 dark:text-gray-600 hover:text-islamic-green/70"
+                        : "text-gray-400 dark:text-white/40 hover:text-islamic-green/70"
                 )
             }
         >

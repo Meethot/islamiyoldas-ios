@@ -35,6 +35,7 @@ struct DhikrEntry: TimelineEntry {
     static let countKey = "dhikr_widget_count"
     static let presetIndexKey = "dhikr_widget_preset_index"
     static let totalKey = "dhikr_widget_total"
+    static let targetKey = "dhikr_widget_target"
     
     /// Current preset based on index
     var currentPreset: DhikrPreset {
@@ -59,25 +60,33 @@ struct DhikrEntry: TimelineEntry {
         let count = defaults.integer(forKey: countKey)
         let preset = allPresets[max(0, min(presetIndex, allPresets.count - 1))]
         
+        var target = defaults.object(forKey: targetKey) != nil ? defaults.integer(forKey: targetKey) : preset.defaultTarget
+        if target <= 0 {
+            target = preset.defaultTarget
+        }
+        
         let total = defaults.integer(forKey: totalKey)
         
         return DhikrEntry(
             date: Date(),
             currentPresetIndex: presetIndex,
             count: count,
-            target: preset.defaultTarget,
+            target: target,
             total: total
         )
     }
     
     // MARK: - Write to App Group
     
-    static func writeToDefaults(count: Int, presetIndex: Int, total: Int? = nil) {
+    static func writeToDefaults(count: Int, presetIndex: Int, total: Int? = nil, target: Int? = nil) {
         guard let defaults = UserDefaults(suiteName: suiteName) else { return }
         defaults.set(count, forKey: countKey)
         defaults.set(presetIndex, forKey: presetIndexKey)
         if let total = total {
             defaults.set(total, forKey: totalKey)
+        }
+        if let target = target {
+            defaults.set(target, forKey: targetKey)
         }
         defaults.synchronize()
     }

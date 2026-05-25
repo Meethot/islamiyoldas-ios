@@ -12,8 +12,21 @@ struct DhikrLargeWidgetView: View {
     private let darkGreen3 = Color(red: 0.008, green: 0.120, blue: 0.063)
     
     // Large ring dimensions
-    private let ringRadius: CGFloat = 72
-    private let ringStroke: CGFloat = 8
+    private let ringRadius: CGFloat = 66
+    private let beadSize: CGFloat = 8.0
+    
+    private func goldenBeadGradient(size: CGFloat) -> RadialGradient {
+        RadialGradient(
+            colors: [
+                Color(red: 1.0, green: 0.95, blue: 0.8),  // Specular highlight
+                Color(red: 0.933, green: 0.776, blue: 0.314), // Main gold
+                Color(red: 0.588, green: 0.435, blue: 0.118)  // Deep shadow gold
+            ],
+            center: .init(x: 0.35, y: 0.35),
+            startRadius: 0,
+            endRadius: size * 0.7
+        )
+    }
     
     var body: some View {
         ZStack {
@@ -57,8 +70,6 @@ struct DhikrLargeWidgetView: View {
         contentBody
     }
     
-    // MARK: - Shared Content Body
-    
     private var contentBody: some View {
         VStack(spacing: 0) {
             // Top header bar
@@ -67,7 +78,19 @@ struct DhikrLargeWidgetView: View {
             Spacer(minLength: 8)
             
             // Center: Big counter ring
-            counterRing
+            VStack(spacing: 8) {
+                counterRing
+                
+                if #available(iOSApplicationExtension 17.0, *) {
+                    Text("+ Zikret")
+                        .font(.system(size: 11, weight: .bold))
+                        .foregroundColor(darkGreen1)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 6)
+                        .background(goldColor)
+                        .clipShape(Capsule())
+                }
+            }
             
             Spacer(minLength: 8)
             
@@ -129,36 +152,41 @@ struct DhikrLargeWidgetView: View {
     
     private var counterRing: some View {
         ZStack {
-            // Outer decorative ring
+            // Background Thread Ring
             Circle()
-                .stroke(goldColor.opacity(0.06), lineWidth: 1)
-                .frame(width: ringRadius * 2 + 24, height: ringRadius * 2 + 24)
-            
-            // Ring background
-            Circle()
-                .stroke(.white.opacity(0.08), lineWidth: ringStroke)
+                .stroke(goldColor.opacity(0.12), lineWidth: 0.5)
                 .frame(width: ringRadius * 2, height: ringRadius * 2)
             
-            // Ring progress
-            Circle()
-                .trim(from: 0, to: entry.progress)
-                .stroke(
-                    AngularGradient(
-                        gradient: Gradient(colors: [
-                            goldColor.opacity(0.4),
-                            goldColor.opacity(0.7),
-                            goldColor,
-                            .white.opacity(0.9),
-                            goldColor
-                        ]),
-                        center: .center,
-                        startAngle: .degrees(-90),
-                        endAngle: .degrees(270)
-                    ),
-                    style: StrokeStyle(lineWidth: ringStroke, lineCap: .round)
-                )
-                .frame(width: ringRadius * 2, height: ringRadius * 2)
-                .rotationEffect(.degrees(-90))
+            // Beads
+            ForEach(0..<33, id: \.self) { i in
+                let angle = Double(i) * (2 * .pi / 33) - (.pi / 2)
+                let x = ringRadius * CGFloat(cos(angle))
+                let y = ringRadius * CGFloat(sin(angle))
+                
+                let progress = Double(entry.count) / Double(entry.target)
+                let threshold = Double(i) / 33.0
+                let isFilled = progress > threshold
+                
+                let isActive = entry.count > 0 && isFilled && (i == 32 || progress <= Double(i + 1) / 33.0)
+                
+                if isFilled {
+                    Circle()
+                        .fill(goldenBeadGradient(size: beadSize))
+                        .frame(width: beadSize, height: beadSize)
+                        .shadow(color: goldColor.opacity(isActive ? 0.45 : 0.2), radius: isActive ? 2.5 : 1.0, x: 0, y: 0)
+                        .scaleEffect(isActive ? 1.25 : 1.0)
+                        .offset(x: x, y: y)
+                } else {
+                    Circle()
+                        .fill(Color.white.opacity(0.06))
+                        .frame(width: beadSize, height: beadSize)
+                        .overlay(
+                            Circle()
+                                .stroke(goldColor.opacity(0.25), lineWidth: 0.5)
+                        )
+                        .offset(x: x, y: y)
+                }
+            }
             
             // Center content
             VStack(spacing: 2) {
@@ -172,24 +200,17 @@ struct DhikrLargeWidgetView: View {
                 
                 // Count
                 Text("\(entry.count)")
-                    .font(.system(size: 48, weight: .black, design: .rounded))
+                    .font(.system(size: 44, weight: .black, design: .rounded))
                     .foregroundColor(goldColor)
                     .modifier(NumericTransitionModifier())
                 
                 // Target
                 Text("/ \(entry.target)")
-                    .font(.system(size: 14, weight: .bold, design: .monospaced))
+                    .font(.system(size: 13, weight: .bold, design: .monospaced))
                     .foregroundColor(.white.opacity(0.35))
             }
-            
-            // Tap hint
-            if #available(iOSApplicationExtension 17.0, *) {
-                Image(systemName: "plus.circle.fill")
-                    .font(.system(size: 16, weight: .bold))
-                    .foregroundColor(goldColor.opacity(0.4))
-                    .offset(y: ringRadius + 16)
-            }
         }
+        .frame(width: ringRadius * 2 + 24, height: ringRadius * 2 + 24)
     }
     
     // MARK: - Tesbih Cards Section
@@ -250,34 +271,16 @@ struct DhikrLargeWidgetView: View {
     // MARK: - Stats Row
     
     private var statsRow: some View {
-        HStack(spacing: 0) {
-            // Progress bar
-            GeometryReader { geo in
-                ZStack(alignment: .leading) {
-                    RoundedRectangle(cornerRadius: 3)
-                        .fill(.white.opacity(0.08))
-                        .frame(height: 5)
-                    
-                    RoundedRectangle(cornerRadius: 3)
-                        .fill(
-                            LinearGradient(
-                                colors: [goldColor.opacity(0.5), goldColor, .white.opacity(0.8)],
-                                startPoint: .leading,
-                                endPoint: .trailing
-                            )
-                        )
-                        .frame(width: geo.size.width * entry.progress, height: 5)
-                }
-            }
-            .frame(height: 5)
-            
-            Spacer().frame(width: 12)
-            
-            // Total count
-            Text("\(entry.total)")
-                .font(.system(size: 13, weight: .heavy, design: .rounded))
+        HStack {
+            Spacer()
+            Image(systemName: "number.circle.fill")
+                .font(.system(size: 13))
                 .foregroundColor(goldColor.opacity(0.8))
+            Text("Toplam Zikir: \(entry.total)")
+                .font(.system(size: 13, weight: .bold, design: .rounded))
+                .foregroundColor(.white.opacity(0.6))
                 .modifier(NumericTransitionModifier())
+            Spacer()
         }
     }
 }

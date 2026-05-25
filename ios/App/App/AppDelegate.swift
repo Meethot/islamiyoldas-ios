@@ -50,6 +50,87 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         widgetSyncTimer = nil
     }
     
+    private func syncAppGroupToStandard() {
+        let standardDefaults = UserDefaults.standard
+        let appGroupSuite = "group.H5GZ9H5MX8.islamiyoldas"
+        
+        let countKey = "dhikr_widget_count"
+        let presetIndexKey = "dhikr_widget_preset_index"
+        let totalKey = "dhikr_widget_total"
+        let targetKey = "dhikr_widget_target"
+        
+        let standardCountKey = "CapacitorStorage.dhikr_widget_count"
+        let standardPresetIndexKey = "CapacitorStorage.dhikr_widget_preset_index"
+        let standardTotalKey = "CapacitorStorage.dhikr_widget_total"
+        let standardTargetKey = "CapacitorStorage.dhikr_widget_target"
+        
+        guard let appGroupDefaults = UserDefaults(suiteName: appGroupSuite) else { return }
+        
+        var didChange = false
+        
+        // Sync count
+        if appGroupDefaults.object(forKey: countKey) != nil {
+            let groupCount = appGroupDefaults.integer(forKey: countKey)
+            let standardCountStr = standardDefaults.string(forKey: standardCountKey) ?? ""
+            if standardCountStr != String(groupCount) {
+                standardDefaults.set(String(groupCount), forKey: standardCountKey)
+                didChange = true
+                print("[AppDelegate] ✅ Dhikr count synced App Group -> standard: \(groupCount)")
+            }
+        }
+        
+        // Sync preset index
+        if appGroupDefaults.object(forKey: presetIndexKey) != nil {
+            let groupPresetIndex = appGroupDefaults.integer(forKey: presetIndexKey)
+            let standardPresetIndexStr = standardDefaults.string(forKey: standardPresetIndexKey) ?? ""
+            if standardPresetIndexStr != String(groupPresetIndex) {
+                standardDefaults.set(String(groupPresetIndex), forKey: standardPresetIndexKey)
+                didChange = true
+                print("[AppDelegate] ✅ Dhikr presetIndex synced App Group -> standard: \(groupPresetIndex)")
+            }
+        }
+        
+        // Sync total
+        if appGroupDefaults.object(forKey: totalKey) != nil {
+            let groupTotal = appGroupDefaults.integer(forKey: totalKey)
+            let standardTotalStr = standardDefaults.string(forKey: standardTotalKey) ?? ""
+            if standardTotalStr != String(groupTotal) {
+                standardDefaults.set(String(groupTotal), forKey: standardTotalKey)
+                didChange = true
+                print("[AppDelegate] ✅ Dhikr total synced App Group -> standard: \(groupTotal)")
+            }
+        }
+        
+        // Sync target
+        if appGroupDefaults.object(forKey: targetKey) != nil {
+            let groupTarget = appGroupDefaults.integer(forKey: targetKey)
+            let standardTargetStr = standardDefaults.string(forKey: standardTargetKey) ?? ""
+            if standardTargetStr != String(groupTarget) {
+                standardDefaults.set(String(groupTarget), forKey: standardTargetKey)
+                didChange = true
+                print("[AppDelegate] ✅ Dhikr target synced App Group -> standard: \(groupTarget)")
+            }
+        }
+        
+        // Sync widget_first_seen
+        let firstSeenKey = "widget_first_seen"
+        let standardFirstSeenKey = "CapacitorStorage.widget_first_seen"
+        if let firstSeen = appGroupDefaults.object(forKey: firstSeenKey) as? Date {
+            let standardFirstSeenStr = standardDefaults.string(forKey: standardFirstSeenKey) ?? ""
+            let timestampStr = String(firstSeen.timeIntervalSince1970)
+            if standardFirstSeenStr != timestampStr {
+                standardDefaults.set(timestampStr, forKey: standardFirstSeenKey)
+                didChange = true
+                print("[AppDelegate] ✅ widget_first_seen synced App Group -> standard: \(timestampStr)")
+            }
+        }
+        
+        if didChange {
+            standardDefaults.synchronize()
+            NotificationCenter.default.post(name: Notification.Name("WidgetDhikrSync"), object: nil)
+        }
+    }
+    
     private func copyWidgetDataToAppGroup() {
         let standardDefaults = UserDefaults.standard
         let appGroupSuite = "group.H5GZ9H5MX8.islamiyoldas"
@@ -61,6 +142,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let langWidgetKey = "widget_language"
         let premiumBridgeKey = "CapacitorStorage.widget_is_premium_bridge"
         let premiumWidgetKey = "widget_is_premium"
+        
+        let standardCountKey = "CapacitorStorage.dhikr_widget_count"
+        let standardPresetIndexKey = "CapacitorStorage.dhikr_widget_preset_index"
+        let standardTotalKey = "CapacitorStorage.dhikr_widget_total"
+        let standardTargetKey = "CapacitorStorage.dhikr_widget_target"
+        
+        let countKey = "dhikr_widget_count"
+        let presetIndexKey = "dhikr_widget_preset_index"
+        let totalKey = "dhikr_widget_total"
+        let targetKey = "dhikr_widget_target"
         
         guard let appGroupDefaults = UserDefaults(suiteName: appGroupSuite) else {
             print("[AppDelegate] FATAL: Cannot access App Group: \(appGroupSuite)")
@@ -90,6 +181,57 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 if #available(iOS 14.0, *) {
                     WidgetCenter.shared.reloadAllTimelines()
                 }
+            }
+        }
+        
+        // Sync Dhikr data Standard -> App Group
+        var didDhikrChange = false
+        if let countStr = standardDefaults.string(forKey: standardCountKey), let count = Int(countStr) {
+            if appGroupDefaults.integer(forKey: countKey) != count {
+                appGroupDefaults.set(count, forKey: countKey)
+                didDhikrChange = true
+                print("[AppDelegate] ✅ Dhikr count synced standard -> App Group: \(count)")
+            }
+        }
+        if let presetIndexStr = standardDefaults.string(forKey: standardPresetIndexKey), let presetIndex = Int(presetIndexStr) {
+            if appGroupDefaults.integer(forKey: presetIndexKey) != presetIndex {
+                appGroupDefaults.set(presetIndex, forKey: presetIndexKey)
+                didDhikrChange = true
+                print("[AppDelegate] ✅ Dhikr presetIndex synced standard -> App Group: \(presetIndex)")
+            }
+        }
+        if let totalStr = standardDefaults.string(forKey: standardTotalKey), let total = Int(totalStr) {
+            if appGroupDefaults.integer(forKey: totalKey) != total {
+                appGroupDefaults.set(total, forKey: totalKey)
+                didDhikrChange = true
+                print("[AppDelegate] ✅ Dhikr total synced standard -> App Group: \(total)")
+            }
+        }
+        if let targetStr = standardDefaults.string(forKey: standardTargetKey), let target = Int(targetStr) {
+            if appGroupDefaults.integer(forKey: targetKey) != target {
+                appGroupDefaults.set(target, forKey: targetKey)
+                didDhikrChange = true
+                print("[AppDelegate] ✅ Dhikr target synced standard -> App Group: \(target)")
+            }
+        }
+        
+        // Sync widget_first_seen standard -> App Group
+        let firstSeenKey = "widget_first_seen"
+        let standardFirstSeenKey = "CapacitorStorage.widget_first_seen"
+        if let firstSeenStr = standardDefaults.string(forKey: standardFirstSeenKey), let timestamp = Double(firstSeenStr) {
+            let firstSeenDate = Date(timeIntervalSince1970: timestamp)
+            let currentFirstSeen = appGroupDefaults.object(forKey: firstSeenKey) as? Date
+            if currentFirstSeen == nil || abs(currentFirstSeen!.timeIntervalSince(firstSeenDate)) > 1.0 {
+                appGroupDefaults.set(firstSeenDate, forKey: firstSeenKey)
+                didDhikrChange = true
+                print("[AppDelegate] ✅ widget_first_seen synced standard -> App Group: \(firstSeenDate)")
+            }
+        }
+        
+        if didDhikrChange {
+            appGroupDefaults.synchronize()
+            if #available(iOS 14.0, *) {
+                WidgetCenter.shared.reloadAllTimelines()
             }
         }
         
@@ -126,10 +268,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
     func applicationWillEnterForeground(_ application: UIApplication) {
+        syncAppGroupToStandard()
         startWidgetSyncTimer()
     }
 
     func applicationDidBecomeActive(_ application: UIApplication) {
+        syncAppGroupToStandard()
         copyWidgetDataToAppGroup()
     }
 

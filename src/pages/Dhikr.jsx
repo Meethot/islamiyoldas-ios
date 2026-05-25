@@ -9,6 +9,8 @@ import { isPremium } from '@/services/creditService';
 import { getAppDate } from '@/lib/testDate';
 import { AnimatePresence, motion } from 'framer-motion';
 import { analytics } from '@/services/analyticsService';
+import { Preferences } from '@capacitor/preferences';
+import { App } from '@capacitor/app';
 
 const DHIKR_PRESETS = [
     { id: 'subhanallah', name: 'Sübhanallah', arabic: 'سُبْحَانَ اللَّهِ', meaning: 'Allah noksan sıfatlardan uzaktır', defaultTarget: 33 },
@@ -50,8 +52,22 @@ export default function Dhikr() {
 
     const haptics = useHaptics();
 
+    const syncToWidget = async (currentCount, preset, currentTotal, currentTarget) => {
+        if (isCountdownMode) return;
+        const idx = DHIKR_PRESETS.findIndex(p => p.id === preset.id);
+        try {
+            await Preferences.set({ key: 'dhikr_widget_count', value: String(currentCount) });
+            await Preferences.set({ key: 'dhikr_widget_preset_index', value: String(idx >= 0 ? idx : 2) });
+            await Preferences.set({ key: 'dhikr_widget_total', value: String(currentTotal) });
+            await Preferences.set({ key: 'dhikr_widget_target', value: String(currentTarget) });
+        } catch (error) {
+            console.error('Widget sync error:', error);
+        }
+    };
+
     // Track dhikr session start
     useEffect(() => {
+        window.scrollTo(0, 0);
         const name = isCountdownMode ? countdownName : activePreset.name;
         const t = isCountdownMode ? countdownTarget : target;
         analytics.dhikrStarted(name, t);
@@ -112,16 +128,109 @@ export default function Dhikr() {
         }
     }, [hapticMessage]);
 
-    useEffect(() => {
-        if (isCountdownMode) return; // Skip localStorage restore in countdown mode
-        const savedCount = localStorage.getItem(`dhikr_count_${activePreset.id}`) || '0';
-        const savedTarget = isPremium()
-            ? (localStorage.getItem(`dhikr_target_${activePreset.id}`) || activePreset.defaultTarget.toString())
-            : activePreset.defaultTarget.toString();
+    const loadCount = async () => {
+        try {
+            const activeIdx = DHIKR_PRESETS.findIndex(p => p.id === activePreset.id);
+            const { value: indexStr } = await Preferences.get({ key: 'dhikr_widget_preset_index' });
+            const { value: countStr } = await Preferences.get({ key: 'dhikr_widget_count' });
+            const { value: targetStr } = await Preferences.get({ key: 'dhikr_widget_target' });
+            
+            const widgetIdx = indexStr ? parseInt(indexStr, 10) : -1;
+            
+            let activeTarget = activePreset.defaultTarget;
+            const savedTarget = localStorage.getItem(`dhikr_target_${activePreset.id}`);
+            if (savedTarget) {
+                activeTarget = parseInt(savedTarget, 10);
+            }
+            
+            if (activeIdx === widgetIdx && targetStr) {
+                activeTarget = parseInt(targetStr, 10);
+                setTarget(activeTarget);
+                setTempTarget(targetStr);
+                localStorage.setItem(`dhikr_target_${activePreset.id}`, targetStr);
+            } else {
+                setTarget(activeTarget);
+                setTempTarget(String(activeTarget));
+            }
 
-        setCount(parseInt(savedCount, 10));
-        setTarget(parseInt(savedTarget, 10));
-        setTempTarget(savedTarget);
+            if (activeIdx === widgetIdx && countStr) {
+                const widgetCount = parseInt(countStr, 10);
+                setCount(widgetCount);
+                localStorage.setItem(`dhikr_count_${activePreset.id}`, widgetCount.toString());
+            } else {
+                const savedCount = localStorage.getItem(`dhikr_count_${activePreset.id}`) || '0';
+                setCount(parseInt(savedCount, 10));
+                const currentTotal = parseInt(localStorage.getItem('totalDhikrOverall') || '0', 10);
+                syncToWidget(parseInt(savedCount, 10), activePreset, currentTotal, activeTarget);
+            }
+        } catch (e) {
+            const savedCount = localStorage.getItem(`dhikr_count_${activePreset.id}`) || '0';
+            setCount(parseInt(savedCount, 10));
+        }
+    };
+
+    // Mount-level sync to load active preset from widget if changed
+    useEffect(() => {
+        if (isCountdownMode) return;
+        
+        const loadInitialPreset = async () => {
+            try {
+                const { value: indexStr } = await Preferences.get({ key: 'dhikr_widget_preset_index' });
+                if (indexStr) {
+                    const index = parseInt(indexStr, 10);
+                    if (index >= 0 && index < DHIKR_PRESETS.length) {
+                        setActivePreset(DHIKR_PRESETS[index]);
+                    }
+                }
+            } catch (e) {
+                console.error('Failed to load active preset index from widget:', e);
+            }
+        };
+        
+        loadInitialPreset();
+
+        let appListener = null;
+        const setupStateListener = async () => {
+            try {
+                appListener = await App.addListener('appStateChange', ({ isActive }) => {
+                    if (isActive) {
+                        loadInitialPreset();
+                    }
+                });
+            } catch (e) {
+                console.warn('App state listener not supported:', e);
+            }
+        };
+        setupStateListener();
+
+        return () => {
+            if (appListener) appListener.remove();
+        };
+    }, []);
+
+    // Preset changing / appStateChange sync
+    useEffect(() => {
+        if (isCountdownMode) return;
+        
+        loadCount();
+
+        let appListener = null;
+        const setupStateListener = async () => {
+            try {
+                appListener = await App.addListener('appStateChange', ({ isActive }) => {
+                    if (isActive) {
+                        loadCount();
+                    }
+                });
+            } catch (e) {
+                console.warn('App state listener not supported:', e);
+            }
+        };
+        setupStateListener();
+
+        return () => {
+            if (appListener) appListener.remove();
+        };
     }, [activePreset]);
 
     const increment = () => {
@@ -199,6 +308,7 @@ export default function Dhikr() {
 
             localStorage.setItem(`dhikr_count_${activePreset.id}`, newCount.toString());
             localStorage.setItem('totalDhikrOverall', newTotal.toString());
+            syncToWidget(newCount, activePreset, newTotal, target);
 
             if (hapticsMode !== 'off') {
                 if (isTargetReached) {
@@ -228,6 +338,7 @@ export default function Dhikr() {
             setTarget(val);
             localStorage.setItem(`dhikr_target_${activePreset.id}`, val.toString());
             setShowTargetModal(false);
+            syncToWidget(count, activePreset, totalCount, val);
         }
     };
 
@@ -240,6 +351,7 @@ export default function Dhikr() {
             } else {
                 setCount(0);
                 localStorage.setItem(`dhikr_count_${activePreset.id}`, '0');
+                syncToWidget(0, activePreset, totalCount, target);
             }
         }
     };
@@ -248,6 +360,7 @@ export default function Dhikr() {
         setTotalCount(0);
         localStorage.setItem('totalDhikrOverall', '0');
         setShowTotalResetConfirm(false);
+        syncToWidget(count, activePreset, 0, target);
     };
 
     const progress = isCountdownMode

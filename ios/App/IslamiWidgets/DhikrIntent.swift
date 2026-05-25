@@ -21,12 +21,15 @@ struct IncrementDhikrIntent: AppIntent {
         
         let preset = DhikrEntry.allPresets[max(0, min(presetIndex, DhikrEntry.allPresets.count - 1))]
         
+        let groupTarget = defaults?.integer(forKey: DhikrEntry.targetKey) ?? 0
+        var activeTarget = groupTarget > 0 ? groupTarget : preset.defaultTarget
+        
         // Increment
         count += 1
         total += 1
         
         // Check if target reached — auto-advance to next preset (namaz tesbih sırası)
-        if count >= preset.defaultTarget {
+        if count >= activeTarget {
             count = 0
             // Cycle through first 3 presets (Sübhanallah → Elhamdülillah → Allahü Ekber → loop)
             if presetIndex < 2 {
@@ -34,10 +37,13 @@ struct IncrementDhikrIntent: AppIntent {
             } else {
                 presetIndex = 0
             }
+            
+            let nextPreset = DhikrEntry.allPresets[presetIndex]
+            activeTarget = nextPreset.defaultTarget
         }
         
         // Write back
-        DhikrEntry.writeToDefaults(count: count, presetIndex: presetIndex, total: total)
+        DhikrEntry.writeToDefaults(count: count, presetIndex: presetIndex, total: total, target: activeTarget)
         
         // Reload widget timeline
         WidgetCenter.shared.reloadTimelines(ofKind: "DhikrWidget")

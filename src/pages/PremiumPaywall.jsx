@@ -715,10 +715,10 @@ export default function PremiumPaywall() {
                             />
                             <p className="text-white/70 font-bold text-[13px]">{t('premium.plan_monthly')}</p>
                             <p className="text-white/35 text-[10px] mt-0.5">{t('premium.plan_monthly_desc')}</p>
-                            <p className="text-white/70 font-bold text-base mt-1">{getPrice(PRODUCT_IDS.MONTHLY) || '₺124,99'}</p>
+                            <p className="text-white/70 font-bold text-base mt-1">{getPrice(PRODUCT_IDS.MONTHLY) || '...'}</p>
                             <p className="text-white/25 text-[10px]">/ {t('premium.month')}</p>
                             <div className="mt-1.5 pt-1.5 border-t border-white/[0.06]">
-                                <p className="text-white/30 text-[12px] text-center">{getDailyPrice(PRODUCT_IDS.MONTHLY) ? t('premium.daily_label', { price: getDailyPrice(PRODUCT_IDS.MONTHLY) }) : t('premium.daily_monthly')}</p>
+                                <p className="text-white/30 text-[12px] text-center">{getDailyPrice(PRODUCT_IDS.MONTHLY) ? t('premium.daily_label', { price: getDailyPrice(PRODUCT_IDS.MONTHLY) }) : '...'}</p>
                             </div>
                         </button>
 
@@ -750,11 +750,11 @@ export default function PremiumPaywall() {
                                 🌟 {t('premium.badge_best_value')}
                             </div>
                             <p className="text-[#D4AF37] font-bold text-[13px] mt-2">{t('premium.plan_yearly')}</p>
-                            <p className="text-white/35 text-[10px] mt-0.5">{getMonthlyEquivalent() ? t('premium.monthly_label', { price: getMonthlyEquivalent() }) : t('premium.plan_yearly_per_month')}</p>
-                            <p className="text-[#D4AF37] font-bold text-base mt-1">{getPrice(PRODUCT_IDS.YEARLY) || '₺739,99'}</p>
+                            <p className="text-white/35 text-[10px] mt-0.5">{getMonthlyEquivalent() ? t('premium.monthly_label', { price: getMonthlyEquivalent() }) : '...'}</p>
+                            <p className="text-[#D4AF37] font-bold text-base mt-1">{getPrice(PRODUCT_IDS.YEARLY) || '...'}</p>
                             <p className="text-[#D4AF37]/40 text-[10px]">/ {t('premium.year')}</p>
                             <div className="mt-1.5 pt-1.5 border-t border-[#D4AF37]/10">
-                                <p className="text-[#D4AF37]/60 text-[12px] font-semibold text-center">{getDailyPrice(PRODUCT_IDS.YEARLY) ? `🔥 ${t('premium.daily_label', { price: getDailyPrice(PRODUCT_IDS.YEARLY) })}` : t('premium.daily_yearly')}</p>
+                                <p className="text-[#D4AF37]/60 text-[12px] font-semibold text-center">{getDailyPrice(PRODUCT_IDS.YEARLY) ? `🔥 ${t('premium.daily_label', { price: getDailyPrice(PRODUCT_IDS.YEARLY) })}` : '...'}</p>
                             </div>
                         </button>
                     </motion.div>
@@ -796,7 +796,9 @@ export default function PremiumPaywall() {
                     {/* ── Below-the-fold: Disclaimer + Footer (visible on scroll) ── */}
                     <div className="mt-3 flex-shrink-0">
                         <p className="text-center text-white/40 text-[12px] leading-relaxed">
-                            🔔 {selectedPlan === 'yearly' ? t('premium.disclaimer_yearly') : t('premium.disclaimer_monthly')}
+                            🔔 {selectedPlan === 'yearly'
+                                ? t('premium.disclaimer_yearly', { price: `${getPrice(PRODUCT_IDS.YEARLY) || '...'}/${t('premium.year')}` })
+                                : t('premium.disclaimer_monthly', { price: `${getPrice(PRODUCT_IDS.MONTHLY) || '...'}/${t('premium.month')}` })}
                         </p>
 
                         {/* Trial badge — for both plans */}

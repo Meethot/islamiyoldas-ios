@@ -7,6 +7,7 @@
 
 import { Capacitor, registerPlugin } from '@capacitor/core';
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
+import { Preferences } from '@capacitor/preferences';
 
 // Android-only native effects plugin
 const NativeEffects = registerPlugin('NativeEffects');
@@ -20,6 +21,9 @@ export async function playAminSound() {
     if (!Capacitor.isNativePlatform()) return;
 
     try {
+        const { value } = await Preferences.get({ key: 'hapticsEnabled' });
+        if (value === 'false') return;
+
         const platform = Capacitor.getPlatform();
         if (platform === 'ios') {
             await Haptics.impact({ style: ImpactStyle.Light });
