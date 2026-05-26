@@ -146,8 +146,8 @@ export async function getOfferings() {
 export async function getProducts() {
     if (!Capacitor.isNativePlatform()) {
         return [
-            { identifier: PRODUCT_IDS.MONTHLY, priceString: '₺124,99', title: 'Aylık Premium', description: 'Aylık abonelik' },
-            { identifier: PRODUCT_IDS.YEARLY, priceString: '₺739,99', title: 'Yıllık Premium', description: 'Yıllık abonelik' },
+            { identifier: PRODUCT_IDS.MONTHLY, priceString: '₺124,99', price: 124.99, currencyCode: 'TRY', title: 'Aylık Premium', description: 'Aylık abonelik' },
+            { identifier: PRODUCT_IDS.YEARLY, priceString: '₺739,99', price: 739.99, currencyCode: 'TRY', title: 'Yıllık Premium', description: 'Yıllık abonelik' },
         ];
     }
     try {

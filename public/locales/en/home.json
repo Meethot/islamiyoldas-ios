@@ -333,7 +333,7 @@
         "tip_title": "Info",
         "tip_desc": "Widgets auto-update every hour. The Verse of the Day and Asma ul-Husna widgets show different content each hour.",
         "premium_note": "👑 All widgets are active throughout your Premium subscription.",
-        "free_note": "⏳ Widgets are active for 1 day for free users. Go unlimited with Premium.",
+        "free_note": "⏳ Widgets are active for 1 hour for free users. Go unlimited with Premium.",
         "ios_note_title": "iOS 16+",
         "ios_note_desc": "Lock screen widgets are available on iOS 16 and later. Home screen widgets support iOS 14+."
     }

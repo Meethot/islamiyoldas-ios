@@ -1,7 +1,8 @@
 import { Capacitor } from '@capacitor/core';
 import React, { useRef, useEffect } from 'react';
 import { Outlet, NavLink, useLocation, useNavigate } from 'react-router-dom';
-import { Home, BookOpen, Target, Settings, Heart, Star, Brain, Sparkles, Crown } from 'lucide-react';
+import { Settings, Heart, Star, Brain, Sparkles, Crown } from 'lucide-react';
+import { MosqueIcon } from '@/components/icons/PrayerIcons';
 import { cn } from '@/lib/utils';
 import { useHaptics } from '@/hooks/useMobile';
 import { useUser } from '@/context/UserContext';
@@ -161,10 +162,10 @@ export default function AppLayout() {
                 {pathname !== '/ai-mentor' && (
                     <nav className="absolute bottom-0 left-0 right-0 w-full bg-[#FBF9F4]/90 dark:bg-[#032e18]/90 backdrop-blur-xl border-t border-amber-100/50 dark:border-white/5 z-50 shadow-[0_-8px_20px_-6px_rgba(0,0,0,0.1)]">
                         <div className="flex justify-around items-center px-4 py-2 pb-safe max-w-2xl mx-auto">
-                            <NavLinkItem to="/" icon={Home} label={tNav('nav.home')} onClick={selection} />
-                            <NavLinkItem to="/learn" icon={BookOpen} label={tNav('nav.learn')} onClick={selection} />
+                            <NavLinkItem to="/" icon={CustomHome} label={tNav('nav.home')} onClick={selection} />
+                            <NavLinkItem to="/learn" icon={CustomBookOpen} label={tNav('nav.learn')} onClick={selection} />
                             <NavLinkItem to="/stories" icon={Heart} label={tNav('nav.stories')} onClick={selection} />
-                            <NavLinkItem to="/tracking" icon={Target} label={tNav('nav.worship')} onClick={selection} />
+                            <NavLinkItem to="/tracking" icon={MosqueIcon} label={tNav('nav.worship')} onClick={selection} />
                             <NavLinkItem to="/profile" icon={Settings} label={tNav('nav.profile')} onClick={selection} />
                         </div>
                     </nav>
@@ -184,7 +185,7 @@ function NavLinkItem({ to, icon: Icon, label, onClick }) {
             onClick={onClick}
             className={({ isActive }) =>
                 cn(
-                    "flex flex-col items-center justify-center px-3 py-2.5 rounded-2xl transition-all duration-300 min-w-[64px] min-h-[48px] active:scale-90",
+                    "flex flex-col items-center justify-center px-3 py-2.5 rounded-2xl transition-all duration-300 min-w-[64px] min-h-[48px] active:scale-90 group",
                     isActive
                         ? "text-islamic-green dark:text-islamic-gold bg-islamic-green/5 dark:bg-islamic-gold/10 font-bold"
                         : "text-gray-400 dark:text-white/40 hover:text-islamic-green/70"
@@ -194,5 +195,43 @@ function NavLinkItem({ to, icon: Icon, label, onClick }) {
             <Icon className={cn("w-6 h-6 mb-1 transition-transform", "group-active:scale-110")} />
             <span className="text-[10px] tracking-tight">{label}</span>
         </NavLink>
+    );
+}
+
+function CustomBookOpen(props) {
+    return (
+        <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            {...props}
+        >
+            <path d="M12 7a4 4 0 0 0-4-4H3a1 1 0 0 0-1 1v13a1 1 0 0 0 1 1h6a3 3 0 0 0 3 3v-14a4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3" />
+        </svg>
+    );
+}
+
+function CustomHome(props) {
+    return (
+        <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            {...props}
+        >
+            <path d="M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H15v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8H5a2 2 0 0 1-2-2z" />
+        </svg>
     );
 }
