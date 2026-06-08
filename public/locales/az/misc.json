@@ -11,7 +11,10 @@
         "limitReachedBanner": "Günlük haqqın doldu",
         "limitReachedPlaceholder": "Premium ilə gündə 30 sual soruşa bilərsən...",
         "dailyLimitReached": "Günlük sual haqqınız doldu. Sabah yenidən gəlin və ya Premium ilə gündə 30 sual soruşun.",
-        "premiumQuota": "{{count}} haqqın qaldı"
+        "premiumQuota": "{{count}} haqqın qaldı",
+        "suggestion1": "İçim darıxır, hansı zikr və duanı oxumalıyam?",
+        "suggestion2": "Ailəmin hüzurlu olmasını istəyirəm, nə etməliyəm?",
+        "suggestion3": "Ruzi və bərəkət üçün hansı duaları oxumalıyam?"
     },
     "prescription": {
         "title": "Mənəvi Reçete",

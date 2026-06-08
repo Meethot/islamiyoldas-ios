@@ -11,7 +11,10 @@
         "limitReachedBanner": "Tageslimit erreicht",
         "limitReachedPlaceholder": "Mit Premium 30 Fragen täglich...",
         "dailyLimitReached": "Dein Tageslimit ist erreicht. Komm morgen wieder oder hole dir Premium für 30 Fragen pro Tag.",
-        "premiumQuota": "{{count}} Fragen übrig"
+        "premiumQuota": "{{count}} Fragen übrig",
+        "suggestion1": "Mein Herz ist schwer, welchen Dhikr und welches Bittgebet soll ich lesen?",
+        "suggestion2": "Ich möchte, dass meine Familie friedlich ist, was soll ich tun?",
+        "suggestion3": "Welche Gebete soll ich für reichlich Lebensunterhalt lesen?"
     },
     "prescription": {
         "title": "Spirituelle Empfehlung",

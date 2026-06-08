@@ -303,7 +303,7 @@ export const PrayerTimesProvider = ({ children }) => {
 
             // Track when notifications are delivered (even if app is in foreground)
             await LocalNotifications.addListener('localNotificationReceived', (notification) => {
-                const type = notification.id <= 35 ? 'prayer' :
+                const type = notification.id <= 45 ? 'prayer' :
                              notification.id >= 100 && notification.id <= 114 ? 'pre_reminder' :
                              notification.id >= 1001 && notification.id <= 1003 ? 'verse' :
                              notification.id === 2000 ? 'friday' :
@@ -314,7 +314,7 @@ export const PrayerTimesProvider = ({ children }) => {
             // Track when user taps on a notification
             await LocalNotifications.addListener('localNotificationActionPerformed', (action) => {
                 const id = action.notification?.id;
-                const type = id <= 35 ? 'prayer' :
+                const type = id <= 45 ? 'prayer' :
                              id >= 100 && id <= 114 ? 'pre_reminder' :
                              id >= 1001 && id <= 1003 ? 'verse' :
                              id === 2000 ? 'friday' :
@@ -886,7 +886,7 @@ export const PrayerTimesProvider = ({ children }) => {
                 // Use per-day times from calendar, or fall back to today's timings
                 const dayTimings = calendarData[dateKey] || todayTimings;
 
-                const prayerKeys = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
+                const prayerKeys = ['Fajr', 'Sunrise', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
                 prayerKeys.forEach((key, idx) => {
                     const rawTime = dayTimings[key];
                     if (!rawTime) return;
@@ -900,23 +900,47 @@ export const PrayerTimesProvider = ({ children }) => {
 
                     if (date <= now) return;
 
-                    const id = day * 5 + idx + 1;
+                    const id = day * 6 + idx + 1;
+
+                    const isSunrise = key === 'Sunrise';
+                    const sunriseTitle = {
+                        tr: 'Güneş Doğdu 🌅',
+                        en: 'Sunrise 🌅',
+                        de: 'Sonnenaufgang 🌅',
+                        ru: 'Восход 🌅',
+                        ar: 'الشروق 🌅',
+                        az: 'Günəş Doğdu 🌅'
+                    };
+                    const sunriseBody = {
+                        tr: 'Güneş vakti girdi.',
+                        en: 'Sunrise time has arrived.',
+                        de: 'Die Zeit für den Sonnenaufgang ist da.',
+                        ru: 'Время восхода солнца наступило.',
+                        ar: 'حان وقت شروق الشمس.',
+                        az: 'Günəş vaxtı girdi.'
+                    };
+
+                    const prayerName = key === 'Fajr' ? names[0] : names[idx - 1];
 
                     const notif = {
-                        title: notifTitle[lang] || notifTitle.en,
-                        body: `${names[idx]} ${notifBody[lang] || notifBody.en}`,
+                        title: isSunrise ? (sunriseTitle[lang] || sunriseTitle.tr) : (notifTitle[lang] || notifTitle.en),
+                        body: isSunrise ? (sunriseBody[lang] || sunriseBody.tr) : `${prayerName} ${notifBody[lang] || notifBody.en}`,
                         id,
                         schedule: { at: date, allowWhileIdle: true },
                         smallIcon: 'ic_stat_icon_config_sample',
                     };
 
-                    if (soundValue) {
-                        notif.sound = soundValue;
+                    const soundValueForThis = isSunrise
+                        ? (settings.vibrateOnly ? undefined : 'default')
+                        : soundValue;
+
+                    if (soundValueForThis) {
+                        notif.sound = soundValueForThis;
                     }
-                    if (!settings.vibrateOnly) {
-                        notif.channelId = 'ezan_vakti';
+                    if (isSunrise || settings.vibrateOnly) {
+                        notif.channelId = (isSunrise && !settings.vibrateOnly) ? 'default' : 'ezan_vakti_silent';
                     } else {
-                        notif.channelId = 'ezan_vakti_silent';
+                        notif.channelId = 'ezan_vakti';
                     }
 
                     if (isIOS) {

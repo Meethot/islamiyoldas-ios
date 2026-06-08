@@ -11,7 +11,10 @@
         "limitReachedBanner": "Günlük hakkın doldu",
         "limitReachedPlaceholder": "Premium ile 30 soru sorabilirsin...",
         "dailyLimitReached": "Günlük soru hakkınız doldu. Yarın tekrar gelin veya Premium ile günde 30 soru sorun.",
-        "premiumQuota": "{{count}} hakkın kaldı"
+        "premiumQuota": "{{count}} hakkın kaldı",
+        "suggestion1": "İçim daralıyor, hangi zikir ve duayı çekeyim?",
+        "suggestion2": "Ailem huzurlu olsun istiyorum, ne yapmalıyım?",
+        "suggestion3": "Rızık ve bereket için hangi duaları okumalıyım?"
     },
     "prescription": {
         "title": "Manevi Reçete",

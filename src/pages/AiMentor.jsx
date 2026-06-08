@@ -82,8 +82,8 @@ export default function AiMentor() {
         }
     }, [messages]);
 
-    const handleSend = async () => {
-        if (!input.trim() || isLoading) return;
+    const sendMessage = async (textToSend) => {
+        if (!textToSend.trim() || isLoading) return;
 
         // Check daily quota
         if (remaining <= 0) {
@@ -103,7 +103,7 @@ export default function AiMentor() {
 
         light();
 
-        const userMsg = { id: Date.now(), role: 'user', text: input };
+        const userMsg = { id: Date.now(), role: 'user', text: textToSend };
         setMessages(prev => [...prev, userMsg]);
         setInput('');
         setIsLoading(true);
@@ -141,12 +141,16 @@ export default function AiMentor() {
             setMessages(prev => [...prev, {
                 id: Date.now() + 1,
                 role: 'assistant',
-                text: t('aiMentor.connectionError'),
+                text: t('connectionError'),
                 isPrescription: false
             }]);
         } finally {
             setIsLoading(false);
         }
+    };
+
+    const handleSend = () => {
+        sendMessage(input);
     };
 
     return (
@@ -277,6 +281,30 @@ export default function AiMentor() {
                         </div>
                     </motion.div>
                 ))}
+
+                {/* Centered Quick Start Suggestions */}
+                {messages.length === 1 && !isLoading && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 12 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.25, duration: 0.5 }}
+                        className="max-w-xl mx-auto px-6 py-2 flex flex-col items-center gap-3 w-full"
+                    >
+                        <p className="text-[10px] text-stone-400 dark:text-white/20 font-bold uppercase tracking-widest mb-1">
+                            {i18n.language === 'tr' ? 'Hızlı Sorular' : 'Quick Prompts'}
+                        </p>
+                        {[1, 2, 3].map((num) => (
+                            <button
+                                key={num}
+                                onClick={() => sendMessage(t(`aiMentor.suggestion${num}`))}
+                                className="w-full max-w-md px-5 py-3.5 rounded-[18px] bg-white/70 dark:bg-white/[0.03] backdrop-blur-md border border-stone-200/50 dark:border-white/5 hover:border-islamic-gold/40 dark:hover:border-islamic-gold/40 hover:bg-stone-50 dark:hover:bg-white/[0.06] active:scale-[0.98] transition-all flex items-center justify-center text-center shadow-sm hover:shadow-md text-stone-700 dark:text-stone-200 hover:text-islamic-gold dark:hover:text-islamic-gold font-medium text-[13.5px] leading-relaxed relative overflow-hidden group"
+                            >
+                                <span className="relative z-10">{t(`aiMentor.suggestion${num}`)}</span>
+                                <div className="absolute inset-0 bg-gradient-to-r from-islamic-gold/0 via-islamic-gold/[0.03] to-islamic-gold/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
+                            </button>
+                        ))}
+                    </motion.div>
+                )}
 
                 {/* Loading State: Tefekkür Modu */}
                 {isLoading && (

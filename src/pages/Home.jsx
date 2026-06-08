@@ -57,6 +57,19 @@ const RELIGIOUS_DAYS = [
     { name: 'Aşure Günü', name_en: 'Day of Ashura', name_de: 'Tag von Aschura', name_ru: 'День Ашура', name_ar: 'يوم عاشوراء', name_az: 'Aşura Günü', date: '2026-06-25' },
     { name: 'Mevlid Kandili', name_en: 'Birth of the Prophet', name_de: 'Geburtstag des Propheten', name_ru: 'Рождение Пророка', name_ar: 'المولد النبوي', name_az: 'Mövlud Gecəsi', date: '2026-08-24' },
     { name: 'Regaib Kandili', name_en: 'Night of Wishes', name_de: 'Nacht der Wünsche', name_ru: 'Ночь Желаний', name_ar: 'ليلة الرغائب', name_az: 'Rəğaib Gecəsi', date: '2026-12-10' },
+    { name: 'Miraç Kandili', name_en: 'Night of Ascension', name_de: 'Nacht der Himmelfahrt', name_ru: 'Ночь Вознесения', name_ar: 'ليلة الإسراء والمعراج', name_az: 'Merac Gecəsi', date: '2027-01-04' },
+    { name: 'Berat Kandili', name_en: 'Night of Forgiveness', name_de: 'Nacht der Vergebung', name_ru: 'Ночь Прощения', name_ar: 'ليلة البراءة', name_az: 'Bərat Gecəsi', date: '2027-01-22' },
+    { name: 'Ramazan Başlangıcı', name_en: 'Start of Ramadan', name_de: 'Beginn des Ramadan', name_ru: 'Начало Рамадана', name_ar: 'بداية رمضان', name_az: 'Ramazan Başlanğıcı', date: '2027-02-08' },
+    { name: 'Kadir Gecesi', name_en: 'Night of Power', name_de: 'Nacht der Bestimmung', name_ru: 'Ночь Предопределения', name_ar: 'ليلة القدر', name_az: 'Qədr Gecəsi', date: '2027-03-05' },
+    { name: 'Ramazan Bayramı Arifesi', name_en: 'Eve of Eid al-Fitr', name_de: 'Vorabend des Fastenbrechens', name_ru: 'Канун Ураза-байрам', name_ar: 'عشية عيد الفطر', name_az: 'Ramazan Bayramı Ərəfəsi', date: '2027-03-08' },
+    { name: 'Ramazan Bayramı', name_en: 'Eid al-Fitr', name_de: 'Fest des Fastenbrechens', name_ru: 'Ураза-байрам', name_ar: 'عيد الفطر', name_az: 'Ramazan Bayramı', date: '2027-03-09' },
+    { name: 'Kurban Bayramı Arifesi', name_en: 'Eve of Eid al-Adha', name_de: 'Vorabend des Opferfests', name_ru: 'Канун Курбан-байрам', name_ar: 'عشية عيد الأضحى', name_az: 'Qurban Bayramı Ərəfəsi', date: '2027-05-15' },
+    { name: 'Kurban Bayramı', name_en: 'Eid al-Adha', name_de: 'Opferfest', name_ru: 'Курбан-байрам', name_ar: 'عيد الأضحى', name_az: 'Qurban Bayramı', date: '2027-05-16' },
+    { name: 'Hicri Yılbaşı', name_en: 'Islamic New Year', name_de: 'Islamisches Neujahr', name_ru: 'Исламский Новый год', name_ar: 'رأس السنة الهجرية', name_az: 'Hicri İlbaşı', date: '2027-06-06' },
+    { name: 'Aşure Günü', name_en: 'Day of Ashura', name_de: 'Tag von Aschura', name_ru: 'День Ашура', name_ar: 'يوم عاشوراء', name_az: 'Aşura Günü', date: '2027-06-15' },
+    { name: 'Mevlid Kandili', name_en: 'Birth of the Prophet', name_de: 'Geburtstag des Propheten', name_ru: 'Рождение Пророка', name_ar: 'المولد النبوي', name_az: 'Mövlud Gecəsi', date: '2027-08-13' },
+    { name: 'Regaib Kandili', name_en: 'Night of Wishes', name_de: 'Nacht der Wünsche', name_ru: 'Ночь Желаний', name_ar: 'ليلة الرغائب', name_az: 'Rəğaib Gecəsi', date: '2027-12-02' },
+    { name: 'Miraç Kandili (İkinci)', name_en: 'Night of Ascension (Second)', name_de: 'Nacht der Himmelfahrt (Zweite)', name_ru: 'Ночь Вознесения (Вторая)', name_ar: 'ليلة الإسراء والمعراج (الثانية)', name_az: 'Merac Gecəsi (İkinci)', date: '2027-12-24' },
 ];
 
 const containerVariants = {

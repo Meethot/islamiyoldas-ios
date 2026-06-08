@@ -1040,10 +1040,10 @@ export const PrayerCountdownWidget = memo(({ loading, city, nextPrayerInfo, pray
     const navigate = useNavigate();
     const { t } = useTranslation('home');
 
-    // Filter to show only the 5 main prayers (exclude Sunrise for UI)
+    // Include all 6 times (including Sunrise)
     const mainPrayers = useMemo(() => {
         if (!prayerTimes) return [];
-        return prayerTimes.filter(p => p.id !== 'sunrise');
+        return prayerTimes;
     }, [prayerTimes]);
 
     // Get currently displayed prayer info (selected or auto-next)
@@ -1208,11 +1208,11 @@ export const PrayerCountdownWidget = memo(({ loading, city, nextPrayerInfo, pray
             const id = Math.floor(Math.random() * 2147483647);
 
             // Cancel auto-scheduled notification for this prayer to prevent duplicates
-            // Auto-scheduler IDs: day * 5 + prayerIndex + 1 (day 0 = today)
-            const prayerNames = ['sabah', 'öğle', 'ikindi', 'akşam', 'yatsı'];
-            const prayerIdx = prayerNames.findIndex(n => displayedPrayer.name.toLowerCase().includes(n));
+            // Auto-scheduler IDs: day * 6 + prayerIndex + 1 (day 0 = today)
+            const prayerIds = ['fajr', 'sunrise', 'dhuhr', 'asr', 'maghrib', 'isha'];
+            const prayerIdx = prayerIds.indexOf(displayedPrayer.id);
             if (prayerIdx !== -1) {
-                const autoId = 0 * 5 + prayerIdx + 1; // day=0 (today)
+                const autoId = 0 * 6 + prayerIdx + 1; // day=0 (today)
                 try {
                     await LocalNotifications.cancel({ notifications: [{ id: autoId }] });
                 } catch { /* ignore */ }
@@ -1324,10 +1324,11 @@ export const PrayerCountdownWidget = memo(({ loading, city, nextPrayerInfo, pray
             const id = Math.floor(Math.random() * 2147483647);
 
             // Cancel auto-scheduled notification for this prayer to prevent duplicates
-            const prayerNames = ['sabah', 'öğle', 'ikindi', 'akşam', 'yatsı'];
-            const prayerIdx = prayerNames.findIndex(n => prayer.name.toLowerCase().includes(n));
+            // Auto-scheduler IDs: day * 6 + prayerIndex + 1 (day 0 = today)
+            const prayerIds = ['fajr', 'sunrise', 'dhuhr', 'asr', 'maghrib', 'isha'];
+            const prayerIdx = prayerIds.indexOf(prayer.id);
             if (prayerIdx !== -1) {
-                const autoId = 0 * 5 + prayerIdx + 1;
+                const autoId = 0 * 6 + prayerIdx + 1;
                 try {
                     await LocalNotifications.cancel({ notifications: [{ id: autoId }] });
                 } catch { /* ignore */ }

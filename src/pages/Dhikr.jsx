@@ -54,8 +54,20 @@ export default function Dhikr() {
     const [soundMode, setSoundMode] = useState(() => localStorage.getItem('dhikr_sound_mode') || 'digital'); // 'digital', 'wood', 'water', 'mute'
     const [volumeButtonsEnabled, setVolumeButtonsEnabled] = useState(() => localStorage.getItem('dhikr_volume_buttons') === 'true');
     const [dhikrTheme, setDhikrTheme] = useState(() => localStorage.getItem('dhikr_theme') || 'classic'); // 'classic', 'tasbih', 'tally'
-    const [beadType, setBeadType] = useState(() => localStorage.getItem('dhikr_bead_type') || 'kehribar'); // 'kehribar', 'kuka', 'turkuaz', 'zumrut'
-    const [tallyColor, setTallyColor] = useState(() => localStorage.getItem('dhikr_tally_color') || 'emerald'); // 'emerald', 'blue', 'red', 'gold', 'grey'
+    const [beadType, setBeadType] = useState(() => {
+        const saved = localStorage.getItem('dhikr_bead_type') || 'kehribar';
+        if (saved !== 'kehribar' && !isPremium()) {
+            return 'kehribar';
+        }
+        return saved;
+    });
+    const [tallyColor, setTallyColor] = useState(() => {
+        const saved = localStorage.getItem('dhikr_tally_color') || 'emerald';
+        if (saved !== 'emerald' && !isPremium()) {
+            return 'emerald';
+        }
+        return saved;
+    });
     const [particles, setParticles] = useState([]);
 
     const beadDragY = useMotionValue(0);
@@ -1374,6 +1386,10 @@ export default function Dhikr() {
                                 <button
                                     key={mat.id}
                                     onClick={() => {
+                                        if (mat.id !== 'kehribar' && !isPremium()) {
+                                            navigate('/premium');
+                                            return;
+                                        }
                                         setBeadType(mat.id);
                                         localStorage.setItem('dhikr_bead_type', mat.id);
                                         if (hapticsMode !== 'off') {
@@ -1388,7 +1404,11 @@ export default function Dhikr() {
                                     )}
                                     title={mat.name}
                                 >
-                                    <div className={cn("w-6 h-6 rounded-full", mat.bg)} />
+                                    <div className={cn("w-6 h-6 rounded-full flex items-center justify-center relative", mat.bg)}>
+                                        {mat.id !== 'kehribar' && !isPremium() && (
+                                            <Crown size={8} className="text-white absolute fill-white" />
+                                        )}
+                                    </div>
                                 </button>
                             ))}
                         </div>
@@ -1591,6 +1611,10 @@ export default function Dhikr() {
                                 <button
                                     key={col.id}
                                     onClick={() => {
+                                        if (col.id !== 'emerald' && !isPremium()) {
+                                            navigate('/premium');
+                                            return;
+                                        }
                                         setTallyColor(col.id);
                                         localStorage.setItem('dhikr_tally_color', col.id);
                                         if (hapticsMode !== 'off') {
@@ -1605,7 +1629,11 @@ export default function Dhikr() {
                                     )}
                                     title={col.name}
                                 >
-                                    <div className={cn("w-6 h-6 rounded-full shadow-md", col.bg)} />
+                                    <div className={cn("w-6 h-6 rounded-full shadow-md flex items-center justify-center relative", col.bg)}>
+                                        {col.id !== 'emerald' && !isPremium() && (
+                                            <Crown size={8} className="text-white absolute fill-white" />
+                                        )}
+                                    </div>
                                 </button>
                             ))}
                         </div>

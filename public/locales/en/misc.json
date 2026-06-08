@@ -11,7 +11,10 @@
         "limitReachedBanner": "Daily limit reached",
         "limitReachedPlaceholder": "Get Premium for 30 questions daily...",
         "dailyLimitReached": "You've reached your daily limit. Come back tomorrow or get Premium for 30 questions per day.",
-        "premiumQuota": "{{count}} questions left"
+        "premiumQuota": "{{count}} questions left",
+        "suggestion1": "My heart is heavy, which dhikr and dua should I read?",
+        "suggestion2": "I want my family to be peaceful, what should I do?",
+        "suggestion3": "Which prayers should I read for abundance and sustenance?"
     },
     "prescription": {
         "title": "Spiritual Prescription",
