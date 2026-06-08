@@ -98,16 +98,18 @@ struct DhikrSmallWidgetView: View {
                     .frame(width: ringRadius * 2, height: ringRadius * 2)
                 
                 // Beads
+                let displayCount = entry.count % max(1, entry.target) == 0 && entry.count > 0 ? entry.target : entry.count % max(1, entry.target)
+                let progress = Double(displayCount) / Double(max(1, entry.target))
+                
                 ForEach(0..<33, id: \.self) { i in
                     let angle = Double(i) * (2 * .pi / 33) - (.pi / 2)
                     let x = ringRadius * CGFloat(cos(angle))
                     let y = ringRadius * CGFloat(sin(angle))
                     
-                    let progress = Double(entry.count) / Double(entry.target)
                     let threshold = Double(i) / 33.0
                     let isFilled = progress > threshold
                     
-                    let isActive = entry.count > 0 && isFilled && (i == 32 || progress <= Double(i + 1) / 33.0)
+                    let isActive = displayCount > 0 && isFilled && (i == 32 || progress <= Double(i + 1) / 33.0)
                     
                     if isFilled {
                         Circle()
@@ -130,15 +132,20 @@ struct DhikrSmallWidgetView: View {
                 
                 // Center count text
                 VStack(spacing: -2) {
-                    Text("\(entry.count)")
+                    Text("\(displayCount)")
                         .font(.system(size: 22, weight: .black, design: .rounded))
                         .foregroundColor(goldColor)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.3)
                         .modifier(NumericTransitionModifier())
                     
                     Text("/ \(entry.target)")
                         .font(.system(size: 9, weight: .bold, design: .monospaced))
                         .foregroundColor(.white.opacity(0.4))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.4)
                 }
+                .frame(maxWidth: ringRadius * 2 - 18)
             }
             .frame(width: ringRadius * 2 + 16, height: ringRadius * 2 + 16)
             
@@ -182,8 +189,10 @@ struct DhikrLockScreenCircularView: View {
             AccessoryWidgetBackground()
             
             VStack(spacing: 0) {
-                Text("\(entry.count)")
+                let displayCount = entry.count % max(1, entry.target) == 0 && entry.count > 0 ? entry.target : entry.count % max(1, entry.target)
+                Text("\(displayCount)")
                     .font(.system(size: 18, weight: .bold, design: .rounded))
+                    .lineLimit(1)
                     .minimumScaleFactor(0.5)
                 
                 Text(entry.currentPreset.name.prefix(4).uppercased())
@@ -219,8 +228,11 @@ struct DhikrLockScreenRectangularView: View {
                 Text(entry.currentPreset.name.uppercased())
                     .font(.system(size: 12, weight: .bold))
                 
-                Text("\(entry.count)")
+                let displayCount = entry.count % max(1, entry.target) == 0 && entry.count > 0 ? entry.target : entry.count % max(1, entry.target)
+                Text("\(displayCount)")
                     .font(.system(size: 24, weight: .heavy, design: .rounded))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.5)
             }
             Spacer()
             
@@ -254,6 +266,7 @@ struct DhikrLockScreenInlineView: View {
     }
     
     private var inlineContent: some View {
-        Text("\(entry.currentPreset.name): \(entry.count)")
+        let displayCount = entry.count % max(1, entry.target) == 0 && entry.count > 0 ? entry.target : entry.count % max(1, entry.target)
+        return Text("\(entry.currentPreset.name): \(displayCount)")
     }
 }

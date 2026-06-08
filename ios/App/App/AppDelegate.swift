@@ -12,6 +12,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
     private var widgetSyncTimer: Timer?
     private var lastSyncedValue: String?
+    private var defaultsObserver: NSObjectProtocol?
+    private var isSyncing = false
+    private var lastReloadTime: Date?
+
+    deinit {
+        if let observer = defaultsObserver {
+            NotificationCenter.default.removeObserver(observer)
+        }
+    }
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         FirebaseApp.configure()
@@ -24,8 +33,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             print("Failed to configure audio session: \(error)")
         }
         
+        // Setup observer for standard UserDefaults changes (Preferences writes)
+        setupUserDefaultsObserver()
+        
         // Try to copy any existing data from previous session
-        copyWidgetDataToAppGroup()
+        copyWidgetDataToAppGroup(forceReload: true)
         
         // Start polling for new data from JS Preferences writes
         startWidgetSyncTimer()
@@ -35,13 +47,25 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     // MARK: - Widget Data Sync (Preferences → App Group)
     
-    /// Poll standard UserDefaults every 3 seconds for new widget data.
-    /// When JS calls Preferences.set(), data appears in standard UserDefaults.
-    /// This timer detects changes and copies them to App Group UserDefaults.
+    private func setupUserDefaultsObserver() {
+        defaultsObserver = NotificationCenter.default.addObserver(
+            forName: UserDefaults.didChangeNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            guard let self = self else { return }
+            if !self.isSyncing {
+                // Copy immediately when standard defaults change in foreground, without forcing a widget reload
+                self.copyWidgetDataToAppGroup(forceReload: false)
+            }
+        }
+    }
+    
+    /// Poll standard UserDefaults every 5 seconds for new widget data (secondary fallback).
     private func startWidgetSyncTimer() {
         widgetSyncTimer?.invalidate()
-        widgetSyncTimer = Timer.scheduledTimer(withTimeInterval: 3.0, repeats: true) { [weak self] _ in
-            self?.copyWidgetDataToAppGroup()
+        widgetSyncTimer = Timer.scheduledTimer(withTimeInterval: 5.0, repeats: true) { [weak self] _ in
+            self?.copyWidgetDataToAppGroup(forceReload: false)
         }
     }
     
@@ -51,6 +75,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
     
     private func syncAppGroupToStandard() {
+        isSyncing = true
+        defer { isSyncing = false }
+        
         let standardDefaults = UserDefaults.standard
         let appGroupSuite = "group.H5GZ9H5MX8.islamiyoldas"
         
@@ -58,15 +85,28 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let presetIndexKey = "dhikr_widget_preset_index"
         let totalKey = "dhikr_widget_total"
         let targetKey = "dhikr_widget_target"
+        let customNameKey = "dhikr_widget_custom_name"
+        let customArabicKey = "dhikr_widget_custom_arabic"
         
         let standardCountKey = "CapacitorStorage.dhikr_widget_count"
         let standardPresetIndexKey = "CapacitorStorage.dhikr_widget_preset_index"
         let standardTotalKey = "CapacitorStorage.dhikr_widget_total"
         let standardTargetKey = "CapacitorStorage.dhikr_widget_target"
+        let standardCustomNameKey = "CapacitorStorage.dhikr_widget_custom_name"
+        let standardCustomArabicKey = "CapacitorStorage.dhikr_widget_custom_arabic"
         
         guard let appGroupDefaults = UserDefaults(suiteName: appGroupSuite) else { return }
         
-        var didChange = false
+        // ONLY sync from App Group to standard if the widget was modified by the user
+        let wasWidgetModified = appGroupDefaults.bool(forKey: "widget_modified_dhikr")
+        if !wasWidgetModified {
+            print("[AppDelegate] ℹ️ Widget was not modified in background. Skipping sync App Group -> standard.")
+            return
+        }
+        
+        let widgetSyncFlagKey = "CapacitorStorage.widget_sync_flag"
+        standardDefaults.set("true", forKey: widgetSyncFlagKey)
+        var didChange = true
         
         // Sync count
         if appGroupDefaults.object(forKey: countKey) != nil {
@@ -87,6 +127,32 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 standardDefaults.set(String(groupPresetIndex), forKey: standardPresetIndexKey)
                 didChange = true
                 print("[AppDelegate] ✅ Dhikr presetIndex synced App Group -> standard: \(groupPresetIndex)")
+            }
+            
+            if groupPresetIndex == -1 {
+                if let groupCustomName = appGroupDefaults.string(forKey: customNameKey) {
+                    let standardCustomName = standardDefaults.string(forKey: standardCustomNameKey) ?? ""
+                    if standardCustomName != groupCustomName {
+                        standardDefaults.set(groupCustomName, forKey: standardCustomNameKey)
+                        didChange = true
+                    }
+                }
+                if let groupCustomArabic = appGroupDefaults.string(forKey: customArabicKey) {
+                    let standardCustomArabic = standardDefaults.string(forKey: standardCustomArabicKey) ?? ""
+                    if standardCustomArabic != groupCustomArabic {
+                        standardDefaults.set(groupCustomArabic, forKey: standardCustomArabicKey)
+                        didChange = true
+                    }
+                }
+            } else {
+                if standardDefaults.object(forKey: standardCustomNameKey) != nil {
+                    standardDefaults.removeObject(forKey: standardCustomNameKey)
+                    didChange = true
+                }
+                if standardDefaults.object(forKey: standardCustomArabicKey) != nil {
+                    standardDefaults.removeObject(forKey: standardCustomArabicKey)
+                    didChange = true
+                }
             }
         }
         
@@ -129,13 +195,20 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             standardDefaults.synchronize()
             NotificationCenter.default.post(name: Notification.Name("WidgetDhikrSync"), object: nil)
         }
+        
+        // Reset the flag
+        appGroupDefaults.set(false, forKey: "widget_modified_dhikr")
+        appGroupDefaults.synchronize()
+        print("[AppDelegate] ✅ Synced widget changes to app and reset modification flag.")
     }
     
-    private func copyWidgetDataToAppGroup() {
+    private func copyWidgetDataToAppGroup(forceReload: Bool = false) {
+        isSyncing = true
+        defer { isSyncing = false }
+        
         let standardDefaults = UserDefaults.standard
         let appGroupSuite = "group.H5GZ9H5MX8.islamiyoldas"
-        // Capacitor 8 Preferences uses "CapacitorStorage." + key (DOT, not DASH)
-        // Verified from: node_modules/@capacitor/preferences/ios/Sources/PreferencesPlugin/Preferences.swift line 27
+        
         let bridgeKey = "CapacitorStorage.widget_prayer_data_bridge"
         let widgetKey = "widget_prayer_data"
         let langBridgeKey = "CapacitorStorage.widget_language_bridge"
@@ -147,16 +220,28 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let standardPresetIndexKey = "CapacitorStorage.dhikr_widget_preset_index"
         let standardTotalKey = "CapacitorStorage.dhikr_widget_total"
         let standardTargetKey = "CapacitorStorage.dhikr_widget_target"
+        let standardCustomNameKey = "CapacitorStorage.dhikr_widget_custom_name"
+        let standardCustomArabicKey = "CapacitorStorage.dhikr_widget_custom_arabic"
         
         let countKey = "dhikr_widget_count"
         let presetIndexKey = "dhikr_widget_preset_index"
         let totalKey = "dhikr_widget_total"
         let targetKey = "dhikr_widget_target"
+        let customNameKey = "dhikr_widget_custom_name"
+        let customArabicKey = "dhikr_widget_custom_arabic"
         
         guard let appGroupDefaults = UserDefaults(suiteName: appGroupSuite) else {
             print("[AppDelegate] FATAL: Cannot access App Group: \(appGroupSuite)")
             return
         }
+        
+        // Skip standard -> App Group copy if widget was modified in the background
+        if appGroupDefaults.bool(forKey: "widget_modified_dhikr") {
+            print("[AppDelegate] ⚠️ Widget was modified. Skipping standard -> App Group copy to prevent rollback.")
+            return
+        }
+        
+        var didDhikrChange = false
         
         // Sync premium status to App Group
         if let premiumValue = standardDefaults.string(forKey: premiumBridgeKey) {
@@ -165,9 +250,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             if isPremium != currentPremium {
                 appGroupDefaults.set(isPremium, forKey: premiumWidgetKey)
                 print("[AppDelegate] ✅ Widget premium status synced: \(isPremium)")
-                if #available(iOS 14.0, *) {
-                    WidgetCenter.shared.reloadAllTimelines()
-                }
+                didDhikrChange = true
             }
         }
         
@@ -177,15 +260,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             if langValue != currentLang {
                 appGroupDefaults.set(langValue, forKey: langWidgetKey)
                 print("[AppDelegate] ✅ Widget language synced: \(langValue)")
-                // Reload widget timelines when language changes
-                if #available(iOS 14.0, *) {
-                    WidgetCenter.shared.reloadAllTimelines()
-                }
+                didDhikrChange = true
             }
         }
         
         // Sync Dhikr data Standard -> App Group
-        var didDhikrChange = false
         if let countStr = standardDefaults.string(forKey: standardCountKey), let count = Int(countStr) {
             if appGroupDefaults.integer(forKey: countKey) != count {
                 appGroupDefaults.set(count, forKey: countKey)
@@ -198,6 +277,30 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 appGroupDefaults.set(presetIndex, forKey: presetIndexKey)
                 didDhikrChange = true
                 print("[AppDelegate] ✅ Dhikr presetIndex synced standard -> App Group: \(presetIndex)")
+            }
+            
+            if presetIndex == -1 {
+                if let customName = standardDefaults.string(forKey: standardCustomNameKey) {
+                    if appGroupDefaults.string(forKey: customNameKey) != customName {
+                        appGroupDefaults.set(customName, forKey: customNameKey)
+                        didDhikrChange = true
+                    }
+                }
+                if let customArabic = standardDefaults.string(forKey: standardCustomArabicKey) {
+                    if appGroupDefaults.string(forKey: customArabicKey) != customArabic {
+                        appGroupDefaults.set(customArabic, forKey: customArabicKey)
+                        didDhikrChange = true
+                    }
+                }
+            } else {
+                if appGroupDefaults.object(forKey: customNameKey) != nil {
+                    appGroupDefaults.removeObject(forKey: customNameKey)
+                    didDhikrChange = true
+                }
+                if appGroupDefaults.object(forKey: customArabicKey) != nil {
+                    appGroupDefaults.removeObject(forKey: customArabicKey)
+                    didDhikrChange = true
+                }
             }
         }
         if let totalStr = standardDefaults.string(forKey: standardTotalKey), let total = Int(totalStr) {
@@ -230,8 +333,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         if didDhikrChange {
             appGroupDefaults.synchronize()
-            if #available(iOS 14.0, *) {
-                WidgetCenter.shared.reloadAllTimelines()
+            
+            let now = Date()
+            let shouldReload = forceReload || lastReloadTime == nil || now.timeIntervalSince(lastReloadTime!) > 5.0
+            
+            if shouldReload {
+                lastReloadTime = now
+                if #available(iOS 14.0, *) {
+                    WidgetCenter.shared.reloadAllTimelines()
+                    print("[AppDelegate] Widget timelines reloaded (force=\(forceReload))")
+                }
             }
         }
         
@@ -254,16 +365,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         if #available(iOS 14.0, *) {
             WidgetCenter.shared.reloadAllTimelines()
-            print("[AppDelegate] Widget timelines reloaded")
+            print("[AppDelegate] Widget timelines reloaded (prayer data)")
         }
     }
 
     func applicationWillResignActive(_ application: UIApplication) {
+        copyWidgetDataToAppGroup(forceReload: true)
     }
 
     func applicationDidEnterBackground(_ application: UIApplication) {
-        // Copy latest data before going to background
-        copyWidgetDataToAppGroup()
+        // Copy latest data before going to background and reload immediately
+        copyWidgetDataToAppGroup(forceReload: true)
         stopWidgetSyncTimer()
     }
 
@@ -274,11 +386,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func applicationDidBecomeActive(_ application: UIApplication) {
         syncAppGroupToStandard()
-        copyWidgetDataToAppGroup()
+        copyWidgetDataToAppGroup(forceReload: true)
     }
 
     func applicationWillTerminate(_ application: UIApplication) {
-        copyWidgetDataToAppGroup()
+        copyWidgetDataToAppGroup(forceReload: true)
         stopWidgetSyncTimer()
     }
 

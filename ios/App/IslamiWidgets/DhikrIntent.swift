@@ -15,38 +15,34 @@ struct IncrementDhikrIntent: AppIntent {
         let defaults = UserDefaults(suiteName: "group.H5GZ9H5MX8.islamiyoldas")
         
         // Read current state
-        var presetIndex = defaults?.integer(forKey: DhikrEntry.presetIndexKey) ?? 0
+        let presetIndex = defaults?.integer(forKey: DhikrEntry.presetIndexKey) ?? 0
         var count = defaults?.integer(forKey: DhikrEntry.countKey) ?? 0
         var total = defaults?.integer(forKey: DhikrEntry.totalKey) ?? 0
         
-        let preset = DhikrEntry.allPresets[max(0, min(presetIndex, DhikrEntry.allPresets.count - 1))]
+        let customName = defaults?.string(forKey: DhikrEntry.customNameKey)
+        let customArabic = defaults?.string(forKey: DhikrEntry.customArabicKey)
+        
+        let preset: DhikrEntry.DhikrPreset
+        if presetIndex == -1, let name = customName, !name.isEmpty {
+            preset = DhikrEntry.DhikrPreset(id: "custom", name: name, arabic: customArabic ?? "", meaning: "", defaultTarget: 100)
+        } else {
+            let idx = max(0, min(presetIndex, DhikrEntry.allPresets.count - 1))
+            preset = DhikrEntry.allPresets[idx]
+        }
         
         let groupTarget = defaults?.integer(forKey: DhikrEntry.targetKey) ?? 0
-        var activeTarget = groupTarget > 0 ? groupTarget : preset.defaultTarget
+        let activeTarget = groupTarget > 0 ? groupTarget : preset.defaultTarget
         
         // Increment
         count += 1
         total += 1
         
-        // Check if target reached — auto-advance to next preset (namaz tesbih sırası)
-        if count >= activeTarget {
-            count = 0
-            // Cycle through first 3 presets (Sübhanallah → Elhamdülillah → Allahü Ekber → loop)
-            if presetIndex < 2 {
-                presetIndex += 1
-            } else {
-                presetIndex = 0
-            }
-            
-            let nextPreset = DhikrEntry.allPresets[presetIndex]
-            activeTarget = nextPreset.defaultTarget
-        }
-        
         // Write back
-        DhikrEntry.writeToDefaults(count: count, presetIndex: presetIndex, total: total, target: activeTarget)
+        DhikrEntry.writeToDefaults(count: count, presetIndex: presetIndex, total: total, target: activeTarget, customName: customName, customArabic: customArabic)
+        defaults?.set(true, forKey: "widget_modified_dhikr")
         
         // Reload widget timeline
-        WidgetCenter.shared.reloadTimelines(ofKind: "DhikrWidget")
+        WidgetCenter.shared.reloadAllTimelines()
         
         return .result()
     }
@@ -63,7 +59,9 @@ struct ResetDhikrIntent: AppIntent {
     
     func perform() async throws -> some IntentResult {
         DhikrEntry.writeToDefaults(count: 0, presetIndex: 0)
-        WidgetCenter.shared.reloadTimelines(ofKind: "DhikrWidget")
+        let defaults = UserDefaults(suiteName: "group.H5GZ9H5MX8.islamiyoldas")
+        defaults?.set(true, forKey: "widget_modified_dhikr")
+        WidgetCenter.shared.reloadAllTimelines()
         return .result()
     }
 }

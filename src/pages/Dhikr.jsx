@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { RotateCcw, Volume2, VolumeX, Smartphone, Settings, Heart, Star, Sparkles, Edit3, X, Check, Trash2, ChevronLeft, Crown } from 'lucide-react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { RotateCcw, Volume2, Volume1, Volume, VolumeX, Smartphone, Settings, Heart, Star, Sparkles, Edit3, X, Check, Trash2, ChevronLeft, Crown, ChevronDown, Fingerprint, Sliders } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useHaptics } from '../hooks/useMobile';
@@ -10,7 +10,11 @@ import { getAppDate } from '@/lib/testDate';
 import { AnimatePresence, motion } from 'framer-motion';
 import { analytics } from '@/services/analyticsService';
 import { Preferences } from '@capacitor/preferences';
+import DhikrPickerSheet from '@/components/DhikrPickerSheet';
+import { ESMA_UL_HUSNA } from '@/data/esmaUlHusna';
 import { App } from '@capacitor/app';
+import { Capacitor } from '@capacitor/core';
+import { VolumeButtons } from '@capacitor-community/volume-buttons';
 
 const DHIKR_PRESETS = [
     { id: 'subhanallah', name: 'Sübhanallah', arabic: 'سُبْحَانَ اللَّهِ', meaning: 'Allah noksan sıfatlardan uzaktır', defaultTarget: 33 },
@@ -19,6 +23,13 @@ const DHIKR_PRESETS = [
     { id: 'last', name: 'Lâ ilâhe illallah', arabic: 'لَا إِلٰهَ إِلَّا اللّٰه', meaning: 'Allah\'tan başka ilah yoktur', defaultTarget: 100 },
     { id: 'istigfar', name: 'Estağfirullah', arabic: 'أَسْتَغْفِرُ اللَّهَ', meaning: 'Allah\'tan bağışlanma dilerim', defaultTarget: 100 },
     { id: 'salavat', name: 'Salavat', arabic: 'اللَّهُمَّ صَلِّ عَلَى سَيِّدِنَا مُحَمَّدٍ', meaning: 'Allah\'ım, Efendimiz Muhammed\'e rahmet et', defaultTarget: 100 },
+    { id: 'ihlas', name: 'İhlas Suresi', arabic: 'سُورَةُ الإِخْلَاصِ', meaning: 'O tektir, Samed\'dir, doğurmamış ve doğurulmamıştır.', defaultTarget: 100 },
+    { id: 'fatiha', name: 'Fatiha Suresi', arabic: 'سُورَةُ الْفَاتِحَةِ', meaning: 'Hamd, âlemlerin Rabbi olan Allah\'a mahsustur.', defaultTarget: 100 },
+    { id: 'ayetel_kursi', name: 'Ayetel Kürsi', arabic: 'آيَةُ الْكُرْسِيِّ', meaning: 'Allah, O\'ndan başka ilah yoktur. Diridir, Kayyum\'dur.', defaultTarget: 100 },
+    { id: 'hasbunallah', name: 'Hasbünallahü ve Ni\'mel Vekîl', arabic: 'حَسْبُنَا اللَّهُ وَنِعْمَ الْوَكِيلُ', meaning: 'Allah bize yeter, O ne güzel vekildir.', defaultTarget: 100 },
+    { id: 'lahavle', name: 'Lâ Havle ve Lâ Kuvvete illâ Billâh', arabic: 'لَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ', meaning: 'Güç ve kuvvet ancak Allah\'a mahsustur.', defaultTarget: 100 },
+    { id: 'yunus_duasi', name: 'Dua-i Yunus', arabic: 'لَا إِلٰهَ إِلَّا أَنْتَ سُبْحَانَكَ إِنِّي كُنْتُ مِنَ الظَّالِمِينَ', meaning: 'Senden başka ilah yoktur, seni tenzih ederim.', defaultTarget: 100 },
+    { id: 'salati_tefriciye', name: 'Salat-ı Tefriciye', arabic: 'الصَّلَاةُ التَّفْرِيجِيَّةُ', meaning: 'Tüm sıkıntıların giderilmesi, dileklerin kabulü için.', defaultTarget: 4444 },
 ];
 
 export default function Dhikr() {
@@ -40,7 +51,8 @@ export default function Dhikr() {
     const [target, setTarget] = useState(isCountdownMode ? countdownTarget : (isPremium() ? 33 : 33));
     const [showDhikrLimit, setShowDhikrLimit] = useState(false);
     const [hapticsMode, setHapticsMode] = useState('all');
-    const [soundEnabled, setSoundEnabled] = useState(true);
+    const [soundMode, setSoundMode] = useState(() => localStorage.getItem('dhikr_sound_mode') || 'digital'); // 'digital', 'wood', 'water', 'mute'
+    const [volumeButtonsEnabled, setVolumeButtonsEnabled] = useState(() => localStorage.getItem('dhikr_volume_buttons') === 'true');
     const [isRipple, setIsRipple] = useState(false);
     const [showTargetModal, setShowTargetModal] = useState(false);
     const [tempTarget, setTempTarget] = useState('33');
@@ -49,54 +61,151 @@ export default function Dhikr() {
     const [showTotalResetConfirm, setShowTotalResetConfirm] = useState(false);
     const [countdownCompleted, setCountdownCompleted] = useState(false);
     const [countdownRounds, setCountdownRounds] = useState(0);
+    const [showDhikrPicker, setShowDhikrPicker] = useState(false);
 
+    // Full-screen tap mode and feedback states
+    const [isFullScreenTap, setIsFullScreenTap] = useState(() => localStorage.getItem('dhikr_fullscreen_tap') === 'true');
+    const [isScreenFlash, setIsScreenFlash] = useState(false);
+    
+    // States for custom total zikir count editing
+    const [showTotalModal, setShowTotalModal] = useState(false);
+    const [tempTotal, setTempTotal] = useState('0');
+    
+    // Scroll detection coordinates for safe touch input
+    const touchStartYRef = useRef(0);
+    const touchStartXRef = useRef(0);
     const haptics = useHaptics();
+
+    // Debouncing widget sync to prevent bridge congestion during fast tapping
+    const widgetSyncTimeoutRef = useRef(null);
+    const latestSyncValuesRef = useRef({ count, preset: activePreset, total: totalCount, target });
+    const isSyncingRef = useRef(false);
+    const incrementRef = useRef(null);
+
+    // Keep the latest sync ref updated as states change
+    useEffect(() => {
+        latestSyncValuesRef.current = { count, preset: activePreset, total: totalCount, target };
+    }, [count, activePreset, totalCount, target]);
 
     const syncToWidget = async (currentCount, preset, currentTotal, currentTarget) => {
         if (isCountdownMode) return;
         const idx = DHIKR_PRESETS.findIndex(p => p.id === preset.id);
         try {
             await Preferences.set({ key: 'dhikr_widget_count', value: String(currentCount) });
-            await Preferences.set({ key: 'dhikr_widget_preset_index', value: String(idx >= 0 ? idx : 2) });
+            await Preferences.set({ key: 'dhikr_widget_preset_index', value: String(idx >= 0 ? idx : -1) });
             await Preferences.set({ key: 'dhikr_widget_total', value: String(currentTotal) });
             await Preferences.set({ key: 'dhikr_widget_target', value: String(currentTarget) });
+            
+            if (idx === -1) {
+                await Preferences.set({ key: 'dhikr_widget_custom_name', value: preset.name || '' });
+                await Preferences.set({ key: 'dhikr_widget_custom_arabic', value: preset.arabic || '' });
+            } else {
+                await Preferences.remove({ key: 'dhikr_widget_custom_name' });
+                await Preferences.remove({ key: 'dhikr_widget_custom_arabic' });
+            }
         } catch (error) {
             console.error('Widget sync error:', error);
         }
     };
 
+    const queueSyncToWidget = (currentCount, preset, currentTotal, currentTarget) => {
+        if (isCountdownMode) return;
+        
+        // Update the latest values ref immediately
+        latestSyncValuesRef.current = { count: currentCount, preset, total: currentTotal, target: currentTarget };
+        
+        // Clear existing timeout
+        if (widgetSyncTimeoutRef.current) {
+            clearTimeout(widgetSyncTimeoutRef.current);
+        }
+        
+        // Schedule widget sync in 500ms
+        widgetSyncTimeoutRef.current = setTimeout(() => {
+            syncToWidget(
+                latestSyncValuesRef.current.count,
+                latestSyncValuesRef.current.preset,
+                latestSyncValuesRef.current.total,
+                latestSyncValuesRef.current.target
+            );
+        }, 500);
+    };
+
     // Track dhikr session start
     useEffect(() => {
+        const container = document.getElementById('main-scroll-container');
+        if (container) {
+            container.scrollTo(0, 0);
+        }
         window.scrollTo(0, 0);
         const name = isCountdownMode ? countdownName : activePreset.name;
         const t = isCountdownMode ? countdownTarget : target;
         analytics.dhikrStarted(name, t);
     }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-    // Web Audio API Context and Buffer
+    // Listen to backgrounding to immediately flush any pending widget sync
+    useEffect(() => {
+        let stateListener = null;
+        const setupStateListener = async () => {
+            try {
+                stateListener = await App.addListener('appStateChange', ({ isActive }) => {
+                    if (!isActive) {
+                        if (widgetSyncTimeoutRef.current) {
+                            clearTimeout(widgetSyncTimeoutRef.current);
+                        }
+                        syncToWidget(
+                            latestSyncValuesRef.current.count,
+                            latestSyncValuesRef.current.preset,
+                            latestSyncValuesRef.current.total,
+                            latestSyncValuesRef.current.target
+                        );
+                    }
+                });
+            } catch (e) {
+                console.warn('App state listener not supported:', e);
+            }
+        };
+        setupStateListener();
+
+        return () => {
+            if (stateListener) stateListener.remove();
+            if (widgetSyncTimeoutRef.current) {
+                clearTimeout(widgetSyncTimeoutRef.current);
+            }
+        };
+    }, []);
+
+    // Web Audio API Context and Buffers
     const audioContextRef = useRef(null);
-    const audioBufferRef = useRef(null);
+    const audioBuffersRef = useRef({
+        digital: null
+    });
 
     useEffect(() => {
-        // Initialize Audio Context on user interaction to comply with autoplay policies
+        // Initialize Audio Context and pre-load all zikir sounds
         const initAudio = async () => {
             try {
                 if (!audioContextRef.current) {
                     audioContextRef.current = new (window.AudioContext || window.webkitAudioContext)();
                 }
 
-                if (!audioBufferRef.current) {
-                    const response = await fetch('https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3');
-                    const arrayBuffer = await response.arrayBuffer();
-                    const audioBuffer = await audioContextRef.current.decodeAudioData(arrayBuffer);
-                    audioBufferRef.current = audioBuffer;
-                }
+                const loadSound = async (key, url) => {
+                    if (audioBuffersRef.current[key]) return;
+                    try {
+                        const response = await fetch(url);
+                        const arrayBuffer = await response.arrayBuffer();
+                        const audioBuffer = await audioContextRef.current.decodeAudioData(arrayBuffer);
+                        audioBuffersRef.current[key] = audioBuffer;
+                    } catch (e) {
+                        console.error(`Failed to load sound ${key}:`, e);
+                    }
+                };
+
+                await loadSound('digital', 'https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3');
             } catch (error) {
                 console.error("Audio init error:", error);
             }
         };
 
-        // Trigger loading immediately
         initAudio();
 
         return () => {
@@ -107,7 +216,7 @@ export default function Dhikr() {
     }, []);
 
     const playClickSound = () => {
-        if (!soundEnabled || !audioContextRef.current || !audioBufferRef.current) return;
+        if (soundMode === 'mute' || !audioContextRef.current || !audioBuffersRef.current[soundMode]) return;
 
         // Resume context if suspended (browser autoplay policy)
         if (audioContextRef.current.state === 'suspended') {
@@ -116,7 +225,7 @@ export default function Dhikr() {
 
         // Create a new buffer source for every click -> Zero Latency, Perfect Concurrency
         const source = audioContextRef.current.createBufferSource();
-        source.buffer = audioBufferRef.current;
+        source.buffer = audioBuffersRef.current[soundMode];
         source.connect(audioContextRef.current.destination);
         source.start(0);
     };
@@ -128,73 +237,105 @@ export default function Dhikr() {
         }
     }, [hapticMessage]);
 
-    const loadCount = async () => {
+    const syncAndLoadWidgetData = async () => {
+        if (isSyncingRef.current) return;
+        isSyncingRef.current = true;
         try {
             const activeIdx = DHIKR_PRESETS.findIndex(p => p.id === activePreset.id);
             const { value: indexStr } = await Preferences.get({ key: 'dhikr_widget_preset_index' });
             const { value: countStr } = await Preferences.get({ key: 'dhikr_widget_count' });
             const { value: targetStr } = await Preferences.get({ key: 'dhikr_widget_target' });
-            
+            const { value: totalStr } = await Preferences.get({ key: 'dhikr_widget_total' });
+            const { value: syncFlag } = await Preferences.get({ key: 'widget_sync_flag' });
+            const { value: customName } = await Preferences.get({ key: 'dhikr_widget_custom_name' });
+            const { value: customArabic } = await Preferences.get({ key: 'dhikr_widget_custom_arabic' });
+
             const widgetIdx = indexStr ? parseInt(indexStr, 10) : -1;
+            const isWidgetSyncActive = syncFlag === 'true';
             
-            let activeTarget = activePreset.defaultTarget;
-            const savedTarget = localStorage.getItem(`dhikr_target_${activePreset.id}`);
+            if (isWidgetSyncActive) {
+                await Preferences.remove({ key: 'widget_sync_flag' });
+            }
+            
+            // 1. Determine target preset (either from widget or current active)
+            let targetPreset = activePreset;
+            if (widgetIdx >= 0 && widgetIdx < DHIKR_PRESETS.length) {
+                targetPreset = DHIKR_PRESETS[widgetIdx];
+            } else if (widgetIdx === -1 && customName) {
+                targetPreset = {
+                    id: 'custom',
+                    name: customName,
+                    arabic: customArabic || '',
+                    meaning: '',
+                    defaultTarget: 100,
+                    isEsma: true
+                };
+            }
+            
+            // 2. Sync overall total count
+            if (isWidgetSyncActive && totalStr) {
+                const widgetTotal = parseInt(totalStr, 10);
+                const localTotal = parseInt(localStorage.getItem('totalDhikrOverall') || '0', 10);
+                if (!isNaN(widgetTotal) && widgetTotal !== localTotal) {
+                    setTotalCount(widgetTotal);
+                    localStorage.setItem('totalDhikrOverall', widgetTotal.toString());
+                }
+            }
+            
+            // 3. Sync target count
+            let activeTarget = targetPreset.defaultTarget;
+            const savedTarget = localStorage.getItem(`dhikr_target_${targetPreset.id}`);
             if (savedTarget) {
                 activeTarget = parseInt(savedTarget, 10);
             }
             
-            if (activeIdx === widgetIdx && targetStr) {
+            if (isWidgetSyncActive && targetStr) {
                 activeTarget = parseInt(targetStr, 10);
                 setTarget(activeTarget);
                 setTempTarget(targetStr);
-                localStorage.setItem(`dhikr_target_${activePreset.id}`, targetStr);
+                localStorage.setItem(`dhikr_target_${targetPreset.id}`, targetStr);
             } else {
                 setTarget(activeTarget);
                 setTempTarget(String(activeTarget));
             }
 
-            if (activeIdx === widgetIdx && countStr) {
+            // 4. Sync count
+            if (isWidgetSyncActive && countStr) {
                 const widgetCount = parseInt(countStr, 10);
                 setCount(widgetCount);
-                localStorage.setItem(`dhikr_count_${activePreset.id}`, widgetCount.toString());
+                localStorage.setItem(`dhikr_count_${targetPreset.id}`, widgetCount.toString());
             } else {
-                const savedCount = localStorage.getItem(`dhikr_count_${activePreset.id}`) || '0';
+                const savedCount = localStorage.getItem(`dhikr_count_${targetPreset.id}`) || '0';
                 setCount(parseInt(savedCount, 10));
                 const currentTotal = parseInt(localStorage.getItem('totalDhikrOverall') || '0', 10);
-                syncToWidget(parseInt(savedCount, 10), activePreset, currentTotal, activeTarget);
+                syncToWidget(parseInt(savedCount, 10), targetPreset, currentTotal, activeTarget);
+            }
+            
+            // 5. Update selected preset in app state if it differs
+            if (targetPreset.id !== activePreset.id || (targetPreset.id === 'custom' && targetPreset.name !== activePreset.name)) {
+                setActivePreset(targetPreset);
             }
         } catch (e) {
+            console.error('Failed to sync widget data:', e);
             const savedCount = localStorage.getItem(`dhikr_count_${activePreset.id}`) || '0';
             setCount(parseInt(savedCount, 10));
+        } finally {
+            isSyncingRef.current = false;
         }
     };
 
-    // Mount-level sync to load active preset from widget if changed
+    // Mount-level initialization and state listener
     useEffect(() => {
         if (isCountdownMode) return;
         
-        const loadInitialPreset = async () => {
-            try {
-                const { value: indexStr } = await Preferences.get({ key: 'dhikr_widget_preset_index' });
-                if (indexStr) {
-                    const index = parseInt(indexStr, 10);
-                    if (index >= 0 && index < DHIKR_PRESETS.length) {
-                        setActivePreset(DHIKR_PRESETS[index]);
-                    }
-                }
-            } catch (e) {
-                console.error('Failed to load active preset index from widget:', e);
-            }
-        };
-        
-        loadInitialPreset();
+        syncAndLoadWidgetData();
 
         let appListener = null;
         const setupStateListener = async () => {
             try {
                 appListener = await App.addListener('appStateChange', ({ isActive }) => {
                     if (isActive) {
-                        loadInitialPreset();
+                        syncAndLoadWidgetData();
                     }
                 });
             } catch (e) {
@@ -208,32 +349,102 @@ export default function Dhikr() {
         };
     }, []);
 
-    // Preset changing / appStateChange sync
+    // Preset changing sync
     useEffect(() => {
         if (isCountdownMode) return;
         
-        loadCount();
+        syncAndLoadWidgetData();
+    }, [activePreset.id, activePreset.name]);
 
-        let appListener = null;
-        const setupStateListener = async () => {
+    // Sync increment function to ref to avoid volume listener stale closures
+    useEffect(() => {
+        incrementRef.current = increment;
+    });
+
+    // Handle physical volume button presses natively on iOS/Android
+    useEffect(() => {
+        let isWatching = false;
+        
+        const startWatching = async () => {
+            if (!volumeButtonsEnabled) {
+                try {
+                    await VolumeButtons.clearWatch();
+                } catch (e) {
+                    console.warn('clearWatch failed:', e);
+                }
+                return;
+            }
+
             try {
-                appListener = await App.addListener('appStateChange', ({ isActive }) => {
-                    if (isActive) {
-                        loadCount();
+                // Clear any existing watcher first (wrapped in try/catch to prevent failure from aborting execution)
+                try {
+                    await VolumeButtons.clearWatch();
+                } catch (e) {
+                    // Ignore if no watch is currently active
+                }
+                
+                const options = {
+                    disableSystemVolumeHandler: true,
+                    suppressVolumeIndicator: true
+                };
+                
+                await VolumeButtons.watchVolume(options, (result) => {
+                    // Call the latest increment handler
+                    if (incrementRef.current) {
+                        incrementRef.current();
                     }
                 });
+                isWatching = true;
             } catch (e) {
-                console.warn('App state listener not supported:', e);
+                console.warn('watchVolume failed:', e);
             }
         };
-        setupStateListener();
+
+        if (Capacitor.isNativePlatform()) {
+            startWatching();
+        }
 
         return () => {
-            if (appListener) appListener.remove();
+            if (isWatching && Capacitor.isNativePlatform()) {
+                VolumeButtons.clearWatch().catch(e => console.warn('clearWatch failed on unmount:', e));
+            }
         };
-    }, [activePreset]);
+    }, [volumeButtonsEnabled]);
+
+    // Handle dhikr/esma selection from picker
+    const handleDhikrSelect = useCallback((item) => {
+        // Check if it's a standard preset, custom zikir, or an esma
+        const standardPreset = DHIKR_PRESETS.find(p => p.id === item.id);
+        if (standardPreset) {
+            setActivePreset(standardPreset);
+        } else if (item.id === 'custom') {
+            setActivePreset({
+                id: 'custom',
+                name: item.name,
+                arabic: item.arabic === '✨' ? '' : item.arabic,
+                meaning: '',
+                defaultTarget: 100,
+                isEsma: false
+            });
+        } else {
+            // Esma-ül Hüsna item — adapt to preset shape
+            setActivePreset({
+                id: item.id,
+                name: item.transliteration || item.name,
+                arabic: item.arabic,
+                meaning: item.meaning || '',
+                defaultTarget: item.defaultTarget || 100,
+                isEsma: true,
+            });
+        }
+    }, []);
 
     const increment = () => {
+        if (isFullScreenTap) {
+            setIsScreenFlash(true);
+            setTimeout(() => setIsScreenFlash(false), 120);
+        }
+
         if (isCountdownMode) {
             // COUNTDOWN MODE: Decrement (resets at 0 for next round)
             // Daily dhikr limit for non-premium users (100 free per day)
@@ -308,7 +519,7 @@ export default function Dhikr() {
 
             localStorage.setItem(`dhikr_count_${activePreset.id}`, newCount.toString());
             localStorage.setItem('totalDhikrOverall', newTotal.toString());
-            syncToWidget(newCount, activePreset, newTotal, target);
+            queueSyncToWidget(newCount, activePreset, newTotal, target);
 
             if (hapticsMode !== 'off') {
                 if (isTargetReached) {
@@ -333,12 +544,54 @@ export default function Dhikr() {
     };
 
     const handleSaveTarget = () => {
-        const val = parseInt(tempTarget, 10);
+        let val = parseInt(tempTarget, 10);
         if (!isNaN(val) && val > 0) {
+            if (val > 999999) {
+                val = 999999;
+            }
             setTarget(val);
             localStorage.setItem(`dhikr_target_${activePreset.id}`, val.toString());
+            
+            // Mathematically reset turn/round to 1 by setting count to count % newTarget
+            const newCount = count % val;
+            setCount(newCount);
+            localStorage.setItem(`dhikr_count_${activePreset.id}`, newCount.toString());
+            
             setShowTargetModal(false);
-            syncToWidget(count, activePreset, totalCount, val);
+            syncToWidget(newCount, activePreset, totalCount, val);
+            
+            // Trigger success haptic feedback
+            try {
+                haptics.success();
+            } catch (e) {
+                console.warn('Haptics failed:', e);
+            }
+        }
+    };
+
+    const handleSaveTotal = () => {
+        let val = parseInt(tempTotal, 10);
+        if (!isNaN(val) && val >= 0) {
+            if (val > 999999) {
+                val = 999999;
+            }
+            setTotalCount(val);
+            localStorage.setItem('totalDhikrOverall', val.toString());
+            
+            // Calculate proportional current count
+            const newCount = target > 0 ? (val % target) : 0;
+            setCount(newCount);
+            localStorage.setItem(`dhikr_count_${activePreset.id}`, newCount.toString());
+            
+            setShowTotalModal(false);
+            syncToWidget(newCount, activePreset, val, target);
+            
+            // Trigger success haptic feedback
+            try {
+                haptics.success();
+            } catch (e) {
+                console.warn('Haptics failed:', e);
+            }
         }
     };
 
@@ -370,11 +623,55 @@ export default function Dhikr() {
     const circumference = 2 * Math.PI * radius;
     const offset = circumference - (progress / 100) * circumference;
 
+    // Progress percentage (0 to 1) for visual glow intensity
+    const progressRatio = isCountdownMode
+        ? (countdownTarget > 0 ? (countdownTarget - count) / countdownTarget : 0)
+        : (target > 0 ? (count % target) / target : 0);
+
+    // Subtle glow that intensifies as target approaches
+    const glowStyle = {
+        boxShadow: `0 0 ${40 + progressRatio * 40}px rgba(212, 175, 55, ${0.1 + progressRatio * 0.25}), inset 0 0 20px rgba(255, 255, 255, 0.03)`
+    };
+
     return (
-        <div className="flex flex-col min-h-screen bg-[#021a0f] text-white px-5 pb-5 pt-0 relative overflow-hidden font-sans">
+        <div 
+            onTouchStart={(e) => {
+                if (isFullScreenTap) {
+                    touchStartYRef.current = e.touches[0].clientY;
+                    touchStartXRef.current = e.touches[0].clientX;
+                }
+            }}
+            onTouchEnd={(e) => {
+                if (isFullScreenTap) {
+                    // Prevent incrementing when tapping on buttons, header, or footer
+                    if (e.target.closest('button') || e.target.closest('header') || e.target.closest('footer') || e.target.closest('.no-tap-anywhere')) {
+                        return;
+                    }
+                    const deltaY = Math.abs(e.changedTouches[0].clientY - touchStartYRef.current);
+                    const deltaX = Math.abs(e.changedTouches[0].clientX - touchStartXRef.current);
+                    // Standard tap click has minimal displacement (<10px)
+                    if (deltaY < 10 && deltaX < 10) {
+                        e.preventDefault();
+                        increment();
+                    }
+                }
+            }}
+            onClick={(e) => {
+                if (isFullScreenTap) {
+                    if (e.target.closest('button') || e.target.closest('header') || e.target.closest('footer') || e.target.closest('.no-tap-anywhere')) {
+                        return;
+                    }
+                    increment();
+                }
+            }}
+            className={cn(
+                "flex flex-col min-h-screen text-white px-5 pb-5 pt-0 relative overflow-hidden font-sans transition-colors duration-150 select-none",
+                isScreenFlash && isFullScreenTap ? "bg-[#042818]" : "bg-[#021a0f]"
+            )}
+        >
             {/* Ambient Background Elements */}
-            <div className="absolute top-[-10%] right-[-10%] w-64 h-64 bg-islamic-gold/10 rounded-full blur-[100px]" />
-            <div className="absolute bottom-[-5%] left-[-5%] w-72 h-72 bg-islamic-green/20 rounded-full blur-[120px]" />
+            <div className="absolute top-[-10%] right-[-10%] w-64 h-64 bg-islamic-gold/10 rounded-full blur-[100px] pointer-events-none" />
+            <div className="absolute bottom-[-5%] left-[-5%] w-72 h-72 bg-islamic-green/20 rounded-full blur-[120px] pointer-events-none" />
 
             <header className="flex justify-between items-center z-10 mb-4 sticky top-0 bg-[#021a0f]/80 backdrop-blur-sm -mx-6 px-6 py-1 border-b border-white/5">
                 <div className="flex items-center gap-2">
@@ -391,10 +688,29 @@ export default function Dhikr() {
                 </div>
                 <div className="flex items-center gap-1 bg-black/20 p-1 rounded-2xl border border-white/10 backdrop-blur-md">
                     <button
-                        onClick={() => setSoundEnabled(!soundEnabled)}
-                        className={cn("w-10 h-10 rounded-xl transition-all flex items-center justify-center", soundEnabled ? "text-islamic-gold bg-white/5" : "text-white/20")}
+                        onClick={() => {
+                            const modes = ['digital', 'mute'];
+                            const labels = {
+                                digital: 'Klik Sesi',
+                                mute: 'Ses Kapalı'
+                            };
+                            const currentIndex = modes.indexOf(soundMode);
+                            const nextMode = modes[(currentIndex + 1) % modes.length];
+                            setSoundMode(nextMode);
+                            localStorage.setItem('dhikr_sound_mode', nextMode);
+                            setHapticMessage(labels[nextMode]);
+                            try {
+                                haptics.selection();
+                            } catch (e) {}
+                        }}
+                        className={cn("w-10 h-10 rounded-xl transition-all relative flex items-center justify-center", soundMode !== 'mute' ? "text-islamic-gold bg-white/5" : "text-white/20")}
+                        title={soundMode === 'mute' ? 'Sessiz' : 'Klik Sesi'}
                     >
-                        {soundEnabled ? <Volume2 size={18} /> : <VolumeX size={18} />}
+                        {soundMode === 'mute' ? (
+                            <VolumeX size={18} />
+                        ) : (
+                            <Volume2 size={18} />
+                        )}
                     </button>
                     <button
                         onClick={() => {
@@ -420,10 +736,52 @@ export default function Dhikr() {
                             <div className="absolute top-1 right-1 w-2 h-2 bg-islamic-gold rounded-full border border-black animate-pulse" />
                         )}
                     </button>
-                    <div className="w-px h-4 bg-white/10 mx-1" />
-                    <button onClick={reset} className="w-10 h-10 rounded-xl text-white/40 hover:text-white hover:bg-white/10 flex items-center justify-center">
-                        <RotateCcw size={18} />
+                    <button
+                        onClick={() => {
+                            const newMode = !isFullScreenTap;
+                            setIsFullScreenTap(newMode);
+                            localStorage.setItem('dhikr_fullscreen_tap', String(newMode));
+                            setHapticMessage(newMode ? t('fullScreenTap.enabled', { defaultValue: 'Ekran Dokunma Açık' }) : t('fullScreenTap.disabled', { defaultValue: 'Ekran Dokunma Kapalı' }));
+                            if (hapticsMode !== 'off') {
+                                haptics.selection();
+                            }
+                        }}
+                        className={cn(
+                            "w-10 h-10 rounded-xl transition-all relative flex items-center justify-center",
+                            isFullScreenTap ? "text-islamic-gold bg-white/5" : "text-white/20"
+                        )}
+                        title={t('fullScreenTapTooltip', { defaultValue: 'Tam Ekran Zikir Modu' })}
+                    >
+                        <Fingerprint size={18} />
+                        {isFullScreenTap && (
+                            <div className="absolute top-1 right-1 w-2 h-2 bg-islamic-gold rounded-full border border-black animate-pulse" />
+                        )}
                     </button>
+                    {Capacitor.isNativePlatform() && (
+                        <button
+                            onClick={() => {
+                                const newMode = !volumeButtonsEnabled;
+                                setVolumeButtonsEnabled(newMode);
+                                localStorage.setItem('dhikr_volume_buttons', String(newMode));
+                                setHapticMessage(newMode ? 'Ses Tuşları ile Çekim Açık' : 'Ses Tuşları ile Çekim Kapalı');
+                                if (hapticsMode !== 'off') {
+                                    try {
+                                        haptics.selection();
+                                    } catch (e) {}
+                                }
+                            }}
+                            className={cn(
+                                "w-10 h-10 rounded-xl transition-all relative flex items-center justify-center",
+                                volumeButtonsEnabled ? "text-islamic-gold bg-white/5" : "text-white/20"
+                            )}
+                            title="Ses Tuşları ile Çekim"
+                        >
+                            <Sliders size={18} />
+                            {volumeButtonsEnabled && (
+                                <div className="absolute top-1 right-1 w-2 h-2 bg-islamic-gold rounded-full border border-black animate-pulse" />
+                            )}
+                        </button>
+                    )}
                 </div>
             </header>
 
@@ -444,17 +802,40 @@ export default function Dhikr() {
                         </>
                     ) : (
                         <>
-                            <p className="text-islamic-gold font-serif text-4xl mb-2 opacity-95 drop-shadow-lg">{activePreset.arabic}</p>
-                            <p className="text-white/40 text-xs italic mb-4 font-normal tracking-wide">{t(`presets.${activePreset.id}.meaning`)}</p>
-                            <button
-                                onClick={() => setShowTargetModal(true)}
-                                className="group flex items-center gap-3 bg-islamic-gold/5 hover:bg-islamic-gold/10 px-10 py-3.5 rounded-full border border-islamic-gold/40 transition-all mx-auto shadow-[0_0_20px_rgba(212,175,55,0.15)] active:scale-95"
-                            >
-                                <span className="text-islamic-gold font-bold text-xs uppercase tracking-[0.25em]"> {t('target', { count: target })}</span>
-                                <div className="bg-islamic-gold/20 p-1.5 rounded-full">
-                                    <Edit3 size={14} className="text-islamic-gold opacity-80" />
-                                </div>
-                            </button>
+                            {/* Display of Arabic and Meaning (Elegant, static floating layout) */}
+                            <div className="flex flex-col items-center text-center select-none pointer-events-none mb-4 animate-in fade-in duration-300">
+                                <p className="text-islamic-gold font-serif text-4xl mb-2 opacity-95 drop-shadow-[0_4px_12px_rgba(212,175,55,0.2)]" dir="rtl">
+                                    {activePreset.arabic}
+                                </p>
+                                <p className="text-white/40 text-xs italic font-normal tracking-wide max-w-[280px]">
+                                    {activePreset.id === 'custom'
+                                        ? ''
+                                        : (activePreset.isEsma
+                                            ? t(`esma.${activePreset.id}.meaning`, { defaultValue: activePreset.meaning })
+                                            : t(`presets.${activePreset.id}.meaning`))}
+                                </p>
+                            </div>
+
+                            {/* Control Row: Zikir Selector & Target Setting side-by-side */}
+                            <div className="flex items-center justify-center gap-2 mb-2">
+                                {/* Zikir Selector Pill */}
+                                <button
+                                    onClick={() => setShowDhikrPicker(true)}
+                                    className="group flex items-center gap-2 bg-white/5 hover:bg-white/10 px-4 py-2 rounded-full border border-white/10 transition-all active:scale-95 text-xs font-semibold text-white/80 shadow-md"
+                                >
+                                    <span>{activePreset.id === 'custom' || activePreset.isEsma ? activePreset.name : t(`presets.${activePreset.id}.name`, { defaultValue: activePreset.name })}</span>
+                                    <ChevronDown size={14} className="text-islamic-gold opacity-85 transition-transform group-active:translate-y-[1px]" />
+                                </button>
+
+                                {/* Target Pill */}
+                                <button
+                                    onClick={() => setShowTargetModal(true)}
+                                    className="group flex items-center gap-2 bg-islamic-gold/5 hover:bg-islamic-gold/10 px-4 py-2 rounded-full border border-islamic-gold/30 transition-all active:scale-95 text-xs font-bold text-islamic-gold shadow-md"
+                                >
+                                    <span>{t('target', { count: target })}</span>
+                                    <Edit3 size={11} className="text-islamic-gold/75" />
+                                </button>
+                            </div>
                         </>
                     )}
                 </div>
@@ -504,8 +885,10 @@ export default function Dhikr() {
                         </div>
                     )}
 
-                    {/* Main Button */}
-                    <button
+                    {/* Main Button with Framer Motion spring physics & progress glow */}
+                    <motion.button
+                        whileTap={{ scale: 0.94 }}
+                        transition={{ type: 'spring', stiffness: 400, damping: 15 }}
                         onTouchStart={(e) => {
                             e.preventDefault(); // Prevent long-press context menu on iOS
                         }}
@@ -519,9 +902,10 @@ export default function Dhikr() {
                         }}
                         onContextMenu={(e) => e.preventDefault()} // Block long-press context menu
                         className={cn(
-                            "w-60 h-60 rounded-full bg-gradient-to-br from-white/10 to-black/30 border border-white/20 flex flex-col items-center justify-center relative shadow-[0_0_80px_rgba(0,0,0,0.5)] active:scale-95 transition-all duration-75 backdrop-blur-lg group select-none touch-manipulation",
+                            "w-60 h-60 rounded-full bg-gradient-to-br from-white/10 to-black/30 border border-white/20 flex flex-col items-center justify-center relative backdrop-blur-lg group select-none touch-manipulation",
                             celebrating && "border-emerald-500/50 shadow-emerald-500/20"
                         )}
+                        style={glowStyle}
                     >
                         <div className="absolute inset-x-0 top-0 h-1/2 bg-white/5 rounded-t-full pointer-events-none" />
 
@@ -545,7 +929,7 @@ export default function Dhikr() {
                                 <span className="text-xl font-mono font-bold">{Math.floor(count / target) + 1}</span>
                             </div>
                         )}
-                    </button>
+                    </motion.button>
 
                     {/* Decorative Stars */}
                     <Star size={16} className="absolute top-8 right-8 text-islamic-gold/20 animate-pulse" />
@@ -554,17 +938,26 @@ export default function Dhikr() {
                 </div>
 
                 {/* Cumulative Counter Card - Balanced distance */}
-                <div className="mt-40 group relative">
-                    <div className="bg-white/5 backdrop-blur-xl px-8 py-4 rounded-3xl border border-white/10 flex items-center justify-between gap-5 transition-all hover:bg-white/10 hover:border-islamic-gold/30 hover:scale-105 shadow-xl">
-                        <div className="flex items-center gap-5">
+                <div className="mt-40 group relative no-tap-anywhere">
+                    <div className="bg-white/5 backdrop-blur-xl px-8 py-4 rounded-3xl border border-white/10 flex items-center justify-between gap-5 transition-all hover:bg-white/10 hover:border-islamic-gold/30 shadow-xl">
+                        <button
+                            onClick={() => {
+                                setTempTotal(totalCount.toString());
+                                setShowTotalModal(true);
+                            }}
+                            className="flex items-center gap-5 text-left active:scale-[0.98] transition-transform"
+                        >
                             <div className="p-3 bg-islamic-gold/10 rounded-2xl border border-islamic-gold/20">
                                 <Star size={20} className="text-islamic-gold drop-shadow-[0_0_8px_rgba(212,175,55,0.5)]" />
                             </div>
                             <div className="text-left">
-                                <p className="text-[10px] font-bold text-white/30 uppercase tracking-[0.25em] leading-none mb-1">{t('totalDhikr')}</p>
+                                <p className="text-[10px] font-bold text-white/40 group-hover:text-white/60 uppercase tracking-[0.25em] leading-none mb-1 flex items-center gap-1.5 transition-colors">
+                                    <span>{t('totalDhikr')}</span>
+                                    <Edit3 size={11} className="text-islamic-gold/80" />
+                                </p>
                                 <p className="text-2xl font-mono font-bold text-islamic-gold tracking-tight">{totalCount.toLocaleString('tr-TR')}</p>
                             </div>
-                        </div>
+                        </button>
 
                         {/* Reset Total Button */}
                         <button
@@ -730,8 +1123,18 @@ export default function Dhikr() {
                         <div className="relative mb-8">
                             <input
                                 type="number"
+                                inputMode="numeric"
+                                pattern="[0-9]*"
                                 value={tempTarget}
-                                onChange={(e) => isPremium() ? setTempTarget(e.target.value) : null}
+                                onChange={(e) => {
+                                    if (!isPremium()) return;
+                                    let val = e.target.value;
+                                    const parsed = parseInt(val, 10);
+                                    if (!isNaN(parsed) && parsed > 999999) {
+                                        val = "999999";
+                                    }
+                                    setTempTarget(val);
+                                }}
                                 readOnly={!isPremium()}
                                 className={cn(
                                     "w-full bg-black/30 border border-white/10 rounded-2xl py-5 px-6 text-4xl font-mono font-bold text-center text-islamic-gold focus:outline-none focus:border-islamic-gold/50 transition-all placeholder:opacity-20",
@@ -770,8 +1173,56 @@ export default function Dhikr() {
                         </button>
                     </div>
                 </div>
-            )
-            }
+            )}
+
+            {showTotalModal && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 animate-in fade-in duration-300">
+                    <div className="absolute inset-0 bg-black/80 backdrop-blur-md" onClick={() => setShowTotalModal(false)} />
+                    <div className="bg-[#032e18] border border-white/10 rounded-[3rem] p-8 w-full max-w-sm relative z-10 shadow-2xl animate-in zoom-in slide-in-from-bottom-5 duration-300 overflow-hidden">
+                        <div className="absolute top-0 right-0 p-4">
+                            <button onClick={() => setShowTotalModal(false)} className="text-white/40 hover:text-white p-2">
+                                <X size={24} />
+                            </button>
+                        </div>
+
+                        <div className="text-center mb-8">
+                            <div className="w-16 h-16 bg-islamic-gold/10 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-islamic-gold/20">
+                                <Star className="text-islamic-gold w-8 h-8" />
+                            </div>
+                            <h3 className="text-2xl font-serif font-bold text-islamic-gold mb-2">{t('setTotalCount', { defaultValue: 'Toplam Zikri Ayarla' })}</h3>
+                            <p className="text-white/40 text-sm">{t('setTotalCountDesc', { defaultValue: 'Başka yerde çektiğiniz zikirleri buraya eklemek için toplam zikir sayısını güncelleyebilirsiniz.' })}</p>
+                        </div>
+
+                        <div className="relative mb-8">
+                            <input
+                                type="number"
+                                inputMode="numeric"
+                                pattern="[0-9]*"
+                                value={tempTotal}
+                                onChange={(e) => {
+                                    const val = parseInt(e.target.value, 10);
+                                    if (!isNaN(val) && val > 999999) {
+                                        setTempTotal('999999');
+                                    } else {
+                                        setTempTotal(e.target.value);
+                                    }
+                                }}
+                                max="999999"
+                                className="w-full bg-black/30 border border-white/10 rounded-2xl py-5 px-6 text-4xl font-mono font-bold text-center text-islamic-gold focus:outline-none focus:border-islamic-gold/50 transition-all placeholder:opacity-20"
+                                placeholder="1000"
+                                autoFocus
+                            />
+                        </div>
+
+                        <button
+                            onClick={handleSaveTotal}
+                            className="w-full h-16 rounded-2xl bg-islamic-gold hover:bg-amber-600 text-[#021a0f] text-lg font-bold shadow-lg shadow-islamic-gold/20 flex items-center justify-center gap-3"
+                        >
+                            <Check size={20} strokeWidth={3} /> {t('save', { defaultValue: 'KAYDET' })}
+                        </button>
+                    </div>
+                </div>
+            )}
 
             {/* Style for hiding scrollbar */}
             <style jsx>{`
@@ -783,6 +1234,15 @@ export default function Dhikr() {
                     scrollbar-width: none;
                 }
             `}</style>
+
+            {/* Dhikr Picker Bottom Sheet */}
+            <DhikrPickerSheet
+                isOpen={showDhikrPicker}
+                onClose={() => setShowDhikrPicker(false)}
+                activePreset={activePreset}
+                dhikrPresets={DHIKR_PRESETS}
+                onSelect={handleDhikrSelect}
+            />
         </div>
     );
 }

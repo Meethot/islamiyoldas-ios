@@ -97,10 +97,8 @@ struct DhikrMediumWidgetView: View {
         .animation(.snappy, value: entry.count)
     }
     
-    // MARK: - Cycle Badge
-    
     private var cycleBadge: some View {
-        let cycleCount = entry.total / 33
+        let cycleCount = (entry.count / max(1, entry.target)) + 1
         return HStack(spacing: 3) {
             Image(systemName: "arrow.triangle.2.circlepath")
                 .font(.system(size: 8, weight: .bold))
@@ -169,7 +167,10 @@ struct DhikrMediumWidgetView: View {
     // MARK: - Counter Ring
     
     private var counterRing: some View {
-        ZStack {
+        let displayCount = entry.count % max(1, entry.target) == 0 && entry.count > 0 ? entry.target : entry.count % max(1, entry.target)
+        let progress = Double(displayCount) / Double(max(1, entry.target))
+        
+        return ZStack {
             // Background Thread Ring
             Circle()
                 .stroke(goldColor.opacity(0.12), lineWidth: 0.5)
@@ -181,12 +182,11 @@ struct DhikrMediumWidgetView: View {
                 let x = ringRadius * CGFloat(cos(angle))
                 let y = ringRadius * CGFloat(sin(angle))
                 
-                let progress = Double(entry.count) / Double(entry.target)
                 let threshold = Double(i) / 33.0
                 let isFilled = progress > threshold
                 
                 // Only the last completed bead glows
-                let isActive = entry.count > 0 && isFilled && (i == 32 || progress <= Double(i + 1) / 33.0)
+                let isActive = displayCount > 0 && isFilled && (i == 32 || progress <= Double(i + 1) / 33.0)
                 
                 if isFilled {
                     Circle()
@@ -209,15 +209,20 @@ struct DhikrMediumWidgetView: View {
             
             // Count text
             VStack(spacing: 0) {
-                Text("\(entry.count)")
+                Text("\(displayCount)")
                     .font(.system(size: 30, weight: .black, design: .rounded))
                     .foregroundColor(goldColor)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.3)
                     .modifier(NumericTransitionModifier())
                 
                 Text("/ \(entry.target)")
                     .font(.system(size: 11, weight: .bold, design: .monospaced))
                     .foregroundColor(.white.opacity(0.4))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.4)
             }
+            .frame(maxWidth: ringRadius * 2 - 20)
         }
         .frame(width: ringRadius * 2, height: ringRadius * 2)
     }
