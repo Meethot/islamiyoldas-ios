@@ -65,12 +65,15 @@
         "off": "Titrəmə Bağlı"
     },
     "confirmReset": "Zikirmatik sayğacını sıfırlamaq istədiyinizdən əminsiniz?",
+    "soundLabel": "Səs",
+    "vibrationLabel": "Vibrasiya",
     "target": "Hədəf: {{count}}",
     "targetWithUnit": "Hədəf: {{count}} Ədəd",
     "round": "TUR",
     "roundCompleted": "{{round}}. Tur Tamamlandı ✓",
     "totalDhikr": "Cəmi Zikri Ayarla",
     "resetAllTitle": "Bütün zikrləri sıfırla?",
+    "resetDhikrTitle": "Zikri Sıfırla",
     "cancel": "LƏĞV ET",
     "reset": "SIFIRLA",
     "setTarget": "Hədəf Müəyyən Et",
@@ -194,5 +197,31 @@
         "desc3": "Limitsiz zikir üçün Premiuma yüksəlin.",
         "cta": "Limitsiz Zikir — Premium",
         "dismiss": "Sabah yenidən gəl"
+    },
+    "tallyCounter": "ZİKİRMATİK",
+    "tallyCount": "BAS",
+    "tallyReset": "SIFIRLA",
+    "tallyColors": {
+        "emerald": "Zümrüd",
+        "blue": "Mavi",
+        "red": "Yaqut",
+        "gold": "Qızıl",
+        "grey": "Gümüş"
+    },
+    "sound": {
+        "click": "Klik Səsi",
+        "mute": "Səs Bağlı",
+        "silent": "Səssiz"
+    },
+    "theme": {
+        "classic": "Klassik Tema",
+        "tasbih": "Təsbeh Teması",
+        "tally": "Zikirmatik Teması",
+        "tooltip": "Zikirmatik Teması"
+    },
+    "volumeButtons": {
+        "enabled": "Səs Düymələri ilə Zikir Aktiv",
+        "disabled": "Səs Düymələri ilə Zikir Deaktiv",
+        "tooltip": "Səs Düymələri ilə Zikir"
     }
 }

@@ -65,12 +65,15 @@
         "off": "Vibration Off"
     },
     "confirmReset": "Are you sure you want to reset the dhikr counter?",
+    "soundLabel": "Sound",
+    "vibrationLabel": "Vibration",
     "target": "Target: {{count}}",
     "targetWithUnit": "Target: {{count}} Times",
     "round": "ROUND",
     "roundCompleted": "Round {{round}} Completed ✓",
     "totalDhikr": "Set Total Dhikr",
     "resetAllTitle": "Reset all dhikr?",
+    "resetDhikrTitle": "Reset Dhikr",
     "cancel": "CANCEL",
     "reset": "RESET",
     "setTarget": "Set Target",
@@ -194,5 +197,31 @@
         "desc3": "Upgrade to Premium for unlimited dhikr.",
         "cta": "Unlimited Dhikr — Premium",
         "dismiss": "Come back tomorrow"
+    },
+    "tallyCounter": "TALLY COUNTER",
+    "tallyCount": "COUNT",
+    "tallyReset": "RESET",
+    "tallyColors": {
+        "emerald": "Emerald",
+        "blue": "Blue",
+        "red": "Ruby",
+        "gold": "Gold",
+        "grey": "Silver"
+    },
+    "sound": {
+        "click": "Click Sound",
+        "mute": "Sound Off",
+        "silent": "Silent"
+    },
+    "theme": {
+        "classic": "Classic Theme",
+        "tasbih": "Beads Theme",
+        "tally": "Tally Counter Theme",
+        "tooltip": "Dhikr Theme"
+    },
+    "volumeButtons": {
+        "enabled": "Count with Volume Keys On",
+        "disabled": "Count with Volume Keys Off",
+        "tooltip": "Count with Volume Keys"
     }
 }

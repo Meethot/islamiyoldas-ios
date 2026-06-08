@@ -65,12 +65,15 @@
         "off": "Вибрация выключена"
     },
     "confirmReset": "Вы уверены, что хотите сбросить счётчик зикра?",
+    "soundLabel": "Звук",
+    "vibrationLabel": "Вибрация",
     "target": "Цель: {{count}}",
     "targetWithUnit": "Цель: {{count}} раз",
     "round": "КРУГ",
     "roundCompleted": "Круг {{round}} завершён ✓",
     "totalDhikr": "Настроить всего зикра",
     "resetAllTitle": "Сбросить весь зикр?",
+    "resetDhikrTitle": "Сбросить зикр",
     "cancel": "ОТМЕНА",
     "reset": "СБРОС",
     "setTarget": "Установить цель",
@@ -194,5 +197,31 @@
         "desc3": "Перейдите на Premium для безлимитного зикра.",
         "cta": "Безлимитный Зикр — Premium",
         "dismiss": "Приходи завтра"
+    },
+    "tallyCounter": "КЛИКЕР",
+    "tallyCount": "СЧЕТ",
+    "tallyReset": "СБРОС",
+    "tallyColors": {
+        "emerald": "Изумруд",
+        "blue": "Синий",
+        "red": "Рубин",
+        "gold": "Золото",
+        "grey": "Серебро"
+    },
+    "sound": {
+        "click": "Звук Клика",
+        "mute": "Без звука",
+        "silent": "Тихий"
+    },
+    "theme": {
+        "classic": "Классическая Тема",
+        "tasbih": "Чётки",
+        "tally": "Тема Кликера",
+        "tooltip": "Тема Зикра"
+    },
+    "volumeButtons": {
+        "enabled": "Счет кнопками громкости включен",
+        "disabled": "Счет кнопками громкости выключен",
+        "tooltip": "Счет кнопками громкости"
     }
 }

@@ -65,12 +65,15 @@
         "off": "Vibration aus"
     },
     "confirmReset": "Bist du sicher, dass du den Dhikr-Zähler zurücksetzen möchtest?",
+    "soundLabel": "Ton",
+    "vibrationLabel": "Vibration",
     "target": "Ziel: {{count}}",
     "targetWithUnit": "Ziel: {{count}} Mal",
     "round": "RUNDE",
     "roundCompleted": "Runde {{round}} abgeschlossen ✓",
     "totalDhikr": "Gesamtzikir einstellen",
     "resetAllTitle": "Alle Dhikr zurücksetzen?",
+    "resetDhikrTitle": "Dhikr zurücksetzen",
     "cancel": "ABBRECHEN",
     "reset": "ZURÜCKSETZEN",
     "setTarget": "Ziel festlegen",
@@ -194,5 +197,31 @@
         "desc3": "Upgrade auf Premium für unbegrenztes Dhikr.",
         "cta": "Unbegrenztes Dhikr — Premium",
         "dismiss": "Komm morgen wieder"
+    },
+    "tallyCounter": "HANDZÄHLER",
+    "tallyCount": "ZÄHLEN",
+    "tallyReset": "RESET",
+    "tallyColors": {
+        "emerald": "Smaragd",
+        "blue": "Blau",
+        "red": "Rubin",
+        "gold": "Gold",
+        "grey": "Silber"
+    },
+    "sound": {
+        "click": "Klickgeräusch",
+        "mute": "Ton aus",
+        "silent": "Stumm"
+    },
+    "theme": {
+        "classic": "Klassisches Thema",
+        "tasbih": "Perlen-Thema",
+        "tally": "Handzähler-Thema",
+        "tooltip": "Dhikr-Thema"
+    },
+    "volumeButtons": {
+        "enabled": "Zählen mit Lautstärketasten an",
+        "disabled": "Zählen mit Lautstärketasten aus",
+        "tooltip": "Zählen mit Lautstärketasten"
     }
 }

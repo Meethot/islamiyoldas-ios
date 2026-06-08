@@ -112,9 +112,6 @@ export default function Dhikr() {
     const touchStartXRef = useRef(0);
     const haptics = useHaptics();
 
-    // Quick Settings Bottom Sheet state
-    const [showQuickSettings, setShowQuickSettings] = useState(false);
-
     // Debouncing widget sync to prevent bridge congestion during fast tapping
     const widgetSyncTimeoutRef = useRef(null);
     const latestSyncValuesRef = useRef({ count, preset: activePreset, total: totalCount, target });
@@ -814,7 +811,7 @@ export default function Dhikr() {
                 }} 
             />
 
-            <header className={cn("flex justify-between items-center z-30 mb-4 sticky top-0 backdrop-blur-sm -mx-6 px-6 py-1 border-b border-white/5 transition-colors duration-150", dhikrTheme === 'tally' ? "bg-[#010e08]/80" : "bg-[#021a0f]/80")}>
+            <header className={cn("flex justify-between items-center z-10 mb-4 sticky top-0 backdrop-blur-sm -mx-6 px-6 py-1 border-b border-white/5 transition-colors duration-150", dhikrTheme === 'tally' ? "bg-[#010e08]/80" : "bg-[#021a0f]/80")}>
                 <div className="flex items-center gap-2">
                     <button
                         onClick={() => navigate(-1)}
@@ -827,7 +824,78 @@ export default function Dhikr() {
                     </div>
                     <h2 className="text-xl font-serif font-bold tracking-tight">{isCountdownMode ? countdownName : t('title')}</h2>
                 </div>
-                <div className="flex items-center gap-1 bg-black/20 p-1 rounded-2xl border border-white/10 backdrop-blur-md relative">
+                <div className="flex items-center gap-1 bg-black/20 p-1 rounded-2xl border border-white/10 backdrop-blur-md">
+                    <button
+                        onClick={() => {
+                            const modes = ['digital', 'mute'];
+                            const labels = {
+                                digital: t('sound.click', { defaultValue: 'Klik Sesi' }),
+                                mute: t('sound.mute', { defaultValue: 'Ses Kapalı' })
+                            };
+                            const currentIndex = modes.indexOf(soundMode);
+                            const nextMode = modes[(currentIndex + 1) % modes.length];
+                            setSoundMode(nextMode);
+                            localStorage.setItem('dhikr_sound_mode', nextMode);
+                            setHapticMessage(labels[nextMode]);
+                            try {
+                                haptics.selection();
+                            } catch (e) {}
+                        }}
+                        className={cn("w-10 h-10 rounded-xl transition-all relative flex items-center justify-center", soundMode !== 'mute' ? "text-islamic-gold bg-white/5" : "text-white/20")}
+                        title={soundMode === 'mute' ? t('sound.silent', { defaultValue: 'Sessiz' }) : t('sound.click', { defaultValue: 'Klik Sesi' })}
+                    >
+                        {soundMode === 'mute' ? (
+                            <VolumeX size={18} />
+                        ) : (
+                            <Volume2 size={18} />
+                        )}
+                    </button>
+                    <button
+                        onClick={() => {
+                            const modes = ['all', 'target', 'off'];
+                            const labels = {
+                                all: t('vibration.everyClick'),
+                                target: t('vibration.targetOnly'),
+                                off: t('vibration.off')
+                            };
+                            const currentIndex = modes.indexOf(hapticsMode);
+                            const nextMode = modes[(currentIndex + 1) % modes.length];
+                            setHapticsMode(nextMode);
+                            localStorage.setItem('dhikr_haptics_mode', nextMode);
+                            setHapticMessage(labels[nextMode]);
+                        }}
+                        className={cn(
+                            "w-10 h-10 rounded-xl transition-all relative flex items-center justify-center",
+                            hapticsMode !== 'off' ? "text-islamic-gold bg-white/5" : "text-white/20"
+                        )}
+                        title={hapticsMode === 'all' ? t('vibrationTooltip.all') : hapticsMode === 'target' ? t('vibrationTooltip.target') : t('vibrationTooltip.off')}
+                    >
+                        <Smartphone size={18} />
+                        {hapticsMode === 'target' && (
+                            <div className="absolute top-1 right-1 w-2 h-2 bg-islamic-gold rounded-full border border-black animate-pulse" />
+                        )}
+                    </button>
+                    <button
+                        onClick={() => {
+                            const newMode = !isFullScreenTap;
+                            setIsFullScreenTap(newMode);
+                            localStorage.setItem('dhikr_fullscreen_tap', String(newMode));
+                            setHapticMessage(newMode ? t('fullScreenTap.enabled', { defaultValue: 'Ekran Dokunma Açık' }) : t('fullScreenTap.disabled', { defaultValue: 'Ekran Dokunma Kapalı' }));
+                            if (hapticsMode !== 'off') {
+                                haptics.selection();
+                            }
+                        }}
+                        className={cn(
+                            "w-10 h-10 rounded-xl transition-all relative flex items-center justify-center",
+                            isFullScreenTap ? "text-islamic-gold bg-white/5" : "text-white/20"
+                        )}
+                        title={t('fullScreenTapTooltip', { defaultValue: 'Tam Ekran Zikir Modu' })}
+                    >
+                        <Fingerprint size={18} />
+                        {isFullScreenTap && (
+                            <div className="absolute top-1 right-1 w-2 h-2 bg-islamic-gold rounded-full border border-black animate-pulse" />
+                        )}
+                    </button>
                     <button
                         onClick={() => {
                             const themeOrder = ['classic', 'tasbih', 'tally'];
@@ -848,22 +916,31 @@ export default function Dhikr() {
                     >
                         <Palette size={18} />
                     </button>
-                    
-                    <button
-                        onClick={() => {
-                            setShowQuickSettings(true);
-                            try {
-                                haptics.selection();
-                            } catch (e) {}
-                        }}
-                        className={cn(
-                            "w-10 h-10 rounded-xl transition-all relative flex items-center justify-center border active:scale-95 duration-200",
-                            showQuickSettings ? "text-islamic-gold bg-white/15 border-islamic-gold/45" : "text-white/60 hover:text-white bg-white/5 border-white/10"
-                        )}
-                        title={t('settings', { defaultValue: 'Hızlı Ayarlar' })}
-                    >
-                        <Settings size={18} />
-                    </button>
+                    {Capacitor.isNativePlatform() && (
+                        <button
+                            onClick={() => {
+                                const newMode = !volumeButtonsEnabled;
+                                setVolumeButtonsEnabled(newMode);
+                                localStorage.setItem('dhikr_volume_buttons', String(newMode));
+                                setHapticMessage(newMode ? t('volumeButtons.enabled', { defaultValue: 'Ses Tuşları ile Çekim Açık' }) : t('volumeButtons.disabled', { defaultValue: 'Ses Tuşları ile Çekim Kapalı' }));
+                                if (hapticsMode !== 'off') {
+                                    try {
+                                        haptics.selection();
+                                    } catch (e) {}
+                                }
+                            }}
+                            className={cn(
+                                "w-10 h-10 rounded-xl transition-all relative flex items-center justify-center",
+                                volumeButtonsEnabled ? "text-islamic-gold bg-white/5" : "text-white/20"
+                            )}
+                            title={t('volumeButtons.tooltip', { defaultValue: 'Ses Tuşları ile Çekim' })}
+                        >
+                            <Sliders size={18} />
+                            {volumeButtonsEnabled && (
+                                <div className="absolute top-1 right-1 w-2 h-2 bg-islamic-gold rounded-full border border-black animate-pulse" />
+                            )}
+                        </button>
+                    )}
                 </div>
             </header>
 
@@ -1952,238 +2029,6 @@ export default function Dhikr() {
                     scrollbar-width: none;
                 }
             `}</style>
-
-            {/* Quick Settings Bottom Sheet */}
-            <AnimatePresence>
-                {showQuickSettings && (
-                    <>
-                        {/* Backdrop */}
-                        <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            className="fixed inset-0 bg-black/60 backdrop-blur-[3px] z-[90]"
-                            onClick={() => setShowQuickSettings(false)}
-                        />
-
-                        {/* Sheet */}
-                        <motion.div
-                            drag="y"
-                            dragConstraints={{ top: 0, bottom: 0 }}
-                            dragElastic={{ top: 0.05, bottom: 0.95 }}
-                            onDragEnd={(event, info) => {
-                                if (info.offset.y > 100 || info.velocity.y > 150) {
-                                    setShowQuickSettings(false);
-                                }
-                            }}
-                            initial={{ y: "100%" }}
-                            animate={{ y: 0 }}
-                            exit={{ y: "100%" }}
-                            transition={{ type: "spring", damping: 25, stiffness: 220 }}
-                            className="fixed inset-x-0 bottom-0 bg-gradient-to-b from-[#06331c] via-[#021f11] to-[#010e08] border-t border-white/10 rounded-t-[2.5rem] px-6 pb-8 pt-4 z-[100] shadow-[0_-10px_35px_rgba(0,0,0,0.6)] flex flex-col gap-4 no-tap-anywhere"
-                        >
-                            {/* Drag handle / Grabber */}
-                            <div 
-                                className="w-14 h-1.5 bg-white/20 hover:bg-white/30 rounded-full mx-auto cursor-pointer transition-colors"
-                                onClick={() => setShowQuickSettings(false)}
-                            />
-
-                            {/* Header */}
-                            <div className="flex justify-between items-center pb-2 relative">
-                                <div className="flex items-center gap-2.5">
-                                    <div className="p-2 bg-islamic-gold/15 rounded-xl border border-islamic-gold/20 shadow-[0_0_10px_rgba(212,175,55,0.1)]">
-                                        <Sparkles className="w-5 h-5 text-islamic-gold animate-pulse" />
-                                    </div>
-                                    <h3 className="text-xl font-serif font-black bg-gradient-to-r from-amber-200 via-islamic-gold to-amber-500 bg-clip-text text-transparent uppercase tracking-wider">
-                                        {t('quickSettings', { defaultValue: 'Hızlı Ayarlar' })}
-                                    </h3>
-                                </div>
-                                <button 
-                                    onClick={() => setShowQuickSettings(false)}
-                                    className="p-2 rounded-full bg-white/5 hover:bg-white/10 text-white/55 hover:text-white transition-colors"
-                                >
-                                    <X size={20} />
-                                </button>
-                            </div>
-
-                            {/* Decorative line */}
-                            <div className="h-[1px] w-full bg-gradient-to-r from-transparent via-islamic-gold/30 to-transparent -mt-2" />
-
-                            {/* Settings Container */}
-                            <div className="flex flex-col bg-black/35 rounded-3xl border border-islamic-gold/15 divide-y divide-white/5 overflow-hidden shadow-[inset_0_1px_2px_rgba(255,255,255,0.05),0_10px_30px_rgba(0,0,0,0.5)]">
-                                
-                                {/* Sound Row */}
-                                <div className="flex items-center justify-between p-5">
-                                    <div className="flex items-center gap-3.5">
-                                        <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-islamic-gold shadow-[inset_0_1px_2px_rgba(255,255,255,0.05)]">
-                                            {soundMode === 'mute' ? <VolumeX size={18} className="text-white/40" /> : <Volume2 size={18} />}
-                                        </div>
-                                        <div className="flex flex-col">
-                                            <span className="text-base font-bold text-white/95 tracking-wide">{t('soundLabel', { defaultValue: 'Ses Efekti' })}</span>
-                                            <span className="text-xs text-white/50 leading-relaxed mt-0.5">{soundMode === 'mute' ? t('sound.mute', { defaultValue: 'Kapalı' }) : t('sound.click', { defaultValue: 'Klik Sesi' })}</span>
-                                        </div>
-                                    </div>
-                                    {/* Toggle Switch */}
-                                    <div 
-                                        onClick={() => {
-                                            const newMode = soundMode === 'mute' ? 'digital' : 'mute';
-                                            setSoundMode(newMode);
-                                            localStorage.setItem('dhikr_sound_mode', newMode);
-                                            const labels = {
-                                                digital: t('sound.click', { defaultValue: 'Klik Sesi' }),
-                                                mute: t('sound.mute', { defaultValue: 'Ses Kapalı' })
-                                            };
-                                            setHapticMessage(labels[newMode]);
-                                            try { haptics.medium(); } catch(e){}
-                                        }}
-                                        onTouchStart={(e) => e.stopPropagation()}
-                                        className={cn(
-                                            "w-12 h-7 rounded-full p-0.5 cursor-pointer transition-all duration-200 relative flex items-center shadow-md",
-                                            soundMode !== 'mute' ? "bg-gradient-to-r from-amber-500 to-islamic-gold shadow-[0_0_12px_rgba(212,175,55,0.35)]" : "bg-white/10"
-                                        )}
-                                    >
-                                        <div 
-                                            className={cn(
-                                                "w-6 h-6 rounded-full bg-white shadow-md transform transition-transform duration-200",
-                                                soundMode !== 'mute' ? "translate-x-5" : "translate-x-0"
-                                            )}
-                                        />
-                                    </div>
-                                </div>
-
-                                {/* Vibration Row */}
-                                <div className="flex flex-col gap-3.5 p-5">
-                                    <div className="flex items-center gap-3.5">
-                                        <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-islamic-gold shadow-[inset_0_1px_2px_rgba(255,255,255,0.05)]">
-                                            <Smartphone size={18} className={hapticsMode !== 'off' ? "text-islamic-gold" : "text-white/40"} />
-                                        </div>
-                                        <div className="flex flex-col">
-                                            <span className="text-base font-bold text-white/95 tracking-wide">{t('vibrationLabel', { defaultValue: 'Titreşim Geri Bildirimi' })}</span>
-                                            <span className="text-xs text-white/50 leading-relaxed mt-0.5">
-                                                {hapticsMode === 'all' ? t('vibration.everyClick', { defaultValue: 'Her tıklamada titreşir' }) :
-                                                 hapticsMode === 'target' ? t('vibration.targetOnly', { defaultValue: 'Sadece hedefe ulaşıldığında titreşir' }) :
-                                                 t('vibration.off', { defaultValue: 'Titreşim kapalı' })}
-                                            </span>
-                                        </div>
-                                    </div>
-                                    
-                                    {/* Segmented Picker */}
-                                    <div className="grid grid-cols-3 bg-black/45 border border-white/10 rounded-2xl p-0.5 select-none relative mt-1 overflow-hidden shadow-inner">
-                                        {[
-                                            { id: 'off', label: t('vibration.offShort', { defaultValue: 'Kapalı' }) },
-                                            { id: 'target', label: t('vibration.targetOnlyShort', { defaultValue: 'Hedef' }) },
-                                            { id: 'all', label: t('vibration.everyClickShort', { defaultValue: 'Her Tık' }) }
-                                        ].map((opt) => {
-                                            const isSelected = hapticsMode === opt.id;
-                                            return (
-                                                <button
-                                                    key={opt.id}
-                                                    onClick={() => {
-                                                        setHapticsMode(opt.id);
-                                                        localStorage.setItem('dhikr_haptics_mode', opt.id);
-                                                        const labels = {
-                                                            all: t('vibration.everyClick'),
-                                                            target: t('vibration.targetOnly'),
-                                                            off: t('vibration.off')
-                                                        };
-                                                        setHapticMessage(labels[opt.id]);
-                                                        try { haptics.medium(); } catch (e) {}
-                                                    }}
-                                                    onTouchStart={(e) => e.stopPropagation()}
-                                                    className="py-2.5 text-xs font-bold rounded-xl z-10 transition-all text-center relative flex items-center justify-center active:scale-95 duration-150"
-                                                    style={{ color: isSelected ? '#021a0f' : 'rgba(255,255,255,0.6)' }}
-                                                >
-                                                    {isSelected && (
-                                                        <motion.div 
-                                                            layoutId="activeVibeSegment"
-                                                            className="absolute inset-0 bg-gradient-to-r from-amber-400 to-[#d4af37] rounded-xl -z-10 shadow-[0_2px_8px_rgba(212,175,55,0.35)]"
-                                                            transition={{ type: "spring", stiffness: 380, damping: 30 }}
-                                                        />
-                                                    )}
-                                                    {opt.label}
-                                                </button>
-                                            );
-                                        })}
-                                    </div>
-                                </div>
-
-                                {/* Fullscreen Click Row */}
-                                <div className="flex items-center justify-between p-5">
-                                    <div className="flex items-center gap-3.5">
-                                        <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-islamic-gold shadow-[inset_0_1px_2px_rgba(255,255,255,0.05)]">
-                                            <Fingerprint size={18} className={isFullScreenTap ? "text-islamic-gold" : "text-white/40"} />
-                                        </div>
-                                        <div className="flex flex-col">
-                                            <span className="text-base font-bold text-white/95 tracking-wide">{t('fullscreenTap', { defaultValue: 'Tam Ekran Tıklama' })}</span>
-                                            <span className="text-xs text-white/50 leading-relaxed mt-0.5">{t('fullScreenTapDesc', { defaultValue: 'Ekranın herhangi bir yerine dokunarak çekim yapın' })}</span>
-                                        </div>
-                                    </div>
-                                    {/* Toggle Switch */}
-                                    <div 
-                                        onClick={() => {
-                                            const newMode = !isFullScreenTap;
-                                            setIsFullScreenTap(newMode);
-                                            localStorage.setItem('dhikr_fullscreen_tap', String(newMode));
-                                            setHapticMessage(newMode ? t('fullScreenTap.enabled', { defaultValue: 'Ekran Dokunma Açık' }) : t('fullScreenTap.disabled', { defaultValue: 'Ekran Dokunma Kapalı' }));
-                                            try { haptics.medium(); } catch(e){}
-                                        }}
-                                        onTouchStart={(e) => e.stopPropagation()}
-                                        className={cn(
-                                            "w-12 h-7 rounded-full p-0.5 cursor-pointer transition-all duration-200 relative flex items-center shadow-md",
-                                            isFullScreenTap ? "bg-gradient-to-r from-amber-500 to-islamic-gold shadow-[0_0_12px_rgba(212,175,55,0.35)]" : "bg-white/10"
-                                        )}
-                                    >
-                                        <div 
-                                            className={cn(
-                                                "w-6 h-6 rounded-full bg-white shadow-md transform transition-transform duration-200",
-                                                isFullScreenTap ? "translate-x-5" : "translate-x-0"
-                                            )}
-                                        />
-                                    </div>
-                                </div>
-
-                                {/* Volume Button Control Row - Conditional */}
-                                {Capacitor.isNativePlatform() && (
-                                    <div className="flex items-center justify-between p-5">
-                                        <div className="flex items-center gap-3.5">
-                                            <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-islamic-gold shadow-[inset_0_1px_2px_rgba(255,255,255,0.05)]">
-                                                <Sliders size={18} className={volumeButtonsEnabled ? "text-islamic-gold" : "text-white/40"} />
-                                            </div>
-                                            <div className="flex flex-col">
-                                                <span className="text-base font-bold text-white/95 tracking-wide">{t('volumeButtonsLabel', { defaultValue: 'Ses Tuşları' })}</span>
-                                                <span className="text-xs text-white/50 leading-relaxed mt-0.5">{t('volumeButtonsDesc', { defaultValue: 'Cihazın fiziksel ses tuşları ile zikir çekin' })}</span>
-                                            </div>
-                                        </div>
-                                        {/* Toggle Switch */}
-                                        <div 
-                                            onClick={() => {
-                                                const newMode = !volumeButtonsEnabled;
-                                                setVolumeButtonsEnabled(newMode);
-                                                localStorage.setItem('dhikr_volume_buttons', String(newMode));
-                                                setHapticMessage(newMode ? t('volumeButtons.enabled', { defaultValue: 'Ses Tuşları ile Çekim Açık' }) : t('volumeButtons.disabled', { defaultValue: 'Ses Tuşları ile Çekim Kapalı' }));
-                                                try { haptics.medium(); } catch(e){}
-                                            }}
-                                            onTouchStart={(e) => e.stopPropagation()}
-                                            className={cn(
-                                                "w-12 h-7 rounded-full p-0.5 cursor-pointer transition-all duration-200 relative flex items-center shadow-md",
-                                                volumeButtonsEnabled ? "bg-gradient-to-r from-amber-500 to-islamic-gold shadow-[0_0_12px_rgba(212,175,55,0.35)]" : "bg-white/10"
-                                            )}
-                                        >
-                                            <div 
-                                                className={cn(
-                                                    "w-6 h-6 rounded-full bg-white shadow-md transform transition-transform duration-200",
-                                                    volumeButtonsEnabled ? "translate-x-5" : "translate-x-0"
-                                                )}
-                                            />
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-                        </motion.div>
-                    </>
-                )}
-            </AnimatePresence>
-
 
             {/* Dhikr Picker Bottom Sheet */}
             <DhikrPickerSheet

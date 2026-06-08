@@ -65,12 +65,15 @@
         "off": "الاهتزاز مغلق"
     },
     "confirmReset": "هل تريد إعادة تعيين عدّاد الأذكار؟",
+    "soundLabel": "الصوت",
+    "vibrationLabel": "الاهتزاز",
     "target": "الهدف: {{count}}",
     "targetWithUnit": "الهدف: {{count}} مرة",
     "round": "جولة",
     "roundCompleted": "الجولة {{round}} مكتملة ✓",
     "totalDhikr": "ضبط إجمالي الأذكار",
     "resetAllTitle": "إعادة تعيين جميع الأذكار؟",
+    "resetDhikrTitle": "إعادة ضبط الذكر",
     "cancel": "إلغاء",
     "reset": "إعادة تعيين",
     "setTarget": "تعيين الهدف",
@@ -194,5 +197,31 @@
         "desc3": "ترقّ إلى بريميوم لأذكار غير محدودة.",
         "cta": "أذكار غير محدودة — بريميوم",
         "dismiss": "عد غدًا"
+    },
+    "tallyCounter": "مسبحة رقمية",
+    "tallyCount": "عَدّ",
+    "tallyReset": "إعادة",
+    "tallyColors": {
+        "emerald": "زمرد",
+        "blue": "أزرق",
+        "red": "ياقوت",
+        "gold": "ذهب",
+        "grey": "فضة"
+    },
+    "sound": {
+        "click": "صوت النقرة",
+        "mute": "كتم الصوت",
+        "silent": "صامت"
+    },
+    "theme": {
+        "classic": "مسبحة كلاسيكية",
+        "tasbih": "مسبحة خرز",
+        "tally": "مسبحة رقمية",
+        "tooltip": "تغيير المسبحة"
+    },
+    "volumeButtons": {
+        "enabled": "التسبيح بأزرار الصوت مفعل",
+        "disabled": "التسبيح بأزرار الصوت معطل",
+        "tooltip": "التسبيح بأزرار الصوت"
     }
 }

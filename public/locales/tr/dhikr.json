@@ -65,12 +65,15 @@
         "off": "Titreşim Kapalı"
     },
     "confirmReset": "Zikirmatik sayacını sıfırlamak istediğinize emin misiniz?",
+    "soundLabel": "Ses",
+    "vibrationLabel": "Titreşim",
     "target": "Hedef: {{count}}",
     "targetWithUnit": "Hedef: {{count}} Adet",
     "round": "TUR",
     "roundCompleted": "{{round}}. Tur Tamamlandı ✓",
     "totalDhikr": "Toplam Zikri Ayarla",
     "resetAllTitle": "Tüm zikirleri sıfırla?",
+    "resetDhikrTitle": "Zikri Sıfırla",
     "cancel": "İPTAL",
     "reset": "SIFIRLA",
     "setTarget": "Hedef Belirle",
@@ -194,5 +197,31 @@
         "desc3": "Sınırsız zikir için Premium'a yükseltin.",
         "cta": "Sınırsız Zikir — Premium",
         "dismiss": "Yarın tekrar gel"
+    },
+    "tallyCounter": "ZİKİRMATİK",
+    "tallyCount": "BAS",
+    "tallyReset": "SIFIRLA",
+    "tallyColors": {
+        "emerald": "Zümrüt",
+        "blue": "Mavi",
+        "red": "Yakut",
+        "gold": "Altın",
+        "grey": "Gümüş"
+    },
+    "sound": {
+        "click": "Klik Sesi",
+        "mute": "Ses Kapalı",
+        "silent": "Sessiz"
+    },
+    "theme": {
+        "classic": "Klasik Tema",
+        "tasbih": "Tesbih Teması",
+        "tally": "Zikirmatik Teması",
+        "tooltip": "Zikirmatik Teması"
+    },
+    "volumeButtons": {
+        "enabled": "Ses Tuşları ile Çekim Açık",
+        "disabled": "Ses Tuşları ile Çekim Kapalı",
+        "tooltip": "Ses Tuşları ile Çekim"
     }
 }
