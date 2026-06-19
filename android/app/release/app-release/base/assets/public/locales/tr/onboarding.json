@@ -1,0 +1,55 @@
+{
+    "steps": {
+        "language": {
+            "title": "Dil Seçimi",
+            "subtitle": "Uygulama dilini belirleyin",
+            "select": "Tercih ettiğiniz dili seçin"
+        },
+        "gender": {
+            "title": "Cinsiyetiniz",
+            "male": "Erkek",
+            "female": "Kadın"
+        },
+        "age": {
+            "title": "Yaş Grubunuz",
+            "subtitle": "Size uygun içerikler sunalım",
+            "range1": "13 - 17 yaş",
+            "range2": "18 - 30 yaş",
+            "range3": "31 - 45 yaş",
+            "range4": "46+ yaş"
+        },
+        "prayerStatus": {
+            "title": "Namaz Durumunuz",
+            "subtitle": "Manevi yolculuğunuzu anlayalım",
+            "regular": "Evet, 5 vakit kılıyorum",
+            "occasional": "Ara sıra kılıyorum",
+            "irregular": "Henüz başlamadım"
+        },
+        "quranLevel": {
+            "title": "Kur'an Bilginiz",
+            "subtitle": "Öğrenme seviyenizi belirleyelim",
+            "advanced": "Akıcı okuyorum",
+            "reading": "Yavaş okuyorum",
+            "learning": "Harfleri biliyorum",
+            "none": "Öğrenmek istiyorum"
+        },
+        "goal": {
+            "title": "Ana Hedefiniz",
+            "subtitle": "Size nasıl yardımcı olabiliriz?",
+            "prayer": "Namazlarımı düzene sokmak",
+            "quran": "Kur'an öğrenmek",
+            "spirituality": "Maneviyatımı güçlendirmek",
+            "knowledge": "İslami bilgi edinmek"
+        }
+    },
+    "welcome": {
+        "title": "Hoş Geldiniz",
+        "subtitle": "Size özel bir deneyim hazırlayalım"
+    },
+    "progress": "Adım {{current}} / {{total}}",
+    "skip": "Atla",
+    "buttons": {
+        "next": "Devam Et",
+        "start": "Başla"
+    }
+}

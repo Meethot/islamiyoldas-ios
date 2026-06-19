@@ -22,7 +22,7 @@ const BRIDGE_KEY = 'widget_prayer_data_bridge';
  * @param {string} [params.hijriDate] - Optional Hijri date string
  */
 export async function syncPrayerTimesToWidget({ prayerTimes, city, hijriDate = '' }) {
-    if (!Capacitor.isNativePlatform() || Capacitor.getPlatform() !== 'ios') {
+    if (!Capacitor.isNativePlatform()) {
         return;
     }
 

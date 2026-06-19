@@ -1,5 +1,6 @@
 import { Capacitor } from '@capacitor/core';
 import { AdMob, RewardAdPluginEvents, InterstitialAdPluginEvents } from '@capacitor-community/admob';
+import { storageService } from './storageService';
 
 // 🔴 Reklamlar şu an kapalı — aktif etmek için true yap
 export const ADS_ENABLED = true;
@@ -12,26 +13,72 @@ const AD_IDS = {
         android: 'ca-app-pub-3345957146167395/7443404265',
     },
     INTERSTITIAL: {
-        // ⚠️ Şu an Google test ID'leri — AdMob'dan gerçek Interstitial ad unit oluşturup buraya yaz
+        // GERÇEK PRODUCTION ID'LER
         ios: 'ca-app-pub-3345957146167395/7195992256',
         android: 'ca-app-pub-3345957146167395/3512742007',
     },
+    BANNER: {
+        // GERÇEK PRODUCTION ID'LER
+        ios: 'ca-app-pub-3345957146167395/6354842705',
+        android: 'ca-app-pub-3345957146167395/4535594651',
+    }
 };
 
 let initialized = false;
+let initPromise = null;
+
+// ─── Yeni Özellik: 3. Gün Reklam Kontrolü ───
+export function shouldShowAds() {
+    if (!ADS_ENABLED) return false;
+    
+    const isPremiumUser = storageService.getItem('aminKumbara_premium') === 'true';
+    if (isPremiumUser) return false;
+
+    // 2. gün kuralı: İlk gün reklamsız, 2. günden itibaren reklamlar başlar
+    const uniqueDaysStr = storageService.getItem('unique_days_opened');
+    const uniqueDays = uniqueDaysStr ? parseInt(uniqueDaysStr, 10) : 0;
+    return uniqueDays >= 2;
+}
 
 export async function initAdMob() {
     if (!ADS_ENABLED || !IS_NATIVE || initialized) return;
+    if (initPromise) return initPromise;
 
+    initPromise = (async () => {
+        try {
+            // iOS için zorunlu: App Tracking Transparency (ATT) izni iste
+            if (Capacitor.getPlatform() === 'ios') {
+                try {
+                    await AdMob.requestTrackingAuthorization();
+                } catch (e) {
+                    console.warn('ATT Prompt error or already answered:', e);
+                }
+            }
+
+            await AdMob.initialize({
+                initializeForTesting: false,
+            });
+
+            initialized = true;
+            console.log('[AdMob] Başarıyla başlatıldı.');
+        } catch (error) {
+            console.error('AdMob init error:', error);
+            initPromise = null; // Hata durumunda tekrar denenebilsin
+        }
+    })();
+
+    return initPromise;
+}
+
+// Tüm reklam fonksiyonları bu helper'ı çağırır — AdMob kesinlikle hazır olana kadar bekler
+async function ensureInitialized() {
+    if (initialized) return true;
+    if (!ADS_ENABLED || !IS_NATIVE) return false;
     try {
-        await AdMob.initialize({
-            // Production'a geçerken false yapıldı
-            initializeForTesting: false,
-        });
-
-        initialized = true;
-    } catch (error) {
-        console.error('AdMob init error:', error);
+        await initAdMob();
+        return initialized;
+    } catch {
+        return false;
     }
 }
 
@@ -127,15 +174,73 @@ export async function showRewardedAd() {
     });
 }
 
+let interstitialCount = 0;
+let lastInterstitialTime = Date.now();
+const MAX_DAILY_INTERSTITIALS = 10;
+
+// Günlük sayacı localStorage'dan yükle / gece yarısında sıfırla
+function getDailyInterstitialCount() {
+    try {
+        const today = new Date().toLocaleDateString('en-CA');
+        const stored = JSON.parse(localStorage.getItem('interstitial_daily') || '{}');
+        if (stored.date !== today) return 0;
+        return stored.count || 0;
+    } catch { return 0; }
+}
+
+function saveDailyInterstitialCount(count) {
+    try {
+        const today = new Date().toLocaleDateString('en-CA');
+        localStorage.setItem('interstitial_daily', JSON.stringify({ date: today, count }));
+    } catch {}
+}
+
+export function getInterstitialCooldown() {
+    // İlk reklam: 30 saniye, sonrakiler: 1 dakika
+    return interstitialCount === 0 ? (30 * 1000) : (1 * 60 * 1000);
+}
+
 // ─── INTERSTITIAL AD (30 saniye sonra otomatik, 5 saniyede atlanabilir) ───
 
 export async function showInterstitialAd() {
     console.log('[AdMob] showInterstitialAd tetiklendi. ADS_ENABLED:', ADS_ENABLED, 'IS_NATIVE:', IS_NATIVE);
-    if (!ADS_ENABLED) return;
+    
+    if (!shouldShowAds()) {
+        console.log('[AdMob] Reklam gösterim koşulları sağlanmadı (Premium veya henüz 3. gün değil). Atlanıyor.');
+        return;
+    }
+
     if (!IS_NATIVE) {
         console.log('[AdMob] Web/Simule ortam - Interstitial atlandı.');
         return;
     }
+
+    // Günlük limit kontrolü (max 10)
+    const dailyCount = getDailyInterstitialCount();
+    if (dailyCount >= MAX_DAILY_INTERSTITIALS) {
+        console.log(`[AdMob] Günlük interstitial limiti doldu (${dailyCount}/${MAX_DAILY_INTERSTITIALS}). Atlanıyor.`);
+        return;
+    }
+
+    // ✅ AdMob init tamamlanana kadar bekle
+    const ready = await ensureInitialized();
+    if (!ready) {
+        console.log('[AdMob] Interstitial: AdMob başlatılamadı, atlanıyor.');
+        return;
+    }
+
+    const now = Date.now();
+    const cooldown = getInterstitialCooldown();
+    if (now - lastInterstitialTime < cooldown) {
+        console.log(`[AdMob] Interstitial cooldown aktif. Kalan süre: ${Math.round((cooldown - (now - lastInterstitialTime)) / 1000)} saniye`);
+        return;
+    }
+    
+    // Zaman damgasını hemen güncelle ki üst üste çoklu çağrı olursa hepsini göstermesin
+    lastInterstitialTime = now;
+    interstitialCount++;
+    saveDailyInterstitialCount(dailyCount + 1);
+    console.log(`[AdMob] Interstitial #${dailyCount + 1}/${MAX_DAILY_INTERSTITIALS} gösteriliyor.`);
 
     const platform = Capacitor.getPlatform();
     const adId = platform === 'ios'
@@ -159,6 +264,10 @@ export async function showInterstitialAd() {
                 () => {
                     console.log('[AdMob] Interstitial Reklam kapatıldı.');
                     clearListeners();
+                    
+                    // Reklam kapatılınca Upsell (Premium Yönlendirme) tetikle
+                    window.dispatchEvent(new Event('showPremiumUpsell'));
+                    
                     resolve();
                 }
             );
@@ -200,4 +309,56 @@ export async function showInterstitialAd() {
             resolve();
         }
     });
+}
+
+// ─── BANNER AD (Alt menü üstünde sürekli döner) ───
+
+export async function showBannerAd() {
+    console.log('[AdMob] showBannerAd tetiklendi.');
+    
+    if (!shouldShowAds()) {
+        console.log('[AdMob] Banner gösterim koşulları sağlanmadı (Premium veya 3. gün değil).');
+        hideBannerAd();
+        return;
+    }
+
+    if (!IS_NATIVE) {
+        console.log('[AdMob] Web/Simule ortam - Banner atlandı.');
+        return;
+    }
+
+    // ✅ AdMob init tamamlanana kadar bekle
+    const ready = await ensureInitialized();
+    if (!ready) {
+        console.log('[AdMob] Banner: AdMob başlatılamadı, atlanıyor.');
+        return;
+    }
+
+    const platform = Capacitor.getPlatform();
+    const adId = platform === 'ios'
+        ? AD_IDS.BANNER.ios
+        : AD_IDS.BANNER.android;
+
+    try {
+        await AdMob.showBanner({
+            adId,
+            adSize: 'ADAPTIVE_BANNER',
+            position: 'BOTTOM_CENTER',
+            margin: 75,
+            isTesting: false
+        });
+        console.log('[AdMob] Banner başarıyla gösterildi.');
+    } catch (error) {
+        console.error('[AdMob] Banner gösterim hatası:', error);
+    }
+}
+
+export async function hideBannerAd() {
+    if (!IS_NATIVE) return;
+    try {
+        await AdMob.hideBanner();
+        console.log('[AdMob] Banner gizlendi.');
+    } catch (error) {
+        // Zaten gizliyse hata verebilir, yoksay
+    }
 }

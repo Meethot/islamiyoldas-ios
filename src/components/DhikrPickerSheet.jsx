@@ -25,61 +25,84 @@ const normalizeString = (str) => {
     .replace(/[^a-z0-9]/g, ''); // Strip non-alphanumeric chars (like hyphens)
 };
 
-const DhikrItem = React.memo(({ item, isActive, onSelect, meaning, isEsma }) => (
-  <button
-    onClick={() => onSelect(item)}
-    className={cn(
-      "w-full text-left px-4 py-3.5 rounded-2xl transition-all active:scale-[0.98] border",
-      isActive
-        ? "bg-islamic-gold/15 border-islamic-gold/40 shadow-[0_0_20px_rgba(212,175,55,0.1)]"
-        : "bg-white/[0.03] border-white/5 hover:bg-white/[0.06] hover:border-white/10"
-    )}
-  >
-    <div className="flex items-center gap-3">
-      {/* Number badge for Esma */}
-      {isEsma && (
-        <div className={cn(
-          "w-8 h-8 rounded-lg flex items-center justify-center text-[11px] font-bold flex-shrink-0",
-          isActive ? "bg-islamic-gold/20 text-islamic-gold" : "bg-white/5 text-white/30"
-        )}>
-          {item.number}
-        </div>
+const DhikrItem = React.memo(({ item, isActive, onSelect, meaning, isEsma }) => {
+  const touchStartPos = useRef(null);
+
+  const handleTouchStart = (e) => {
+    const touch = e.touches[0];
+    touchStartPos.current = { x: touch.clientX, y: touch.clientY };
+  };
+
+  const handleTouchEnd = (e) => {
+    if (!touchStartPos.current) return;
+    const touch = e.changedTouches[0];
+    const dx = Math.abs(touch.clientX - touchStartPos.current.x);
+    const dy = Math.abs(touch.clientY - touchStartPos.current.y);
+    if (dx < 10 && dy < 10) {
+      e.preventDefault();
+      onSelect(item);
+    }
+    touchStartPos.current = null;
+  };
+
+  return (
+    <button
+      onClick={() => onSelect(item)}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+      className={cn(
+        "w-full text-left px-4 py-3.5 rounded-2xl transition-all active:scale-[0.98] border",
+        isActive
+          ? "bg-islamic-gold/15 border-islamic-gold/40 shadow-[0_0_20px_rgba(212,175,55,0.1)]"
+          : "bg-white/[0.03] border-white/5 hover:bg-white/[0.06] hover:border-white/10"
       )}
+    >
+      <div className="flex items-center gap-3">
+        {/* Number badge for Esma */}
+        {isEsma && (
+          <div className={cn(
+            "w-8 h-8 rounded-lg flex items-center justify-center text-[11px] font-bold flex-shrink-0",
+            isActive ? "bg-islamic-gold/20 text-islamic-gold" : "bg-white/5 text-white/30"
+          )}>
+            {item.number}
+          </div>
+        )}
 
-      {/* Arabic text */}
-      <p className={cn(
-        "font-serif text-xl flex-shrink-0",
-        isActive ? "text-islamic-gold" : "text-white/80"
-      )} dir="rtl">
-        {item.arabic}
-      </p>
-
-      {/* Name and meaning */}
-      <div className="flex-1 min-w-0 ml-1">
+        {/* Arabic text */}
         <p className={cn(
-          "text-sm font-semibold truncate",
-          isActive ? "text-islamic-gold" : "text-white/70"
-        )}>
-          {item.transliteration || item.name}
+          "font-serif text-xl flex-shrink-0",
+          isActive ? "text-islamic-gold" : "text-white/80"
+        )} dir="rtl">
+          {item.arabic}
         </p>
-        <p className="text-[11px] text-white/30 truncate leading-tight mt-0.5">
-          {meaning}
-        </p>
-      </div>
 
-      {/* Active indicator */}
-      {isActive && (
-        <motion.div
-          initial={{ scale: 0 }}
-          animate={{ scale: 1 }}
-          className="w-6 h-6 rounded-full bg-islamic-gold/20 flex items-center justify-center flex-shrink-0"
-        >
-          <div className="w-2.5 h-2.5 rounded-full bg-islamic-gold" />
-        </motion.div>
-      )}
-    </div>
-  </button>
-));
+        {/* Name and meaning */}
+        <div className="flex-1 min-w-0 ml-1">
+          <p className={cn(
+            "text-sm font-semibold truncate",
+            isActive ? "text-islamic-gold" : "text-white/70"
+          )}>
+            {item.transliteration || item.name}
+          </p>
+          <p className="text-[11px] text-white/30 truncate leading-tight mt-0.5">
+            {meaning}
+          </p>
+        </div>
+
+        {/* Active indicator */}
+        {isActive && (
+          <motion.div
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            className="w-6 h-6 rounded-full bg-islamic-gold/20 flex items-center justify-center flex-shrink-0"
+          >
+            <div className="w-2.5 h-2.5 rounded-full bg-islamic-gold" />
+          </motion.div>
+        )}
+      </div>
+    </button>
+  );
+});
 
 DhikrItem.displayName = 'DhikrItem';
 
@@ -91,6 +114,14 @@ export default function DhikrPickerSheet({ isOpen, onClose, activePreset, dhikrP
   const listRef = useRef(null);
   const sheetRef = useRef(null);
   const inputRef = useRef(null);
+  const blurTimeoutRef = useRef(null);
+
+  // Clear timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (blurTimeoutRef.current) clearTimeout(blurTimeoutRef.current);
+    };
+  }, []);
 
   // Reset search when opening
   useEffect(() => {
@@ -243,8 +274,16 @@ export default function DhikrPickerSheet({ isOpen, onClose, activePreset, dhikrP
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  onFocus={() => setIsInputFocused(true)}
-                  onBlur={() => setIsInputFocused(false)}
+                  onFocus={() => {
+                    if (blurTimeoutRef.current) clearTimeout(blurTimeoutRef.current);
+                    setIsInputFocused(true);
+                  }}
+                  onBlur={() => {
+                    // Delay setting focused to false to allow click events on lists to fire on mobile before layout transitions/shifts
+                    blurTimeoutRef.current = setTimeout(() => {
+                      setIsInputFocused(false);
+                    }, 250);
+                  }}
                   placeholder={t('searchPlaceholder', { defaultValue: 'Zikir veya esma ara...' })}
                   className="w-full bg-white/[0.04] border border-white/8 rounded-xl py-2.5 pl-10 pr-4 text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-islamic-gold/30 transition-all"
                 />

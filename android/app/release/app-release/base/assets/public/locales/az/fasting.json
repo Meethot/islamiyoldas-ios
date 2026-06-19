@@ -1,0 +1,88 @@
+{
+    "title": "Oruc İzləmə",
+    "status": {
+        "fasted": "Tutuldu",
+        "missed": "Qaçırıldı",
+        "excused": "Üzürlü",
+        "pending": "Gözlənilir",
+        "remaining": "Qalan"
+    },
+    "milestones": {
+        "1": "İlk Addım",
+        "3": "Əzm",
+        "7": "Bir Həftə",
+        "10": "Ulduz",
+        "15": "Yarı Yol",
+        "20": "Alovlu",
+        "25": "Demək Olar!",
+        "30": "Tamamlandı!"
+    },
+    "hadith": {
+        "0": {
+            "text": "Oruc bir qalxandır.",
+            "src": "Buxari"
+        },
+        "1": {
+            "text": "Hər şeyin bir zəkatı var, bədənin zəkatı da orucdur.",
+            "src": "İbn Macə"
+        },
+        "2": {
+            "text": "Oruc tutun, sağlamlıq tapın.",
+            "src": "Təbərani"
+        },
+        "3": {
+            "text": "Oruc tutan kimsənin ağız qoxusu, Allah qatında müsk ətirindən daha gözəldir.",
+            "src": "Buxari"
+        },
+        "4": {
+            "text": "Kim Ramazan orucunu iman edərək və savabını gözləyərək tutarsa, keçmiş günahları bağışlanır.",
+            "src": "Buxari, Müslim"
+        },
+        "5": {
+            "text": "Oruc səbrin yarısıdır.",
+            "src": "Tirmizi"
+        },
+        "6": {
+            "text": "Cənnətdə Rəyyan adlı bir qapı var. Oradan ancaq oruc tutanlar girəcəkdir.",
+            "src": "Buxari, Müslim"
+        }
+    },
+    "start": "başla",
+    "ofDays": "/ {{total}} gün",
+    "day": "{{day}}. Gün",
+    "streak": "{{count}} Ardıcıl",
+    "ramazanDay": "Ramazanın {{day}}. Günü",
+    "updateStatus": "Durumu yenilə",
+    "nextGoal": "Növbəti Hədəf",
+    "days": "gün",
+    "calendarTitle": "Ramazan Təqvimi",
+    "calendarSubtitle": "Fevral – Mart 2026",
+    "reset": "Sıfırla",
+    "cancel": "Ləğv Et",
+    "resetTitle": "Oruc Məlumatlarını Sıfırla",
+    "resetDesc": "Bütün oruc qeydləriniz silinəcək. Təravih qeydləri qorunur. Bu əməliyyat geri qaytarıla bilməz.",
+    "teravihTitle": "Təravih Namazı",
+    "teravihResetTooltip": "Təravihi Sıfırla",
+    "teravihResetTitle": "Təravih Məlumatlarını Sıfırla",
+    "teravihResetDesc": "Bütün təravih namazı qeydləriniz silinəcək. Oruc qeydləri qorunur. Bu əməliyyat geri qaytarıla bilməz.",
+    "teravihLegend": {
+        "done": "Qılındı",
+        "notDone": "Qılınmadı"
+    },
+    "weekdays": [
+        "B.e",
+        "Ça",
+        "Çə",
+        "Ca",
+        "Cm",
+        "Şb",
+        "Bz"
+    ],
+    "sahurAlarm": "Sahur Alarmı",
+    "sahurImsakTime": "İmsak: {{time}}",
+    "sahurAlarmTitle": "⏰ Sahur Vaxtı Yaxınlaşır!",
+    "sahurAlarmBody": "İmsaka {{minutes}} dəqiqə qaldı. Sahura qalxma vaxtıdır!",
+    "sahurCancel": "Ləğv Et",
+    "sahurMin": "dəqiqə",
+    "sahurAlarmSet": "🔔 İmsakdan {{minutes}} dəq əvvəl ({{time}}) çalacaq"
+}

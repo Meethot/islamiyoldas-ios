@@ -1,0 +1,12 @@
+{
+    "categories": {
+        "prophets": "Пророки",
+        "companions": "Сподвижники",
+        "moral": "Притчи"
+    },
+    "nowListening": "Сейчас слушаем",
+    "listenersCount": "{{count}} слушателей",
+    "read": "Читать",
+    "normalSpeed": "Обычная скорость",
+    "speedUp": "Ускорить в 2 раза"
+}

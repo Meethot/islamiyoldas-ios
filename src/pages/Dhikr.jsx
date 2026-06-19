@@ -47,7 +47,23 @@ export default function Dhikr() {
 
     const [count, setCount] = useState(isCountdownMode ? countdownTarget : 0);
     const [totalCount, setTotalCount] = useState(() => parseInt(localStorage.getItem('totalDhikrOverall') || '0', 10));
-    const [activePreset, setActivePreset] = useState(DHIKR_PRESETS[2]);
+    const [activePreset, setActivePreset] = useState(() => {
+        if (isCountdownMode) return DHIKR_PRESETS[2];
+        try {
+            const saved = localStorage.getItem('last_active_dhikr_preset');
+            if (saved) {
+                const parsed = JSON.parse(saved);
+                if (parsed && parsed.id) {
+                    const standard = DHIKR_PRESETS.find(p => p.id === parsed.id);
+                    if (standard) return standard;
+                    return parsed;
+                }
+            }
+        } catch (e) {
+            console.error('Failed to parse last active dhikr:', e);
+        }
+        return DHIKR_PRESETS[2];
+    });
     const [target, setTarget] = useState(isCountdownMode ? countdownTarget : (isPremium() ? 33 : 33));
     const [showDhikrLimit, setShowDhikrLimit] = useState(false);
     const [hapticsMode, setHapticsMode] = useState(() => localStorage.getItem('dhikr_haptics_mode') || 'all');
@@ -117,6 +133,8 @@ export default function Dhikr() {
     // States for custom total zikir count editing
     const [showTotalModal, setShowTotalModal] = useState(false);
     const [tempTotal, setTempTotal] = useState('0');
+    const [isTargetInputFocused, setIsTargetInputFocused] = useState(false);
+    const [isTotalInputFocused, setIsTotalInputFocused] = useState(false);
     const [showResetConfirm, setShowResetConfirm] = useState(false);
     
     // Scroll detection coordinates for safe touch input
@@ -432,7 +450,22 @@ export default function Dhikr() {
     useEffect(() => {
         if (isCountdownMode) return;
         
-        syncAndLoadWidgetData();
+        const loadAndSyncPreset = async () => {
+            const savedCount = parseInt(localStorage.getItem(`dhikr_count_${activePreset.id}`) || '0', 10);
+            const savedTarget = parseInt(localStorage.getItem(`dhikr_target_${activePreset.id}`) || String(activePreset.defaultTarget), 10);
+            
+            setCount(savedCount);
+            setTarget(savedTarget);
+            setTempTarget(String(savedTarget));
+            
+            // Persist last active preset selection
+            localStorage.setItem('last_active_dhikr_preset', JSON.stringify(activePreset));
+            
+            const currentTotal = parseInt(localStorage.getItem('totalDhikrOverall') || '0', 10);
+            await syncToWidget(savedCount, activePreset, currentTotal, savedTarget);
+        };
+        
+        loadAndSyncPreset();
     }, [activePreset.id, activePreset.name]);
 
     // Sync increment function to ref to avoid volume listener stale closures
@@ -569,7 +602,10 @@ export default function Dhikr() {
                 setCelebrating(true);
                 triggerReviewPrompt('dhikr');
                 analytics.dhikrCompleted(countdownName, countdownTarget);
-                setTimeout(() => setCelebrating(false), 3000);
+                setTimeout(() => {
+                    setCelebrating(false);
+                    import('@/services/adService').then(({ showInterstitialAd }) => showInterstitialAd()).catch(() => {});
+                }, 3000);
             } else {
                 setCount(newCount);
             }
@@ -618,7 +654,10 @@ export default function Dhikr() {
                 setCelebrating(true);
                 triggerReviewPrompt('dhikr');
                 analytics.dhikrCompleted(activePreset.name, newCount);
-                setTimeout(() => setCelebrating(false), 2000);
+                setTimeout(() => {
+                    setCelebrating(false);
+                    import('@/services/adService').then(({ showInterstitialAd }) => showInterstitialAd()).catch(() => {});
+                }, 2000);
             }
         }
     };
@@ -651,15 +690,25 @@ export default function Dhikr() {
 
     const handleSaveTotal = () => {
         let val = parseInt(tempTotal, 10);
-        if (!isNaN(val) && val >= 0) {
+        if (!isNaN(val) && val > 0) {
             if (val > 999999) {
                 val = 999999;
             }
-            setTotalCount(val);
-            localStorage.setItem('totalDhikrOverall', val.toString());
+            
+            // Calculate difference to update the overall cumulative total consistently
+            const diff = val - count;
+            const newTotal = Math.max(0, totalCount + diff);
+            
+            // Update active preset count (the main number in the middle)
+            setCount(val);
+            localStorage.setItem(`dhikr_count_${activePreset.id}`, val.toString());
+            
+            // Update overall cumulative total count
+            setTotalCount(newTotal);
+            localStorage.setItem('totalDhikrOverall', newTotal.toString());
             
             setShowTotalModal(false);
-            syncToWidget(count, activePreset, val, target);
+            syncToWidget(val, activePreset, newTotal, target);
             
             // Trigger success haptic feedback
             try {
@@ -1653,7 +1702,7 @@ export default function Dhikr() {
                 <div className="relative bg-white/[0.07] backdrop-blur-md px-6 py-3.5 rounded-full border border-white/15 flex items-center justify-between gap-4 shadow-xl max-w-[320px] mx-auto w-full mt-14 transition-all hover:bg-white/10 hover:border-islamic-gold/40 hover:shadow-[0_0_15px_rgba(255,255,255,0.05)]">
                     <button
                         onClick={() => {
-                            setTempTotal(totalCount.toString());
+                            setTempTotal(count.toString());
                             setShowTotalModal(true);
                         }}
                         className="flex items-center gap-3.5 text-left active:scale-[0.97] transition-transform flex-1 py-1"
@@ -1789,7 +1838,10 @@ export default function Dhikr() {
                             </motion.button>
 
                             <button
-                                onClick={() => setShowDhikrLimit(false)}
+                                onClick={() => {
+                                    setShowDhikrLimit(false);
+                                    import('@/services/adService').then(({ showInterstitialAd }) => showInterstitialAd()).catch(() => {});
+                                }}
                                 className="w-full mt-4 py-2 text-white/25 text-xs font-medium hover:text-white/40 transition-colors"
                             >
                                 {t('dhikrLimit.dismiss', { defaultValue: 'Yarın tekrar gel' })}
@@ -1815,7 +1867,10 @@ export default function Dhikr() {
             {showTargetModal && (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 animate-in fade-in duration-300">
                     <div className="absolute inset-0 bg-black/80 backdrop-blur-md" onClick={() => setShowTargetModal(false)} />
-                    <div className="bg-[#032e18] border border-white/10 rounded-[3rem] p-8 w-full max-w-sm relative z-10 shadow-2xl animate-in zoom-in slide-in-from-bottom-5 duration-300 overflow-hidden">
+                    <div className={cn(
+                        "bg-[#032e18] border border-white/10 rounded-[3rem] p-8 w-full max-w-sm relative z-10 shadow-2xl animate-in zoom-in slide-in-from-bottom-5 duration-300 overflow-hidden transition-all duration-300",
+                        isTargetInputFocused && "-translate-y-[100px]"
+                    )}>
                         <div className="absolute top-0 right-0 p-4">
                             <button onClick={() => setShowTargetModal(false)} className="text-white/40 hover:text-white p-2">
                                 <X size={24} />
@@ -1845,6 +1900,8 @@ export default function Dhikr() {
                                     }
                                     setTempTarget(val);
                                 }}
+                                onFocus={() => setIsTargetInputFocused(true)}
+                                onBlur={() => setIsTargetInputFocused(false)}
                                 readOnly={!isPremium()}
                                 className={cn(
                                     "w-full bg-black/30 border border-white/10 rounded-2xl py-5 px-6 text-4xl font-mono font-bold text-center text-islamic-gold focus:outline-none focus:border-islamic-gold/50 transition-all placeholder:opacity-20",
@@ -1888,7 +1945,10 @@ export default function Dhikr() {
             {showTotalModal && (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 animate-in fade-in duration-300">
                     <div className="absolute inset-0 bg-black/80 backdrop-blur-md" onClick={() => setShowTotalModal(false)} />
-                    <div className="bg-[#032e18] border border-white/10 rounded-[3rem] p-8 w-full max-w-sm relative z-10 shadow-2xl animate-in zoom-in slide-in-from-bottom-5 duration-300 overflow-hidden">
+                    <div className={cn(
+                        "bg-[#032e18] border border-white/10 rounded-[3rem] p-8 w-full max-w-sm relative z-10 shadow-2xl animate-in zoom-in slide-in-from-bottom-5 duration-300 overflow-hidden transition-all duration-300",
+                        isTotalInputFocused && "-translate-y-[100px]"
+                    )}>
                         <div className="absolute top-0 right-0 p-4">
                             <button onClick={() => setShowTotalModal(false)} className="text-white/40 hover:text-white p-2">
                                 <X size={24} />
@@ -1917,6 +1977,8 @@ export default function Dhikr() {
                                         setTempTotal(e.target.value);
                                     }
                                 }}
+                                onFocus={() => setIsTotalInputFocused(true)}
+                                onBlur={() => setIsTotalInputFocused(false)}
                                 max="999999"
                                 className="w-full bg-black/30 border border-white/10 rounded-2xl py-5 px-6 text-4xl font-mono font-bold text-center text-islamic-gold focus:outline-none focus:border-islamic-gold/50 transition-all placeholder:opacity-20"
                                 placeholder="1000"
@@ -1926,7 +1988,11 @@ export default function Dhikr() {
 
                         <button
                             onClick={handleSaveTotal}
-                            className="w-full h-16 rounded-2xl bg-islamic-gold hover:bg-amber-600 text-[#021a0f] text-lg font-bold shadow-lg shadow-islamic-gold/20 flex items-center justify-center gap-3"
+                            disabled={isNaN(parseInt(tempTotal, 10)) || parseInt(tempTotal, 10) <= 0}
+                            className={cn(
+                                "w-full h-16 rounded-2xl bg-islamic-gold hover:bg-amber-600 text-[#021a0f] text-lg font-bold shadow-lg shadow-islamic-gold/20 flex items-center justify-center gap-3 transition-all",
+                                (isNaN(parseInt(tempTotal, 10)) || parseInt(tempTotal, 10) <= 0) && "opacity-50 cursor-not-allowed"
+                            )}
                         >
                             <Check size={20} strokeWidth={3} /> {t('save', { defaultValue: 'KAYDET' })}
                         </button>

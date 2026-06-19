@@ -1,0 +1,340 @@
+{
+    "greeting": {
+        "morning": "Sabahınız Xeyir",
+        "afternoon": "Günortanız Xeyir",
+        "evening": "Axşamınız Xeyir",
+        "night": "Xeyirli Gecələr",
+        "generic": "Əssalamu Ələykum"
+    },
+    "friday": {
+        "text": "Günəşin üzərinə doğduğu ən xeyirli gün Cümə günüdür.",
+        "source": "Hədis-i Şərif (Müslim)",
+        "message": "Xeyirli Cümələr",
+        "share_title": "Cümə Mesajı Paylaş"
+    },
+    "verse_share_title": "Ayə Paylaş",
+    "verse": {
+        "fridayTitle": "Cümə Xatırlatması",
+        "dailyTitle": "Günün Ayəsi",
+        "shareBtn": "Mesajı Paylaş",
+        "swipeHint": "digər ayələri kəşf etmək üçün sürüşdürün"
+    },
+    "deed": {
+        "title": "Bu Günün Yaxşılığı",
+        "blurText": "Yaxşılıq hər qapını açar...",
+        "reveal": "GÖR",
+        "items": [
+            "Yerdəki bir zibili götür.",
+            "Küçə heyvanına su ver.",
+            "Tanımadığın birinə salam ver.",
+            "Bu gün heç şikayət etmə.",
+            "Köhnə bir dostuna mesaj yaz.",
+            "Quşlar üçün pəncərəyə çörək qoy.",
+            "Qəzəblənəndə susmağı seç.",
+            "Birinə ürəkdən təşəkkür et.",
+            "Bu gün biriylə bir sədəqə paylaş.",
+            "Güzgüyə baxıb şükür et.",
+            "Bir dostunun dərdini dinlə.",
+            "İş yoldaşına qəhvə hazırla.",
+            "Bir heyvana yem bırax.",
+            "Bir bitkini sula.",
+            "Pis söz deyənə sus.",
+            "Yeməyi hazırlayan üçün dua et.",
+            "Birinin gözəl xüsusiyyətini tərif et.",
+            "Sıranı başqasına ver.",
+            "Yatmazdan əvvəl hər kəsi bağışla.",
+            "Səhər oyananda gülümsə.",
+            "Bir esnafa 'Xeyirli İşlər' de.",
+            "Ehtiyacı olan birinə yardım əlini uzat.",
+            "Bu gün yalnız dinləyici ol.",
+            "Artıq yeməyi heyvanlara ver.",
+            "Bu gün səmimi bir dua et.",
+            "Səhv edirsənsə üzrxahlıq et.",
+            "Birinin yükünü daşımasına yardım et.",
+            "Ehtiyac sahibinə paltar və ya əşya bağışla.",
+            "Göy üzünə baxıb təfəkkür et.",
+            "Qonşuna hal-əhval soruş.",
+            "Bu gün israf etmə.",
+            "Qəzəbləndığın şəxsə dua et.",
+            "Bir bilik ya da bacarığını öyrət.",
+            "Yaşlı birinə yardım et.",
+            "Bu gün yalan danışma.",
+            "Gizlicə bir yaxşılıq et.",
+            "Bu gün qəzəbini ud.",
+            "Yeməyini yavaş ye, şükür et.",
+            "İctimai nəqliyyatda ayaq üstə qalan birinə yer ver.",
+            "Bu gün qarşılaşdığın hər kəsə təbəssüm et.",
+            "İstifadə etmədiyin bir əşyanı ehtiyacı olan birinə hədiyyə et.",
+            "Yemək yediyin boş qaba su doldurub quşlara saxla.",
+            "Bu gün heç kimi tənqid etmə.",
+            "Yolda insanlara mane olan bir daşı və ya zibili kənara çək.",
+            "Birinə səmimi bir iltifat et.",
+            "Açıq unudulmuş bir işığı və ya suyu bağla.",
+            "Bir küçə pişiyinin və ya itinin başını sığalla.",
+            "Bu gün telefonuna daha az bax və insanlarla göz təması qur.",
+            "Birinə oxuduğun gözəl bir kitabı tövsiyə et.",
+            "İki nəfərin arasını düzəltmək üçün cəhd göstər.",
+            "Yalnız Allah rızası üçün gizli bir yaxşılıq et.",
+            "Bu gün yalnız müsbət cümlələr qurmağa çalış.",
+            "Sosial mediada gördüyün faydalı bir məlumatı başqaları ilə paylaş.",
+            "Köhnə əşyalarını ianə qutusuna at.",
+            "Bu gün tıxacda digər insanlara qarşı daha səbirli ol.",
+            "Qəlbini qıran biri üçün hidayət dilə.",
+            "Ətrafındakı insanlara müsbət enerji yay.",
+            "Kiçik bir uşağa şəfqətlə yanaş və gülümsə.",
+            "Bu gün heç bir işi təxirə salma.",
+            "Bir tanışına və ya iş yoldaşına gözəl bir dua et.",
+            "Getdiyin bir məkanda işçilərə asanlıqlar dilə.",
+            "Bu gün alacağın bir şeyi ehtiyacı olan bir satıcıdan al.",
+            "Səni kədərləndirən birini içindən bağışla.",
+            "Bu gün aldığın hər nəfəs üçün şükür et.",
+            "Faydalı və gözəl bir sözü ətrafındakılarla paylaş.",
+            "Bu gün yeriyərkən ətrafındakı gözəllikləri fərq etməyə çalış.",
+            "Gözləyən bir növbədə arxandakı şəxsə üstünlük ver.",
+            "Tanıdığın amma uzun zamandır görmədiyin birinə zəng et."
+        ]
+    },
+    "theme_select": "Tema Seçin",
+    "share_image": "Şəkli Paylaş",
+    "sharing": "Paylaşılır...",
+    "alarm_too_close": "Vaxta çox az qalıb, bu müddət üçün alarm qurula bilməz.",
+    "sound_on": "Səs: Açıq",
+    "sound_off": "Səs: Qapalı",
+    "haptics_every": "Titrəşim: Hər toxunuşda",
+    "haptics_target": "Titrəşim: Yalnız hədəfdə",
+    "haptics_off": "Titrəşim: Qapalı",
+    "close": "Bağla",
+    "reset": "Sıfırla",
+    "quick_actions": {
+        "dhikr": {
+            "label": "Zikirmatik",
+            "subtitle": "Zikir"
+        },
+        "new_day": {
+            "label": "Yeni Gün",
+            "subtitle": "+{{offset}} gün"
+        },
+        "sleep": {
+            "label": "Yuxu Rejimi",
+            "subtitle": "Hüzur"
+        },
+        "qibla": {
+            "label": "Qiblə",
+            "subtitle": "İstiqamət"
+        }
+    },
+    "widgets": {
+        "breath": {
+            "title": "Ruhunu Dincəldir",
+            "subtitle": "Rehberli Təfəkkür & Nəfəs"
+        },
+        "dua": {
+            "title": "Dua Qardaşlığı",
+            "subtitle": "Bir-birimizə qiyabi dua edək."
+        }
+    },
+    "esma": {
+        "virtue_title": "Fəziləti & Sirri",
+        "cycle": "{{count}}. Tur",
+        "title": "Əsma-ül Hüsna",
+        "showAll": "Hamısını Gör",
+        "swipe": "Sürüşdür",
+        "seeDetails": "Təfərrüatları Gör",
+        "modalTitle": "99 Əsma-ül Hüsna",
+        "searchPlaceholder": "Ad və ya məna axtar...",
+        "sortAsc": "A-Z Sırala",
+        "sortDesc": "Z-A Sırala",
+        "ebced": "Əbcəd",
+        "noResults": "Axtardığınız ad tapılmadı...",
+        "remaining": "Qalan",
+        "close": "Bağla"
+    },
+    "tuba": {
+        "title": "Tuba Ağacı",
+        "days": [
+            "B",
+            "B.e",
+            "Ç.a",
+            "Ç",
+            "C.a",
+            "C",
+            "Ş"
+        ],
+        "daysCompleted": "{{count}} / 7 Gün Tamamlandı",
+        "streak": "🔥 {{count}} Gün Ardıcıl",
+        "total": "Cəmi: {{count}}",
+        "goal": "Hədəf: {{count}}",
+        "btnDone": "Bu Gün Verildi",
+        "btnWatering": "Sulanır...",
+        "btnWater": "Can Suyu Ver",
+        "toastAlready": "Bu günkü haqqını artıq doldurdun! Sabah yenidən gəl 🌱",
+        "celebTitle": "Mübarək Olsun!",
+        "celebMsg": "Həftəlik hədəfini tamamladın.<br/>Tuba fidanın indi daha güclüdür! ✨",
+        "stages": {
+            "seed": "Mənəvi Toxum",
+            "seedMeaning": "Potensial",
+            "sapling": "Körpə Fidan",
+            "saplingMeaning": "Böyümə",
+            "youngTree": "Gənc Ağac",
+            "youngTreeMeaning": "Sabitlik",
+            "matureTree": "Köklü Çinar",
+            "matureTreeMeaning": "Sədaqət",
+            "tuba": "Mübarək Tuba",
+            "tubaMeaning": "Bərəkət"
+        }
+    },
+    "calendar": {
+        "title": "Müqəddəs Vaxtlar",
+        "next": "Sırada",
+        "showAll": "Hamısını Gör",
+        "approaching": "Yaxınlaşır",
+        "modalTitle": "2026 Müqəddəs Vaxtlar",
+        "modalSubtitle": "Hicri 1447 - 1448",
+        "today": "Bu gün",
+        "tomorrow": "Sabah",
+        "daysLeft": "{{count}} Gün Qaldı",
+        "months": [
+            "Yanvar",
+            "Fevral",
+            "Mart",
+            "Aprel",
+            "May",
+            "İyun",
+            "İyul",
+            "Avqust",
+            "Sentyabr",
+            "Oktyabr",
+            "Noyabr",
+            "Dekabr"
+        ]
+    },
+    "fasting": {
+        "title": "Oruc İzləmə",
+        "subtitle": "Orucunu izlə, ardıcıllığı qoru",
+        "longest": "Ən yüksək: {{count}} gün",
+        "ramazanDay": "Ramazanın {{day}}. Günü",
+        "fasted": "Oruc Tutuldu ✓",
+        "fastToday": "Bu Gün Oruc",
+        "accepted": "Allah qəbul etsin",
+        "markIt": "Oruc tutdunsa işarələ",
+        "daySeries": "gün ardıcıl",
+        "dayNames": [
+            "Bz",
+            "Be",
+            "Ça",
+            "Çə",
+            "Ca",
+            "Cm",
+            "Şb"
+        ],
+        "rewards": [
+            "İlk addım atıldı!",
+            "Əla gedirsən!",
+            "Bir həftə tamamlandı!",
+            "Yarı yol, möhtəşəm!",
+            "Tam bir ay, maşallah!"
+        ]
+    },
+    "quickAction": {
+        "fasting": "Oruc İzləmə",
+        "fastingSub": "Orucunu izlə, ardıcıllığı qoru",
+        "widgetGuide": "Vidcet / Kilid Ekranı Rəhbəri",
+        "widgetGuideSub": "Ana ekran və kilid ekranı"
+    },
+    "reminder": {
+        "title": "Xatırladıcı Qur",
+        "forPrayer": "{{prayer}} vaxtı üçün",
+        "currentlySelected": "Hazırda {{time}} seçili",
+        "onTime": "Düz Vaxtında",
+        "minutesBefore": "{{count}} Dəqiqə Əvvəl",
+        "alreadySelected": "Artıq Seçili",
+        "removeReminder": "Xatırladıcını Sil",
+        "resetReminder": "Xatırladıcını Sıfırla (Söndür)"
+    },
+    "header": {
+        "appName": "İslami Yoldaş"
+    },
+    "streak": {
+        "dayStreak": "Gün Ardıcıl",
+        "highest": "Ən yüksək: {{count}} gün",
+        "start": "Bu gün başla!",
+        "firstStep": "İlk addım atıldı!",
+        "keepGoing": "Davam et!",
+        "doingGreat": "Əla gedirsən!",
+        "amazing": "Möhtəşəm!",
+        "legendary": "Əfsanəvi!"
+    },
+    "dailyWorship": {
+        "title": "GÜNDƏLİK İBADƏT",
+        "completed": "{{current}} / {{total}} Tamamlandı",
+        "allDoneTitle": "Əlhəmdülillah",
+        "allDoneSub": "Gün Tamamlandı 🤲"
+    },
+    "prayerCard": {
+        "upcoming": "Növbəti",
+        "tracking": "İzlənən",
+        "backToAuto": "← Avtomatik Rejimə Qayıt (Növbəti Vaxtı İzlə)",
+        "selected": "✓ Seçili - İzlənir",
+        "nextPrayer": "Növbəti Vaxt",
+        "passed": "Keçdi",
+        "tapToSelect": "Seçmək üçün toxunun"
+    },
+    "prayerReward": {
+        "close": "Bağla",
+        "mayAllahAccept": "Allah Qəbul Etsin",
+        "thankYou": "{{prayerName}} namazınız üçün təşəkkür edirik 💚",
+        "recommendedDua": "Tövsiyə Olunan Dua",
+        "amin": "Amin 🌙"
+    },
+    "prayerOverlay": {
+        "close": "Bağla",
+        "prayerTime": "Namaz Vaxtı",
+        "motivational": "\"Namazını qılmaq istərsən?\"",
+        "praying": "Qılıram ✅",
+        "remindLater": "10 dəq Sonra Xatırlat ⏰"
+    },
+    "dhikrLimit": {
+        "title": "Günlük Zikir Haqqınız",
+        "completed": "Tamamlandı",
+        "desc1": "Pulsuz olaraq gündə",
+        "count": "{{count}} zikir",
+        "desc2": "çəkə bilərsiniz.",
+        "desc3": "Limitsiz zikir üçün Premiuma yüksəlin.",
+        "cta": "Limitsiz Zikir — Premium",
+        "dismiss": "Sabah yenidən gəl"
+    },
+    "permission": {
+        "location_title": "🕌 Namaz Vaxtlarını Quraq",
+        "location_desc": "Şəhərinə uyğun dəqiq namaz vaxtlarını və qiblə istiqamətini göstərmək üçün yerinə ehtiyacımız var.",
+        "location_accept": "Yerimi İstifadə Et",
+        "location_skip": "İndi Deyil",
+        "notification_title": "🔔 Namazı Qaçırma",
+        "notification_desc": "Namaz vaxtlarında xəbərdar ol, gündəlik ibadətlərini yumşaq xatırlatmalarla izlə.",
+        "notification_accept": "Bildirişləri Aç",
+        "notification_skip": "İndi Deyil",
+        "badge_prayer": "🕌 Namaz Vaxtı",
+        "badge_qibla": "🧭 Qiblə İstiqaməti",
+        "badge_city": "📍 Şəhər",
+        "badge_adhan": "🔔 Azan Xəbərdarlığı",
+        "badge_dhikr": "📿 Gündəlik Zikir",
+        "badge_reminder": "🌙 Xatırlatmalar",
+        "location_manual": "Əl ilə Qur",
+        "notification_manual": "Ayarlardan Aç"
+    },
+    "widget_guide": {
+        "title": "Vidcet / Kilid Ekranı Rəhbəri",
+        "subtitle": "İbadətlərini ana ekrandan və kilit ekranından izlə",
+        "available_widgets": "Mövcud Widgetlar",
+        "tab_home": "Ana Ekran",
+        "tab_lock": "Kilit Ekranı",
+        "how_home": "Ana Ekrana Necə Əlavə Edilir?",
+        "how_lock": "Kilit Ekranına Necə Əlavə Edilir?",
+        "swipe_hint": "Addımlar arasında sürüşdür və ya toxun",
+        "tip_title": "Məlumat",
+        "tip_desc": "Widgetlar hər saat avtomatik yenilənir. Günün ayəsi və Əsma-ül Hüsna widgetları hər saat fərqli məzmun göstərir.",
+        "premium_note": "👑 Premium abunəliyiniz müddətində bütün widgetlar aktivdir.",
+        "free_note": "⏳ Pulsuz istifadəçilər üçün widgetlar 1 saat aktiv işləyir. Premium ilə limitsiz istifadə edin.",
+        "ios_note_title": "iOS 16+",
+        "ios_note_desc": "Kilit ekranı widgetları iOS 16 və daha yuxarı versiyalarda mövcuddur. Ana ekran widgetları iOS 14+ dəstəkləyir."
+    }
+}

@@ -1,0 +1,55 @@
+{
+    "steps": {
+        "language": {
+            "title": "اختر اللغة",
+            "subtitle": "اختر لغتك المفضّلة",
+            "select": "اختر لغتك"
+        },
+        "gender": {
+            "title": "الجنس",
+            "male": "ذكر",
+            "female": "أنثى"
+        },
+        "age": {
+            "title": "الفئة العمرية",
+            "subtitle": "محتوى مخصّص لك",
+            "range1": "١٣ - ١٧ سنة",
+            "range2": "١٨ - ٣٠ سنة",
+            "range3": "٣١ - ٤٥ سنة",
+            "range4": "+٤٦ سنة"
+        },
+        "prayerStatus": {
+            "title": "حالة الصلاة",
+            "subtitle": "لفهم رحلتك",
+            "regular": "نعم، أصلّي الخمس",
+            "occasional": "أصلّي أحياناً",
+            "irregular": "لم أبدأ بعد"
+        },
+        "quranLevel": {
+            "title": "معرفة القرآن",
+            "subtitle": "حدّد مستوى تعلّمك",
+            "advanced": "أقرأ بطلاقة",
+            "reading": "أقرأ ببطء",
+            "learning": "أعرف الحروف",
+            "none": "أريد أن أتعلّم"
+        },
+        "goal": {
+            "title": "الهدف الرئيسي",
+            "subtitle": "كيف يمكننا مساعدتك؟",
+            "prayer": "المواظبة على الصلاة",
+            "quran": "تعلّم القرآن",
+            "spirituality": "تعزيز الروحانية",
+            "knowledge": "المعرفة الإسلامية"
+        }
+    },
+    "welcome": {
+        "title": "أهلاً وسهلاً",
+        "subtitle": "دعنا نخصّص تجربتك"
+    },
+    "progress": "الخطوة {{current}} / {{total}}",
+    "skip": "تخطي",
+    "buttons": {
+        "next": "متابعة",
+        "start": "ابدأ"
+    }
+}

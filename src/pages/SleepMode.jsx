@@ -196,6 +196,7 @@ export default function SleepMode() {
                     setAmbientOn(true);
                     updateBackgroundMode(isPlaying, true);
                     markSleepUsed();
+                    import('@/services/adService').then(({ showInterstitialAd }) => showInterstitialAd()).catch(() => {});
                 })
                 .catch((e) => {
                     setAmbientError("Ses yüklenemedi. Lütfen internetinizi kontrol edin.");
@@ -224,6 +225,7 @@ export default function SleepMode() {
             markSleepUsed();
             const durationMin = Math.round((mulkAudio.duration || 0) / 60);
             analytics.sleepModeStarted('mulk_surah', durationMin);
+            import('@/services/adService').then(({ showInterstitialAd }) => showInterstitialAd()).catch(() => {});
         }
     };
 

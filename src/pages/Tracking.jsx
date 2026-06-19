@@ -178,6 +178,7 @@ export default function Tracking() {
             // Check if all 5 prayers are completed (streak trigger)
             if (next.length === 5 && !wasCompleted) {
                 recordDayComplete();
+                import('@/services/adService').then(({ showInterstitialAd }) => showInterstitialAd()).catch(() => {});
             }
 
 

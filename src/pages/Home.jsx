@@ -142,6 +142,23 @@ export default function Home() {
     // Track current date key for midnight transition detection
     const [currentDateKey, setCurrentDateKey] = useState(getTodayString());
 
+    // Interstitial idle timer: Kullanıcı anasayfada beklerken periyodik reklam kontrolü
+    useEffect(() => {
+        const idleAdInterval = setInterval(() => {
+            import('@/services/adService').then(({ showInterstitialAd }) => showInterstitialAd()).catch(() => {});
+        }, 15000); // Her 15 saniyede kontrol et
+        
+        // Mount anında da hemen bir kez dene
+        const mountTimer = setTimeout(() => {
+            import('@/services/adService').then(({ showInterstitialAd }) => showInterstitialAd()).catch(() => {});
+        }, 2000); // 2 saniye sonra ilk deneme (AdMob init'in tamamlanması için)
+        
+        return () => {
+            clearInterval(idleAdInterval);
+            clearTimeout(mountTimer);
+        };
+    }, []);
+
     // Initial Data Load & Event Listener
     useEffect(() => {
         const loadPrayers = () => {
@@ -639,7 +656,11 @@ export default function Home() {
                                             isFriday
                                         );
                                         setSharing(false);
-                                        if (success) selection();
+                                        if (success) {
+                                            selection();
+                                            // Paylaşım sonrası reklam tetikleyici (Doğal geçiş noktası)
+                                            import('@/services/adService').then(({ showInterstitialAd }) => showInterstitialAd()).catch(() => {});
+                                        }
                                     }}
                                     disabled={sharing}
                                 >
@@ -794,6 +815,11 @@ function EsmaDetailModal({ esma, count, setCount, onClose }) {
             }
         } else if (hapticsMode === 'target' && isTargetReached) {
             targetReached(); // Enhanced double-pulse only on target
+        }
+
+        // Reklam Gösterimi (Hedefe ulaşıldığında)
+        if (isTargetReached && newCount > 0) {
+            import('@/services/adService').then(({ showInterstitialAd }) => showInterstitialAd()).catch(() => {});
         }
     };
 
@@ -1124,7 +1150,10 @@ function EsmaDetailModal({ esma, count, setCount, onClose }) {
 
                                     {/* Dismiss */}
                                     <button
-                                        onClick={() => setShowDhikrLimit(false)}
+                                        onClick={() => {
+                                            setShowDhikrLimit(false);
+                                            import('@/services/adService').then(({ showInterstitialAd }) => showInterstitialAd()).catch(() => {});
+                                        }}
                                         className="w-full mt-4 py-2 text-white/25 text-xs font-medium hover:text-white/40 transition-colors"
                                     >
                                         {t('dhikrLimit.dismiss')}

@@ -61,10 +61,12 @@ function CrashBreadcrumbs() {
   return null;
 }
 
-// Widget deep link handler — navigates to /premium when widget is tapped
-function DeepLinkHandler() {
+// Global event and Deep link handler
+function GlobalEventHandler() {
   const navigate = useNavigate();
+  
   useEffect(() => {
+    // 1. App URL Open / Deep Link Listener
     const listener = CapApp.addListener('appUrlOpen', (event) => {
       const url = event.url || '';
       if (url.includes('widget') || url.includes('PrayerTimesProvider')) {
@@ -74,7 +76,19 @@ function DeepLinkHandler() {
         navigate('/premium');
       }
     });
-    return () => { listener.then(l => l.remove()); };
+
+    // 2. Custom Event Listener (e.g. from adService after ad dismissed)
+    const handlePremiumUpsell = () => {
+        // Yönlendirmeden önce kullanıcıya sorabiliriz veya direkt yönlendirebiliriz
+        // Şimdilik direkt yönlendiriyoruz
+        navigate('/premium');
+    };
+    window.addEventListener('showPremiumUpsell', handlePremiumUpsell);
+
+    return () => { 
+        listener.then(l => l.remove()); 
+        window.removeEventListener('showPremiumUpsell', handlePremiumUpsell);
+    };
   }, [navigate]);
   return null;
 }
@@ -115,6 +129,21 @@ function AppContent() {
       setShowSplash(false);
       const loadTime = Math.round(performance.now() - APP_START_TIME);
       const isFirstOpen = !storageService.getItem('has_launched_before');
+
+      // --- Unique Day Tracking for Ads ---
+      try {
+          const today = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD local
+          const lastOpenDate = storageService.getItem('last_open_date');
+          if (lastOpenDate !== today) {
+              const currentDays = parseInt(storageService.getItem('unique_days_opened') || '0', 10);
+              storageService.setItem('unique_days_opened', (currentDays + 1).toString());
+              storageService.setItem('last_open_date', today);
+              console.log(`[Tracking] Unique open day recorded: ${currentDays + 1}`);
+          }
+      } catch (e) {
+          console.error('[Tracking] Day tracking failed', e);
+      }
+
       analytics.appLoaded(loadTime, isFirstOpen);
       analytics.firstScreenVisible(onboardingComplete ? 'home' : 'onboarding', loadTime);
       if (isFirstOpen) storageService.setItem('has_launched_before', 'true');
@@ -143,7 +172,7 @@ function AppContent() {
 
   // Defer non-critical third-party initializations to prevent blocking JS thread on mount
   useEffect(() => {
-    const t1 = setTimeout(initAdMob, 2000);
+    const t1 = setTimeout(initAdMob, 100); // Hemen başlat (async — splash'ı bloklamaz)
     const t2 = setTimeout(initCrashlytics, 3000);
     const t3 = setTimeout(initOneSignal, 4000);
     return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
@@ -234,7 +263,7 @@ function AppContent() {
           <ScrollToTop />
           <SwipeBackHandler />
           <CrashBreadcrumbs />
-          <DeepLinkHandler />
+          <GlobalEventHandler />
           <ReviewPrompt />
           <Suspense fallback={<div className="min-h-screen bg-background" />}>
             <Routes>

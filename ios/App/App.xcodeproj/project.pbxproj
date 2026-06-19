@@ -20,7 +20,6 @@
 		55655962C3DD36DECD0CFC15 /* VerseLockScreenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC01C92512331C4565B384E0 /* VerseLockScreenView.swift */; };
 		658561D04E94F18110235ECA /* HourlyVerseLockScreenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5597A4B530F8B3CB9BF4632 /* HourlyVerseLockScreenView.swift */; };
 		79D22CBDDC24981835948099 /* HourlyVerseSmallWidgetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F42928A1954CB9B9652868EC /* HourlyVerseSmallWidgetView.swift */; };
-		7CBC222261674AD7BBAF2FB1 /* Pods_App.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9F5150799EA0F15B9ED12EDD /* Pods_App.framework */; };
 		81157D489F3994F77D54D7B7 /* HourlyEsmaSmallWidgetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D6FAD41BAD9E2D38B5835C6 /* HourlyEsmaSmallWidgetView.swift */; };
 		83A3CCE47DED0B3B924F116B /* HourlyVerseMediumWidgetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FB880A49D28D7BE0B3A5857 /* HourlyVerseMediumWidgetView.swift */; };
 		889F9B708DBDA3EA16C76275 /* HourlyVerseProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F01A4A3E835FB569AC9BE79 /* HourlyVerseProvider.swift */; };
@@ -46,6 +45,7 @@
 		E49259D82F61982100F71080 /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E49259D72F61982100F71080 /* StoreKit.framework */; };
 		E49259DD2F61A46D00F71080 /* İslami Yoldaş: Namaz, Ramazan.storekit in Resources */ = {isa = PBXBuildFile; fileRef = E49259DC2F61A46D00F71080 /* İslami Yoldaş: Namaz, Ramazan.storekit */; };
 		E9AD63757027425035C30D59 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 1F028E53F29912EE2DF5543B /* Localizable.strings */; };
+		F3AE7909B7E1A6EC07A729B3 /* Pods_App.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 482C13562036DB0DA7227BC4 /* Pods_App.framework */; };
 		F486CB2CE132492AC134CE67 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = EDF92D19185FF9E333BBAF22 /* InfoPlist.strings */; };
 		PREM00000000000000B00001 /* WidgetAccessHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = PREM00000000000000F00001 /* WidgetAccessHelper.swift */; };
 		PREM00000000000000B00002 /* PremiumRequiredView.swift in Sources */ = {isa = PBXBuildFile; fileRef = PREM00000000000000F00002 /* PremiumRequiredView.swift */; };
@@ -101,6 +101,7 @@
 		3F7A4A4432A2FD4104D389A3 /* az */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = az; path = az.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		439B6CED9826E7A302D233E3 /* ar */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = ar; path = ar.lproj/Localizable.strings; sourceTree = "<group>"; };
 		46622A09AAA8C4ACEF22C8F0 /* tr */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = tr; path = tr.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		482C13562036DB0DA7227BC4 /* Pods_App.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_App.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		4B3CCE77197A9B3AE3864EF6 /* az */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = az; path = az.lproj/Localizable.strings; sourceTree = "<group>"; };
 		4D95D8CB79D8F542DFED9B17 /* MotivationLockScreenView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MotivationLockScreenView.swift; sourceTree = "<group>"; };
 		4F4568495A7729AE65380603 /* HourlyVerseEntry.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = HourlyVerseEntry.swift; sourceTree = "<group>"; };
@@ -112,6 +113,7 @@
 		504EC3111FED79650016851F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		504EC3131FED79650016851F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		50B271D01FEDC1A000F3C39B /* public */ = {isa = PBXFileReference; lastKnownFileType = folder; path = public; sourceTree = "<group>"; };
+		51E0D06FC4E1929568C3C07C /* Pods-App.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-App.debug.xcconfig"; path = "Target Support Files/Pods-App/Pods-App.debug.xcconfig"; sourceTree = "<group>"; };
 		5714E50E62DA75789DCB835A /* de */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/Localizable.strings; sourceTree = "<group>"; };
 		58B24A785D1C2CF6A6A30160 /* en */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		5DEFFC91C8998597F9B4E2BB /* MotivationSmallWidgetView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MotivationSmallWidgetView.swift; sourceTree = "<group>"; };
@@ -120,14 +122,11 @@
 		8D6FAD41BAD9E2D38B5835C6 /* HourlyEsmaSmallWidgetView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = HourlyEsmaSmallWidgetView.swift; sourceTree = "<group>"; };
 		9310A7A3DA0CEB5B4D32B3BE /* MotivationProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MotivationProvider.swift; sourceTree = "<group>"; };
 		941640D93A7B012B73939378 /* HourlyEsmaProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = HourlyEsmaProvider.swift; sourceTree = "<group>"; };
-		9E9822D4A75D9936BA4B9B97 /* Pods-App.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-App.debug.xcconfig"; path = "Target Support Files/Pods-App/Pods-App.debug.xcconfig"; sourceTree = "<group>"; };
-		9F5150799EA0F15B9ED12EDD /* Pods_App.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_App.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		A11BCC5A2F3D000100996C74 /* sahur_alarm.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = sahur_alarm.caf; sourceTree = "<group>"; };
 		A5597A4B530F8B3CB9BF4632 /* HourlyVerseLockScreenView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = HourlyVerseLockScreenView.swift; sourceTree = "<group>"; };
 		AB4ACBA0E7BEDC9E8C5D9FCB /* MotivationEntry.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MotivationEntry.swift; sourceTree = "<group>"; };
 		B89027793E3ED675327F0B40 /* MotivationMediumWidgetView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MotivationMediumWidgetView.swift; sourceTree = "<group>"; };
 		CC01C92512331C4565B384E0 /* VerseLockScreenView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = VerseLockScreenView.swift; sourceTree = "<group>"; };
-		D8F51D3D3345779FC82B3F78 /* Pods-App.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-App.release.xcconfig"; path = "Target Support Files/Pods-App/Pods-App.release.xcconfig"; sourceTree = "<group>"; };
 		DHKR00000000000000F00001 /* DhikrEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DhikrEntry.swift; sourceTree = "<group>"; };
 		DHKR00000000000000F00002 /* DhikrIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DhikrIntent.swift; sourceTree = "<group>"; };
 		DHKR00000000000000F00003 /* DhikrProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DhikrProvider.swift; sourceTree = "<group>"; };
@@ -145,6 +144,7 @@
 		E48DDD302F45063500B2FBF8 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		E49259D72F61982100F71080 /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
 		E49259DC2F61A46D00F71080 /* İslami Yoldaş: Namaz, Ramazan.storekit */ = {isa = PBXFileReference; lastKnownFileType = text; path = "İslami Yoldaş: Namaz, Ramazan.storekit"; sourceTree = "<group>"; };
+		F1107B3CFD2B3DC4D7AC5EEF /* Pods-App.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-App.release.xcconfig"; path = "Target Support Files/Pods-App/Pods-App.release.xcconfig"; sourceTree = "<group>"; };
 		F1A3FE3AFBB91DCFB076CBC7 /* ru */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		F42928A1954CB9B9652868EC /* HourlyVerseSmallWidgetView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = HourlyVerseSmallWidgetView.swift; sourceTree = "<group>"; };
 		PREM00000000000000F00001 /* WidgetAccessHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetAccessHelper.swift; sourceTree = "<group>"; };
@@ -172,7 +172,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				E49259D82F61982100F71080 /* StoreKit.framework in Frameworks */,
-				7CBC222261674AD7BBAF2FB1 /* Pods_App.framework in Frameworks */,
+				F3AE7909B7E1A6EC07A729B3 /* Pods_App.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -233,8 +233,8 @@
 		B85FD53605CBE27D0FD42B6C /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				9E9822D4A75D9936BA4B9B97 /* Pods-App.debug.xcconfig */,
-				D8F51D3D3345779FC82B3F78 /* Pods-App.release.xcconfig */,
+				51E0D06FC4E1929568C3C07C /* Pods-App.debug.xcconfig */,
+				F1107B3CFD2B3DC4D7AC5EEF /* Pods-App.release.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -245,7 +245,7 @@
 				E49259D72F61982100F71080 /* StoreKit.framework */,
 				E47CC69E2F34FFB6001653B3 /* WidgetKit.framework */,
 				E47CC6A02F34FFB7001653B3 /* SwiftUI.framework */,
-				9F5150799EA0F15B9ED12EDD /* Pods_App.framework */,
+				482C13562036DB0DA7227BC4 /* Pods_App.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -304,14 +304,14 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 504EC3161FED79650016851F /* Build configuration list for PBXNativeTarget "App" */;
 			buildPhases = (
-				AF776A2CFFD703A881B81055 /* [CP] Check Pods Manifest.lock */,
+				CDF7FCC499C672A34A12C83E /* [CP] Check Pods Manifest.lock */,
 				504EC3001FED79650016851F /* Sources */,
 				504EC3011FED79650016851F /* Frameworks */,
 				504EC3021FED79650016851F /* Resources */,
 				E47CC6AF2F34FFB8001653B3 /* Embed Foundation Extensions */,
 				E48DDD372F4511E100B2FBF8 /* ShellScript */,
-				89DC0ED4D324F5FE4D5ADAE1 /* [CP] Embed Pods Frameworks */,
-				4C6C265DBD9D011972E25832 /* [CP] Copy Pods Resources */,
+				B3054E078C2FA5BEA949E694 /* [CP] Embed Pods Frameworks */,
+				7EB82A8A264A2B9C61342FD6 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -428,7 +428,7 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		4C6C265DBD9D011972E25832 /* [CP] Copy Pods Resources */ = {
+		7EB82A8A264A2B9C61342FD6 /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -443,7 +443,7 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-App/Pods-App-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		89DC0ED4D324F5FE4D5ADAE1 /* [CP] Embed Pods Frameworks */ = {
+		B3054E078C2FA5BEA949E694 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -458,7 +458,7 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-App/Pods-App-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		AF776A2CFFD703A881B81055 /* [CP] Check Pods Manifest.lock */ = {
+		CDF7FCC499C672A34A12C83E /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -737,12 +737,12 @@
 		};
 		504EC3171FED79650016851F /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 9E9822D4A75D9936BA4B9B97 /* Pods-App.debug.xcconfig */;
+			baseConfigurationReference = 51E0D06FC4E1929568C3C07C /* Pods-App.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = App/App.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 13;
+				CURRENT_PROJECT_VERSION = 15;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				INFOPLIST_FILE = App/Info.plist;
@@ -751,7 +751,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.1.1;
+				MARKETING_VERSION = 1.1.3;
 				OTHER_SWIFT_FLAGS = "$(inherited) \"-D\" \"COCOAPODS\" \"-DDEBUG\"";
 				PRODUCT_BUNDLE_IDENTIFIER = com.islamiyoldas.app;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -763,12 +763,12 @@
 		};
 		504EC3181FED79650016851F /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D8F51D3D3345779FC82B3F78 /* Pods-App.release.xcconfig */;
+			baseConfigurationReference = F1107B3CFD2B3DC4D7AC5EEF /* Pods-App.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = App/App.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 13;
+				CURRENT_PROJECT_VERSION = 15;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				INFOPLIST_FILE = App/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
@@ -776,7 +776,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.1.1;
+				MARKETING_VERSION = 1.1.3;
 				PRODUCT_BUNDLE_IDENTIFIER = com.islamiyoldas.app;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "";
@@ -792,7 +792,7 @@
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
 				CODE_SIGN_ENTITLEMENTS = IslamiWidgets/IslamiWidgets.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 13;
+				CURRENT_PROJECT_VERSION = 15;
 				DEVELOPMENT_TEAM = H5GZ9H5MX8;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = NO;
@@ -805,7 +805,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.1.1;
+				MARKETING_VERSION = 1.1.3;
 				PRODUCT_BUNDLE_IDENTIFIER = com.islamiyoldas.app.widgets;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -822,7 +822,7 @@
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
 				CODE_SIGN_ENTITLEMENTS = IslamiWidgets/IslamiWidgets.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 13;
+				CURRENT_PROJECT_VERSION = 15;
 				DEVELOPMENT_TEAM = H5GZ9H5MX8;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = NO;
@@ -835,7 +835,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.1.1;
+				MARKETING_VERSION = 1.1.3;
 				PRODUCT_BUNDLE_IDENTIFIER = com.islamiyoldas.app.widgets;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;

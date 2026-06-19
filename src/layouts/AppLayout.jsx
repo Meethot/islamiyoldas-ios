@@ -60,6 +60,35 @@ export default function AppLayout() {
         }
     }, [pathname]);
 
+    // --- Banner Ad Global Controller ---
+    const bannerVersionRef = useRef(0);
+    
+    useEffect(() => {
+        const version = ++bannerVersionRef.current;
+        
+        // Reklamın gösterileceği sayfalar
+        const allowedPaths = ['/', '/stories', '/dhikr', '/uyku', '/qibla', '/dua', '/tracking'];
+        const shouldShow = !hasPremium && allowedPaths.includes(pathname);
+        
+        import('@/services/adService').then(async ({ showBannerAd, hideBannerAd }) => {
+            // Eğer bu effect'ten sonra yeni bir effect çalıştıysa, bu eski çağrıyı iptal et
+            if (version !== bannerVersionRef.current) return;
+            
+            if (shouldShow) {
+                await showBannerAd();
+            } else {
+                hideBannerAd();
+            }
+        }).catch(() => {});
+
+        return () => {
+            // Sadece bu sayfa banner göstermemesi gerekiyorsa gizle
+            if (!shouldShow) {
+                import('@/services/adService').then(({ hideBannerAd }) => hideBannerAd()).catch(() => {});
+            }
+        };
+    }, [hasPremium, pathname]);
+
     return (
         <div className="h-full bg-[#FAFAF5] dark:bg-[#032e18] font-sans selection:bg-islamic-gold/30">
             {/* Mobile-First Container (Simplified for Global Wrapper) */}

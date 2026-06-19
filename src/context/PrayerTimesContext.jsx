@@ -576,6 +576,7 @@ export const PrayerTimesProvider = ({ children }) => {
         const names = prayerNames[lang] || prayerNames.en;
         const prayers = [
             { id: 'fajr', name: names.fajr, time: (timings.Fajr || timings.Imsak || '').split(' ')[0] },
+            { id: 'sunrise', name: (lang === 'tr' || lang === 'az') ? 'Güneş' : 'Sunrise', time: (timings.Sunrise || '').split(' ')[0] },
             { id: 'dhuhr', name: names.dhuhr, time: (timings.Dhuhr || '').split(' ')[0] },
             { id: 'asr', name: names.asr, time: (timings.Asr || '').split(' ')[0] },
             { id: 'maghrib', name: names.maghrib, time: (timings.Maghrib || '').split(' ')[0] },

@@ -86,6 +86,8 @@ export default function Stories() {
         setCurrentTime(0);
         if (selectedStory) {
             analytics.storyCompleted(selectedStory.title, 100);
+            // Hikaye bittiğinde reklam göster (Premium değilse ve süre dolduysa otomatik gösterilir)
+            import('@/services/adService').then(({ showInterstitialAd }) => showInterstitialAd()).catch(() => {});
         }
     };
 

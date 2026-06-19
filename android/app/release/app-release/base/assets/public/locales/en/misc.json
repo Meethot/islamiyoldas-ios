@@ -1,0 +1,50 @@
+{
+    "aiMentor": {
+        "title": "Spiritual Mentor",
+        "subtitle": "AI-Powered Assistant",
+        "welcomeMessage": "Peace be upon you, dear friend. I am your Spiritual Mentor. What's in your heart, what troubles you or what are you grateful for? Tell me, and I'll prepare a prescription for you based on the Quran and Sunnah.",
+        "thinking": "Contemplating...",
+        "placeholder": "I need help, my heart is heavy...",
+        "errorPrefix": "Error occurred:",
+        "freeQuota": "{{count}} question left today",
+        "unlockMore": "Unlock more",
+        "limitReachedBanner": "Daily limit reached",
+        "limitReachedPlaceholder": "Get Premium for 30 questions daily...",
+        "dailyLimitReached": "You've reached your daily limit. Come back tomorrow or get Premium for 30 questions per day.",
+        "premiumQuota": "{{count}} questions left",
+        "suggestion1": "My heart is heavy, which dhikr and dua should I read?",
+        "suggestion2": "I want my family to be peaceful, what should I do?",
+        "suggestion3": "Which prayers should I read for abundance and sustenance?"
+    },
+    "prescription": {
+        "title": "Spiritual Prescription",
+        "adviceLabel": "Mentor's Advice",
+        "dhikrLabel": "Dhikr Prescription",
+        "startDhikr": "Start Dhikr",
+        "verseLabel": "Healing Verse",
+        "listen": "Listen",
+        "pause": "Pause",
+        "ebced": "Abjad",
+        "count": "Count"
+    },
+    "comingSoon": "Coming Soon! This language is being prepared. 🌍",
+    "connectionError": "Unable to respond right now. Please try again in a moment.",
+    "aiConsent": {
+        "badge": "Data Privacy",
+        "third_party_badge": "Third-Party Data Sharing",
+        "title": "AI Data Sharing Consent",
+        "subtitle": "Before using this feature, please review how your data is handled. Your explicit consent is required.",
+        "data_sent_label": "Data Sent to Third Party",
+        "data_sent_value": "Your typed questions, messages, and your selected app language are sent to an external AI service for processing.",
+        "provider_label": "Third-Party Service Provider",
+        "provider_value": "Google LLC — Google Gemini AI API, processed via Firebase Cloud Functions (Google servers).",
+        "purpose_label": "Purpose of Data Sharing",
+        "purpose_value": "To generate personalized spiritual advice, dhikr recommendations, and Quran verse suggestions based on your questions.",
+        "storage_label": "Data Retention",
+        "storage_value": "Your messages are processed in real-time and are not permanently stored on Google or our servers after the response is generated.",
+        "accept": "I Agree",
+        "decline": "Decline — Do Not Use AI",
+        "privacy_note": "Full details in our",
+        "privacy_link": "Privacy Policy"
+    }
+}

@@ -298,13 +298,12 @@ export default function PremiumPaywall() {
         getProducts().then(p => {
             if (p.length > 0) setProducts(p);
         });
+        
+        // Premium sayfasına gelindiğinde alttaki reklamı her ihtimale karşı gizle
+        import('@/services/adService').then(({ hideBannerAd }) => {
+            hideBannerAd();
+        }).catch(() => {});
     }, []);
-
-    // Helper to get the store price for a product
-    const getPrice = useCallback((productId) => {
-        const product = products.find(p => p.identifier === productId);
-        return product?.priceString || null;
-    }, [products]);
 
     // Format a numeric price with the product's currency using Intl.NumberFormat
     const formatPrice = useCallback((amount, currencyCode) => {
@@ -320,9 +319,23 @@ export default function PremiumPaywall() {
         }
     }, [i18n.language]);
 
+    // Helper to get the store price for a product
+    const getPrice = useCallback((productId) => {
+        const product = products.find(p => p.identifier === productId || p.identifier.startsWith(productId + ':'));
+        
+        // Android'de Google Play deneme sürümü için "Starting tomorrow at..." gibi yazılar ekleyebildiği için 
+        // Android cihazlarda rakamı manuel formatlıyoruz. iOS'te Apple'ın orijinal formatını (priceString) koruyoruz.
+        const platform = window.Capacitor?.getPlatform() || 'web';
+        if (platform === 'android' && product?.price && product?.currencyCode) {
+            return formatPrice(product.price, product.currencyCode);
+        }
+        
+        return product?.priceString || null;
+    }, [products, formatPrice]);
+
     // Calculate daily price: monthly÷30, yearly÷365
     const getDailyPrice = useCallback((productId) => {
-        const product = products.find(p => p.identifier === productId);
+        const product = products.find(p => p.identifier === productId || p.identifier.startsWith(productId + ':'));
         if (!product?.price || !product?.currencyCode) return null;
         const divisor = productId === PRODUCT_IDS.YEARLY ? 365 : 30;
         return formatPrice(product.price / divisor, product.currencyCode);
@@ -330,7 +343,7 @@ export default function PremiumPaywall() {
 
     // Calculate monthly equivalent of yearly price: yearly÷12
     const getMonthlyEquivalent = useCallback(() => {
-        const product = products.find(p => p.identifier === PRODUCT_IDS.YEARLY);
+        const product = products.find(p => p.identifier === PRODUCT_IDS.YEARLY || p.identifier.startsWith(PRODUCT_IDS.YEARLY + ':'));
         if (!product?.price || !product?.currencyCode) return null;
         return formatPrice(product.price / 12, product.currencyCode);
     }, [products, formatPrice]);
@@ -391,7 +404,7 @@ export default function PremiumPaywall() {
 
         try {
             const productId = planName === 'yearly' ? PRODUCT_IDS.YEARLY : PRODUCT_IDS.MONTHLY;
-            const product = products.find(p => p.identifier === productId);
+            const product = products.find(p => p.identifier === productId || p.identifier.startsWith(productId + ':'));
             const result = await purchaseProduct(product || productId);
             clearTimeout(timeoutId);
             if (result.success) {

@@ -424,6 +424,9 @@ export default function DuaKosesi() {
             });
             localStorage.setItem(`fakeDuasCounts_${currentLang}`, JSON.stringify(persistData));
         }
+
+        // Reklam Gösterimi
+        import('@/services/adService').then(({ showInterstitialAd }) => showInterstitialAd()).catch(() => {});
     };
 
     const handleSubmitRequest = async (text) => {
@@ -537,6 +540,9 @@ export default function DuaKosesi() {
             refreshFeed(); // Refresh feed to show fresh random set
             setShowSuccess(true);
             setTimeout(() => setShowSuccess(false), 4000);
+            
+            // Reklam Gösterimi
+            import('@/services/adService').then(({ showInterstitialAd }) => showInterstitialAd()).catch(() => {});
         } catch (error) {
             console.error("Failed to submit prayer:", error);
             alert(t('submitError'));

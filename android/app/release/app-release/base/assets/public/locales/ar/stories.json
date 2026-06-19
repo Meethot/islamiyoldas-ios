@@ -1,0 +1,12 @@
+{
+    "categories": {
+        "prophets": "الأنبياء",
+        "companions": "الصحابة",
+        "moral": "أمثال وعبر"
+    },
+    "nowListening": "يُستمع الآن",
+    "listenersCount": "{{count}} شخص يستمع",
+    "read": "اقرأ",
+    "normalSpeed": "سرعة عادية",
+    "speedUp": "سرعة مضاعفة"
+}

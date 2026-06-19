@@ -1,0 +1,36 @@
+{
+	"appId": "com.islamiyoldas.app",
+	"appName": "İslami Yoldaş",
+	"webDir": "dist",
+	"plugins": {
+		"StatusBar": {
+			"overlaysWebView": true,
+			"style": "Dark"
+		},
+		"LocalNotifications": {
+			"smallIcon": "ic_stat_icon",
+			"iconColor": "#D4AF37",
+			"sound": "ezan.caf",
+			"presentationOptions": [
+				"badge",
+				"sound",
+				"alert"
+			]
+		},
+		"PushNotifications": {
+			"presentationOptions": [
+				"badge",
+				"sound",
+				"alert"
+			]
+		},
+		"AdMob": {
+			"androidAppId": "ca-app-pub-3345957146167395~5991457887",
+			"iosAppId": "ca-app-pub-3345957146167395~6039014177"
+		}
+	},
+	"server": {
+		"iosScheme": "https",
+		"hostname": "localhost"
+	}
+}

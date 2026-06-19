@@ -197,7 +197,10 @@ export default function Qibla() {
                     const isNowAligned = absAngleDiff < DEFAULT_ALIGNMENT_THRESHOLD;
                     if (isNowAligned !== isAlignedRef.current) {
                         setIsAligned(isNowAligned);
-                        if (isNowAligned) success();
+                        if (isNowAligned) {
+                            success();
+                            import('@/services/adService').then(({ showInterstitialAd }) => showInterstitialAd()).catch(() => {});
+                        }
                     }
                 }
             }

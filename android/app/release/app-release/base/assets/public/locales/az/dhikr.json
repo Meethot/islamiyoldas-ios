@@ -1,0 +1,227 @@
+{
+    "title": "Zikirmatik",
+    "presets": {
+        "subhanallah": {
+            "name": "Sübhanallah",
+            "meaning": "Allah nöqsan sifətlərdən uzaqdır"
+        },
+        "elhamdulillah": {
+            "name": "Əlhəmdülillah",
+            "meaning": "Həmd (şükür) Allahadır"
+        },
+        "allahuekber": {
+            "name": "Allahu Əkbər",
+            "meaning": "Allah ən böyükdür"
+        },
+        "last": {
+            "name": "Lə iləhə illəllah",
+            "meaning": "Allahdan başqa ilah yoxdur"
+        },
+        "istigfar": {
+            "name": "Əstağfirullah",
+            "meaning": "Allahdan bağışlanma diləyirəm"
+        },
+        "salavat": {
+            "name": "Salavat",
+            "meaning": "Allahım, Əfəndimiz Muhəmmədə rəhmət et"
+        },
+        "ihlas": {
+            "name": "İxlas Surəsi",
+            "meaning": "O təkdir, Səməddir, doğmamış və doğulmamışdır."
+        },
+        "fatiha": {
+            "name": "Fatihə Surəsi",
+            "meaning": "Həmd, aləmlərin Rəbbi olan Allaha məxsusdur."
+        },
+        "ayetel_kursi": {
+            "name": "Ayətəl Kürsi",
+            "meaning": "Allah, Ondan başqa ilah yoxdur. Diridir, Qəyyumdur."
+        },
+        "hasbunallah": {
+            "name": "Həsbünallahü və Ni'məl Vəkil",
+            "meaning": "Allah bizə yetər, O nə gözəl vəkildir."
+        },
+        "lahavle": {
+            "name": "Lə Havlə və Lə Quvvətə illə Billəh",
+            "meaning": "Güc və qüvvət ancaq Allaha məxsusdur."
+        },
+        "yunus_duasi": {
+            "name": "Yunus Duası",
+            "meaning": "Səndən başqa ilah yoxdur, səni tənzih edirəm."
+        },
+        "salati_tefriciye": {
+            "name": "Salati-Təfriciyə",
+            "meaning": "Bütün çətinliklərin aradan qaldırılması və diləklərin qəbulu üçün."
+        }
+    },
+    "vibration": {
+        "everyClick": "Titrəmə: Hər Toxunmada",
+        "targetOnly": "Titrəmə: Yalnız Hədəfdə",
+        "off": "Titrəmə: Bağlı"
+    },
+    "vibrationTooltip": {
+        "all": "Bütün Titrəmələr Açıq",
+        "target": "Yalnız Hədəfdə Titrəmə",
+        "off": "Titrəmə Bağlı"
+    },
+    "confirmReset": "Zikirmatik sayğacını sıfırlamaq istədiyinizdən əminsiniz?",
+    "soundLabel": "Səs",
+    "vibrationLabel": "Vibrasiya",
+    "target": "Hədəf: {{count}}",
+    "targetWithUnit": "Hədəf: {{count}} Ədəd",
+    "round": "TUR",
+    "roundCompleted": "{{round}}. Tur Tamamlandı ✓",
+    "totalDhikr": "Cəmi Zikri Ayarla",
+    "resetAllTitle": "Bütün zikrləri sıfırla?",
+    "resetDhikrTitle": "Zikri Sıfırla",
+    "cancel": "LƏĞV ET",
+    "reset": "SIFIRLA",
+    "setTarget": "Hədəf Müəyyən Et",
+    "setTargetDesc": "{{name}} üçün şəxsi hədəfinizi daxil edin.",
+    "saveTarget": "HƏDƏFİ SAXLA",
+    "resetAllTooltip": "Bütün Zikrləri Sıfırla",
+    "footerVerse": "\"Ey iman gətirənlər! Allahı çox-çox zikr edin və Onu səhər-axşam təsbeh edin.\"",
+    "footerVerseSource": "ƏHZAB SURƏSİ, 41-42",
+    "changeDhikr": "Zikir Dəyişdir",
+    "searchPlaceholder": "Zikir və ya esma axtar...",
+    "categoryDhikr": "Zikirlər",
+    "categoryEsma": "Əsma-ül Hüsna",
+    "noResults": "Nəticə tapılmadı",
+    "esma": {
+        "ar-rahman": { "meaning": "Ən mərhəmətli" },
+        "ar-rahim": { "meaning": "Çox bağışlayan" },
+        "al-malik": { "meaning": "Mülkün sahibi" },
+        "al-quddus": { "meaning": "Hər nöqsandan uzaq" },
+        "as-salam": { "meaning": "Əsənlik verən" },
+        "al-mumin": { "meaning": "Güvən verən" },
+        "al-muhaymin": { "meaning": "Gözləyən və qoruyan" },
+        "al-aziz": { "meaning": "Güclü, yenilməz" },
+        "al-jabbar": { "meaning": "İradəsini hər yerdə yürüdən" },
+        "al-mutakabbir": { "meaning": "Böyüklükdə bənzərsiz" },
+        "al-khaliq": { "meaning": "Yaradıcı" },
+        "al-bari": { "meaning": "Qüsursuz yaradan" },
+        "al-musawwir": { "meaning": "Şəkil verən" },
+        "al-ghaffar": { "meaning": "Çox bağışlayan" },
+        "al-qahhar": { "meaning": "Hər şeyə qalib gələn" },
+        "al-wahhab": { "meaning": "Qarşılıqsız verən" },
+        "ar-razzaq": { "meaning": "Ruzi verən" },
+        "al-fattah": { "meaning": "Hər şeyi açan" },
+        "al-alim": { "meaning": "Hər şeyi bilən" },
+        "al-qabid": { "meaning": "Sıxan, daraldan" },
+        "al-basit": { "meaning": "Açan, genişlədən" },
+        "al-khafid": { "meaning": "Alçaldan" },
+        "ar-rafi": { "meaning": "Yüksəldən" },
+        "al-muizz": { "meaning": "İzzət verən" },
+        "al-mudhill": { "meaning": "Zillətə düşürən" },
+        "as-sami": { "meaning": "Hər şeyi eşidən" },
+        "al-basir": { "meaning": "Hər şeyi görən" },
+        "al-hakam": { "meaning": "Hökm edən" },
+        "al-adl": { "meaning": "Ədalətli" },
+        "al-latif": { "meaning": "Lütf edən" },
+        "al-khabir": { "meaning": "Hər şeydən xəbərdar" },
+        "al-halim": { "meaning": "Cəzada tələsməyən" },
+        "al-azim": { "meaning": "Böyüklükdə sonsuz" },
+        "al-ghafur": { "meaning": "Çox bağışlayan" },
+        "ash-shakur": { "meaning": "Az əmələ çox qarşılıq verən" },
+        "al-ali": { "meaning": "Ucalıqda sonsuz" },
+        "al-kabir": { "meaning": "Böyüklükdə sonsuz" },
+        "al-hafiz": { "meaning": "Qoruyucu" },
+        "al-muqit": { "meaning": "Ruzi və qüvvət verən" },
+        "al-hasib": { "meaning": "Hesab soruşan" },
+        "al-jalil": { "meaning": "Cəlal və əzəmət sahibi" },
+        "al-karim": { "meaning": "Comərd, kərəm sahibi" },
+        "ar-raqib": { "meaning": "Gözləyən" },
+        "al-mujib": { "meaning": "Duaları qəbul edən" },
+        "al-wasi": { "meaning": "Rəhməti geniş" },
+        "al-hakim": { "meaning": "Hikmət sahibi" },
+        "al-wadud": { "meaning": "Çox sevən" },
+        "al-majid": { "meaning": "Şərəfli, uca" },
+        "al-baith": { "meaning": "Ölümdən sonra dirildən" },
+        "ash-shahid": { "meaning": "Hər şeyə şahid" },
+        "al-haqq": { "meaning": "Varlığı heç dəyişməyən" },
+        "al-wakil": { "meaning": "Güvənilib dayanan" },
+        "al-qawiy": { "meaning": "Güclü" },
+        "al-matin": { "meaning": "Möhkəm, güclü" },
+        "al-waliy": { "meaning": "Dost" },
+        "al-hamid": { "meaning": "Tərif olunmağa layiq" },
+        "al-muhsi": { "meaning": "Hər şeyi sayan" },
+        "al-mubdi": { "meaning": "Yoxdan var edən" },
+        "al-muid": { "meaning": "Yenidən yaradan" },
+        "al-muhyi": { "meaning": "Həyat verən" },
+        "al-mumit": { "meaning": "Ölüm verən" },
+        "al-hayy": { "meaning": "Diri, həyat sahibi" },
+        "al-qayyum": { "meaning": "Hər şeyi ayaqda tutan" },
+        "al-wajid": { "meaning": "İstədiyini tapan" },
+        "al-majid2": { "meaning": "Şərəfi uca" },
+        "al-wahid": { "meaning": "Tək" },
+        "al-ahad": { "meaning": "Bir" },
+        "as-samad": { "meaning": "Heç bir şeyə möhtac olmayan" },
+        "al-qadir": { "meaning": "Hər şeyə gücü çatan" },
+        "al-muqtadir": { "meaning": "Hər şeyə iqtidarı olan" },
+        "al-muqaddim": { "meaning": "Önə alan" },
+        "al-muakhkhir": { "meaning": "Geriyə buraxan" },
+        "al-awwal": { "meaning": "Başlanğıcı olmayan" },
+        "al-akhir": { "meaning": "Sonu olmayan" },
+        "az-zahir": { "meaning": "Varlığı açıq" },
+        "al-batin": { "meaning": "Gizli" },
+        "al-wali": { "meaning": "Hər şeyi idarə edən" },
+        "al-mutaali": { "meaning": "Ucaların ucası" },
+        "al-barr": { "meaning": "Yaxşılıq qaynağı" },
+        "at-tawwab": { "meaning": "Tövbələri qəbul edən" },
+        "al-muntaqim": { "meaning": "Günahkarları cəzalandıran" },
+        "al-afuw": { "meaning": "Əfv edən" },
+        "ar-rauf": { "meaning": "Şəfqətli" },
+        "malik-al-mulk": { "meaning": "Mülkün əsl sahibi" },
+        "dhul-jalali-wal-ikram": { "meaning": "Cəlal və ikram sahibi" },
+        "al-muqsit": { "meaning": "Ədalətlə davranan" },
+        "al-jami": { "meaning": "Toplayan" },
+        "al-ghani": { "meaning": "Zəngin, kimsəyə möhtac olmayan" },
+        "al-mughni": { "meaning": "Zəngin edən" },
+        "al-mani": { "meaning": "Mane olan" },
+        "ad-darr": { "meaning": "Zərərli şeyləri yaradan" },
+        "an-nafi": { "meaning": "Fayda verən" },
+        "an-nur": { "meaning": "Nur, işıq" },
+        "al-hadi": { "meaning": "Hidayətə çatdıran" },
+        "al-badi": { "meaning": "Bənzərsiz yaradan" },
+        "al-baqi": { "meaning": "Varlığının sonu olmayan" },
+        "al-warith": { "meaning": "Hər şeyin əsl sahibi" },
+        "ar-rashid": { "meaning": "Doğru yola çatdıran" },
+        "as-sabur": { "meaning": "Çox səbirli" }
+    },
+    "dhikrLimit": {
+        "title": "Günlük Zikir Haqqınız",
+        "completed": "Tamamlandı",
+        "desc1": "Pulsuz olaraq gündə",
+        "count": "{{count}} zikir",
+        "desc2": "çəkə bilərsiniz.",
+        "desc3": "Limitsiz zikir üçün Premiuma yüksəlin.",
+        "cta": "Limitsiz Zikir — Premium",
+        "dismiss": "Sabah yenidən gəl"
+    },
+    "tallyCounter": "ZİKİRMATİK",
+    "tallyCount": "BAS",
+    "tallyReset": "SIFIRLA",
+    "tallyColors": {
+        "emerald": "Zümrüd",
+        "blue": "Mavi",
+        "red": "Yaqut",
+        "gold": "Qızıl",
+        "grey": "Gümüş"
+    },
+    "sound": {
+        "click": "Klik Səsi",
+        "mute": "Səs Bağlı",
+        "silent": "Səssiz"
+    },
+    "theme": {
+        "classic": "Klassik Tema",
+        "tasbih": "Təsbeh Teması",
+        "tally": "Zikirmatik Teması",
+        "tooltip": "Zikirmatik Teması"
+    },
+    "volumeButtons": {
+        "enabled": "Səs Düymələri ilə Zikir Aktiv",
+        "disabled": "Səs Düymələri ilə Zikir Deaktiv",
+        "tooltip": "Səs Düymələri ilə Zikir"
+    }
+}

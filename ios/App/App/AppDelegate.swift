@@ -33,6 +33,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             print("Failed to configure audio session: \(error)")
         }
         
+        // Sync any background widget changes FIRST before starting observers
+        syncAppGroupToStandard()
+        
         // Setup observer for standard UserDefaults changes (Preferences writes)
         setupUserDefaultsObserver()
         
@@ -237,7 +240,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         // Skip standard -> App Group copy if widget was modified in the background
         if appGroupDefaults.bool(forKey: "widget_modified_dhikr") {
-            print("[AppDelegate] ⚠️ Widget was modified. Skipping standard -> App Group copy to prevent rollback.")
+            // print("[AppDelegate] ⚠️ Widget was modified. Skipping standard -> App Group copy to prevent rollback.")
             return
         }
         

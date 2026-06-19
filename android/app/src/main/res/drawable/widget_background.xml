@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Deep emerald base -->
+    <item>
+        <shape android:shape="rectangle">
+            <gradient
+                android:startColor="#081A0E"
+                android:centerColor="#0F2516"
+                android:endColor="#163320"
+                android:angle="135"
+                android:type="linear" />
+            <corners android:radius="22dp" />
+        </shape>
+    </item>
+    <!-- Warm gold glow from bottom-right corner -->
+    <item>
+        <shape android:shape="rectangle">
+            <gradient
+                android:startColor="#00D4AF37"
+                android:endColor="#0AD4AF37"
+                android:angle="315"
+                android:type="linear" />
+            <corners android:radius="22dp" />
+        </shape>
+    </item>
+    <!-- Subtle luminous border -->
+    <item>
+        <shape android:shape="rectangle">
+            <stroke
+                android:width="0.5dp"
+                android:color="#18FFFFFF" />
+            <corners android:radius="22dp" />
+            <solid android:color="#00000000" />
+        </shape>
+    </item>
+</layer-list>

@@ -1,0 +1,340 @@
+{
+    "greeting": {
+        "morning": "Guten Morgen",
+        "afternoon": "Guten Tag",
+        "evening": "Guten Abend",
+        "night": "Gute Nacht",
+        "generic": "Salam Alaikum"
+    },
+    "friday": {
+        "text": "Der beste Tag, an dem die Sonne aufgeht, ist der Freitag.",
+        "source": "Hadith (Muslim)",
+        "message": "Gesegneter Freitag",
+        "share_title": "Freitagsbotschaft teilen"
+    },
+    "verse_share_title": "Vers teilen",
+    "verse": {
+        "fridayTitle": "Freitagserinnerung",
+        "dailyTitle": "Vers des Tages",
+        "shareBtn": "Nachricht teilen",
+        "swipeHint": "wische, um weitere Verse zu entdecken"
+    },
+    "deed": {
+        "title": "Heutige Güte",
+        "blurText": "Güte öffnet jede Tür...",
+        "reveal": "ANSEHEN",
+        "items": [
+            "Hebe ein Stück Müll auf.",
+            "Gib einem streunenden Tier Wasser.",
+            "Grüße jemanden, den du nicht kennst.",
+            "Beschwere dich heute überhaupt nicht.",
+            "Schreibe einem alten Freund.",
+            "Lege Brot auf die Fensterbank für Vögel.",
+            "Wähle Schweigen, wenn du wütend bist.",
+            "Bedanke dich aufrichtig bei jemandem.",
+            "Teile heute eine Spende mit jemandem.",
+            "Schau in den Spiegel und sei dankbar.",
+            "Höre einem Freund bei seinen Sorgen zu.",
+            "Mache einem Kollegen Kaffee.",
+            "Lege Futter für ein Tier bereit.",
+            "Gieße eine Pflanze.",
+            "Schweige zu denen, die schlecht reden.",
+            "Bete für denjenigen, der dein Essen gekocht hat.",
+            "Lobe jemandes guten Charakter.",
+            "Gib jemandem deinen Platz in der Schlange.",
+            "Vergib jedem vor dem Schlafengehen.",
+            "Lächle, wenn du aufwachst.",
+            "Sage einem Händler 'Viel Erfolg!'",
+            "Reiche jemandem in Not eine helfende Hand.",
+            "Sei heute einfach nur ein Zuhörer.",
+            "Gib übrig gebliebenes Essen an Tiere.",
+            "Sprich heute ein aufrichtiges Gebet.",
+            "Entschuldige dich, wenn du im Unrecht warst.",
+            "Hilf jemandem, seine Last zu tragen.",
+            "Spende Kleidung oder Gegenstände an Bedürftige.",
+            "Schau in den Himmel und denke nach.",
+            "Schau nach deinem Nachbarn.",
+            "Verschwende heute nichts.",
+            "Bete für die Person, die dich verärgert hat.",
+            "Bringe jemandem eine Fähigkeit bei.",
+            "Hilf einer älteren Person.",
+            "Erzähle heute keine Lügen.",
+            "Tue heimlich eine gute Tat.",
+            "Schlucke heute deinen Ärger herunter.",
+            "Iss langsam und sei dankbar.",
+            "Biete jemandem, der in öffentlichen Verkehrsmitteln steht, deinen Platz an.",
+            "Lächle heute jeden an, den du triffst.",
+            "Schenke einen ungenutzten Gegenstand jemandem in Not.",
+            "Fülle deine leere Essensschale mit Wasser und stelle sie für die Vögel hin.",
+            "Kritisiere heute niemanden.",
+            "Räume einen Stein oder Müll aus dem Weg.",
+            "Mache jemandem ein aufrichtiges Kompliment.",
+            "Schalte ein vergessenes Licht oder fließendes Wasser aus.",
+            "Streichle eine Straßenkatze oder einen Hund.",
+            "Schau heute weniger auf dein Handy und suche Blickkontakt mit Menschen.",
+            "Empfiehl jemandem ein gutes Buch, das du gelesen hast.",
+            "Bemühe dich, zwei Personen zu versöhnen.",
+            "Tue eine geheime gute Tat nur um Allahs willen.",
+            "Versuche heute nur positive Sätze zu bilden.",
+            "Teile eine nützliche Information, die du in den sozialen Medien siehst, mit anderen.",
+            "Wirf deine alten Sachen in eine Spendenbox.",
+            "Sei heute geduldiger mit anderen im Verkehr.",
+            "Bete für die Rechtleitung von jemandem, der dich verletzt hat.",
+            "Verbreite positive Energie an die Menschen um dich herum.",
+            "Begegne einem kleinen Kind mit Mitgefühl und lächle.",
+            "Schiebe heute keine Aufgaben auf.",
+            "Sprich ein schönes Gebet für einen Bekannten oder Kollegen.",
+            "Wünsche den Arbeitern an einem Ort, den du besuchst, Erleichterung.",
+            "Kaufe heute etwas, das du brauchst, bei einem kleinen Ladenbesitzer.",
+            "Vergib innerlich jemandem, der dich verärgert hat.",
+            "Sei dankbar für jeden Atemzug, den du heute nimmst.",
+            "Teile ein nützliches und schönes Zitat mit deinen Mitmenschen.",
+            "Versuche heute beim Gehen die Schönheiten um dich herum zu bemerken.",
+            "Gib der Person hinter dir in einer Warteschlange den Vorrang.",
+            "Rufe jemanden an, den du kennst, aber lange nicht gesehen hast."
+        ]
+    },
+    "theme_select": "Thema auswählen",
+    "share_image": "Foto teilen",
+    "sharing": "Wird geteilt...",
+    "alarm_too_close": "Zu wenig Zeit bis zum Gebet, Alarm kann nicht gesetzt werden.",
+    "sound_on": "Ton: Ein",
+    "sound_off": "Ton: Aus",
+    "haptics_every": "Vibration: Bei jedem Tippen",
+    "haptics_target": "Vibration: Nur bei Ziel",
+    "haptics_off": "Vibration: Aus",
+    "close": "Schließen",
+    "reset": "Zurücksetzen",
+    "quick_actions": {
+        "dhikr": {
+            "label": "Dhikr-Zähler",
+            "subtitle": "Dhikr"
+        },
+        "new_day": {
+            "label": "Neuer Tag",
+            "subtitle": "+{{offset}} Tage"
+        },
+        "sleep": {
+            "label": "Schlafmodus",
+            "subtitle": "Frieden"
+        },
+        "qibla": {
+            "label": "Qibla",
+            "subtitle": "Richtung"
+        }
+    },
+    "widgets": {
+        "breath": {
+            "title": "Lass deine Seele ruhen",
+            "subtitle": "Geführte Meditation & Atmung"
+        },
+        "dua": {
+            "title": "Gebetsgemeinschaft",
+            "subtitle": "Betet füreinander"
+        }
+    },
+    "esma": {
+        "virtue_title": "Tugend & Geheimnis",
+        "cycle": "Zyklus {{count}}",
+        "title": "Asma ul-Husna",
+        "showAll": "Alle anzeigen",
+        "swipe": "Wischen",
+        "seeDetails": "Details ansehen",
+        "modalTitle": "99 Asma ul-Husna",
+        "searchPlaceholder": "Name oder Bedeutung suchen...",
+        "sortAsc": "Sortierung A-Z",
+        "sortDesc": "Sortierung Z-A",
+        "ebced": "Abdschad",
+        "noResults": "Kein Name zu deiner Suche gefunden...",
+        "remaining": "Verbleibend",
+        "close": "Schließen"
+    },
+    "tuba": {
+        "title": "Tuba-Baum",
+        "days": [
+            "Mo",
+            "Di",
+            "Mi",
+            "Do",
+            "Fr",
+            "Sa",
+            "So"
+        ],
+        "daysCompleted": "{{count}} / 7 Tage geschafft",
+        "streak": "🔥 {{count}} Tage Serie",
+        "total": "Gesamt: {{count}}",
+        "goal": "Ziel: {{count}}",
+        "btnDone": "Heute erledigt",
+        "btnWatering": "Wird gegossen...",
+        "btnWater": "Baum gießen",
+        "toastAlready": "Du hast die heutige Aufgabe bereits erledigt! Komm morgen wieder 🌱",
+        "celebTitle": "Gesegnet!",
+        "celebMsg": "Du hast dein Wochenziel erreicht.<br/>Dein Tuba-Baum ist jetzt stärker! ✨",
+        "stages": {
+            "seed": "Spiritueller Samen",
+            "seedMeaning": "Potenzial",
+            "sapling": "Junger Setzling",
+            "saplingMeaning": "Wachstum",
+            "youngTree": "Junger Baum",
+            "youngTreeMeaning": "Beständigkeit",
+            "matureTree": "Verwurzelte Eiche",
+            "matureTreeMeaning": "Hingabe",
+            "tuba": "Gesegneter Tuba",
+            "tubaMeaning": "Fülle"
+        }
+    },
+    "calendar": {
+        "title": "Heilige Tage",
+        "next": "Nächster",
+        "showAll": "Alle anzeigen",
+        "approaching": "Nahend",
+        "modalTitle": "Heilige Tage 2026",
+        "modalSubtitle": "Hidschra 1447 – 1448",
+        "today": "Heute",
+        "tomorrow": "Morgen",
+        "daysLeft": "Noch {{count}} Tage",
+        "months": [
+            "Januar",
+            "Februar",
+            "März",
+            "April",
+            "Mai",
+            "Juni",
+            "Juli",
+            "August",
+            "September",
+            "Oktober",
+            "November",
+            "Dezember"
+        ]
+    },
+    "fasting": {
+        "title": "Fasten-Tracker",
+        "subtitle": "Verfolge dein Fasten, halte die Serie",
+        "longest": "Beste: {{count}} Tage",
+        "ramazanDay": "Ramadan Tag {{day}}",
+        "fasted": "Heute gefastet ✓",
+        "fastToday": "Heutiges Fasten",
+        "accepted": "Möge Allah es annehmen",
+        "markIt": "Markiere, wenn du gefastet hast",
+        "daySeries": "Tage Serie",
+        "dayNames": [
+            "So",
+            "Mo",
+            "Di",
+            "Mi",
+            "Do",
+            "Fr",
+            "Sa"
+        ],
+        "rewards": [
+            "Erster Schritt getan!",
+            "Du machst das großartig!",
+            "Eine Woche geschafft!",
+            "Halbzeit, wunderbar!",
+            "Ein voller Monat, maschallah!"
+        ]
+    },
+    "quickAction": {
+        "fasting": "Fasten-Tracker",
+        "fastingSub": "Verfolge dein Fasten, halte die Serie",
+        "widgetGuide": "Widget- / Sperrbildschirm-Anleitung",
+        "widgetGuideSub": "Startbildschirm & Sperrbildschirm"
+    },
+    "reminder": {
+        "title": "Erinnerung setzen",
+        "forPrayer": "Für das {{prayer}}-Gebet",
+        "currentlySelected": "Derzeit {{time}} ausgewählt",
+        "onTime": "Pünktlich",
+        "minutesBefore": "{{count}} Minuten vorher",
+        "alreadySelected": "Bereits ausgewählt",
+        "removeReminder": "Erinnerung entfernen",
+        "resetReminder": "Erinnerung zurücksetzen (Deaktivieren)"
+    },
+    "header": {
+        "appName": "Islamischer Begleiter"
+    },
+    "streak": {
+        "dayStreak": "Tage-Serie",
+        "highest": "Höchste: {{count}} Tage",
+        "start": "Beginne heute!",
+        "firstStep": "Erster Schritt getan!",
+        "keepGoing": "Weiter so!",
+        "doingGreat": "Großartig!",
+        "amazing": "Erstaunlich!",
+        "legendary": "Legendär!"
+    },
+    "dailyWorship": {
+        "title": "TÄGLICHE IBADAH",
+        "completed": "{{current}} / {{total}} Erledigt",
+        "allDoneTitle": "Alhamdulillah",
+        "allDoneSub": "Tag abgeschlossen 🤲"
+    },
+    "prayerCard": {
+        "upcoming": "Nächstes",
+        "tracking": "Wird verfolgt",
+        "backToAuto": "← Zurück zum Automodus (Nächstes Gebet verfolgen)",
+        "selected": "✓ Ausgewählt – Wird verfolgt",
+        "nextPrayer": "Nächstes Gebet",
+        "passed": "Vergangen",
+        "tapToSelect": "Tippe zum Auswählen"
+    },
+    "prayerReward": {
+        "close": "Schließen",
+        "mayAllahAccept": "Möge Allah es annehmen",
+        "thankYou": "Danke für dein {{prayerName}}-Gebet 💚",
+        "recommendedDua": "Empfohlenes Bittgebet",
+        "amin": "Amin 🌙"
+    },
+    "prayerOverlay": {
+        "close": "Schließen",
+        "prayerTime": "Gebetszeit",
+        "motivational": "\"Möchtest du dein Gebet verrichten?\"",
+        "praying": "Ich bete ✅",
+        "remindLater": "In 10 Min erinnern ⏰"
+    },
+    "dhikrLimit": {
+        "title": "Tägliches Dhikr-Limit",
+        "completed": "Erreicht",
+        "desc1": "Sie können täglich",
+        "count": "{{count}} Dhikr",
+        "desc2": "kostenlos ausführen.",
+        "desc3": "Wechseln Sie zu Premium für unbegrenztes Dhikr.",
+        "cta": "Unbegrenztes Dhikr — Premium",
+        "dismiss": "Komm morgen wieder"
+    },
+    "permission": {
+        "location_title": "🕌 Gebetszeiten einrichten",
+        "location_desc": "Wir benötigen deinen Standort, um genaue Gebetszeiten und die Qibla-Richtung für deine Stadt anzuzeigen.",
+        "location_accept": "Meinen Standort verwenden",
+        "location_skip": "Nicht jetzt",
+        "notification_title": "🔔 Verpasse kein Gebet",
+        "notification_desc": "Lass dich zu Gebetszeiten benachrichtigen und verfolge deine tägliche Ibadah mit sanften Erinnerungen.",
+        "notification_accept": "Benachrichtigungen aktivieren",
+        "notification_skip": "Nicht jetzt",
+        "badge_prayer": "🕌 Gebetszeiten",
+        "badge_qibla": "🧭 Qibla-Richtung",
+        "badge_city": "📍 Stadt",
+        "badge_adhan": "🔔 Gebetsruf",
+        "badge_dhikr": "📿 Täglicher Dhikr",
+        "badge_reminder": "🌙 Erinnerungen",
+        "location_manual": "Manuell einrichten",
+        "notification_manual": "In Einstellungen öffnen"
+    },
+    "widget_guide": {
+        "title": "Widget- / Sperrbildschirm-Anleitung",
+        "subtitle": "Verfolge deine Ibadah direkt vom Startbildschirm und Sperrbildschirm",
+        "available_widgets": "Verfügbare Widgets",
+        "tab_home": "Startbildschirm",
+        "tab_lock": "Sperrbildschirm",
+        "how_home": "Wie füge ich es zum Startbildschirm hinzu?",
+        "how_lock": "Wie füge ich es zum Sperrbildschirm hinzu?",
+        "swipe_hint": "Wische oder tippe zwischen den Schritten",
+        "tip_title": "Info",
+        "tip_desc": "Widgets aktualisieren sich stündlich automatisch. Der Vers des Tages und Asma ul-Husna Widgets zeigen stündlich unterschiedliche Inhalte.",
+        "premium_note": "👑 Alle Widgets sind während deines Premium-Abonnements aktiv.",
+        "free_note": "⏳ Widgets sind für kostenlose Nutzer 1 Stunde aktiv. Mit Premium unbegrenzt nutzen.",
+        "ios_note_title": "iOS 16+",
+        "ios_note_desc": "Sperrbildschirm-Widgets sind ab iOS 16 verfügbar. Startbildschirm-Widgets unterstützen iOS 14+."
+    }
+}

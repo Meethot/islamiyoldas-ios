@@ -1,0 +1,109 @@
+{
+  "title": "Settings",
+  "user": {
+    "default_name": "Faithful User",
+    "streak_desc": "Day {{count}} of the journey"
+  },
+  "premium": {
+    "banner_title": "Go Premium",
+    "banner_desc": "Experience your Islamic journey uninterrupted, unlock all features."
+  },
+  "personal_settings": "Personal Settings",
+  "general_settings": "General Settings",
+  "notifications": {
+    "title": "Notifications",
+    "subtitle": "Adhan, verse & motivation"
+  },
+  "privacy": {
+    "title": "Privacy & Security",
+    "subtitle": "Data protection and lock",
+    "modal_title": "Data & Privacy",
+    "data_info": "Your data is stored <strong>only on this device</strong>. No data is sent to our servers.",
+    "download": "Download My Data",
+    "delete_all": "Delete All Data",
+    "delete_confirm": "All your data will be permanently deleted. This action cannot be undone.",
+    "delete_cancel": "Cancel",
+    "delete_yes": "Yes, Delete"
+  },
+  "appearance": {
+    "title": "Appearance",
+    "dark_active": "Serenity Theme",
+    "light_active": "Refreshing Theme"
+  },
+  "location": {
+    "title": "Location",
+    "subtitle": "GPS and city settings"
+  },
+  "share": {
+    "title": "Share Progress",
+    "subtitle": "Share Tuba Tree on social media"
+  },
+  "invite": {
+    "title": "Invite Friend",
+    "subtitle": "Share app link with loved ones"
+  },
+  "calc": {
+    "title": "Calc Missed Prayers",
+    "subtitle": "Automatic calculation tool"
+  },
+  "language": {
+    "title": "App Language",
+    "subtitle": "Change interface language"
+  },
+  "promo": {
+    "title": "Promo Code",
+    "subtitle": "Use a gift code",
+    "label": "ENTER CODE",
+    "submit": "Apply Code",
+    "success": "Congratulations! Premium features have been activated. 🌟",
+    "invalid": "Invalid or expired promo code."
+  },
+  "report_bug": {
+    "title": "Report Bug",
+    "subtitle": "Having issues with the app?",
+    "email_subject": "Islamic Companion - Bug Report",
+    "email_body": "The issue I encountered is:\n\n"
+  },
+  "legal": {
+    "title": "Legal & About",
+    "subtitle": "Privacy, contact and support"
+  },
+  "delete_account": {
+    "title": "Delete Account",
+    "confirm": "Your account and all data will be deleted. This cannot be undone. Are you sure?"
+  },
+  "avatar": {
+    "male": "Male",
+    "female": "Female",
+    "beads": "Beads",
+    "tuba": "Tuba",
+    "quran": "Quran",
+    "moon": "Crescent"
+  },
+  "coming_soon": "Coming Soon",
+  "support": "Support Us",
+  "reset": "Reset Data",
+  "modal": {
+    "select_lang": "Language Selection",
+    "lang_note": "Language change applies instantly."
+  },
+  "avatar_modal_title": "Select Profile Photo",
+  "app_name": "Islamic Companion",
+  "version": "Version 2.1.0 (Pro Max)",
+  "theme_select_title": "Select Theme",
+  "fill_dates": "Please fill in the dates",
+  "calc_complete": "Calculation completed.",
+  "font_size": {
+    "title": "Font Size",
+    "modal_title": "Font Size",
+    "desc": "You can scale the font size across the application according to your preference.",
+    "small": "Small",
+    "normal": "Normal",
+    "large": "Large",
+    "xlarge": "Huge"
+  },
+  "haptics": {
+    "title": "Haptics",
+    "subtitle": "In-app touch feedback"
+  }
+}

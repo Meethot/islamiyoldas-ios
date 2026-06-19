@@ -1,0 +1,109 @@
+{
+  "title": "Tənzimləmələr",
+  "user": {
+    "default_name": "Mömin İstifadəçi",
+    "streak_desc": "Yolçuluğun {{count}}. günündə"
+  },
+  "premium": {
+    "banner_title": "Premiuma Keç",
+    "banner_desc": "İslami səyahətini kəsintisiz yaşa, bütün Premium xüsusiyyətləri kəşf et."
+  },
+  "personal_settings": "Şəxsi Tənzimləmələr",
+  "general_settings": "Ümumi Tənzimləmələr",
+  "notifications": {
+    "title": "Bildirişlər",
+    "subtitle": "Azan, ayə və motivasiya"
+  },
+  "privacy": {
+    "title": "Gizlilik & Təhlükəsizlik",
+    "subtitle": "Məlumat qorunması və kilit",
+    "modal_title": "Məlumat & Gizlilik",
+    "data_info": "Məlumatlarınız yalnız <strong>bu cihazda</strong> saxlanılır. Serverlərimizə heç bir məlumat göndərilmir.",
+    "download": "Məlumatlarımı Endir",
+    "delete_all": "Bütün Məlumatları Sil",
+    "delete_confirm": "Bütün məlumatlarınız həmişəlik silinəcək. Bu əməliyyat geri alına bilməz.",
+    "delete_cancel": "Ləğv et",
+    "delete_yes": "Bəli, Sil"
+  },
+  "appearance": {
+    "title": "Görünüş",
+    "dark_active": "Hüzur Teması",
+    "light_active": "Fərah Tema"
+  },
+  "location": {
+    "title": "Məkan",
+    "subtitle": "GPS və şəhər tənzimləmələri"
+  },
+  "share": {
+    "title": "İrəliləyişi Paylaş",
+    "subtitle": "Tuba Ağacını sosial şəbəkədə paylaş"
+  },
+  "invite": {
+    "title": "Dost Dəvət Et",
+    "subtitle": "Sevdiklərinlə tətbiq linkini paylaş"
+  },
+  "calc": {
+    "title": "Qəza Borcunu Hesabla",
+    "subtitle": "Avtomatik hesablama aləti"
+  },
+  "language": {
+    "title": "Tətbiq Dili",
+    "subtitle": "İnterfeys dilini dəyişdir"
+  },
+  "promo": {
+    "title": "Promosyon Kodu",
+    "subtitle": "Hədiyyə kodu istifadə et",
+    "label": "KOD DAXİL EDİN",
+    "submit": "Kodu İstifadə Et",
+    "success": "Təbriklər! Premium xüsusiyyətlər uğurla aktivləşdirildi. 🌟",
+    "invalid": "Yanlış və ya vaxtı keçmiş promosyon kodu."
+  },
+  "report_bug": {
+    "title": "Xəta Bildir",
+    "subtitle": "Tətbiqdə problem var?",
+    "email_subject": "İslami Yoldaş - Xəta Bildirimi",
+    "email_body": "Qarşılaşdığım problem budur:\n\n"
+  },
+  "legal": {
+    "title": "Hüquqi & Haqqımızda",
+    "subtitle": "Gizlilik, əlaqə və dəstək"
+  },
+  "delete_account": {
+    "title": "Hesabı Sil",
+    "confirm": "Hesabınız ve bütün məlumatlarınız silinəcək. Bu əməliyyat geri qaytarıla bilməz. Əminsiniz?"
+  },
+  "avatar": {
+    "male": "Bəy",
+    "female": "Xanım",
+    "beads": "Təsbeh",
+    "tuba": "Tuba",
+    "quran": "Quran",
+    "moon": "Hilal"
+  },
+  "coming_soon": "Tezliklə",
+  "support": "Bizi Dəstəklə",
+  "reset": "Məlumatları Sıfırla",
+  "modal": {
+    "select_lang": "Dil Seçimi",
+    "lang_note": "Dil dəyişikliyi dərhal tətbiq olunur."
+  },
+  "avatar_modal_title": "Profil Şəkli Seç",
+  "app_name": "İslami Yoldaş",
+  "version": "Versiya 2.1.0 (Pro Max)",
+  "theme_select_title": "Tema Seçin",
+  "fill_dates": "Tarixləri doldurun",
+  "calc_complete": "Hesablama tamamlandı.",
+  "font_size": {
+    "title": "Yazı Ölçüsü",
+    "modal_title": "Yazı Ölçüsü",
+    "desc": "Tətbiq daxilindəki yazı ölçüsünü istəyinizə görə tənzimləyə bilərsiniz.",
+    "small": "Kiçik",
+    "normal": "Normal",
+    "large": "Böyük",
+    "xlarge": "Çox Böyük"
+  },
+  "haptics": {
+    "title": "Titrəmə",
+    "subtitle": "Tətbiqdaxili toxunma hissi"
+  }
+}

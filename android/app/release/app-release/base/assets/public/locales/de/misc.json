@@ -1,0 +1,50 @@
+{
+    "aiMentor": {
+        "title": "Spiritueller Mentor",
+        "subtitle": "KI-gestützter Assistent",
+        "welcomeMessage": "Friede sei mit dir, lieber Freund. Ich bin dein Spiritueller Mentor. Was liegt dir auf dem Herzen, was bedrückt dich oder wofür bist du dankbar? Erzähle es mir, und ich bereite eine Empfehlung für dich vor, basierend auf Quran und Sunnah.",
+        "thinking": "Nachdenken...",
+        "placeholder": "Ich brauche Hilfe, mein Herz ist schwer...",
+        "errorPrefix": "Fehler aufgetreten:",
+        "freeQuota": "Noch {{count}} Frage heute",
+        "unlockMore": "Mehr freischalten",
+        "limitReachedBanner": "Tageslimit erreicht",
+        "limitReachedPlaceholder": "Mit Premium 30 Fragen täglich...",
+        "dailyLimitReached": "Dein Tageslimit ist erreicht. Komm morgen wieder oder hole dir Premium für 30 Fragen pro Tag.",
+        "premiumQuota": "{{count}} Fragen übrig",
+        "suggestion1": "Mein Herz ist schwer, welchen Dhikr und welches Bittgebet soll ich lesen?",
+        "suggestion2": "Ich möchte, dass meine Familie friedlich ist, was soll ich tun?",
+        "suggestion3": "Welche Gebete soll ich für reichlich Lebensunterhalt lesen?"
+    },
+    "prescription": {
+        "title": "Spirituelle Empfehlung",
+        "adviceLabel": "Ratschlag des Mentors",
+        "dhikrLabel": "Dhikr-Empfehlung",
+        "startDhikr": "Dhikr beginnen",
+        "verseLabel": "Heilungsvers",
+        "listen": "Anhören",
+        "pause": "Pause",
+        "ebced": "Abdschad",
+        "count": "Anzahl"
+    },
+    "comingSoon": "Demnächst verfügbar! Diese Sprache wird vorbereitet. 🌍",
+    "connectionError": "Verbindungsfehler.",
+    "aiConsent": {
+        "badge": "Datenschutz",
+        "third_party_badge": "Datenweitergabe an Dritte",
+        "title": "KI-Datenweitergabe-Einwilligung",
+        "subtitle": "Bitte lesen Sie vor der Nutzung dieser Funktion, wie Ihre Daten verarbeitet werden. Ihre ausdrückliche Zustimmung ist erforderlich.",
+        "data_sent_label": "An Dritte gesendete Daten",
+        "data_sent_value": "Ihre eingegebenen Fragen, Nachrichten und Ihre ausgewählte App-Sprache werden zur Verarbeitung an einen externen KI-Dienst gesendet.",
+        "provider_label": "Drittanbieter",
+        "provider_value": "Google LLC — Google Gemini AI API, verarbeitet über Firebase Cloud Functions (Google-Server).",
+        "purpose_label": "Zweck der Datenweitergabe",
+        "purpose_value": "Erstellung personalisierter spiritueller Ratschläge, Dhikr-Empfehlungen und Koranvers-Vorschläge basierend auf Ihren Fragen.",
+        "storage_label": "Datenspeicherung",
+        "storage_value": "Ihre Nachrichten werden in Echtzeit verarbeitet und nach der Antwortgenerierung nicht dauerhaft auf Google- oder unseren Servern gespeichert.",
+        "accept": "Ich stimme zu",
+        "decline": "Ablehnen — KI nicht nutzen",
+        "privacy_note": "Alle Details in unserer",
+        "privacy_link": "Datenschutzerklärung"
+    }
+}

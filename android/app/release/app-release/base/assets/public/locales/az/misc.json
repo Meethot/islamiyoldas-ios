@@ -1,0 +1,50 @@
+{
+    "aiMentor": {
+        "title": "Mənəvi Köməkçi",
+        "subtitle": "Süni Zəka ilə Dəstək",
+        "welcomeMessage": "Əssalamu ələykum, əziz qardaşım. Mən sənin Mənəvi Köməkçinəm. Qəlbində nə var, səni darıxdıran və ya şükür etdirən nədir? Mənə danış, sənə Quran və Sünnə işığında bir reçete hazırlayım.",
+        "thinking": "Təfəkkür edilir...",
+        "placeholder": "Kömək lazımdır, qəlbim ağırdır...",
+        "errorPrefix": "Xəta baş verdi:",
+        "freeQuota": "Bu gün {{count}} haqqın qaldı",
+        "unlockMore": "Daha çox aç",
+        "limitReachedBanner": "Günlük haqqın doldu",
+        "limitReachedPlaceholder": "Premium ilə gündə 30 sual soruşa bilərsən...",
+        "dailyLimitReached": "Günlük sual haqqınız doldu. Sabah yenidən gəlin və ya Premium ilə gündə 30 sual soruşun.",
+        "premiumQuota": "{{count}} haqqın qaldı",
+        "suggestion1": "İçim darıxır, hansı zikr və duanı oxumalıyam?",
+        "suggestion2": "Ailəmin hüzurlu olmasını istəyirəm, nə etməliyəm?",
+        "suggestion3": "Ruzi və bərəkət üçün hansı duaları oxumalıyam?"
+    },
+    "prescription": {
+        "title": "Mənəvi Reçete",
+        "adviceLabel": "Müəllim Tövsiyəsi",
+        "dhikrLabel": "Zikir Reçetesi",
+        "startDhikr": "Zikrə Başla",
+        "verseLabel": "Şəfa Ayəsi",
+        "listen": "Dinlə",
+        "pause": "Fasilə",
+        "ebced": "Əbcəd",
+        "count": "Say"
+    },
+    "comingSoon": "Tezliklə! Bu dil hazırlanır. 🌍",
+    "connectionError": "Bağlantı xətası.",
+    "aiConsent": {
+        "badge": "Məlumat Təhlükəsizliyi",
+        "third_party_badge": "Üçüncü Tərəf Məlumat Paylaşımı",
+        "title": "Süni Zəka Məlumat Paylaşım Razılığı",
+        "subtitle": "Bu xüsusiyyəti istifadə etməzdən əvvəl məlumatlarınızın necə işləndiyini nəzərdən keçirin. Açıq razılığınız tələb olunur.",
+        "data_sent_label": "Üçüncü Tərəfə Göndərilən Məlumatlar",
+        "data_sent_value": "Yazdığınız suallar, mesajlar və seçdiyiniz tətbiq dili işlənmək üçün xarici süni intellekt servisinə göndərilir.",
+        "provider_label": "Üçüncü Tərəf Xidmət Təminatçısı",
+        "provider_value": "Google LLC — Google Gemini AI API, Firebase Cloud Functions vasitəsilə işlənir (Google serverləri).",
+        "purpose_label": "Məlumat Paylaşımının Məqsədi",
+        "purpose_value": "Suallarınıza əsasən fərdiləşdirilmiş mənəvi məsləhət, zikir tövsiyəsi və Quran ayəsi təklifləri yaratmaq.",
+        "storage_label": "Məlumat Saxlama",
+        "storage_value": "Mesajlarınız real vaxtda işlənir və cavab yaradıldıqdan sonra Google və ya bizim serverlərimizdə daimi saxlanmır.",
+        "accept": "Razıyam",
+        "decline": "Rədd Et — Süni Zəkanı İstifadə Etmə",
+        "privacy_note": "Bütün detallar üçün",
+        "privacy_link": "Gizlilik Siyasəti"
+    }
+}

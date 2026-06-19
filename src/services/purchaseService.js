@@ -3,8 +3,9 @@ import { Purchases, LOG_LEVEL } from '@revenuecat/purchases-capacitor';
 import { storageService } from './storageService';
 import { setPremiumUserProperties } from './analyticsService';
 
-// RevenueCat Public API Key (iOS)
-const RC_API_KEY = 'appl_hKXYxTRTsDPOKptWBGGHoFltKZc';
+// RevenueCat Public API Keys
+const RC_API_KEY_IOS = 'appl_hKXYxTRTsDPOKptWBGGHoFltKZc';
+const RC_API_KEY_ANDROID = import.meta.env.VITE_REVENUECAT_API_KEY_ANDROID || 'goog_YOUR_ANDROID_API_KEY_HERE';
 
 // Entitlement ID — RevenueCat Dashboard'da tanımlı (tam olarak eşleşmeli!)
 const ENTITLEMENT_ID = 'İslami Yoldas Pro';
@@ -18,6 +19,8 @@ const PREMIUM_KEY = 'aminKumbara_premium';
 const MIGRATION_KEY = 'rc_sdk_migration_done';
 
 let isInitialized = false;
+let isConfiguring = false;
+let initPromise = null;
 let purchaseListeners = [];
 let cachedOfferings = null;
 
@@ -66,60 +69,75 @@ export async function initializePurchases() {
     if (isInitialized) return;
     if (!Capacitor.isNativePlatform()) return;
 
-    const isMigrating = !storageService.getItem(MIGRATION_KEY);
-    const hadPremiumBefore = storageService.getItem(PREMIUM_KEY) === 'true';
+    if (initPromise) return initPromise;
 
-    if (isMigrating) {
-        console.log('[RC] 🔄 First SDK init — migration mode active. Current premium:', hadPremiumBefore);
-    }
+    initPromise = (async () => {
+        isConfiguring = true;
+        const isMigrating = !storageService.getItem(MIGRATION_KEY);
+        const hadPremiumBefore = storageService.getItem(PREMIUM_KEY) === 'true';
 
-    try {
-        // SDK'yı yapılandır
-        await Purchases.configure({
-            apiKey: RC_API_KEY,
-        });
-
-        // Debug modda verbose log
-        if (import.meta.env.DEV) {
-            await Purchases.setLogLevel({ level: LOG_LEVEL.DEBUG });
-        }
-
-        // Müşteri bilgisi değişikliklerini dinle (yenilenme, iptal, geri ödeme)
-        await Purchases.addCustomerInfoUpdateListener((customerInfo) => {
-            console.log('[RC] Customer info updated');
-            const { isPremium, planId } = checkEntitlements(customerInfo);
-            // Migration tamamlandıktan sonra listener normal çalışır
-            updatePremiumStatus(isPremium, planId, false);
-            purchaseListeners.forEach(fn => fn(isPremium, customerInfo));
-        });
-
-        isInitialized = true;
-
-        // Uygulama açılışında mevcut abonelikleri doğrula (migration güvenli)
-        await verifySubscription(isMigrating);
-
-        // Migration başarılı — işaretle
         if (isMigrating) {
-            storageService.setItem(MIGRATION_KEY, 'true');
-            console.log('[RC] ✅ Migration complete. Flag set.');
+            console.log('[RC] 🔄 First SDK init — migration mode active. Current premium:', hadPremiumBefore);
+        }
 
-            // 30 saniye sonra tekrar doğrula (RC receipt işleme gecikmesi için)
-            if (hadPremiumBefore) {
-                setTimeout(async () => {
-                    console.log('[RC] 🔄 Delayed post-migration re-verification...');
-                    await verifySubscription(false);
-                }, 30000);
+        try {
+            const platform = Capacitor.getPlatform();
+            const apiKey = platform === 'ios' ? RC_API_KEY_IOS : RC_API_KEY_ANDROID;
+
+            console.log(`[RC] Configuring for platform: ${platform} using key: ${apiKey.substring(0, 12)}...`);
+
+            // SDK'yı yapılandır
+            await Purchases.configure({
+                apiKey: apiKey,
+            });
+
+            // Debug modda verbose log
+            if (import.meta.env.DEV) {
+                await Purchases.setLogLevel({ level: LOG_LEVEL.DEBUG });
             }
-        }
 
-        console.log('[RC] Initialization complete ✓');
-    } catch (err) {
-        console.warn('[RC] Init error:', err);
-        // Hata durumunda mevcut premium durumunu koru
-        if (hadPremiumBefore) {
-            console.warn('[RC] ⚠️ Init failed, keeping existing premium status');
+            // Müşteri bilgisi değişikliklerini dinle (yenilenme, iptal, geri ödeme)
+            await Purchases.addCustomerInfoUpdateListener((customerInfo) => {
+                console.log('[RC] Customer info updated');
+                const { isPremium, planId } = checkEntitlements(customerInfo);
+                // Migration tamamlandıktan sonra listener normal çalışır
+                updatePremiumStatus(isPremium, planId, false);
+                purchaseListeners.forEach(fn => fn(isPremium, customerInfo));
+            });
+
+            isInitialized = true;
+
+            // Uygulama açılışında mevcut abonelikleri doğrula (migration güvenli)
+            await verifySubscription(isMigrating);
+
+            // Migration başarılı — işaretle
+            if (isMigrating) {
+                storageService.setItem(MIGRATION_KEY, 'true');
+                console.log('[RC] ✅ Migration complete. Flag set.');
+
+                // 30 saniye sonra tekrar doğrula (RC receipt işleme gecikmesi için)
+                if (hadPremiumBefore) {
+                    setTimeout(async () => {
+                        console.log('[RC] 🔄 Delayed post-migration re-verification...');
+                        await verifySubscription(false);
+                    }, 30000);
+                }
+            }
+
+            console.log('[RC] Initialization complete ✓');
+        } catch (err) {
+            console.warn('[RC] Init error:', err);
+            // Hata durumunda mevcut premium durumunu koru
+            if (hadPremiumBefore) {
+                console.warn('[RC] ⚠️ Init failed, keeping existing premium status');
+            }
+            initPromise = null;
+        } finally {
+            isConfiguring = false;
         }
-    }
+    })();
+
+    return initPromise;
 }
 
 /**
@@ -128,6 +146,9 @@ export async function initializePurchases() {
  */
 export async function getOfferings() {
     if (!Capacitor.isNativePlatform()) return null;
+    if (!isInitialized && !isConfiguring) {
+        await initializePurchases();
+    }
     try {
         const offerings = await Purchases.getOfferings();
         cachedOfferings = offerings;
@@ -149,6 +170,9 @@ export async function getProducts() {
             { identifier: PRODUCT_IDS.MONTHLY, priceString: '₺124,99', price: 124.99, currencyCode: 'TRY', title: 'Aylık Premium', description: 'Aylık abonelik' },
             { identifier: PRODUCT_IDS.YEARLY, priceString: '₺739,99', price: 739.99, currencyCode: 'TRY', title: 'Yıllık Premium', description: 'Yıllık abonelik' },
         ];
+    }
+    if (!isInitialized && !isConfiguring) {
+        await initializePurchases();
     }
     try {
         // Önce Offerings'den çek (A/B test desteği)
@@ -194,6 +218,9 @@ export async function purchaseProduct(productIdOrObj) {
             : productIdOrObj;
         updatePremiumStatus(true, productIdentifier);
         return { success: true };
+    }
+    if (!isInitialized && !isConfiguring) {
+        await initializePurchases();
     }
     try {
         let result;
@@ -245,6 +272,9 @@ export async function restorePurchases() {
     if (!Capacitor.isNativePlatform()) {
         return { success: false, isPremium: false };
     }
+    if (!isInitialized && !isConfiguring) {
+        await initializePurchases();
+    }
     try {
         const { customerInfo } = await Purchases.restorePurchases();
         console.log('[RC] Restore complete');
@@ -264,6 +294,9 @@ export async function restorePurchases() {
 export async function verifySubscription(isMigration = false) {
     if (!Capacitor.isNativePlatform()) {
         return storageService.getItem(PREMIUM_KEY) === 'true';
+    }
+    if (!isInitialized && !isConfiguring) {
+        await initializePurchases();
     }
     try {
         const { customerInfo } = await Purchases.getCustomerInfo();

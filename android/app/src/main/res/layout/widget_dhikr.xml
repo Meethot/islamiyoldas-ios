@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/dhikr_widget_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/widget_background"
+    android:padding="14dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal">
+
+        <!-- LEFT PANEL: Zikir Info -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="55"
+            android:orientation="vertical"
+            android:paddingEnd="10dp">
+
+            <!-- Top Row: ZİKİR label + Tur badge -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="6dp">
+
+                <!-- ZİKİR label -->
+                <TextView
+                    android:id="@+id/dhikr_header"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="✨ ZİKİR"
+                    android:textColor="#D4AF37"
+                    android:textSize="10sp"
+                    android:textStyle="bold" />
+
+                <!-- Tur badge -->
+                <TextView
+                    android:id="@+id/dhikr_tur"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="↻ 0 Tur"
+                    android:textColor="#D4AF37"
+                    android:textSize="10sp"
+                    android:textStyle="bold"
+                    android:background="@drawable/widget_dhikr_tur_bg"
+                    android:paddingStart="8dp"
+                    android:paddingEnd="8dp"
+                    android:paddingTop="2dp"
+                    android:paddingBottom="2dp" />
+
+            </LinearLayout>
+
+            <!-- Arabic Text (large) -->
+            <TextView
+                android:id="@+id/dhikr_arabic"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="سُبْحَانَ اللَّهِ"
+                android:textColor="#D4AF37"
+                android:textSize="22sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="2dp"
+                android:maxLines="1" />
+
+            <!-- Turkish Name (bold white) -->
+            <TextView
+                android:id="@+id/dhikr_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Sübhanallah"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="2dp" />
+
+            <!-- Meaning (small gray) -->
+            <TextView
+                android:id="@+id/dhikr_meaning"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Allah noksan sıfatlardan uzaktır"
+                android:textColor="#70FFFFFF"
+                android:textSize="11sp"
+                android:maxLines="2"
+                android:layout_marginBottom="8dp" />
+
+            <!-- Progress Bar -->
+            <ProgressBar
+                android:id="@+id/dhikr_progress"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="match_parent"
+                android:layout_height="5dp"
+                android:progressDrawable="@drawable/widget_dhikr_progressbar"
+                android:max="100"
+                android:progress="0"
+                android:layout_marginBottom="8dp" />
+
+            <!-- Bottom: Preset indicators -->
+            <TextView
+                android:id="@+id/dhikr_presets_label"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="● Sübhanallah  ● Elhamdülillah  ● A.Ekber"
+                android:textColor="#60FFFFFF"
+                android:textSize="9sp"
+                android:maxLines="1" />
+
+        </LinearLayout>
+
+        <!-- RIGHT PANEL: Counter + Button -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="35"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:paddingStart="6dp">
+
+            <!-- Bead Ring Circle -->
+            <FrameLayout
+                android:layout_width="90dp"
+                android:layout_height="90dp"
+                android:layout_gravity="center">
+
+                <!-- Bead ring drawn as bitmap -->
+                <ImageView
+                    android:id="@+id/dhikr_bead_ring"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="fitCenter"
+                    android:contentDescription="beads" />
+
+                <!-- Count number overlay -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:gravity="center">
+
+                    <ViewFlipper
+                        android:id="@+id/dhikr_count_flipper"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:inAnimation="@anim/widget_slide_in_bottom"
+                        android:outAnimation="@anim/widget_slide_out_top">
+
+                        <TextView
+                            android:id="@+id/dhikr_count_1"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:text="0"
+                            android:textColor="#D4AF37"
+                            android:textSize="26sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/dhikr_count_2"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:text="0"
+                            android:textColor="#D4AF37"
+                            android:textSize="26sp"
+                            android:textStyle="bold" />
+
+                    </ViewFlipper>
+
+                    <TextView
+                        android:id="@+id/dhikr_target"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="/ 33"
+                        android:textColor="#50FFFFFF"
+                        android:textSize="10sp" />
+                </LinearLayout>
+
+            </FrameLayout>
+
+            <!-- + Zikret Button -->
+            <TextView
+                android:id="@+id/dhikr_zikret_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="+ Zikret"
+                android:textColor="#0F2516"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                android:background="@drawable/widget_dhikr_btn"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:paddingTop="5dp"
+                android:paddingBottom="5dp"
+                android:layout_marginTop="4dp"
+                android:layout_gravity="center" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</FrameLayout>

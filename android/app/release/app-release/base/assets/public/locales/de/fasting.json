@@ -1,0 +1,88 @@
+{
+    "title": "Fasten-Tracker",
+    "status": {
+        "fasted": "Gefastet",
+        "missed": "Verpasst",
+        "excused": "Entschuldigt",
+        "pending": "Ausstehend",
+        "remaining": "Verbleibend"
+    },
+    "milestones": {
+        "1": "Erster Schritt",
+        "3": "Hingabe",
+        "7": "Eine Woche",
+        "10": "Stern",
+        "15": "Halbzeit",
+        "20": "Auf Feuer",
+        "25": "Fast geschafft!",
+        "30": "Geschafft!"
+    },
+    "hadith": {
+        "0": {
+            "text": "Das Fasten ist ein Schutzschild.",
+            "src": "Bukhari"
+        },
+        "1": {
+            "text": "Alles hat eine Zakat, und die Zakat des Körpers ist das Fasten.",
+            "src": "Ibn Madscha"
+        },
+        "2": {
+            "text": "Fastet und seid gesund.",
+            "src": "Tabarani"
+        },
+        "3": {
+            "text": "Der Atem eines Fastenden ist bei Allah süßer als der Duft von Moschus.",
+            "src": "Bukhari"
+        },
+        "4": {
+            "text": "Wer den Ramadan mit Glauben und in der Hoffnung auf Belohnung fastet, dem werden seine vergangenen Sünden vergeben.",
+            "src": "Bukhari, Muslim"
+        },
+        "5": {
+            "text": "Das Fasten ist die Hälfte der Geduld.",
+            "src": "Tirmidhi"
+        },
+        "6": {
+            "text": "Im Paradies gibt es ein Tor namens Ar-Rayyan, durch das nur die Fastenden eintreten werden.",
+            "src": "Bukhari, Muslim"
+        }
+    },
+    "start": "Start",
+    "ofDays": "/ {{total}} Tage",
+    "day": "Tag {{day}}",
+    "streak": "{{count}} Serie",
+    "ramazanDay": "Ramadan Tag {{day}}",
+    "updateStatus": "Status aktualisieren",
+    "nextGoal": "Nächstes Ziel",
+    "days": "Tage",
+    "calendarTitle": "Ramadan-Kalender",
+    "calendarSubtitle": "Februar – März 2026",
+    "reset": "Zurücksetzen",
+    "cancel": "Abbrechen",
+    "resetTitle": "Fastendaten zurücksetzen",
+    "resetDesc": "Alle deine Fasteneinträge werden gelöscht. Tarawih-Einträge bleiben erhalten. Diese Aktion kann nicht rückgängig gemacht werden.",
+    "teravihTitle": "Tarawih-Gebet",
+    "teravihResetTooltip": "Tarawih zurücksetzen",
+    "teravihResetTitle": "Tarawih-Daten zurücksetzen",
+    "teravihResetDesc": "Alle deine Tarawih-Gebetseinträge werden gelöscht. Fasteneinträge bleiben erhalten. Diese Aktion kann nicht rückgängig gemacht werden.",
+    "teravihLegend": {
+        "done": "Verrichtet",
+        "notDone": "Nicht verrichtet"
+    },
+    "weekdays": [
+        "Mo",
+        "Di",
+        "Mi",
+        "Do",
+        "Fr",
+        "Sa",
+        "So"
+    ],
+    "sahurAlarm": "Suhur-Alarm",
+    "sahurImsakTime": "Fajr: {{time}}",
+    "sahurAlarmTitle": "⏰ Suhur-Zeit naht!",
+    "sahurAlarmBody": "Noch {{minutes}} Minuten bis Fajr. Zeit zum Aufstehen für Suhur!",
+    "sahurCancel": "Abbrechen",
+    "sahurMin": "Minuten",
+    "sahurAlarmSet": "🔔 Klingelt {{minutes}} Min. vor Fajr ({{time}})"
+}
