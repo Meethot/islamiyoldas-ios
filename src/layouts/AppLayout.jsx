@@ -60,6 +60,13 @@ export default function AppLayout() {
         }
     }, [pathname]);
 
+    // Layout tamamen unmount olduğunda (örn. paywall'a gidildiğinde) reklamı kesin kaldır
+    useEffect(() => {
+        return () => {
+            import('@/services/adService').then(({ hideBannerAd }) => hideBannerAd()).catch(() => {});
+        };
+    }, []);
+
     // --- Banner Ad Global Controller ---
     const bannerVersionRef = useRef(0);
     

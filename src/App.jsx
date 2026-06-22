@@ -77,17 +77,8 @@ function GlobalEventHandler() {
       }
     });
 
-    // 2. Custom Event Listener (e.g. from adService after ad dismissed)
-    const handlePremiumUpsell = () => {
-        // Yönlendirmeden önce kullanıcıya sorabiliriz veya direkt yönlendirebiliriz
-        // Şimdilik direkt yönlendiriyoruz
-        navigate('/premium');
-    };
-    window.addEventListener('showPremiumUpsell', handlePremiumUpsell);
-
     return () => { 
         listener.then(l => l.remove()); 
-        window.removeEventListener('showPremiumUpsell', handlePremiumUpsell);
     };
   }, [navigate]);
   return null;

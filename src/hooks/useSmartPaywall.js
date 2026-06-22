@@ -16,7 +16,7 @@ import { useRef, useCallback } from 'react';
 
 const SESSION_MAX = 3;
 const DAILY_MAX = 8;
-const NAV_TRIGGER_EVERY = 3;
+const NAV_TRIGGER_EVERY = 4;
 
 // Bu sayfalara gidiş navigasyon sayacına DAHİL EDİLMEZ
 const EXCLUDED_PATHS = ['/premium', '/onboarding', '/ai-mentor'];

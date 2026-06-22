@@ -214,57 +214,8 @@ export default function WidgetGuide() {
     const { selection } = useHaptics();
     const { isPremium } = useUser();
     const [activeTab, setActiveTab] = useState('home');
-    const [trialState, setTrialState] = useState({
-        h: 1,
-        m: 0,
-        s: 0,
-        progress: 1.0,
-        expired: false,
-        started: false
-    });
 
-    useEffect(() => {
-        const TRIAL_DURATION = 60 * 60 * 1000; // 1 hour
-        let timer = null;
 
-        const initTimer = async () => {
-            try {
-                const { value: storedTime } = await Preferences.get({ key: 'widget_first_seen' });
-                let trialStart = storedTime ? parseFloat(storedTime) * 1000 : null;
-                
-                if (!trialStart) {
-                    trialStart = Date.now();
-                    await Preferences.set({ key: 'widget_first_seen', value: String(trialStart / 1000) });
-                }
-                
-                const tick = () => {
-                    const elapsed = Date.now() - trialStart;
-                    if (elapsed >= TRIAL_DURATION) {
-                        setTrialState({ h: 0, m: 0, s: 0, progress: 0, expired: true, started: true });
-                        if (timer) clearInterval(timer);
-                        return;
-                    }
-                    const remaining = TRIAL_DURATION - elapsed;
-                    const h = Math.floor(remaining / (1000 * 60 * 60));
-                    const m = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
-                    const s = Math.floor((remaining % (1000 * 60)) / 1000);
-                    const progress = remaining / TRIAL_DURATION;
-                    setTrialState({ h, m, s, progress, expired: false, started: true });
-                };
-
-                tick();
-                timer = setInterval(tick, 1000);
-            } catch (e) {
-                console.error("Widget guide timer error:", e);
-            }
-        };
-
-        initTimer();
-
-        return () => {
-            if (timer) clearInterval(timer);
-        };
-    }, []);
 
     const switchTab = (tab) => {
         if (tab === activeTab) return;
@@ -338,8 +289,8 @@ export default function WidgetGuide() {
                     {t('widget_guide.subtitle', 'İbadetlerini ana ekranından ve kilit ekranından takip et')}
                 </p>
 
-                {/* 1-Hour Free Trial Countdown Card */}
-                {!isPremium && trialState.started && (
+                {/* Premium Required Card */}
+                {!isPremium && (
                     <div className="wg-trial-shimmer" style={{
                         marginTop: 16,
                         width: '100%',
@@ -369,91 +320,46 @@ export default function WidgetGuide() {
 
                         {/* Top Row: Icon, Title, and Timer/Status */}
                         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                            {/* Circular progress with icon */}
+                            {/* Icon */}
                             <div style={{ position: 'relative', width: 44, height: 44, flexShrink: 0 }}>
-                                <svg viewBox="0 0 44 44" style={{ width: '100%', height: '100%', transform: 'rotate(-90deg)' }}>
-                                    <circle cx="22" cy="22" r="18" fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="3" />
-                                    <circle
-                                        cx="22"
-                                        cy="22"
-                                        r="18"
-                                        fill="none"
-                                        stroke="url(#widgetTrialGrad)"
-                                        strokeWidth="3"
-                                        strokeLinecap="round"
-                                        strokeDasharray={`${2 * Math.PI * 18}`}
-                                        strokeDashoffset={`${2 * Math.PI * 18 * (1 - trialState.progress)}`}
-                                        style={{ transition: 'stroke-dashoffset 0.35s ease' }}
-                                    />
-                                    <defs>
-                                        <linearGradient id="widgetTrialGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                                            <stop offset="0%" stopColor="#D4AF37" />
-                                            <stop offset="100%" stopColor="#fbbf24" />
-                                        </linearGradient>
-                                    </defs>
-                                </svg>
-                                <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                    <span style={{ fontSize: 18 }}>⏱️</span>
+                                <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255,255,255,0.05)', borderRadius: '50%', border: '1px solid rgba(255,255,255,0.1)' }}>
+                                    <span style={{ fontSize: 18 }}>👑</span>
                                 </div>
                             </div>
 
                             {/* Text */}
                             <div style={{ flex: 1, minWidth: 0 }}>
                                 <p style={{ fontSize: 14, fontWeight: 800, color: '#fff', margin: 0, lineHeight: 1.2 }}>
-                                    {t('widget_guide.trial_title', 'Widget Deneme Süresi')}
+                                    {t('widget_guide.premium_title', 'Premium Özellik')}
                                 </p>
                                 <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)', margin: '2px 0 0', lineHeight: 1.2 }}>
-                                    {trialState.expired ? t('widget_guide.trial_expired', 'Deneme süresi doldu') : t('widget_guide.trial_active', 'Ücretsiz kullanım aktif')}
+                                    {t('widget_guide.premium_desc', 'Widgetları kullanmak için Premium gerekli')}
                                 </p>
                             </div>
 
-                            {/* Countdown Timer or Premium Button */}
+                            {/* Premium Button */}
                             <div style={{ flexShrink: 0 }}>
-                                {trialState.expired ? (
-                                    <button
-                                        onClick={() => { selection(); navigate('/premium'); }}
-                                        style={{
-                                            padding: '8px 14px',
-                                            borderRadius: 12,
-                                            background: '#D4AF37',
-                                            border: 'none',
-                                            color: '#032e18',
-                                            fontSize: 12,
-                                            fontWeight: 800,
-                                            boxShadow: '0 4px 12px rgba(212,160,83,0.3)',
-                                            cursor: 'pointer',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            gap: 4,
-                                        }}
-                                    >
-                                        👑 Premium
-                                    </button>
-                                ) : (
-                                    <div style={{ display: 'flex', alignItems: 'baseline', gap: 2, fontFamily: 'monospace' }}>
-                                        <span style={{ fontSize: 18, fontWeight: 900, color: '#fff' }}>{String(trialState.h).padStart(2, '0')}</span>
-                                        <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', fontWeight: 700 }}>:</span>
-                                        <span style={{ fontSize: 18, fontWeight: 900, color: '#fff' }}>{String(trialState.m).padStart(2, '0')}</span>
-                                        <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', fontWeight: 700 }}>:</span>
-                                        <span style={{ fontSize: 18, fontWeight: 900, color: '#D4AF37' }}>{String(trialState.s).padStart(2, '0')}</span>
-                                    </div>
-                                )}
+                                <button
+                                    onClick={() => { selection(); navigate('/premium'); }}
+                                    style={{
+                                        padding: '8px 14px',
+                                        borderRadius: 12,
+                                        background: '#D4AF37',
+                                        border: 'none',
+                                        color: '#032e18',
+                                        fontSize: 12,
+                                        fontWeight: 800,
+                                        boxShadow: '0 4px 12px rgba(212,160,83,0.3)',
+                                        cursor: 'pointer',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: 4,
+                                    }}
+                                >
+                                    👑 Premium
+                                </button>
                             </div>
                         </div>
-
-                        {/* Bottom progress bar — only when active */}
-                        {!trialState.expired && (
-                            <div style={{ height: 2, borderRadius: 1, background: 'rgba(255,255,255,0.06)', overflow: 'hidden', marginTop: 4 }}>
-                                <div
-                                    style={{
-                                        height: '100%',
-                                        background: 'linear-gradient(90deg, #D4AF37, #fbbf24)',
-                                        width: `${trialState.progress * 100}%`,
-                                        transition: 'width 0.35s ease',
-                                    }}
-                                />
-                            </div>
-                        )}
                     </div>
                 )}
             </div>
@@ -601,7 +507,7 @@ export default function WidgetGuide() {
                                 }}>
                                     {isPremium
                                         ? t('widget_guide.premium_note', '👑 Premium aboneliğiniz süresince tüm widget\'lar aktiftir.')
-                                        : t('widget_guide.free_note', '⏳ Ücretsiz kullanıcılar için widget\'lar 1 saat aktif olarak çalışır. Premium ile süresiz kullanabilirsiniz.')
+                                        : t('widget_guide.premium_required', '👑 Widget\'ları kullanabilmek için Premium aboneliğinizin olması gerekmektedir.')
                                     }
                                 </p>
                             </div>

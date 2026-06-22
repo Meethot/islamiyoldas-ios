@@ -196,8 +196,11 @@ function saveDailyInterstitialCount(count) {
 }
 
 export function getInterstitialCooldown() {
-    // İlk reklam: 30 saniye, sonrakiler: 1 dakika
-    return interstitialCount === 0 ? (30 * 1000) : (1 * 60 * 1000);
+    // İlk reklam: 30 saniye, 2. reklam: 1 dakika, 3. reklam: 2 dakika, 4 ve sonrakiler: 3 dakika
+    if (interstitialCount === 0) return 30 * 1000;
+    if (interstitialCount === 1) return 1 * 60 * 1000;
+    if (interstitialCount === 2) return 2 * 60 * 1000;
+    return 3 * 60 * 1000;
 }
 
 // ─── INTERSTITIAL AD (30 saniye sonra otomatik, 5 saniyede atlanabilir) ───
@@ -264,10 +267,6 @@ export async function showInterstitialAd() {
                 () => {
                     console.log('[AdMob] Interstitial Reklam kapatıldı.');
                     clearListeners();
-                    
-                    // Reklam kapatılınca Upsell (Premium Yönlendirme) tetikle
-                    window.dispatchEvent(new Event('showPremiumUpsell'));
-                    
                     resolve();
                 }
             );
@@ -312,9 +311,11 @@ export async function showInterstitialAd() {
 }
 
 // ─── BANNER AD (Alt menü üstünde sürekli döner) ───
+let bannerShouldBeVisible = false;
 
 export async function showBannerAd() {
     console.log('[AdMob] showBannerAd tetiklendi.');
+    bannerShouldBeVisible = true;
     
     if (!shouldShowAds()) {
         console.log('[AdMob] Banner gösterim koşulları sağlanmadı (Premium veya 3. gün değil).');
@@ -334,6 +335,12 @@ export async function showBannerAd() {
         return;
     }
 
+    // Eğer init sırasında hideBannerAd çağrıldıysa gösterme
+    if (!bannerShouldBeVisible) {
+        console.log('[AdMob] Banner iptal edildi (hideBannerAd çağrılmış).');
+        return;
+    }
+
     const platform = Capacitor.getPlatform();
     const adId = platform === 'ios'
         ? AD_IDS.BANNER.ios
@@ -348,17 +355,32 @@ export async function showBannerAd() {
             isTesting: false
         });
         console.log('[AdMob] Banner başarıyla gösterildi.');
+        
+        // Eğer gösterim tamamlandığı anda gizlenmesi istenmişse hemen gizle
+        if (!bannerShouldBeVisible) {
+            hideBannerAd();
+        }
     } catch (error) {
         console.error('[AdMob] Banner gösterim hatası:', error);
     }
 }
 
 export async function hideBannerAd() {
+    bannerShouldBeVisible = false;
     if (!IS_NATIVE) return;
-    try {
-        await AdMob.hideBanner();
-        console.log('[AdMob] Banner gizlendi.');
-    } catch (error) {
-        // Zaten gizliyse hata verebilir, yoksay
-    }
+    
+    const attemptHide = async () => {
+        try {
+            await AdMob.hideBanner();
+            await AdMob.removeBanner();
+            console.log('[AdMob] Banner gizlendi ve temizlendi.');
+        } catch (error) {}
+    };
+
+    // Race condition'ları engellemek için agresif gizleme:
+    // Hemen, 500ms, 1000ms ve 2000ms sonra tekrar tekrar dene
+    await attemptHide();
+    setTimeout(attemptHide, 500);
+    setTimeout(attemptHide, 1000);
+    setTimeout(attemptHide, 2000);
 }

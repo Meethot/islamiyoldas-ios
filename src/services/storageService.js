@@ -123,8 +123,7 @@ class StorageService {
         // Keychain'den geri yükleme (silip yeniden yükleme senaryosu)
         for (const key of CRITICAL_KEYS) {
             try {
-                const result = await secure.get(key);
-                const keychainValue = result?.value ?? null;
+                const keychainValue = await secure.getItem(key);
                 const localValue = localStorage.getItem(key);
 
                 if (keychainValue && !localValue) {
@@ -142,12 +141,12 @@ class StorageService {
             const localValue = localStorage.getItem(key);
             if (localValue) {
                 try {
-                    const result = await secure.get(key);
-                    if (!result?.value) {
-                        await secure.set(key, localValue);
+                    const keychainValue = await secure.getItem(key);
+                    if (!keychainValue) {
+                        await secure.setItem(key, localValue);
                     }
                 } catch {
-                    try { await secure.set(key, localValue); } catch {}
+                    try { await secure.setItem(key, localValue); } catch {}
                 }
             }
         }
@@ -167,7 +166,7 @@ class StorageService {
         if (CRITICAL_KEYS.includes(key)) {
             const secure = await this._getSecureStorage();
             if (secure) {
-                try { await secure.set(key, stringValue); } catch {}
+                try { await secure.setItem(key, stringValue); } catch {}
             }
         }
     }
@@ -189,7 +188,7 @@ class StorageService {
         if (CRITICAL_KEYS.includes(key)) {
             const secure = await this._getSecureStorage();
             if (secure) {
-                try { await secure.remove(key); } catch {}
+                try { await secure.removeItem(key); } catch {}
             }
         }
     }
@@ -208,7 +207,7 @@ class StorageService {
         const secure = await this._getSecureStorage();
         if (secure) {
             for (const key of CRITICAL_KEYS) {
-                try { await secure.remove(key); } catch {}
+                try { await secure.removeItem(key); } catch {}
             }
         }
     }

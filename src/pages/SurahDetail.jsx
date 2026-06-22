@@ -50,7 +50,7 @@ const toArabicNumber = (num) => {
 };
 
 // Memoized individual verse to prevent list re-renders
-const VerseItem = React.memo(({ verse, index, isBookmarked, toggleBookmark, handleShareClick, handlePlayAyah, playingAyahKey, t, verseRef }) => {
+const VerseItem = React.memo(({ verse, index, isBookmarked, toggleBookmark, handleShareClick, handlePlayAyah, playingAyahKey, t, verseRef, hasPremium }) => {
     const isPlaying = playingAyahKey === verse.verseKey;
 
     return (
@@ -89,13 +89,20 @@ const VerseItem = React.memo(({ verse, index, isBookmarked, toggleBookmark, hand
                                     type="button"
                                     onClick={() => handlePlayAyah(verse)}
                                     className={cn(
-                                        "rounded-xl transition-colors w-10 h-10 flex items-center justify-center active:scale-95",
-                                        isPlaying
-                                            ? "text-islamic-gold bg-islamic-gold/10"
-                                            : "text-gray-400 active:text-islamic-gold active:bg-islamic-gold/10"
+                                        "w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300",
+                                        isPlaying 
+                                            ? "bg-islamic-gold text-[#032e18] shadow-lg shadow-islamic-gold/40"
+                                            : hasPremium 
+                                                ? "bg-stone-100 dark:bg-white/10 text-stone-600 dark:text-white/70 hover:bg-stone-200 dark:hover:bg-white/20"
+                                                : "premium-play-btn bg-gradient-to-br from-[#D4AF37] via-[#E8C94A] to-[#C9982A] text-[#3D2E0A] shadow-[0_2px_12px_rgba(212,175,55,0.35)]"
                                     )}
                                 >
-                                    {isPlaying ? <Pause className="w-5 h-5 fill-current" /> : <Play className="w-5 h-5 fill-current" />}
+                                    {isPlaying 
+                                        ? <Pause className="w-5 h-5 fill-current" /> 
+                                        : hasPremium 
+                                            ? <Play className="w-5 h-5 fill-current ml-0.5" />
+                                            : <Crown className="w-5 h-5 fill-current" />
+                                    }
                                 </button>
                                 <button
                                     type="button"
@@ -181,38 +188,7 @@ export default function SurahDetail() {
     const [jumpTarget, setJumpTarget] = useState('');
     const [pendingJumpVerse, setPendingJumpVerse] = useState(null);
 
-    // Premium Trial State
-    const hasTrialAccess = () => {
-        if (isPremium()) return true;
-        const trialStart = safeGetStorage('quran_audio_trial_start', null);
-        if (!trialStart) return false;
-        const minPassed = (Date.now() - trialStart) / (1000 * 60);
-        return minPassed < 60; // 1 hour
-    };
-
-    const [trialTimeLeft, setTrialTimeLeft] = useState(null);
-
-    useEffect(() => {
-        if (isPremium()) return;
-        const trialStart = safeGetStorage('quran_audio_trial_start', null);
-        if (!trialStart) return;
-        
-        const updateTimer = () => {
-            const hoursPassed = (Date.now() - trialStart) / (1000 * 60 * 60);
-            if (hoursPassed >= 24) {
-                setTrialTimeLeft(null);
-            } else {
-                const msLeft = (24 * 60 * 60 * 1000) - (Date.now() - trialStart);
-                const h = Math.floor(msLeft / (1000 * 60 * 60));
-                const m = Math.floor((msLeft % (1000 * 60 * 60)) / (1000 * 60));
-                setTrialTimeLeft(`${h}s ${m}d`);
-            }
-        };
-        
-        updateTimer();
-        const intval = setInterval(updateTimer, 60000);
-        return () => clearInterval(intval);
-    }, []);
+    const hasPremium = isPremium();
 
     // Share State
     const [shareModalData, setShareModalData] = useState(null);
@@ -421,7 +397,7 @@ export default function SurahDetail() {
     // Audio Logic
     const toggleSurahAudio = async () => {
         selection();
-        if (!hasTrialAccess()) { navigate('/premium'); return; }
+        if (!hasPremium) { navigate('/premium'); return; }
 
         if (isSurahPlaying) {
             audio.pause();
@@ -512,7 +488,7 @@ export default function SurahDetail() {
 
     const handlePlayAyah = async (verse) => {
         selection();
-        if (!hasTrialAccess()) { navigate('/premium'); return; }
+        if (!hasPremium) { navigate('/premium'); return; }
 
         // Stop current playlist if running
         if (isSurahPlaying) {
@@ -734,12 +710,22 @@ export default function SurahDetail() {
                             <Button
                                 onClick={toggleSurahAudio}
                                 disabled={isSurahLoading}
-                                className="bg-islamic-gold text-[#032e18] hover:bg-islamic-gold/90 h-10 px-6 rounded-xl shadow-lg shadow-islamic-gold/20 flex items-center gap-2 font-bold text-sm shrink-0 min-w-[100px]"
+                                className={cn(
+                                    "flex items-center gap-2 px-6 py-2.5 rounded-2xl font-bold text-sm shadow-lg active:scale-95 transition-all",
+                                    hasPremium 
+                                        ? "bg-islamic-green dark:bg-islamic-gold text-white dark:text-[#032e18] hover:opacity-90"
+                                        : "premium-play-btn bg-gradient-to-r from-[#D4AF37] via-[#E8C94A] to-[#C9982A] text-[#3D2E0A] shadow-[0_2px_16px_rgba(212,175,55,0.4)]"
+                                )}
                             >
                                 {isSurahLoading ? (
                                     <Loader2 className="w-4 h-4 animate-spin" />
                                 ) : isSurahPlaying ? (
                                     <><Pause size={18} fill="currentColor" /> {t('quran:stop')}</>
+                                ) : !hasPremium ? (
+                                    <>
+                                        <Crown size={16} className="fill-current opacity-80" />
+                                        <span className="font-bold">{t('quran:listen')}</span>
+                                    </>
                                 ) : (
                                     <><Play size={18} fill="currentColor" className="ml-0.5" /> {t('quran:listen')}</>
                                 )}
@@ -799,15 +785,8 @@ export default function SurahDetail() {
                         >
                             {verses.map((verse, index) => (
                                 <VerseItem
-                                    key={verse.id}
+                                    key={verse.verseKey}
                                     verse={verse}
-                                    verseRef={(el) => {
-                                        if (el) {
-                                            verseRefs.current[verse.verseKey] = el;
-                                            verseRefs.current[verse.verseNumber] = el;
-                                            verseRefs.current[`idx-${index + 1}`] = el;
-                                        }
-                                    }}
                                     index={index}
                                     isBookmarked={isBookmarked(verse.verseKey)}
                                     toggleBookmark={toggleBookmark}
@@ -815,6 +794,14 @@ export default function SurahDetail() {
                                     handlePlayAyah={handlePlayAyah}
                                     playingAyahKey={playingAyahKey}
                                     t={t}
+                                    verseRef={(el) => {
+                                        if (el) {
+                                            verseRefs.current[verse.verseNumber] = el;
+                                            verseRefs.current[verse.verseKey] = el;
+                                            verseRefs.current[`idx-${verse.verseNumber}`] = el;
+                                        }
+                                    }}
+                                    hasPremium={hasPremium}
                                 />
                             ))}
                         </motion.div>
