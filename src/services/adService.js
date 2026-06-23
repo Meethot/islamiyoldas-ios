@@ -34,10 +34,10 @@ export function shouldShowAds() {
     const isPremiumUser = storageService.getItem('aminKumbara_premium') === 'true';
     if (isPremiumUser) return false;
 
-    // 2. gün kuralı: İlk gün reklamsız, 2. günden itibaren reklamlar başlar
+    // 3. gün kuralı: İlk 2 gün reklamsız, 3. günden itibaren reklamlar başlar
     const uniqueDaysStr = storageService.getItem('unique_days_opened');
     const uniqueDays = uniqueDaysStr ? parseInt(uniqueDaysStr, 10) : 0;
-    return uniqueDays >= 2;
+    return uniqueDays >= 3;
 }
 
 export async function initAdMob() {

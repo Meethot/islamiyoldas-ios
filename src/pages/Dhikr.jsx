@@ -1702,7 +1702,7 @@ export default function Dhikr() {
                 <div className="relative bg-white/[0.07] backdrop-blur-md px-6 py-3.5 rounded-full border border-white/15 flex items-center justify-between gap-4 shadow-xl max-w-[320px] mx-auto w-full mt-14 transition-all hover:bg-white/10 hover:border-islamic-gold/40 hover:shadow-[0_0_15px_rgba(255,255,255,0.05)]">
                     <button
                         onClick={() => {
-                            setTempTotal(count.toString());
+                            setTempTotal('');
                             setShowTotalModal(true);
                         }}
                         className="flex items-center gap-3.5 text-left active:scale-[0.97] transition-transform flex-1 py-1"

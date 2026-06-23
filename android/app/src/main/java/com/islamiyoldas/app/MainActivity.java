@@ -46,7 +46,7 @@ public class MainActivity extends BridgeActivity {
     }
 
     @Override
-    public void onResume() {
+    public void     onResume() {
         super.onResume();
         // Force refresh all prayer time widgets when app comes to foreground
         // This ensures language changes, new prayer data, etc. are reflected immediately

@@ -162,9 +162,9 @@ export async function getOfferings() {
 
 /**
  * Ürünleri getir — önce Offerings'den, yoksa doğrudan product ID ile.
- * A/B test: RevenueCat Dashboard'daki "current" offering otomatik seçilir.
+ * A/B test ve Limited Offer: İstenirse belirli bir vitrin (offeringIdentifier) çekilebilir.
  */
-export async function getProducts() {
+export async function getProducts(offeringIdentifier = 'current') {
     if (!Capacitor.isNativePlatform()) {
         return [
             { identifier: PRODUCT_IDS.MONTHLY, priceString: '₺124,99', price: 124.99, currencyCode: 'TRY', title: 'Aylık Premium', description: 'Aylık abonelik' },
@@ -177,16 +177,21 @@ export async function getProducts() {
     try {
         // Önce Offerings'den çek (A/B test desteği)
         const offerings = await getOfferings();
-        if (offerings?.current?.availablePackages?.length) {
-            return offerings.current.availablePackages.map(pkg => ({
+        const targetOffering = offeringIdentifier === 'current' 
+            ? offerings?.current 
+            : offerings?.all?.[offeringIdentifier] || offerings?.current;
+
+        if (targetOffering?.availablePackages?.length) {
+            return targetOffering.availablePackages.map(pkg => ({
                 identifier: pkg.product.identifier,
+                packageType: pkg.packageType, // RevenueCat packageType (e.g., 'MONTHLY', 'ANNUAL')
                 priceString: pkg.product.priceString,
                 price: pkg.product.price,
                 currencyCode: pkg.product.currencyCode,
                 title: pkg.product.title,
                 description: pkg.product.description,
                 rcPackage: pkg, // RevenueCat package objesi — purchasePackage için
-                offeringId: offerings.current.identifier,
+                offeringId: targetOffering.identifier,
             }));
         }
 

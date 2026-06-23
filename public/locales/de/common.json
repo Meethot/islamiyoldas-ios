@@ -57,9 +57,10 @@
     },
     "review": {
         "title": "Gefällt dir der Islamische Begleiter?",
-        "adFree": "100% werbefreies Erlebnis",
-        "description": "Wir haben eine komplett werbefreie App entwickelt, um dir das beste Erlebnis zu bieten. Deine Bewertung ist sehr wertvoll, um uns zu unterstützen! 🤲",
-        "rateButton": "Bewerten",
+        "socialProof": "10.000+ Mitglieder in unserer Familie",
+        "description": "Wir haben diese App mit Liebe für die Ummah entwickelt. Deine 5-Sterne-Bewertung hilft mehr Muslimen, diese App zu entdecken. 🤲",
+        "hadith": "\"Wer jemanden zum Guten führt, erhält eine ähnliche Belohnung.\" (Muslim)",
+        "rateButton": "5 Sterne geben",
         "later": "Später erinnern"
     },
     "splash": {

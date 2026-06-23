@@ -56,10 +56,11 @@
         "app_link_copied": "Bağlantı kopyalandı! (Paylaşım menüsü sadece mobil cihazlarda çalışır)"
     },
     "review": {
-        "title": "İslami Yoldaş’ı Beğendiniz mi?",
-        "adFree": "%100 Reklamsız Deneyim",
-        "description": "Size en iyi deneyimi sunmak için reklam koymadan, tamamen reklamsız bir uygulama geliştirdik. Bizi desteklemek için değerlendirmeniz çok önemli! 🤲",
-        "rateButton": "Değerlendir",
+        "title": "İslami Yoldaş'ı Beğendiniz mi?",
+        "socialProof": "10.000+ kişilik ailemize katılın",
+        "description": "Bu uygulamayı ümmet için sevgiyle geliştirdik. 5 yıldızlı değerlendirmeniz, daha fazla Müslüman kardeşimizin bu uygulamayı keşfetmesine vesile olur. 🤲",
+        "hadith": "\"Kim bir hayra vesile olursa, o hayrı yapanın ecri gibi ecir alır.\" (Müslim)",
+        "rateButton": "5 Yıldız Ver",
         "later": "Daha Sonra Hatırlat"
     },
     "splash": {

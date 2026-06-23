@@ -57,9 +57,10 @@
     },
     "review": {
         "title": "İslami Yoldaşı Bəyəndiniz?",
-        "adFree": "%100 Reklamsız Təcrübə",
-        "description": "Sizə ən yaxşı təcrübəni təqdim etmək üçün reklam qoymadan, tamamilə reklamsız bir tətbiq hazırladıq. Bizi dəstəkləmək üçün dəyərləndirməniz çox vacibdir! 🤲",
-        "rateButton": "Dəyərləndir",
+        "socialProof": "10.000+ nəfərlik ailəmizə qoşulun",
+        "description": "Bu tətbiqi ümmət üçün sevgi ilə hazırladıq. 5 ulduzlu dəyərləndirməniz daha çox müsəlman qardaşımızın bu tətbiqi kəşf etməsinə vəsilə olar. 🤲",
+        "hadith": "\"Kim bir xeyrə vəsilə olarsa, o xeyri edənin əcri qədər əcr qazanar.\" (Müslim)",
+        "rateButton": "5 Ulduz Ver",
         "later": "Sonra Xatırlat"
     },
     "splash": {

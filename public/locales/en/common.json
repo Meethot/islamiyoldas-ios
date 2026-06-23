@@ -57,9 +57,10 @@
     },
     "review": {
         "title": "Do you enjoy Islamic Companion?",
-        "adFree": "100% Ad-Free Experience",
-        "description": "We developed a completely ad-free app to give you the best experience. Your review is very valuable to support us! 🤲",
-        "rateButton": "Rate Us",
+        "socialProof": "10,000+ members in our family",
+        "description": "We built this app with love for the Ummah. Your 5-star review helps more Muslims discover this app. 🤲",
+        "hadith": "\"Whoever guides someone to goodness will have a similar reward.\" (Muslim)",
+        "rateButton": "Rate Us 5 Stars",
         "later": "Remind Me Later"
     },
     "splash": {

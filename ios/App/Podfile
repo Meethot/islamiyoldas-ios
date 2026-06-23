@@ -24,6 +24,7 @@ def capacitor_pods
   pod 'CapacitorShare', :path => '../../node_modules/@capacitor/share'
   pod 'CapacitorStatusBar', :path => '../../node_modules/@capacitor/status-bar'
   pod 'CapgoCapacitorCompass', :path => '../../node_modules/@capgo/capacitor-compass'
+  pod 'CapgoCapacitorInAppReview', :path => '../../node_modules/@capgo/capacitor-in-app-review'
   pod 'OdionCloudCapacitorVolumeControl', :path => '../../node_modules/@odion-cloud/capacitor-volume-control'
   pod 'RevenuecatPurchasesCapacitor', :path => '../../node_modules/@revenuecat/purchases-capacitor'
   pod 'CordovaPlugins', :path => '../capacitor-cordova-ios-plugins'

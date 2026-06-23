@@ -268,7 +268,7 @@ const REVIEWS = {
 };
 
 // ─── Main Component ──────────────────────────────────────
-export default function PremiumPaywall() {
+export default function PremiumPaywall({ variant = 'default', offeringId = 'current' }) {
     const navigate = useNavigate();
     const { t, i18n } = useTranslation('common');
     const { selection, success } = useHaptics();
@@ -294,8 +294,8 @@ export default function PremiumPaywall() {
 
     // Fetch real product prices from the store on mount
     useEffect(() => {
-        analytics.premiumPageViewed('direct');
-        getProducts().then(p => {
+        analytics.premiumPageViewed(variant === 'limited' ? 'limited_offer' : 'direct');
+        getProducts(offeringId).then(p => {
             if (p.length > 0) setProducts(p);
         });
         
@@ -320,8 +320,10 @@ export default function PremiumPaywall() {
     }, [i18n.language]);
 
     // Helper to get the store price for a product
-    const getPrice = useCallback((productId) => {
-        const product = products.find(p => p.identifier === productId || p.identifier.startsWith(productId + ':'));
+    const getPrice = useCallback((productId, packageType) => {
+        let product;
+        if (packageType) product = products.find(p => p.packageType === packageType);
+        if (!product) product = products.find(p => p.identifier === productId || p.identifier.startsWith(productId + ':'));
         
         // Android'de Google Play deneme sürümü için "Starting tomorrow at..." gibi yazılar ekleyebildiği için 
         // Android cihazlarda rakamı manuel formatlıyoruz. iOS'te Apple'ın orijinal formatını (priceString) koruyoruz.
@@ -334,16 +336,21 @@ export default function PremiumPaywall() {
     }, [products, formatPrice]);
 
     // Calculate daily price: monthly÷30, yearly÷365
-    const getDailyPrice = useCallback((productId) => {
-        const product = products.find(p => p.identifier === productId || p.identifier.startsWith(productId + ':'));
+    const getDailyPrice = useCallback((productId, packageType) => {
+        let product;
+        if (packageType) product = products.find(p => p.packageType === packageType);
+        if (!product) product = products.find(p => p.identifier === productId || p.identifier.startsWith(productId + ':'));
+
         if (!product?.price || !product?.currencyCode) return null;
-        const divisor = productId === PRODUCT_IDS.YEARLY ? 365 : 30;
+        const divisor = (packageType === 'ANNUAL' || productId === PRODUCT_IDS.YEARLY) ? 365 : 30;
         return formatPrice(product.price / divisor, product.currencyCode);
     }, [products, formatPrice]);
 
     // Calculate monthly equivalent of yearly price: yearly÷12
     const getMonthlyEquivalent = useCallback(() => {
-        const product = products.find(p => p.identifier === PRODUCT_IDS.YEARLY || p.identifier.startsWith(PRODUCT_IDS.YEARLY + ':'));
+        let product = products.find(p => p.packageType === 'ANNUAL');
+        if (!product) product = products.find(p => p.identifier === PRODUCT_IDS.YEARLY || p.identifier.startsWith(PRODUCT_IDS.YEARLY + ':'));
+        
         if (!product?.price || !product?.currencyCode) return null;
         return formatPrice(product.price / 12, product.currencyCode);
     }, [products, formatPrice]);
@@ -403,9 +410,16 @@ export default function PremiumPaywall() {
         }, 60000);
 
         try {
+            const packageType = planName === 'yearly' ? 'ANNUAL' : 'MONTHLY';
             const productId = planName === 'yearly' ? PRODUCT_IDS.YEARLY : PRODUCT_IDS.MONTHLY;
-            const product = products.find(p => p.identifier === productId || p.identifier.startsWith(productId + ':'));
-            const result = await purchaseProduct(product || productId);
+            
+            let product = products.find(p => p.packageType === packageType);
+            if (!product) product = products.find(p => p.identifier === productId || p.identifier.startsWith(productId + ':'));
+
+            // Eğer product varsa tüm objeyi gönder, purchaseService rcPackage'ı kendi bulsun
+            const purchaseTarget = product ? product : productId;
+            
+            const result = await purchaseProduct(purchaseTarget);
             clearTimeout(timeoutId);
             if (result.success) {
                 success();
@@ -713,7 +727,7 @@ export default function PremiumPaywall() {
                                 } else {
                                     selection(); 
                                     setSelectedPlan('monthly'); 
-                                    analytics.premiumPlanSelected('monthly', getPrice(PRODUCT_IDS.MONTHLY)); 
+                                    analytics.premiumPlanSelected('monthly', getPrice(PRODUCT_IDS.MONTHLY, 'MONTHLY')); 
                                 }
                             }}
                             className={`flex-1 relative text-left p-3 rounded-xl border-2 transition-all overflow-hidden ${selectedPlan === 'monthly' ? 'border-white/25 bg-white/[0.05]' : 'border-white/[0.06] bg-white/[0.015]'}`}
@@ -728,10 +742,10 @@ export default function PremiumPaywall() {
                             />
                             <p className="text-white/70 font-bold text-[13px]">{t('premium.plan_monthly')}</p>
                             <p className="text-white/35 text-[10px] mt-0.5">{t('premium.plan_monthly_desc')}</p>
-                            <p className="text-white/70 font-bold text-base mt-1">{getPrice(PRODUCT_IDS.MONTHLY) || '...'}</p>
+                            <p className="text-white/70 font-bold text-base mt-1">{getPrice(PRODUCT_IDS.MONTHLY, 'MONTHLY') || '...'}</p>
                             <p className="text-white/25 text-[10px]">/ {t('premium.month')}</p>
                             <div className="mt-1.5 pt-1.5 border-t border-white/[0.06]">
-                                <p className="text-white/30 text-[12px] text-center">{getDailyPrice(PRODUCT_IDS.MONTHLY) ? t('premium.daily_label', { price: getDailyPrice(PRODUCT_IDS.MONTHLY) }) : '...'}</p>
+                                <p className="text-white/30 text-[12px] text-center">{getDailyPrice(PRODUCT_IDS.MONTHLY, 'MONTHLY') ? t('premium.daily_label', { price: getDailyPrice(PRODUCT_IDS.MONTHLY, 'MONTHLY') }) : '...'}</p>
                             </div>
                         </button>
 
@@ -743,7 +757,7 @@ export default function PremiumPaywall() {
                                 } else {
                                     selection(); 
                                     setSelectedPlan('yearly'); 
-                                    analytics.premiumPlanSelected('yearly', getPrice(PRODUCT_IDS.YEARLY));
+                                    analytics.premiumPlanSelected('yearly', getPrice(PRODUCT_IDS.YEARLY, 'ANNUAL'));
                                 }
                             }}
                             className={`flex-1 relative text-left p-3 rounded-xl border-2 transition-all overflow-hidden ${selectedPlan === 'yearly' ? 'border-[#D4AF37]/50 bg-[#D4AF37]/[0.06]' : 'border-[#D4AF37]/15 bg-[#D4AF37]/[0.02]'}`}
@@ -764,10 +778,10 @@ export default function PremiumPaywall() {
                             </div>
                             <p className="text-[#D4AF37] font-bold text-[13px] mt-2">{t('premium.plan_yearly')}</p>
                             <p className="text-white/35 text-[10px] mt-0.5">{getMonthlyEquivalent() ? t('premium.monthly_label', { price: getMonthlyEquivalent() }) : '...'}</p>
-                            <p className="text-[#D4AF37] font-bold text-base mt-1">{getPrice(PRODUCT_IDS.YEARLY) || '...'}</p>
+                            <p className="text-[#D4AF37] font-bold text-base mt-1">{getPrice(PRODUCT_IDS.YEARLY, 'ANNUAL') || '...'}</p>
                             <p className="text-[#D4AF37]/40 text-[10px]">/ {t('premium.year')}</p>
                             <div className="mt-1.5 pt-1.5 border-t border-[#D4AF37]/10">
-                                <p className="text-[#D4AF37]/60 text-[12px] font-semibold text-center">{getDailyPrice(PRODUCT_IDS.YEARLY) ? `🔥 ${t('premium.daily_label', { price: getDailyPrice(PRODUCT_IDS.YEARLY) })}` : '...'}</p>
+                                <p className="text-[#D4AF37]/60 text-[12px] font-semibold text-center">{getDailyPrice(PRODUCT_IDS.YEARLY, 'ANNUAL') ? `🔥 ${t('premium.daily_label', { price: getDailyPrice(PRODUCT_IDS.YEARLY, 'ANNUAL') })}` : '...'}</p>
                             </div>
                         </button>
                     </motion.div>

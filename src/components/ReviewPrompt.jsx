@@ -1,32 +1,39 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Star, Heart, X } from 'lucide-react';
+import { Star, X } from 'lucide-react';
 import { Capacitor } from '@capacitor/core';
 import { useTranslation } from 'react-i18next';
 
 const STORAGE_KEY = 'review_prompt_v2';
 const APP_STORE_ID = '6759666173';
-const COOLDOWN_MS = 12 * 60 * 60 * 1000; // 12 saat
-const PASSIVE_TIMEOUT = 30 * 60 * 1000; // 30 dakika
+const COOLDOWN_MS_DEFAULT = 12 * 60 * 60 * 1000; // 12 saat (1. ve 2. gösterimden sonra)
+const COOLDOWN_MS_LAST = 24 * 60 * 60 * 1000; // 24 saat (son gösterimden sonra)
+const MAX_DISMISS_COUNT = 3; // Maksimum 3 kere göster, sonra bir daha çıkma
 
 const getReviewData = () => {
     try {
         const raw = localStorage.getItem(STORAGE_KEY);
-        if (!raw) return { reviewed: false, lastDismissedAt: 0, appOpens: 0 };
+        if (!raw) return { reviewed: false, lastDismissedAt: 0, appOpens: 0, dismissCount: 0 };
         return JSON.parse(raw);
     } catch {
-        return { reviewed: false, lastDismissedAt: 0, appOpens: 0 };
+        return { reviewed: false, lastDismissedAt: 0, appOpens: 0, dismissCount: 0 };
     }
 };
 
 const saveReviewData = (data) => localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
 
+const IS_TESTING = false; // 🔴 TEST İÇİN TRUE. YAYINA ÇIKMADAN ÖNCE FALSE YAPACAĞIZ!
+
 const isCooldownActive = () => {
+    if (IS_TESTING) return false;
     const data = getReviewData();
     if (data.reviewed) return true;
+    const dismissCount = data.dismissCount || 0;
+    if (dismissCount >= MAX_DISMISS_COUNT) return true; // 3 kere gösterdik, artık çıkma
     if (!data.lastDismissedAt) return false;
-    return Date.now() - data.lastDismissedAt < COOLDOWN_MS;
+    const cooldown = dismissCount >= 2 ? COOLDOWN_MS_LAST : COOLDOWN_MS_DEFAULT;
+    return Date.now() - data.lastDismissedAt < cooldown;
 };
 
 // Global trigger — bileşenler bunu çağırır
@@ -47,7 +54,7 @@ export default function ReviewPrompt() {
 
     useEffect(() => {
         const data = getReviewData();
-        if (data.reviewed) return;
+        if (!IS_TESTING && data.reviewed) return;
 
         // Sayacı güncelle ancak mount/unmount koruması için sadece bir kez
         if (!window.appOpenedLogged) {
@@ -58,8 +65,6 @@ export default function ReviewPrompt() {
 
         const handleTrigger = (e) => {
             if (isCooldownActive()) return;
-            if (localStorage.getItem('onboardingComplete') !== 'true') return;
-            
             // Anasayfa dışında isek beklemeye alıyoruz
             const hash = window.location.hash;
             if (hash && hash !== '#/' && hash !== '#') {
@@ -91,8 +96,7 @@ export default function ReviewPrompt() {
         const data = getReviewData();
         
         // Şartlar sağlanmıyorsa erken dön
-        if (show || data.reviewed || isCooldownActive() || !isOnHome) return;
-        if (localStorage.getItem('onboardingComplete') !== 'true') return;
+        if (show || (!IS_TESTING && data.reviewed) || isCooldownActive() || !isOnHome) return;
 
         // Daha önce beklemeye alınmış bir istek varsa anasayfada (kısa gecikmeli) göster
         if (pendingRef.current) {
@@ -101,10 +105,10 @@ export default function ReviewPrompt() {
             return () => clearTimeout(timer);
         }
 
-        // Eğer en az 3 kere açılmışsa ve total süre 6 dakikayı (360 saniye) geçmişse
-        if (data.appOpens >= 3 && totalSeconds >= 360) {
+        // KURAL: En az 2 kere açılmışsa VE total süre 2 dakikayı (120 saniye) geçmişse
+        if (IS_TESTING || (data.appOpens >= 2 && totalSeconds >= 120)) {
             const autoTimer = setTimeout(() => {
-                if (!isCooldownActive() && location.pathname === '/') {
+                if (location.pathname === '/') {
                     setShow(true);
                 }
             }, 3000);
@@ -112,16 +116,22 @@ export default function ReviewPrompt() {
         }
     }, [location.pathname, totalSeconds, show]);
 
-    const handleRate = () => {
+    const handleRate = async () => {
         saveReviewData({ ...getReviewData(), reviewed: true });
         setShow(false);
 
         if (Capacitor.isNativePlatform()) {
-            const platform = Capacitor.getPlatform();
-            if (platform === 'ios') {
-                window.open(`https://apps.apple.com/app/id${APP_STORE_ID}?action=write-review`, '_blank');
-            } else if (platform === 'android') {
-                window.open(`market://details?id=com.islamiyoldas.app`, '_blank');
+            try {
+                const { InAppReview } = await import('@capgo/capacitor-in-app-review');
+                await InAppReview.requestReview();
+            } catch (err) {
+                console.warn('[ReviewPrompt] Native in-app review failed, falling back to store link:', err);
+                const platform = Capacitor.getPlatform();
+                if (platform === 'ios') {
+                    window.open(`https://apps.apple.com/app/id${APP_STORE_ID}?action=write-review`, '_blank');
+                } else if (platform === 'android') {
+                    window.open(`market://details?id=com.islamiyoldas.app`, '_blank');
+                }
             }
         }
     };
@@ -130,6 +140,7 @@ export default function ReviewPrompt() {
         setShow(false);
         const data = getReviewData();
         data.lastDismissedAt = Date.now();
+        data.dismissCount = (data.dismissCount || 0) + 1;
         saveReviewData(data);
     };
 
@@ -165,20 +176,64 @@ export default function ReviewPrompt() {
                             <X size={16} />
                         </button>
 
-                        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-40 h-40 rounded-full opacity-20"
-                            style={{ background: 'radial-gradient(circle, rgba(212,175,55,0.5) 0%, transparent 70%)' }} />
+                        {/* Üst dekoratif ışık efekti */}
+                        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-48 rounded-full opacity-15"
+                            style={{ background: 'radial-gradient(circle, rgba(212,175,55,0.6) 0%, transparent 70%)' }} />
 
                         <div className="relative p-7 pt-8 text-center">
-                            <div className="flex items-center justify-center gap-1 mb-5">
+                            {/* Hilal + cami ikonu yerine büyük emoji */}
+                            <motion.div
+                                initial={{ opacity: 0, scale: 0.5 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                transition={{ delay: 0.2, type: 'spring', damping: 12 }}
+                                className="text-5xl mb-4"
+                            >
+                                🕌
+                            </motion.div>
+
+                            {/* Başlık */}
+                            <h2 className="text-xl font-serif font-bold text-white mb-3 tracking-wide leading-snug">
+                                {t('review.title', 'Do you enjoy Islamic Companion?')}
+                            </h2>
+
+                            {/* Sosyal kanıt */}
+                            <motion.div
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.4 }}
+                                className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-4"
+                                style={{
+                                    background: 'linear-gradient(135deg, rgba(212,175,55,0.08) 0%, rgba(212,175,55,0.03) 100%)',
+                                    border: '1px solid rgba(212,175,55,0.12)',
+                                }}
+                            >
+                                <span className="text-sm">🤲</span>
+                                <span className="text-[11px] font-semibold" style={{ color: 'rgba(212,175,55,0.85)' }}>
+                                    {t('review.socialProof', '10,000+ members in our family')}
+                                </span>
+                            </motion.div>
+
+                            {/* Ana açıklama metni */}
+                            <p className="text-[13px] text-white/50 leading-relaxed mb-2">
+                                {t('review.description', 'We built this app with love for the Ummah. Your 5-star review helps more Muslims discover this app. 🤲')}
+                            </p>
+
+                            {/* Küçük hadis/ayet referansı */}
+                            <p className="text-[11px] italic mb-6" style={{ color: 'rgba(212,175,55,0.5)' }}>
+                                {t('review.hadith', '"Whoever guides someone to goodness will have a similar reward." (Muslim)')}
+                            </p>
+
+                            {/* Yıldız animasyonu — buton üstünde */}
+                            <div className="flex items-center justify-center gap-1 mb-4">
                                 {[1, 2, 3, 4, 5].map(i => (
                                     <motion.div
                                         key={i}
                                         initial={{ opacity: 0, scale: 0, rotate: -30 }}
                                         animate={{ opacity: 1, scale: 1, rotate: 0 }}
-                                        transition={{ delay: 0.3 + i * 0.1, type: 'spring', damping: 12 }}
+                                        transition={{ delay: 0.5 + i * 0.08, type: 'spring', damping: 12 }}
                                     >
                                         <Star
-                                            size={28}
+                                            size={26}
                                             className="text-islamic-gold"
                                             fill="currentColor"
                                             style={{ filter: 'drop-shadow(0 0 6px rgba(212,175,55,0.4))' }}
@@ -187,19 +242,7 @@ export default function ReviewPrompt() {
                                 ))}
                             </div>
 
-                            <h2 className="text-xl font-serif font-bold text-white mb-2 tracking-wide">
-                                {t('review.title', 'Do you enjoy Islamic Companion?')}
-                            </h2>
-
-                            <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-400/15 mb-4">
-                                <Heart size={12} className="text-emerald-400" fill="currentColor" />
-                                <span className="text-[11px] font-bold text-emerald-400/90">{t('review.adFree', '100% Ad-Free Experience')}</span>
-                            </div>
-
-                            <p className="text-[13px] text-white/45 leading-relaxed mb-6">
-                                {t('review.description', 'We developed a completely ad-free app to give you the best experience. Your review is very valuable to support us! 🤲')}
-                            </p>
-
+                            {/* Ana CTA butonu */}
                             <motion.button
                                 whileTap={{ scale: 0.95 }}
                                 onClick={handleRate}
@@ -210,12 +253,12 @@ export default function ReviewPrompt() {
                                     color: '#1a1a0a',
                                 }}
                             >
-                                ⭐ {t('review.rateButton', 'Rate Us')}
+                                ⭐ {t('review.rateButton', 'Rate Us 5 Stars')}
                             </motion.button>
 
                             <button
                                 onClick={handleDismiss}
-                                className="w-full py-3 rounded-2xl text-white/30 text-[13px] font-medium hover:text-white/50 transition-colors cursor-pointer"
+                                className="w-full py-3 rounded-2xl text-white/25 text-[13px] font-medium hover:text-white/40 transition-colors cursor-pointer"
                             >
                                 {t('review.later', 'Remind Me Later')}
                             </button>
