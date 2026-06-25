@@ -190,6 +190,14 @@ export const GUIDES_DE = {
         title: 'Surenführer',
         steps: [
             {
+                title: 'Sure Al-Ikhlas',
+                instruction: 'Die Sure, die die Einheit Allahs am klarsten aussagt. Sie zu rezitieren entspricht einem Drittel des Korans.',
+                arabic: 'بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ ۝ قُلْ هُوَ اللَّهُ أَحَدٌ ۝ اللَّهُ الصَّمَدُ ۝ لَمْ يَلِدْ وَلَمْ يُولَدْ ۝ وَلَمْ يَكُنْ لَهُ كُفُوًا أَحَدٌ',
+                transcription: 'Bismillahir-rahmanir-rahim. Qul huwallahu ahad. Allahus-samad. Lam yalid wa lam yulad. Wa lam yakun lahu kufuwan ahad.',
+                meaning: 'Sprich: Er ist Allah, der Eine. Allah, die ewige Zuflucht (alles hängt von Ihm ab, Er hängt von nichts ab). Er hat nicht gezeugt und wurde nicht gezeugt. Und niemand ist Ihm gleich.',
+                tips: ['Der kürzeste und wesentlichste Ausdruck des Monotheismus.', 'Wird häufig in Gebeten rezitiert.']
+            },
+            {
                 title: 'Sure Al-Fatiha',
                 instruction: 'Die Eröffnungssure des Korans. Es ist Pflicht (Wadschib), sie in jeder Gebetseinheit zu rezitieren.',
                 arabic: 'بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ ۝ الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ ۝ الرَّحْمَنِ الرَّحِيمِ ۝ مَالِكِ يَوْمِ الدِّينِ ۝ إِيَّاكَ نَعْبُدُ وَإِيَّاكَ نَسْتَعِينُ ۝ اهْدِنَا الصِّرَاطَ الْمُسْتَقِيمَ ۝ صِرَاطَ الَّذِينَ أَنْعَمْتَ عَلَيْهِمْ غَيْرِ الْمَغْضُوبِ عَلَيْهِمْ وَلَا الضَّالِّينَ',
@@ -252,14 +260,6 @@ export const GUIDES_DE = {
                 transcription: 'Bismillahir-rahmanir-rahim. Tabbat yada abi lahabin wa tabb. Ma aghna anhu maluhu wa ma kasab. Sayasla naran dhata lahab. Wamra\'atuh. Hammalatal hatab. Fi jidiha hablun min masad.',
                 meaning: 'Zugrunde gehen sollen die Hände Abu Lahabs, und zugrunde gegangen ist er. Sein Vermögen und das, was er erworben hat, nützen ihm nichts. Er wird in einem Feuer lodernder Flammen brennen. Und seine Frau — die Trägerin des Brennholzes — um ihren Hals ist ein Seil aus Palmfasern.',
                 tips: ['„Tabbat": Möge er zugrunde gehen, möge er vernichtet werden.', 'Zeigt, dass das Ende der Unterdrücker der Untergang ist.']
-            },
-            {
-                title: 'Sure Al-Ikhlas',
-                instruction: 'Die Sure, die die Einheit Allahs am klarsten aussagt. Sie zu rezitieren entspricht einem Drittel des Korans.',
-                arabic: 'بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ ۝ قُلْ هُوَ اللَّهُ أَحَدٌ ۝ اللَّهُ الصَّمَدُ ۝ لَمْ يَلِدْ وَلَمْ يُولَدْ ۝ وَلَمْ يَكُنْ لَهُ كُفُوًا أَحَدٌ',
-                transcription: 'Bismillahir-rahmanir-rahim. Qul huwallahu ahad. Allahus-samad. Lam yalid wa lam yulad. Wa lam yakun lahu kufuwan ahad.',
-                meaning: 'Sprich: Er ist Allah, der Eine. Allah, die ewige Zuflucht (alles hängt von Ihm ab, Er hängt von nichts ab). Er hat nicht gezeugt und wurde nicht gezeugt. Und niemand ist Ihm gleich.',
-                tips: ['Der kürzeste und wesentlichste Ausdruck des Monotheismus.', 'Wird häufig in Gebeten rezitiert.']
             },
             {
                 title: 'Sure Al-Falaq',

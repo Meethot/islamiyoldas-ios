@@ -4,8 +4,9 @@ import { Button } from '@/components/ui/button';
 import {
     User, Settings, Shield, Bell, HelpCircle, RefreshCw,
     ChevronRight, LogOut, Heart, Crown, Check, Moon, Sun, Download, Trash2, X,
-    BookOpen, Box, Landmark, Camera, Pen, Share2, UserPlus, Globe, Bug, Ticket, Gift, Sparkles, Type, Clock, Activity
+    BookOpen, Box, Landmark, Camera, Pen, Share2, UserPlus, Globe, Bug, Ticket, Gift, Sparkles, Type, Clock, Activity, Star
 } from 'lucide-react';
+import { triggerReviewPrompt } from '@/components/ReviewPrompt';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -181,14 +182,6 @@ export default function Profile() {
             window.removeEventListener('prayerStatusChanged', handleUpdate);
             window.removeEventListener('storage', handleUpdate);
         };
-    }, []);
-    // Listen for global premium updates (e.g., from Paywall or App.jsx)
-    useEffect(() => {
-        const handlePremiumChange = () => {
-            setIsPremium(checkIsPremium());
-        };
-        window.addEventListener('premiumStatusChanged', handlePremiumChange);
-        return () => window.removeEventListener('premiumStatusChanged', handlePremiumChange);
     }, []);
 
     const handleAvatarSelect = (id) => {
@@ -691,6 +684,22 @@ export default function Profile() {
                         </div>
                     </div>
 
+                    {/* Bizi Puanla */}
+                    <div
+                        className="p-5 flex items-center justify-between hover:bg-stone-50 dark:hover:bg-white/5 transition-colors cursor-pointer group"
+                        onClick={() => { selection(); triggerReviewPrompt('profile_menu', true); }}
+                    >
+                        <div className="flex items-center gap-4">
+                            <div className="p-3 bg-amber-100/80 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 rounded-2xl group-hover:scale-110 transition-transform">
+                                <Star size={20} fill="currentColor" />
+                            </div>
+                            <div className="text-left">
+                                <p className="text-sm font-bold text-stone-800 dark:text-white">{t('rate_us.title', 'Bizi Puanlayın')}</p>
+                                <p className="text-xs text-stone-500 dark:text-gray-400 font-medium">{t('rate_us.subtitle', 'Uygulamaya destek olun')}</p>
+                            </div>
+                        </div>
+                        <ChevronRight className="w-5 h-5 text-stone-400 dark:text-gray-300 group-hover:translate-x-1 transition-transform" />
+                    </div>
 
                     {/* Report Bug */}
                     <div

@@ -36,16 +36,16 @@ class StorageService {
     isReady = false;
     _secureStorage = null;
 
-    async _getSecureStorage() {
-        if (this._secureStorage) return this._secureStorage;
-        if (!Capacitor.isNativePlatform()) return null;
+    async _initSecureStorage() {
+        if (this._secureStorage) return true;
+        if (!Capacitor.isNativePlatform()) return false;
         try {
             const { SecureStorage } = await import('@aparajita/capacitor-secure-storage');
             this._secureStorage = SecureStorage;
-            return SecureStorage;
+            return true;
         } catch (e) {
             console.warn('[StorageService] SecureStorage not available:', e.message);
-            return null;
+            return false;
         }
     }
 
@@ -115,8 +115,9 @@ class StorageService {
      * Splash ekranını etkilemez.
      */
     async _deferredKeychainSync() {
-        const secure = await this._getSecureStorage();
-        if (!secure) return;
+        const isReady = await this._initSecureStorage();
+        if (!isReady) return;
+        const secure = this._secureStorage;
 
         console.log('[StorageService] Deferred Keychain sync starting…');
 
@@ -164,8 +165,9 @@ class StorageService {
 
         // Kritik anahtar ise Keychain'e de yaz
         if (CRITICAL_KEYS.includes(key)) {
-            const secure = await this._getSecureStorage();
-            if (secure) {
+            const isReady = await this._initSecureStorage();
+            if (isReady) {
+                const secure = this._secureStorage;
                 try { await secure.setItem(key, stringValue); } catch {}
             }
         }
@@ -186,8 +188,9 @@ class StorageService {
         await Preferences.remove({ key });
 
         if (CRITICAL_KEYS.includes(key)) {
-            const secure = await this._getSecureStorage();
-            if (secure) {
+            const isReady = await this._initSecureStorage();
+            if (isReady) {
+                const secure = this._secureStorage;
                 try { await secure.removeItem(key); } catch {}
             }
         }
@@ -204,8 +207,9 @@ class StorageService {
         await Preferences.clear();
 
         // 3. Keychain (kritik key'ler)
-        const secure = await this._getSecureStorage();
-        if (secure) {
+        const isReady = await this._initSecureStorage();
+        if (isReady) {
+            const secure = this._secureStorage;
             for (const key of CRITICAL_KEYS) {
                 try { await secure.removeItem(key); } catch {}
             }

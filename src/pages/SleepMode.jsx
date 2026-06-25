@@ -46,7 +46,13 @@ export default function SleepMode() {
     const [showPremiumGate, setShowPremiumGate] = useState(false);
 
     // One-time free use tracking
-    const [sleepUsed, setSleepUsed] = useState(() => localStorage.getItem('sleep_mode_used') === 'true');
+    const [sleepUseCount, setSleepUseCount] = useState(() => {
+        const stored = localStorage.getItem('sleep_mode_use_count');
+        if (stored !== null) return parseInt(stored, 10);
+        // Fallback for existing boolean flag
+        if (localStorage.getItem('sleep_mode_used') === 'true') return 1;
+        return 0;
+    });
 
     // Audio State
     const [currentTime, setCurrentTime] = useState(0);
@@ -159,7 +165,7 @@ export default function SleepMode() {
     }, []);
 
     const checkPremiumGate = () => {
-        if (sleepUsed && !isPremium()) {
+        if (sleepUseCount >= 2 && !isPremium()) {
             setShowPremiumGate(true);
             return true;
         }
@@ -168,8 +174,11 @@ export default function SleepMode() {
 
     const markSleepUsed = () => {
         if (!isPremium()) {
-            setSleepUsed(true);
-            localStorage.setItem('sleep_mode_used', 'true');
+            setSleepUseCount(prev => {
+                const next = prev + 1;
+                localStorage.setItem('sleep_mode_use_count', next.toString());
+                return next;
+            });
         }
     };
 

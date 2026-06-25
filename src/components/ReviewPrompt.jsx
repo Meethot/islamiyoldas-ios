@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Star, X } from 'lucide-react';
+import { Star, X, Heart, MessageSquare } from 'lucide-react';
 import { Capacitor } from '@capacitor/core';
 import { useTranslation } from 'react-i18next';
 
-const STORAGE_KEY = 'review_prompt_v2';
+const STORAGE_KEY = 'review_prompt_v3';
 const APP_STORE_ID = '6759666173';
 const COOLDOWN_MS_DEFAULT = 12 * 60 * 60 * 1000; // 12 saat (1. ve 2. gösterimden sonra)
 const COOLDOWN_MS_LAST = 24 * 60 * 60 * 1000; // 24 saat (son gösterimden sonra)
@@ -14,7 +14,12 @@ const MAX_DISMISS_COUNT = 3; // Maksimum 3 kere göster, sonra bir daha çıkma
 const getReviewData = () => {
     try {
         const raw = localStorage.getItem(STORAGE_KEY);
-        if (!raw) return { reviewed: false, lastDismissedAt: 0, appOpens: 0, dismissCount: 0 };
+        if (!raw) {
+            // Eski kullanıcıları tespit et (önceden uygulamada vakit geçirmişse)
+            const hasOldData = localStorage.getItem('total_app_time_seconds');
+            const initialAppOpens = hasOldData ? 2 : 0; // Eski kullanıcılara direkt görünsün diye 2'den başlat
+            return { reviewed: false, lastDismissedAt: 0, appOpens: initialAppOpens, dismissCount: 0 };
+        }
         return JSON.parse(raw);
     } catch {
         return { reviewed: false, lastDismissedAt: 0, appOpens: 0, dismissCount: 0 };
@@ -37,20 +42,33 @@ const isCooldownActive = () => {
 };
 
 // Global trigger — bileşenler bunu çağırır
-export function triggerReviewPrompt(reason) {
-    if (isCooldownActive()) return;
-    window.dispatchEvent(new CustomEvent('reviewTrigger', { detail: { reason } }));
+export function triggerReviewPrompt(reason, force = false) {
+    if (!force && isCooldownActive()) return;
+    window.dispatchEvent(new CustomEvent('reviewTrigger', { detail: { reason, force } }));
 }
 
 export default function ReviewPrompt() {
     const location = useLocation();
     const [show, setShow] = useState(false);
-    const passiveTimerRef = useRef(null);
+    const [step, setStep] = useState('ask'); // 'ask', 'feedback'
+    const [hoveredStar, setHoveredStar] = useState(0);
+    const [selectedStar, setSelectedStar] = useState(0);
     const pendingRef = useRef(false);
     const { t } = useTranslation('common');
 
     const [totalSeconds, setTotalSeconds] = useState(() => parseInt(localStorage.getItem('total_app_time_seconds') || '0', 10));
     const isOnHome = location.pathname === '/';
+    
+    // Uygulama içi gezinti sayısını takip ediyoruz
+    const [navCountSession, setNavCountSession] = useState(0);
+    const lastPathRef = useRef(location.pathname);
+
+    useEffect(() => {
+        if (location.pathname !== lastPathRef.current) {
+            setNavCountSession(prev => prev + 1);
+            lastPathRef.current = location.pathname;
+        }
+    }, [location.pathname]);
 
     useEffect(() => {
         const data = getReviewData();
@@ -64,12 +82,16 @@ export default function ReviewPrompt() {
         }
 
         const handleTrigger = (e) => {
-            if (isCooldownActive()) return;
-            // Anasayfa dışında isek beklemeye alıyoruz
-            const hash = window.location.hash;
-            if (hash && hash !== '#/' && hash !== '#') {
-                pendingRef.current = true;
-                return;
+            const { force } = e.detail || {};
+            if (!force && isCooldownActive()) return;
+            // Force değilse, sadece anasayfa veya profildeysek hemen göster, diğer sayfalarda beklemeye al
+            if (!force) {
+                const hash = window.location.hash;
+                const isAllowedHash = hash === '#/' || hash === '#' || hash === '' || hash.startsWith('#/profile');
+                if (!isAllowedHash) {
+                    pendingRef.current = true;
+                    return;
+                }
             }
             setShow(true);
         };
@@ -91,34 +113,68 @@ export default function ReviewPrompt() {
         };
     }, []);
 
+    // TEST İÇİN: Kapalıysa 5 saniye sonra tekrar aç
+    useEffect(() => {
+        if (!IS_TESTING || show) return;
+        const testTimer = setTimeout(() => {
+            if (window.location.pathname === '/') {
+                setShow(true);
+            }
+        }, 5000);
+        return () => clearTimeout(testTimer);
+    }, [show, location.pathname]);
+
     // Ana sayfa kontrolü ve otomatik popup görünme koşulları
     useEffect(() => {
         const data = getReviewData();
         
-        // Şartlar sağlanmıyorsa erken dön
-        if (show || (!IS_TESTING && data.reviewed) || isCooldownActive() || !isOnHome) return;
+        // Force bypass durumu hariç standart şartlar
+        if (show || (!IS_TESTING && data.reviewed) || isCooldownActive()) return;
+        
+        // Sadece anasayfa veya profil sayfasındayken göster (paywall ile çakışmayı önlemek için)
+        const isAllowedPage = isOnHome || location.pathname === '/profile';
+        if (!isAllowedPage) return;
 
-        // Daha önce beklemeye alınmış bir istek varsa anasayfada (kısa gecikmeli) göster
+        // 1. Durum: Daha önce beklemeye alınmış bir istek varsa (örn: Zikir bitirdi, Anasayfaya döndü)
         if (pendingRef.current) {
             pendingRef.current = false;
             const timer = setTimeout(() => setShow(true), 1500);
             return () => clearTimeout(timer);
         }
 
-        // KURAL: En az 2 kere açılmışsa VE total süre 2 dakikayı (120 saniye) geçmişse
-        if (IS_TESTING || (data.appOpens >= 2 && totalSeconds >= 120)) {
-            const autoTimer = setTimeout(() => {
-                if (location.pathname === '/') {
-                    setShow(true);
-                }
-            }, 3000);
-            return () => clearTimeout(autoTimer);
+        // 2. Durum: Kullanıcı 2 veya 3 kez sayfa değiştirip ana sayfaya/ayarlara döndüyse (Paywall'dan önce)
+        if (!IS_TESTING && navCountSession >= 2) {
+            const timer = setTimeout(() => setShow(true), 2500);
+            return () => clearTimeout(timer);
         }
-    }, [location.pathname, totalSeconds, show]);
+        
+        // TEST İÇİN YEDEK (10 saniye sonra anasayfada)
+        if (IS_TESTING && totalSeconds >= 10) {
+            const timer = setTimeout(() => setShow(true), 2500);
+            return () => clearTimeout(timer);
+        }
+
+    }, [location.pathname, show, navCountSession, totalSeconds, isOnHome]);
 
     const handleRate = async () => {
         saveReviewData({ ...getReviewData(), reviewed: true });
         setShow(false);
+        setTimeout(() => {
+            setStep('ask');
+            setSelectedStar(0);
+            setHoveredStar(0);
+        }, 500); // Reset after animation
+
+        const openStore = () => {
+            const platform = Capacitor.getPlatform();
+            if (platform === 'ios' || platform === 'web') {
+                window.open(`https://apps.apple.com/app/id${APP_STORE_ID}?action=write-review`, '_blank');
+            } else if (platform === 'android') {
+                window.open(`market://details?id=com.islamiyoldas.app`, '_blank');
+            } else {
+                window.open(`https://apps.apple.com/app/id${APP_STORE_ID}?action=write-review`, '_blank');
+            }
+        };
 
         if (Capacitor.isNativePlatform()) {
             try {
@@ -126,18 +182,21 @@ export default function ReviewPrompt() {
                 await InAppReview.requestReview();
             } catch (err) {
                 console.warn('[ReviewPrompt] Native in-app review failed, falling back to store link:', err);
-                const platform = Capacitor.getPlatform();
-                if (platform === 'ios') {
-                    window.open(`https://apps.apple.com/app/id${APP_STORE_ID}?action=write-review`, '_blank');
-                } else if (platform === 'android') {
-                    window.open(`market://details?id=com.islamiyoldas.app`, '_blank');
-                }
+                openStore();
             }
+        } else {
+            // Web environment (fallback for testing or PWA)
+            openStore();
         }
     };
 
     const handleDismiss = () => {
         setShow(false);
+        setTimeout(() => {
+            setStep('ask');
+            setSelectedStar(0);
+            setHoveredStar(0);
+        }, 500); // Reset after animation
         const data = getReviewData();
         data.lastDismissedAt = Date.now();
         data.dismissCount = (data.dismissCount || 0) + 1;
@@ -146,123 +205,180 @@ export default function ReviewPrompt() {
 
     return (
         <AnimatePresence>
-            {show && isOnHome && (
+            {show && (isOnHome || location.pathname === '/profile') && (
                 <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    className="fixed inset-0 z-[200] flex items-center justify-center px-6"
+                    transition={{ duration: 0.2 }}
+                    className="fixed inset-0 z-[200] flex items-center justify-center px-5"
                     onClick={handleDismiss}
                 >
-                    <div className="absolute inset-0 bg-black/70 backdrop-blur-md" />
+                    <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
 
                     <motion.div
-                        initial={{ scale: 0.85, opacity: 0, y: 30 }}
+                        initial={{ scale: 0.96, opacity: 0, y: 12 }}
                         animate={{ scale: 1, opacity: 1, y: 0 }}
-                        exit={{ scale: 0.85, opacity: 0, y: 30 }}
-                        transition={{ type: 'spring', damping: 22, stiffness: 350 }}
+                        exit={{ scale: 0.96, opacity: 0, y: 12 }}
+                        transition={{ type: 'spring', damping: 28, stiffness: 350 }}
                         onClick={(e) => e.stopPropagation()}
-                        className="relative w-full max-w-sm rounded-[2rem] overflow-hidden"
+                        className="relative w-full max-w-[340px] rounded-3xl overflow-hidden"
                         style={{
-                            background: 'linear-gradient(180deg, #1a3a25 0%, #0d2518 50%, #091a10 100%)',
-                            border: '1px solid rgba(212,175,55,0.15)',
-                            boxShadow: '0 30px 80px rgba(0,0,0,0.6), 0 0 60px rgba(212,175,55,0.08), inset 0 1px 0 rgba(255,255,255,0.06)',
+                            background: 'linear-gradient(165deg, #123824 0%, #092114 100%)',
+                            border: '1px solid rgba(212,175,55,0.18)',
+                            boxShadow: '0 25px 50px rgba(0,0,0,0.6), 0 0 0 0.5px rgba(255,255,255,0.08) inset',
                         }}
                     >
+                        {/* Arka plan süslemesi (Premium Dotted Mesh) */}
+                        <div className="absolute inset-0 pointer-events-none opacity-60" style={{
+                            backgroundImage: 'radial-gradient(rgba(212, 175, 55, 0.15) 1px, transparent 1px)',
+                            backgroundSize: '20px 20px',
+                            maskImage: 'linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 80%)',
+                            WebkitMaskImage: 'linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 80%)'
+                        }} />
+
+                        {/* Kapatma */}
                         <button
                             onClick={handleDismiss}
-                            className="absolute top-4 right-4 z-10 w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-white/30 hover:text-white/60 transition-colors cursor-pointer"
+                            className="absolute top-4 right-4 z-20 w-7 h-7 rounded-full bg-white/[0.08] flex items-center justify-center text-white/40 hover:text-white/80 hover:bg-white/15 transition-all cursor-pointer backdrop-blur-sm"
                         >
-                            <X size={16} />
+                            <X size={15} />
                         </button>
 
-                        {/* Üst dekoratif ışık efekti */}
-                        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-48 rounded-full opacity-15"
-                            style={{ background: 'radial-gradient(circle, rgba(212,175,55,0.6) 0%, transparent 70%)' }} />
+                        {/* Üst altın ışık (Kalbin arkasından vuran parlama) */}
+                        <div className="absolute -top-16 left-1/2 -translate-x-1/2 w-72 h-72 rounded-full pointer-events-none"
+                            style={{ background: 'radial-gradient(circle, rgba(212,175,55,0.12) 0%, transparent 60%)' }} />
 
-                        <div className="relative p-7 pt-8 text-center">
-                            {/* Hilal + cami ikonu yerine büyük emoji */}
-                            <motion.div
-                                initial={{ opacity: 0, scale: 0.5 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                transition={{ delay: 0.2, type: 'spring', damping: 12 }}
-                                className="text-5xl mb-4"
-                            >
-                                🕌
-                            </motion.div>
-
-                            {/* Başlık */}
-                            <h2 className="text-xl font-serif font-bold text-white mb-3 tracking-wide leading-snug">
-                                {t('review.title', 'Do you enjoy Islamic Companion?')}
-                            </h2>
-
-                            {/* Sosyal kanıt */}
-                            <motion.div
-                                initial={{ opacity: 0, y: 10 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.4 }}
-                                className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-4"
-                                style={{
-                                    background: 'linear-gradient(135deg, rgba(212,175,55,0.08) 0%, rgba(212,175,55,0.03) 100%)',
-                                    border: '1px solid rgba(212,175,55,0.12)',
-                                }}
-                            >
-                                <span className="text-sm">🤲</span>
-                                <span className="text-[11px] font-semibold" style={{ color: 'rgba(212,175,55,0.85)' }}>
-                                    {t('review.socialProof', '10,000+ members in our family')}
-                                </span>
-                            </motion.div>
-
-                            {/* Ana açıklama metni */}
-                            <p className="text-[13px] text-white/50 leading-relaxed mb-2">
-                                {t('review.description', 'We built this app with love for the Ummah. Your 5-star review helps more Muslims discover this app. 🤲')}
-                            </p>
-
-                            {/* Küçük hadis/ayet referansı */}
-                            <p className="text-[11px] italic mb-6" style={{ color: 'rgba(212,175,55,0.5)' }}>
-                                {t('review.hadith', '"Whoever guides someone to goodness will have a similar reward." (Muslim)')}
-                            </p>
-
-                            {/* Yıldız animasyonu — buton üstünde */}
-                            <div className="flex items-center justify-center gap-1 mb-4">
-                                {[1, 2, 3, 4, 5].map(i => (
+                            {/* STEP: ASK — Yıldız seçtirme */}
+                            {step === 'ask' && (
+                                <motion.div
+                                    key="ask"
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    exit={{ opacity: 0, x: -30 }}
+                                    transition={{ duration: 0.25 }}
+                                    className="flex flex-col items-center px-7 pt-10 pb-7 relative z-10"
+                                >
+                                    {/* Minimal heart icon with heartbeat animation */}
                                     <motion.div
-                                        key={i}
-                                        initial={{ opacity: 0, scale: 0, rotate: -30 }}
-                                        animate={{ opacity: 1, scale: 1, rotate: 0 }}
-                                        transition={{ delay: 0.5 + i * 0.08, type: 'spring', damping: 12 }}
+                                        animate={{ 
+                                            scale: [1, 1.15, 1], 
+                                            filter: ['drop-shadow(0 0 0px rgba(212,175,55,0))', 'drop-shadow(0 0 15px rgba(212,175,55,0.45))', 'drop-shadow(0 0 0px rgba(212,175,55,0))']
+                                        }}
+                                        transition={{ 
+                                            duration: 2.5, 
+                                            repeat: Infinity, 
+                                            ease: "easeInOut" 
+                                        }}
+                                        className="mb-6"
                                     >
-                                        <Star
-                                            size={26}
-                                            className="text-islamic-gold"
-                                            fill="currentColor"
-                                            style={{ filter: 'drop-shadow(0 0 6px rgba(212,175,55,0.4))' }}
-                                        />
+                                        <Heart size={44} className="text-islamic-gold" fill="currentColor" strokeWidth={1} />
                                     </motion.div>
-                                ))}
-                            </div>
+                                    
+                                    <h2 className="text-[21px] font-semibold text-white mb-2 text-center leading-snug">
+                                        {t('review.askTitle', 'Bize Destek Olmak İster Misin?')}
+                                    </h2>
+                                    <p className="text-[14px] text-white/60 leading-relaxed mb-6 text-center px-1">
+                                        {t('review.askDescription', 'İslami Yoldaş\'ı ümmet için büyük bir sevgi ve emekle geliştiriyoruz. Bize 5 yıldız vererek bu yolda elimizden tutar mısın?')}
+                                    </p>
 
-                            {/* Ana CTA butonu */}
-                            <motion.button
-                                whileTap={{ scale: 0.95 }}
-                                onClick={handleRate}
-                                className="w-full py-3.5 rounded-2xl font-bold text-[15px] mb-3 cursor-pointer transition-all"
-                                style={{
-                                    background: 'linear-gradient(135deg, #b8860b 0%, #D4AF37 50%, #e8c547 100%)',
-                                    boxShadow: '0 4px 20px rgba(212,175,55,0.3), inset 0 1px 0 rgba(255,255,255,0.2)',
-                                    color: '#1a1a0a',
-                                }}
-                            >
-                                ⭐ {t('review.rateButton', 'Rate Us 5 Stars')}
-                            </motion.button>
+                                    {/* Hadis kutusu - 2. ekrandan taşındı */}
+                                    <div className="w-full rounded-xl p-3 mb-6"
+                                        style={{ backgroundColor: 'rgba(212,175,55,0.06)', border: '1px solid rgba(212,175,55,0.1)' }}
+                                    >
+                                        <p className="text-[13px] italic text-islamic-gold/70 text-center leading-relaxed">
+                                            {t('review.hadith', '"Kim bir hayra vesile olursa, o hayrı yapanın ecri gibi ecir alır." (Müslim)')}
+                                        </p>
+                                    </div>
+                                    
+                                    {/* Yıldızlar — temiz, büyük, dokunması kolay */}
+                                    <div className="flex items-center justify-center gap-2.5 w-full mb-7" onMouseLeave={() => setHoveredStar(0)}>
+                                        {[1, 2, 3, 4, 5].map(star => {
+                                            const isActive = (hoveredStar || selectedStar) >= star;
+                                            return (
+                                                <motion.button
+                                                    key={star}
+                                                    whileTap={{ scale: 0.85 }}
+                                                    onMouseEnter={() => setHoveredStar(star)}
+                                                    onClick={() => {
+                                                        setSelectedStar(star);
+                                                        setTimeout(() => {
+                                                            if (star >= 4) {
+                                                                handleRate();
+                                                            } else {
+                                                                setStep('feedback');
+                                                            }
+                                                        }, 350);
+                                                    }}
+                                                    className="p-1.5 cursor-pointer touch-manipulation"
+                                                >
+                                                    <motion.div
+                                                        animate={{ scale: isActive ? 1.08 : 1 }}
+                                                        transition={{ type: 'spring', damping: 15, stiffness: 400 }}
+                                                    >
+                                                        <Star
+                                                            size={36}
+                                                            className="transition-all duration-200"
+                                                            fill={isActive ? '#D4AF37' : 'transparent'}
+                                                            stroke={isActive ? '#D4AF37' : 'rgba(255,255,255,0.15)'}
+                                                            strokeWidth={isActive ? 0 : 1.5}
+                                                            style={{
+                                                                filter: isActive ? 'drop-shadow(0 2px 8px rgba(212,175,55,0.35))' : 'none'
+                                                            }}
+                                                        />
+                                                    </motion.div>
+                                                </motion.button>
+                                            );
+                                        })}
+                                    </div>
+                                    
+                                    {/* Alt ayırıcı çizgi */}
+                                    <div className="w-12 h-px bg-white/10 mb-4" />
+                                    
+                                    <button
+                                        onClick={handleDismiss}
+                                        className="text-white/30 text-[14px] hover:text-white/50 transition-colors"
+                                    >
+                                        {t('review.askLater', 'Daha Sonra Hatırlat')}
+                                    </button>
+                                </motion.div>
+                            )}
 
-                            <button
-                                onClick={handleDismiss}
-                                className="w-full py-3 rounded-2xl text-white/25 text-[13px] font-medium hover:text-white/40 transition-colors cursor-pointer"
-                            >
-                                {t('review.later', 'Remind Me Later')}
-                            </button>
-                        </div>
+
+
+                            {/* STEP: FEEDBACK — Üzüntü ve anlayış */}
+                            {step === 'feedback' && (
+                                <motion.div
+                                    key="feedback"
+                                    initial={{ opacity: 0, x: 30 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    transition={{ duration: 0.3 }}
+                                    className="flex flex-col items-center px-7 pt-10 pb-7 relative z-10"
+                                >
+                                    <div className="mb-5">
+                                        <Heart size={44} className="text-white/30" strokeWidth={1.5} />
+                                    </div>
+                                    
+                                    <h2 className="text-[21px] font-semibold text-white mb-2 text-center leading-snug">
+                                        {t('review.feedbackTitle', 'Geri bildiriminiz için teşekkürler')}
+                                    </h2>
+                                    <p className="text-[14px] text-white/50 leading-relaxed mb-8 text-center">
+                                        {t('review.feedbackDescription', 'Beklentilerinizi karşılayamadığımız için üzgünüz. Uygulamamızı sizin için daha iyi hale getirmek amacıyla çalışmaya devam edeceğiz.')}
+                                    </p>
+
+                                    <motion.button
+                                        whileTap={{ scale: 0.97 }}
+                                        onClick={handleDismiss}
+                                        className="w-full py-3.5 rounded-xl font-medium text-[15px] cursor-pointer"
+                                        style={{
+                                            backgroundColor: 'rgba(255,255,255,0.07)',
+                                            color: 'rgba(255,255,255,0.8)',
+                                        }}
+                                    >
+                                        {t('review.closeUnderstand', 'Tamam')}
+                                    </motion.button>
+                                </motion.div>
+                            )}
                     </motion.div>
                 </motion.div>
             )}

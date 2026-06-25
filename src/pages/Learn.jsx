@@ -24,8 +24,8 @@ const SecdeIcon = ({ className }) => (
 );
 
 const CATEGORIES = [
-    { id: 'sureler', labelKey: 'catSureler', icon: BookOpen },
     { id: 'dualar', labelKey: 'catDualar', icon: Heart },
+    { id: 'sureler', labelKey: 'catSureler', icon: BookOpen },
     { id: 'abdest', labelKey: 'catAbdest', icon: Droplets },
     { id: 'namazlar', labelKey: 'catErkekNamaz', icon: SecdeIcon },
     { id: 'kadinNamaz', labelKey: 'catKadinNamaz', icon: SparklesIcon },
@@ -169,6 +169,30 @@ const GUIDES = {
         title: 'Elli Dua (Gönül İlaçları)',
         steps: [
             {
+                title: 'Kadir Gecesi Duası',
+                instruction: 'Hz. Ayşe’ye öğretilen af duası.',
+                arabic: 'اَللَّهُمَّ اِنَّكَ عَفُوٌّ تُحِبُّ الْعَفْوَ فَاعْفُ عَنِّي',
+                transcription: 'Allahümme inneke afuvvun tuhibbul afve fa’fu annî.',
+                meaning: 'Allah’ım! Sen çok affedicisin, affetmeyi seversin. Beni bağışla.',
+                tips: ['Tirmizi', 'Kandil gecelerinde ve ramazanda çokça okunmalı.'],
+            },
+            {
+                title: 'Borç ve Sıkıntı Duası',
+                instruction: 'Hz. Peygamber’in öğrettiği ferahlık duası.',
+                arabic: 'اَللَّهُمَّ اِنِّي اَعُوذُ بِكَ مِنَ الْهَمِّ وَالْحَزَنِ... وَغَلَبَةِ الدَّيْنِ',
+                transcription: 'Allahümme innî eûzü bike minel hemmi vel hazeni ve minel aczi vel keseli... ve ğalebetid-deyni...',
+                meaning: 'Allah’ım! Kederden, hüzünden, acizlikten, tembellikten, borç yükünden Sana sığınırım.',
+                tips: ['Buhari', 'Sabah akşam okunması tavsiye edilmiştir.'],
+            },
+            {
+                title: 'Nazar Ayeti',
+                instruction: 'Göz değmesine karşı.',
+                arabic: 'وَاِنْ يَكَادُ الَّذِينَ كَفَرُوا لَيُزْلِقُونَكَ بِاَبْصَارِهِمْ',
+                transcription: 'Ve in yekâdullezîne keferû leyuzlikûneke biebsârihim lemmâ semiuz-zikra...',
+                meaning: 'İnkar edenler Zikr’i (Kur’an’ı) işittikleri zaman, neredeyse seni gözleriyle devireceklerdi.',
+                tips: ['Kalem Suresi, 51-52. Ayetler', 'Nazara karşı en etkili ayettir.'],
+            },
+            {
                 title: 'Rabbena Âtina',
                 instruction: 'En kapsamlı dünya ve ahiret duası. Peygamberimiz (s.a.v) en çok bu duayı ederdi.',
                 arabic: 'رَبَّنَا آتِنَا فِي الدُّنْيَا حَسَنَةً وَفِي الآخِرَةِ حَسَنَةً وَقِنَا عَذَابَ النَّارِ',
@@ -207,14 +231,6 @@ const GUIDES = {
                 transcription: 'Allahümme ente Rabbî lâ ilâhe illâ ente halaktenî ve ene abdüke...',
                 meaning: 'Allah’ım! Sen benim Rabbimsin. Senden başka ilah yoktur. Beni Sen yarattın ve ben Senin kulunum...',
                 tips: ['Buhari', 'Sabah okuyup akşam ölen, akşam okuyup sabah ölen cennetliktir.'],
-            },
-            {
-                title: 'Kadir Gecesi Duası',
-                instruction: 'Hz. Ayşe’ye öğretilen af duası.',
-                arabic: 'اَللَّهُمَّ اِنَّكَ عَفُوٌّ تُحِبُّ الْعَفْوَ فَاعْفُ عَنِّي',
-                transcription: 'Allahümme inneke afuvvun tuhibbul afve fa’fu annî.',
-                meaning: 'Allah’ım! Sen çok affedicisin, affetmeyi seversin. Beni bağışla.',
-                tips: ['Tirmizi', 'Kandil gecelerinde ve ramazanda çokça okunmalı.'],
             },
             {
                 title: 'Hz. Adem’in Tövbesi',
@@ -375,22 +391,6 @@ const GUIDES = {
                 transcription: 'Ennî messeniyed-durru ve ente erhamur-râhimîn.',
                 meaning: 'Şüphesiz ki bana bu dert dokundu. Sen merhametlilerin en merhametlisisin.',
                 tips: ['Enbiya Suresi, 83. Ayet', 'Sabır ve şifa istemek için.'],
-            },
-            {
-                title: 'Borç ve Sıkıntı Duası',
-                instruction: 'Hz. Peygamber’in öğrettiği ferahlık duası.',
-                arabic: 'اَللَّهُمَّ اِنِّي اَعُوذُ بِكَ مِنَ الْهَمِّ وَالْحَزَنِ... وَغَلَبَةِ الدَّيْنِ',
-                transcription: 'Allahümme innî eûzü bike minel hemmi vel hazeni ve minel aczi vel keseli... ve ğalebetid-deyni...',
-                meaning: 'Allah’ım! Kederden, hüzünden, acizlikten, tembellikten, borç yükünden Sana sığınırım.',
-                tips: ['Buhari', 'Sabah akşam okunması tavsiye edilmiştir.'],
-            },
-            {
-                title: 'Nazar Ayeti',
-                instruction: 'Göz değmesine karşı.',
-                arabic: 'وَاِنْ يَكَادُ الَّذِينَ كَفَرُوا لَيُزْلِقُونَكَ بِاَبْصَارِهِمْ',
-                transcription: 'Ve in yekâdullezîne keferû leyuzlikûneke biebsârihim lemmâ semiuz-zikra...',
-                meaning: 'İnkar edenler Zikr’i (Kur’an’ı) işittikleri zaman, neredeyse seni gözleriyle devireceklerdi.',
-                tips: ['Kalem Suresi, 51-52. Ayetler', 'Nazara karşı en etkili ayettir.'],
             },
             {
                 title: 'Sıkıntı Anında (La ilahe illallah)',
@@ -574,6 +574,14 @@ const GUIDES = {
         title: 'Sureler Rehberi',
         steps: [
             {
+                title: 'İhlâs Suresi',
+                instruction: 'Allah\'ın birliğini en net anlatan suredir. Okumak, Kur\'an\'ın üçte birine denktir.',
+                arabic: 'بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ ۝ قُلْ هُوَ اللَّهُ أَحَدٌ ۝ اللَّهُ الصَّمَدُ ۝ لَمْ يَلِدْ وَلَمْ يُولَدْ ۝ وَلَمْ يَكُنْ لَهُ كُفُوًا أَحَدٌ',
+                transcription: 'Bismillâhirrahmânirrahîm. Kul hüvallâhü ehad. Allâhüssamed. Lem yelid ve lem yûled. Ve lem yekün lehû küfüven ehad.',
+                meaning: 'De ki: O Allah tektir. Allah Samed\'dir (Her şey O\'na muhtaçtır, O hiçbir şeye muhtaç değildir). O, doğurmamış ve doğmamıştır. O\'nun hiçbir dengi yoktur.',
+                tips: ['Tevhidin en kısa ve öz ifadesidir.', 'Namazlarda çok sık okunur.']
+            },
+            {
                 title: 'Fâtiha Suresi',
                 instruction: 'Kur\'an\'ın açılış kapısıdır. Namazın her rekatında okunması vaciptir.',
                 arabic: 'بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ ۝ الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ ۝ الرَّحْمَنِ الرَّحِيمِ ۝ مَالِكِ يَوْمِ الدِّينِ ۝ إِيَّاكَ نَعْبُدُ وَإِيَّاكَ نَسْتَعِينُ ۝ اهْدِنَا الصِّرَاطَ الْمُسْتَقِيمَ ۝ صِرَاطَ الَّذِينَ أَنْعَمْتَ عَلَيْهِمْ غَيْرِ الْمَغْضُوبِ عَلَيْهِمْ وَلَا الضَّالِّينَ',
@@ -636,14 +644,6 @@ const GUIDES = {
                 transcription: 'Bismillâhirrahmânirrahîm. Tebbet yedâ ebî lehebin ve tebb. Mâ ağnâ anhü mâlühû ve mâ keseb. Seyaslâ nâran zâte leheb. Vemraetüh. Hammâletelhatab. Fî cîdihâ hablün min mesed.',
                 meaning: 'Ebu Leheb\'in elleri kurusun! Kurudu da. Malı ve kazandıkları ona fayda vermedi. O, alevli bir ateşe girecektir. Odun taşıyıcısı olarak karısı da (ateşe girecek). Boynunda hurma lifinden bükülmüş bir ip olduğu halde.',
                 tips: ['"Tebbet": Kurusun, yok olsun demektir.', 'Zalımların sonunun hüsran olduğu anlatılır.']
-            },
-            {
-                title: 'İhlâs Suresi',
-                instruction: 'Allah\'ın birliğini en net anlatan suredir. Okumak, Kur\'an\'ın üçte birine denktir.',
-                arabic: 'بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ ۝ قُلْ هُوَ اللَّهُ أَحَدٌ ۝ اللَّهُ الصَّمَدُ ۝ لَمْ يَلِدْ وَلَمْ يُولَدْ ۝ وَلَمْ يَكُنْ لَهُ كُفُوًا أَحَدٌ',
-                transcription: 'Bismillâhirrahmânirrahîm. Kul hüvallâhü ehad. Allâhüssamed. Lem yelid ve lem yûled. Ve lem yekün lehû küfüven ehad.',
-                meaning: 'De ki: O Allah tektir. Allah Samed\'dir (Her şey O\'na muhtaçtır, O hiçbir şeye muhtaç değildir). O, doğurmamış ve doğmamıştır. O\'nun hiçbir dengi yoktur.',
-                tips: ['Tevhidin en kısa ve öz ifadesidir.', 'Namazlarda çok sık okunur.']
             },
             {
                 title: 'Felak Suresi',
@@ -962,7 +962,7 @@ const GuideStepCard = memo(({ step }) => {
 
 export default function Learn() {
     const navigate = useNavigate();
-    const [selectedCategory, setSelectedCategory] = useState('sureler');
+    const [selectedCategory, setSelectedCategory] = useState('dualar');
     const [currentStep, setCurrentStep] = useState(0);
     const [isComplete, setIsComplete] = useState(false);
     const totalStepsRef = React.useRef(0);
@@ -1230,7 +1230,7 @@ export default function Learn() {
             </div>
 
             {/* Navigation Buttons */}
-            <div className="fixed bottom-32 left-1/2 -translate-x-1/2 w-full max-w-md px-6 flex justify-between items-center pointer-events-none z-40">
+            <div className="fixed bottom-28 left-1/2 -translate-x-1/2 w-full max-w-md px-6 flex justify-between items-center pointer-events-none z-40">
                 <Button
                     variant="outline"
                     onClick={prev}

@@ -10,7 +10,7 @@ import { App as CapApp } from '@capacitor/app';
 import { LocalNotifications } from '@capacitor/local-notifications';
 import { FontSizeProvider } from './context/FontSizeContext';
 
-import { initAdMob } from './services/adService';
+import { initAdMob, shouldInitAdMobOnLaunch } from './services/adService';
 import { isPremium } from './services/creditService';
 import { initCrashlytics, logPageView } from './services/crashService';
 import { initOneSignal, setLanguageTag } from './services/pushService';
@@ -64,21 +64,21 @@ function CrashBreadcrumbs() {
 // Global event and Deep link handler
 function GlobalEventHandler() {
   const navigate = useNavigate();
-  
+
   useEffect(() => {
     // 1. App URL Open / Deep Link Listener
     const listener = CapApp.addListener('appUrlOpen', (event) => {
       const url = event.url || '';
       if (url.includes('widget') || url.includes('PrayerTimesProvider')) {
-          analytics.widgetUsed(url);
+        analytics.widgetUsed(url);
       }
       if (url.includes('islamiyoldas://premium')) {
         navigate('/premium');
       }
     });
 
-    return () => { 
-        listener.then(l => l.remove()); 
+    return () => {
+      listener.then(l => l.remove());
     };
   }, [navigate]);
   return null;
@@ -123,16 +123,16 @@ function AppContent() {
 
       // --- Unique Day Tracking for Ads ---
       try {
-          const today = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD local
-          const lastOpenDate = storageService.getItem('last_open_date');
-          if (lastOpenDate !== today) {
-              const currentDays = parseInt(storageService.getItem('unique_days_opened') || '0', 10);
-              storageService.setItem('unique_days_opened', (currentDays + 1).toString());
-              storageService.setItem('last_open_date', today);
-              console.log(`[Tracking] Unique open day recorded: ${currentDays + 1}`);
-          }
+        const today = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD local
+        const lastOpenDate = storageService.getItem('last_open_date');
+        if (lastOpenDate !== today) {
+          const currentDays = parseInt(storageService.getItem('unique_days_opened') || '0', 10);
+          storageService.setItem('unique_days_opened', (currentDays + 1).toString());
+          storageService.setItem('last_open_date', today);
+          console.log(`[Tracking] Unique open day recorded: ${currentDays + 1}`);
+        }
       } catch (e) {
-          console.error('[Tracking] Day tracking failed', e);
+        console.error('[Tracking] Day tracking failed', e);
       }
 
       analytics.appLoaded(loadTime, isFirstOpen);
@@ -163,7 +163,10 @@ function AppContent() {
 
   // Defer non-critical third-party initializations to prevent blocking JS thread on mount
   useEffect(() => {
-    const t1 = setTimeout(initAdMob, 100); // Hemen başlat (async — splash'ı bloklamaz)
+    let t1;
+    if (shouldInitAdMobOnLaunch()) {
+      t1 = setTimeout(initAdMob, 100); // Sadece 2. günden itibaren ilk açılışta sorar
+    }
     const t2 = setTimeout(initCrashlytics, 3000);
     const t3 = setTimeout(initOneSignal, 4000);
     return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
@@ -232,8 +235,8 @@ function AppContent() {
 
     setupNotificationListeners();
 
-    return () => { 
-      listener.then(l => l.remove()); 
+    return () => {
+      listener.then(l => l.remove());
       if (notifReceivedListener) notifReceivedListener.remove();
       if (notifActionListener) notifActionListener.remove();
     };
@@ -245,10 +248,9 @@ function AppContent() {
 
   return (
     <div className={isWebTest ? "w-full min-h-[100dvh] bg-[#0a0a0a] flex justify-center font-sans" : ""}>
-      <div 
-        className={`bg-background relative overflow-hidden font-sans ${
-          isWebTest ? 'w-full max-w-[480px] h-[100dvh]' : 'w-full h-[100dvh]'
-        }`}
+      <div
+        className={`bg-background relative overflow-hidden font-sans ${isWebTest ? 'w-full max-w-[480px] h-[100dvh]' : 'w-full h-[100dvh]'
+          }`}
       >
         <Router>
           <ScrollToTop />

@@ -533,6 +533,14 @@ export const GUIDES_EN = {
         title: 'Surahs Guide',
         steps: [
             {
+                title: 'Surah Al-Ikhlas',
+                instruction: 'The surah that most clearly states the oneness of Allah. Reciting it is equivalent to one-third of the Quran.',
+                arabic: 'بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ ۝ قُلْ هُوَ اللَّهُ أَحَدٌ ۝ اللَّهُ الصَّمَدُ ۝ لَمْ يَلِدْ وَلَمْ يُولَدْ ۝ وَلَمْ يَكُنْ لَهُ كُفُوًا أَحَدٌ',
+                transcription: 'Bismillahir-rahmanir-rahim. Qul huwallahu ahad. Allahus-samad. Lam yalid wa lam yulad. Wa lam yakun lahu kufuwan ahad.',
+                meaning: 'Say: He is Allah, the One. Allah, the Eternal Refuge (everything depends on Him, He depends on nothing). He neither begets nor is born. And there is none comparable to Him.',
+                tips: ['The shortest and most essential expression of monotheism.', 'Frequently recited in prayers.']
+            },
+            {
                 title: 'Surah Al-Fatiha',
                 instruction: 'The opening chapter of the Quran. It is obligatory (wajib) to recite in every rak\'ah of prayer.',
                 arabic: 'بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ ۝ الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ ۝ الرَّحْمَنِ الرَّحِيمِ ۝ مَالِكِ يَوْمِ الدِّينِ ۝ إِيَّاكَ نَعْبُدُ وَإِيَّاكَ نَسْتَعِينُ ۝ اهْدِنَا الصِّرَاطَ الْمُسْتَقِيمَ ۝ صِرَاطَ الَّذِينَ أَنْعَمْتَ عَلَيْهِمْ غَيْرِ الْمَغْضُوبِ عَلَيْهِمْ وَلَا الضَّالِّينَ',
@@ -595,14 +603,6 @@ export const GUIDES_EN = {
                 transcription: 'Bismillahir-rahmanir-rahim. Tabbat yada abi lahabin wa tabb. Ma aghna anhu maluhu wa ma kasab. Sayasla naran dhata lahab. Wamra\'atuh. Hammalatal hatab. Fi jidiha hablun min masad.',
                 meaning: 'May the hands of Abu Lahab be ruined, and ruined is he. His wealth and what he earned will not avail him. He will burn in a Fire of blazing flame. And his wife—the carrier of firewood—around her neck is a rope of palm fiber.',
                 tips: ['"Tabbat": May he perish, may he be destroyed.', 'Demonstrates that the end of oppressors is ruin.']
-            },
-            {
-                title: 'Surah Al-Ikhlas',
-                instruction: 'The surah that most clearly states the oneness of Allah. Reciting it is equivalent to one-third of the Quran.',
-                arabic: 'بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ ۝ قُلْ هُوَ اللَّهُ أَحَدٌ ۝ اللَّهُ الصَّمَدُ ۝ لَمْ يَلِدْ وَلَمْ يُولَدْ ۝ وَلَمْ يَكُنْ لَهُ كُفُوًا أَحَدٌ',
-                transcription: 'Bismillahir-rahmanir-rahim. Qul huwallahu ahad. Allahus-samad. Lam yalid wa lam yulad. Wa lam yakun lahu kufuwan ahad.',
-                meaning: 'Say: He is Allah, the One. Allah, the Eternal Refuge (everything depends on Him, He depends on nothing). He neither begets nor is born. And there is none comparable to Him.',
-                tips: ['The shortest and most essential expression of monotheism.', 'Frequently recited in prayers.']
             },
             {
                 title: 'Surah Al-Falaq',

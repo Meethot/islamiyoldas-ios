@@ -89,6 +89,7 @@ export function useSmartPermissions(locationStatus) {
                 _notificationPending = false;
             } else {
                 _notificationPending = false;
+                window.dispatchEvent(new Event('permissionsFlowFinished'));
             }
         }, 3000);
     }, []);
@@ -100,6 +101,8 @@ export function useSmartPermissions(locationStatus) {
 
         if (current === 'location') {
             scheduleNotificationAfterLocation(false);
+        } else if (current === 'notification') {
+            window.dispatchEvent(new Event('permissionsFlowFinished'));
         }
     }, [recordDismiss, scheduleNotificationAfterLocation]);
 
@@ -110,6 +113,8 @@ export function useSmartPermissions(locationStatus) {
 
         if (current === 'location') {
             scheduleNotificationAfterLocation(false);
+        } else if (current === 'notification') {
+            window.dispatchEvent(new Event('permissionsFlowFinished'));
         }
     }, [recordSuccess, scheduleNotificationAfterLocation]);
 
@@ -132,6 +137,7 @@ export function useSmartPermissions(locationStatus) {
                     _notificationPending = false;
                 } else {
                     _notificationPending = false;
+                    window.dispatchEvent(new Event('permissionsFlowFinished'));
                 }
             }, 1000); // Geri döndüğünde de hemen çıkmasın diye çok ufak (1s) bir ara
             return;
@@ -159,6 +165,7 @@ export function useSmartPermissions(locationStatus) {
                         _notificationPending = false;
                     } else {
                         _notificationPending = false;
+                        window.dispatchEvent(new Event('permissionsFlowFinished'));
                     }
                 }, 1000);
             }

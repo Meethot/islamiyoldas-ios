@@ -40,6 +40,13 @@ export function shouldShowAds() {
     return uniqueDays >= 3;
 }
 
+// ─── Yeni Özellik: Reklam İznini (ATT) İlk Gün Sorma ───
+export function shouldInitAdMobOnLaunch() {
+    const uniqueDaysStr = storageService.getItem('unique_days_opened');
+    const uniqueDays = uniqueDaysStr ? parseInt(uniqueDaysStr, 10) : 0;
+    return uniqueDays >= 2;
+}
+
 export async function initAdMob() {
     if (!ADS_ENABLED || !IS_NATIVE || initialized) return;
     if (initPromise) return initPromise;
