@@ -59,9 +59,6 @@ function StepCarousel({ steps, stepsKey }) {
     const [current, setCurrent] = useState(0);
     const touchStartX = useRef(0);
     const touchStartY = useRef(0);
-
-    useEffect(() => { setCurrent(0); }, [stepsKey]);
-
     const goTo = useCallback((i) => {
         if (i < 0 || i >= steps.length) return;
         setCurrent(i);
@@ -464,6 +461,7 @@ export default function WidgetGuide() {
                     </p>
 
                     <StepCarousel
+                        key={activeTab}
                         steps={activeTab === 'home' ? HOME_STEPS : LOCK_STEPS}
                         stepsKey={activeTab}
                     />

@@ -102,63 +102,61 @@ export async function getRandomApprovedPrayers(count = 6, lang = 'en') {
     twentyFourHoursAgo.setHours(twentyFourHoursAgo.getHours() - 24);
 
     try {
-        // Step 1: Fetch NEWEST prayers approved within the last 24 hours
-        const qRecent = query(
+        // En güvenli sorgu: Sadece status ve timestamp kullanıyoruz. (Karmaşık indeks hatası almamak için)
+        // Son onaylanan 150 duayı çekip, dil filtresini ve rastgeleliği kod tarafında (memory) yapıyoruz.
+        const qSafe = query(
             colRef,
             where('status', '==', 'approved'),
-            where('lang', '==', normalizedLang),
-            where('timestamp', '>=', twentyFourHoursAgo),
             orderBy('timestamp', 'desc'),
-            limit(count)
+            limit(60)
         );
-        const snapRecent = await getDocs(qRecent);
-        snapRecent.docs.forEach(d => {
-            results.push({ id: d.id, ...d.data(), date: d.data().timestamp?.toDate?.().toISOString() || new Date().toISOString() });
-            seenIds.add(d.id);
-        });
-
-        // Step 2: If we still need more to reach `count`, fetch random ones
-        if (results.length < count) {
-            const remaining = count - results.length;
-            const startAt = Math.floor(Math.random() * 10000000);
-
-            // Query: Forward from random point
-            const qRandom = query(
-                colRef,
-                where('status', '==', 'approved'),
-                where('lang', '==', normalizedLang),
-                where('randomIndex', '>=', startAt),
-                orderBy('randomIndex'),
-                limit(remaining)
-            );
-            const snapRandom = await getDocs(qRandom);
-            snapRandom.docs.forEach(d => {
-                if (!seenIds.has(d.id)) {
-                    results.push({ id: d.id, ...d.data(), date: d.data().timestamp?.toDate?.().toISOString() || new Date().toISOString() });
-                    seenIds.add(d.id);
-                }
-            });
-
-            // Fallback: If still not enough, wrap around from 0
-            if (results.length < count) {
-                const stillRemaining = count - results.length;
-                const qWrap = query(
-                    colRef,
-                    where('status', '==', 'approved'),
-                    where('lang', '==', normalizedLang),
-                    where('randomIndex', '>=', 0),
-                    orderBy('randomIndex'),
-                    limit(stillRemaining + seenIds.size)
-                );
-                const snapWrap = await getDocs(qWrap);
-                snapWrap.docs.forEach(d => {
-                    if (!seenIds.has(d.id) && results.length < count) {
-                        results.push({ id: d.id, ...d.data(), date: d.data().timestamp?.toDate?.().toISOString() || new Date().toISOString() });
-                        seenIds.add(d.id);
-                    }
+        
+        const snap = await getDocs(qSafe);
+        const allDocs = [];
+        snap.docs.forEach(d => {
+            const data = d.data();
+            // Dil filtresi (memory)
+            if ((data.lang || 'en') === normalizedLang) {
+                allDocs.push({ 
+                    id: d.id, 
+                    ...data, 
+                    date: data.timestamp?.toDate?.().toISOString() || new Date().toISOString() 
                 });
             }
-        }
+        });
+
+        // Son 24 saat içinde onaylananlar ve daha eskiler olarak ayır
+        const recentDocs = [];
+        const olderDocs = [];
+        allDocs.forEach(d => {
+            const dTime = new Date(d.date).getTime();
+            if (dTime >= twentyFourHoursAgo.getTime()) {
+                recentDocs.push(d);
+            } else {
+                olderDocs.push(d);
+            }
+        });
+
+        // Her iki listeyi de kendi içinde rastgele karıştır (Adaletli görünüm için)
+        recentDocs.sort(() => Math.random() - 0.5);
+        olderDocs.sort(() => Math.random() - 0.5);
+
+        // Önce son 24 saat içindekileri ekle
+        recentDocs.forEach(d => {
+            if (results.length < count && !seenIds.has(d.id)) {
+                results.push(d);
+                seenIds.add(d.id);
+            }
+        });
+
+        // Kalan boşlukları karıştırılmış eskilerle doldur
+        olderDocs.forEach(d => {
+            if (results.length < count && !seenIds.has(d.id)) {
+                results.push(d);
+                seenIds.add(d.id);
+            }
+        });
+
     } catch (error) {
         console.error("Error fetching prayers:", error);
     }
@@ -325,4 +323,24 @@ export function listenToPrayer(prayerId, callback) {
     }, (error) => {
         console.error("Error listening to prayer:", error);
     });
+}
+
+/**
+ * Reports a prayer to the 'reports' collection
+ * @param {string} prayerId 
+ * @param {string} reason 
+ */
+export async function reportPrayer(prayerId, reason = 'inappropriate') {
+    if (!prayerId || typeof prayerId !== 'string') return;
+    try {
+        const reportsRef = collection(db, 'reports');
+        await addDoc(reportsRef, {
+            prayerId,
+            reason,
+            timestamp: serverTimestamp(),
+            status: 'pending_review'
+        });
+    } catch (e) {
+        console.error("Error reporting prayer:", e);
+    }
 }

@@ -732,7 +732,7 @@ export default function Profile() {
             </motion.div>
 
             {/* Danger Zone */}
-            <motion.div variants={itemVariants} className="px-4 space-y-4 pb-10">
+            <motion.div variants={itemVariants} className="px-4 space-y-4 pb-4">
                 <Button
                     variant="ghost"
                     onClick={deleteAccount}
@@ -1061,9 +1061,13 @@ export default function Profile() {
                 )}
             </AnimatePresence>
 
-            <div className="text-center pb-8 opacity-30 mt-6">
-                <p className="text-[10px] font-black uppercase tracking-[0.3em]">{t('app_name')}</p>
-                <p className="text-[9px]">{t('version')}</p>
+            <div className="flex flex-col items-center pb-0 opacity-50 mt-0">
+                <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-stone-800 dark:text-white">
+                    İSLAMİ YOLDAŞ
+                </p>
+                <p className="text-[8px] text-stone-500 dark:text-gray-500 font-medium tracking-widest mt-1">
+                    © {new Date().getFullYear()} TÜM HAKLARI SAKLIDIR
+                </p>
             </div>
 
             {/* Hidden ShareCard for Screenshot Capture */}

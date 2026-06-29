@@ -47,6 +47,8 @@
 		E9AD63757027425035C30D59 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 1F028E53F29912EE2DF5543B /* Localizable.strings */; };
 		F3AE7909B7E1A6EC07A729B3 /* Pods_App.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 482C13562036DB0DA7227BC4 /* Pods_App.framework */; };
 		F486CB2CE132492AC134CE67 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = EDF92D19185FF9E333BBAF22 /* InfoPlist.strings */; };
+		MVC000000000000000B00001 /* MyViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = MVC000000000000000F00001 /* MyViewController.swift */; };
+		NPP000000000000000B00001 /* NowPlayingPlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = NPP000000000000000F00001 /* NowPlayingPlugin.swift */; };
 		PREM00000000000000B00001 /* WidgetAccessHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = PREM00000000000000F00001 /* WidgetAccessHelper.swift */; };
 		PREM00000000000000B00002 /* PremiumRequiredView.swift in Sources */ = {isa = PBXBuildFile; fileRef = PREM00000000000000F00002 /* PremiumRequiredView.swift */; };
 		PRIV001122334455660002 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = PRIV001122334455660001 /* PrivacyInfo.xcprivacy */; };
@@ -147,6 +149,8 @@
 		F1107B3CFD2B3DC4D7AC5EEF /* Pods-App.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-App.release.xcconfig"; path = "Target Support Files/Pods-App/Pods-App.release.xcconfig"; sourceTree = "<group>"; };
 		F1A3FE3AFBB91DCFB076CBC7 /* ru */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		F42928A1954CB9B9652868EC /* HourlyVerseSmallWidgetView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = HourlyVerseSmallWidgetView.swift; sourceTree = "<group>"; };
+		MVC000000000000000F00001 /* MyViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyViewController.swift; sourceTree = "<group>"; };
+		NPP000000000000000F00001 /* NowPlayingPlugin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NowPlayingPlugin.swift; sourceTree = "<group>"; };
 		PREM00000000000000F00001 /* WidgetAccessHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetAccessHelper.swift; sourceTree = "<group>"; };
 		PREM00000000000000F00002 /* PremiumRequiredView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PremiumRequiredView.swift; sourceTree = "<group>"; };
 		PRIV001122334455660001 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
@@ -217,6 +221,8 @@
 				A11BCC5A2F3D000100996C74 /* sahur_alarm.caf */,
 				50379B222058CBB4000EE86E /* capacitor.config.json */,
 				504EC3071FED79650016851F /* AppDelegate.swift */,
+				NPP000000000000000F00001 /* NowPlayingPlugin.swift */,
+				MVC000000000000000F00001 /* MyViewController.swift */,
 				504EC30B1FED79650016851F /* Main.storyboard */,
 				504EC30E1FED79650016851F /* Assets.xcassets */,
 				504EC3101FED79650016851F /* LaunchScreen.storyboard */,
@@ -511,6 +517,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				504EC3081FED79650016851F /* AppDelegate.swift in Sources */,
+				NPP000000000000000B00001 /* NowPlayingPlugin.swift in Sources */,
+				MVC000000000000000B00001 /* MyViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -13,20 +13,24 @@ import { fetchChapters, fetchSurahAudio } from '@/services/quranApi';
 import { safeGetStorage, safeSetStorage } from '@/utils/storageHelper';
 import { getSurahSummary } from '@/data/surahSummaries';
 import { App } from '@capacitor/app';
+import { Capacitor, registerPlugin } from '@capacitor/core';
 import { isPremium } from '@/services/creditService';
 import { analytics } from '@/services/analyticsService';
 import { useTranslation } from 'react-i18next';
 
+const NowPlaying = Capacitor.isNativePlatform() ? registerPlugin('NowPlaying') : null;
+
 // Background Mode Helper (Cordova Plugin)
 const BackgroundMode = {
-    enable: (surahName) => {
+    enable: (title, text) => {
+        if (Capacitor.getPlatform() === 'ios') return; // iOS WKWebView handles background audio automatically; this plugin breaks lock screen metadata.
         if (window.cordova?.plugins?.backgroundMode) {
             window.cordova.plugins.backgroundMode.enable();
             window.cordova.plugins.backgroundMode.setDefaults({
-                title: t('bgTitle'),
-                text: t('listeningTo', { name: surahName }),
+                title: title || 'İslami Yoldaş - Kuran',
+                text: text || '',
                 icon: 'ic_launcher',
-                color: 'D4AF37',
+                color: '044D29', // islamic-green
                 resume: true,
                 hidden: false,
                 bigText: false
@@ -34,6 +38,7 @@ const BackgroundMode = {
         }
     },
     disable: () => {
+        if (Capacitor.getPlatform() === 'ios') return;
         if (window.cordova?.plugins?.backgroundMode) {
             window.cordova.plugins.backgroundMode.disable();
         }
@@ -42,6 +47,8 @@ const BackgroundMode = {
 
 const BOOKMARKS_KEY = 'quran_bookmarks';
 const SURAH_BOOKMARKS_KEY = 'quran_surah_bookmarks';
+const PLACEHOLDER_SURAHS = Array.from({ length: 114 }, (_, i) => ({ id: i + 1 }));
+const PLACEHOLDER_AYAHS = Array.from({ length: 5 }, (_, i) => ({ id: i + 1 }));
 
 export default function Quran({ isTrackingTab = false }) {
     const navigate = useNavigate();
@@ -65,6 +72,43 @@ export default function Quran({ isTrackingTab = false }) {
 
     // Audio Playback State
     const [audio] = useState(() => new Audio());
+
+    useEffect(() => {
+        document.body.appendChild(audio);
+        return () => {
+            if (document.body.contains(audio)) {
+                document.body.removeChild(audio);
+            }
+        };
+    }, [audio]);
+
+    useEffect(() => {
+        if (!NowPlaying) return;
+        let playListener;
+        let pauseListener;
+
+        const setupListeners = async () => {
+            playListener = await NowPlaying.addListener('remotePlay', () => {
+                audio.play().catch(() => {});
+                navigator.mediaSession.playbackState = 'playing';
+                setIsAudioPlaying(true);
+                NowPlaying.setNowPlaying({ isPlaying: true, currentTime: audio.currentTime });
+            });
+            pauseListener = await NowPlaying.addListener('remotePause', () => {
+                audio.pause();
+                navigator.mediaSession.playbackState = 'paused';
+                setIsAudioPlaying(false);
+                NowPlaying.setNowPlaying({ isPlaying: false, currentTime: audio.currentTime });
+            });
+        };
+
+        setupListeners();
+
+        return () => {
+            if (playListener) playListener.remove();
+            if (pauseListener) pauseListener.remove();
+        };
+    }, [audio]);
     const [currentlyPlaying, setCurrentlyPlaying] = useState(null); // surah object
     const [isAudioPlaying, setIsAudioPlaying] = useState(false);
     const [audioProgress, setAudioProgress] = useState(0);
@@ -224,8 +268,46 @@ export default function Quran({ isTrackingTab = false }) {
     };
 
     // Audio Logic
+    const updateMediaSession = (title, album, audioRef, surah, isPlaying = true) => {
+        if (NowPlaying) {
+            NowPlaying.setNowPlaying({
+                title: title,
+                artist: 'İslami Yoldaş',
+                album: album || 'Kuran-ı Kerim',
+                duration: audio.duration || 0,
+                currentTime: audio.currentTime || 0,
+                isPlaying: isPlaying
+            }).catch(() => {});
+        }
+        
+        if ('mediaSession' in navigator) {
+            navigator.mediaSession.metadata = new MediaMetadata({
+                title: title,
+                artist: 'İslami Yoldaş',
+                album: album || 'Kuran-ı Kerim',
+                artwork: [
+                    { src: window.location.origin + '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
+                    { src: window.location.origin + '/pwa-512x512.png', sizes: '512x512', type: 'image/png' }
+                ]
+            });
+            navigator.mediaSession.playbackState = isPlaying ? 'playing' : 'paused';
+            navigator.mediaSession.setActionHandler('play', () => {
+                audio.play().catch(() => {});
+                if (NowPlaying) NowPlaying.setNowPlaying({ isPlaying: true, currentTime: audio.currentTime });
+                navigator.mediaSession.playbackState = 'playing';
+                setIsAudioPlaying(true);
+            });
+            navigator.mediaSession.setActionHandler('pause', () => {
+                audio.pause();
+                if (NowPlaying) NowPlaying.setNowPlaying({ isPlaying: false, currentTime: audio.currentTime });
+                navigator.mediaSession.playbackState = 'paused';
+                setIsAudioPlaying(false);
+            });
+        }
+    };
+
     const handlePlaySurah = async (e, surah) => {
-        e.stopPropagation(); // Don't navigate to detail
+        e.stopPropagation();
         selection();
         if (!isPremium()) { navigate('/premium'); return; }
 
@@ -233,12 +315,11 @@ export default function Quran({ isTrackingTab = false }) {
             if (isAudioPlaying) {
                 audio.pause();
                 setIsAudioPlaying(false);
-                BackgroundMode.disable();
             } else {
-                // Resuming same surah
                 audio.play();
                 setIsAudioPlaying(true);
-                BackgroundMode.enable(surah.name);
+                updateMediaSession(`${surah.name} Suresi`, 'Kuran-ı Kerim', audio, surah);
+                BackgroundMode.enable('İslami Yoldaş', `${surah.name} Suresi`);
             }
             return;
         }
@@ -248,7 +329,6 @@ export default function Quran({ isTrackingTab = false }) {
             setIsAudioLoading(true);
             const audioUrl = await fetchSurahAudio(surah.id);
 
-            // Only reload if URL is different to avoid resetting
             if (audio.src !== audioUrl) {
                 audio.pause();
                 audio.src = audioUrl;
@@ -256,27 +336,21 @@ export default function Quran({ isTrackingTab = false }) {
                 audio.volume = volume;
                 audio.muted = isMuted;
             } else {
-                // Seeked or stopped but same URL
                 audio.volume = volume;
                 audio.muted = isMuted;
             }
 
             setCurrentlyPlaying(surah);
 
-            const onCanPlay = () => {
-                audio.play();
-                setIsAudioPlaying(true);
-                setIsAudioLoading(false);
-                setDuration(audio.duration);
-                BackgroundMode.enable(surah.name);
-                audio.removeEventListener('canplay', onCanPlay);
-            };
-
-            if (audio.readyState >= 3) {
-                onCanPlay();
-            } else {
-                audio.addEventListener('canplay', onCanPlay);
+            const playPromise = audio.play();
+            if (playPromise !== undefined) {
+                playPromise.catch(err => console.error("Playback error", err));
             }
+            setIsAudioPlaying(true);
+            setIsAudioLoading(false);
+            
+            updateMediaSession(`${surah.name} Suresi`, 'Kuran-ı Kerim', audio, surah);
+            BackgroundMode.enable('İslami Yoldaş', `${surah.name} Suresi`);
             audio.addEventListener('loadedmetadata', () => {
                 setDuration(audio.duration);
             });
@@ -297,6 +371,21 @@ export default function Quran({ isTrackingTab = false }) {
         } catch (error) {
             console.error('Audio play error:', error);
             setIsAudioLoading(false);
+        }
+    };
+
+    const togglePlay = (e) => {
+        if (e) e.stopPropagation();
+        if (currentlyPlaying) {
+            if (isAudioPlaying) {
+                audio.pause();
+                setIsAudioPlaying(false);
+                if (NowPlaying) NowPlaying.setNowPlaying({ isPlaying: false, currentTime: audio.currentTime });
+            } else {
+                audio.play();
+                setIsAudioPlaying(true);
+                if (NowPlaying) NowPlaying.setNowPlaying({ isPlaying: true, currentTime: audio.currentTime });
+            }
         }
     };
 

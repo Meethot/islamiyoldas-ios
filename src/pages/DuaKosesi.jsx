@@ -3,14 +3,14 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import {
     Heart, Send, RefreshCw, ChevronLeft,
-    MessageCircle, X, Clock, Check, AlertCircle, History, Trash2, Users, Sparkles, Pencil, Coins, Film
+    MessageCircle, X, Clock, Check, AlertCircle, History, Trash2, Users, Sparkles, Pencil, Coins, Film, Share2, Flag
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
 import { Capacitor } from '@capacitor/core';
-import { addPrayer, getRandomApprovedPrayers, incrementAmin, updatePrayer, deletePrayer, syncPrayersStatus, getPrayer, requestDeletePrayer, listenToPrayer } from '@/services/prayerService';
+import { addPrayer, getRandomApprovedPrayers, incrementAmin, updatePrayer, deletePrayer, syncPrayersStatus, getPrayer, requestDeletePrayer, listenToPrayer, reportPrayer } from '@/services/prayerService';
 import { getAppDate, getTodayString } from '@/lib/testDate';
 import Swal from 'sweetalert2';
 import { getCredits, addCredit, spendCredits, isPremium, CREDIT_COSTS } from '@/services/creditService';
@@ -62,7 +62,7 @@ async function triggerHaptics() {
     try {
         if (Capacitor.isNativePlatform()) {
             // Use Capacitor Haptics for native platforms (iOS + Android)
-            await Haptics.impact({ style: ImpactStyle.Medium });
+            await Haptics.impact({ style: ImpactStyle.Heavy });
         } else if ('vibrate' in navigator) {
             // Fallback for web browsers that support vibration
             navigator.vibrate(50);
@@ -302,6 +302,18 @@ export default function DuaKosesi() {
         }
     }, [myRequests]); // Re-run if history changes (e.g. user submits new)
 
+    // Local tracking of "amined" prayers to prevent double clicks (per session/device)
+    const [aminedPrayers, setAminedPrayers] = useState(() => {
+        const saved = localStorage.getItem('aminedPrayers');
+        return saved ? JSON.parse(saved) : {};
+    });
+
+    // Local tracking of reported prayers
+    const [reportedPrayers, setReportedPrayers] = useState(() => {
+        const saved = localStorage.getItem('reportedPrayers');
+        return saved ? JSON.parse(saved) : [];
+    });
+
     // COMPOSE FINAL FEED REACTIVELY
     const allDuas = React.useMemo(() => {
         let final = [...realDuas];
@@ -331,29 +343,48 @@ export default function DuaKosesi() {
             }
         }
 
-        const combined = [...final, ...fakeDuas];
+        let combined = [...final, ...fakeDuas];
+        // Filter out reported prayers
+        combined = combined.filter(d => !reportedPrayers.includes(d.id));
+        
         return combined.slice(0, 6);
-    }, [realDuas, fakeDuas, freshSticky]);
+    }, [realDuas, fakeDuas, freshSticky, reportedPrayers]);
 
-    // Local tracking of "amined" prayers to prevent double clicks (per session/device)
-    const [aminedPrayers, setAminedPrayers] = useState(() => {
-        const saved = localStorage.getItem('aminedPrayers');
-        return saved ? JSON.parse(saved) : {};
-    });
-
-    // Fetch random approved prayers (one-shot, re-runs on refreshKey)
+    // Fetch random approved prayers (cached to prevent changing on tab switch)
     useEffect(() => {
         const fetchRandom = async () => {
             try {
+                // Sadece sayfaya ilk girişte (refreshKey === 0) cache kontrolü yap
+                if (refreshKey === 0) {
+                    const cached = localStorage.getItem(`cachedRealDuas_${currentLang}`);
+                    if (cached) {
+                        const { data, timestamp } = JSON.parse(cached);
+                        const now = getAppDate().getTime();
+                        // Cache geçerlilik süresi: 12 saat
+                        if (now - timestamp < 12 * 60 * 60 * 1000) {
+                            setRealDuas(data);
+                            return; // Cache geçerliyse veritabanına gitme
+                        }
+                    }
+                }
+
+                // Cache yoksa veya yenile butonuna basıldıysa (refreshKey > 0) yeni veri çek
                 const data = await getRandomApprovedPrayers(6, currentLang);
                 setRealDuas(data);
+
+                // Yeni veriyi cache'e kaydet
+                localStorage.setItem(`cachedRealDuas_${currentLang}`, JSON.stringify({
+                    data,
+                    timestamp: getAppDate().getTime()
+                }));
+
             } catch (err) {
                 console.error("Error fetching random prayers:", err);
                 setRealDuas([]);
             }
         };
         fetchRandom();
-    }, [refreshKey]);
+    }, [refreshKey, currentLang]);
 
     // Refresh feed function — only re-fetches Firestore data, fake duas stay cached for 24h
     const refreshFeed = useCallback(() => {
@@ -427,6 +458,83 @@ export default function DuaKosesi() {
 
         // Reklam Gösterimi
         import('@/services/adService').then(({ showInterstitialAd }) => showInterstitialAd()).catch(() => {});
+    };
+
+    const handleShare = async (dua) => {
+        try {
+            // Use Capacitor Share for native mobile support
+            const { Share } = await import('@capacitor/share');
+            
+            const platform = Capacitor.getPlatform();
+            let appLink = 'https://islamiyoldas.com';
+            if (platform === 'ios') {
+                appLink = 'https://apps.apple.com/app/id6759666173';
+            } else if (platform === 'android') {
+                appLink = 'https://play.google.com/store/apps/details?id=com.islamiyoldas.app';
+            }
+
+            await Share.share({
+                // title ve url parametrelerini sildik çünkü iOS bunları ayrı ayrı "öğeler" olarak algılayıp "2 Görüntü/Öğe" yazıyor.
+                text: `"${dua.text}"\n\nBir kardeşinin duasına sen de 'Amin' de.\nUygulamayı İndir: ${appLink}`,
+                dialogTitle: 'Duayı Paylaş'
+            });
+        } catch (error) {
+            console.error('Capacitor share failed, trying web fallback:', error);
+            if (navigator.share) {
+                try {
+                    await navigator.share({
+                        text: `"${dua.text}"\n\nUygulamayı İndir: https://islamiyoldas.com`
+                    });
+                } catch (e) {
+                    console.error('Web share error:', e);
+                }
+            }
+        }
+    };
+
+    const handleReport = (duaId) => {
+        Swal.fire({
+            title: t('reportTitle', 'Şikayet Et'),
+            text: t('reportText', 'Uygunsuz veya kural ihlali yapan içeriği şikayet edin. Dua anında gizlenecektir.'),
+            icon: 'warning',
+            background: 'transparent', // SweetAlert's inline style
+            showCancelButton: true,
+            confirmButtonText: t('reportConfirm', 'Şikayet Et ve Gizle'),
+            cancelButtonText: t('cancel', 'İptal'),
+            customClass: {
+                // !bg-white and !bg-[#021a0f] will override the inline transparent background
+                popup: '!bg-white dark:!bg-[#021a0f] rounded-[2rem] max-w-[320px] pb-4 border dark:border-white/10',
+                title: 'text-xl font-bold text-gray-900 dark:text-white',
+                htmlContainer: 'text-sm text-gray-500 dark:text-gray-400 mt-2 mb-4',
+                actions: 'w-full flex-col-reverse px-6 gap-2',
+                confirmButton: 'w-full rounded-2xl bg-red-500 hover:bg-red-600 text-white font-bold py-3.5 m-0',
+                cancelButton: 'w-full rounded-2xl bg-gray-100 hover:bg-gray-200 dark:bg-white/10 dark:hover:bg-white/20 text-gray-900 dark:text-white font-bold py-3.5 m-0'
+            },
+            buttonsStyling: false
+        }).then((result) => {
+            if (result.isConfirmed) {
+                if (typeof duaId === 'string') {
+                    reportPrayer(duaId);
+                }
+                const newReported = [...reportedPrayers, duaId];
+                setReportedPrayers(newReported);
+                localStorage.setItem('reportedPrayers', JSON.stringify(newReported));
+
+                Swal.fire({
+                    title: t('reportedSuccess', 'Gizlendi'),
+                    text: t('reportedSuccessText', 'Geri bildiriminiz için teşekkürler.'),
+                    icon: 'success',
+                    background: 'transparent',
+                    showConfirmButton: false,
+                    timer: 2000,
+                    customClass: {
+                        popup: '!bg-white dark:!bg-[#021a0f] rounded-[2rem] max-w-[280px] border dark:border-white/10',
+                        title: 'text-xl font-bold text-gray-900 dark:text-white',
+                        htmlContainer: 'text-sm text-gray-500 dark:text-gray-400 mt-1',
+                    }
+                });
+            }
+        });
     };
 
     const handleSubmitRequest = async (text) => {
@@ -832,16 +940,39 @@ export default function DuaKosesi() {
                                                     <Heart size={24} className={cn(isAmined && "fill-current animate-pulse text-red-500 dark:text-red-500")} />
                                                 </div>
                                                 <div className="flex-1">
-                                                    <div className="flex items-center gap-2 mb-2">
-                                                        <p className="text-[10px] font-bold text-gray-400 dark:text-emerald-100/40 uppercase tracking-widest">
-                                                            {dua.isSticky ? t('yourPrayer') : t('brotherSays')}
-                                                        </p>
-                                                        {dua.isSticky && (
-                                                            <span className="flex items-center gap-1 px-2 py-0.5 bg-islamic-gold/20 text-islamic-gold text-[8px] font-black rounded-full uppercase tracking-tighter">
-                                                                {t('pinned')}
-                                                            </span>
-                                                        )}
+                                                    <div className="flex items-center justify-between mb-4">
+                                                        <div className="flex items-center gap-2">
+                                                            <p className="text-[10px] font-bold text-gray-400 dark:text-emerald-100/40 uppercase tracking-widest">
+                                                                {dua.isSticky ? t('yourPrayer') : t('brotherSays')}
+                                                            </p>
+                                                            {dua.isSticky && (
+                                                                <span className="flex items-center gap-1 px-2 py-0.5 bg-islamic-gold/20 text-islamic-gold text-[8px] font-black rounded-full uppercase tracking-tighter">
+                                                                    {t('pinned')}
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                        
+                                                        {/* Report & Share Actions */}
+                                                        <div className="flex items-center gap-3">
+                                                            <button 
+                                                                onClick={() => handleShare(dua)}
+                                                                className="text-gray-400 hover:text-emerald-500 transition-colors"
+                                                                title={t('share', 'Paylaş')}
+                                                            >
+                                                                <Share2 size={16} />
+                                                            </button>
+                                                            {!dua.isSticky && (
+                                                                <button 
+                                                                    onClick={() => handleReport(dua.id)}
+                                                                    className="text-gray-400 hover:text-red-500 transition-colors"
+                                                                    title={t('report', 'Şikayet Et')}
+                                                                >
+                                                                    <Flag size={16} />
+                                                                </button>
+                                                            )}
+                                                        </div>
                                                     </div>
+
                                                     <p className="text-gray-900 dark:text-white font-serif text-lg leading-relaxed italic">
                                                         "{dua.text}"
                                                     </p>

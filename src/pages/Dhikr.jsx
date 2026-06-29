@@ -1290,9 +1290,10 @@ export default function Dhikr() {
                                                             <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,transparent_60%,rgba(0,0,0,0.5)_95%)] rounded-full pointer-events-none" />
                                                             {isActive ? (
                                                                 <motion.div 
-                                                                    style={{ x: coreX, y: coreY }}
                                                                     className="absolute inset-0 opacity-[0.22] pointer-events-none rounded-full"
                                                                     style={{
+                                                                        x: coreX, 
+                                                                        y: coreY,
                                                                         backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cpath d='M20 0 Q40 25 15 50 T80 75 T100 100 M80 0 Q50 30 65 60 T30 100 M0 70 Q35 60 70 85' fill='none' stroke='%23422006' stroke-width='1.5'/%3E%3C/svg%3E")`,
                                                                         backgroundSize: '100% 100%'
                                                                     }}
