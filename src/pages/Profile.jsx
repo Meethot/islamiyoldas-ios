@@ -23,6 +23,7 @@ import { Capacitor } from '@capacitor/core';
 import { isPremium as checkIsPremium, setPremium } from '@/services/creditService';
 import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
 import { Share } from '@capacitor/share';
+import { CapgoInAppReview as InAppReview } from '@capgo/capacitor-in-app-review';
 import { storageService } from '@/services/storageService';
 import { usePrayerTimes } from '@/context/PrayerTimesContext';
 
@@ -278,9 +279,6 @@ export default function Profile() {
         >
             {/* Header Area */}
             <motion.div variants={itemVariants} className="relative pt-2 px-4">
-                <div className="flex justify-between items-center mb-6">
-                    <h1 className="text-3xl font-serif font-bold text-islamic-green dark:text-islamic-gold">{t('title')}</h1>
-                </div>
 
                 {/* Profile Card */}
                 <div className={cn(
@@ -408,6 +406,23 @@ export default function Profile() {
             <motion.div variants={itemVariants} className="px-4 space-y-4">
                 <h3 className="text-[10px] font-bold text-stone-500 dark:text-gray-400 uppercase tracking-widest px-2">{t('personal_settings')}</h3>
                 <div className="bg-white dark:bg-white/5 rounded-[2rem] shadow-md shadow-stone-200/60 dark:shadow-none border border-stone-200/80 dark:border-white/5 overflow-hidden divide-y divide-stone-100 dark:divide-white/5">
+
+                    {/* Location - Navigate to sub-page */}
+                    <div
+                        className="p-5 flex items-center justify-between hover:bg-stone-50 dark:hover:bg-white/5 transition-colors cursor-pointer group"
+                        onClick={() => { selection(); navigate('/settings/location'); }}
+                    >
+                        <div className="flex items-center gap-4">
+                            <div className="p-3 bg-emerald-100/80 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 rounded-2xl group-hover:scale-110 transition-transform">
+                                <Box size={20} />
+                            </div>
+                            <div className="text-left">
+                                <p className="text-sm font-bold text-stone-800 dark:text-white">{t('location.title')}</p>
+                                <p className="text-xs text-stone-500 dark:text-gray-400 font-medium">{t('location.subtitle')}</p>
+                            </div>
+                        </div>
+                        <ChevronRight className="w-5 h-5 text-stone-400 dark:text-gray-300 group-hover:translate-x-1 transition-transform" />
+                    </div>
 
                     {/* Notifications - Navigate to sub-page */}
                     <div
@@ -553,47 +568,6 @@ export default function Profile() {
                         </div>
                     </div>
 
-                    {/* Location - Navigate to sub-page */}
-                    <div
-                        className="p-5 flex items-center justify-between hover:bg-stone-50 dark:hover:bg-white/5 transition-colors cursor-pointer group"
-                        onClick={() => { selection(); navigate('/settings/location'); }}
-                    >
-                        <div className="flex items-center gap-4">
-                            <div className="p-3 bg-emerald-100/80 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 rounded-2xl group-hover:scale-110 transition-transform">
-                                <Box size={20} />
-                            </div>
-                            <div className="text-left">
-                                <p className="text-sm font-bold text-stone-800 dark:text-white">{t('location.title')}</p>
-                                <p className="text-xs text-stone-500 dark:text-gray-400 font-medium">{t('location.subtitle')}</p>
-                            </div>
-                        </div>
-                        <ChevronRight className="w-5 h-5 text-stone-400 dark:text-gray-300 group-hover:translate-x-1 transition-transform" />
-                    </div>
-
-
-
-
-                    {/* Share Progress */}
-                    <div
-                        className="p-5 flex items-center justify-between hover:bg-stone-50 dark:hover:bg-white/5 transition-colors cursor-pointer group"
-                        onClick={async () => {
-                            selection();
-                            heavy();
-                            await shareProgress('share-card', shareData.streak);
-                        }}
-                    >
-                        <div className="flex items-center gap-4">
-                            <div className="p-3 bg-amber-100 text-amber-700 dark:bg-islamic-gold/20 dark:text-islamic-gold rounded-2xl group-hover:scale-110 transition-transform">
-                                <Share2 size={20} />
-                            </div>
-                            <div className="text-left">
-                                <p className="text-sm font-bold text-stone-800 dark:text-white">{t('share.title')}</p>
-                                <p className="text-xs text-stone-500 dark:text-gray-400 font-medium">{t('share.subtitle')}</p>
-                            </div>
-                        </div>
-                        <ChevronRight className="w-5 h-5 text-stone-400 dark:text-gray-300 group-hover:translate-x-1 transition-transform" />
-                    </div>
-
                     {/* Invite Friend */}
                     <div
                         className="p-5 flex items-center justify-between hover:bg-stone-50 dark:hover:bg-white/5 transition-colors cursor-pointer group"
@@ -684,10 +658,28 @@ export default function Profile() {
                         </div>
                     </div>
 
+                    {/* Privacy Modal Trigger */}
+                    <div className="p-5 flex items-center justify-between hover:bg-stone-50 dark:hover:bg-white/5 transition-colors cursor-pointer group" onClick={() => setShowPrivacyModal(true)}>
+                        <div className="flex items-center gap-4">
+                            <div className="p-3 bg-blue-100/80 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 rounded-2xl group-hover:scale-110 transition-transform">
+                                <Shield size={20} />
+                            </div>
+                            <div className="text-left">
+                                <p className="text-sm font-bold text-stone-800 dark:text-white">{t('privacy.title')}</p>
+                                <p className="text-xs text-stone-500 dark:text-gray-400 font-medium">{t('privacy.subtitle')}</p>
+                            </div>
+                        </div>
+                        <ChevronRight className="w-5 h-5 text-stone-400 dark:text-gray-300 group-hover:translate-x-1 transition-transform" />
+                    </div>
+
                     {/* Bizi Puanla */}
                     <div
                         className="p-5 flex items-center justify-between hover:bg-stone-50 dark:hover:bg-white/5 transition-colors cursor-pointer group"
-                        onClick={() => { selection(); triggerReviewPrompt('profile_menu', true); }}
+                        onClick={() => {
+                            selection();
+                            // Kendi özel yeşil popup'ımızı açıyoruz, böylece 1-4 yıldız arası filtreleme yapabileceğiz
+                            triggerReviewPrompt('profile', true);
+                        }}
                     >
                         <div className="flex items-center gap-4">
                             <div className="p-3 bg-amber-100/80 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 rounded-2xl group-hover:scale-110 transition-transform">
@@ -735,19 +727,6 @@ export default function Profile() {
                         <ChevronRight className="w-5 h-5 text-stone-400 dark:text-gray-300 group-hover:translate-x-1 transition-transform" />
                     </div>
 
-                    {/* Privacy Modal Trigger */}
-                    <div className="p-5 flex items-center justify-between hover:bg-stone-50 dark:hover:bg-white/5 transition-colors cursor-pointer group" onClick={() => setShowPrivacyModal(true)}>
-                        <div className="flex items-center gap-4">
-                            <div className="p-3 bg-blue-100/80 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 rounded-2xl group-hover:scale-110 transition-transform">
-                                <Shield size={20} />
-                            </div>
-                            <div className="text-left">
-                                <p className="text-sm font-bold text-stone-800 dark:text-white">{t('privacy.title')}</p>
-                                <p className="text-xs text-stone-500 dark:text-gray-400 font-medium">{t('privacy.subtitle')}</p>
-                            </div>
-                        </div>
-                        <ChevronRight className="w-5 h-5 text-stone-400 dark:text-gray-300 group-hover:translate-x-1 transition-transform" />
-                    </div>
 
                 </div>
             </motion.div>

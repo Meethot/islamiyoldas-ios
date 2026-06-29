@@ -4,12 +4,11 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Star, X, Heart, MessageSquare } from 'lucide-react';
 import { Capacitor } from '@capacitor/core';
 import { useTranslation } from 'react-i18next';
+import { CapgoInAppReview as InAppReview } from '@capgo/capacitor-in-app-review';
 
-const STORAGE_KEY = 'review_prompt_v3';
+const STORAGE_KEY = 'review_prompt_v4'; // Tüm eski kullanıcılarda yeniden çıkması için v4 yapıldı
 const APP_STORE_ID = '6759666173';
-const COOLDOWN_MS_DEFAULT = 12 * 60 * 60 * 1000; // 12 saat (1. ve 2. gösterimden sonra)
-const COOLDOWN_MS_LAST = 24 * 60 * 60 * 1000; // 24 saat (son gösterimden sonra)
-const MAX_DISMISS_COUNT = 3; // Maksimum 3 kere göster, sonra bir daha çıkma
+const COOLDOWN_MS_DEFAULT = 24 * 60 * 60 * 1000; // Reddedilirse 24 saat sonra tekrar çık (puanlayana kadar sonsuz)
 
 const getReviewData = () => {
     try {
@@ -28,17 +27,14 @@ const getReviewData = () => {
 
 const saveReviewData = (data) => localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
 
-const IS_TESTING = false; // 🔴 TEST İÇİN TRUE. YAYINA ÇIKMADAN ÖNCE FALSE YAPACAĞIZ!
+const IS_TESTING = false; // 🔴 YAYIN İÇİN FALSE. TEST ETMEK İSTERSEN TRUE YAP.
 
 const isCooldownActive = () => {
     if (IS_TESTING) return false;
     const data = getReviewData();
     if (data.reviewed) return true;
-    const dismissCount = data.dismissCount || 0;
-    if (dismissCount >= MAX_DISMISS_COUNT) return true; // 3 kere gösterdik, artık çıkma
     if (!data.lastDismissedAt) return false;
-    const cooldown = dismissCount >= 2 ? COOLDOWN_MS_LAST : COOLDOWN_MS_DEFAULT;
-    return Date.now() - data.lastDismissedAt < cooldown;
+    return Date.now() - data.lastDismissedAt < COOLDOWN_MS_DEFAULT;
 };
 
 // Global trigger — bileşenler bunu çağırır
@@ -58,7 +54,7 @@ export default function ReviewPrompt() {
 
     const [totalSeconds, setTotalSeconds] = useState(() => parseInt(localStorage.getItem('total_app_time_seconds') || '0', 10));
     const isOnHome = location.pathname === '/';
-    
+
     // Uygulama içi gezinti sayısını takip ediyoruz
     const [navCountSession, setNavCountSession] = useState(0);
     const lastPathRef = useRef(location.pathname);
@@ -113,24 +109,15 @@ export default function ReviewPrompt() {
         };
     }, []);
 
-    // TEST İÇİN: Kapalıysa 5 saniye sonra tekrar aç
-    useEffect(() => {
-        if (!IS_TESTING || show) return;
-        const testTimer = setTimeout(() => {
-            if (window.location.pathname === '/') {
-                setShow(true);
-            }
-        }, 5000);
-        return () => clearTimeout(testTimer);
-    }, [show, location.pathname]);
+
 
     // Ana sayfa kontrolü ve otomatik popup görünme koşulları
     useEffect(() => {
         const data = getReviewData();
-        
+
         // Force bypass durumu hariç standart şartlar
         if (show || (!IS_TESTING && data.reviewed) || isCooldownActive()) return;
-        
+
         // Sadece anasayfa veya profil sayfasındayken göster (paywall ile çakışmayı önlemek için)
         const isAllowedPage = isOnHome || location.pathname === '/profile';
         if (!isAllowedPage) return;
@@ -142,53 +129,55 @@ export default function ReviewPrompt() {
             return () => clearTimeout(timer);
         }
 
-        // 2. Durum: Kullanıcı 2 veya 3 kez sayfa değiştirip ana sayfaya/ayarlara döndüyse (Paywall'dan önce)
-        if (!IS_TESTING && navCountSession >= 2) {
-            const timer = setTimeout(() => setShow(true), 2500);
+        // 2. Durum: Kullanıcı 3 kez sayfa değiştirip ana sayfaya/ayarlara döndüyse (Paywall'dan önce)
+        if (!IS_TESTING && navCountSession >= 3) {
+            const timer = setTimeout(() => setShow(true), 1500);
             return () => clearTimeout(timer);
         }
-        
-        // TEST İÇİN YEDEK (10 saniye sonra anasayfada)
-        if (IS_TESTING && totalSeconds >= 10) {
-            const timer = setTimeout(() => setShow(true), 2500);
-            return () => clearTimeout(timer);
-        }
+
+
 
     }, [location.pathname, show, navCountSession, totalSeconds, isOnHome]);
 
     const handleRate = async () => {
-        saveReviewData({ ...getReviewData(), reviewed: true });
+        if (!IS_TESTING) saveReviewData({ ...getReviewData(), reviewed: true });
+
+        let nativeReviewShown = false;
+        if (Capacitor.isNativePlatform()) {
+            try {
+                await InAppReview.requestReview();
+                nativeReviewShown = true;
+            } catch (err) {
+                console.warn('[ReviewPrompt] Native in-app review failed:', err?.message || err);
+            }
+        }
+
+        // Native review başarısız olduysa veya web ortamındaysak → Mağaza sayfasını aç
+        if (!nativeReviewShown) {
+            try {
+                const platform = Capacitor.getPlatform();
+                if (platform === 'android') {
+                    window.location.href = 'market://details?id=com.islamiyoldas.app';
+                } else if (platform === 'ios') {
+                    window.location.href = `itms-apps://apps.apple.com/app/id${APP_STORE_ID}?action=write-review`;
+                } else {
+                    window.open(`https://apps.apple.com/app/id${APP_STORE_ID}?action=write-review`, '_blank');
+                }
+            } catch (err) {
+                console.warn('[ReviewPrompt] Store link failed:', err);
+            }
+        }
+
+        // Hemen popup'ı kapat ve state'i sıfırla
         setShow(false);
         setTimeout(() => {
             setStep('ask');
             setSelectedStar(0);
             setHoveredStar(0);
-        }, 500); // Reset after animation
-
-        const openStore = () => {
-            const platform = Capacitor.getPlatform();
-            if (platform === 'ios' || platform === 'web') {
-                window.open(`https://apps.apple.com/app/id${APP_STORE_ID}?action=write-review`, '_blank');
-            } else if (platform === 'android') {
-                window.open(`market://details?id=com.islamiyoldas.app`, '_blank');
-            } else {
-                window.open(`https://apps.apple.com/app/id${APP_STORE_ID}?action=write-review`, '_blank');
-            }
-        };
-
-        if (Capacitor.isNativePlatform()) {
-            try {
-                const { InAppReview } = await import('@capgo/capacitor-in-app-review');
-                await InAppReview.requestReview();
-            } catch (err) {
-                console.warn('[ReviewPrompt] Native in-app review failed, falling back to store link:', err);
-                openStore();
-            }
-        } else {
-            // Web environment (fallback for testing or PWA)
-            openStore();
-        }
+        }, 500);
     };
+
+
 
     const handleDismiss = () => {
         setShow(false);
@@ -237,148 +226,162 @@ export default function ReviewPrompt() {
                             WebkitMaskImage: 'linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 80%)'
                         }} />
 
-                        {/* Kapatma */}
-                        <button
-                            onClick={handleDismiss}
-                            className="absolute top-4 right-4 z-20 w-7 h-7 rounded-full bg-white/[0.08] flex items-center justify-center text-white/40 hover:text-white/80 hover:bg-white/15 transition-all cursor-pointer backdrop-blur-sm"
-                        >
-                            <X size={15} />
-                        </button>
-
                         {/* Üst altın ışık (Kalbin arkasından vuran parlama) */}
                         <div className="absolute -top-16 left-1/2 -translate-x-1/2 w-72 h-72 rounded-full pointer-events-none"
                             style={{ background: 'radial-gradient(circle, rgba(212,175,55,0.12) 0%, transparent 60%)' }} />
 
-                            {/* STEP: ASK — Yıldız seçtirme */}
-                            {step === 'ask' && (
+                        {/* STEP: ASK — Yıldız seçtirme */}
+                        {step === 'ask' && (
+                            <motion.div
+                                key="ask"
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0, x: -30 }}
+                                transition={{ duration: 0.25 }}
+                                className="flex flex-col items-center px-7 pt-10 pb-7 relative z-10"
+                            >
+                                {/* Minimal heart icon with heartbeat animation */}
                                 <motion.div
-                                    key="ask"
-                                    initial={{ opacity: 0 }}
-                                    animate={{ opacity: 1 }}
-                                    exit={{ opacity: 0, x: -30 }}
-                                    transition={{ duration: 0.25 }}
-                                    className="flex flex-col items-center px-7 pt-10 pb-7 relative z-10"
+                                    animate={{
+                                        scale: [1, 1.15, 1],
+                                        filter: ['drop-shadow(0 0 0px rgba(212,175,55,0))', 'drop-shadow(0 0 15px rgba(212,175,55,0.45))', 'drop-shadow(0 0 0px rgba(212,175,55,0))']
+                                    }}
+                                    transition={{
+                                        duration: 2.5,
+                                        repeat: Infinity,
+                                        ease: "easeInOut"
+                                    }}
+                                    className="mb-6"
                                 >
-                                    {/* Minimal heart icon with heartbeat animation */}
-                                    <motion.div
-                                        animate={{ 
-                                            scale: [1, 1.15, 1], 
-                                            filter: ['drop-shadow(0 0 0px rgba(212,175,55,0))', 'drop-shadow(0 0 15px rgba(212,175,55,0.45))', 'drop-shadow(0 0 0px rgba(212,175,55,0))']
-                                        }}
-                                        transition={{ 
-                                            duration: 2.5, 
-                                            repeat: Infinity, 
-                                            ease: "easeInOut" 
-                                        }}
-                                        className="mb-6"
-                                    >
-                                        <Heart size={44} className="text-islamic-gold" fill="currentColor" strokeWidth={1} />
-                                    </motion.div>
-                                    
-                                    <h2 className="text-[21px] font-semibold text-white mb-2 text-center leading-snug">
-                                        {t('review.askTitle', 'Bize Destek Olmak İster Misin?')}
-                                    </h2>
-                                    <p className="text-[14px] text-white/60 leading-relaxed mb-6 text-center px-1">
-                                        {t('review.askDescription', 'İslami Yoldaş\'ı ümmet için büyük bir sevgi ve emekle geliştiriyoruz. Bize 5 yıldız vererek bu yolda elimizden tutar mısın?')}
-                                    </p>
+                                    <Heart size={44} className="text-islamic-gold" fill="currentColor" strokeWidth={1} />
+                                </motion.div>
 
-                                    {/* Hadis kutusu - 2. ekrandan taşındı */}
-                                    <div className="w-full rounded-xl p-3 mb-6"
-                                        style={{ backgroundColor: 'rgba(212,175,55,0.06)', border: '1px solid rgba(212,175,55,0.1)' }}
-                                    >
-                                        <p className="text-[13px] italic text-islamic-gold/70 text-center leading-relaxed">
-                                            {t('review.hadith', '"Kim bir hayra vesile olursa, o hayrı yapanın ecri gibi ecir alır." (Müslim)')}
-                                        </p>
-                                    </div>
-                                    
-                                    {/* Yıldızlar — temiz, büyük, dokunması kolay */}
-                                    <div className="flex items-center justify-center gap-2.5 w-full mb-7" onMouseLeave={() => setHoveredStar(0)}>
-                                        {[1, 2, 3, 4, 5].map(star => {
-                                            const isActive = (hoveredStar || selectedStar) >= star;
-                                            return (
-                                                <motion.button
-                                                    key={star}
-                                                    whileTap={{ scale: 0.85 }}
-                                                    onMouseEnter={() => setHoveredStar(star)}
-                                                    onClick={() => {
-                                                        setSelectedStar(star);
-                                                        setTimeout(() => {
-                                                            if (star >= 4) {
-                                                                handleRate();
-                                                            } else {
-                                                                setStep('feedback');
-                                                            }
-                                                        }, 350);
-                                                    }}
-                                                    className="p-1.5 cursor-pointer touch-manipulation"
+                                <h2 className="text-[21px] font-semibold text-white mb-2 text-center leading-snug">
+                                    {t('review.askTitle', 'Bize Destek Olmak İster Misin?')}
+                                </h2>
+                                <p className="text-[14px] text-white/60 leading-relaxed mb-6 text-center px-1">
+                                    {t('review.askDescription', 'İslami Yoldaş\'ı ümmet için büyük bir sevgi ve emekle geliştiriyoruz. Bize 5 yıldız vererek bu yolda elimizden tutar mısın?')}
+                                </p>
+
+                                {/* Hadis kutusu - 2. ekrandan taşındı */}
+                                <div className="w-full rounded-xl p-3 mb-6"
+                                    style={{ backgroundColor: 'rgba(212,175,55,0.06)', border: '1px solid rgba(212,175,55,0.1)' }}
+                                >
+                                    <p className="text-[13px] italic text-islamic-gold/70 text-center leading-relaxed">
+                                        {t('review.hadith', '"Kim bir hayra vesile olursa, o hayrı yapanın ecri gibi ecir alır." (Müslim)')}
+                                    </p>
+                                </div>
+
+                                {/* Yıldızlar — temiz, büyük, dokunması kolay */}
+                                <div className="flex items-center justify-center gap-2.5 w-full mb-7" onMouseLeave={() => setHoveredStar(0)}>
+                                    {[1, 2, 3, 4, 5].map(star => {
+                                        const isActive = (hoveredStar || selectedStar) >= star;
+                                        return (
+                                            <motion.button
+                                                key={star}
+                                                whileTap={{ scale: 0.85 }}
+                                                onMouseEnter={() => setHoveredStar(star)}
+                                                onClick={() => {
+                                                    setSelectedStar(star);
+                                                    setTimeout(() => {
+                                                        if (star >= 4) {
+                                                            handleRate();
+                                                        } else {
+                                                            setStep('feedback');
+                                                        }
+                                                    }, 350);
+                                                }}
+                                                className="p-1.5 cursor-pointer touch-manipulation"
+                                            >
+                                                <motion.div
+                                                    animate={{ scale: isActive ? 1.08 : 1 }}
+                                                    transition={{ type: 'spring', damping: 15, stiffness: 400 }}
                                                 >
-                                                    <motion.div
-                                                        animate={{ scale: isActive ? 1.08 : 1 }}
-                                                        transition={{ type: 'spring', damping: 15, stiffness: 400 }}
-                                                    >
-                                                        <Star
-                                                            size={36}
-                                                            className="transition-all duration-200"
-                                                            fill={isActive ? '#D4AF37' : 'transparent'}
-                                                            stroke={isActive ? '#D4AF37' : 'rgba(255,255,255,0.15)'}
-                                                            strokeWidth={isActive ? 0 : 1.5}
-                                                            style={{
-                                                                filter: isActive ? 'drop-shadow(0 2px 8px rgba(212,175,55,0.35))' : 'none'
-                                                            }}
-                                                        />
-                                                    </motion.div>
-                                                </motion.button>
-                                            );
-                                        })}
-                                    </div>
-                                    
-                                    {/* Alt ayırıcı çizgi */}
-                                    <div className="w-12 h-px bg-white/10 mb-4" />
-                                    
-                                    <button
-                                        onClick={handleDismiss}
-                                        className="text-white/30 text-[14px] hover:text-white/50 transition-colors"
-                                    >
-                                        {t('review.askLater', 'Daha Sonra Hatırlat')}
-                                    </button>
-                                </motion.div>
-                            )}
+                                                    <Star
+                                                        size={36}
+                                                        className="transition-all duration-200"
+                                                        fill={isActive ? '#D4AF37' : 'transparent'}
+                                                        stroke={isActive ? '#D4AF37' : 'rgba(255,255,255,0.15)'}
+                                                        strokeWidth={isActive ? 0 : 1.5}
+                                                        style={{
+                                                            filter: isActive ? 'drop-shadow(0 2px 8px rgba(212,175,55,0.35))' : 'none'
+                                                        }}
+                                                    />
+                                                </motion.div>
+                                            </motion.button>
+                                        );
+                                    })}
+                                </div>
 
+                                {/* Alt ayırıcı çizgi */}
+                                <div className="w-12 h-px bg-white/10 mb-4" />
 
-
-                            {/* STEP: FEEDBACK — Üzüntü ve anlayış */}
-                            {step === 'feedback' && (
-                                <motion.div
-                                    key="feedback"
-                                    initial={{ opacity: 0, x: 30 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    transition={{ duration: 0.3 }}
-                                    className="flex flex-col items-center px-7 pt-10 pb-7 relative z-10"
+                                <button
+                                    onClick={handleDismiss}
+                                    className="text-white/30 text-[14px] hover:text-white/50 transition-colors"
                                 >
-                                    <div className="mb-5">
-                                        <Heart size={44} className="text-white/30" strokeWidth={1.5} />
-                                    </div>
-                                    
-                                    <h2 className="text-[21px] font-semibold text-white mb-2 text-center leading-snug">
-                                        {t('review.feedbackTitle', 'Geri bildiriminiz için teşekkürler')}
-                                    </h2>
-                                    <p className="text-[14px] text-white/50 leading-relaxed mb-8 text-center">
-                                        {t('review.feedbackDescription', 'Beklentilerinizi karşılayamadığımız için üzgünüz. Uygulamamızı sizin için daha iyi hale getirmek amacıyla çalışmaya devam edeceğiz.')}
-                                    </p>
+                                    {t('review.askLater', 'Daha Sonra Hatırlat')}
+                                </button>
+                            </motion.div>
+                        )}
 
-                                    <motion.button
-                                        whileTap={{ scale: 0.97 }}
-                                        onClick={handleDismiss}
-                                        className="w-full py-3.5 rounded-xl font-medium text-[15px] cursor-pointer"
-                                        style={{
-                                            backgroundColor: 'rgba(255,255,255,0.07)',
-                                            color: 'rgba(255,255,255,0.8)',
-                                        }}
-                                    >
-                                        {t('review.closeUnderstand', 'Tamam')}
-                                    </motion.button>
-                                </motion.div>
-                            )}
+
+
+                        {/* STEP: THANK YOU — Mağaza yönlendirmesi veya native kapama */}
+                        {step === 'thankYou' && (
+                            <motion.div
+                                key="thankYou"
+                                initial={{ opacity: 0, x: 30 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ duration: 0.3 }}
+                                className="flex flex-col items-center px-7 pt-10 pb-7 relative z-10"
+                            >
+                                <div className="mb-5">
+                                    <Heart size={44} className="text-islamic-gold" strokeWidth={1.5} fill="#D4AF37" />
+                                </div>
+
+                                <h2 className="text-[21px] font-semibold text-white mb-2 text-center leading-snug">
+                                    {t('review.thankYouTitle', 'Allah Razı Olsun! 🤍')}
+                                </h2>
+                                <p className="text-[14px] text-white/70 leading-relaxed mb-6 text-center">
+                                    {t('review.thankYouDescription', 'Desteğiniz bizim için çok kıymetli. Uygulamamızı geliştirirken bizi motive ettiğiniz için teşekkür ederiz.')}
+                                </p>
+                            </motion.div>
+                        )}
+
+                        {/* STEP: FEEDBACK — Üzüntü ve anlayış */}
+                        {step === 'feedback' && (
+                            <motion.div
+                                key="feedback"
+                                initial={{ opacity: 0, x: 30 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ duration: 0.3 }}
+                                className="flex flex-col items-center px-7 pt-10 pb-7 relative z-10"
+                            >
+                                <div className="mb-5">
+                                    <Heart size={44} className="text-white/30" strokeWidth={1.5} />
+                                </div>
+
+                                <h2 className="text-[21px] font-semibold text-white mb-2 text-center leading-snug">
+                                    {t('review.feedbackTitle', 'Geri bildiriminiz için teşekkürler')}
+                                </h2>
+                                <p className="text-[14px] text-white/50 leading-relaxed mb-8 text-center">
+                                    {t('review.feedbackDescription', 'Beklentilerinizi karşılayamadığımız için üzgünüz. Uygulamamızı sizin için daha iyi hale getirmek amacıyla çalışmaya devam edeceğiz.')}
+                                </p>
+
+                                <motion.button
+                                    whileTap={{ scale: 0.97 }}
+                                    onClick={handleDismiss}
+                                    className="w-full py-3.5 rounded-xl font-medium text-[15px] cursor-pointer"
+                                    style={{
+                                        backgroundColor: 'rgba(255,255,255,0.07)',
+                                        color: 'rgba(255,255,255,0.8)',
+                                    }}
+                                >
+                                    {t('review.closeUnderstand', 'Tamam')}
+                                </motion.button>
+                            </motion.div>
+                        )}
                     </motion.div>
                 </motion.div>
             )}

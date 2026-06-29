@@ -7,7 +7,7 @@ import {
     CheckCircle2, ChevronRight, ChevronDown, Share2, Star, Sparkles, Check,
     Loader2, Moon, Sun, Sunrise, Sunset, Wind, MessageCircle, X, Download, Heart,
     Sprout, Leaf, TreeDeciduous, CalendarDays, Droplet, Trees, Flower2, Search,
-    SortAsc, SortDesc, Flame, Trophy, Bell, Trash2
+    SortAsc, SortDesc, Flame, Trophy, Bell, Trash2, HelpCircle
 } from 'lucide-react';
 import { LocalNotifications } from '@capacitor/local-notifications';
 import { ALL_ESMA } from '@/data/esmaData';
@@ -87,6 +87,7 @@ export const WeeklyStreakWidget = memo(({ tubaData, setTubaData }) => {
     const { t } = useTranslation('home');
     const navigate = useNavigate();
     const [showPremiumLock, setShowPremiumLock] = useState(false);
+    const [showInfoModal, setShowInfoModal] = useState(false);
 
     // Sound effect — preloaded for zero latency
     const clickSoundRef = useRef(null);
@@ -413,9 +414,21 @@ export const WeeklyStreakWidget = memo(({ tubaData, setTubaData }) => {
                                         </div>
                                     )}
                                 </div>
-                                <h3 className={cn("text-2xl font-bold font-serif mb-0.5 transition-colors duration-[1500ms] drop-shadow-sm", growthColor)}>
-                                    {t('tuba.title')}
-                                </h3>
+                                <div className="flex items-center gap-2 mb-0.5">
+                                    <h3 className={cn("text-2xl font-bold font-serif transition-colors duration-[1500ms] drop-shadow-sm", growthColor)}>
+                                        {t('tuba.title')}
+                                    </h3>
+                                    <button
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            selection();
+                                            setShowInfoModal(true);
+                                        }}
+                                        className="p-1 rounded-full bg-stone-100 dark:bg-white/5 hover:bg-stone-200 dark:hover:bg-white/10 active:scale-95 transition-all text-stone-500 dark:text-emerald-100/50"
+                                    >
+                                        <HelpCircle size={16} />
+                                    </button>
+                                </div>
                                 <p className="text-[11px] text-gray-400 dark:text-emerald-100/50 font-medium italic mb-3">
                                     {stageMeaning}
                                 </p>
@@ -608,6 +621,67 @@ export const WeeklyStreakWidget = memo(({ tubaData, setTubaData }) => {
                                     <Star key={i} className="w-5 h-5 text-islamic-gold fill-islamic-gold" />
                                 ))}
                             </motion.div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* Info Modal */}
+            <AnimatePresence>
+                {showInfoModal && (
+                    <motion.div
+                        className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        onClick={() => setShowInfoModal(false)}
+                    >
+                        <motion.div
+                            className="bg-white dark:bg-[#062414] rounded-[2rem] p-6 w-full max-w-sm border border-stone-200 dark:border-white/10 shadow-2xl relative overflow-hidden"
+                            initial={{ scale: 0.95, y: 20, opacity: 0 }}
+                            animate={{ scale: 1, y: 0, opacity: 1 }}
+                            exit={{ scale: 0.95, y: 20, opacity: 0 }}
+                            onClick={e => e.stopPropagation()}
+                        >
+                            <div className="absolute -top-10 -right-10 w-40 h-40 bg-islamic-green/10 dark:bg-islamic-gold/10 rounded-full blur-3xl pointer-events-none" />
+                            
+                            <div className="flex items-center gap-3 mb-4 relative z-10">
+                                <div className="p-3 bg-islamic-green/10 dark:bg-islamic-gold/20 rounded-2xl text-islamic-green dark:text-islamic-gold">
+                                    <TreeDeciduous size={24} />
+                                </div>
+                                <h3 className="text-xl font-bold font-serif text-stone-800 dark:text-white">
+                                    Tuba Ağacı (Cennet Ağacı)
+                                </h3>
+                            </div>
+                            
+                            <div className="space-y-3 relative z-10 mb-6">
+                                <p className="text-sm font-medium text-stone-600 dark:text-emerald-100/80 leading-relaxed italic border-l-2 border-islamic-gold/50 pl-3">
+                                    "Kökleri Arş'ta, dalları kalplere uzanan kutlu cennet ağacıdır."
+                                </p>
+                                <p className="text-sm font-medium text-stone-600 dark:text-emerald-100/70">
+                                    Bu fidan senin <strong>manevi yolculuğunu</strong> temsil eder. İbadetlerinle suladıkça kalbinde kök salar ve yeşerir.
+                                </p>
+                                <ul className="text-sm text-stone-600 dark:text-emerald-100/70 font-medium space-y-2 mt-4 bg-stone-50 dark:bg-white/5 p-3 rounded-xl border border-stone-100 dark:border-white/5">
+                                    <li className="flex items-start gap-2">
+                                        <Droplet size={16} className="text-islamic-green dark:text-islamic-gold mt-0.5 shrink-0" />
+                                        <span>Her gün uygulamaya girerek manevi fidanını sula.</span>
+                                    </li>
+                                    <li className="flex items-start gap-2">
+                                        <Trophy size={16} className="text-islamic-green dark:text-islamic-gold mt-0.5 shrink-0" />
+                                        <span>7 günlük istikrarın sonunda güzel bir mertebeye ulaş.</span>
+                                    </li>
+                                </ul>
+                            </div>
+                            
+                            <Button 
+                                onClick={() => {
+                                    selection();
+                                    setShowInfoModal(false);
+                                }} 
+                                className="w-full h-12 rounded-2xl bg-islamic-green dark:bg-islamic-gold text-white dark:text-[#021a0f] font-bold active:scale-95 transition-all relative z-10 shadow-lg shadow-islamic-green/20 dark:shadow-islamic-gold/20 hover:bg-islamic-green/90"
+                            >
+                                Anladım
+                            </Button>
                         </motion.div>
                     </motion.div>
                 )}
@@ -1478,15 +1552,15 @@ export const PrayerCountdownWidget = memo(({ loading, city, nextPrayerInfo, pray
                 >
                     <CardContent className="p-0">
                         {/* Main Countdown Row - Clean Design */}
-                        <div className="flex items-center gap-4 p-3 sm:p-4">
+                        <div className="flex items-center gap-2 min-[370px]:gap-3 sm:gap-4 p-3 sm:p-4">
                             {/* Left: Icon */}
                             <div className="flex-shrink-0">
                                 {loading ? (
-                                    <div className="w-14 h-14 rounded-full shimmer" />
+                                    <div className="w-11 h-11 min-[370px]:w-14 min-[370px]:h-14 rounded-full shimmer" />
                                 ) : (
                                     <div className="relative">
                                         <div className={cn(
-                                            "w-14 h-14 rounded-full border-[3px] flex items-center justify-center shadow-lg",
+                                            "w-11 h-11 min-[370px]:w-14 min-[370px]:h-14 rounded-full border-[3px] flex items-center justify-center shadow-lg",
                                             isAutoMode
                                                 ? "border-islamic-gold border-t-transparent animate-spin-slow bg-islamic-gold/5"
                                                 : "border-islamic-gold bg-islamic-gold/10"
@@ -1508,7 +1582,7 @@ export const PrayerCountdownWidget = memo(({ loading, city, nextPrayerInfo, pray
                             </div>
 
                             {/* Center: Prayer Info */}
-                            <div className="flex-1 min-w-[100px] pr-2">
+                            <div className="flex-1 min-w-0 pr-1 sm:pr-2">
                                 {loading ? (
                                     <div className="space-y-2">
                                         <div className="h-3 w-16 rounded shimmer" />
@@ -1517,27 +1591,27 @@ export const PrayerCountdownWidget = memo(({ loading, city, nextPrayerInfo, pray
                                 ) : (
                                     <>
                                         {/* Title Row */}
-                                        <div className="flex items-center gap-2 mb-0.5">
-                                            <span className="text-[11px] text-gray-500 dark:text-gray-400 font-medium whitespace-nowrap">
+                                        <div className="flex items-center gap-1.5 min-[370px]:gap-2 mb-0.5">
+                                            <span className="text-[10px] min-[370px]:text-[11px] text-gray-500 dark:text-gray-400 font-medium whitespace-nowrap">
                                                 {isAutoMode ? t('prayerCard.upcoming') : t('prayerCard.tracking')}
                                             </span>
                                             {!isAutoMode && (
-                                                <span className="bg-islamic-gold text-black text-[9px] font-bold px-1.5 py-0.5 rounded-full flex-shrink-0">
+                                                <span className="bg-islamic-gold text-black text-[8px] min-[370px]:text-[9px] font-bold px-1.5 py-0.5 rounded-full flex-shrink-0">
                                                     ✎
                                                 </span>
                                             )}
                                         </div>
                                         {/* Prayer Name & Time */}
                                         <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-                                            <h2 className="text-[20px] sm:text-[22px] font-bold text-islamic-green dark:text-islamic-gold font-serif leading-tight truncate">
+                                            <h2 className="text-[17px] min-[370px]:text-[20px] sm:text-[22px] font-bold text-islamic-green dark:text-islamic-gold font-serif leading-tight truncate">
                                                 {displayName}
                                             </h2>
-                                            <span className="text-sm text-gray-500 dark:text-gray-400 font-mono flex-shrink-0">
+                                            <span className="text-xs min-[370px]:text-sm text-gray-500 dark:text-gray-400 font-mono flex-shrink-0">
                                                 {displayTime}
                                             </span>
                                         </div>
                                         {/* City - Subtle */}
-                                        <p className="text-[10px] text-gray-500 dark:text-gray-400 mt-0.5 font-medium truncate">
+                                        <p className="text-[9px] min-[370px]:text-[10px] text-gray-500 dark:text-gray-400 mt-0.5 font-medium truncate">
                                             {city}
                                         </p>
                                     </>
@@ -1546,23 +1620,23 @@ export const PrayerCountdownWidget = memo(({ loading, city, nextPrayerInfo, pray
 
                             {/* Right: Countdown & Bell - Same Row */}
                             {!loading && (
-                                <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
+                                <div className="flex items-center gap-1 min-[370px]:gap-1.5 sm:gap-2 flex-shrink-0">
                                     {/* Alarm Button */}
                                     <Button
                                         variant="ghost"
                                         size="icon"
                                         className={cn(
-                                            "h-9 w-9 sm:h-10 sm:w-10 rounded-full flex-shrink-0",
+                                            "h-8 w-8 min-[370px]:h-9 min-[370px]:w-9 sm:h-10 sm:w-10 rounded-full flex-shrink-0",
                                             alarmSet
                                                 ? "text-islamic-gold bg-islamic-gold/10"
                                                 : "text-gray-400 hover:text-islamic-gold hover:bg-islamic-gold/5"
                                         )}
                                         onClick={(e) => { e.stopPropagation(); if (!isPremium()) { navigate('/premium'); return; } setShowReminderOptions(true); }}
                                     >
-                                        <Bell size={18} fill={alarmSet ? "currentColor" : "none"} />
+                                        <Bell size={18} fill={alarmSet ? "currentColor" : "none"} className="scale-90 min-[370px]:scale-100" />
                                     </Button>
                                     {/* Countdown Timer */}
-                                    <div className="text-[18px] sm:text-[22px] tabular-nums font-bold tracking-tight text-islamic-green dark:text-islamic-gold bg-black/5 dark:bg-white/5 px-2.5 sm:px-3 py-1.5 rounded-xl flex-shrink-0">
+                                    <div className="text-[14.5px] min-[370px]:text-[18px] sm:text-[22px] tabular-nums font-bold tracking-tight text-islamic-green dark:text-islamic-gold bg-black/5 dark:bg-white/5 py-1.5 rounded-xl flex-shrink-0 w-[82px] min-[370px]:w-[96px] sm:w-[115px] text-center">
                                         {displayCountdown || '--:--:--'}
                                     </div>
                                 </div>

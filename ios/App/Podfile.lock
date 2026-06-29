@@ -6,6 +6,8 @@ PODS:
     - CapacitorCordova
   - CapacitorApp (8.0.0):
     - Capacitor
+  - CapacitorBrowser (8.0.3):
+    - Capacitor
   - CapacitorCommunityAdmob (8.0.0):
     - Capacitor
     - Google-Mobile-Ads-SDK (~> 12.14)
@@ -162,6 +164,7 @@ DEPENDENCIES:
   - "AparajitaCapacitorSecureStorage (from `../../node_modules/@aparajita/capacitor-secure-storage`)"
   - "Capacitor (from `../../node_modules/@capacitor/ios`)"
   - "CapacitorApp (from `../../node_modules/@capacitor/app`)"
+  - "CapacitorBrowser (from `../../node_modules/@capacitor/browser`)"
   - "CapacitorCommunityAdmob (from `../../node_modules/@capacitor-community/admob`)"
   - "CapacitorCommunityVolumeButtons (from `../../node_modules/@capacitor-community/volume-buttons`)"
   - "CapacitorCordova (from `../../node_modules/@capacitor/ios`)"
@@ -212,6 +215,8 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/@capacitor/ios"
   CapacitorApp:
     :path: "../../node_modules/@capacitor/app"
+  CapacitorBrowser:
+    :path: "../../node_modules/@capacitor/browser"
   CapacitorCommunityAdmob:
     :path: "../../node_modules/@capacitor-community/admob"
   CapacitorCommunityVolumeButtons:
@@ -253,6 +258,7 @@ SPEC CHECKSUMS:
   AparajitaCapacitorSecureStorage: 8128d05cafcb13b00448e20fb388a0edccd44b12
   Capacitor: 2b79172ad27f3be2d103cce88b8eb9803fdcc744
   CapacitorApp: 3963a84197280757b84f126afd1520a85ae3b092
+  CapacitorBrowser: c987c73d09d8bd3b5ec13f06338b1e14d5d2be69
   CapacitorCommunityAdmob: 9c36b466f46da413e5c105f7484e7603178c6223
   CapacitorCommunityVolumeButtons: 532398512c4e0878072cb889db46aa28f2ff45b4
   CapacitorCordova: 921bdb690ebe82421b24fce45552fd3dea2ae43a
@@ -292,6 +298,6 @@ SPEC CHECKSUMS:
   RevenueCat: f0d05079b59c33c645293bbc1fa78469ea7fcae7
   RevenuecatPurchasesCapacitor: 3356e6e8b9ae8d9e7386990b53adeedac59aa6e8
 
-PODFILE CHECKSUM: 711e2678f7cbc85fd5dcfb57579913db7ab9fa39
+PODFILE CHECKSUM: 9dffd2495e0bccf61dfa97c2dc51c356aa963759
 
 COCOAPODS: 1.16.2

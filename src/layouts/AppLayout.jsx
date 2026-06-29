@@ -114,10 +114,7 @@ export default function AppLayout() {
                         isIOS ? "pt-[env(safe-area-inset-top,2rem)]" : "header-safe-padding"
                     )}>
                         <div className="flex flex-col">
-                            <span className="text-[10px] font-bold tracking-widest text-gray-400 dark:text-emerald-100/40 uppercase mb-0.5">
-                                {t('header.appName')}
-                            </span>
-                            <h1 className="text-2xl font-serif font-bold text-islamic-green dark:text-islamic-gold animate-in fade-in slide-in-from-left duration-700">
+                            <span className="text-[11px] font-semibold tracking-wide text-gray-500 dark:text-emerald-100/60 uppercase mb-0.5 animate-in fade-in slide-in-from-left duration-700">
                                 {(() => {
                                     const hour = new Date().getHours();
                                     if (hour >= 5 && hour < 12) return t('greeting.morning');
@@ -125,6 +122,9 @@ export default function AppLayout() {
                                     if (hour >= 17 && hour < 22) return t('greeting.evening');
                                     return t('greeting.night');
                                 })()}
+                            </span>
+                            <h1 className="text-[22px] font-extrabold tracking-tight text-islamic-green dark:text-islamic-gold">
+                                {t('header.appName')}
                             </h1>
                         </div>
                         <div className="flex items-center gap-2">
