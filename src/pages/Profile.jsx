@@ -205,8 +205,7 @@ export default function Profile() {
         if (trimmed.length > 0 && trimmed.length <= 25) {
             success();
             // Update context
-            useUser().updateName(trimmed); // If we didn't destructure updateName
-            // actually we do destructure useUser(), let's use the object from top level instead
+            updateName(trimmed);
             setShowNameModal(false);
         } else {
             heavy();

@@ -20,10 +20,13 @@ export function LocationProvider({ children }) {
     const [loading, setLoading] = useState(true);
     const [permissionStatus, setPermissionStatus] = useState('prompt');
     const [manualCity, setManualCityState] = useState(localStorage.getItem('userCity') || null);
+    const [manualCountry, setManualCountryState] = useState(localStorage.getItem('userCountry') || 'Turkey');
 
-    const setManualCity = useCallback((city) => {
+    const setManualLocation = useCallback((country, city) => {
+        setManualCountryState(country);
         setManualCityState(city);
-        localStorage.setItem('userCity', city);
+        if (country) localStorage.setItem('userCountry', country);
+        if (city) localStorage.setItem('userCity', city);
         // Also update cached_district and cached_address for Diyanet API prayer time lookup
         localStorage.setItem('cached_district', city);
         localStorage.setItem('cached_address', city);
@@ -248,8 +251,9 @@ export function LocationProvider({ children }) {
         loading,
         permissionStatus,
         refreshLocation,
-        setManualCity,
+        setManualLocation,
         manualCity,
+        manualCountry,
         latitude: location?.latitude || null,
         longitude: location?.longitude || null,
         hasLocation: !!location,

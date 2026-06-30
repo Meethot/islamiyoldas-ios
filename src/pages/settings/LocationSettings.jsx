@@ -1,27 +1,30 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-    ChevronLeft, ChevronRight, MapPin, Crosshair, Navigation, Loader2,
+    ChevronLeft, ChevronRight, MapPin, Globe, Crosshair, Navigation, Loader2,
     RefreshCw, AlertTriangle, Search, Check, X
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useDragControls } from 'framer-motion';
 import { useHaptics } from '@/hooks/useMobile';
 import { useLocation } from '../../context/LocationContext';
+import { usePrayerTimes } from '../../context/PrayerTimesContext';
 import { useTranslation } from 'react-i18next';
 import { Geolocation } from '@capacitor/geolocation';
 
-const TURKEY_CITIES = [
-    "İstanbul", "Ankara", "İzmir", "Adana", "Adıyaman", "Afyonkarahisar", "Ağrı", "Aksaray", "Amasya", "Antalya",
-    "Ardahan", "Artvin", "Aydın", "Balıkesir", "Bartın", "Batman", "Bayburt", "Bilecik", "Bingöl", "Bitlis",
-    "Bolu", "Burdur", "Bursa", "Çanakkale", "Çankırı", "Çorum", "Denizli", "Diyarbakır", "Düzce", "Edirne",
-    "Elazığ", "Erzincan", "Erzurum", "Eskişehir", "Gaziantep", "Giresun", "Gümüşhane", "Hakkari", "Hatay", "Iğdır",
-    "Isparta", "Kahramanmaraş", "Karabük", "Karaman", "Kars", "Kastamonu", "Kayseri", "Kırıkkale", "Kırklareli",
-    "Kırşehir", "Kilis", "Kocaeli", "Konya", "Kütahya", "Malatya", "Manisa", "Mardin", "Mersin", "Muğla", "Muş",
-    "Nevşehir", "Niğde", "Ordu", "Osmaniye", "Rize", "Sakarya", "Samsun", "Siirt", "Sinop", "Sivas", "Şanlıurfa",
-    "Şırnak", "Tekirdağ", "Tokat", "Trabzon", "Tunceli", "Uşak", "Van", "Yalova", "Yozgat", "Zonguldak"
-];
+
+
+
+const getTranslatedCountry = (iso2, englishName, lang) => {
+    if (!iso2) return englishName;
+    try {
+        const displayNames = new Intl.DisplayNames([lang], { type: 'region' });
+        return displayNames.of(iso2) || englishName;
+    } catch (e) {
+        return englishName;
+    }
+};
 
 function SettingsToggle({ icon: Icon, label, subtitle, active, onToggle }) {
     return (
@@ -54,62 +57,38 @@ function SettingsToggle({ icon: Icon, label, subtitle, active, onToggle }) {
     );
 }
 
-function CitySelectionModal({ currentCity, onSelect, onClose, t }) {
-    const [searchTerm, setSearchTerm] = useState('');
-    const [loadingLocation, setLoadingLocation] = useState(false);
-    const { selection, success, error } = useHaptics();
 
-    const filteredCities = useMemo(() => {
-        return TURKEY_CITIES.filter(city =>
-            city.toLocaleLowerCase('tr').includes(searchTerm.toLocaleLowerCase('tr'))
-        );
-    }, [searchTerm]);
 
-    const detectLocation = () => {
-        if (!navigator.geolocation) {
-            alert(t('locationNotSupported', 'Your browser does not support location services.'));
-            return;
-        }
+const CALCULATION_METHODS = [
+    { id: 'auto', nameKey: 'calcAuto', defaultName: 'Otomatik', descKey: 'calcAutoDesc', defaultDesc: 'Konumunuza göre: Diyanet (Türkiye)' },
+    { id: '13', nameKey: 'calcDiyanet', defaultName: 'Diyanet (Türkiye)', descKey: 'calcDiyanetDesc', defaultDesc: 'Fajr: 18.0° | Isha: 17.0°' },
+    { id: '3', nameKey: 'calcMwl', defaultName: 'Muslim World League', descKey: 'calcMwlDesc', defaultDesc: 'Fajr: 18.0° | Isha: 17.0°' },
+    { id: '4', nameKey: 'calcMekke', defaultName: 'Umm al-Qura (Saudi Arabia)', descKey: 'calcMekkeDesc', defaultDesc: 'Fajr: 18.5° | Isha: 90 min' },
+    { id: '2', nameKey: 'calcIsna', defaultName: 'ISNA (North America)', descKey: 'calcIsnaDesc', defaultDesc: 'Fajr: 15.0° | Isha: 15.0°' },
+    { id: '1', nameKey: 'calcKaraci', defaultName: 'University of Karachi', descKey: 'calcKaraciDesc', defaultDesc: 'Fajr: 18.0° | Isha: 18.0°' },
+    { id: '5', nameKey: 'calcMisir', defaultName: 'Egyptian General Authority', descKey: 'calcMisirDesc', defaultDesc: 'Fajr: 19.5° | Isha: 17.5°' },
+    { id: '16', nameKey: 'calcDubai', defaultName: 'Dubai (UAE)', descKey: 'calcDubaiDesc', defaultDesc: 'Fajr: 18.2° | Isha: 18.2°' },
+    { id: '10', nameKey: 'calcQatar', defaultName: 'Qatar', descKey: 'calcQatarDesc', defaultDesc: 'Fajr: 18.0° | Isha: 90 min' },
+    { id: '9', nameKey: 'calcKuwait', defaultName: 'Kuwait', descKey: 'calcKuwaitDesc', defaultDesc: 'Fajr: 18.0° | Isha: 17.5°' },
+    { id: '8', nameKey: 'calcGulf', defaultName: 'Gulf Region', descKey: 'calcGulfDesc', defaultDesc: 'Fajr: 19.5° | Isha: 90 min' },
+    { id: '11', nameKey: 'calcMuis', defaultName: 'MUIS (Singapore)', descKey: 'calcMuisDesc', defaultDesc: 'Fajr: 20.0° | Isha: 18.0°' },
+    { id: '20', nameKey: 'calcKemenag', defaultName: 'KEMENAG (Indonesia)', descKey: 'calcKemenagDesc', defaultDesc: 'Fajr: 20.0° | Isha: 18.0°' },
+    { id: '21', nameKey: 'calcMorocco', defaultName: 'Morocco', descKey: 'calcMoroccoDesc', defaultDesc: 'Fajr: 19.0° | Isha: 17.0°' },
+    { id: '19', nameKey: 'calcAlgeria', defaultName: 'Algeria', descKey: 'calcAlgeriaDesc', defaultDesc: 'Fajr: 18.0° | Isha: 17.0°' },
+    { id: '18', nameKey: 'calcTunisia', defaultName: 'Tunisia', descKey: 'calcTunisiaDesc', defaultDesc: 'Fajr: 18.0° | Isha: 18.0°' },
+    { id: '12', nameKey: 'calcUoif', defaultName: 'UOIF (France)', descKey: 'calcUoifDesc', defaultDesc: 'Fajr: 12.0° | Isha: 12.0°' },
+    { id: '7', nameKey: 'calcTehran', defaultName: 'Institute of Geophysics (Tehran)', descKey: 'calcTehranDesc', defaultDesc: 'Fajr: 17.7° | Isha: 14.0°' }
+];
 
+function CalculationMethodModal({ currentMethod, onSelect, onClose, t }) {
+    const dragControls = useDragControls();
+    const { selection, success } = useHaptics();
+
+    const handleSelect = (id) => {
         selection();
-        setLoadingLocation(true);
-
-        navigator.geolocation.getCurrentPosition(
-            async (position) => {
-                try {
-                    const { latitude, longitude } = position.coords;
-                    const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`);
-                    const data = await response.json();
-
-                    if (data && data.address) {
-                        let detectedCity = data.address.province || data.address.city || data.address.town || data.address.state;
-                        if (detectedCity) {
-                            detectedCity = detectedCity.replace(' İli', '').replace(' Province', '');
-                            const match = TURKEY_CITIES.find(c => c.localeCompare(detectedCity, 'tr', { sensitivity: 'base' }) === 0);
-                            const finalCity = match || detectedCity;
-                            success();
-                            onSelect(finalCity);
-                        } else {
-                            throw new Error('City not found');
-                        }
-                    } else {
-                        throw new Error('Address could not be resolved');
-                    }
-                } catch (err) {
-                    console.error(err);
-                    error();
-                    alert(t('locationDetectFailed', 'Could not detect your location. Please select manually.'));
-                } finally {
-                    setLoadingLocation(false);
-                }
-            },
-            (err) => {
-                console.error(err);
-                error();
-                setLoadingLocation(false);
-                alert(t('locationPermissionDenied', 'Location permission denied or unavailable.'));
-            }
-        );
+        success();
+        onSelect(id);
+        onClose();
     };
 
     return (
@@ -124,34 +103,191 @@ function CitySelectionModal({ currentCity, onSelect, onClose, t }) {
                 animate={{ y: 0 }}
                 exit={{ y: "100%" }}
                 transition={{ type: "spring", damping: 25, stiffness: 300 }}
+                drag="y"
+                dragControls={dragControls}
+                dragListener={false}
+                dragConstraints={{ top: 0, bottom: 0 }}
+                dragElastic={{ top: 0, bottom: 0.5 }}
+                onDragEnd={(e, info) => {
+                    if (info.offset.y > 100 || info.velocity.y > 500) {
+                        onClose();
+                    }
+                }}
+                className="mt-auto max-h-[85vh] bg-white dark:bg-[#032e18] rounded-t-[2.5rem] overflow-hidden flex flex-col shadow-2xl"
+            >
+                {/* Drag Handle */}
+                <div 
+                    className="w-full pt-4 pb-2 flex justify-center touch-none cursor-grab active:cursor-grabbing bg-white/50 dark:bg-[#032e18]/50 backdrop-blur-xl"
+                    onPointerDown={(e) => dragControls.start(e)}
+                >
+                    <div className="w-12 h-1.5 bg-gray-200 dark:bg-white/20 rounded-full pointer-events-none" />
+                </div>
+
+                <div className="px-6 pb-4 border-b dark:border-white/5 bg-white/50 dark:bg-[#032e18]/50 backdrop-blur-xl sticky top-0 z-10 flex items-center justify-between">
+                    <h2 className="text-2xl font-serif font-bold text-islamic-green dark:text-islamic-gold">
+                        {t('calculationMethod', 'Hesaplama Yöntemi')}
+                    </h2>
+                    <Button variant="ghost" size="icon" onClick={onClose} className="rounded-full bg-gray-100 dark:bg-white/10">
+                        <X size={20} />
+                    </Button>
+                </div>
+
+                <div className="flex-1 overflow-y-auto p-4 space-y-2">
+                    {CALCULATION_METHODS.map(method => (
+                        <button
+                            key={method.id}
+                            onClick={() => handleSelect(method.id)}
+                            className={cn(
+                                "w-full flex items-center justify-between p-4 rounded-2xl transition-all duration-300 group",
+                                currentMethod === method.id
+                                    ? "bg-islamic-green dark:bg-islamic-gold text-white dark:text-[#032e18] shadow-lg shadow-islamic-green/20"
+                                    : "hover:bg-gray-50 dark:hover:bg-white/5 text-gray-700 dark:text-gray-300"
+                            )}
+                        >
+                            <div className="text-left">
+                                <p className={cn("font-bold text-lg mb-1", currentMethod === method.id ? "" : "")}>
+                                    {t(method.nameKey, method.defaultName)}
+                                </p>
+                                <p className={cn("text-xs", currentMethod === method.id ? "text-white/80 dark:text-black/60" : "text-gray-500")}>
+                                    {t(method.descKey, method.defaultDesc)}
+                                </p>
+                            </div>
+                            {currentMethod === method.id && (
+                                <div className="bg-white/20 dark:bg-black/10 p-2 rounded-full shrink-0 ml-4">
+                                    <Check size={20} className="stroke-[3]" />
+                                </div>
+                            )}
+                        </button>
+                    ))}
+                </div>
+            </motion.div>
+        </motion.div>
+    );
+}
+
+function LocationSelectionModal({ currentCountry, currentCity, initialMode = 'country', onSelect, onClose, t, i18n }) {
+    const dragControls = useDragControls();
+    const [searchTerm, setSearchTerm] = useState('');
+    const [mode, setMode] = useState(initialMode); // 'country' or 'city'
+    const [selectedCountry, setSelectedCountry] = useState(currentCountry || 'Turkey');
+    const [countriesData, setCountriesData] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const { selection, success, medium } = useHaptics();
+
+    useEffect(() => {
+        const fetchCountries = async () => {
+            try {
+                // Check if we have cached data
+                const cached = localStorage.getItem('countries_data_cache');
+                if (cached) {
+                    setCountriesData(JSON.parse(cached));
+                    setLoading(false);
+                }
+                
+                const response = await fetch('https://countriesnow.space/api/v0.1/countries');
+                const result = await response.json();
+                if (result && result.data) {
+                    setCountriesData(result.data);
+                    localStorage.setItem('countries_data_cache', JSON.stringify(result.data));
+                }
+            } catch (err) {
+                console.error('Failed to fetch countries', err);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchCountries();
+    }, []);
+
+    const filteredItems = useMemo(() => {
+        if (mode === 'country') {
+            return countriesData
+                .map(d => {
+                    const display = getTranslatedCountry(d.iso2, d.country, i18n.language);
+                    return { original: d.country, display };
+                })
+                .filter(c => c.display.toLowerCase().includes(searchTerm.toLowerCase()) || c.original.toLowerCase().includes(searchTerm.toLowerCase()))
+                .sort((a, b) => a.display.localeCompare(b.display, i18n.language));
+        } else {
+            const countryObj = countriesData.find(d => d.country === selectedCountry);
+            if (!countryObj) return [];
+            return countryObj.cities
+                .map(c => ({ original: c, display: c }))
+                .filter(c => c.display.toLowerCase().includes(searchTerm.toLowerCase()))
+                .sort((a, b) => a.display.localeCompare(b.display, i18n.language));
+        }
+    }, [searchTerm, mode, countriesData, selectedCountry, i18n.language]);
+
+    const handleSelect = (itemOriginal) => {
+        selection();
+        if (mode === 'country') {
+            setSelectedCountry(itemOriginal);
+            setSearchTerm('');
+            setMode('city'); // move to city selection
+        } else {
+            // City selected
+            success();
+            onSelect(selectedCountry, itemOriginal);
+            onClose();
+        }
+    };
+
+    return (
+        <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[60] bg-black/60 backdrop-blur-sm flex flex-col"
+        >
+            <motion.div
+                initial={{ y: "100%" }}
+                animate={{ y: 0 }}
+                exit={{ y: "100%" }}
+                transition={{ type: "spring", damping: 25, stiffness: 300 }}
+                drag="y"
+                dragControls={dragControls}
+                dragListener={false}
+                dragConstraints={{ top: 0, bottom: 0 }}
+                dragElastic={{ top: 0, bottom: 0.5 }}
+                onDragEnd={(e, info) => {
+                    if (info.offset.y > 100 || info.velocity.y > 500) {
+                        onClose();
+                    }
+                }}
                 className="mt-auto h-[90vh] bg-white dark:bg-[#032e18] rounded-t-[2.5rem] overflow-hidden flex flex-col shadow-2xl"
             >
+                {/* Drag Handle */}
+                <div 
+                    className="w-full pt-4 pb-2 flex justify-center touch-none cursor-grab active:cursor-grabbing bg-white/50 dark:bg-[#032e18]/50 backdrop-blur-xl"
+                    onPointerDown={(e) => dragControls.start(e)}
+                >
+                    <div className="w-12 h-1.5 bg-gray-200 dark:bg-white/20 rounded-full pointer-events-none" />
+                </div>
+
                 {/* Modal Header */}
-                <div className="p-6 pb-4 border-b dark:border-white/5 bg-white/50 dark:bg-[#032e18]/50 backdrop-blur-xl sticky top-0 z-10 space-y-4">
-                    <div className="w-12 h-1.5 bg-gray-200 dark:bg-white/20 rounded-full mx-auto" />
+                <div className="px-6 pb-4 border-b dark:border-white/5 bg-white/50 dark:bg-[#032e18]/50 backdrop-blur-xl sticky top-0 z-10 space-y-4">
 
                     <div className="flex items-center justify-between">
-                        <h2 className="text-2xl font-serif font-bold text-islamic-green dark:text-islamic-gold">{t('selectCity', 'Select City')}</h2>
+                        <div className="flex items-center gap-3">
+                            {mode === 'city' && (
+                                <button onClick={() => setMode('country')} className="p-2 -ml-2 rounded-full hover:bg-gray-100 dark:hover:bg-white/10 transition-colors">
+                                    <ChevronLeft size={24} className="text-gray-600 dark:text-gray-300" />
+                                </button>
+                            )}
+                            <h2 className="text-2xl font-serif font-bold text-islamic-green dark:text-islamic-gold">
+                                {mode === 'country' ? t('selectCountry', 'Select Country') : t('selectCity', 'Select City')}
+                            </h2>
+                        </div>
                         <Button variant="ghost" size="icon" onClick={onClose} className="rounded-full bg-gray-100 dark:bg-white/10">
                             <X size={20} />
                         </Button>
                     </div>
 
-                    {/* Auto Detect Button */}
-                    <button
-                        onClick={detectLocation}
-                        disabled={loadingLocation}
-                        className="w-full flex items-center justify-center gap-3 bg-islamic-green/10 dark:bg-islamic-gold/10 text-islamic-green dark:text-islamic-gold p-4 rounded-2xl font-bold transition-all active:scale-95 disabled:opacity-50"
-                    >
-                        {loadingLocation ? <Loader2 size={20} className="animate-spin" /> : <Navigation size={20} className="fill-current" />}
-                        {loadingLocation ? t('findingLocation', 'Finding Location...') : t('findMyLocation', 'Find My Location')}
-                    </button>
-
                     <div className="relative">
                         <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500" size={20} />
                         <input
                             type="text"
-                            placeholder={t('searchCity', 'Search city...')}
+                            placeholder={mode === 'country' ? t('searchCountry', 'Search country...') : t('searchCity', 'Search city...')}
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                             className="w-full bg-gray-100 dark:bg-white/5 border-none rounded-2xl pl-12 pr-4 py-4 text-gray-900 dark:text-white placeholder:text-gray-400 focus:ring-2 focus:ring-islamic-green dark:focus:ring-islamic-gold transition-all"
@@ -159,37 +295,44 @@ function CitySelectionModal({ currentCity, onSelect, onClose, t }) {
                     </div>
                 </div>
 
-                {/* City List */}
+                {/* List */}
                 <div className="flex-1 overflow-y-auto p-4 animate-in fade-in duration-500">
-                    <div className="grid grid-cols-1 gap-2">
-                        {filteredCities.map(city => (
-                            <button
-                                key={city}
-                                onClick={() => { selection(); onSelect(city); }}
-                                className={cn(
-                                    "flex items-center justify-between p-4 rounded-2xl transition-all duration-300 group",
-                                    currentCity === city
-                                        ? "bg-islamic-green dark:bg-islamic-gold text-white dark:text-[#032e18] shadow-lg shadow-islamic-green/20"
-                                        : "hover:bg-gray-50 dark:hover:bg-white/5 text-gray-700 dark:text-gray-300"
-                                )}
-                            >
-                                <span className={cn("font-bold text-lg", currentCity === city ? "translate-x-2" : "group-hover:translate-x-2")} style={{ transition: 'transform 0.2s' }}>
-                                    {city}
-                                </span>
-                                {currentCity === city && (
-                                    <div className="bg-white/20 dark:bg-black/10 p-2 rounded-full">
-                                        <Check size={20} className="stroke-[3]" />
-                                    </div>
-                                )}
-                            </button>
-                        ))}
-                        {filteredCities.length === 0 && (
-                            <div className="text-center py-20 opacity-50">
-                                <MapPin size={48} className="mx-auto mb-4 text-gray-300" />
-                                <p className="text-gray-500 font-medium">{t('noCityFound', 'City not found')}</p>
-                            </div>
-                        )}
-                    </div>
+                    {loading ? (
+                        <div className="flex flex-col items-center justify-center h-full opacity-50 space-y-4">
+                            <Loader2 size={40} className="animate-spin text-islamic-green dark:text-islamic-gold" />
+                            <p className="text-gray-500 font-medium">{t('loadingLocations', 'Loading locations...')}</p>
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-1 gap-2">
+                            {filteredItems.map(item => (
+                                <button
+                                    key={item.original}
+                                    onClick={() => handleSelect(item.original)}
+                                    className={cn(
+                                        "flex items-center justify-between p-4 rounded-2xl transition-all duration-300 group",
+                                        (mode === 'country' ? selectedCountry === item.original : currentCity === item.original)
+                                            ? "bg-islamic-green dark:bg-islamic-gold text-white dark:text-[#032e18] shadow-lg shadow-islamic-green/20"
+                                            : "hover:bg-gray-50 dark:hover:bg-white/5 text-gray-700 dark:text-gray-300"
+                                    )}
+                                >
+                                    <span className={cn("font-bold text-lg", (mode === 'country' ? selectedCountry === item.original : currentCity === item.original) ? "translate-x-2" : "group-hover:translate-x-2")} style={{ transition: 'transform 0.2s' }}>
+                                        {item.display}
+                                    </span>
+                                    {(mode === 'country' ? selectedCountry === item.original : currentCity === item.original) && (
+                                        <div className="bg-white/20 dark:bg-black/10 p-2 rounded-full">
+                                            <Check size={20} className="stroke-[3]" />
+                                        </div>
+                                    )}
+                                </button>
+                            ))}
+                            {filteredItems.length === 0 && (
+                                <div className="text-center py-20 opacity-50">
+                                    <MapPin size={48} className="mx-auto mb-4 text-gray-300" />
+                                    <p className="text-gray-500 font-medium">{t('noResults', 'No results found')}</p>
+                                </div>
+                            )}
+                        </div>
+                    )}
                 </div>
             </motion.div>
         </motion.div>
@@ -198,13 +341,33 @@ function CitySelectionModal({ currentCity, onSelect, onClose, t }) {
 
 export default function LocationSettings() {
     const navigate = useNavigate();
-    const { t } = useTranslation('settings');
+    const { t, i18n } = useTranslation('settings');
     const { selection, success, medium } = useHaptics();
-    const { latitude, longitude, loading: locationLoading, hasLocation, error: locationError, refreshLocation, permissionStatus, setManualCity } = useLocation();
+    const { latitude, longitude, loading: locationLoading, hasLocation, error: locationError, refreshLocation, permissionStatus, setManualLocation, manualCity, manualCountry } = useLocation();
 
-    const [city, setCityState] = useState(localStorage.getItem('userCity') || 'İstanbul');
+    const [city, setCityState] = useState(manualCity || 'İstanbul');
+    const [country, setCountryState] = useState(manualCountry || 'Turkey');
     const [isCityModalOpen, setIsCityModalOpen] = useState(false);
+    const [modalMode, setModalMode] = useState('country');
     const [useAutoLocation, setUseAutoLocation] = useState(false);
+    const { calculationMethod, setCalculationMethod, refreshPrayerTimes } = usePrayerTimes();
+    const [isCalcModalOpen, setIsCalcModalOpen] = useState(false);
+    const [globalCountriesData, setGlobalCountriesData] = useState(() => {
+        const cached = localStorage.getItem('countries_data_cache');
+        return cached ? JSON.parse(cached) : [];
+    });
+
+    const displayCountry = useMemo(() => {
+        const obj = globalCountriesData.find(c => c.country === country);
+        if (obj && obj.iso2) return getTranslatedCountry(obj.iso2, country, i18n.language);
+        return country;
+    }, [country, globalCountriesData, i18n.language]);
+
+    const setLocationData = (newCountry, newCity) => {
+        setCountryState(newCountry);
+        setCityState(newCity);
+        setManualLocation(newCountry, newCity);
+    };
 
     // Sync toggle with actual OS permission state
     useEffect(() => {
@@ -270,7 +433,7 @@ export default function LocationSettings() {
 
     const setCity = (newCity) => {
         setCityState(newCity);
-        setManualCity(newCity);
+        setManualLocation(country, newCity);
         // Automatically disable auto-location if they pick a manual city to prevent GPS re-overwriting it
         setUseAutoLocation(false);
         localStorage.setItem('location_permission_granted', 'false');
@@ -377,40 +540,100 @@ export default function LocationSettings() {
                             </div>
                         )}
 
-                        {/* Manual City Selection */}
+                        {/* Manual Location Selection */}
                         {!useAutoLocation && (
-                            <button
-                                onClick={() => { medium(); setIsCityModalOpen(true); }}
-                                className="w-full flex items-center justify-between p-5 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors border-t dark:border-white/5"
-                            >
-                                <div className="flex items-center gap-4">
-                                    <div className="p-3 bg-islamic-green/5 dark:bg-islamic-gold/10 rounded-2xl text-islamic-green dark:text-islamic-gold">
-                                        <MapPin size={20} />
+                            <div className="flex flex-col border-t dark:border-white/5">
+                                <button
+                                    onClick={() => { medium(); setModalMode('country'); setIsCityModalOpen(true); }}
+                                    className="w-full flex items-center justify-between p-5 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors border-b dark:border-white/5"
+                                >
+                                    <div className="flex items-center gap-4">
+                                        <div className="p-3 bg-islamic-green/5 dark:bg-islamic-gold/10 rounded-2xl text-islamic-green dark:text-islamic-gold">
+                                            <Globe size={20} />
+                                        </div>
+                                        <div className="text-left">
+                                            <p className="text-[10px] text-gray-400 dark:text-gray-500 font-bold uppercase tracking-wider mb-1">{t('country', 'Ülke')}</p>
+                                            <p className="text-lg font-bold text-gray-900 dark:text-white leading-none">{displayCountry}</p>
+                                        </div>
                                     </div>
-                                    <div className="text-left">
-                                        <p className="text-[10px] text-gray-400 dark:text-gray-500 font-bold uppercase tracking-wider mb-1">{t('yourCity')}</p>
-                                        <p className="text-lg font-bold text-gray-900 dark:text-white leading-none">{city}</p>
+                                    <ChevronRight size={16} className="text-gray-300" />
+                                </button>
+                                <button
+                                    onClick={() => { medium(); setModalMode('city'); setIsCityModalOpen(true); }}
+                                    className="w-full flex items-center justify-between p-5 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors"
+                                >
+                                    <div className="flex items-center gap-4">
+                                        <div className="p-3 bg-islamic-green/5 dark:bg-islamic-gold/10 rounded-2xl text-islamic-green dark:text-islamic-gold">
+                                            <MapPin size={20} />
+                                        </div>
+                                        <div className="text-left">
+                                            <p className="text-[10px] text-gray-400 dark:text-gray-500 font-bold uppercase tracking-wider mb-1">{t('city', 'Şehir')}</p>
+                                            <p className="text-lg font-bold text-gray-900 dark:text-white leading-none">{city}</p>
+                                        </div>
                                     </div>
-                                </div>
-                                <ChevronRight size={16} className="text-gray-300" />
-                            </button>
+                                    <ChevronRight size={16} className="text-gray-300" />
+                                </button>
+                            </div>
                         )}
                     </div>
-                    <p className="px-2 text-[9px] text-gray-400 dark:text-gray-500 italic">
+
+                    <p className="px-2 text-[9px] text-gray-400 dark:text-gray-500 italic mt-3 mb-6">
+
                         {useAutoLocation
                             ? t('autoLocationHint')
                             : t('manualLocationHint')}
                     </p>
+
+                    {/* Calculation Method Card */}
+                    <div className="bg-white dark:bg-[#032e18]/40 rounded-3xl border dark:border-white/5 overflow-hidden shadow-sm">
+                        <button
+                            onClick={() => { medium(); setIsCalcModalOpen(true); }}
+                            className="w-full flex items-center justify-between p-5 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors"
+                        >
+                            <div className="flex items-center gap-4">
+                                <div className="p-3 bg-indigo-50 dark:bg-indigo-500/10 rounded-2xl text-indigo-600 dark:text-indigo-400">
+                                    <Navigation size={20} />
+                                </div>
+                                <div className="text-left">
+                                    <p className="text-[10px] text-gray-400 dark:text-gray-500 font-bold uppercase tracking-wider mb-1">
+                                        {t('calculationMethod', 'Hesaplama Yöntemi')}
+                                    </p>
+                                    <p className="text-sm font-bold text-gray-900 dark:text-white leading-tight">
+                                        {CALCULATION_METHODS.find(m => m.id === calculationMethod)?.defaultName || 'Otomatik'}
+                                    </p>
+                                </div>
+                            </div>
+                            <ChevronRight size={16} className="text-gray-300" />
+                        </button>
+                    </div>
                 </motion.section>
             </motion.div>
 
-            {/* City Selection Modal */}
+            {/* Location Selection Modal */}
             <AnimatePresence>
                 {isCityModalOpen && (
-                    <CitySelectionModal
+                    <LocationSelectionModal
+                        currentCountry={country}
                         currentCity={city}
-                        onSelect={setCity}
+                        initialMode={modalMode}
+                        onSelect={setLocationData}
                         onClose={() => setIsCityModalOpen(false)}
+                        t={t}
+                        i18n={i18n}
+                    />
+                )}
+            </AnimatePresence>
+
+            {/* Calculation Method Modal */}
+            <AnimatePresence>
+                {isCalcModalOpen && (
+                    <CalculationMethodModal
+                        currentMethod={calculationMethod}
+                        onSelect={(id) => {
+                            setCalculationMethod(id);
+                            refreshPrayerTimes();
+                        }}
+                        onClose={() => setIsCalcModalOpen(false)}
                         t={t}
                     />
                 )}

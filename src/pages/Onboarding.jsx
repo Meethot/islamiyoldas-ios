@@ -48,21 +48,20 @@ export default function Onboarding() {
     const { selection, success, impactHeavy } = useHaptics();
     const currentStepRef = useRef(currentStep);
 
-    // Keep ref in sync with state
-    useEffect(() => { currentStepRef.current = currentStep; }, [currentStep]);
-
-    // Track onboarding step views
-    useEffect(() => {
-        analytics.onboardingStepViewed(currentStep + 1, steps[currentStep]?.id);
-    }, [currentStep]);
-
-    // Track abandonment only on true component unmount
-    useEffect(() => {
-        return () => {
-            const completed = storageService.getItem('onboardingComplete') === 'true';
-            if (!completed) analytics.onboardingAbandoned(currentStepRef.current + 1);
-        };
-    }, []);
+    const finishOnboarding = useCallback((finalAnswers) => {
+        success();
+        storageService.setItem('onboardingComplete', 'true');
+        storageService.setItem('userProfile', JSON.stringify(finalAnswers));
+        setUserProperties(finalAnswers);
+        analytics.onboardingCompleted({ ...finalAnswers, language: i18n.language });
+        addDoc(collection(db, 'userDemographics'), {
+            ...finalAnswers,
+            language: i18n.language,
+            createdAt: serverTimestamp()
+        }).catch(() => { }).finally(() => {
+            window.location.href = '/';
+        });
+    }, [success, i18n.language]);
 
     const steps = useMemo(() => [
         {
@@ -129,6 +128,22 @@ export default function Onboarding() {
         }
     ], [t]);
 
+    // Keep ref in sync with state
+    useEffect(() => { currentStepRef.current = currentStep; }, [currentStep]);
+
+    // Track onboarding step views
+    useEffect(() => {
+        analytics.onboardingStepViewed(currentStep + 1, steps[currentStep]?.id);
+    }, [currentStep, steps]);
+
+    // Track abandonment only on true component unmount
+    useEffect(() => {
+        return () => {
+            const completed = storageService.getItem('onboardingComplete') === 'true';
+            if (!completed) analytics.onboardingAbandoned(currentStepRef.current + 1);
+        };
+    }, []);
+
     const stepData = steps[currentStep];
     const StepIcon = stepData.icon;
 
@@ -155,22 +170,7 @@ export default function Onboarding() {
                 return nextAnswers;
             });
         }, 150); // extremely fast selection delay
-    }, [currentStep, selection]);
-
-    const finishOnboarding = useCallback((finalAnswers) => {
-        success();
-        storageService.setItem('onboardingComplete', 'true');
-        storageService.setItem('userProfile', JSON.stringify(finalAnswers));
-        setUserProperties(finalAnswers);
-        analytics.onboardingCompleted({ ...finalAnswers, language: i18n.language });
-        addDoc(collection(db, 'userDemographics'), {
-            ...finalAnswers,
-            language: i18n.language,
-            createdAt: serverTimestamp()
-        }).catch(() => { }).finally(() => {
-            window.location.href = '/';
-        });
-    }, [success, i18n.language]);
+    }, [currentStep, selection, steps, i18n, finishOnboarding]);
 
     const handleSkip = useCallback(() => {
         selection();

@@ -395,9 +395,17 @@ export const WeeklyStreakWidget = memo(({ tubaData, setTubaData }) => {
                                     </Fragment>
                                 ))}
                             </div>
-                            <p className="text-center text-[9px] text-gray-400 dark:text-emerald-100/40 font-medium">
-                                {t('tuba.daysCompleted', { count: completedDays.filter(d => d).length })}
-                            </p>
+                            <div className="flex items-center justify-center gap-2">
+                                <p className="text-center text-[10px] text-gray-400 dark:text-emerald-100/40 font-medium">
+                                    {t('tuba.daysCompleted', { count: completedDays.filter(d => d).length })}
+                                </p>
+                                {/* Streak Badge */}
+                                {currentStreak > 0 && (
+                                    <div className="flex items-center gap-1 bg-islamic-gold/10 px-2 py-0.5 rounded-full border border-islamic-gold/20 shadow-sm">
+                                        <span className="text-[9px] font-bold text-islamic-gold whitespace-nowrap">{t('tuba.streakBadge', { count: currentStreak })}</span>
+                                    </div>
+                                )}
+                            </div>
                         </div>
 
                         {/* Main Content */}
@@ -407,12 +415,6 @@ export const WeeklyStreakWidget = memo(({ tubaData, setTubaData }) => {
                                     <span className="text-[10px] font-bold font-serif text-gray-400 dark:text-emerald-100/40 uppercase tracking-widest">
                                         {stageLabel}
                                     </span>
-                                    {/* Streak Badge */}
-                                    {currentStreak > 0 && (
-                                        <div className="flex items-center gap-1 bg-islamic-gold/10 px-2 py-0.5 rounded-full border border-islamic-gold/20">
-                                            <span className="text-[10px] font-bold text-islamic-gold">{t('tuba.streak', { count: currentStreak })}</span>
-                                        </div>
-                                    )}
                                 </div>
                                 <div className="flex items-center gap-2 mb-0.5">
                                     <h3 className={cn("text-2xl font-bold font-serif transition-colors duration-[1500ms] drop-shadow-sm", growthColor)}>
@@ -455,7 +457,7 @@ export const WeeklyStreakWidget = memo(({ tubaData, setTubaData }) => {
                             </div>
 
                             {/* Tree Icon with Impact Animation */}
-                            <div className="relative z-10">
+                            <div className="relative z-10 flex flex-col items-center">
                                 <AnimatePresence>
                                     {growthProgress >= 40 && (
                                         <motion.div
@@ -498,6 +500,7 @@ export const WeeklyStreakWidget = memo(({ tubaData, setTubaData }) => {
                                         )}
                                     />
                                 </motion.div>
+
                             </div>
                         </div>
 
@@ -650,25 +653,25 @@ export const WeeklyStreakWidget = memo(({ tubaData, setTubaData }) => {
                                     <TreeDeciduous size={24} />
                                 </div>
                                 <h3 className="text-xl font-bold font-serif text-stone-800 dark:text-white">
-                                    Tuba Ağacı (Cennet Ağacı)
+                                    {t('tuba.modalTitle', 'Tuba Ağacı (Cennet Ağacı)')}
                                 </h3>
                             </div>
                             
                             <div className="space-y-3 relative z-10 mb-6">
                                 <p className="text-sm font-medium text-stone-600 dark:text-emerald-100/80 leading-relaxed italic border-l-2 border-islamic-gold/50 pl-3">
-                                    "Kökleri Arş'ta, dalları kalplere uzanan kutlu cennet ağacıdır."
+                                    {t('tuba.quote', '"Kökleri Arş\'ta, dalları kalplere uzanan kutlu cennet ağacıdır."')}
                                 </p>
                                 <p className="text-sm font-medium text-stone-600 dark:text-emerald-100/70">
-                                    Bu fidan senin <strong>manevi yolculuğunu</strong> temsil eder. İbadetlerinle suladıkça kalbinde kök salar ve yeşerir.
+                                    {t('tuba.desc', 'Tuba ağacı kökleri gökte, dalları yeryüzünde olan muazzam güzellikteki cennet ağacıdır.')}
                                 </p>
                                 <ul className="text-sm text-stone-600 dark:text-emerald-100/70 font-medium space-y-2 mt-4 bg-stone-50 dark:bg-white/5 p-3 rounded-xl border border-stone-100 dark:border-white/5">
                                     <li className="flex items-start gap-2">
                                         <Droplet size={16} className="text-islamic-green dark:text-islamic-gold mt-0.5 shrink-0" />
-                                        <span>Her gün uygulamaya girerek manevi fidanını sula.</span>
+                                        <span>{t('tuba.water', 'Her gün uygulamaya girerek fidanını büyüt ve onu koca bir ağaca dönüştür.')}</span>
                                     </li>
                                     <li className="flex items-start gap-2">
                                         <Trophy size={16} className="text-islamic-green dark:text-islamic-gold mt-0.5 shrink-0" />
-                                        <span>7 günlük istikrarın sonunda güzel bir mertebeye ulaş.</span>
+                                        <span>{t('tuba.modalStreak', '7 günlük istikrarın sonunda güzel bir mertebeye ulaş.')}</span>
                                     </li>
                                 </ul>
                             </div>
@@ -680,7 +683,7 @@ export const WeeklyStreakWidget = memo(({ tubaData, setTubaData }) => {
                                 }} 
                                 className="w-full h-12 rounded-2xl bg-islamic-green dark:bg-islamic-gold text-white dark:text-[#021a0f] font-bold active:scale-95 transition-all relative z-10 shadow-lg shadow-islamic-green/20 dark:shadow-islamic-gold/20 hover:bg-islamic-green/90"
                             >
-                                Anladım
+                                {t('tuba.understood', 'Anladım')}
                             </Button>
                         </motion.div>
                     </motion.div>

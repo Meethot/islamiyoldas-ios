@@ -10,6 +10,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { getDailyVerse } from '@/data/dailyVerses';
 import { getAppDate, getDailyPrayersKey, getTodayString } from '@/lib/testDate';
 import { safeGetStorage, safeSetStorage } from '@/utils/storageHelper';
+import { App } from '@capacitor/app';
 import { useHaptics } from '@/hooks/useMobile';
 import { usePrayers } from '@/hooks/usePrayers';
 import { useUser } from '@/context/UserContext';
@@ -201,7 +202,7 @@ export default function Home() {
         return () => window.removeEventListener('debugShowPrayerOverlay', handleDebugOverlay);
     }, []);
 
-    // Midnight Transition Detection (Check every minute)
+    // Midnight Transition Detection (Check every minute and on resume)
     useEffect(() => {
         const checkDayChange = () => {
             const newDateKey = getTodayString();
@@ -214,7 +215,23 @@ export default function Home() {
         };
 
         const interval = setInterval(checkDayChange, 60000); // Check every minute
-        return () => clearInterval(interval);
+        
+        let appListener = null;
+        const setupListener = async () => {
+            appListener = await App.addListener('appStateChange', ({ isActive }) => {
+                if (isActive) {
+                    checkDayChange();
+                }
+            });
+        };
+        setupListener();
+
+        return () => {
+            clearInterval(interval);
+            if (appListener) {
+                appListener.remove();
+            }
+        };
     }, [currentDateKey]);
 
     useEffect(() => {

@@ -17,6 +17,12 @@ export const usePrayerTimes = () => useContext(PrayerTimesContext);
 
 export const PrayerTimesProvider = ({ children }) => {
     const [prayerTimes, setPrayerTimes] = useState(null);
+    const [calculationMethod, setCalculationMethodState] = useState(localStorage.getItem('calculationMethod') || 'auto');
+
+    const setCalculationMethod = (method) => {
+        setCalculationMethodState(method);
+        localStorage.setItem('calculationMethod', method);
+    };
     const [nextPrayer, setNextPrayer] = useState(null);
     const [countdown, setCountdown] = useState('');
     const [loading, setLoading] = useState(true);
@@ -53,7 +59,7 @@ export const PrayerTimesProvider = ({ children }) => {
     // Circuit breaker: skip Diyanet API for 60s after a network failure
     const diyanetDownUntilRef = useRef(0);
 
-    const { latitude, longitude, hasLocation, manualCity, cityName } = useLocation();
+    const { latitude, longitude, hasLocation, manualCity, manualCountry, cityName } = useLocation();
     const { i18n } = useTranslation();
 
     const FALLBACK_COORDS = { lat: 41.0082, lng: 28.9784 };
@@ -126,7 +132,7 @@ export const PrayerTimesProvider = ({ children }) => {
         if (fetchPrayerTimesRef.current) {
             fetchPrayerTimesRef.current();
         }
-    }, [latitude, longitude, hasLocation, manualCity]);
+    }, [latitude, longitude, hasLocation, manualCity, calculationMethod]);
 
     // Schedule notifications when prayer times or relevant settings change (debounced)
     useEffect(() => {
@@ -472,10 +478,11 @@ export const PrayerTimesProvider = ({ children }) => {
             setLocationState({ latitude: lat, longitude: lng });
             setAddressState(localStorage.getItem('cached_address') || '');
 
-            // ── Try Diyanet API first for Turkey ──
-            if (turkish) {
+            // ── Try Diyanet API first for Turkey OR if Manual City is provided ──
+            const allowDiyanet = calculationMethod === 'auto' || calculationMethod === '13';
+            if (allowDiyanet && (turkish || manualCity)) {
                 const district = localStorage.getItem('cached_district');
-                const city = localStorage.getItem('cached_address');
+                const city = manualCity || localStorage.getItem('cached_address');
 
                 // Try district first, then city, then fallback to Istanbul if we are SURE it's Turkey
                 const searchTerms = [district, city].filter(Boolean);
@@ -502,7 +509,7 @@ export const PrayerTimesProvider = ({ children }) => {
 
                 // If we failed all specific queries but we are IN TURKEY, 
                 // do an absolute final fallback to Istanbul via Diyanet before Aladhan to avoid 10 min Isha shift
-                if (!diyanetSuccess && turkish) {
+                if (!diyanetSuccess && turkish && !manualCity) {
                     const lastResortId = await resolveDiyanetLocationId('Istanbul');
                     if (lastResortId) {
                         const diyanetTimings = await fetchDiyanetTimes(lastResortId);
@@ -526,15 +533,14 @@ export const PrayerTimesProvider = ({ children }) => {
 
             // If we are in Turkey, Aladhan is NOT accurate (Method 13 is only an approximation)
             // We should warn or try harder for Diyanet.
-            const method = turkish ? 13 : 3;
+            const method = calculationMethod === 'auto' ? (turkish ? 13 : 3) : parseInt(calculationMethod, 10);
 
             let response;
             // Always prioritize manual city for Aladhan if set, regardless of background physical GPS state
             if (manualCity) {
-                // Determine country (assuming Turkey if 'turkish' is true, otherwise default to user's setting or null)
-                const queryCountry = turkish ? 'Turkey' : (localStorage.getItem('cached_country_code') || '');
-                response = await axios.get(`https://api.aladhan.com/v1/timingsByCity/${dateStr}`, {
-                    params: { city: manualCity, country: queryCountry, method }
+                const addressQuery = manualCountry ? `${manualCity}, ${manualCountry}` : manualCity;
+                response = await axios.get(`https://api.aladhan.com/v1/timingsByAddress/${dateStr}`, {
+                    params: { address: addressQuery, method }
                 });
             } else {
                 response = await axios.get(`https://api.aladhan.com/v1/timings/${dateStr}`, {
@@ -557,7 +563,7 @@ export const PrayerTimesProvider = ({ children }) => {
         } finally {
             setLoading(false);
         }
-    }, [latitude, longitude, hasLocation, manualCity]);
+    }, [latitude, longitude, hasLocation, manualCity, calculationMethod]);
 
     // Push prayer times to iOS Widget via App Group UserDefaults
     const syncWidgetData = useCallback((timings) => {
@@ -750,8 +756,9 @@ export const PrayerTimesProvider = ({ children }) => {
             let useDiyanetFormat = false;
             try {
                 // ── Try Diyanet first for Turkey ──
+                const allowDiyanet = calculationMethod === 'auto' || calculationMethod === '13';
                 const district = localStorage.getItem('cached_district');
-                if (localIsTurkish && district) {
+                if (allowDiyanet && localIsTurkish && district) {
                     const locationId = await resolveDiyanetLocationId(district);
                     if (locationId) {
                         const res = await axios.get(`${DIYANET_API}/prayertimes`, {
@@ -801,7 +808,7 @@ export const PrayerTimesProvider = ({ children }) => {
 
                 if (hasMissingDays) {
                     // Fetch Aladhan calendar for the missing month(s)
-                    const method = isTurkishLocation ? 13 : 3;
+                    const method = calculationMethod === 'auto' ? (isTurkishLocation ? 13 : 3) : parseInt(calculationMethod, 10);
                     const monthsToFetch = new Set();
                     for (let d = 0; d < MAX_PRAYER_DAYS; d++) {
                         const checkDate = new Date(today);
@@ -833,7 +840,7 @@ export const PrayerTimesProvider = ({ children }) => {
                 if (Object.keys(calendarData).length === 0) {
                     const year = today.getFullYear();
                     const month = today.getMonth() + 1;
-                    const method = isTurkishLocation ? 13 : 3;
+                    const method = calculationMethod === 'auto' ? (isTurkishLocation ? 13 : 3) : parseInt(calculationMethod, 10);
 
                     const res = await axios.get(`https://api.aladhan.com/v1/calendar/${year}/${month}`, {
                         params: { latitude: lat, longitude: lng, method }
@@ -1323,6 +1330,8 @@ export const PrayerTimesProvider = ({ children }) => {
         settings,
         updateSettings,
         refreshPrayerTimes: refreshPrayerTimesStable,
+        calculationMethod,
+        setCalculationMethod,
         schedulePrayerNotifications,
         schedulePreReminderNotifications,
     }), [
@@ -1338,6 +1347,8 @@ export const PrayerTimesProvider = ({ children }) => {
         settings,
         updateSettings,
         refreshPrayerTimesStable,
+        calculationMethod,
+        setCalculationMethod,
         schedulePrayerNotifications,
         schedulePreReminderNotifications
     ]);
