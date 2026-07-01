@@ -115,8 +115,18 @@ export default function Profile() {
     const [calcData, setCalcData] = useState({ birthDate: '', startDate: '', gender: 'Erkek' });
 
 
+    // Rate Us State
+    const [hasRated, setHasRated] = useState(false);
+
     // Load Data
     useEffect(() => {
+        try {
+            const raw = localStorage.getItem('review_prompt_v4');
+            if (raw && JSON.parse(raw).reviewed) {
+                setHasRated(true);
+            }
+        } catch (e) {}
+        
         setStreak(localStorage.getItem('userStreak') || '7');
         setNotifications(localStorage.getItem('notifications') !== 'false');
         // Migration: kaaba -> tuba
@@ -673,9 +683,13 @@ export default function Profile() {
 
                     {/* Bizi Puanla */}
                     <div
-                        className="p-5 flex items-center justify-between hover:bg-stone-50 dark:hover:bg-white/5 transition-colors cursor-pointer group"
+                        className={`p-5 flex items-center justify-between transition-colors ${hasRated ? 'opacity-70' : 'hover:bg-stone-50 dark:hover:bg-white/5 cursor-pointer group'}`}
                         onClick={() => {
                             selection();
+                            if (hasRated) {
+                                success();
+                                return;
+                            }
                             // Kendi özel yeşil popup'ımızı açıyoruz, böylece 1-4 yıldız arası filtreleme yapabileceğiz
                             triggerReviewPrompt('profile', true);
                         }}
@@ -685,11 +699,15 @@ export default function Profile() {
                                 <Star size={20} fill="currentColor" />
                             </div>
                             <div className="text-left">
-                                <p className="text-sm font-bold text-stone-800 dark:text-white">{t('rate_us.title', 'Bizi Puanlayın')}</p>
-                                <p className="text-xs text-stone-500 dark:text-gray-400 font-medium">{t('rate_us.subtitle', 'Uygulamaya destek olun')}</p>
+                                <p className="text-sm font-bold text-stone-800 dark:text-white">
+                                    {hasRated ? t('rate_us.already_rated_title', 'Teşekkür Ederiz') : t('rate_us.title', 'Bizi Puanlayın')}
+                                </p>
+                                <p className="text-xs text-stone-500 dark:text-gray-400 font-medium">
+                                    {hasRated ? t('rate_us.already_rated', 'Desteğiniz için teşekkür ederiz') : t('rate_us.subtitle', 'Uygulamaya destek olun')}
+                                </p>
                             </div>
                         </div>
-                        <ChevronRight className="w-5 h-5 text-stone-400 dark:text-gray-300 group-hover:translate-x-1 transition-transform" />
+                        {!hasRated && <ChevronRight className="w-5 h-5 text-stone-400 dark:text-gray-300 group-hover:translate-x-1 transition-transform" />}
                     </div>
 
                     {/* Report Bug */}

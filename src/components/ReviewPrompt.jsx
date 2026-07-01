@@ -69,10 +69,9 @@ export default function ReviewPrompt() {
 
     useEffect(() => {
         const data = getReviewData();
-        if (!IS_TESTING && data.reviewed) return;
 
         // Sayacı güncelle ancak mount/unmount koruması için sadece bir kez
-        if (!window.appOpenedLogged) {
+        if (!window.appOpenedLogged && (!data.reviewed || IS_TESTING)) {
             data.appOpens = (data.appOpens || 0) + 1;
             saveReviewData(data);
             window.appOpenedLogged = true;
