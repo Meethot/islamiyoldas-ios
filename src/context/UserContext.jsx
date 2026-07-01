@@ -44,10 +44,23 @@ export function UserProvider({ children }) {
             syncPremiumStatusToWidget(status);
         };
         
-        const handleStorageReady = () => {
+        const handleStorageReady = async () => {
             console.log('[UserContext] Storage ready, syncing...');
             syncWithStorage();
             updatePremium();
+
+            // Reinstall sonrası RevenueCat'ten premium durumunu doğrula
+            // Keychain'den premium flag gelse bile Apple/Google'dan teyit al
+            if (storageService.wasReinstall) {
+                console.log('[UserContext] Reinstall detected — verifying premium with store...');
+                try {
+                    const { verifyPremiumStatus } = await import('../services/creditService');
+                    await verifyPremiumStatus();
+                    updatePremium(); // Store doğrulaması sonrası tekrar güncelle
+                } catch (e) {
+                    console.warn('[UserContext] Store verification failed:', e);
+                }
+            }
         };
 
         // KRİTİK: storageService.initialize() tamamlanmadan ASLA premium okuma!

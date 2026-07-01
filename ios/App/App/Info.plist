@@ -28,9 +28,9 @@
     <key>CFBundlePackageType</key>
     <string>APPL</string>
     <key>CFBundleShortVersionString</key>
-    <string>1.1.7</string>
+    <string>1.1.8</string>
     <key>CFBundleVersion</key>
-    <string>17</string>
+    <string>18</string>
     <key>GADApplicationIdentifier</key>
     <string>ca-app-pub-3345957146167395~6039014177</string>
     <key>CFBundleURLTypes</key>

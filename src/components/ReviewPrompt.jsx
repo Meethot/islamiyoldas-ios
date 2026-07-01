@@ -5,6 +5,7 @@ import { Star, X, Heart, MessageSquare } from 'lucide-react';
 import { Capacitor } from '@capacitor/core';
 import { useTranslation } from 'react-i18next';
 import { CapgoInAppReview as InAppReview } from '@capgo/capacitor-in-app-review';
+import { usePopup } from '@/hooks/usePopup';
 
 const STORAGE_KEY = 'review_prompt_v4'; // Tüm eski kullanıcılarda yeniden çıkması için v4 yapıldı
 const APP_STORE_ID = '6759666173';
@@ -45,7 +46,7 @@ export function triggerReviewPrompt(reason, force = false) {
 
 export default function ReviewPrompt() {
     const location = useLocation();
-    const [show, setShow] = useState(false);
+    const { isActive: show, requestShow, dismiss } = usePopup('review_prompt');
     const [step, setStep] = useState('ask'); // 'ask', 'feedback'
     const [hoveredStar, setHoveredStar] = useState(0);
     const [selectedStar, setSelectedStar] = useState(0);
@@ -89,7 +90,7 @@ export default function ReviewPrompt() {
                     return;
                 }
             }
-            setShow(true);
+            requestShow();
         };
 
         window.addEventListener('reviewTrigger', handleTrigger);
@@ -125,19 +126,30 @@ export default function ReviewPrompt() {
         // 1. Durum: Daha önce beklemeye alınmış bir istek varsa (örn: Zikir bitirdi, Anasayfaya döndü)
         if (pendingRef.current) {
             pendingRef.current = false;
-            const timer = setTimeout(() => setShow(true), 1500);
+            const timer = setTimeout(() => requestShow(), 1500);
             return () => clearTimeout(timer);
         }
 
         // 2. Durum: Kullanıcı 3 kez sayfa değiştirip ana sayfaya/ayarlara döndüyse (Paywall'dan önce)
         if (!IS_TESTING && navCountSession >= 3) {
-            const timer = setTimeout(() => setShow(true), 1500);
+            const timer = setTimeout(() => requestShow(), 1500);
             return () => clearTimeout(timer);
         }
 
 
 
-    }, [location.pathname, show, navCountSession, totalSeconds, isOnHome]);
+    }, [location.pathname, show, navCountSession, totalSeconds, isOnHome, requestShow]);
+
+    // Eğer popup aktif olduysa ama kullanıcı başka bir sayfaya geçtiyse (global render olduğu için unmount olmaz),
+    // kuyruğu tıkamaması için otomatik dismiss yapıyoruz.
+    useEffect(() => {
+        if (show) {
+            const isAllowedPage = isOnHome || location.pathname === '/profile';
+            if (!isAllowedPage) {
+                dismiss();
+            }
+        }
+    }, [show, isOnHome, location.pathname, dismiss]);
 
     const handleRate = async () => {
         if (!IS_TESTING) saveReviewData({ ...getReviewData(), reviewed: true });
@@ -169,7 +181,7 @@ export default function ReviewPrompt() {
         }
 
         // Hemen popup'ı kapat ve state'i sıfırla
-        setShow(false);
+        dismiss();
         setTimeout(() => {
             setStep('ask');
             setSelectedStar(0);
@@ -180,7 +192,7 @@ export default function ReviewPrompt() {
 
 
     const handleDismiss = () => {
-        setShow(false);
+        dismiss();
         setTimeout(() => {
             setStep('ask');
             setSelectedStar(0);

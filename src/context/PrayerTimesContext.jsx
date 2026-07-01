@@ -92,7 +92,7 @@ export const PrayerTimesProvider = ({ children }) => {
 
     // Initial Setup & Cache Validation
     useEffect(() => {
-        const CACHE_VERSION = 'v4_city_norm'; // v4: Turkish char normalization for Diyanet API
+        const CACHE_VERSION = 'v5_norm_fix'; // v5: Fixed normalizeTimings double-buffer & Diyanet source detection
         const version = localStorage.getItem('app_data_version');
         if (version !== CACHE_VERSION) {
             // Clear cache and prayer time keys only, NOT all data
@@ -406,15 +406,18 @@ export const PrayerTimesProvider = ({ children }) => {
             result.Imsak = rawTimes.Fajr || rawTimes.Imsak;
             result.Fajr = rawTimes.Fajr || rawTimes.Imsak;
 
-            // Diyanet Safety Buffers (Emniyet Payı)
-            // Diyanet officially adds +2 mins to Dhuhr and Asr calculations
-            result.Dhuhr = addMinutes(rawTimes.Dhuhr, 2);
-            result.Asr = addMinutes(rawTimes.Asr, 2);
+            // Diyanet API already includes safety buffers. Only add them if falling back to Aladhan.
+            if (rawTimes._source !== 'diyanet_raw') {
+                // Diyanet Safety Buffers (Emniyet Payı)
+                // Diyanet officially adds +2 mins to Dhuhr and Asr calculations
+                result.Dhuhr = addMinutes(rawTimes.Dhuhr, 2);
+                result.Asr = addMinutes(rawTimes.Asr, 2);
 
-            // Diyanet adds +1 to Sunrise for atmospheric refraction/safety
-            result.Sunrise = addMinutes(rawTimes.Sunrise, 1);
+                // Diyanet adds +1 to Sunrise for atmospheric refraction/safety
+                result.Sunrise = addMinutes(rawTimes.Sunrise, 1);
+            }
 
-            // Maghrib and Isha are usually exactly what the API (Diyanet scraper) provides
+            // Maghrib and Isha are usually exactly what the API provides
             result.Maghrib = rawTimes.Maghrib;
             result.Isha = rawTimes.Isha;
             result.Sunset = result.Maghrib;

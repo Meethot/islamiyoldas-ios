@@ -35,6 +35,7 @@ const CRITICAL_KEYS = [
 class StorageService {
     isReady = false;
     _secureStorage = null;
+    wasReinstall = false; // Flag to notify consumers about reinstall
 
     async _initSecureStorage() {
         if (this._secureStorage) return true;
@@ -50,20 +51,30 @@ class StorageService {
     }
 
     /**
-     * Hızlı başlatma — yalnızca localStorage ↔ Preferences senkronizasyonu.
-     * Splash ekranını bloklamaz. Keychain işlemleri arka planda çalışır.
+     * Başlatma — Reinstall tespiti yaparak Keychain'den geri yükleme yapar.
+     * storageReady event'i ancak Keychain restore tamamlandıktan SONRA tetiklenir.
      */
     async initialize() {
-        console.log('[StorageService] Fast init starting…');
+        console.log('[StorageService] Init starting…');
         const t0 = performance.now();
 
-        // ── 1. localStorage ↔ Preferences senkronizasyonu (paralel) ──
-        // Her key için Preferences değerini oku — hepsini paralel at
+        // ── 0. Reinstall tespiti ──
+        // localStorage VE Preferences ikisi de boşsa → silip yeniden yükleme
+        const localHasData = localStorage.getItem('has_launched_before');
+        const prefResult = await Preferences.get({ key: 'has_launched_before' });
+        const isReinstall = Capacitor.isNativePlatform() && !localHasData && !prefResult.value;
+
+        // ── 1. Reinstall ise ÖNCE Keychain'den geri yükle ──
+        if (isReinstall) {
+            this.wasReinstall = true;
+            await this._restoreFromKeychain();
+        }
+
+        // ── 2. localStorage ↔ Preferences senkronizasyonu (paralel) ──
         const prefResults = await Promise.all(
             CRITICAL_KEYS.map(key => Preferences.get({ key }))
         );
 
-        // Sync kararları: localStorage ve Preferences arasında eksikleri doldur
         const writeToPrefs = [];
         for (let i = 0; i < CRITICAL_KEYS.length; i++) {
             const key = CRITICAL_KEYS[i];
@@ -76,15 +87,13 @@ class StorageService {
                 localStorage.setItem(key, prefValue);
             }
         }
-        // Eksik Preferences yazımlarını paralel yap
         if (writeToPrefs.length > 0) {
             await Promise.all(writeToPrefs);
         }
 
-        // ── 2. Tüm Preferences key'lerini localStorage'a senkronize et ──
+        // ── 3. Tüm Preferences key'lerini localStorage'a senkronize et ──
         try {
             const { keys } = await Preferences.keys();
-            // Sadece localStorage'da eksik olanları bul
             const missingKeys = keys.filter(k => !localStorage.getItem(k));
             if (missingKeys.length > 0) {
                 const missingResults = await Promise.all(
@@ -101,58 +110,75 @@ class StorageService {
         }
 
         const elapsed = Math.round(performance.now() - t0);
-        console.log(`[StorageService] Fast init complete ✓ (${elapsed}ms)`);
+        console.log(`[StorageService] Init complete ✓ (${elapsed}ms) reinstall=${isReinstall}`);
         this.isReady = true;
         window.dispatchEvent(new Event('storageReady'));
 
-        // ── 3. Keychain senkronizasyonu — splash sonrasında arka planda ──
-        setTimeout(() => this._deferredKeychainSync(), 2000);
+        // ── 4. Arka planda Keychain'e yedekleme (restore değil) ──
+        setTimeout(() => this._backupToKeychain(), 2000);
     }
 
     /**
-     * Arka plan Keychain senkronizasyonu.
-     * Uygulama silinip yeniden yüklendiğinde verilerin kaybolmamasını sağlar.
-     * Splash ekranını etkilemez.
+     * Keychain'den localStorage ve Preferences'a geri yükleme.
+     * SADECE initialize() içinden, storageReady'den ÖNCE çağrılır.
      */
-    async _deferredKeychainSync() {
+    async _restoreFromKeychain() {
         const isReady = await this._initSecureStorage();
-        if (!isReady) return;
+        if (!isReady) {
+            console.warn('[StorageService] Keychain not available, skipping restore');
+            return;
+        }
         const secure = this._secureStorage;
 
-        console.log('[StorageService] Deferred Keychain sync starting…');
+        console.log('[StorageService] 🔄 Reinstall detected — restoring from Keychain…');
 
-        // Keychain'den geri yükleme (silip yeniden yükleme senaryosu)
+        let restoredCount = 0;
+        const writeToPrefs = [];
+
         for (const key of CRITICAL_KEYS) {
             try {
                 const keychainValue = await secure.getItem(key);
-                const localValue = localStorage.getItem(key);
-
-                if (keychainValue && !localValue) {
-                    console.log(`[StorageService] Restoring "${key}" from Keychain`);
+                if (keychainValue) {
                     localStorage.setItem(key, keychainValue);
-                    await Preferences.set({ key, value: keychainValue });
+                    writeToPrefs.push(Preferences.set({ key, value: keychainValue }));
+                    restoredCount++;
+                    console.log(`[StorageService] ✅ Restored "${key}" from Keychain`);
                 }
             } catch {
                 // Key Keychain'de yoksa hata verir, sorun değil
             }
         }
 
-        // Mevcut localStorage anahtarlarını Keychain'e yedekle
+        if (writeToPrefs.length > 0) {
+            await Promise.all(writeToPrefs);
+        }
+
+        console.log(`[StorageService] Keychain restore complete: ${restoredCount} keys restored`);
+    }
+
+    /**
+     * Mevcut localStorage verilerini Keychain'e yedekle.
+     * Arka planda çalışır, splash ekranını etkilemez.
+     */
+    async _backupToKeychain() {
+        const isReady = await this._initSecureStorage();
+        if (!isReady) return;
+        const secure = this._secureStorage;
+
+        console.log('[StorageService] Keychain backup starting…');
+
         for (const key of CRITICAL_KEYS) {
             const localValue = localStorage.getItem(key);
             if (localValue) {
                 try {
-                    const keychainValue = await secure.getItem(key);
-                    if (!keychainValue) {
-                        await secure.setItem(key, localValue);
-                    }
+                    await secure.setItem(key, localValue);
                 } catch {
-                    try { await secure.setItem(key, localValue); } catch {}
+                    // Keychain yazma hatası — kritik değil
                 }
             }
         }
 
-        console.log('[StorageService] Deferred Keychain sync complete ✓');
+        console.log('[StorageService] Keychain backup complete ✓');
     }
 
     /**

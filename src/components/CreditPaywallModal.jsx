@@ -2,6 +2,7 @@ import React, { useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Crown, Sparkles, Heart, Play, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { usePopup } from '@/hooks/usePopup';
 
 const RING_RADIUS = 65;
 const RING_STROKE = 8;
@@ -18,6 +19,15 @@ export default function CreditPaywallModal({
     onWatchAd,
 }) {
     const { t } = useTranslation('dua');
+    const { isActive, requestShow, dismiss } = usePopup('credit_paywall');
+
+    React.useEffect(() => {
+        if (isOpen) {
+            requestShow();
+        } else {
+            dismiss();
+        }
+    }, [isOpen, requestShow, dismiss]);
 
     const progress = useMemo(() => Math.min(1, credits / cost), [credits, cost]);
     const dashOffset = RING_CIRCUMFERENCE - progress * RING_CIRCUMFERENCE;
@@ -26,7 +36,7 @@ export default function CreditPaywallModal({
 
     return (
         <AnimatePresence>
-            {isOpen && (
+            {isActive && (
                 <motion.div
                     className="fixed inset-0 z-[200] flex items-end justify-center"
                     initial={{ opacity: 0 }}

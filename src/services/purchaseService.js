@@ -259,7 +259,7 @@ export async function purchaseProduct(productIdOrObj) {
         // Başarılı — entitlement'ları kontrol et
         const { isPremium, planId } = checkEntitlements(result?.customerInfo);
         updatePremiumStatus(isPremium, planId);
-        return { success: true };
+        return { success: true, isPremium };
     } catch (err) {
         console.error('[RC] Purchase error:', JSON.stringify(err));
         const msg = err?.message || String(err);
@@ -307,6 +307,15 @@ export async function verifySubscription(isMigration = false) {
         const { customerInfo } = await Purchases.getCustomerInfo();
         const { isPremium, planId } = checkEntitlements(customerInfo);
         console.log('[RC] Verify → isPremium:', isPremium, isMigration ? '(migration mode)' : '');
+
+        // ÇEVRİMDIŞI GÜVENLİĞİ: Cihaz internetsizse ve kullanıcı daha önce premium ise, aboneliği İPTAL ETME.
+        // Çünkü abonelik App Store'dan yenilenmiş olabilir ama internetsiz olduğu için fiş RC'ye ulaşmamıştır.
+        const current = storageService.getItem(PREMIUM_KEY) === 'true';
+        if (!navigator.onLine && current && !isPremium) {
+            console.warn('[RC] ⚠️ Offline safety: Device is offline. Keeping existing premium status.');
+            return true;
+        }
+
         updatePremiumStatus(isPremium, planId, isMigration);
         return isPremium;
     } catch (err) {

@@ -26,6 +26,7 @@ dependencies {
     implementation project(':capgo-capacitor-in-app-review')
     implementation project(':odion-cloud-capacitor-volume-control')
     implementation project(':revenuecat-purchases-capacitor')
+    implementation project(':revenuecat-purchases-capacitor-ui')
     implementation "com.onesignal:OneSignal:5.6.1"
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.7.10"
 }

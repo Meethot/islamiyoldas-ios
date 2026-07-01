@@ -6,6 +6,7 @@ import { cn } from '@/lib/utils';
 import { useHaptics } from '@/hooks/useMobile';
 import { KaabaIcon } from '@/components/icons/KaabaIcon';
 import { useTranslation } from 'react-i18next';
+import { usePopup } from '@/hooks/usePopup';
 
 /**
  * PrayerRewardModal
@@ -22,6 +23,15 @@ export default function PrayerRewardModal({ isOpen, onClose, content, prayerName
     const { light } = useHaptics();
     const { t, i18n } = useTranslation('home');
     const lang = (i18n.language || 'en').split('-')[0]; // Normalize 'tr-TR' → 'tr'
+    const { isActive, requestShow, dismiss } = usePopup('prayer_reward');
+
+    useEffect(() => {
+        if (isOpen) {
+            requestShow();
+        } else {
+            dismiss();
+        }
+    }, [isOpen, requestShow, dismiss]);
 
     // Body Scroll Lock
     useEffect(() => {
@@ -37,6 +47,7 @@ export default function PrayerRewardModal({ isOpen, onClose, content, prayerName
 
     const handleClose = () => {
         light(); // Gentle haptic feedback (was success/heavy)
+        dismiss();
         onClose();
     };
 
@@ -60,7 +71,7 @@ export default function PrayerRewardModal({ isOpen, onClose, content, prayerName
 
     return (
         <AnimatePresence>
-            {isOpen && (
+            {isActive && (
                 <>
                     {/* Backdrop */}
                     <motion.div

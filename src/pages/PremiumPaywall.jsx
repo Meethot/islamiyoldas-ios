@@ -5,7 +5,8 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useHaptics } from '@/hooks/useMobile';
 import { setPremium } from '@/services/creditService';
-import { getProducts, purchaseProduct, restorePurchases, PRODUCT_IDS } from '@/services/purchaseService';
+import { getProducts, purchaseProduct, restorePurchases, getOfferings, PRODUCT_IDS } from '@/services/purchaseService';
+import { RevenueCatUI } from '@revenuecat/purchases-capacitor-ui';
 import { analytics } from '@/services/analyticsService';
 
 // ─── Gold Dust Particles (Canvas) ────────────────────────
@@ -295,9 +296,37 @@ export default function PremiumPaywall({ variant = 'default', offeringId = 'curr
     // Fetch real product prices from the store on mount
     useEffect(() => {
         analytics.premiumPageViewed(variant === 'limited' ? 'limited_offer' : 'direct');
-        getProducts(offeringId).then(p => {
-            if (p.length > 0) setProducts(p);
-        });
+        
+        const loadPaywall = async () => {
+            try {
+                const offerings = await getOfferings();
+                const targetOffering = offeringId === 'current' 
+                    ? offerings?.current 
+                    : offerings?.all?.[offeringId] || offerings?.current;
+                
+                // A/B Test: Eğer aktif vitrin (veya seçilen vitrin) 'test_variant_b' ise native paywall göster
+                if (targetOffering?.identifier === 'test_variant_b') {
+                    setIsLoading(true);
+                    const paywallResult = await RevenueCatUI.presentPaywall({ offering: targetOffering });
+                    
+                    if (paywallResult.result === 'PURCHASED' || paywallResult.result === 'RESTORED') {
+                        navigate('/'); // Satın aldıktan veya geri yükledikten sonra ana sayfaya yönlendir
+                    } else {
+                        navigate(-1); // Kapatırsa geri dön
+                    }
+                    return;
+                }
+            } catch (err) {
+                console.warn('[RC] Native paywall check failed, falling back to custom UI:', err);
+            }
+
+            // Standart React (Custom) Paywall Yükleme
+            getProducts(offeringId).then(p => {
+                if (p.length > 0) setProducts(p);
+            });
+        };
+        
+        loadPaywall();
         
         // Premium sayfasına gelindiğinde alttaki reklamı her ihtimale karşı gizle
         import('@/services/adService').then(({ hideBannerAd }) => {
@@ -421,11 +450,14 @@ export default function PremiumPaywall({ variant = 'default', offeringId = 'curr
             
             const result = await purchaseProduct(purchaseTarget);
             clearTimeout(timeoutId);
-            if (result.success) {
+            if (result.success && result.isPremium) {
                 success();
                 setPremium(true);
                 setShowSuccess(true);
                 analytics.premiumPurchaseCompleted(planName, product?.price || 0, productId);
+            } else if (result.success && !result.isPremium) {
+                setToast({ type: 'error', message: t('premium.iap_verification_failed', 'Satın alım onaylanamadı. (Geçersiz işlem)') });
+                analytics.premiumPurchaseFailed(planName, 'verification_failed');
             } else if (result.error && result.error !== 'cancelled') {
                 const msg = getErrorMessage(result.error);
                 if (msg) setToast({ type: 'error', message: msg });

@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { MapPin, Bell } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
+import { usePopup } from '@/hooks/usePopup';
 
 export default function SmartPermissionModal({
     cardType, // 'location' | 'notification' | null
@@ -13,16 +14,29 @@ export default function SmartPermissionModal({
 }) {
     const { t } = useTranslation('home');
     const navigate = useNavigate();
+    const { isActive, requestShow, dismiss } = usePopup('smart_permission');
     
     // 1-second grace period — prevents accidental dismiss when modal appears mid-tap
     const [interactable, setInteractable] = useState(false);
     
     useEffect(() => {
-        if (!cardType) { setInteractable(false); return; }
-        setInteractable(false);
-        const timer = setTimeout(() => setInteractable(true), 1000);
-        return () => clearTimeout(timer);
-    }, [cardType]);
+        if (!cardType) { 
+            setInteractable(false); 
+            dismiss();
+            return; 
+        }
+        requestShow();
+    }, [cardType, requestShow, dismiss]);
+
+    useEffect(() => {
+        if (isActive && cardType) {
+            setInteractable(false);
+            const timer = setTimeout(() => setInteractable(true), 1000);
+            return () => clearTimeout(timer);
+        } else {
+            setInteractable(false);
+        }
+    }, [isActive, cardType]);
 
     const handleLocationAction = async (accept) => {
         if (accept) {
@@ -47,7 +61,7 @@ export default function SmartPermissionModal({
 
     return (
         <AnimatePresence mode="wait">
-            {cardType && (
+            {isActive && cardType && (
                 <motion.div
                     key={`permission-backdrop-${cardType}`}
                     initial={{ opacity: 0 }}
