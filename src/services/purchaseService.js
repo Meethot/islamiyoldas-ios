@@ -13,6 +13,8 @@ const ENTITLEMENT_ID = 'İslami Yoldas Pro';
 export const PRODUCT_IDS = {
     MONTHLY: 'com.islamiyoldas.app.monthly',
     YEARLY: 'com.islamiyoldas.app.yearly',
+    YEARLY_OFFER_499: 'com.islamiyoldas.app.yearly.offer.499',
+    YEARLY_OFFER_399: 'com.islamiyoldas.app.yearly.offer.399',
 };
 
 const PREMIUM_KEY = 'aminKumbara_premium';
@@ -53,10 +55,17 @@ function checkEntitlements(customerInfo) {
     if (!customerInfo?.entitlements?.active) return { isPremium: false, planId: 'free' };
 
     const premiumEntitlement = customerInfo.entitlements.active[ENTITLEMENT_ID];
-    if (premiumEntitlement) {
+    
+    // 🛡️ Fallback: Eğer spesifik ID eşleşmediyse ama içeride aktif başka bir entitlement varsa onu kullan.
+    // Bu, test ortamlarında veya dashboard'da ID ismi değiştiğinde hatayı önler.
+    const anyActiveEntitlement = Object.values(customerInfo.entitlements.active)[0];
+    
+    const activeEntitlement = premiumEntitlement || anyActiveEntitlement;
+
+    if (activeEntitlement) {
         return {
             isPremium: true,
-            planId: premiumEntitlement.productIdentifier || 'premium',
+            planId: activeEntitlement.productIdentifier || 'premium',
         };
     }
     return { isPremium: false, planId: 'free' };
@@ -91,10 +100,9 @@ export async function initializePurchases() {
                 apiKey: apiKey,
             });
 
-            // Debug modda verbose log
-            if (import.meta.env.DEV) {
-                await Purchases.setLogLevel({ level: LOG_LEVEL.DEBUG });
-            }
+            // 🔧 TEST AŞAMASI: her zaman verbose log (adb logcat'te [Purchases] detayları için).
+            // Yayına çıkmadan önce tekrar if (import.meta.env.DEV) koşuluna alınacak!
+            await Purchases.setLogLevel({ level: LOG_LEVEL.DEBUG });
 
             // Müşteri bilgisi değişikliklerini dinle (yenilenme, iptal, geri ödeme)
             await Purchases.addCustomerInfoUpdateListener((customerInfo) => {
@@ -166,6 +174,7 @@ export async function getOfferings() {
  */
 export async function getProducts(offeringIdentifier = 'current') {
     if (!Capacitor.isNativePlatform()) {
+        if (offeringIdentifier !== 'current') return [];
         return [
             { identifier: PRODUCT_IDS.MONTHLY, priceString: '₺124,99', price: 124.99, currencyCode: 'TRY', title: 'Aylık Premium', description: 'Aylık abonelik' },
             { identifier: PRODUCT_IDS.YEARLY, priceString: '₺739,99', price: 739.99, currencyCode: 'TRY', title: 'Yıllık Premium', description: 'Yıllık abonelik' },
@@ -179,7 +188,7 @@ export async function getProducts(offeringIdentifier = 'current') {
         const offerings = await getOfferings();
         const targetOffering = offeringIdentifier === 'current' 
             ? offerings?.current 
-            : offerings?.all?.[offeringIdentifier] || offerings?.current;
+            : offerings?.all?.[offeringIdentifier]; // HATA DÜZELTİLDİ: || offerings?.current KISMI SİLİNDİ
 
         if (targetOffering?.availablePackages?.length) {
             return targetOffering.availablePackages.map(pkg => ({
@@ -195,11 +204,18 @@ export async function getProducts(offeringIdentifier = 'current') {
             }));
         }
 
-        // Fallback: Offerings yoksa doğrudan ürün ID ile sorgula
-        const products = await Purchases.getProducts({
+        // Fallback: Eğer spesifik bir vitrin istenmiş ama bulunamamışsa boş dön
+        // Böylece çağıran yer kendi fallback'ini yapabilir (örn: PremiumPaywall)
+        if (offeringIdentifier !== 'current') {
+            return [];
+        }
+
+        // Fallback: Sadece 'current' ana vitrin istenmişse ve bulunamamışsa standart ürünleri getir
+        const productsResult = await Purchases.getProducts({
             productIdentifiers: [PRODUCT_IDS.MONTHLY, PRODUCT_IDS.YEARLY],
         });
-        return (products?.products || []).map(p => ({
+        const products = productsResult?.products || [];
+        return products.map(p => ({
             identifier: p.identifier,
             priceString: p.priceString,
             price: p.price,
@@ -209,8 +225,48 @@ export async function getProducts(offeringIdentifier = 'current') {
         }));
     } catch (err) {
         console.warn('[RC] getProducts error:', err);
+        return [];
     }
-    return [];
+}
+
+/**
+ * Belirli ürün ID'leri için paketleri RevenueCat üzerinden getirir.
+ * Downsell (Özel İndirim) popup'ında kullanılmak üzere eklendi.
+ * @param {Array<string>} productIdentifiers (Örn: [PRODUCT_IDS.YEARLY_OFFER_499])
+ */
+export async function getSpecificProducts(productIdentifiers) {
+    if (!Capacitor.isNativePlatform()) {
+        return productIdentifiers.map(id => ({
+            identifier: id,
+            priceString: id.includes('499') ? '₺499,99' : '₺399,99',
+            price: id.includes('499') ? 499.99 : 399.99,
+            currencyCode: 'TRY',
+            title: id.includes('499') ? 'Özel Yıllık Premium' : 'Sınırlı Yıllık Premium',
+            description: 'İndirimli Yıllık Abonelik'
+        }));
+    }
+
+    if (!isInitialized && !isConfiguring) {
+        await initializePurchases();
+    }
+    
+    try {
+        const productsResult = await Purchases.getProducts({
+            productIdentifiers,
+        });
+        const products = productsResult?.products || [];
+        return products.map(p => ({
+            identifier: p.identifier,
+            priceString: p.priceString,
+            price: p.price,
+            currencyCode: p.currencyCode,
+            title: p.title,
+            description: p.description,
+        }));
+    } catch (err) {
+        console.warn('[RC] getSpecificProducts error:', err);
+        return [];
+    }
 }
 
 /**
@@ -232,9 +288,27 @@ export async function purchaseProduct(productIdOrObj) {
 
         // RevenueCat Package objesi varsa onu kullan (Offerings/A/B test)
         if (typeof productIdOrObj === 'object' && productIdOrObj.rcPackage) {
-            console.log('[RC] Purchasing package:', productIdOrObj.rcPackage.identifier);
+            const wantedOfferingId = productIdOrObj.offeringId || productIdOrObj.rcPackage.offeringIdentifier;
+            const wantedPkgId = productIdOrObj.rcPackage.identifier;
+            console.log('[RC] Purchasing package:', wantedPkgId, 'from offering:', wantedOfferingId);
+
+            let packageToBuy = productIdOrObj.rcPackage;
+            try {
+                // Taze paketi SADECE kullanıcının gerçekte gördüğü vitrinden çek.
+                // ⚠️ Tüm vitrinlerde aramak YANLIŞ: paket id'leri ($rc_annual vb.) vitrinler
+                // arası ortaktır; yanlış vitrinin paketi Google Play'de "invalid arguments" verir.
+                const offerings = await Purchases.getOfferings();
+                const targetOffering = wantedOfferingId
+                    ? (offerings?.all?.[wantedOfferingId] || offerings?.current)
+                    : offerings?.current;
+                const foundPkg = targetOffering?.availablePackages?.find(p => p.identifier === wantedPkgId);
+                if (foundPkg) packageToBuy = foundPkg;
+            } catch (e) {
+                console.warn('[RC] Failed to fetch fresh package, using provided one', e);
+            }
+
             result = await Purchases.purchasePackage({
-                aPackage: productIdOrObj.rcPackage,
+                aPackage: packageToBuy,
             });
         } else {
             // Doğrudan product ID ile satın al
@@ -262,11 +336,15 @@ export async function purchaseProduct(productIdOrObj) {
         return { success: true, isPremium };
     } catch (err) {
         console.error('[RC] Purchase error:', JSON.stringify(err));
+        const info = err?.data || {}; // Capacitor: native userInfo (readableErrorCode, underlyingErrorMessage) buraya düşer
         const msg = err?.message || String(err);
-        if (msg.includes('cancel') || msg.includes('Cancel') || msg.includes('PURCHASE_CANCELLED') || err?.code === 1) {
+        const readable = info.readableErrorCode || info.readable_error_code || '';
+        if (msg.includes('cancel') || msg.includes('Cancel') || readable === 'PURCHASE_CANCELLED' || err?.code === 1 || err?.code === '1') {
             return { success: false, error: 'cancelled' };
         }
-        return { success: false, error: msg };
+        // 🔧 TEST AŞAMASI: Asıl sebebi (Google Play debug mesajı) hataya ekle
+        const detail = [readable, info.underlyingErrorMessage].filter(Boolean).join(' | ');
+        return { success: false, error: detail ? `${msg} [${detail}]` : msg };
     }
 }
 

@@ -61,7 +61,15 @@
         "description": "Bu uygulamayı ümmet için sevgiyle geliştirdik. 5 yıldızlı değerlendirmeniz, daha fazla Müslüman kardeşimizin bu uygulamayı keşfetmesine vesile olur. 🤲",
         "hadith": "\"Kim bir hayra vesile olursa, o hayrı yapanın ecri gibi ecir alır.\" (Müslim)",
         "rateButton": "5 Yıldız Ver",
-        "later": "Daha Sonra Hatırlat"
+        "later": "Daha Sonra Hatırlat",
+        "askTitle": "Bize Destek Olmak İster Misiniz?",
+        "askDescription": "İslami Yoldaş'ı ümmet için büyük bir sevgi ve emekle geliştiriyoruz. Bize 5 yıldız vererek bu yolda elimizden tutar mısınız?",
+        "askLater": "Daha Sonra Hatırlat",
+        "thankYouTitle": "Allah Razı Olsun! 🤍",
+        "thankYouDescription": "Desteğiniz bizim için çok kıymetli. Uygulamamızı geliştirirken bizi motive ettiğiniz için teşekkür ederiz.",
+        "feedbackTitle": "Geri bildiriminiz için teşekkürler",
+        "feedbackDescription": "Beklentilerinizi karşılayamadığımız için üzgünüz. Uygulamamızı sizin için daha iyi hale getirmek amacıyla çalışmaya devam edeceğiz.",
+        "closeUnderstand": "Tamam"
     },
     "splash": {
         "title": "İslami Yoldaş",
@@ -127,7 +135,7 @@
         "social_proof": "2.000'den fazla kişilik ailemize katıl",
         "exit_title": "İslami Yolculuğundan Vazgeçme",
         "exit_message": "Premium olmadan bu özelliklere erişimini kaybedeceksin:",
-        "exit_loss_1": "Tüm premium Tefekkür ve Murakabe içerikleri",
+        "exit_loss_1": "Tüm premium widget ve kilit ekranı widget'ları",
         "exit_loss_2": "Kur'an dinleme ve huzurlu uyku modu",
         "exit_loss_3": "Detaylı ibadet takibi ve zikir hedefleri",
         "exit_cta": "Evet, Premium'a Devam Et",
@@ -152,6 +160,24 @@
         "iap_restore_success": "Satın alımlarınız başarıyla yüklendi.",
         "premium_member": "Premium Üye",
         "exit_journey": "Manevi yolculuğun",
-        "exit_reach_100": "Premium ile %100'e ulaş"
+        "exit_reach_100": "Premium ile %100'e ulaş",
+        "discount_ending": "Teklif Sona Eriyor",
+        "discount_title": "Bekleyen Teklifiniz Var",
+        "discount_desc1": "Premium'u",
+        "discount_desc2": "şimdi %40 indirimle",
+        "discount_desc3": "almak için son şansınız.",
+        "discount_warning": "Sayfayı kapattığınızda bu teklif iptal olur.",
+        "discount_badge": "%40 İNDİRİM",
+        "normal_price": "Normal Fiyat",
+        "daily_only": "Günlük Sadece",
+        "cheaper_than_water": "💧 Bir şişe sudan bile çok daha ucuz",
+        "billed_yearly": "Yıllık faturalandırılır",
+        "feat_audio_stories": "Sesli Hikayeler",
+        "feat_audio_quran": "Sesli Kur'an-ı Kerim",
+        "feat_widgets": "Özel Widgetlar",
+        "feat_no_ads": "Reklamsız Deneyim",
+        "feat_all_premium": "Tüm Premium Özellikler",
+        "use_offer": "TEKLİFİ KULLAN",
+        "cancel_offer": "Teklifi iptal et ve çık"
     }
 }

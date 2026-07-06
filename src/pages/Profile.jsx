@@ -1078,6 +1078,32 @@ export default function Profile() {
                 )}
             </AnimatePresence>
 
+            {/* Developer Test Buttons (Temporary for testing) */}
+            <div className="flex flex-col gap-2 mx-6 mt-4 opacity-50 mb-4">
+                <Button 
+                    onClick={() => navigate('/premium')}
+                    className="w-full bg-blue-500/20 text-blue-500 py-2 rounded-xl text-xs font-bold"
+                >
+                    🔧 Test: Paywall'ı Aç
+                </Button>
+                <Button 
+                    onClick={() => navigate('/premium?offer=true')}
+                    className="w-full bg-red-500/20 text-red-500 py-2 rounded-xl text-xs font-bold"
+                >
+                    🔥 Test: İndirim Popup Aç
+                </Button>
+                <Button
+                    onClick={async () => {
+                        await storageService.removeItem('islamiyoldas_discount_offer_end');
+                        await storageService.removeItem('islamiyoldas_discount_cooldown_end');
+                        window.location.reload();
+                    }}
+                    className="w-full bg-yellow-500/20 text-yellow-500 py-2 rounded-xl text-xs font-bold"
+                >
+                    ⏱ Test: Sayaç Cooldown Sıfırla
+                </Button>
+            </div>
+
             <div className="flex flex-col items-center pb-0 opacity-50 mt-0">
                 <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-stone-800 dark:text-white">
                     İSLAMİ YOLDAŞ

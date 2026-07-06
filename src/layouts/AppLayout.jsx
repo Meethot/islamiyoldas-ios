@@ -1,7 +1,7 @@
 import { Capacitor } from '@capacitor/core';
 import React, { useRef, useEffect } from 'react';
 import { Outlet, NavLink, useLocation, useNavigate } from 'react-router-dom';
-import { Settings, Heart, Star, Brain, Sparkles, Crown } from 'lucide-react';
+import { Settings, Heart, Star, Brain, Sparkles, Crown, Flame } from 'lucide-react';
 import { MosqueIcon } from '@/components/icons/PrayerIcons';
 import { cn } from '@/lib/utils';
 import { useHaptics } from '@/hooks/useMobile';
@@ -10,6 +10,7 @@ import { useTranslation } from 'react-i18next';
 import AvatarIcon from '@/components/AvatarIcon';
 import DebugMenu from '@/components/DebugMenu';
 import { useSmartPaywall } from '@/hooks/useSmartPaywall';
+import { useDiscountOffer } from '@/hooks/useDiscountOffer';
 
 /* Premium button shimmer animation */
 const premiumBtnStyle = `
@@ -23,6 +24,7 @@ export default function AppLayout() {
     const { selection } = useHaptics();
     const { pathname } = useLocation();
     const navigate = useNavigate();
+    const { isActive: isOfferActive, formattedTime } = useDiscountOffer();
     const mainContentRef = useRef(null);
     const { userData, isPremium: hasPremium } = useUser();
     const { t } = useTranslation('home'); // Use home namespace for greetings
@@ -133,27 +135,50 @@ export default function AppLayout() {
                                 <button
                                     onClick={() => {
                                         selection();
-                                        navigate('/premium');
+                                        navigate(isOfferActive ? '/premium?offer=true' : '/premium');
                                     }}
-                                    className="relative flex items-center gap-1.5 px-3 py-2 rounded-2xl transition-all active:scale-95 border border-[#D4AF37]/40 overflow-hidden"
+                                    className={`relative flex items-center gap-1.5 px-3 py-2 rounded-2xl transition-all active:scale-95 border overflow-hidden ${
+                                        isOfferActive ? 'border-[#FFD700]/50' : 'border-[#D4AF37]/40'
+                                    }`}
                                     style={{
-                                        background: 'linear-gradient(135deg, rgba(212,175,55,0.15) 0%, rgba(212,175,55,0.05) 100%)',
+                                        background: isOfferActive
+                                            ? 'linear-gradient(135deg, rgba(255,215,0,0.2) 0%, rgba(212,175,55,0.1) 100%)'
+                                            : 'linear-gradient(135deg, rgba(212,175,55,0.15) 0%, rgba(212,175,55,0.05) 100%)',
                                     }}
                                 >
                                     {/* Shimmer sweep overlay */}
                                     <div
                                         className="absolute inset-0 pointer-events-none"
                                         style={{
-                                            backgroundImage: 'linear-gradient(105deg, transparent 35%, rgba(212,175,55,0.2) 45%, rgba(255,215,0,0.35) 50%, rgba(212,175,55,0.2) 55%, transparent 65%)',
+                                            backgroundImage: isOfferActive
+                                                ? 'linear-gradient(105deg, transparent 35%, rgba(255,215,0,0.3) 45%, rgba(255,255,255,0.5) 50%, rgba(255,215,0,0.3) 55%, transparent 65%)'
+                                                : 'linear-gradient(105deg, transparent 35%, rgba(212,175,55,0.2) 45%, rgba(255,215,0,0.35) 50%, rgba(212,175,55,0.2) 55%, transparent 65%)',
                                             backgroundSize: '200% 100%',
                                             animation: 'premium-btn-shimmer 3s ease-in-out infinite',
                                         }}
                                     />
-                                    <Crown size={14} className="text-[#D4AF37] relative z-10" fill="#D4AF37" fillOpacity={0.3} />
-                                    <span className="text-[11px] font-black tracking-wider text-[#D4AF37] uppercase relative z-10"
-                                          style={{ textShadow: '0 0 8px rgba(212,175,55,0.3)' }}>
-                                        Premium
-                                    </span>
+                                    {isOfferActive ? (
+                                        <div className="flex flex-col items-center justify-center relative z-10 leading-none py-0.5">
+                                            <span className="text-[8px] font-extrabold tracking-[0.15em] text-[#FFD700]/80 uppercase mb-[3px] whitespace-nowrap">
+                                                Son Teklif
+                                            </span>
+                                            <div className="flex items-center gap-1.5">
+                                                <div className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse shadow-[0_0_5px_rgba(239,68,68,0.8)]" />
+                                                <span className="text-[13px] font-black tracking-wider text-[#FFD700] font-mono leading-none"
+                                                      style={{ textShadow: '0 0 8px rgba(255,215,0,0.5)' }}>
+                                                    {formattedTime}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <>
+                                            <Crown size={14} className="text-[#D4AF37] relative z-10" fill="#D4AF37" fillOpacity={0.3} />
+                                            <span className="text-[11px] font-black tracking-wider text-[#D4AF37] uppercase relative z-10"
+                                                  style={{ textShadow: '0 0 8px rgba(212,175,55,0.3)' }}>
+                                                Premium
+                                            </span>
+                                        </>
+                                    )}
                                 </button>
                             )}
 

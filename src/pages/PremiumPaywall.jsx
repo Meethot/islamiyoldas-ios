@@ -1,13 +1,17 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Crown, Star, BookOpen, Users, Check, Sparkles, Loader2 } from 'lucide-react';
+import { X, Crown, Star, BookOpen, Users, Check, Sparkles, Loader2, Flame, Calendar } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useHaptics } from '@/hooks/useMobile';
 import { setPremium } from '@/services/creditService';
-import { getProducts, purchaseProduct, restorePurchases, getOfferings, PRODUCT_IDS } from '@/services/purchaseService';
+import { getProducts, purchaseProduct, restorePurchases, getOfferings, getSpecificProducts, PRODUCT_IDS } from '@/services/purchaseService';
+import { useDiscountOffer } from '@/hooks/useDiscountOffer';
 import { RevenueCatUI } from '@revenuecat/purchases-capacitor-ui';
 import { analytics } from '@/services/analyticsService';
+import { Capacitor } from '@capacitor/core';
+
+const isAndroid = Capacitor.getPlatform() === 'android';
 
 // ─── Gold Dust Particles (Canvas) ────────────────────────
 function GoldParticles() {
@@ -195,8 +199,8 @@ function PremiumHeroVisual() {
 // ─── CSS Animations ──────────────────────────────────────
 const css = `
 @keyframes pw-shimmer {
-    0% { background-position: 200% 0; }
-    100% { background-position: -200% 0; }
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
 }
 @keyframes pw-breathe {
     0%, 100% { opacity: 0.35; }
@@ -277,12 +281,63 @@ export default function PremiumPaywall({ variant = 'default', offeringId = 'curr
     const [reviewIdx, setReviewIdx] = useState(0);
     const [swipeDir, setSwipeDir] = useState(1);
     const [showExitPopup, setShowExitPopup] = useState(false);
+    const [showStandardExitPopup, setShowStandardExitPopup] = useState(false);
     const [showSuccess, setShowSuccess] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [isRestoring, setIsRestoring] = useState(false);
     const [products, setProducts] = useState([]);
     const [toast, setToast] = useState(null); // { type: 'error'|'info', message }
-    
+
+    // Discount Logic
+    const { isActive: isOfferActive, timeLeft, formattedTime, startOffer, canShowOffer } = useDiscountOffer();
+    const [offerProduct, setOfferProduct] = useState(null);
+    const locationParams = new URLSearchParams(window.location.search);
+    const forcedOffer = locationParams.get('offer') === 'true';
+
+    const [activeOfferingId, setActiveOfferingId] = useState(null);
+
+    useEffect(() => {
+        if (!activeOfferingId) return; // Hangi ana vitrinde olduğumuzu bilmeden teklif çekme
+
+        const fetchOffer = async () => {
+            // Ana vitrindeki (749 TL) kullanıcıya 499 TL'lik kısıtlı teklifi gösteriyoruz (limited_offer_a)
+            let exitOfferId = 'limited_offer_a'; 
+            
+            // Eğer kullanıcı A/B testindeyse (test_variant_b - 499 TL) 
+            // ona 399 TL'lik kısıtlı teklifi gösteriyoruz (limited_offer_b)
+            if (activeOfferingId === 'test_variant_b') {
+                exitOfferId = 'limited_offer_b';
+            }
+
+            const prods = await getProducts(exitOfferId);
+            if (prods && prods.length > 0) {
+                setOfferProduct(prods[0]);
+            } else {
+                // Fallback (eğer RevenueCat tarafında oluşturulmamışsa)
+                const fallbackId = activeOfferingId === 'test_variant_b' 
+                    ? PRODUCT_IDS.YEARLY_OFFER_399 
+                    : PRODUCT_IDS.YEARLY_OFFER_499;
+                const specificProd = await getSpecificProducts([fallbackId]);
+                if (specificProd && specificProd.length > 0) {
+                    setOfferProduct(specificProd[0]);
+                }
+            }
+        };
+        fetchOffer();
+    }, [activeOfferingId]);
+
+    useEffect(() => {
+        // If entered via active offer header button or manually forced via URL
+        if (forcedOffer) {
+            if (!isOfferActive) {
+                startOffer(true);
+            }
+            setShowExitPopup(true);
+        } else if (isOfferActive) {
+            setShowExitPopup(true);
+        }
+    }, [forcedOffer, isOfferActive]); // startOffer is stable from hook
+
     const lang = i18n.language?.split('-')[0] || 'en';
     const reviews = REVIEWS[lang] || REVIEWS.en;
 
@@ -296,28 +351,21 @@ export default function PremiumPaywall({ variant = 'default', offeringId = 'curr
     // Fetch real product prices from the store on mount
     useEffect(() => {
         analytics.premiumPageViewed(variant === 'limited' ? 'limited_offer' : 'direct');
-        
+
         const loadPaywall = async () => {
             try {
                 const offerings = await getOfferings();
-                const targetOffering = offeringId === 'current' 
-                    ? offerings?.current 
+                const targetOffering = offeringId === 'current'
+                    ? offerings?.current
                     : offerings?.all?.[offeringId] || offerings?.current;
                 
-                // A/B Test: Eğer aktif vitrin (veya seçilen vitrin) 'test_variant_b' ise native paywall göster
-                if (targetOffering?.identifier === 'test_variant_b') {
-                    setIsLoading(true);
-                    const paywallResult = await RevenueCatUI.presentPaywall({ offering: targetOffering });
-                    
-                    if (paywallResult.result === 'PURCHASED' || paywallResult.result === 'RESTORED') {
-                        navigate('/'); // Satın aldıktan veya geri yükledikten sonra ana sayfaya yönlendir
-                    } else {
-                        navigate(-1); // Kapatırsa geri dön
-                    }
-                    return;
+                if (targetOffering?.identifier) {
+                    setActiveOfferingId(targetOffering.identifier);
+                } else {
+                    setActiveOfferingId('default'); // Web ortamında veya RevenueCat yüklenemediğinde fallback
                 }
             } catch (err) {
-                console.warn('[RC] Native paywall check failed, falling back to custom UI:', err);
+                console.warn('[RC] Offering check failed:', err);
             }
 
             // Standart React (Custom) Paywall Yükleme
@@ -325,13 +373,13 @@ export default function PremiumPaywall({ variant = 'default', offeringId = 'curr
                 if (p.length > 0) setProducts(p);
             });
         };
-        
+
         loadPaywall();
-        
+
         // Premium sayfasına gelindiğinde alttaki reklamı her ihtimale karşı gizle
         import('@/services/adService').then(({ hideBannerAd }) => {
             hideBannerAd();
-        }).catch(() => {});
+        }).catch(() => { });
     }, []);
 
     // Format a numeric price with the product's currency using Intl.NumberFormat
@@ -353,14 +401,14 @@ export default function PremiumPaywall({ variant = 'default', offeringId = 'curr
         let product;
         if (packageType) product = products.find(p => p.packageType === packageType);
         if (!product) product = products.find(p => p.identifier === productId || p.identifier.startsWith(productId + ':'));
-        
+
         // Android'de Google Play deneme sürümü için "Starting tomorrow at..." gibi yazılar ekleyebildiği için 
         // Android cihazlarda rakamı manuel formatlıyoruz. iOS'te Apple'ın orijinal formatını (priceString) koruyoruz.
         const platform = window.Capacitor?.getPlatform() || 'web';
         if (platform === 'android' && product?.price && product?.currencyCode) {
             return formatPrice(product.price, product.currencyCode);
         }
-        
+
         return product?.priceString || null;
     }, [products, formatPrice]);
 
@@ -379,7 +427,7 @@ export default function PremiumPaywall({ variant = 'default', offeringId = 'curr
     const getMonthlyEquivalent = useCallback(() => {
         let product = products.find(p => p.packageType === 'ANNUAL');
         if (!product) product = products.find(p => p.identifier === PRODUCT_IDS.YEARLY || p.identifier.startsWith(PRODUCT_IDS.YEARLY + ':'));
-        
+
         if (!product?.price || !product?.currencyCode) return null;
         return formatPrice(product.price / 12, product.currencyCode);
     }, [products, formatPrice]);
@@ -399,13 +447,33 @@ export default function PremiumPaywall({ variant = 'default', offeringId = 'curr
 
 
     const handleClose = useCallback(() => {
-        if (!showExitPopup) {
+        // If discount offer is showing, close goes home directly.
+        if (showExitPopup) {
+            analytics.paywallDismissed('confirmed');
+            navigate('/');
+            return;
+        }
+
+        // If standard exit popup is showing, close goes home directly.
+        if (showStandardExitPopup) {
+            analytics.paywallDismissed('confirmed');
+            navigate('/');
+            return;
+        }
+
+        // If not showing any popup yet, check if we CAN show the offer OR if it's already active
+        if (canShowOffer() || isOfferActive) {
             analytics.premiumDowngradeViewed();
+            if (!isOfferActive) {
+                startOffer(); // Start the 5-minute countdown!
+            }
             return setShowExitPopup(true);
         }
-        analytics.paywallDismissed('confirmed');
-        navigate('/');
-    }, [navigate, showExitPopup]);
+
+        // If offer is exhausted/in cooldown, show standard exit popup
+        analytics.premiumDowngradeViewed();
+        setShowStandardExitPopup(true);
+    }, [navigate, showExitPopup, showStandardExitPopup, canShowOffer, startOffer, isOfferActive]);
 
     // Map error codes to user-friendly messages
     const getErrorMessage = useCallback((error) => {
@@ -421,6 +489,47 @@ export default function PremiumPaywall({ variant = 'default', offeringId = 'curr
             return t('premium.iap_error_unavailable');
         return t('premium.iap_error_generic');
     }, [t]);
+
+    const handleOfferSubscribe = useCallback(async () => {
+        if (isLoading) return;
+        setIsLoading(true);
+        setToast(null);
+
+        const productId = PRODUCT_IDS.YEARLY_OFFER_499;
+        analytics.premiumPurchaseStarted('yearly_offer');
+
+        const timeoutId = setTimeout(() => {
+            setIsLoading(false);
+            setToast({ type: 'error', message: t('premium.iap_timeout') });
+            analytics.premiumPurchaseFailed('yearly_offer', 'timeout');
+        }, 60000);
+
+        try {
+            const purchaseTarget = offerProduct ? offerProduct : productId;
+            const result = await purchaseProduct(purchaseTarget);
+            clearTimeout(timeoutId);
+
+            if (result.success) {
+                success();
+                setPremium(true);
+                setShowSuccess(true);
+                analytics.premiumPurchaseCompleted('yearly_offer', offerProduct?.price || 499.99, productId);
+            } else if (result.error && result.error !== 'cancelled') {
+                // 🔧 GEÇİCİ TANI (test aşaması): ham hatayı ekranda göster
+                setToast({ type: 'error', message: `TEST-OFFER • ürün:${offerProduct?.identifier || 'yok'} pkg:${offerProduct?.rcPackage ? 'var' : 'yok'} • ${String(result.error).slice(0, 220)}` });
+                analytics.premiumPurchaseFailed('yearly_offer', result.error);
+            } else if (result.error === 'cancelled') {
+                analytics.premiumCancelled('user_cancelled');
+            }
+        } catch (err) {
+            clearTimeout(timeoutId);
+            // 🔧 GEÇİCİ TANI (test aşaması): ham exception'ı ekranda göster
+            setToast({ type: 'error', message: `TEST-OFFER • exception • ${String(err?.message || err).slice(0, 200)}` });
+            analytics.premiumPurchaseFailed('yearly_offer', 'exception');
+        } finally {
+            setIsLoading(false);
+        }
+    }, [isLoading, t, getErrorMessage, offerProduct, success]);
 
     const handleSubscribe = useCallback(async (explicitPlan) => {
         if (isLoading) return;
@@ -441,33 +550,31 @@ export default function PremiumPaywall({ variant = 'default', offeringId = 'curr
         try {
             const packageType = planName === 'yearly' ? 'ANNUAL' : 'MONTHLY';
             const productId = planName === 'yearly' ? PRODUCT_IDS.YEARLY : PRODUCT_IDS.MONTHLY;
-            
+
             let product = products.find(p => p.packageType === packageType);
             if (!product) product = products.find(p => p.identifier === productId || p.identifier.startsWith(productId + ':'));
 
             // Eğer product varsa tüm objeyi gönder, purchaseService rcPackage'ı kendi bulsun
             const purchaseTarget = product ? product : productId;
-            
+
             const result = await purchaseProduct(purchaseTarget);
             clearTimeout(timeoutId);
-            if (result.success && result.isPremium) {
+            if (result.success) {
                 success();
                 setPremium(true);
                 setShowSuccess(true);
                 analytics.premiumPurchaseCompleted(planName, product?.price || 0, productId);
-            } else if (result.success && !result.isPremium) {
-                setToast({ type: 'error', message: t('premium.iap_verification_failed', 'Satın alım onaylanamadı. (Geçersiz işlem)') });
-                analytics.premiumPurchaseFailed(planName, 'verification_failed');
             } else if (result.error && result.error !== 'cancelled') {
-                const msg = getErrorMessage(result.error);
-                if (msg) setToast({ type: 'error', message: msg });
+                // 🔧 GEÇİCİ TANI (test aşaması): ham hatayı ekranda göster
+                setToast({ type: 'error', message: `TEST • ürün:${products.length} pkg:${product?.rcPackage ? 'var' : 'yok'} • ${String(result.error).slice(0, 220)}` });
                 analytics.premiumPurchaseFailed(planName, result.error);
             } else if (result.error === 'cancelled') {
                 analytics.premiumCancelled('user_cancelled');
             }
         } catch (err) {
             clearTimeout(timeoutId);
-            setToast({ type: 'error', message: t('premium.iap_error_generic') });
+            // 🔧 GEÇİCİ TANI (test aşaması): ham exception'ı ekranda göster
+            setToast({ type: 'error', message: `TEST • exception • ${String(err?.message || err).slice(0, 180)}` });
             analytics.premiumPurchaseFailed(planName, 'exception');
         } finally {
             setIsLoading(false);
@@ -656,7 +763,7 @@ export default function PremiumPaywall({ variant = 'default', offeringId = 'curr
                             </div>
                         </motion.div>
 
-                        <h1 
+                        <h1
                             className="text-[#D4AF37] font-serif text-[24px] font-bold leading-tight tracking-tight mt-2.5 select-none"
                         >
                             {t('premium.headline')}
@@ -753,13 +860,13 @@ export default function PremiumPaywall({ variant = 'default', offeringId = 'curr
                     >
                         {/* Monthly */}
                         <button
-                            onClick={() => { 
+                            onClick={() => {
                                 if (selectedPlan === 'monthly') {
                                     handleSubscribe('monthly');
                                 } else {
-                                    selection(); 
-                                    setSelectedPlan('monthly'); 
-                                    analytics.premiumPlanSelected('monthly', getPrice(PRODUCT_IDS.MONTHLY, 'MONTHLY')); 
+                                    selection();
+                                    setSelectedPlan('monthly');
+                                    analytics.premiumPlanSelected('monthly', getPrice(PRODUCT_IDS.MONTHLY, 'MONTHLY'));
                                 }
                             }}
                             className={`flex-1 relative text-left p-3 rounded-xl border-2 transition-all overflow-hidden ${selectedPlan === 'monthly' ? 'border-white/25 bg-white/[0.05]' : 'border-white/[0.06] bg-white/[0.015]'}`}
@@ -783,12 +890,12 @@ export default function PremiumPaywall({ variant = 'default', offeringId = 'curr
 
                         {/* Yearly — HERO */}
                         <button
-                            onClick={() => { 
+                            onClick={() => {
                                 if (selectedPlan === 'yearly') {
                                     handleSubscribe('yearly');
                                 } else {
-                                    selection(); 
-                                    setSelectedPlan('yearly'); 
+                                    selection();
+                                    setSelectedPlan('yearly');
                                     analytics.premiumPlanSelected('yearly', getPrice(PRODUCT_IDS.YEARLY, 'ANNUAL'));
                                 }
                             }}
@@ -839,11 +946,12 @@ export default function PremiumPaywall({ variant = 'default', offeringId = 'curr
                             whileTap={{ scale: 0.97 }}
                         >
                             <div
-                                className="absolute inset-0 pointer-events-none"
+                                className="absolute inset-y-0 -inset-x-full pointer-events-none"
                                 style={{
                                     background: 'linear-gradient(105deg, transparent 35%, rgba(255,255,255,0.3) 45%, rgba(255,255,255,0.45) 50%, rgba(255,255,255,0.3) 55%, transparent 65%)',
-                                    backgroundSize: '200% 100%',
                                     animation: 'pw-shimmer 3s ease-in-out infinite',
+                                    willChange: 'transform',
+                                    transform: 'translateZ(0)'
                                 }}
                             />
                             <span className="relative z-10 block">
@@ -887,9 +995,9 @@ export default function PremiumPaywall({ variant = 'default', offeringId = 'curr
                 </div >
             </div >
 
-            {/* ═══ EXIT INTENT BOTTOM SHEET (Apple Compliant) ═══ */}
+            {/* ═══ STANDARD EXIT POPUP (2. Emin misin ekranı) ═══ */}
             <AnimatePresence>
-                {showExitPopup && (
+                {showStandardExitPopup && (
                     <motion.div
                         className="fixed inset-0 z-[70] flex flex-col justify-end"
                         initial={{ opacity: 0 }}
@@ -897,9 +1005,9 @@ export default function PremiumPaywall({ variant = 'default', offeringId = 'curr
                         exit={{ opacity: 0 }}
                         transition={{ duration: 0.3 }}
                     >
-                        {/* Dim Backdrop — tapping closes paywall entirely */}
+                        {/* Dim Backdrop */}
                         <motion.div
-                            className="absolute inset-0 bg-black/70 backdrop-blur-md"
+                            className={`absolute inset-0 ${!isAndroid ? 'bg-black/70 backdrop-blur-md' : 'bg-black/90'}`}
                             onClick={() => navigate('/')}
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
@@ -907,10 +1015,9 @@ export default function PremiumPaywall({ variant = 'default', offeringId = 'curr
 
                         {/* Bottom Sheet Card */}
                         <motion.div
-                            className="relative w-full rounded-t-3xl overflow-hidden"
+                            className={`relative w-full rounded-t-3xl overflow-hidden transform-gpu will-change-transform ${!isAndroid ? 'shadow-[0_-10px_40px_rgba(0,0,0,0.5),_0_0_0_1px_rgba(212,175,55,0.08)]' : 'shadow-none'}`}
                             style={{
                                 background: 'linear-gradient(175deg, #0f3d28 0%, #082b1c 35%, #041c11 75%, #010d07 100%)',
-                                boxShadow: '0 -10px 40px rgba(0,0,0,0.5), 0 0 0 1px rgba(212,175,55,0.08), 0 0 80px rgba(212,175,55,0.04)',
                             }}
                             initial={{ y: '100%' }}
                             animate={{ y: 0 }}
@@ -935,7 +1042,7 @@ export default function PremiumPaywall({ variant = 'default', offeringId = 'curr
 
                             <div className="px-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] pt-1">
 
-                                {/* Moon visual — compact for bottom sheet */}
+                                {/* Moon visual */}
                                 <motion.div className="w-20 h-20 mx-auto mb-3 relative"
                                     initial={{ scale: 0.5, opacity: 0 }}
                                     animate={{ scale: 1, opacity: 1 }}
@@ -956,37 +1063,8 @@ export default function PremiumPaywall({ variant = 'default', offeringId = 'curr
                                             initial={{ opacity: 0 }} animate={{ opacity: [0, 0.6, 0.4] }}
                                             transition={{ duration: 2, delay: 0.3 }} />
                                         <circle cx="60" cy="60" r="34" fill="url(#ex-moon)" opacity="0.9" />
-                                        <circle cx="60" cy="60" r="34" fill="url(#sc-inner)" />
                                         <circle cx="72" cy="52" r="26" fill="#082b1c" />
-                                        <circle cx="50" cy="50" r="3" fill="rgba(255,255,255,0.06)" />
-                                        <circle cx="56" cy="64" r="2" fill="rgba(255,255,255,0.04)" />
                                     </svg>
-
-                                    {/* Rotating dots */}
-                                    <motion.div className="absolute inset-[-8px]"
-                                        initial={{ opacity: 0 }}
-                                        animate={{ opacity: 0.6, rotate: 360 }}
-                                        transition={{ opacity: { duration: 0.8, delay: 0.5 }, rotate: { duration: 25, repeat: Infinity, ease: 'linear' } }}>
-                                        {Array.from({ length: 8 }, (_, i) => (
-                                            <div key={i} className="absolute rounded-full" style={{
-                                                width: i % 2 === 0 ? 2.5 : 1.5, height: i % 2 === 0 ? 2.5 : 1.5,
-                                                background: '#D4AF37',
-                                                top: `${50 + 48 * Math.sin(i * 45 * Math.PI / 180)}%`,
-                                                left: `${50 + 48 * Math.cos(i * 45 * Math.PI / 180)}%`,
-                                                transform: 'translate(-50%, -50%)',
-                                                opacity: i % 2 === 0 ? 0.5 : 0.25,
-                                            }} />
-                                        ))}
-                                    </motion.div>
-
-                                    {/* Sparkles */}
-                                    {[30, 130, 230, 330].map((deg, i) => (
-                                        <motion.div key={deg} className="absolute w-1 h-1 rounded-full bg-[#FFD700]"
-                                            style={{ top: `${50 + 50 * Math.sin(deg * Math.PI / 180)}%`, left: `${50 + 50 * Math.cos(deg * Math.PI / 180)}%` }}
-                                            initial={{ opacity: 0, scale: 0 }}
-                                            animate={{ opacity: [0, 0.8, 0.2], scale: [0, 1.2, 0.6] }}
-                                            transition={{ duration: 2.5, delay: 0.8 + i * 0.2, repeat: Infinity, repeatType: 'reverse' }} />
-                                    ))}
                                 </motion.div>
 
                                 {/* Heading */}
@@ -1009,10 +1087,10 @@ export default function PremiumPaywall({ variant = 'default', offeringId = 'curr
                                     {t('premium.exit_message')}
                                 </motion.p>
 
-                                {/* Loss aversion items — with accent bars */}
+                                {/* Loss aversion items */}
                                 <div className="space-y-2 mb-4">
                                     {[
-                                        { key: 'exit_loss_1', icon: '🤲', color: '#EF4444' },
+                                        { key: 'exit_loss_1', icon: '📱', color: '#EF4444' },
                                         { key: 'exit_loss_2', icon: '📖', color: '#F59E0B' },
                                         { key: 'exit_loss_3', icon: '📿', color: '#EF4444' },
                                     ].map((item, i) => (
@@ -1024,18 +1102,11 @@ export default function PremiumPaywall({ variant = 'default', offeringId = 'curr
                                             animate={{ opacity: 1, x: 0 }}
                                             transition={{ delay: 0.3 + i * 0.12 }}
                                         >
-                                            <motion.div className="absolute left-0 top-[15%] bottom-[15%] w-[3px] rounded-r-full"
-                                                style={{ background: item.color }}
-                                                initial={{ scaleY: 0 }} animate={{ scaleY: 1 }}
-                                                transition={{ duration: 0.4, delay: 0.5 + i * 0.12 }} />
                                             <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0"
                                                 style={{ background: 'rgba(239,68,68,0.08)' }}>
                                                 <span className="text-[15px]">{item.icon}</span>
                                             </div>
                                             <span className="text-white/60 text-[13px] leading-snug flex-1">{t(`premium.${item.key}`)}</span>
-                                            <div className="w-5 h-5 rounded-full bg-red-500/10 flex items-center justify-center flex-shrink-0">
-                                                <X size={11} className="text-red-400/70" />
-                                            </div>
                                         </motion.div>
                                     ))}
                                 </div>
@@ -1057,26 +1128,18 @@ export default function PremiumPaywall({ variant = 'default', offeringId = 'curr
                                     </p>
                                 </motion.div>
 
-
                                 {/* CTA */}
                                 <motion.button
-                                    onClick={() => setShowExitPopup(false)}
+                                    onClick={() => setShowStandardExitPopup(false)}
                                     className="relative w-full py-[18px] rounded-2xl font-bold text-[16px] text-[#021a0f] overflow-hidden mb-3"
                                     style={{
                                         background: 'linear-gradient(135deg, #FFE066 0%, #FFD700 30%, #D4AF37 70%, #FFD700 100%)',
-                                        boxShadow: '0 8px 35px rgba(212,175,55,0.4), inset 0 1px 0 rgba(255,255,255,0.3)',
                                     }}
                                     whileTap={{ scale: 0.97 }}
                                     initial={{ opacity: 0, y: 10 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ type: 'spring', stiffness: 120, damping: 16, delay: 0.9 }}
                                 >
-                                    <div className="absolute inset-0 pointer-events-none"
-                                        style={{
-                                            background: 'linear-gradient(105deg, transparent 30%, rgba(255,255,255,0.35) 42%, rgba(255,255,255,0.5) 50%, rgba(255,255,255,0.35) 58%, transparent 70%)',
-                                            backgroundSize: '200% 100%',
-                                            animation: 'pw-shimmer 2.5s ease-in-out infinite',
-                                        }} />
                                     <span className="relative z-10">{t('premium.exit_cta')}</span>
                                 </motion.button>
 
@@ -1090,6 +1153,214 @@ export default function PremiumPaywall({ variant = 'default', offeringId = 'curr
                                 >
                                     {t('premium.exit_dismiss')}
                                 </motion.button>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* ═══ EXIT INTENT BOTTOM SHEET (Discount Offer) ═══ */}
+            <AnimatePresence>
+                {showExitPopup && (
+                    <motion.div
+                        className="fixed inset-0 z-[70] flex flex-col justify-end"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.3 }}
+                    >
+                        {/* Dim Backdrop — tapping closes paywall entirely (Removed backdrop-blur for Android perf) */}
+                        <motion.div
+                            className={`absolute inset-0 ${!isAndroid ? 'bg-black/80 backdrop-blur-md' : 'bg-black/95'}`}
+                            onClick={() => navigate('/')}
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                        />
+
+                        {/* Bottom Sheet Card */}
+                        <motion.div
+                            className={`relative w-full max-w-md mx-auto rounded-t-3xl overflow-hidden border-t border-[#D4AF37]/30 transform-gpu will-change-transform ${!isAndroid ? 'shadow-[0_-20px_60px_rgba(0,0,0,0.8)]' : 'shadow-none'}`}
+                            style={{
+                                background: 'radial-gradient(circle at 50% 10%, #115e3b 0%, #073822 40%, #021a0f 85%, #010d07 100%)',
+                            }}
+                            initial={{ y: '100%' }}
+                            animate={{ y: 0 }}
+                            exit={{ y: '100%' }}
+                            transition={{ type: 'spring', damping: 26, stiffness: 280 }}
+                            drag="y"
+                            dragConstraints={{ top: 0, bottom: 0 }}
+                            dragElastic={0.2}
+                            onDragEnd={(_, info) => {
+                                if (info.offset.y > 80) navigate('/');
+                            }}
+                        >
+                            {/* Ambient Center Glow (Replaced expensive blur with radial-gradient on Android) */}
+                            {!isAndroid ? (
+                                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[80%] bg-[#D4AF37]/[0.08] blur-[80px] pointer-events-none rounded-full transform-gpu" />
+                            ) : (
+                                <div className="absolute top-[-20%] left-1/2 -translate-x-1/2 w-[150%] h-[120%] pointer-events-none transform-gpu" 
+                                     style={{ background: 'radial-gradient(ellipse at top, rgba(212,175,55,0.15) 0%, transparent 70%)' }} />
+                            )}
+
+                            {/* Drag Handle */}
+                            <div className="w-12 h-1.5 bg-white/20 rounded-full mx-auto mt-3 mb-2 relative z-10" />
+
+                            {/* Islamic pattern overlay (Significantly Increased Opacity) */}
+                            <div className="absolute inset-0 pointer-events-none opacity-[0.25] mix-blend-overlay"
+                                style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%23D4AF37' stroke-width='0.6'%3E%3Cpath d='M30 0L37 11L48 8L42 19L53 23L42 27L48 38L37 35L30 46L23 35L12 38L18 27L7 23L18 19L12 8L23 11Z'/%3E%3C/g%3E%3C/svg%3E")` }} />
+
+                            {/* Pulse Glow Background */}
+                            <div className="absolute top-0 left-0 right-0 h-48 bg-gradient-to-b from-[#D4AF37]/15 to-transparent opacity-60 pointer-events-none" />
+
+                            <div className="px-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] pt-3 relative z-10">
+
+                                <div className="flex flex-col items-center mb-4 relative">
+                                    {/* Ultra Premium Live Timer (Dark Solid Glass on Android instead of expensive backdrop-blur) */}
+                                    <div className={`relative overflow-hidden px-6 py-2.5 rounded-full border border-[#D4AF37]/20 shadow-[0_8px_30px_rgba(0,0,0,0.5)] flex items-center gap-3 mb-3 ${!isAndroid ? 'bg-black/40 backdrop-blur-md' : 'bg-[#041a10]'}`}>
+                                        {/* Glassmorphic Edge Highlights */}
+                                        <div className="absolute top-0 left-1/4 right-1/4 h-[1px] bg-gradient-to-r from-transparent via-[#D4AF37]/40 to-transparent" />
+                                        <div className="absolute bottom-0 left-1/4 right-1/4 h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+                                        
+                                        {/* Animated Sweep */}
+                                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#D4AF37]/10 to-transparent -translate-x-[150%] animate-[shimmer_2.5s_infinite_ease-in-out]" />
+                                        
+                                        {/* Radar Pulse Indicator */}
+                                        <div className="relative flex items-center justify-center flex-shrink-0">
+                                            <div className="absolute w-8 h-8 bg-red-500/15 rounded-full animate-ping" style={{ animationDuration: '2s' }} />
+                                            <div className="absolute w-5 h-5 bg-red-500/30 rounded-full animate-pulse will-change-opacity transform-gpu" />
+                                            <div className="relative w-2.5 h-2.5 bg-red-500 rounded-full shadow-[0_0_12px_rgba(239,68,68,0.8)]" />
+                                        </div>
+
+                                        <div className="flex flex-col relative z-10">
+                                            <span className="text-red-400/90 text-[9px] uppercase font-black tracking-[0.3em] leading-none mb-0.5 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
+                                                {t('premium.discount_ending')}
+                                            </span>
+                                            <span className="text-[#FFD700] font-mono text-[28px] font-black tracking-[0.1em] leading-none drop-shadow-[0_0_20px_rgba(255,215,0,0.25)]">
+                                                {formattedTime}
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <h2 className="text-[#FFD700] text-[24px] font-black leading-tight text-center drop-shadow-[0_2px_10px_rgba(212,175,55,0.3)] tracking-tight">
+                                        {t('premium.discount_title')}
+                                    </h2>
+                                    <p className="text-white/80 text-center text-[12px] mt-1.5 px-2 leading-relaxed font-medium">
+                                        <span className="text-red-400 inline-block font-bold">{t('premium.discount_warning')}</span>
+                                    </p>
+                                </div>
+
+                                {/* Pricing Box (Elegant & Balanced) */}
+                                <div className="bg-gradient-to-b from-[#0a2e1d] to-[#041c11] border border-[#D4AF37]/30 rounded-3xl p-4 mb-4 relative shadow-[0_10px_30px_rgba(0,0,0,0.5)] overflow-hidden max-w-[340px] mx-auto w-full">
+                                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.05] to-transparent -translate-x-[150%] animate-[shimmer_3s_infinite_ease-in-out]" />
+
+                                    {/* Top Section: Badges and Old Price */}
+                                    <div className="flex justify-between items-center mb-2 relative z-10 border-b border-white/10 pb-2">
+                                        <div className="bg-red-500/15 text-red-400 font-black text-[11px] px-2.5 py-1 rounded-lg border border-red-500/20 shadow-sm flex items-center gap-1">
+                                            <Flame size={12} className="animate-pulse will-change-opacity transform-gpu" />
+                                            {t('premium.discount_badge')}
+                                        </div>
+                                        <div className="flex flex-col items-end">
+                                            <span className="text-white/40 text-[9px] uppercase font-bold tracking-widest">{t('premium.normal_price')}</span>
+                                            <span className="text-white/50 line-through text-[13px] font-semibold mt-0.5">{getPrice(PRODUCT_IDS.YEARLY, 'ANNUAL') || '₺739,99'}</span>
+                                        </div>
+                                    </div>
+                                    
+                                    {/* Middle Section: Daily Price — THE HERO */}
+                                    <div className="flex flex-col items-center justify-center py-3 relative z-10">
+                                        {/* Golden Radial Glow Behind Price (Replaced expensive blur with radial-gradient on Android) */}
+                                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                                            {!isAndroid ? (
+                                                <div className="w-48 h-48 rounded-full bg-[#D4AF37]/[0.08] blur-[60px] transform-gpu" style={{ willChange: 'opacity, transform' }} />
+                                            ) : (
+                                                <div className="w-56 h-56 rounded-full transform-gpu" style={{ background: 'radial-gradient(circle, rgba(212,175,55,0.15) 0%, transparent 70%)', willChange: 'opacity, transform' }} />
+                                            )}
+                                        </div>
+                                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                                            {!isAndroid ? (
+                                                <div className="w-28 h-28 rounded-full bg-[#FFD700]/[0.12] blur-[30px] animate-pulse transform-gpu" style={{ animationDuration: '3s', willChange: 'opacity, transform' }} />
+                                            ) : (
+                                                <div className="w-32 h-32 rounded-full animate-pulse transform-gpu" style={{ background: 'radial-gradient(circle, rgba(255,215,0,0.25) 0%, transparent 70%)', animationDuration: '3s', willChange: 'opacity, transform' }} />
+                                            )}
+                                        </div>
+
+                                        {/* "Günlük" Pill Badge */}
+                                        <div className="flex items-center gap-1.5 bg-[#D4AF37]/10 border border-[#D4AF37]/20 rounded-full px-4 py-1 mb-2">
+                                            <span className="text-[#D4AF37] text-[10px] font-black tracking-[0.2em] uppercase">{t('premium.daily_only', 'Günlük Sadece')}</span>
+                                        </div>
+
+                                        {/* The Price — Massive & Bold */}
+                                        <div className="flex items-baseline justify-center relative">
+                                            <span className="text-[#FFD700] font-black text-[48px] leading-none tracking-tight" style={{ textShadow: '0 0 40px rgba(255,215,0,0.3), 0 4px 20px rgba(212,175,55,0.2)', fontFeatureSettings: '"tnum"' }}>
+                                                {getDailyPrice(PRODUCT_IDS.YEARLY, 'ANNUAL') || '₺1,36'}
+                                            </span>
+                                        </div>
+
+                                        {/* Value Anchor */}
+                                        <span className="text-white/40 text-[11px] font-medium mt-2 tracking-wide">{t('premium.cheaper_than_water', '💧 Bir şişe sudan bile çok daha ucuz')}</span>
+                                    </div>
+
+                                    {/* Bottom Section: Total Price */}
+                                    <div className="mt-4 bg-black/30 rounded-xl p-3.5 flex items-center justify-between relative z-10 border border-white/[0.08]">
+                                        <span className="text-white/50 text-[12px] font-medium flex items-center gap-1.5">
+                                            <Calendar size={13} className="text-[#D4AF37]" />
+                                            {t('premium.billed_yearly')}
+                                        </span>
+                                        <strong className="text-white/90 text-[15px] tracking-wide font-black">{offerProduct?.priceString || '₺499,99'}</strong>
+                                    </div>
+                                </div>
+
+                                {/* Features Grid */}
+                                <div className="grid grid-cols-2 gap-x-1 gap-y-2 mb-4 px-1 w-full max-w-[300px] mx-auto relative z-10">
+                                    <div className="flex items-center gap-2"><Check size={14} className="text-[#D4AF37]" /><span className="text-white/70 text-[11.5px] font-medium">{t('premium.feat_audio_stories')}</span></div>
+                                    <div className="flex items-center gap-2"><Check size={14} className="text-[#D4AF37]" /><span className="text-white/70 text-[11.5px] font-medium">{t('premium.feat_audio_quran')}</span></div>
+                                    <div className="flex items-center gap-2"><Check size={14} className="text-[#D4AF37]" /><span className="text-white/70 text-[11.5px] font-medium">{t('premium.feat_widgets')}</span></div>
+                                    <div className="flex items-center gap-2"><Check size={14} className="text-[#D4AF37]" /><span className="text-white/70 text-[11.5px] font-medium">{t('premium.feat_no_ads')}</span></div>
+                                    <div className="flex items-center gap-2 col-span-2 justify-center mt-1"><Check size={15} className="text-[#FFD700] drop-shadow-[0_0_8px_rgba(255,215,0,0.5)]" /><span className="text-[#FFD700] text-[12px] font-bold drop-shadow-[0_0_8px_rgba(255,215,0,0.3)]">{t('premium.feat_all_premium')}</span></div>
+                                </div>
+
+                                {/* CTA */}
+                                <motion.button
+                                    onClick={handleOfferSubscribe}
+                                    disabled={isLoading}
+                                    className="relative w-full py-[16px] rounded-2xl font-black text-[18px] text-[#021a0f] overflow-hidden mb-2 flex justify-center items-center tracking-wide"
+                                    style={{
+                                        background: 'linear-gradient(135deg, #FFD700 0%, #FFF5C3 30%, #D4AF37 70%, #FFD700 100%)',
+                                        boxShadow: '0 8px 30px rgba(212,175,55,0.4), inset 0 1px 0 rgba(255,255,255,0.5)',
+                                    }}
+                                    whileTap={{ scale: 0.96 }}
+                                >
+                                    <div className="absolute inset-y-0 -inset-x-full pointer-events-none"
+                                        style={{
+                                            background: 'linear-gradient(105deg, transparent 35%, rgba(255,255,255,0.6) 45%, rgba(255,255,255,0.8) 50%, rgba(255,255,255,0.6) 55%, transparent 65%)',
+                                            animation: 'pw-shimmer 2s linear infinite',
+                                            willChange: 'transform',
+                                            transform: 'translateZ(0)'
+                                        }} />
+                                    <span className="relative z-10">{isLoading ? <Loader2 className="w-6 h-6 animate-spin text-[#021a0f]" /> : t('premium.use_offer')}</span>
+                                </motion.button>
+
+                                {/* Dismiss */}
+                                <button
+                                    onClick={() => navigate('/')}
+                                    className="w-full text-center text-white/30 text-[13px] font-medium hover:text-white/50 transition-colors py-2 underline decoration-white/20 underline-offset-4"
+                                >
+                                    {t('premium.cancel_offer')}
+                                </button>
+                                {/* Apple Mandatory Legal Links */}
+                                <div className="flex items-center justify-center gap-3 pb-2 flex-shrink-0">
+                                    <button onClick={handleRestore} disabled={isRestoring} className="text-white/30 text-[10px] hover:text-white/50 transition-colors flex items-center gap-1">
+                                        {isRestoring && <Loader2 size={10} className="animate-spin" />}
+                                        {t('premium.restore')}
+                                    </button>
+                                    <span className="text-white/15 text-[10px]">•</span>
+                                    <button onClick={() => window.open('https://www.islamiyoldas.com/terms', '_blank')} className="text-white/30 text-[10px] hover:text-white/50 transition-colors">
+                                        {t('premium.terms')}
+                                    </button>
+                                    <span className="text-white/15 text-[10px]">•</span>
+                                    <button onClick={() => window.open('https://www.islamiyoldas.com/privacy', '_blank')} className="text-white/30 text-[10px] hover:text-white/50 transition-colors">
+                                        {t('premium.privacy')}
+                                    </button>
+                                </div>
                             </div>
                         </motion.div>
                     </motion.div>

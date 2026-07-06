@@ -61,7 +61,15 @@
         "description": "We built this app with love for the Ummah. Your 5-star review helps more Muslims discover this app. 🤲",
         "hadith": "\"Whoever guides someone to goodness will have a similar reward.\" (Muslim)",
         "rateButton": "Rate Us 5 Stars",
-        "later": "Remind Me Later"
+        "later": "Remind Me Later",
+        "askTitle": "Would you like to support us?",
+        "askDescription": "We are developing Islamic Companion with great love and effort for the Ummah. Would you support us on this journey by giving us 5 stars?",
+        "askLater": "Remind Me Later",
+        "thankYouTitle": "May Allah Bless You! 🤍",
+        "thankYouDescription": "Your support is very valuable to us. Thank you for motivating us as we develop our app.",
+        "feedbackTitle": "Thank you for your feedback",
+        "feedbackDescription": "We are sorry we couldn't meet your expectations. We will continue working to make our app better for you.",
+        "closeUnderstand": "Okay"
     },
     "splash": {
         "title": "Islamic Companion",
@@ -127,7 +135,7 @@
         "social_proof": "Join our family of 2,000+ members",
         "exit_title": "Don't Give Up on Your Islamic Journey",
         "exit_message": "Without Premium, you'll lose access to:",
-        "exit_loss_1": "All premium Tafakkur & Murakaba content",
+        "exit_loss_1": "All premium widgets and lock screen widgets",
         "exit_loss_2": "Quran listening & peaceful sleep mode",
         "exit_loss_3": "Detailed worship tracking & dhikr goals",
         "exit_cta": "Yes, Continue with Premium",
@@ -152,6 +160,24 @@
         "iap_restore_success": "Purchases restored successfully.",
         "premium_member": "Premium Member",
         "exit_journey": "Your spiritual journey",
-        "exit_reach_100": "Reach 100% with Premium"
+        "exit_reach_100": "Reach 100% with Premium",
+        "discount_ending": "Offer Ending",
+        "discount_title": "You Have a Pending Offer",
+        "discount_desc1": "This is your last chance to get Premium with",
+        "discount_desc2": "a 40% discount.",
+        "discount_desc3": "",
+        "discount_warning": "This offer will be canceled if you close the page.",
+        "discount_badge": "40% OFF",
+        "normal_price": "Normal Price",
+        "daily_only": "Only Daily",
+        "cheaper_than_water": "💧 Cheaper than a bottle of water",
+        "billed_yearly": "Billed yearly",
+        "feat_audio_stories": "Audio Stories",
+        "feat_audio_quran": "Audio Quran",
+        "feat_widgets": "Custom Widgets",
+        "feat_no_ads": "Ad-Free Experience",
+        "feat_all_premium": "All Premium Features",
+        "use_offer": "CLAIM OFFER",
+        "cancel_offer": "Cancel offer and exit"
     }
 }
