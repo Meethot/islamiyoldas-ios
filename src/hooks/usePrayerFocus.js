@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { getTodayString } from '@/lib/testDate';
+import { buildPrayerSchedule } from '@/lib/prayerTimeUtils';
 import { usePrayerTimes } from '@/context/PrayerTimesContext';
 import { LocalNotifications } from '@capacitor/local-notifications';
 import { Capacitor } from '@capacitor/core';
@@ -27,46 +28,31 @@ export function usePrayerFocus(prayerTimes, completedPrayers) {
 
         const checkPrayerTime = () => {
             const now = new Date();
-            const currentHour = now.getHours();
-            const currentMinute = now.getMinutes();
-            const currentTimeInMinutes = currentHour * 60 + currentMinute;
             const todayStr = getTodayString();
 
             // Filter to only actual prayer times (exclude sunrise)
             const actualPrayers = prayerTimes.filter(p => p.id !== 'sunrise');
+            const times = actualPrayers.map(p => p.time);
 
-            // Find current or next prayer
+            // Sequence-aware schedules for today AND yesterday: a midnight-crossing
+            // Isha (e.g. "00:10") belongs to yesterday's table right after it fires,
+            // so both must be checked for the 15-minute window
+            const yesterday = new Date(now);
+            yesterday.setDate(yesterday.getDate() - 1);
+            const schedules = [buildPrayerSchedule(times, now), buildPrayerSchedule(times, yesterday)];
+
+            // Find the prayer whose 15-minute window we're currently in
             let foundPrayer = null;
-
-            for (const prayer of actualPrayers) {
-                // Parse prayer time (format: "HH:MM" or "h:mm AM/PM")
-                let prayerHour, prayerMinute;
-                const timeStr = prayer.time;
-
-                if (timeStr.includes('AM') || timeStr.includes('PM')) {
-                    const match = timeStr.match(/(\d+):(\d+)\s*(AM|PM)/i);
-                    if (match) {
-                        prayerHour = parseInt(match[1]);
-                        prayerMinute = parseInt(match[2]);
-                        if (match[3].toUpperCase() === 'PM' && prayerHour !== 12) prayerHour += 12;
-                        if (match[3].toUpperCase() === 'AM' && prayerHour === 12) prayerHour = 0;
+            for (const schedule of schedules) {
+                for (let i = 0; i < actualPrayers.length; i++) {
+                    if (!schedule[i]) continue;
+                    const diffMinutes = (now - schedule[i]) / 60000;
+                    if (diffMinutes >= 0 && diffMinutes <= 15) {
+                        foundPrayer = actualPrayers[i];
+                        break;
                     }
-                } else {
-                    [prayerHour, prayerMinute] = timeStr.split(':').map(Number);
                 }
-
-                if (isNaN(prayerHour) || isNaN(prayerMinute)) continue;
-
-                const prayerTimeInMinutes = prayerHour * 60 + prayerMinute;
-
-                // Check if we're within the prayer time window (30 minutes)
-                const timeDiff = currentTimeInMinutes - prayerTimeInMinutes;
-
-                if (timeDiff >= 0 && timeDiff <= 30) {
-                    // We're in the prayer window!
-                    foundPrayer = prayer;
-                    break;
-                }
+                if (foundPrayer) break;
             }
 
             if (foundPrayer) {

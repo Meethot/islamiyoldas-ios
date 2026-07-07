@@ -4,4 +4,9 @@
     <string name="title_activity_main">İslami Yoldaş</string>
     <string name="package_name">com.islamiyoldas.app</string>
     <string name="custom_url_scheme">com.islamiyoldas.app</string>
+    <string name="widget_desc_verse">Her gün ruhunuza iyi gelecek bir ayet</string>
+    <string name="widget_desc_hourly_verse">Her saat başı yeni bir ilham veren ayet</string>
+    <string name="widget_desc_motivation">Her gün ruhunuza iyi gelecek motivasyon veren bir ayet</string>
+    <string name="widget_desc_esma">Her gün farklı bir Esma-ül Hüsnâ</string>
+    <string name="widget_desc_hourly_esma">Her saat başı yeni bir Esma-ül Hüsnâ</string>
 </resources>

@@ -1,218 +1,184 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronLeft, Smartphone, Lock } from 'lucide-react';
+import {
+    Smartphone, Lock, Crown, BookOpen, Sparkles,
+    RefreshCw, Hand, Flashlight, Camera, MoonStar, Check, ChevronLeft
+} from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useHaptics } from '@/hooks/useMobile';
 import { useUser } from '@/context/UserContext';
-import { Preferences } from '@capacitor/preferences';
+import { cn } from '@/lib/utils';
+import { Capacitor } from '@capacitor/core';
+import { MosqueIcon, TasbihIcon } from '@/components/icons/PrayerIcons';
 
-/* ─── STEP DATA ─── */
-const HOME_STEPS = [
-    { emoji: '👆', title: 'Ana ekrana uzun bas', desc: 'Boş bir alana parmağınla uzun basılı tut', color: '#34d399' },
-    { emoji: '✚', title: '"+" butonuna bas', desc: 'Sol üst köşedeki "+" butonuna dokun', color: '#fbbf24' },
-    { emoji: '🔎', title: '"İslami Yoldaş" ara', desc: 'Arama çubuğuna yaz ve uygulamayı seç', color: '#60a5fa' },
-    { emoji: '🔍', title: 'Boyutunu seç', desc: 'Küçük veya orta boy arasından seçim yap', color: '#a78bfa' },
-    { emoji: '✓', title: '"Widget Ekle" bas', desc: 'Beğendiğin widget\'ı seçip ekle. Tamam!', color: '#34d399' },
+/* ─── ADIM VERİLERİ — tüm metinler i18n key'i (home.json → widget_guide) ─── */
+const LOCK_STEPS = [
+    { t: 'l1t', d: 'l1d' },
+    { t: 'l2t', d: 'l2d', chip: 'chip_customize' },
+    { t: 'l3t', d: 'l3d' },
+    { t: 'l4t', d: 'l4d' },
+    { t: 'l5t', d: 'l5d', chip: 'chip_done' },
 ];
 
-const LOCK_STEPS = [
-    { emoji: '👆', title: 'Kilit ekranına uzun bas', desc: 'Kilit ekranındayken ekrana uzun basılı tut', color: '#fbbf24' },
-    { emoji: '✨', title: '"Özelleştir" bas', desc: '"Özelleştir" → "Kilit Ekranı"nı seç', color: '#f472b6' },
-    { emoji: '✚', title: 'Widget alanına dokun', desc: 'Saatin altındaki widget bölümüne dokun', color: '#60a5fa' },
-    { emoji: '🔎', title: '"İslami Yoldaş" seç', desc: 'Listeden uygulamayı bul ve widget\'ı seç', color: '#34d399' },
-    { emoji: '✓', title: '"Bitti" ile kaydet', desc: 'Sağ üstteki "Bitti" butonuna bas', color: '#fbbf24' },
+const HOME_STEPS = [
+    { t: 'h1t', d: 'h1d' },
+    { t: 'h2t', d: 'h2d', chip: '+' }, // "+" evrensel, çeviri gerektirmez
+    { t: 'h3t', d: 'h3d' },
+    { t: 'h4t', d: 'h4d' },
+    { t: 'h5t', d: 'h5d', chip: 'chip_add' },
+];
+
+const ANDROID_STEPS = [
+    { t: 'a1t', d: 'a1d' },
+    { t: 'a2t', d: 'a2d', chip: 'chip_widgets' },
+    { t: 'a3t', d: 'a3d' },
+    { t: 'a4t', d: 'a4d' },
+    { t: 'a5t', d: 'a5d' },
 ];
 
 const WIDGETS = [
-    { emoji: '🕌', name: 'Namaz Vakitleri', desc: 'Küçük · Orta · Kilit' },
-    { emoji: '📖', name: 'Günün Ayeti', desc: 'Küçük · Orta · Kilit' },
-    { emoji: '📿', name: 'Zikirmatik', desc: 'Küçük · Orta' },
-    { emoji: '🤲', name: 'Esma-ül Hüsna', desc: 'Küçük · Orta' },
+    { Icon: MosqueIcon, nameKey: 'w_prayer', sizes: ['size_small', 'size_medium', 'size_lock'] },
+    { Icon: BookOpen, nameKey: 'w_verse', sizes: ['size_small', 'size_medium', 'size_lock'] },
+    { Icon: TasbihIcon, nameKey: 'w_dhikr', sizes: ['size_small', 'size_medium'] },
+    { Icon: Sparkles, nameKey: 'w_esma', sizes: ['size_small', 'size_medium'] },
 ];
 
-/* ─── CSS-only step indicator ─── */
-function StepIndicator({ total, current, onSelect }) {
+/* ─── Marka logoları — Apple ısırık logosu & Android robot kafası ─── */
+const AppleLogo = ({ size = 16, className }) => (
+    <svg width={size} height={size} viewBox="0 0 384 512" fill="currentColor" className={className} aria-hidden="true">
+        <path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.7-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z" />
+    </svg>
+);
+
+const AndroidLogo = ({ size = 16, className }) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} aria-hidden="true">
+        <path d="M4.5 15a7.5 7.5 0 0 1 15 0" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" />
+        <line x1="4.5" y1="15" x2="19.5" y2="15" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" />
+        <line x1="7.3" y1="5.2" x2="8.8" y2="7.8" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" />
+        <line x1="16.7" y1="5.2" x2="15.2" y2="7.8" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" />
+        <circle cx="9.2" cy="11.8" r="1.1" fill="currentColor" />
+        <circle cx="14.8" cy="11.8" r="1.1" fill="currentColor" />
+    </svg>
+);
+
+/* ─── "Uzun bas" dokunma işareti — nabız atan altın halka ─── */
+function TapPulse({ className }) {
     return (
-        <div style={{ display: 'flex', gap: 6, justifyContent: 'center' }}>
-            {Array.from({ length: total }).map((_, i) => (
-                <button
-                    key={i}
-                    onClick={() => onSelect(i)}
-                    style={{
-                        height: 6,
-                        borderRadius: 3,
-                        border: 'none',
-                        padding: 0,
-                        cursor: 'pointer',
-                        width: i === current ? 24 : 8,
-                        background: i === current ? '#d4a053' : 'rgba(255,255,255,0.12)',
-                        transition: 'width 0.2s ease, background 0.2s ease',
-                    }}
-                />
-            ))}
+        <div className={cn('absolute pointer-events-none', className)}>
+            <span className="absolute inset-0 rounded-full bg-islamic-gold/40 animate-ping" style={{ animationDuration: '1.8s' }} />
+            <span className="relative flex items-center justify-center w-9 h-9 rounded-full bg-islamic-gold/25 ring-2 ring-islamic-gold/80">
+                <Hand size={15} className="text-white drop-shadow" />
+            </span>
         </div>
     );
 }
 
-/* ─── Pure CSS Transform Carousel ─── */
-function StepCarousel({ steps, stepsKey }) {
-    const [current, setCurrent] = useState(0);
-    const touchStartX = useRef(0);
-    const touchStartY = useRef(0);
-    const goTo = useCallback((i) => {
-        if (i < 0 || i >= steps.length) return;
-        setCurrent(i);
-    }, [steps.length]);
-
-    const handleTouchStart = useCallback((e) => {
-        touchStartX.current = e.touches[0].clientX;
-        touchStartY.current = e.touches[0].clientY;
-    }, []);
-
-    const handleTouchEnd = useCallback((e) => {
-        const dx = e.changedTouches[0].clientX - touchStartX.current;
-        const dy = e.changedTouches[0].clientY - touchStartY.current;
-        // Only trigger if horizontal swipe is dominant
-        if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) {
-            goTo(dx < 0 ? current + 1 : current - 1);
-        }
-    }, [current, goTo]);
-
+/* ─── Mini telefon çerçevesi — iOS: Dynamic Island, Android: delikli kamera ─── */
+function PhoneFrame({ children, platform = 'ios' }) {
     return (
-        <div style={{ marginTop: 16 }}>
-            {/* Carousel track */}
-            <div
-                style={{
-                    height: 200,
-                    overflow: 'hidden',
-                    borderRadius: 16,
-                    background: 'rgba(255,255,255,0.02)',
-                    border: '1px solid rgba(255,255,255,0.06)',
-                }}
-                onTouchStart={handleTouchStart}
-                onTouchEnd={handleTouchEnd}
-            >
-                <div
-                    style={{
-                        display: 'flex',
-                        height: '100%',
-                        transform: `translate3d(-${current * 100}%, 0, 0)`,
-                        transition: 'transform 0.28s cubic-bezier(0.25, 0.1, 0.25, 1)',
-                    }}
-                >
-                    {steps.map((step, i) => (
-                        <div
-                            key={`${stepsKey}-${i}`}
-                            style={{
-                                flexShrink: 0,
-                                width: '100%',
-                                height: '100%',
-                                display: 'flex',
-                                flexDirection: 'column',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                padding: '0 24px',
-                                textAlign: 'center',
-                            }}
-                        >
-                            {/* Emoji ring + badge */}
-                            <div style={{
-                                width: 76,
-                                height: 76,
-                                borderRadius: '50%',
-                                background: `${step.color}15`,
-                                border: `2px solid ${step.color}30`,
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                marginBottom: 18,
-                                position: 'relative',
-                            }}>
-                                <span style={{ fontSize: 30 }}>{step.emoji}</span>
-                                <div style={{
-                                    position: 'absolute',
-                                    top: -4,
-                                    right: -4,
-                                    width: 26,
-                                    height: 26,
-                                    borderRadius: '50%',
-                                    background: step.color,
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    fontSize: 11,
-                                    fontWeight: 900,
-                                    color: '#fff',
-                                }}>
-                                    {i + 1}
-                                </div>
-                            </div>
-                            <h3 style={{
-                                fontSize: 21,
-                                fontWeight: 700,
-                                color: '#fff',
-                                marginBottom: 6,
-                                fontFamily: 'serif',
-                            }}>{step.title}</h3>
-                            <p style={{
-                                fontSize: 14,
-                                color: 'rgba(209,250,229,0.7)',
-                                lineHeight: 1.5,
-                                maxWidth: 280,
-                            }}>{step.desc}</p>
+        <div className="relative w-44 h-[330px] mx-auto rounded-[2.6rem] bg-[#02140c] p-2 shadow-xl shadow-stone-300/60 dark:shadow-black/40 ring-1 ring-stone-300 dark:ring-white/15">
+            <div className="relative w-full h-full rounded-[2.1rem] overflow-hidden bg-gradient-to-b from-[#0b3d26] via-[#06301c] to-[#021a0f]">
+                {platform === 'ios'
+                    ? <div className="absolute top-2 left-1/2 -translate-x-1/2 w-16 h-4 rounded-full bg-black/80 z-10" />
+                    : <div className="absolute top-2.5 left-1/2 -translate-x-1/2 w-2.5 h-2.5 rounded-full bg-black/80 ring-1 ring-white/10 z-10" />
+                }
+                {children}
+                {/* Cam yansıması */}
+                <div className="absolute inset-0 bg-gradient-to-br from-white/[0.08] via-transparent to-transparent pointer-events-none z-20" />
+            </div>
+        </div>
+    );
+}
+
+/* ─── Kilit ekranı önizlemesi ─── */
+function LockPreview({ t }) {
+    return (
+        <PhoneFrame>
+            <div className="flex flex-col items-center pt-9">
+                <p className="text-[42px] font-extralight text-white leading-none tracking-tight">09:41</p>
+
+                {/* Saatin altındaki widget satırı — bizimki altın çerçeveyle vurgulu */}
+                <div className="flex items-center gap-1.5 mt-3">
+                    <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-white/15 ring-2 ring-islamic-gold shadow-[0_0_14px_rgba(212,175,55,0.35)]">
+                        <MosqueIcon size={15} className="text-islamic-gold" />
+                        <div className="text-left">
+                            <p className="text-[8px] font-semibold text-white/70 leading-none">{t('widget_guide.mock_prayer')}</p>
+                            <p className="text-[11px] font-bold text-white leading-tight">16:32</p>
                         </div>
+                    </div>
+                    {/* Boş widget yuvası */}
+                    <div className="w-9 h-9 rounded-xl bg-white/[0.07] border border-dashed border-white/25 flex items-center justify-center">
+                        <span className="text-white/40 text-sm font-light">+</span>
+                    </div>
+                </div>
+
+                <TapPulse className="top-[190px] left-1/2 -translate-x-1/2" />
+            </div>
+
+            {/* Fener & kamera */}
+            <div className="absolute bottom-3 inset-x-5 flex justify-between">
+                <div className="w-7 h-7 rounded-full bg-white/10 flex items-center justify-center"><Flashlight size={12} className="text-white/60" /></div>
+                <div className="w-7 h-7 rounded-full bg-white/10 flex items-center justify-center"><Camera size={12} className="text-white/60" /></div>
+            </div>
+        </PhoneFrame>
+    );
+}
+
+/* ─── Ana ekran önizlemesi (iOS + Android) ─── */
+function HomePreview({ t, platform = 'ios' }) {
+    return (
+        <PhoneFrame platform={platform}>
+            <div className="px-3 pt-9">
+                {/* Bizim orta boy widget */}
+                <div className="rounded-2xl p-2.5 bg-gradient-to-br from-[#0b5c35] to-[#032e18] ring-2 ring-islamic-gold shadow-[0_0_14px_rgba(212,175,55,0.3)]">
+                    <div className="flex items-center gap-1.5">
+                        <MosqueIcon size={14} className="text-islamic-gold" />
+                        <p className="text-[9px] font-bold text-white/90 truncate">{t('widget_guide.w_prayer')}</p>
+                    </div>
+                    <div className="flex items-end justify-between mt-1.5">
+                        <div>
+                            <p className="text-base font-extrabold text-white leading-none">16:32</p>
+                            <p className="text-[8px] font-medium text-white/60 mt-0.5">{t('widget_guide.mock_prayer')}</p>
+                        </div>
+                        <MoonStar size={14} className="text-islamic-gold/80 mb-0.5" />
+                    </div>
+                </div>
+
+                {/* Uygulama ikonları — biri bizim uygulama */}
+                <div className="relative grid grid-cols-4 gap-2 mt-3">
+                    {Array.from({ length: 8 }).map((_, i) => (
+                        i === 1
+                            ? <div key={i} className="h-8 rounded-lg bg-gradient-to-b from-[#0b5c35] to-[#032e18] ring-1 ring-islamic-gold/60 flex items-center justify-center"><MoonStar size={12} className="text-islamic-gold" /></div>
+                            : <div key={i} className="h-8 rounded-lg bg-white/10" />
                     ))}
+                    <TapPulse className="-bottom-14 left-1/2 -translate-x-1/2" />
                 </div>
             </div>
 
-            {/* Controls */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 14, padding: '0 8px' }}>
-                <button
-                    onClick={() => goTo(current - 1)}
-                    disabled={current === 0}
-                    style={{
-                        width: 36, height: 36, borderRadius: '50%',
-                        background: 'rgba(255,255,255,0.06)', border: 'none',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        opacity: current === 0 ? 0.2 : 1,
-                        cursor: 'pointer',
-                        transition: 'opacity 0.15s',
-                    }}
-                >
-                    <ChevronLeft style={{ width: 16, height: 16, color: '#fff' }} />
-                </button>
-
-                <StepIndicator total={steps.length} current={current} onSelect={goTo} />
-
-                <button
-                    onClick={() => goTo(current + 1)}
-                    disabled={current === steps.length - 1}
-                    style={{
-                        width: 36, height: 36, borderRadius: '50%',
-                        background: 'rgba(255,255,255,0.06)', border: 'none',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        opacity: current === steps.length - 1 ? 0.2 : 1,
-                        cursor: 'pointer',
-                        transform: 'rotate(180deg)',
-                        transition: 'opacity 0.15s',
-                    }}
-                >
-                    <ChevronLeft style={{ width: 16, height: 16, color: '#fff' }} />
-                </button>
+            {/* Dock */}
+            <div className="absolute bottom-2 inset-x-2 h-11 rounded-[1.3rem] bg-white/10 flex items-center justify-around px-2">
+                {Array.from({ length: 4 }).map((_, i) => <div key={i} className="w-7 h-7 rounded-lg bg-white/15" />)}
             </div>
-        </div>
+        </PhoneFrame>
     );
 }
 
-/* ─── MAIN PAGE (Zero Framer Motion — pure CSS) ─── */
+/* ─── ANA SAYFA ─── */
 export default function WidgetGuide() {
     const navigate = useNavigate();
     const { t } = useTranslation('home');
     const { selection } = useHaptics();
     const { isPremium } = useUser();
-    const [activeTab, setActiveTab] = useState('home');
+    // Android cihazda Android rehberi, diğer her yerde iPhone açılır
+    const [platform, setPlatform] = useState(() => Capacitor.getPlatform() === 'android' ? 'android' : 'ios');
+    const [activeTab, setActiveTab] = useState('lock'); // sayfanın asıl konusu kilit ekranı
+    const isIos = platform === 'ios';
 
-
+    const switchPlatform = (p) => {
+        if (p === platform) return;
+        selection();
+        setPlatform(p);
+    };
 
     const switchTab = (tab) => {
         if (tab === activeTab) return;
@@ -220,353 +186,226 @@ export default function WidgetGuide() {
         setActiveTab(tab);
     };
 
-    return (
-        <div style={{
-            minHeight: '100vh',
-            background: '#032e18',
-            position: 'relative',
-            overflowX: 'hidden',
-        }}>
-            {/* Ambient glow — small, cheap */}
-            <div style={{
-                position: 'absolute',
-                top: -60,
-                left: '50%',
-                transform: 'translateX(-50%)',
-                width: 300,
-                height: 300,
-                borderRadius: '50%',
-                background: 'rgba(212,160,83,0.04)',
-                filter: 'blur(60px)',
-                pointerEvents: 'none',
-            }} />
+    const steps = !isIos ? ANDROID_STEPS : (activeTab === 'lock' ? LOCK_STEPS : HOME_STEPS);
 
-            {/* ── Hero (compact, CSS animation) ── */}
-            <div className="wg-fadein" style={{
-                position: 'relative',
-                zIndex: 1,
-                padding: '12px 24px 16px',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                textAlign: 'center',
-            }}>
-                {/* Phone icon — CSS float animation */}
-                <div className="wg-float" style={{
-                    width: 64,
-                    height: 64,
-                    borderRadius: 18,
-                    background: 'linear-gradient(135deg, rgba(212,160,83,0.2), rgba(52,211,153,0.12), rgba(20,184,166,0.15))',
-                    border: '1px solid rgba(212,160,83,0.12)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    marginBottom: 12,
-                    boxShadow: '0 8px 24px rgba(212,160,83,0.08)',
-                }}>
-                    <span style={{ fontSize: 32 }}>📲</span>
+    return (
+        <div className="min-h-screen bg-slate-50 dark:bg-[#021a0f] text-gray-900 dark:text-white pb-28">
+            <div className="p-5 space-y-5 max-w-md mx-auto">
+                {/* Üst satır: açıklama + iPhone/Android seçici (aktif olan etiketiyle genişler) */}
+                <div className="flex items-center gap-3">
+                    <button
+                        onClick={() => { selection(); navigate(-1); }}
+                        aria-label={t('widget_guide.back', 'Geri')}
+                        className="flex-shrink-0 w-9 h-9 rounded-full bg-white dark:bg-white/5 border border-stone-200/80 dark:border-white/10 shadow-sm dark:shadow-none flex items-center justify-center text-islamic-green dark:text-islamic-gold hover:bg-stone-50 dark:hover:bg-white/10 transition-colors active:scale-95"
+                    >
+                        <ChevronLeft size={20} />
+                    </button>
+                    <p className="flex-1 min-w-0 text-sm text-stone-500 dark:text-gray-400 leading-relaxed px-1">
+                        {t('widget_guide.subtitle')}
+                    </p>
+                    <div className="flex-shrink-0 flex items-center gap-1 p-1 rounded-full bg-white dark:bg-white/5 border border-stone-200/80 dark:border-white/10 shadow-sm dark:shadow-none">
+                        {[
+                            { key: 'ios', Icon: AppleLogo, label: 'iPhone' },
+                            { key: 'android', Icon: AndroidLogo, label: 'Android' },
+                        ].map(({ key, Icon, label }) => (
+                            <button
+                                key={key}
+                                onClick={() => switchPlatform(key)}
+                                aria-label={label}
+                                className={cn(
+                                    'flex items-center justify-center gap-1.5 h-9 rounded-full transition-all active:scale-95',
+                                    platform === key
+                                        ? 'px-3.5 bg-islamic-green text-white dark:bg-islamic-gold dark:text-[#021a0f] shadow-md'
+                                        : 'w-9 text-stone-400 dark:text-gray-500'
+                                )}
+                            >
+                                <Icon size={15} />
+                                {platform === key && <span className="text-xs font-bold whitespace-nowrap">{label}</span>}
+                            </button>
+                        ))}
+                    </div>
                 </div>
 
-                <h1 style={{
-                    fontSize: 24,
-                    fontWeight: 700,
-                    fontFamily: 'serif',
-                    color: '#fff',
-                    letterSpacing: '-0.02em',
-                    marginBottom: 4,
-                }}>
-                    {t('widget_guide.title', 'Widget / Kilit Ekranı Rehberi')}
-                </h1>
-                <p style={{
-                    fontSize: 13,
-                    color: 'rgba(209,250,229,0.5)',
-                    maxWidth: 300,
-                    lineHeight: 1.5,
-                }}>
-                    {t('widget_guide.subtitle', 'İbadetlerini ana ekranından ve kilit ekranından takip et')}
-                </p>
-
-                {/* Premium Required Card */}
+                {/* Premium banner — altın, parıltılı (sadece free kullanıcıda) */}
                 {!isPremium && (
-                    <div className="wg-trial-shimmer" style={{
-                        marginTop: 16,
-                        width: '100%',
-                        maxWidth: 340,
-                        padding: '16px 20px',
-                        background: 'linear-gradient(135deg, rgba(212,160,83,0.18), rgba(251,191,36,0.12), rgba(212,160,83,0.18))',
-                        border: '1px solid rgba(251,191,36,0.35)',
-                        borderRadius: 24,
-                        display: 'flex',
-                        flexDirection: 'column',
-                        gap: 12,
-                        boxShadow: '0 8px 32px rgba(212,160,83,0.15), inset 0 1px 0 rgba(255,255,255,0.08)',
-                        position: 'relative',
-                        overflow: 'hidden',
-                        textAlign: 'left',
-                    }}>
-                        {/* Shimmer sweep overlay */}
-                        <div className="wg-shimmer-sweep" style={{
-                            position: 'absolute',
-                            top: 0,
-                            left: '-100%',
-                            width: '100%',
-                            height: '100%',
-                            background: 'linear-gradient(90deg, transparent, rgba(255,215,0,0.15), transparent)',
-                            pointerEvents: 'none',
-                        }} />
+                    <div
+                        onClick={() => { selection(); navigate('/premium'); }}
+                        className="relative overflow-hidden flex items-center gap-3.5 rounded-[1.5rem] p-4 cursor-pointer border border-[#b08d1e]/50 ring-1 ring-inset ring-white/40 shadow-[0_10px_28px_-8px_rgba(212,175,55,0.55)] active:scale-[0.98] transition-transform"
+                        style={{ background: 'linear-gradient(150deg, #FFE066 0%, #F5C842 45%, #D4AF37 100%)' }}
+                    >
+                        {/* Parıltı süpürmesi */}
+                        <div className="wg2-shimmer absolute inset-0 pointer-events-none" />
 
-                        {/* Top Row: Icon, Title, and Timer/Status */}
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                            {/* Icon */}
-                            <div style={{ position: 'relative', width: 44, height: 44, flexShrink: 0 }}>
-                                <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255,255,255,0.05)', borderRadius: '50%', border: '1px solid rgba(255,255,255,0.1)' }}>
-                                    <span style={{ fontSize: 18 }}>👑</span>
-                                </div>
-                            </div>
-
-                            {/* Text */}
-                            <div style={{ flex: 1, minWidth: 0 }}>
-                                <p style={{ fontSize: 14, fontWeight: 800, color: '#fff', margin: 0, lineHeight: 1.2 }}>
-                                    {t('widget_guide.premium_title', 'Premium Özellik')}
-                                </p>
-                                <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)', margin: '2px 0 0', lineHeight: 1.2 }}>
-                                    {t('widget_guide.premium_desc', 'Widgetları kullanmak için Premium gerekli')}
-                                </p>
-                            </div>
-
-                            {/* Premium Button */}
-                            <div style={{ flexShrink: 0 }}>
-                                <button
-                                    onClick={() => { selection(); navigate('/premium'); }}
-                                    style={{
-                                        padding: '8px 14px',
-                                        borderRadius: 12,
-                                        background: '#D4AF37',
-                                        border: 'none',
-                                        color: '#032e18',
-                                        fontSize: 12,
-                                        fontWeight: 800,
-                                        boxShadow: '0 4px 12px rgba(212,160,83,0.3)',
-                                        cursor: 'pointer',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        gap: 4,
-                                    }}
-                                >
-                                    👑 Premium
-                                </button>
-                            </div>
+                        {/* Zümrüt taç mührü */}
+                        <div className="relative flex-shrink-0 w-11 h-11 rounded-full bg-gradient-to-b from-[#0a5433] to-[#032e18] ring-1 ring-inset ring-white/20 flex items-center justify-center shadow-[0_5px_14px_rgba(3,46,24,0.35)]">
+                            <Crown size={18} className="text-islamic-gold fill-current" />
+                            <span className="absolute inset-0 rounded-full ring-2 ring-[#064e3b]/30 animate-ping" style={{ animationDuration: '2.4s' }} />
                         </div>
+
+                        <div className="relative flex-1 min-w-0">
+                            <p className="text-sm font-extrabold text-[#053a22] leading-tight">{t('widget_guide.premium_title')}</p>
+                            <p className="text-xs font-medium text-[#064e3b]/80 mt-0.5 leading-snug">{t('widget_guide.premium_desc')}</p>
+                        </div>
+
+                        <span className="relative flex-shrink-0 px-3.5 py-2 rounded-xl bg-gradient-to-b from-[#0a5433] to-[#032e18] text-islamic-gold text-xs font-extrabold shadow-[0_4px_12px_rgba(3,46,24,0.4)]">
+                            {t('widget_guide.premium_cta')}
+                        </span>
                     </div>
                 )}
-            </div>
 
-            {/* ── Content ── */}
-            <div style={{ position: 'relative', zIndex: 1, padding: '0 16px 140px', display: 'flex', flexDirection: 'column', gap: 16 }}>
+                {/* Rehber kartı — sekme + önizleme + adımlar tek gövdede */}
+                <div className="rounded-[2rem] bg-white dark:bg-white/5 border border-stone-200/80 dark:border-white/10 shadow-sm dark:shadow-none overflow-hidden">
 
-                {/* Widget showcase */}
+                    {/* Kilit Ekranı / Ana Ekran — yalnızca iPhone'da (Android'de kilit widget'ı yok) */}
+                    {isIos && (
+                        <div className="flex gap-1 p-1 m-4 mb-0 rounded-xl bg-stone-100 dark:bg-white/[0.06]">
+                            {[
+                                { key: 'lock', icon: Lock, label: t('widget_guide.tab_lock') },
+                                { key: 'home', icon: Smartphone, label: t('widget_guide.tab_home') },
+                            ].map(({ key, icon: Icon, label }) => (
+                                <button
+                                    key={key}
+                                    onClick={() => switchTab(key)}
+                                    className={cn(
+                                        'flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-lg text-[13px] font-bold transition-all active:scale-[0.98]',
+                                        activeTab === key
+                                            ? 'bg-white dark:bg-islamic-gold text-islamic-green dark:text-[#021a0f] shadow-sm'
+                                            : 'text-stone-500 dark:text-gray-400'
+                                    )}
+                                >
+                                    <Icon size={14} />
+                                    {label}
+                                </button>
+                            ))}
+                        </div>
+                    )}
+
+                    {/* Telefon önizlemesi — "ne elde edeceğim?" bir bakışta */}
+                    <div key={`preview-${platform}-${activeTab}`} className="wg2-fade p-6 pb-5">
+                        {isIos && activeTab === 'lock'
+                            ? <LockPreview t={t} />
+                            : <HomePreview t={t} platform={platform} />
+                        }
+                        <p className="flex items-center justify-center gap-1.5 text-xs font-medium text-stone-500 dark:text-gray-400 mt-4 text-center">
+                            <Sparkles size={12} className="text-islamic-gold" />
+                            {isIos && activeTab === 'lock' ? t('widget_guide.preview_lock') : t('widget_guide.preview_home')}
+                        </p>
+                    </div>
+
+                    <div className="mx-5 h-px bg-gradient-to-r from-transparent via-stone-200 dark:via-white/10 to-transparent" />
+
+                    {/* Adımlar — hepsi tek bakışta, dikey zaman çizelgesi */}
+                    <div key={`steps-${platform}-${activeTab}`} className="wg2-fade p-5 pt-4">
+                        <h3 className="text-base font-bold font-serif text-islamic-green dark:text-islamic-gold px-1">
+                            {isIos && activeTab === 'lock' ? t('widget_guide.how_lock') : t('widget_guide.how_home')}
+                        </h3>
+                        <p className="text-[11px] font-medium text-stone-400 dark:text-gray-500 px-1 mt-0.5 mb-5">
+                            {t('widget_guide.steps_meta')}
+                        </p>
+
+                        {steps.map((s, i) => {
+                            const isLast = i === steps.length - 1;
+                            return (
+                                <div key={s.t} className="flex gap-3.5">
+                                    {/* Numara rozeti + bağlantı çizgisi — son adım altın onay */}
+                                    <div className="flex flex-col items-center">
+                                        <div className={cn(
+                                            'flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-sm font-extrabold shadow-sm',
+                                            isLast
+                                                ? 'bg-gradient-to-b from-[#F2D678] to-[#C9A227] text-[#022c22]'
+                                                : 'bg-islamic-green text-white dark:bg-islamic-gold dark:text-[#021a0f]'
+                                        )}>
+                                            {isLast ? <Check size={16} strokeWidth={3} /> : i + 1}
+                                        </div>
+                                        {!isLast && <div className="w-px flex-1 my-1.5 bg-stone-200 dark:bg-white/10" />}
+                                    </div>
+
+                                    <div className={cn('min-w-0 pt-1', !isLast && 'pb-5')}>
+                                        <p className="text-sm font-bold text-stone-900 dark:text-white leading-snug">{t(`widget_guide.${s.t}`)}</p>
+                                        <p className="text-xs text-stone-500 dark:text-gray-400 mt-1 leading-relaxed">{t(`widget_guide.${s.d}`)}</p>
+                                        {s.chip && (
+                                            <span className="inline-flex mt-2 px-3 py-1.5 rounded-lg bg-stone-100 dark:bg-white/10 border border-stone-300/70 dark:border-white/20 border-b-2 text-[11px] font-bold text-stone-700 dark:text-white">
+                                                {s.chip === '+' ? '+' : t(`widget_guide.${s.chip}`)}
+                                            </span>
+                                        )}
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
+                </div>
+
+                {/* Widget vitrini */}
                 <div>
-                    <h3 style={{
-                        fontSize: 11,
-                        fontWeight: 700,
-                        color: 'rgba(209,250,229,0.3)',
-                        textTransform: 'uppercase',
-                        letterSpacing: '0.15em',
-                        marginBottom: 10,
-                        paddingLeft: 4,
-                        fontFamily: 'serif',
-                    }}>
-                        {t('widget_guide.available_widgets', 'Mevcut Widget\'lar')}
+                    <h3 className="text-[10px] font-bold text-stone-500 dark:text-gray-400 uppercase tracking-widest px-2 mb-3">
+                        {t('widget_guide.available_widgets')}
                     </h3>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10 }}>
-                        {WIDGETS.map((w) => (
-                            <div key={w.name} style={{
-                                borderRadius: 16,
-                                background: 'rgba(255,255,255,0.03)',
-                                border: '1px solid rgba(255,255,255,0.06)',
-                                padding: '14px 8px',
-                                display: 'flex',
-                                flexDirection: 'column',
-                                alignItems: 'center',
-                                textAlign: 'center',
-                            }}>
-                                <span style={{ fontSize: 28, marginBottom: 8, display: 'block' }}>{w.emoji}</span>
-                                <p style={{ fontSize: 13, fontWeight: 700, color: '#fff', marginBottom: 2 }}>{w.name}</p>
-                                <p style={{ fontSize: 12, color: 'rgba(209,250,229,0.6)', fontWeight: 500 }}>{w.desc}</p>
+                    <div className="grid grid-cols-2 gap-3">
+                        {WIDGETS.map(({ Icon, nameKey, sizes }) => (
+                            <div key={nameKey} className="rounded-2xl p-4 bg-white dark:bg-white/5 border border-stone-200/80 dark:border-white/10 shadow-sm dark:shadow-none flex flex-col items-center text-center gap-2">
+                                <div className="w-11 h-11 rounded-xl bg-islamic-green/10 text-islamic-green dark:bg-islamic-gold/10 dark:text-islamic-gold flex items-center justify-center">
+                                    <Icon size={22} />
+                                </div>
+                                <p className="text-xs font-bold text-stone-900 dark:text-white">{t(`widget_guide.${nameKey}`)}</p>
+                                <div className="flex flex-wrap justify-center gap-1">
+                                    {sizes.filter(sz => isIos || sz !== 'size_lock').map(sz => (
+                                        <span key={sz} className={cn(
+                                            'px-1.5 py-0.5 rounded-md text-[9px] font-bold uppercase tracking-wide',
+                                            sz === 'size_lock'
+                                                ? 'bg-islamic-gold/15 text-[#a8861f] dark:text-islamic-gold'
+                                                : 'bg-stone-100 text-stone-500 dark:bg-white/10 dark:text-gray-400'
+                                        )}>
+                                            {t(`widget_guide.${sz}`)}
+                                        </span>
+                                    ))}
+                                </div>
                             </div>
                         ))}
                     </div>
                 </div>
 
-                {/* Tab switcher */}
-                <div style={{
-                    background: 'rgba(255,255,255,0.03)',
-                    border: '1px solid rgba(255,255,255,0.06)',
-                    borderRadius: 16,
-                    padding: 6,
-                    display: 'flex',
-                    gap: 6,
-                }}>
+                {/* Bilmekte fayda var */}
+                <div className="rounded-[2rem] p-5 bg-white dark:bg-white/5 border border-stone-200/80 dark:border-white/10 shadow-sm dark:shadow-none space-y-4">
+                    <h3 className="text-base font-bold font-serif text-islamic-green dark:text-islamic-gold px-1">
+                        {t('widget_guide.gtk_title')}
+                    </h3>
+
                     {[
-                        { key: 'home', icon: Smartphone, label: t('widget_guide.tab_home', 'Ana Ekran'), color: '#34d399' },
-                        { key: 'lock', icon: Lock, label: t('widget_guide.tab_lock', 'Kilit Ekranı'), color: '#fbbf24' },
-                    ].map(({ key, icon: Icon, label, color }) => (
-                        <button
-                            key={key}
-                            onClick={() => switchTab(key)}
-                            style={{
-                                flex: 1,
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                gap: 8,
-                                padding: '12px 0',
-                                borderRadius: 14,
-                                border: 'none',
-                                fontSize: 14,
-                                fontWeight: 700,
-                                cursor: 'pointer',
-                                transition: 'background 0.15s, color 0.15s',
-                                background: activeTab === key ? 'rgba(255,255,255,0.08)' : 'transparent',
-                                color: activeTab === key ? '#fff' : 'rgba(209,250,229,0.4)',
-                            }}
-                        >
-                            <Icon style={{ width: 18, height: 18, color: activeTab === key ? color : 'currentColor' }} />
-                            <span>{label}</span>
-                        </button>
-                    ))}
-                </div>
-
-                {/* Stepper section */}
-                <div style={{
-                    borderRadius: 28,
-                    background: 'rgba(255,255,255,0.03)',
-                    border: '1px solid rgba(255,255,255,0.06)',
-                    padding: 20,
-                }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
-                        {activeTab === 'home'
-                            ? <Smartphone style={{ width: 20, height: 20, color: '#34d399' }} />
-                            : <Lock style={{ width: 20, height: 20, color: '#d4a053' }} />
-                        }
-                        <h3 style={{ fontSize: 16, fontWeight: 700, color: '#fff', fontFamily: 'serif' }}>
-                            {activeTab === 'home'
-                                ? t('widget_guide.how_home', 'Ana Ekrana Nasıl Eklenir?')
-                                : t('widget_guide.how_lock', 'Kilit Ekranına Nasıl Eklenir?')
-                            }
-                        </h3>
-                    </div>
-                    <p style={{ fontSize: 13, color: 'rgba(209,250,229,0.6)', marginBottom: 4, marginLeft: 30 }}>
-                        {t('widget_guide.swipe_hint', 'Adımlar arasında kaydır veya dokun')}
-                    </p>
-
-                    <StepCarousel
-                        key={activeTab}
-                        steps={activeTab === 'home' ? HOME_STEPS : LOCK_STEPS}
-                        stepsKey={activeTab}
-                    />
-                </div>
-
-                {/* Info card */}
-                <div style={{
-                    borderRadius: 28,
-                    background: 'linear-gradient(135deg, rgba(212,160,83,0.06), transparent)',
-                    border: '1px solid rgba(212,160,83,0.1)',
-                    padding: 20,
-                }}>
-                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: 14 }}>
-                        <div style={{
-                            width: 40, height: 40, borderRadius: 12,
-                            background: 'rgba(212,160,83,0.1)',
-                            display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            flexShrink: 0,
-                        }}>
-                            <span style={{ fontSize: 18 }}>💡</span>
-                        </div>
-                        <div style={{ flex: 1 }}>
-                            <h4 style={{ fontSize: 15, fontWeight: 700, color: '#d4a053', marginBottom: 6, fontFamily: 'serif' }}>
-                                {t('widget_guide.tip_title', 'Bilgi')}
-                            </h4>
-                            <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.8)', lineHeight: 1.6, marginBottom: 8 }}>
-                                {t('widget_guide.tip_desc', 'Widget\'lar her saat başı otomatik güncellenir. Günün ayeti ve Esma-ül Hüsna widget\'ları her saat farklı içerik gösterir.')}
-                            </p>
-                            {/* Premium / Free note */}
-                            <div style={{
-                                padding: '10px 14px',
-                                borderRadius: 12,
-                                background: isPremium ? 'rgba(52,211,153,0.08)' : 'rgba(251,191,36,0.08)',
-                                border: `1px solid ${isPremium ? 'rgba(52,211,153,0.15)' : 'rgba(251,191,36,0.15)'}`,
-                            }}>
-                                <p style={{
-                                    fontSize: 13,
-                                    fontWeight: 600,
-                                    color: isPremium ? '#34d399' : '#fbbf24',
-                                    lineHeight: 1.5,
-                                }}>
-                                    {isPremium
-                                        ? t('widget_guide.premium_note', '👑 Premium aboneliğiniz süresince tüm widget\'lar aktiftir.')
-                                        : t('widget_guide.premium_required', '👑 Widget\'ları kullanabilmek için Premium aboneliğinizin olması gerekmektedir.')
-                                    }
-                                </p>
+                        { Icon: RefreshCw, text: t('widget_guide.tip_desc') },
+                        { Icon: Smartphone, text: isIos ? t('widget_guide.ios_note_desc') : t('widget_guide.android_note') },
+                        { Icon: Crown, text: isPremium ? t('widget_guide.premium_note') : t('widget_guide.free_note'), gold: true },
+                    ].map(({ Icon, text, gold }, i) => (
+                        <div key={i} className="flex items-start gap-3">
+                            <div className={cn(
+                                'flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center',
+                                gold
+                                    ? 'bg-islamic-gold/10 text-islamic-gold'
+                                    : 'bg-islamic-green/10 text-islamic-green dark:bg-white/10 dark:text-emerald-300'
+                            )}>
+                                <Icon size={15} />
                             </div>
+                            <p className="text-xs text-stone-600 dark:text-gray-300 leading-relaxed pt-1.5">{text}</p>
                         </div>
-                    </div>
-                </div>
-
-                {/* iOS note */}
-                <div style={{
-                    borderRadius: 28,
-                    background: 'rgba(255,255,255,0.02)',
-                    border: '1px solid rgba(255,255,255,0.04)',
-                    padding: 20,
-                }}>
-                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: 14 }}>
-                        <div style={{
-                            width: 40, height: 40, borderRadius: 12,
-                            background: 'rgba(59,130,246,0.1)',
-                            display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            flexShrink: 0,
-                        }}>
-                            <span style={{ fontSize: 18 }}>📱</span>
-                        </div>
-                        <div>
-                            <h4 style={{ fontSize: 15, fontWeight: 700, color: '#fff', marginBottom: 6, fontFamily: 'serif' }}>
-                                {t('widget_guide.ios_note_title', 'iOS 16+')}
-                            </h4>
-                            <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.8)', lineHeight: 1.6 }}>
-                                {t('widget_guide.ios_note_desc', 'Kilit ekranı widget\'ları iOS 16 ve üzeri sürümlerde kullanılabilir. Ana ekran widget\'ları iOS 14+ destekler.')}
-                            </p>
-                        </div>
-                    </div>
+                    ))}
                 </div>
             </div>
 
-            {/* CSS Animations */}
+            {/* Sekme geçiş animasyonu */}
             <style>{`
-                @keyframes wg-float {
-                    0%, 100% { transform: translateY(0); }
-                    50% { transform: translateY(-4px); }
-                }
-                @keyframes wg-fadein {
-                    from { opacity: 0; transform: translateY(10px); }
+                @keyframes wg2fade {
+                    from { opacity: 0; transform: translateY(6px); }
                     to { opacity: 1; transform: translateY(0); }
                 }
-                @keyframes wg-pulse {
-                    0%, 100% { transform: scale(1); }
-                    50% { transform: scale(1.15); }
+                .wg2-fade { animation: wg2fade 0.25s ease-out both; }
+                @keyframes wg2shimmer {
+                    0% { background-position: 250% 0; }
+                    100% { background-position: -150% 0; }
                 }
-                @keyframes wg-shimmer-sweep {
-                    0% { left: -100%; }
-                    100% { left: 200%; }
+                .wg2-shimmer {
+                    background: linear-gradient(115deg, transparent 42%, rgba(255,255,255,0.45) 50%, transparent 58%);
+                    background-size: 250% 100%;
+                    animation: wg2shimmer 2.8s linear infinite;
                 }
-                @keyframes wg-golden-glow {
-                    0%, 100% { box-shadow: 0 4px 20px rgba(212,160,83,0.15), inset 0 1px 0 rgba(255,255,255,0.08); }
-                    50% { box-shadow: 0 4px 28px rgba(251,191,36,0.3), inset 0 1px 0 rgba(255,255,255,0.12); }
-                }
-                .wg-float { animation: wg-float 3s ease-in-out infinite; }
-                .wg-fadein { animation: wg-fadein 0.4s ease-out both; }
-                .wg-shimmer-sweep { animation: wg-shimmer-sweep 3s ease-in-out infinite; }
-                .wg-trial-shimmer { animation: wg-golden-glow 2.5s ease-in-out infinite; }
             `}</style>
         </div>
     );

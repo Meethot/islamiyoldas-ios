@@ -995,6 +995,7 @@ export default function FastingTracker() {
                 </motion.section>
 
                 {/* ═══  Sahur Alarm  ═══ */}
+                {/* SAHUR ALARM DEACTIVATED UNTIL NEXT RAMADAN
                 <motion.section
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -1012,7 +1013,6 @@ export default function FastingTracker() {
                                 boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.05), inset 0 -1px 0 rgba(0,0,0,0.1)',
                             }}
                         >
-                            {/* Header */}
                             <div className="flex items-center justify-between mb-4">
                                 <div className="flex items-center gap-2.5">
                                     <div className="w-8 h-8 rounded-xl bg-amber-500/15 flex items-center justify-center border border-amber-400/15">
@@ -1038,7 +1038,6 @@ export default function FastingTracker() {
                                 )}
                             </div>
 
-                            {/* Time Selector Pills */}
                             <div className="grid grid-cols-4 gap-2">
                                 {[15, 30, 45, 60].map(min => {
                                     const isActive = sahurAlarm?.minutes === min;
@@ -1083,7 +1082,6 @@ export default function FastingTracker() {
                                 })}
                             </div>
 
-                            {/* Active Alarm Info */}
                             <AnimatePresence>
                                 {sahurAlarm && imsakTime && (
                                     <motion.div
@@ -1117,6 +1115,7 @@ export default function FastingTracker() {
                         </div>
                     </div>
                 </motion.section>
+                */}
 
                 {/* Teravih Reset Confirmation Modal */}
                 <AnimatePresence>

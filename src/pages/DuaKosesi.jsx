@@ -73,15 +73,28 @@ async function triggerHaptics() {
 // ====================================
 
 // ========== CONSTANTS & FILTERS ==========
+// Tam kelime olarak eşleşirse engellenir ("göt" engellenir ama "götür" engellenmez).
+// "it", "mal", "ayı" gibi masum kullanımı çok olan kelimeler bilerek listede YOK.
 const BLOCKED_WORDS = [
-    "amk", "aq", "piç", "yavşak", "sik", "yarak",
-    "amcık", "amcik", "orospu", "kahpe", "sürtük", "göt", "götveren", "gavat", "pezevenk",
-    "ibne", "puşt", "kıç", "salak", "aptal", "mal", "gerizekalı", "beyinsiz", "angut",
-    "hıyar", "sığır", "öküz", "ayı", "şerefsiz", "haysiyetsiz", "it",
-    "zıkkım", "zevzek", "zibidi", "dümbük", "lavuk", "keko", "kaşar", "fahişe",
-    "ulan", "denyo", "ezik", "dangalak", "ahmak", "kafasız", "bok", "kaka", "salako",
-    "manyak", "sapık"
+    "amk", "aq", "göt", "kıç", "sürtük", "salak", "aptal", "gerizekalı",
+    "beyinsiz", "angut", "hıyar", "sığır", "öküz", "şerefsiz", "haysiyetsiz",
+    "zıkkım", "zevzek", "zibidi", "dümbük", "lavuk", "keko", "kaşar",
+    "ulan", "denyo", "ezik", "dangalak", "ahmak", "kafasız", "bok", "kaka",
+    "salako", "manyak", "sapık"
 ];
+// Ağır küfürler: ek almış halleri de yakalansın diye kelime başı (kök) olarak kontrol edilir.
+const BLOCKED_STEMS = [
+    "sik", "yarak", "piç", "yavşak", "amcık", "amcik", "orospu", "kahpe",
+    "pezevenk", "ibne", "puşt", "gavat", "fahişe", "götveren"
+];
+
+function containsBlockedWord(text) {
+    // Türkçe locale şart: yoksa "SIKINTI".toLowerCase() → "sikinti" olup yanlış engelleniyor.
+    const words = text.toLocaleLowerCase('tr').split(/[^\p{L}]+/u);
+    return words.some(w =>
+        w && (BLOCKED_WORDS.includes(w) || BLOCKED_STEMS.some(stem => w.startsWith(stem)))
+    );
+}
 // =========================================
 // Fake prayers are now loaded from src/data/fakePrayers.js per language
 
@@ -581,10 +594,7 @@ export default function DuaKosesi() {
         }
 
         // Profanity Filter
-        const lowerText = text.toLowerCase();
-        const hasBlockedWord = BLOCKED_WORDS.some(word => lowerText.includes(word));
-
-        if (hasBlockedWord) {
+        if (containsBlockedWord(text)) {
             Swal.fire({
                 title: `<span class="text-[#D4AF37] font-serif tracking-wide">${t('profanityTitle')}</span>`,
                 html: `

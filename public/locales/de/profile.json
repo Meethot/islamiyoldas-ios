@@ -1,12 +1,18 @@
 {
   "title": "Einstellungen",
   "user": {
-    "default_name": "Gläubiger Nutzer",
-    "streak_desc": "Tag {{count}} der Reise"
+    "default_name": "Benutzer",
+    "streak_desc": "Tag {{count}} der Reise",
+    "stat_days": "Tage",
+    "stat_streak": "Serie",
+    "stat_prayers": "Heute"
   },
   "premium": {
     "banner_title": "Premium werden",
-    "banner_desc": "Erlebe deine islamische Reise ungestört, schalte alle Premium-Funktionen frei."
+    "banner_desc": "Erlebe deine islamische Reise ungestört, schalte alle Premium-Funktionen frei.",
+    "feat_quran": "Audio-Koran",
+    "feat_no_ads": "Werbefrei",
+    "feat_widgets": "Widgets"
   },
   "personal_settings": "Persönliche Einstellungen",
   "general_settings": "Allgemeine Einstellungen",

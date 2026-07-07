@@ -1,12 +1,18 @@
 {
   "title": "Tənzimləmələr",
   "user": {
-    "default_name": "Mömin İstifadəçi",
-    "streak_desc": "Yolçuluğun {{count}}. günündə"
+    "default_name": "İstifadəçi",
+    "streak_desc": "Yolçuluğun {{count}}. günündə",
+    "stat_days": "Gün",
+    "stat_streak": "Seriya",
+    "stat_prayers": "Bu gün"
   },
   "premium": {
     "banner_title": "Premiuma Keç",
-    "banner_desc": "İslami səyahətini kəsintisiz yaşa, bütün Premium xüsusiyyətləri kəşf et."
+    "banner_desc": "İslami səyahətini kəsintisiz yaşa, bütün Premium xüsusiyyətləri kəşf et.",
+    "feat_quran": "Səsli Quran",
+    "feat_no_ads": "Reklamsız",
+    "feat_widgets": "Vidjetlər"
   },
   "personal_settings": "Şəxsi Tənzimləmələr",
   "general_settings": "Ümumi Tənzimləmələr",

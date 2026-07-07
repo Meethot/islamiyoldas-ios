@@ -2,6 +2,7 @@ import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useHaptics } from '@/hooks/useMobile';
 import { useTranslation } from 'react-i18next';
+import { X } from 'lucide-react';
 
 /**
  * PrayerTimeOverlay — Premium centered popup for prayer time reminder.
@@ -62,6 +63,22 @@ export default function PrayerTimeOverlay({ isOpen, prayer, onPray, onSnooze, on
                                     background: 'linear-gradient(90deg, transparent, rgba(212,175,55,0.6), transparent)',
                                 }}
                             />
+
+                            {/* Close (X) button */}
+                            <motion.button
+                                onClick={(e) => { e.stopPropagation(); onDismiss(); }}
+                                whileTap={{ scale: 0.85 }}
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                transition={{ delay: 0.6 }}
+                                className="absolute top-3 right-3 z-20 w-8 h-8 flex items-center justify-center rounded-full"
+                                style={{
+                                    background: 'rgba(255,255,255,0.08)',
+                                    border: '1px solid rgba(255,255,255,0.1)',
+                                }}
+                            >
+                                <X size={16} style={{ color: 'rgba(255,255,255,0.45)' }} />
+                            </motion.button>
 
                             {/* Radial glow behind icon */}
                             <div

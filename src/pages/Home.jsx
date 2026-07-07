@@ -2,7 +2,8 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
     Moon, Sunrise, Sun, Sunset, Sparkles, Star, Wind, MessageCircle, X, Download,
-    ChevronRight, Heart, Share2, Bot, Crown, Flower2, MapPin, Bell
+    ChevronRight, Heart, Share2, Bot, Crown, Flower2, MapPin, Bell,
+    Compass, LayoutGrid, HeartHandshake
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -443,24 +444,21 @@ export default function Home() {
             )}
 
 
-            <motion.div variants={itemVariants} className="grid grid-cols-3 gap-2">
+            <motion.div variants={itemVariants} className="grid grid-cols-3 gap-3">
                 <QuickAction
                     onClick={() => handleNavigate('/dhikr')}
                     icon={TasbihIcon} label={t('quick_actions.dhikr.label')} subtitle={t('quick_actions.dhikr.subtitle')}
-                    color="bg-white dark:bg-white/5 border dark:border-white/10 text-islamic-green dark:text-islamic-gold glass-panel"
                     to={null}
                 />
 
                 <QuickAction
                     onClick={() => handleNavigate('/uyku')}
                     icon={Moon} label={t('quick_actions.sleep.label')} subtitle={t('quick_actions.sleep.subtitle')}
-                    color="bg-white dark:bg-white/5 border dark:border-white/10 text-islamic-green dark:text-islamic-gold glass-panel"
                     to={null}
                 />
                 <QuickAction
                     onClick={() => handleNavigate('/qibla')}
-                    icon={Sunrise} label={t('quick_actions.qibla.label')} subtitle={t('quick_actions.qibla.subtitle')}
-                    color="bg-white dark:bg-white/5 border dark:border-white/10 text-islamic-green dark:text-islamic-gold glass-panel"
+                    icon={Compass} label={t('quick_actions.qibla.label')} subtitle={t('quick_actions.qibla.subtitle')}
                     to={null}
                 />
             </motion.div>
@@ -484,36 +482,36 @@ export default function Home() {
             */}
 
             {/* Widget Rehberi Kartı */}
-            <motion.div variants={itemVariants} className="px-1 cursor-pointer group" onClick={() => handleNavigate('/widget-rehberi')}>
-                <div className="glass-panel rounded-[2.5rem] p-6 flex items-center justify-between transition-all active:scale-95 group-hover:bg-white/60 dark:group-hover:bg-white/10 relative overflow-hidden">
-                    <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 via-transparent to-islamic-gold/5 opacity-60" />
-                    <div className="flex items-center gap-4 relative z-10">
-                        <div className="p-4 bg-gradient-to-br from-blue-500/15 to-islamic-gold/15 rounded-2xl text-islamic-gold">
-                            <Download size={24} />
-                        </div>
-                        <div>
-                            <h4 className="font-bold text-gray-900 dark:text-islamic-gold uppercase text-xs tracking-widest font-serif">{t('quickAction.widgetGuide', 'Widget / Kilit Ekranı Rehberi')}</h4>
-                            <p className="text-[10px] text-gray-500 dark:text-emerald-100/40 font-medium opacity-80">{t('quickAction.widgetGuideSub', 'Ana ekran & kilit ekranı')}</p>
-                        </div>
+            <motion.div variants={itemVariants} className="px-1">
+                <button
+                    onClick={() => handleNavigate('/widget-rehberi')}
+                    className="w-full glass-panel rounded-[2.5rem] p-6 flex items-center gap-4 text-left active:scale-[0.98] transition-transform"
+                >
+                    <div className="flex-shrink-0 w-12 h-12 rounded-2xl flex items-center justify-center bg-islamic-green/10 dark:bg-islamic-gold/10 text-islamic-green dark:text-islamic-gold">
+                        <LayoutGrid size={22} strokeWidth={1.9} />
                     </div>
-                    <ChevronRight size={16} className="text-islamic-gold group-hover:translate-x-1 transition-transform relative z-10" />
-                </div>
+                    <div className="flex-1 min-w-0">
+                        <p className="text-[15px] font-bold text-gray-900 dark:text-islamic-gold leading-snug">{t('quickAction.widgetGuide', 'Widget / Kilit Ekranı Rehberi')}</p>
+                        <p className="text-xs text-gray-500 dark:text-emerald-100/40 mt-0.5">{t('quickAction.widgetGuideSub', 'Ana ekran & kilit ekranı')}</p>
+                    </div>
+                    <ChevronRight size={16} className="flex-shrink-0 text-islamic-gold" />
+                </button>
             </motion.div>
 
-            <motion.div variants={itemVariants} className="px-1 cursor-pointer group" onClick={() => handleNavigate('/dua')}>
-                <div className="glass-panel rounded-[2.5rem] p-6 flex items-center justify-between transition-all active:scale-95 group-hover:bg-islamic-gold/10 relative overflow-hidden">
-                    <div className="absolute inset-0 bg-gradient-to-r from-islamic-gold/5 to-transparent opacity-50" />
-                    <div className="flex items-center gap-4 relative z-10">
-                        <div className="p-4 bg-islamic-gold/10 rounded-2xl text-islamic-gold">
-                            <MessageCircle size={24} />
-                        </div>
-                        <div>
-                            <h4 className="font-bold text-gray-900 dark:text-islamic-gold uppercase text-xs tracking-widest font-serif">{t('widgets.dua.title')}</h4>
-                            <p className="text-[10px] text-gray-500 dark:text-emerald-100/40 font-medium opacity-80">{t('widgets.dua.subtitle')}</p>
-                        </div>
+            <motion.div variants={itemVariants} className="px-1">
+                <button
+                    onClick={() => handleNavigate('/dua')}
+                    className="w-full glass-panel rounded-[2.5rem] p-6 flex items-center gap-4 text-left active:scale-[0.98] transition-transform"
+                >
+                    <div className="flex-shrink-0 w-12 h-12 rounded-2xl flex items-center justify-center bg-islamic-gold/10 text-[#a8861f] dark:text-islamic-gold">
+                        <HeartHandshake size={22} strokeWidth={1.9} />
                     </div>
-                    <ChevronRight size={16} className="text-islamic-gold group-hover:translate-x-1 transition-transform relative z-10" />
-                </div>
+                    <div className="flex-1 min-w-0">
+                        <p className="text-[15px] font-bold text-gray-900 dark:text-islamic-gold leading-snug">{t('widgets.dua.title')}</p>
+                        <p className="text-xs text-gray-500 dark:text-emerald-100/40 mt-0.5">{t('widgets.dua.subtitle')}</p>
+                    </div>
+                    <ChevronRight size={16} className="flex-shrink-0 text-islamic-gold" />
+                </button>
             </motion.div>
 
             <EsmaUlHusnaWidget

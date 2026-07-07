@@ -105,7 +105,7 @@
         "feat_ai_title": "Widget Desteği",
         "feat_ai_desc": "Ana ekran ve kilit ekranı widget'ları ile ibadetlerini süresiz takip et.",
         "feat_audio_title": "Kur'an Dinleme & Uyku Modu",
-        "feat_audio_desc": "Kur'an-ı Kerim, İslami Hikayeler ve kesintisiz huzur.",
+        "feat_audio_desc": "Sesli Kur'an-ı Kerim meali ile birlikte - İslami Hikayeler. Kesintisiz huzur.",
         "feat_worship_title": "Sınırsız İbadet Takibi",
         "feat_worship_desc": "Namaz alarmları, Zikirmatik, Kaza ve Bugünün İyiliği.",
         "feat_community_title": "Topluluk & Öğrenim Seti",
@@ -178,6 +178,9 @@
         "feat_no_ads": "Reklamsız Deneyim",
         "feat_all_premium": "Tüm Premium Özellikler",
         "use_offer": "TEKLİFİ KULLAN",
-        "cancel_offer": "Teklifi iptal et ve çık"
+        "cancel_offer": "Teklifi iptal et ve çık",
+        "discount_badge_pct": "%{{percent}} İNDİRİM",
+        "discount_pct_short": "−%{{percent}}",
+        "last_offer": "Son Teklif"
     }
 }

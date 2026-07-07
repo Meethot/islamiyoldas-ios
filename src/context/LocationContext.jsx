@@ -13,6 +13,15 @@ export function useLocation() {
     return context;
 }
 
+// Manual selection is "active" when the user picked a city AND auto-location
+// isn't preferred. It stays authoritative until the user re-enables auto
+// location — a background GPS fix must not silently override it.
+const readManualActive = () =>
+    !!localStorage.getItem('userCity') && (
+        localStorage.getItem('manual_location_active') === 'true' ||
+        localStorage.getItem('location_permission_granted') !== 'true'
+    );
+
 export function LocationProvider({ children }) {
     const [location, setLocation] = useState(null);
     const [address, setAddress] = useState(null);
@@ -21,22 +30,36 @@ export function LocationProvider({ children }) {
     const [permissionStatus, setPermissionStatus] = useState('prompt');
     const [manualCity, setManualCityState] = useState(localStorage.getItem('userCity') || null);
     const [manualCountry, setManualCountryState] = useState(localStorage.getItem('userCountry') || 'Turkey');
+    const [manualActive, setManualActiveState] = useState(readManualActive);
 
     const setManualLocation = useCallback((country, city) => {
         setManualCountryState(country);
         setManualCityState(city);
         if (country) localStorage.setItem('userCountry', country);
         if (city) localStorage.setItem('userCity', city);
+        localStorage.setItem('manual_location_active', 'true');
+        setManualActiveState(true);
         // Also update cached_district and cached_address for Diyanet API prayer time lookup
         localStorage.setItem('cached_district', city);
         localStorage.setItem('cached_address', city);
         setAddress(city);
     }, []);
 
+    // Called when the user re-enables auto location — GPS becomes authoritative again
+    const disableManualLocation = useCallback(() => {
+        localStorage.removeItem('manual_location_active');
+        setManualActiveState(readManualActive());
+    }, []);
+
     const checkPermissions = useCallback(async () => {
         try {
             const status = await Geolocation.checkPermissions();
             setPermissionStatus(status.location);
+            if (status.location === 'denied') {
+                // OS permission revoked — a stored manual city becomes authoritative again
+                localStorage.setItem('location_permission_granted', 'false');
+                setManualActiveState(readManualActive());
+            }
             return status.location;
         } catch (err) {
             console.error('Permission check error:', err);
@@ -76,9 +99,13 @@ export function LocationProvider({ children }) {
             const district = addr.town || addr.county || addr.suburb || null;
             const countryCode = addr.country_code || null;
 
-            setAddress(city);
-            localStorage.setItem('cached_address', city);
-            if (district) localStorage.setItem('cached_district', district);
+            // While a manual city is active, GPS data must not override the user's
+            // choice (it would silently switch prayer times back to the GPS city)
+            if (!readManualActive()) {
+                setAddress(city);
+                localStorage.setItem('cached_address', city);
+                if (district) localStorage.setItem('cached_district', district);
+            }
             if (countryCode) localStorage.setItem('cached_country_code', countryCode);
 
             return { city, district, countryCode };
@@ -120,9 +147,12 @@ export function LocationProvider({ children }) {
             localStorage.setItem('cached_location', JSON.stringify(coords));
 
             // Clear stale district/address so prayer times don't use old cached data
-            // Reverse geocode below will set the correct values shortly
-            localStorage.removeItem('cached_district');
-            localStorage.removeItem('cached_address');
+            // (reverse geocode below will set the correct values shortly) — unless a
+            // manual city is active, in which case those keys belong to the user's choice
+            if (!readManualActive()) {
+                localStorage.removeItem('cached_district');
+                localStorage.removeItem('cached_address');
+            }
 
             // Reverse geocode in background — never blocks
             getReverseGeocode(coords.latitude, coords.longitude);
@@ -244,6 +274,12 @@ export function LocationProvider({ children }) {
         initLocation();
     }, []);
 
+    // Only expose the manual selection while it's active — when the user has
+    // re-enabled auto location, prayer times must follow GPS, not the old city
+    const effectiveManualCity = manualActive ? manualCity : null;
+    // On GPS, prefer the district (ilçe) for display — prayer times are
+    // district-specific, so "Urla" is more accurate/meaningful than the province "İzmir".
+    const gpsDistrict = manualActive ? null : (localStorage.getItem('cached_district') || null);
     const value = {
         location,
         address,
@@ -252,12 +288,16 @@ export function LocationProvider({ children }) {
         permissionStatus,
         refreshLocation,
         setManualLocation,
-        manualCity,
+        disableManualLocation,
+        manualCity: effectiveManualCity,
         manualCountry,
+        // Raw stored values for the settings UI
+        storedManualCity: manualCity,
+        storedManualCountry: manualCountry,
         latitude: location?.latitude || null,
         longitude: location?.longitude || null,
         hasLocation: !!location,
-        cityName: address || manualCity || 'İstanbul',
+        cityName: effectiveManualCity || gpsDistrict || address || 'İstanbul',
         districtName: localStorage.getItem('cached_district') || null,
         countryCode: localStorage.getItem('cached_country_code') || null,
     };

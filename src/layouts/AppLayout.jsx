@@ -10,13 +10,33 @@ import { useTranslation } from 'react-i18next';
 import AvatarIcon from '@/components/AvatarIcon';
 import DebugMenu from '@/components/DebugMenu';
 import { useSmartPaywall } from '@/hooks/useSmartPaywall';
-import { useDiscountOffer } from '@/hooks/useDiscountOffer';
+import { useDiscountOffer, OFFER_DURATION_SECONDS } from '@/hooks/useDiscountOffer';
 
 /* Premium button shimmer animation */
 const premiumBtnStyle = `
-@keyframes premium-btn-shimmer {
-  0% { background-position: -200% center; }
-  100% { background-position: 200% center; }
+/* Işık süzülmesi: ~1,4sn zarif geçiş, sonra ~2,6sn bekle → 4sn'de bir, göz almayan */
+@keyframes hdr-offer-sweep {
+  0% { transform: translateX(-100%); }
+  35% { transform: translateX(100%); }
+  100% { transform: translateX(100%); }
+}
+@keyframes hdr-offer-glow {
+  0%, 100% { box-shadow: 0 0 6px rgba(255,215,0,0.14), inset 0 0 5px rgba(255,215,0,0.03); }
+  50% { box-shadow: 0 0 12px rgba(255,215,0,0.3), inset 0 0 7px rgba(255,215,0,0.07); }
+}
+@keyframes hdr-offer-glow-red {
+  0%, 100% { box-shadow: 0 0 8px rgba(239,68,68,0.35), inset 0 0 6px rgba(239,68,68,0.08); }
+  50% { box-shadow: 0 0 20px rgba(239,68,68,0.75), inset 0 0 10px rgba(239,68,68,0.15); }
+}
+@keyframes hdr-flame-flicker {
+  0%, 100% { transform: scale(1) rotate(-4deg); }
+  30% { transform: scale(1.15) rotate(3deg); }
+  60% { transform: scale(0.95) rotate(-2deg); }
+  80% { transform: scale(1.1) rotate(4deg); }
+}
+@keyframes hdr-digit-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.45; }
 }
 `;
 
@@ -24,7 +44,10 @@ export default function AppLayout() {
     const { selection } = useHaptics();
     const { pathname } = useLocation();
     const navigate = useNavigate();
-    const { isActive: isOfferActive, formattedTime } = useDiscountOffer();
+    const { isActive: isOfferActive, formattedTime, timeLeft } = useDiscountOffer();
+    const offerFraction = Math.max(0, Math.min(1, timeLeft / OFFER_DURATION_SECONDS));
+    // Son 60 sn (00:00 dahil): alarm modu. 00:00'da kırmızı kalmalı, yoksa bir an sarıya dönüp bug gibi görünüyor.
+    const isOfferCritical = isOfferActive && timeLeft <= 60;
     const mainContentRef = useRef(null);
     const { userData, isPremium: hasPremium } = useUser();
     const { t } = useTranslation('home'); // Use home namespace for greetings
@@ -33,6 +56,16 @@ export default function AppLayout() {
 
     // Real-time avatar sync using ID
     const [headerAvatarId, setHeaderAvatarId] = React.useState(localStorage.getItem('userAvatar') || 'male');
+
+    // 🔧 TEST: premium kullanıcının da paywall giriş butonunu görebilmesi için debug bayrağı.
+    // Varsayılan kapalı; Profile'dan açılır. YAYIN ÖNCESİ KALDIRILACAK.
+    const [debugShowPaywall, setDebugShowPaywall] = React.useState(() => localStorage.getItem('debug_show_paywall') === 'true');
+    React.useEffect(() => {
+        const h = () => setDebugShowPaywall(localStorage.getItem('debug_show_paywall') === 'true');
+        window.addEventListener('debugPaywallChanged', h);
+        window.addEventListener('storage', h);
+        return () => { window.removeEventListener('debugPaywallChanged', h); window.removeEventListener('storage', h); };
+    }, []);
 
     React.useEffect(() => {
         const updateHeaderAvatar = () => {
@@ -130,46 +163,90 @@ export default function AppLayout() {
                             </h1>
                         </div>
                         <div className="flex items-center gap-2">
-                            {/* Premium CTA Button — only for non-premium users */}
-                            {!hasPremium && (
+                            {/* Premium CTA Button — non-premium users (veya test için debug bayrağı açıkken premium'a da) */}
+                            {(!hasPremium || debugShowPaywall) && (
                                 <button
                                     onClick={() => {
                                         selection();
                                         navigate(isOfferActive ? '/premium?offer=true' : '/premium');
                                     }}
                                     className={`relative flex items-center gap-1.5 px-3 py-2 rounded-2xl transition-all active:scale-95 border overflow-hidden ${
-                                        isOfferActive ? 'border-[#FFD700]/50' : 'border-[#D4AF37]/40'
+                                        isOfferActive
+                                            ? (isOfferCritical ? 'border-red-500/60' : 'border-[#FFD700]/50')
+                                            : 'border-[#D4AF37]/40'
                                     }`}
                                     style={{
                                         background: isOfferActive
-                                            ? 'linear-gradient(135deg, rgba(255,215,0,0.2) 0%, rgba(212,175,55,0.1) 100%)'
+                                            ? 'linear-gradient(135deg, rgba(255,215,0,0.16) 0%, rgba(4,26,16,0.55) 100%)'
                                             : 'linear-gradient(135deg, rgba(212,175,55,0.15) 0%, rgba(212,175,55,0.05) 100%)',
+                                        animation: isOfferActive
+                                            ? (isOfferCritical ? 'hdr-offer-glow-red 1s ease-in-out infinite' : 'hdr-offer-glow 5s ease-in-out infinite')
+                                            : 'none',
                                     }}
                                 >
-                                    {/* Shimmer sweep overlay */}
+                                    {/* Shimmer sweep overlay — tek geçiş + bekleme (transform, 4sn'de bir, göz almayan) */}
                                     <div
                                         className="absolute inset-0 pointer-events-none"
                                         style={{
                                             backgroundImage: isOfferActive
-                                                ? 'linear-gradient(105deg, transparent 35%, rgba(255,215,0,0.3) 45%, rgba(255,255,255,0.5) 50%, rgba(255,215,0,0.3) 55%, transparent 65%)'
-                                                : 'linear-gradient(105deg, transparent 35%, rgba(212,175,55,0.2) 45%, rgba(255,215,0,0.35) 50%, rgba(212,175,55,0.2) 55%, transparent 65%)',
-                                            backgroundSize: '200% 100%',
-                                            animation: 'premium-btn-shimmer 3s ease-in-out infinite',
+                                                ? 'linear-gradient(105deg, transparent 38%, rgba(255,215,0,0.16) 47%, rgba(255,255,255,0.32) 50%, rgba(255,215,0,0.16) 53%, transparent 62%)'
+                                                : 'linear-gradient(105deg, transparent 38%, rgba(212,175,55,0.14) 47%, rgba(255,215,0,0.32) 50%, rgba(212,175,55,0.14) 53%, transparent 62%)',
+                                            animation: 'hdr-offer-sweep 4s ease-out infinite',
+                                            willChange: 'transform',
+                                            transform: 'translateZ(0)',
                                         }}
                                     />
                                     {isOfferActive ? (
-                                        <div className="flex flex-col items-center justify-center relative z-10 leading-none py-0.5">
-                                            <span className="text-[8px] font-extrabold tracking-[0.15em] text-[#FFD700]/80 uppercase mb-[3px] whitespace-nowrap">
-                                                Son Teklif
-                                            </span>
-                                            <div className="flex items-center gap-1.5">
-                                                <div className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse shadow-[0_0_5px_rgba(239,68,68,0.8)]" />
-                                                <span className="text-[13px] font-black tracking-wider text-[#FFD700] font-mono leading-none"
-                                                      style={{ textShadow: '0 0 8px rgba(255,215,0,0.5)' }}>
-                                                    {formattedTime}
-                                                </span>
+                                        <>
+                                            <div className="flex items-center gap-1.5 relative z-10 py-0.5">
+                                                {/* Titreyen alev — aciliyetin kalbi */}
+                                                <Flame
+                                                    size={16}
+                                                    className={`flex-shrink-0 ${isOfferCritical ? 'text-red-400' : 'text-[#FFD700]'}`}
+                                                    fill="currentColor"
+                                                    fillOpacity={0.35}
+                                                    style={{
+                                                        animation: 'hdr-flame-flicker 1.1s ease-in-out infinite',
+                                                        filter: isOfferCritical
+                                                            ? 'drop-shadow(0 0 5px rgba(239,68,68,0.8))'
+                                                            : 'drop-shadow(0 0 5px rgba(255,215,0,0.6))',
+                                                    }}
+                                                />
+                                                <div className="flex flex-col items-start leading-none">
+                                                    <span className={`text-[8px] font-extrabold tracking-[0.14em] uppercase mb-[3px] whitespace-nowrap ${
+                                                        isOfferCritical ? 'text-red-400/90' : 'text-[#FFD700]/80'
+                                                    }`}>
+                                                        {tNav('premium.last_offer')}
+                                                    </span>
+                                                    <span
+                                                        className={`text-[14px] font-black tracking-wider tabular-nums leading-none ${
+                                                            isOfferCritical ? 'text-red-400' : 'text-[#FFD700]'
+                                                        }`}
+                                                        style={{
+                                                            fontVariantNumeric: 'tabular-nums',
+                                                            textShadow: isOfferCritical ? '0 0 8px rgba(239,68,68,0.6)' : '0 0 8px rgba(255,215,0,0.5)',
+                                                            animation: isOfferCritical ? 'hdr-digit-blink 1s ease-in-out infinite' : 'none',
+                                                        }}
+                                                    >
+                                                        {formattedTime}
+                                                    </span>
+                                                </div>
                                             </div>
-                                        </div>
+                                            {/* Yanan fitil — kalan süre alt kenarda gerçek zamanlı erir */}
+                                            <div className="absolute bottom-0 left-0 right-0 h-[2.5px] bg-black/40">
+                                                <div
+                                                    className="h-full origin-left rounded-r-full"
+                                                    style={{
+                                                        background: isOfferCritical
+                                                            ? 'linear-gradient(90deg, #7f1d1d, #ef4444)'
+                                                            : 'linear-gradient(90deg, #8a6d1f, #D4AF37, #FFD700)',
+                                                        boxShadow: isOfferCritical ? '0 0 6px rgba(239,68,68,0.8)' : '0 0 6px rgba(255,215,0,0.6)',
+                                                        transform: `scaleX(${offerFraction})`,
+                                                        transition: 'transform 1s linear',
+                                                    }}
+                                                />
+                                            </div>
+                                        </>
                                     ) : (
                                         <>
                                             <Crown size={14} className="text-[#D4AF37] relative z-10" fill="#D4AF37" fillOpacity={0.3} />

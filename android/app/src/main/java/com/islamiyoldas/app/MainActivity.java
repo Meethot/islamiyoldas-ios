@@ -85,6 +85,51 @@ public class MainActivity extends BridgeActivity {
                     DhikrWidgetProvider.updateWidget(this, manager, id);
                 }
             }
+
+            // Refresh verse widgets
+            ComponentName verseWidget = new ComponentName(this, VerseWidgetProvider.class);
+            int[] verseIds = manager.getAppWidgetIds(verseWidget);
+            if (verseIds != null && verseIds.length > 0) {
+                for (int id : verseIds) {
+                    VerseWidgetProvider.updateWidget(this, manager, id);
+                }
+            }
+
+            // Refresh hourly verse widgets
+            ComponentName hourlyVerseWidget = new ComponentName(this, HourlyVerseWidgetProvider.class);
+            int[] hourlyVerseIds = manager.getAppWidgetIds(hourlyVerseWidget);
+            if (hourlyVerseIds != null && hourlyVerseIds.length > 0) {
+                for (int id : hourlyVerseIds) {
+                    HourlyVerseWidgetProvider.updateWidget(this, manager, id);
+                }
+            }
+
+            // Refresh motivation widgets
+            ComponentName motivationWidget = new ComponentName(this, MotivationWidgetProvider.class);
+            int[] motivationIds = manager.getAppWidgetIds(motivationWidget);
+            if (motivationIds != null && motivationIds.length > 0) {
+                for (int id : motivationIds) {
+                    MotivationWidgetProvider.updateWidget(this, manager, id);
+                }
+            }
+
+            // Refresh esma widgets
+            ComponentName esmaWidget = new ComponentName(this, EsmaWidgetProvider.class);
+            int[] esmaIds = manager.getAppWidgetIds(esmaWidget);
+            if (esmaIds != null && esmaIds.length > 0) {
+                for (int id : esmaIds) {
+                    EsmaWidgetProvider.updateWidget(this, manager, id);
+                }
+            }
+
+            // Refresh hourly esma widgets
+            ComponentName hourlyEsmaWidget = new ComponentName(this, HourlyEsmaWidgetProvider.class);
+            int[] hourlyEsmaIds = manager.getAppWidgetIds(hourlyEsmaWidget);
+            if (hourlyEsmaIds != null && hourlyEsmaIds.length > 0) {
+                for (int id : hourlyEsmaIds) {
+                    HourlyEsmaWidgetProvider.updateWidget(this, manager, id);
+                }
+            }
         } catch (Exception e) {
             // Widget refresh is non-critical, don't crash
         }

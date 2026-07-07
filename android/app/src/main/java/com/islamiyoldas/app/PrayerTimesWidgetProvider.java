@@ -45,7 +45,7 @@ public class PrayerTimesWidgetProvider extends AppWidgetProvider {
                 String city = data.optString("city", "Bilinmiyor");
                 views.setTextViewText(R.id.widget_city, "📍 " + city.toUpperCase(Locale.getDefault()));
 
-                JSONArray prayers = data.optJSONArray("prayers");
+                JSONArray prayers = selectPrayersForToday(data);
                 if (prayers != null) {
                     String[] targetIds = { "fajr", "dhuhr", "asr", "maghrib", "isha" };
                     int[] rowIds = { R.id.row_imsak, R.id.row_ogle, R.id.row_ikindi, R.id.row_aksam, R.id.row_yatsi };
@@ -146,16 +146,55 @@ public class PrayerTimesWidgetProvider extends AppWidgetProvider {
         }
     }
 
+    /**
+     * Picks today's prayer list from the multi-day schedule (days: [{date, prayers}])
+     * synced by the app. Beyond the synced window the last day is the closest
+     * approximation; payloads from older app versions fall back to "prayers".
+     * This keeps the widget accurate even when the app isn't opened for days.
+     */
+    private static JSONArray selectPrayersForToday(JSONObject data) {
+        JSONArray days = data.optJSONArray("days");
+        if (days != null && days.length() > 0) {
+            String todayKey = new java.text.SimpleDateFormat("yyyy-MM-dd", Locale.US)
+                    .format(new java.util.Date());
+            JSONObject lastDay = null;
+            for (int i = 0; i < days.length(); i++) {
+                JSONObject day = days.optJSONObject(i);
+                if (day == null) continue;
+                lastDay = day;
+                if (todayKey.equals(day.optString("date"))) {
+                    JSONArray p = day.optJSONArray("prayers");
+                    if (p != null) return p;
+                }
+            }
+            if (lastDay != null) {
+                JSONArray p = lastDay.optJSONArray("prayers");
+                if (p != null) return p;
+            }
+        }
+        return data.optJSONArray("prayers");
+    }
+
     private static int findNextPrayerFromTimes(String[] times) {
         try {
             Calendar now = Calendar.getInstance();
-            int currentMinutes = now.get(Calendar.HOUR_OF_DAY) * 60 + now.get(Calendar.MINUTE);
+            long prevMillis = 0;
 
             for (int i = 0; i < times.length; i++) {
                 if (times[i] != null && times[i].contains(":")) {
                     String[] parts = times[i].split(":");
-                    int prayerMinutes = Integer.parseInt(parts[0]) * 60 + Integer.parseInt(parts[1]);
-                    if (prayerMinutes > currentMinutes) {
+                    Calendar target = (Calendar) now.clone();
+                    target.set(Calendar.HOUR_OF_DAY, Integer.parseInt(parts[0]));
+                    target.set(Calendar.MINUTE, Integer.parseInt(parts[1]));
+                    target.set(Calendar.SECOND, 0);
+                    target.set(Calendar.MILLISECOND, 0);
+                    // Sequence-aware: a midnight-crossing Isha (e.g. "00:10" at high
+                    // latitudes) belongs to the next day, not "passed all day"
+                    while (prevMillis > 0 && target.getTimeInMillis() < prevMillis) {
+                        target.add(Calendar.DAY_OF_MONTH, 1);
+                    }
+                    prevMillis = target.getTimeInMillis();
+                    if (target.after(now)) {
                         return i;
                     }
                 }

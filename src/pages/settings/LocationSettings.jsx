@@ -343,10 +343,10 @@ export default function LocationSettings() {
     const navigate = useNavigate();
     const { t, i18n } = useTranslation('settings');
     const { selection, success, medium } = useHaptics();
-    const { latitude, longitude, loading: locationLoading, hasLocation, error: locationError, refreshLocation, permissionStatus, setManualLocation, manualCity, manualCountry } = useLocation();
+    const { latitude, longitude, loading: locationLoading, hasLocation, error: locationError, refreshLocation, permissionStatus, setManualLocation, disableManualLocation, storedManualCity, storedManualCountry } = useLocation();
 
-    const [city, setCityState] = useState(manualCity || 'İstanbul');
-    const [country, setCountryState] = useState(manualCountry || 'Turkey');
+    const [city, setCityState] = useState(storedManualCity || 'İstanbul');
+    const [country, setCountryState] = useState(storedManualCountry || 'Turkey');
     const [isCityModalOpen, setIsCityModalOpen] = useState(false);
     const [modalMode, setModalMode] = useState('country');
     const [useAutoLocation, setUseAutoLocation] = useState(false);
@@ -415,6 +415,8 @@ export default function LocationSettings() {
             if (status.location === 'granted') {
                 setUseAutoLocation(true);
                 localStorage.setItem('location_permission_granted', 'true');
+                // GPS becomes authoritative — release the manual city override
+                disableManualLocation();
                 refreshLocation();
             } else {
                 // Denied — redirect to iOS Settings

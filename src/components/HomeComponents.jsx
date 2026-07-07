@@ -1,4 +1,4 @@
-import React, { memo, useMemo, useState, useRef, useEffect, Fragment, useCallback } from 'react';
+import React, { memo, useMemo, useState, useRef, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { usePrayerTimes } from '@/context/PrayerTimesContext';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -7,7 +7,7 @@ import {
     CheckCircle2, ChevronRight, ChevronDown, Share2, Star, Sparkles, Check,
     Loader2, Moon, Sun, Sunrise, Sunset, Wind, MessageCircle, X, Download, Heart,
     Sprout, Leaf, TreeDeciduous, CalendarDays, Droplet, Trees, Flower2, Search,
-    SortAsc, SortDesc, Flame, Trophy, Bell, Trash2, HelpCircle
+    SortAsc, SortDesc, Flame, Trophy, Bell, Trash2, HelpCircle, Crown
 } from 'lucide-react';
 import { LocalNotifications } from '@capacitor/local-notifications';
 import { ALL_ESMA } from '@/data/esmaData';
@@ -15,6 +15,7 @@ import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useHaptics } from '@/hooks/useMobile';
 import { getAppDate, getTodayString } from '@/lib/testDate';
+import { buildPrayerSchedule } from '@/lib/prayerTimeUtils';
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
 import { Capacitor } from '@capacitor/core';
 import { playAminSound } from '@/services/WidgetDataService';
@@ -78,21 +79,18 @@ const WeeklyConfetti = ({ active }) => {
 
 // --- Tuba Ağacı (Spiritual Growth Widget) with 7-Day Timeline ---
 export const WeeklyStreakWidget = memo(({ tubaData, setTubaData }) => {
-    const [isWatering, setIsWatering] = useState(false);
-    const [particleFlying, setParticleFlying] = useState(false);
+    const [justWatered, setJustWatered] = useState(false);
     const [treeImpact, setTreeImpact] = useState(false);
-    const [alreadyWateredMessage, setAlreadyWateredMessage] = useState(false);
     const [showWeeklyCelebration, setShowWeeklyCelebration] = useState(false);
-    const { selection, success, impactMedium } = useHaptics();
+    const { selection, success } = useHaptics();
     const { t } = useTranslation('home');
     const navigate = useNavigate();
-    const [showPremiumLock, setShowPremiumLock] = useState(false);
     const [showInfoModal, setShowInfoModal] = useState(false);
 
     // Sound effect — preloaded for zero latency
     const clickSoundRef = useRef(null);
     useEffect(() => {
-        const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3');
+        const audio = new Audio('/sounds/tuba-water.mp3');
         audio.preload = 'auto';
         audio.volume = 0.6;
         audio.load();
@@ -106,18 +104,23 @@ export const WeeklyStreakWidget = memo(({ tubaData, setTubaData }) => {
     const tomorrowStr = getTodayString(); // Using standardized date string
     const isCompletedToday = lastWateredDate === tomorrowStr;
 
-    const streak = currentStreak; // Support for existing logic
     const growthProgress = totalWateredDays;
-
-    // Refs for position calculation
-    const timelineNodeRefs = useRef([]);
-    const treeIconRef = useRef(null);
-    const particleStartPos = useRef({ x: 0, y: 0 });
-    const particleEndPos = useRef({ x: 0, y: 0 });
 
     // 7-Day Timeline State (recalculates with test date changes)
     // Mapping: 0=Pazartesi, 1=Salı, ..., 6=Pazar
     const currentDayIndex = (getAppDate().getDay() + 6) % 7;
+
+    // Haftanın gün numaraları (Pazartesi bazlı) — gün dairelerinin içinde gösterilir
+    const weekDayNumbers = useMemo(() => {
+        const base = getAppDate();
+        const monday = new Date(base);
+        monday.setDate(base.getDate() - currentDayIndex);
+        return Array.from({ length: 7 }, (_, i) => {
+            const d = new Date(monday);
+            d.setDate(monday.getDate() + i);
+            return d.getDate();
+        });
+    }, [currentDayIndex]);
 
 
     // Helper function to get week number
@@ -158,80 +161,43 @@ export const WeeklyStreakWidget = memo(({ tubaData, setTubaData }) => {
     // Determine Organic Growth Stage
     let StageIcon = Sprout;
     let stageLabel = t('tuba.stages.seed');
-    let stageMeaning = t('tuba.stages.seedMeaning');
-    let growthColor = "text-emerald-400";
     let progress = 0;
     let nextMilestone = 3;
 
     if (growthProgress < 3) {
         StageIcon = Sprout;
         stageLabel = t('tuba.stages.seed');
-        stageMeaning = t('tuba.stages.seedMeaning');
-        growthColor = "text-emerald-500 dark:text-emerald-300";
         nextMilestone = 3;
         progress = (growthProgress / 3) * 100;
     } else if (growthProgress >= 3 && growthProgress < 7) {
         StageIcon = Leaf;
         stageLabel = t('tuba.stages.sapling');
-        stageMeaning = t('tuba.stages.saplingMeaning');
-        growthColor = "text-emerald-600 dark:text-emerald-300";
         nextMilestone = 7;
         progress = ((growthProgress - 3) / (7 - 3)) * 100;
     } else if (growthProgress >= 7 && growthProgress < 21) {
         StageIcon = TreeDeciduous;
         stageLabel = t('tuba.stages.youngTree');
-        stageMeaning = t('tuba.stages.youngTreeMeaning');
-        growthColor = "text-islamic-green dark:text-emerald-200";
         nextMilestone = 21;
         progress = ((growthProgress - 7) / (21 - 7)) * 100;
     } else if (growthProgress >= 21 && growthProgress < 40) {
         StageIcon = Trees;
         stageLabel = t('tuba.stages.matureTree');
-        stageMeaning = t('tuba.stages.matureTreeMeaning');
-        growthColor = "text-teal-600 dark:text-teal-300";
         nextMilestone = 40;
         progress = ((growthProgress - 21) / (40 - 21)) * 100;
     } else if (growthProgress >= 40) {
         StageIcon = Flower2;
         stageLabel = t('tuba.stages.tuba');
-        stageMeaning = t('tuba.stages.tubaMeaning');
-        growthColor = "text-islamic-gold dark:text-islamic-gold";
         nextMilestone = 100;
         progress = Math.min(((growthProgress - 40) / (100 - 40)) * 100, 100);
     }
 
-    // Calculate particle path positions
-    const calculatePositions = () => {
-        const nodeEl = timelineNodeRefs.current[currentDayIndex];
-        const treeEl = treeIconRef.current;
+    // Tek vurgu rengi: light'ta yeşil, dark'ta altın (uygulama genelindeki desen).
+    // Altın, son mertebede ("Mübarek Tuba") iki temada da kartı devralır — kazanılan renk.
+    const isFinalStage = growthProgress >= 40;
+    const accentText = isFinalStage ? "text-[#A8821F] dark:text-islamic-gold" : "text-islamic-green dark:text-islamic-gold";
+    const accentSolid = isFinalStage ? "bg-islamic-gold text-[#032e18]" : "bg-islamic-green text-white dark:bg-islamic-gold dark:text-[#032e18]";
+    const accentBorder = isFinalStage ? "border-islamic-gold" : "border-islamic-green dark:border-islamic-gold";
 
-        if (nodeEl && treeEl) {
-            const nodeRect = nodeEl.getBoundingClientRect();
-            const treeRect = treeEl.getBoundingClientRect();
-
-            particleStartPos.current = {
-                x: nodeRect.left + nodeRect.width / 2,
-                y: nodeRect.top + nodeRect.height / 2
-            };
-
-            particleEndPos.current = {
-                x: treeRect.left + treeRect.width / 2,
-                y: treeRect.top + treeRect.height / 2
-            };
-        }
-    };
-
-    const triggerParticleFlow = () => {
-        // Mark current day as completed
-        const newCompletedDays = [...completedDays];
-        newCompletedDays[currentDayIndex] = true;
-        setCompletedDays(newCompletedDays);
-        localStorage.setItem('tubaAgaci_completedDays', JSON.stringify(newCompletedDays));
-
-        // Calculate positions and start particle animation
-        calculatePositions();
-        setParticleFlying(true);
-    };
 
     // Auto-sync completedDays if lastWateredDate matches today (for initial load)
     useEffect(() => {
@@ -246,12 +212,7 @@ export const WeeklyStreakWidget = memo(({ tubaData, setTubaData }) => {
     const handleWatering = () => {
         const todayStr = getTodayString();
 
-        if (isCompletedToday) {
-            setAlreadyWateredMessage(true);
-            if (Capacitor.isNativePlatform()) Haptics.notification({ type: 'WARNING' }).catch(() => { });
-            setTimeout(() => setAlreadyWateredMessage(false), 3000);
-            return;
-        }
+        if (isCompletedToday) return; // Buton zaten disabled — güvence
 
         if (totalWateredDays >= 3 && !isPremium()) {
             navigate('/premium');
@@ -301,220 +262,195 @@ export const WeeklyStreakWidget = memo(({ tubaData, setTubaData }) => {
             clickSoundRef.current.play().catch(() => { });
         }
 
-        // Start water animation immediately
-        setIsWatering(true);
+        // Weekly celebration check (state güncellenmeden önceki değerlerle)
+        const currentCheckedCount = completedDays.filter(d => d).length;
+        const isCompletingLastDay = !completedDays[currentDayIndex];
 
-        // Particle flow starts fast (100ms) instead of 300ms
+        // Tek orkestre an: gün dairesi dolar → halka ilerler → ikon "bloom" yapar
+        const newCompletedDays = [...completedDays];
+        newCompletedDays[currentDayIndex] = true;
+        setJustWatered(true);
+        setCompletedDays(newCompletedDays);
+        localStorage.setItem('tubaAgaci_completedDays', JSON.stringify(newCompletedDays));
+        setTubaData(newData);
+        localStorage.setItem('tubaAgaci_data', JSON.stringify(newData));
+
+        // Halka dolumu biterken ikon pulse + "bloom" haptic zinciri
         setTimeout(() => {
-            triggerParticleFlow();
-            setTubaData(newData);
-            localStorage.setItem('tubaAgaci_data', JSON.stringify(newData));
-
-            // Tree impact haptic after water drop reaches tree (~600ms)
-            setTimeout(() => {
-                handleParticleComplete();
-            }, 500);
-
-            // Weekly celebration check
-            const currentCheckedCount = completedDays.filter(d => d).length;
-            const isCompletingLastDay = !completedDays[currentDayIndex];
-
-            if (currentCheckedCount === 6 && isCompletingLastDay) {
-                setTimeout(() => {
-                    setShowWeeklyCelebration(true);
-                    success();
-                    setTimeout(() => setShowWeeklyCelebration(false), 8000);
-                }, 1000);
+            setTreeImpact(true);
+            if (Capacitor.isNativePlatform()) {
+                Haptics.impact({ style: ImpactStyle.Medium }).catch(() => { });
+                setTimeout(() => Haptics.impact({ style: ImpactStyle.Light }).catch(() => { }), 70);
             }
-        }, 100);
+            setTimeout(() => setTreeImpact(false), 600);
+        }, 450);
 
-        // Water drop ends faster
-        setTimeout(() => setIsWatering(false), 900);
-    };
+        setTimeout(() => setJustWatered(false), 900);
 
-    const handleParticleComplete = () => {
-        setParticleFlying(false);
-        setTreeImpact(true);
-
-        // Triple-pulse haptic on tree impact — satisfying "bloom" feedback
-        if (Capacitor.isNativePlatform()) {
-            Haptics.impact({ style: ImpactStyle.Heavy }).catch(() => { });
-            setTimeout(() => Haptics.impact({ style: ImpactStyle.Medium }).catch(() => { }), 60);
-            setTimeout(() => Haptics.impact({ style: ImpactStyle.Light }).catch(() => { }), 130);
+        if (currentCheckedCount === 6 && isCompletingLastDay) {
+            setTimeout(() => {
+                setShowWeeklyCelebration(true);
+                success();
+                setTimeout(() => setShowWeeklyCelebration(false), 8000);
+            }, 1000);
         }
-
-        setTimeout(() => setTreeImpact(false), 600);
     };
 
     return (
         <>
             <motion.div variants={itemVariants}>
-                <Card id="tuba-tree-widget" className="glass-panel border-none text-black dark:text-white overflow-hidden relative">
-                    {/* Ambient Glow */}
+                <Card
+                    id="tuba-tree-widget"
+                    className="relative overflow-hidden rounded-[20px] backdrop-blur-xl bg-white/60 dark:bg-white/[0.045] border border-white/50 dark:border-white/10 shadow-[0_8px_32px_rgba(4,77,41,0.08)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.25)] text-stone-800 dark:text-white"
+                >
+                    {/* Ambient glow */}
                     <div className={cn(
-                        "absolute top-0 right-0 w-40 h-40 rounded-full -mr-20 -mt-20 transition-all duration-[2000ms] blur-xl",
-                        growthProgress >= 7 ? "bg-islamic-gold/10" : "bg-islamic-green/5"
+                        "absolute -top-16 -right-16 w-48 h-48 rounded-full blur-3xl pointer-events-none transition-colors duration-1000",
+                        isFinalStage ? "bg-islamic-gold/25" : "bg-islamic-green/10 dark:bg-islamic-gold/10"
                     )} />
+                    <div className="absolute -bottom-20 -left-16 w-44 h-44 rounded-full blur-3xl pointer-events-none bg-emerald-400/10 dark:bg-islamic-green/25" />
 
-                    <CardContent className="p-4 sm:p-5 md:p-6 relative z-10">
-                        {/* 7-Day Timeline */}
-                        <div className="mb-4 sm:mb-6">
-                            <div className="flex items-center justify-center gap-1.5 mb-2">
-                                {t('tuba.days', { returnObjects: true }).map((day, idx) => (
-                                    <Fragment key={idx}>
-                                        {/* Day Node */}
-                                        <div
-                                            ref={el => timelineNodeRefs.current[idx] = el}
+                    <CardContent className="p-4 sm:p-5 relative z-10">
+                        {/* 7 günlük takvim şeridi — en üstte */}
+                        <div className="flex gap-1">
+                            {t('tuba.days', { returnObjects: true }).map((day, idx) => {
+                                const isDone = completedDays[idx];
+                                const isToday = idx === currentDayIndex;
+                                return (
+                                    <div key={idx} className="flex-1 flex flex-col items-center gap-1.5">
+                                        <span className={cn(
+                                            "text-[11px] leading-none",
+                                            isToday ? cn("font-bold", accentText) : "font-medium text-stone-400 dark:text-emerald-100/40"
+                                        )}>
+                                            {day}
+                                        </span>
+                                        <motion.span
+                                            animate={justWatered && isToday ? { scale: [0.4, 1.15, 1] } : {}}
+                                            transition={{ duration: 0.45, ease: [0.34, 1.56, 0.64, 1] }}
                                             className={cn(
-                                                "relative w-7 h-7 rounded-full flex items-center justify-center transition-all duration-300 text-[9px] font-bold",
-                                                completedDays[idx] && "bg-gradient-to-br from-islamic-gold via-islamic-green to-islamic-gold shadow-lg",
-                                                !completedDays[idx] && "border-2 border-gray-300 dark:border-white/20 text-gray-400 dark:text-white/30",
-                                                idx === currentDayIndex && !completedDays[idx] && "animate-pulse border-islamic-gold ring-2 ring-islamic-gold/30"
+                                                "w-8 h-8 rounded-full flex items-center justify-center text-[13px] tabular-nums transition-colors duration-300",
+                                                isDone && cn(
+                                                    accentSolid,
+                                                    isFinalStage
+                                                        ? "shadow-[0_2px_12px_rgba(212,175,55,0.45)]"
+                                                        : "shadow-[0_2px_12px_rgba(4,77,41,0.3)] dark:shadow-[0_2px_12px_rgba(212,175,55,0.35)]"
+                                                ),
+                                                !isDone && isToday && cn("border-2 font-semibold", accentBorder, accentText),
+                                                !isDone && !isToday && "border border-stone-200/80 dark:border-white/10 font-medium text-stone-300 dark:text-white/25"
                                             )}
                                         >
-                                            {completedDays[idx] ? (
-                                                <Check size={12} className="text-white" strokeWidth={3} />
-                                            ) : (
-                                                <span className="opacity-60">{day}</span>
-                                            )}
-                                        </div>
-
-                                        {/* Connecting Line */}
-                                        {idx < 6 && (
-                                            <div className="w-3 h-0.5 bg-gray-200 dark:bg-white/10 relative rounded-full overflow-hidden">
-                                                {completedDays[idx] && (
-                                                    <motion.div
-                                                        className="absolute inset-0 bg-gradient-to-r from-islamic-gold to-islamic-green"
-                                                        initial={{ scaleX: 0 }}
-                                                        animate={{ scaleX: 1 }}
-                                                        transition={{ duration: 0.5 }}
-                                                    />
-                                                )}
-                                            </div>
-                                        )}
-                                    </Fragment>
-                                ))}
-                            </div>
-                            <div className="flex items-center justify-center gap-2">
-                                <p className="text-center text-[10px] text-gray-400 dark:text-emerald-100/40 font-medium">
-                                    {t('tuba.daysCompleted', { count: completedDays.filter(d => d).length })}
-                                </p>
-                                {/* Streak Badge */}
-                                {currentStreak > 0 && (
-                                    <div className="flex items-center gap-1 bg-islamic-gold/10 px-2 py-0.5 rounded-full border border-islamic-gold/20 shadow-sm">
-                                        <span className="text-[9px] font-bold text-islamic-gold whitespace-nowrap">{t('tuba.streakBadge', { count: currentStreak })}</span>
+                                            {isDone ? <Check size={15} strokeWidth={2.5} /> : weekDayNumbers[idx]}
+                                        </motion.span>
                                     </div>
-                                )}
-                            </div>
+                                );
+                            })}
                         </div>
 
-                        {/* Main Content */}
-                        <div className="flex items-center justify-between">
-                            <div className="flex-1 relative z-20">
-                                <div className="flex items-center gap-2 mb-1">
-                                    <span className="text-[10px] font-bold font-serif text-gray-400 dark:text-emerald-100/40 uppercase tracking-widest">
-                                        {stageLabel}
-                                    </span>
-                                </div>
-                                <div className="flex items-center gap-2 mb-0.5">
-                                    <h3 className={cn("text-2xl font-bold font-serif transition-colors duration-[1500ms] drop-shadow-sm", growthColor)}>
+                        {/* Ana içerik — solda başlık + progress bar, sağda büyük ağaç */}
+                        <div className="flex items-center justify-between gap-4 mt-4">
+                            <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-1.5">
+                                    <h3 className="text-[17px] font-semibold tracking-tight leading-tight dark:text-white/80">
                                         {t('tuba.title')}
                                     </h3>
                                     <button
-                                        onClick={(e) => {
-                                            e.stopPropagation();
+                                        onClick={() => {
                                             selection();
                                             setShowInfoModal(true);
                                         }}
-                                        className="p-1 rounded-full bg-stone-100 dark:bg-white/5 hover:bg-stone-200 dark:hover:bg-white/10 active:scale-95 transition-all text-stone-500 dark:text-emerald-100/50"
+                                        aria-label={t('tuba.modalTitle')}
+                                        className="p-1.5 -m-1 rounded-full flex items-center justify-center shrink-0 text-stone-400 dark:text-emerald-100/40 active:scale-90 transition-all"
                                     >
-                                        <HelpCircle size={16} />
+                                        <HelpCircle size={15} />
                                     </button>
+                                    {currentStreak > 0 && (
+                                        <div
+                                            aria-label={t('tuba.streakBadge', { count: currentStreak })}
+                                            className={cn(
+                                                "flex items-center gap-1 px-2 py-0.5 rounded-full shrink-0 ml-1 backdrop-blur-sm border",
+                                                isFinalStage
+                                                    ? "bg-islamic-gold/15 border-islamic-gold/25"
+                                                    : "bg-islamic-green/10 border-islamic-green/15 dark:bg-islamic-gold/10 dark:border-islamic-gold/20"
+                                            )}
+                                        >
+                                            <Flame size={12} className={accentText} />
+                                            <span className={cn("text-[12px] font-semibold tabular-nums", accentText)}>{currentStreak}</span>
+                                        </div>
+                                    )}
                                 </div>
-                                <p className="text-[11px] text-gray-400 dark:text-emerald-100/50 font-medium italic mb-3">
-                                    {stageMeaning}
+                                <p className="text-[13px] text-stone-500 dark:text-emerald-100/60 leading-tight mt-0.5 truncate">
+                                    {stageLabel}
                                 </p>
 
                                 {/* Progress Bar */}
-                                <div className="max-w-[140px]">
-                                    <div className="h-1.5 w-full bg-gray-100 dark:bg-emerald-900/30 rounded-full overflow-hidden shadow-inner">
+                                <div className="mt-3 max-w-[170px]">
+                                    <div className="h-2 w-full rounded-full overflow-hidden bg-stone-200/70 dark:bg-white/10">
                                         <motion.div
                                             className={cn(
-                                                "h-full rounded-full transition-all duration-1000",
-                                                growthProgress >= 7
-                                                    ? "bg-islamic-gold dark:bg-gradient-to-r dark:from-amber-400 dark:to-yellow-300 dark:shadow-[0_0_10px_rgba(251,191,36,0.4)]"
-                                                    : "bg-islamic-green dark:bg-gradient-to-r dark:from-amber-400 dark:to-yellow-300 dark:shadow-[0_0_10px_rgba(251,191,36,0.4)]"
+                                                "h-full rounded-full",
+                                                isFinalStage
+                                                    ? "bg-islamic-gold shadow-[0_0_12px_rgba(212,175,55,0.6)]"
+                                                    : "bg-islamic-green shadow-[0_0_10px_rgba(4,77,41,0.4)] dark:bg-islamic-gold dark:shadow-[0_0_12px_rgba(212,175,55,0.5)]"
                                             )}
                                             initial={{ width: 0 }}
                                             animate={{ width: `${Math.max(progress, 5)}%` }}
+                                            transition={{ duration: 0.8, ease: "easeOut" }}
                                         />
                                     </div>
-                                    <div className="flex justify-between mt-1.5 opacity-60">
-                                        <span className="text-[9px] font-bold">{t('tuba.total', { count: growthProgress })}</span>
-                                        <span className="text-[9px]">{t('tuba.goal', { count: nextMilestone })}</span>
+                                    <div className="flex justify-between mt-1.5">
+                                        <span className="text-[11px] font-semibold tabular-nums text-stone-500 dark:text-emerald-100/60">
+                                            {t('tuba.total', { count: growthProgress })}
+                                        </span>
+                                        <span className="text-[11px] tabular-nums text-stone-400 dark:text-emerald-100/40">
+                                            {t('tuba.goal', { count: nextMilestone })}
+                                        </span>
                                     </div>
                                 </div>
                             </div>
 
-                            {/* Tree Icon with Impact Animation */}
-                            <div className="relative z-10 flex flex-col items-center">
-                                <AnimatePresence>
-                                    {growthProgress >= 40 && (
-                                        <motion.div
-                                            initial={{ opacity: 0 }}
-                                            animate={{ opacity: 1 }}
-                                            className="absolute inset-0 bg-islamic-gold/20 blur-2xl rounded-full animate-pulse pointer-events-none"
-                                        />
-                                    )}
-                                </AnimatePresence>
-
+                            {/* Büyük ağaç — eski tarz çerçeve + premium shimmer geçişi */}
+                            <motion.div
+                                animate={treeImpact ? { scale: [1, 1.15, 0.95, 1.05, 1] } : {}}
+                                transition={{ duration: 0.5, ease: "backOut" }}
+                                className={cn(
+                                    "relative w-20 h-20 rounded-[2rem] shrink-0 overflow-hidden flex items-center justify-center bg-white/50 dark:bg-white/[0.06] backdrop-blur-sm border-2 transition-colors duration-1000",
+                                    isFinalStage
+                                        ? "border-islamic-gold/60"
+                                        : "border-islamic-green/25 dark:border-emerald-400/30"
+                                )}
+                            >
+                                {/* Premium tarzı soldan sağa parlama geçişi */}
                                 <motion.div
-                                    ref={treeIconRef}
-                                    animate={treeImpact ? {
-                                        scale: [1, 1.2, 0.9, 1.1, 1],
-                                        filter: ["brightness(1)", "brightness(1.8)", "brightness(1)"],
-                                        rotate: [0, -10, 10, -5, 0]
-                                    } : {}}
-                                    transition={{ duration: 0.6, ease: "backOut" }}
+                                    className="absolute inset-0 pointer-events-none"
+                                    style={{ background: 'linear-gradient(105deg, transparent 35%, rgba(255,255,255,0.3) 45%, rgba(255,255,255,0.45) 50%, rgba(255,255,255,0.3) 55%, transparent 65%)' }}
+                                    animate={{ x: ['-100%', '100%'] }}
+                                    transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+                                />
+                                <StageIcon
+                                    size={40}
                                     className={cn(
-                                        "w-20 h-20 rounded-[2rem] flex items-center justify-center shadow-lg transition-all duration-1000 border-2 relative overflow-hidden",
-                                        growthProgress >= 40
-                                            ? "border-islamic-gold bg-gradient-to-br from-islamic-gold/20 to-amber-500/10 shadow-[0_0_20px_rgba(212,175,55,0.3)]"
-                                            : "border-islamic-green/30 bg-white/10 backdrop-blur-md"
+                                        "relative z-10 transition-colors duration-1000",
+                                        isFinalStage ? accentText : "text-islamic-green dark:text-emerald-400"
                                     )}
-                                >
-                                    {/* Shimmer Effect for high stages */}
-                                    {growthProgress >= 40 && (
-                                        <motion.div
-                                            className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -skew-x-12"
-                                            animate={{ left: ['-150%', '150%'] }}
-                                            transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-                                        />
-                                    )}
-
-                                    <StageIcon
-                                        className={cn(
-                                            "w-10 h-10 transition-all duration-1000 relative z-10",
-                                            growthColor,
-                                            growthProgress >= 40 ? "drop-shadow-[0_0_12px_rgba(212,175,55,0.6)] animate-pulse" : ""
-                                        )}
-                                    />
-                                </motion.div>
-
-                            </div>
+                                />
+                            </motion.div>
                         </div>
 
-                        {/* Watering Button (İbrik) */}
-                        {/* Watering Button (İbrik) */}
+                        {/* Sulama Butonu (İbrik) */}
                         <motion.button
                             onClick={handleWatering}
-                            disabled={isCompletedToday || isWatering}
-                            whileTap={!isCompletedToday ? { scale: 0.95 } : {}}
+                            disabled={isCompletedToday}
+                            whileTap={!isCompletedToday ? { scale: 0.98 } : {}}
                             className={cn(
-                                "w-full mt-4 sm:mt-6 h-12 rounded-2xl font-bold text-sm uppercase tracking-wide transition-all shadow-md flex items-center justify-center gap-2",
+                                "w-full mt-4 h-[50px] rounded-[14px] text-[17px] font-semibold flex items-center justify-center gap-2 transition-all duration-300",
                                 isCompletedToday
-                                    ? "bg-gray-100 dark:bg-white/5 text-gray-400 dark:text-gray-500 cursor-default border border-gray-200 dark:border-white/5 shadow-none"
-                                    : "bg-gradient-to-r from-islamic-green to-emerald-600 dark:from-islamic-gold dark:to-amber-600 text-white dark:text-[#032e18] hover:shadow-lg active:shadow-sm"
+                                    ? "bg-stone-100/80 dark:bg-white/[0.06] text-stone-400 dark:text-white/40 cursor-default"
+                                    : cn(
+                                        accentSolid,
+                                        isFinalStage
+                                            ? "shadow-[0_6px_20px_rgba(212,175,55,0.4)]"
+                                            : "shadow-[0_6px_20px_rgba(4,77,41,0.3)] dark:shadow-[0_6px_20px_rgba(212,175,55,0.3)]"
+                                    )
                             )}
                         >
                             {isCompletedToday ? (
@@ -524,59 +460,19 @@ export const WeeklyStreakWidget = memo(({ tubaData, setTubaData }) => {
                                 </>
                             ) : totalWateredDays >= 3 && !isPremium() ? (
                                 <>
-                                    <span className="text-base">👑</span>
-                                    {t('tuba.btnWater')}
+                                    <Crown size={18} />
+                                    {t('tuba.btnPremium')}
                                 </>
                             ) : (
                                 <>
-                                    <Droplet size={18} className={cn(isWatering && "animate-bounce")} />
-                                    {isWatering ? t('tuba.btnWatering') : t('tuba.btnWater')}
+                                    <Droplet size={18} />
+                                    {t('tuba.btnWater')}
                                 </>
                             )}
                         </motion.button>
                     </CardContent>
-
-                    {/* Water Drop Animation — single beautiful drop with shimmer */}
-                    <AnimatePresence>
-                        {isWatering && (
-                            <motion.div
-                                initial={{ opacity: 0, y: -20, scale: 0.3 }}
-                                animate={{ opacity: [0, 1, 1, 0.6, 0], y: [-20, 5, 25, 45, 60], scale: [0.3, 1.1, 1, 0.9, 0.5] }}
-                                exit={{ opacity: 0 }}
-                                transition={{ duration: 0.85, ease: [0.22, 1, 0.36, 1] }}
-                                className="absolute top-14 right-14 pointer-events-none"
-                            >
-                                {/* Main water drop */}
-                                <Droplet className="w-6 h-6 text-blue-400 fill-blue-300/80 drop-shadow-[0_0_8px_rgba(96,165,250,0.6)]" />
-                                {/* Shimmer ring */}
-                                <motion.div
-                                    className="absolute inset-0 rounded-full"
-                                    style={{ border: '1.5px solid rgba(96,165,250,0.5)' }}
-                                    animate={{ scale: [0.8, 1.8, 2.5], opacity: [0.8, 0.3, 0] }}
-                                    transition={{ duration: 0.7, ease: 'easeOut' }}
-                                />
-                            </motion.div>
-                        )}
-                    </AnimatePresence>
                 </Card>
             </motion.div>
-
-            {/* Already Watered Toast Message - Outside card for proper z-index */}
-            <AnimatePresence>
-                {alreadyWateredMessage && (
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: 20 }}
-                        className="fixed bottom-28 left-0 right-0 flex justify-center z-[10000] pointer-events-none px-6"
-                    >
-                        <div className="bg-white/40 dark:bg-islamic-gold/10 backdrop-blur-2xl text-[#032e18] dark:text-islamic-gold px-6 py-4 rounded-[2rem] font-bold text-sm shadow-[0_8px_32px_0_rgba(0,0,0,0.1)] dark:shadow-[0_8px_32px_0_rgba(212,175,55,0.2)] border border-white/40 dark:border-islamic-gold/20 flex items-center gap-3">
-                            <span className="text-xl">💧</span>
-                            <span className="tracking-tight">{t('tuba.toastAlready')}</span>
-                        </div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
 
             {/* Weekly Completion Celebration */}
             <WeeklyConfetti active={showWeeklyCelebration} />
@@ -1506,26 +1402,13 @@ export const PrayerCountdownWidget = memo(({ loading, city, nextPrayerInfo, pray
         }
     };
 
-    // Check if a prayer time has passed today
-    const isPastPrayer = (prayerTime) => {
-        if (!prayerTime) return false;
-        const now = new Date();
-        let h, m;
-        if (prayerTime.includes('AM') || prayerTime.includes('PM')) {
-            const match = prayerTime.match(/(\d+):(\d+)\s*(AM|PM)/i);
-            if (match) {
-                h = parseInt(match[1]);
-                m = parseInt(match[2]);
-                if (match[3].toUpperCase() === 'PM' && h !== 12) h += 12;
-                if (match[3].toUpperCase() === 'AM' && h === 12) h = 0;
-            }
-        } else {
-            [h, m] = prayerTime.split(':').map(Number);
-        }
-        if (isNaN(h) || isNaN(m)) return false;
-        const prayerDate = new Date();
-        prayerDate.setHours(h, m, 0, 0);
-        return now > prayerDate;
+    // Sequence-aware passed-check: a midnight-crossing Isha (e.g. "00:10" at high
+    // latitudes) counts as tonight's upcoming prayer, not as passed all day.
+    // Recomputed each render — the countdown re-renders this component every second.
+    const prayerScheduleDates = buildPrayerSchedule(mainPrayers.map(p => p.time));
+    const isPastPrayer = (index) => {
+        const d = prayerScheduleDates[index];
+        return d ? d <= new Date() : false;
     };
 
     const handleCardClick = () => {
@@ -1684,7 +1567,7 @@ export const PrayerCountdownWidget = memo(({ loading, city, nextPrayerInfo, pray
                                         {mainPrayers.map((prayer, index) => {
                                             const isSelected = selectedPrayerId === prayer.id;
                                             const isNext = !selectedPrayerId && nextPrayerInfo?.name === prayer.name;
-                                            const isPast = isPastPrayer(prayer.time) && !isNext && !isSelected;
+                                            const isPast = isPastPrayer(index) && !isNext && !isSelected;
                                             const IconComponent = prayer.icon;
                                             const prayerKey = prayer.name.toLowerCase();
                                             const hasReminder = !!prayerReminders[prayerKey];
@@ -2699,22 +2582,16 @@ export const QuickAction = memo(({ to, icon: Icon, label, color, subtitle, onCli
             href={to}
             onClick={onClick}
             variants={itemVariants}
-            whileTap={{ scale: 0.95 }}
-            className={cn(
-                "flex flex-col items-start p-4 rounded-[2rem] gap-2 transition-all border-none shadow-sm min-h-[110px] w-full text-left relative overflow-hidden group hover:shadow-md",
-                color
-            )}
+            whileTap={{ scale: 0.96 }}
+            className="glass-panel flex flex-col items-start gap-3 min-h-[122px] p-4 rounded-[2rem] w-full text-left bg-white dark:bg-white/5 border dark:border-white/10 shadow-sm"
         >
-            <div className="bg-white/20 p-2.5 rounded-2xl backdrop-blur-md group-hover:scale-110 transition-transform duration-500">
-                <Icon className="w-6 h-6" />
+            <div className="p-3 rounded-2xl bg-white/40 dark:bg-white/15 backdrop-blur-md shadow-sm text-islamic-green dark:text-islamic-gold">
+                <Icon className="w-6 h-6" strokeWidth={2} />
             </div>
-            <div className="mt-auto z-10">
-                <p className="text-sm font-bold leading-tight font-serif tracking-wide">{label}</p>
-                <p className="text-xs opacity-80 font-bold tracking-widest uppercase mt-1">{subtitle}</p>
+            <div className="mt-auto">
+                <p className="text-sm font-bold text-gray-900 dark:text-islamic-gold leading-tight">{label}</p>
+                <p className="text-[10px] font-medium text-gray-500 dark:text-emerald-100/40 mt-0.5">{subtitle}</p>
             </div>
-
-            {/* Shine Effect */}
-            <div className="absolute inset-0 bg-white/10 skew-x-12 translate-x-[-150%] group-hover:animate-shine pointer-events-none" />
         </Component>
     );
 });

@@ -1,12 +1,18 @@
 {
   "title": "Settings",
   "user": {
-    "default_name": "Faithful User",
-    "streak_desc": "Day {{count}} of the journey"
+    "default_name": "User",
+    "streak_desc": "Day {{count}} of the journey",
+    "stat_days": "Days",
+    "stat_streak": "Streak",
+    "stat_prayers": "Today"
   },
   "premium": {
     "banner_title": "Go Premium",
-    "banner_desc": "Experience your Islamic journey uninterrupted, unlock all features."
+    "banner_desc": "Experience your Islamic journey uninterrupted, unlock all features.",
+    "feat_quran": "Audio Quran",
+    "feat_no_ads": "Ad-free",
+    "feat_widgets": "Widgets"
   },
   "personal_settings": "Personal Settings",
   "general_settings": "General Settings",

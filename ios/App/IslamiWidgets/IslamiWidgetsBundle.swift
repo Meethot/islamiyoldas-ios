@@ -691,9 +691,19 @@ struct DhikrLockScreenOrFallbackView: View {
 }
 
 // MARK: - Widget Bundle
+// NOT: WidgetBundleBuilder en fazla 10 öğe alır. 10 widget + Live Activity = 11
+// olduğu için alt-bundle'lara bölündü (resmi çözüm: alt bundle .body kompozisyonu).
 
 @main
 struct IslamiWidgetsBundle: WidgetBundle {
+    var body: some Widget {
+        IslamiCoreWidgets().body
+        IslamiActivityWidgets().body
+    }
+}
+
+/// Ana ekran + kilit ekranı widget'ları (mevcut 10 widget, değişmedi)
+struct IslamiCoreWidgets: WidgetBundle {
     var body: some Widget {
         PrayerTimesWidget()
         PrayerLockScreenWidget()
@@ -706,6 +716,15 @@ struct IslamiWidgetsBundle: WidgetBundle {
         MotivationWidget()
         DhikrWidget()
         DhikrLockScreenWidget()
+    }
+}
+
+/// Live Activity'ler (iOS 16.1+; eski sürümlerde bu bundle boş kalır)
+struct IslamiActivityWidgets: WidgetBundle {
+    var body: some Widget {
+        if #available(iOSApplicationExtension 16.1, *) {
+            OfferLiveActivity()
+        }
     }
 }
 

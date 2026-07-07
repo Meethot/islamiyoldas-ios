@@ -11,7 +11,7 @@ export const DAILY_VERSES = [
     { id: 9, text: "Rabbimiz! Bizi hidayete erdirdikten sonra kalplerimizi eğriltme. Bize katından bir rahmet bağışla.", source: "Âl-i İmrân Suresi, 8" },
     { id: 10, text: "Onlar bollukta ve darlıkta Allah yolunda harcayanlar, öfkelerini yenenler ve insanları affedenlerdir.", source: "Âl-i İmrân Suresi, 134" },
     { id: 11, text: "Onlar ayaktayken, otururken ve yanları üzerine yatarken Allah'ı anarlar...", source: "Âl-i İmrân Suresi, 191" },
-    { id: 12, text: "Şüphesiz namaz, müminlere belirli vakitlerde farz kılınmıştır.", source: "Nisâ Suresi, 103" },
+    { id: 12, text: "Korkmayın, çünkü ben sizinle beraberim; işitir ve görürüm.", source: "Tâ-Hâ Suresi, 46" },
     { id: 13, text: "Bilesiniz ki kalpler ancak Allah'ı anmakla huzur bulur.", source: "Ra'd Suresi, 28" },
     { id: 14, text: "Eğer şükrederseniz, elbette size nimetimi artırırım.", source: "İbrâhîm Suresi, 7" },
     { id: 15, text: "Rabbimiz! Hesap görülecek günde, beni, ana babamı ve inananları bağışla.", source: "İbrâhîm Suresi, 41" },
@@ -22,15 +22,16 @@ export const DAILY_VERSES = [
     { id: 20, text: "Bir şeyi dilediği zaman O'nun emri o şeye ancak 'Ol!' demektir, o da hemen oluverir.", source: "Yâsîn Suresi, 82" },
     { id: 21, text: "Ey kendi aleyhlerine haddi aşan kullarım! Allah'ın rahmetinden ümit kesmeyin.", source: "Zümer Suresi, 53" },
     { id: 22, text: "Rabbiniz şöyle buyurdu: Bana dua edin, duanıza cevap vereyim.", source: "Mü'min Suresi, 60" },
-    { id: 23, text: "Müminler ancak kardeştirler. Öyleyse kardeşlerinizin arasını düzeltin.", source: "Hucurât Suresi, 10" },
+    { id: 23, text: "Allah kuluna yetmez mi?", source: "Zümer Suresi, 36" },
     { id: 24, text: "İyiliğin karşılığı, yalnız iyilik değil midir?", source: "Rahmân Suresi, 60" },
     { id: 25, text: "Sen elbette yüce bir ahlâk üzeresin.", source: "Kalem Suresi, 4" },
     { id: 26, text: "Biz insanı en güzel biçimde yarattık.", source: "Tîn Suresi, 4" },
-    { id: 27, text: "Kadir gecesi, bin aydan daha hayırlıdır.", source: "Kadir Suresi, 3" },
+    { id: 27, text: "Kullarım beni senden soracak olurlarsa, bilsinler ki ben pek yakınım. Bana dua ettiği zaman dua edenin çağrısına cevap veririm.", source: "Bakara Suresi, 186" },
     { id: 28, text: "Zamana andolsun ki, insan ziyandadır. Ancak iman edip salih ameller işleyenler müstesna.", source: "Asr Suresi, 1-3" },
     { id: 29, text: "Gevşemeyin, hüzünlenmeyin. Eğer (gerçekten) iman etmiş kimseler iseniz üstün olan sizsiniz.", source: "Âl-i İmrân Suresi, 139" },
     { id: 30, text: "Ve Biz insana şahdamarından daha yakınız.", source: "Kâf Suresi, 16" },
     { id: 31, text: "Rabbinin rızası için sabret.", source: "Müddessir Suresi, 7" },
+    { id: 32, text: "...Rahmetim ise her şeyi kuşatmıştır.", source: "A'râf Suresi, 156" }
 ];
 
 // English translations of all daily verses

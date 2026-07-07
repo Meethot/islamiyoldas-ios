@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- iOS medium widget arkaplanı: darkGreen1 → darkGreen2 → darkGreen1 (topLeading→bottomTrailing) -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="rectangle">
+            <gradient
+                android:startColor="#032E18"
+                android:centerColor="#0A4528"
+                android:endColor="#032E18"
+                android:angle="315"
+                android:type="linear" />
+            <corners android:radius="22dp" />
+        </shape>
+    </item>
+    <!-- Subtle luminous border -->
+    <item>
+        <shape android:shape="rectangle">
+            <stroke
+                android:width="0.5dp"
+                android:color="#14FFFFFF" />
+            <corners android:radius="22dp" />
+            <solid android:color="#00000000" />
+        </shape>
+    </item>
+</layer-list>

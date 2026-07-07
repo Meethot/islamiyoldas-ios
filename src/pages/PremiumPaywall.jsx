@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Crown, Star, BookOpen, Users, Check, Sparkles, Loader2, Flame, Calendar } from 'lucide-react';
+import { X, Crown, Star, BookOpen, Users, Check, Sparkles, Loader2, Moon, Calendar } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useHaptics } from '@/hooks/useMobile';
 import { setPremium } from '@/services/creditService';
 import { getProducts, purchaseProduct, restorePurchases, getOfferings, getSpecificProducts, PRODUCT_IDS } from '@/services/purchaseService';
-import { useDiscountOffer } from '@/hooks/useDiscountOffer';
+import { useDiscountOffer, OFFER_DURATION_SECONDS } from '@/hooks/useDiscountOffer';
+import { endOfferLiveActivity } from '@/services/liveActivityService';
 import { RevenueCatUI } from '@revenuecat/purchases-capacitor-ui';
 import { analytics } from '@/services/analyticsService';
 import { Capacitor } from '@capacitor/core';
@@ -202,6 +203,10 @@ const css = `
     0% { transform: translateX(-100%); }
     100% { transform: translateX(100%); }
 }
+@keyframes pw-critical {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.45; }
+}
 @keyframes pw-breathe {
     0%, 100% { opacity: 0.35; }
     50% { opacity: 0.6; }
@@ -292,7 +297,12 @@ export default function PremiumPaywall({ variant = 'default', offeringId = 'curr
     const { isActive: isOfferActive, timeLeft, formattedTime, startOffer, canShowOffer } = useDiscountOffer();
     const [offerProduct, setOfferProduct] = useState(null);
     const locationParams = new URLSearchParams(window.location.search);
-    const forcedOffer = locationParams.get('offer') === 'true';
+    const offerParam = locationParams.get('offer');
+    // ?offer=true  → gerçek giriş (header butonu / Live Activity): SADECE teklif hâlâ
+    //                geçerliyse (aktif ya da hiç kullanılmamış) gösterilir.
+    // ?offer=force → yalnızca Profile test butonu: cooldown/bitiş dinlemeden zorla başlatır.
+    const forcedOffer = offerParam === 'true' || offerParam === 'force';
+    const forceRestart = offerParam === 'force';
 
     const [activeOfferingId, setActiveOfferingId] = useState(null);
 
@@ -326,17 +336,35 @@ export default function PremiumPaywall({ variant = 'default', offeringId = 'curr
         fetchOffer();
     }, [activeOfferingId]);
 
+    // forced start SADECE bir kez çalışmalı; yoksa 5dk dolup isOfferActive false olunca
+    // effect yeniden çalışıp startOffer(true) ile sayacı sıfırdan başlatıyordu (restart bug'ı).
+    const forcedStartHandledRef = useRef(false);
     useEffect(() => {
-        // If entered via active offer header button or manually forced via URL
-        if (forcedOffer) {
-            if (!isOfferActive) {
-                startOffer(true);
+        if (forcedOffer && !forcedStartHandledRef.current) {
+            forcedStartHandledRef.current = true;
+
+            if (forceRestart) {
+                // Test butonu: her zaman taze teklif
+                if (!isOfferActive) startOffer(true);
+                setShowExitPopup(true);
+            } else if (isOfferActive || canShowOffer()) {
+                // Gerçek giriş: teklif hâlâ geçerli (aktif ya da cooldown yok) → göster.
+                // canShowOffer() localStorage'ı taze okur; süresi dolmuş teklifte (cooldown
+                // hook tarafından mount'ta set edilir) false döner → sahte yeniden başlatma OLMAZ.
+                if (!isOfferActive) startOffer();
+                setShowExitPopup(true);
+            } else {
+                // Teklif bitmiş / cooldown: sahte 5dk başlatma. Kalan stale Live Activity'yi
+                // temizle ve normal paywall'da bırak.
+                endOfferLiveActivity();
             }
-            setShowExitPopup(true);
-        } else if (isOfferActive) {
+            return;
+        }
+        // Aktif teklif varken (örn. header sayacından girildiğinde) popup'ı göster
+        if (isOfferActive) {
             setShowExitPopup(true);
         }
-    }, [forcedOffer, isOfferActive]); // startOffer is stable from hook
+    }, [forcedOffer, forceRestart, isOfferActive]); // startOffer/canShowOffer stable from hook
 
     const lang = i18n.language?.split('-')[0] || 'en';
     const reviews = REVIEWS[lang] || REVIEWS.en;
@@ -446,6 +474,34 @@ export default function PremiumPaywall({ variant = 'default', offeringId = 'curr
 
 
 
+    // ── Son Teklif ekranı türevleri ──
+    // Teklifin GÜNLÜK fiyatı — teklif ürününden hesaplanır (normal yıllıktan değil)
+    const offerDailyPrice = useMemo(() => {
+        if (offerProduct?.price && offerProduct?.currencyCode) {
+            return formatPrice(offerProduct.price / 365, offerProduct.currencyCode);
+        }
+        return null;
+    }, [offerProduct, formatPrice]);
+
+    // Gerçek indirim yüzdesi — canlı fiyatlardan hesaplanır (variant'a göre doğru)
+    const offerPercent = useMemo(() => {
+        let normal = products.find(p => p.packageType === 'ANNUAL');
+        if (!normal) normal = products.find(p => p.identifier === PRODUCT_IDS.YEARLY || p.identifier.startsWith(PRODUCT_IDS.YEARLY + ':'));
+        if (offerProduct?.price && normal?.price > offerProduct.price) {
+            return Math.round((1 - offerProduct.price / normal.price) * 100);
+        }
+        return null;
+    }, [offerProduct, products]);
+
+    const offerTimeFraction = Math.max(0, Math.min(1, timeLeft / OFFER_DURATION_SECONDS));
+    const isOfferCritical = timeLeft > 0 && timeLeft <= 60;
+
+    // Teklif ekranı açıldığında hafif haptic dokunuşu
+    useEffect(() => {
+        if (showExitPopup) selection();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [showExitPopup]);
+
     const handleClose = useCallback(() => {
         // If discount offer is showing, close goes home directly.
         if (showExitPopup) {
@@ -495,7 +551,11 @@ export default function PremiumPaywall({ variant = 'default', offeringId = 'curr
         setIsLoading(true);
         setToast(null);
 
-        const productId = PRODUCT_IDS.YEARLY_OFFER_499;
+        // Variant'a göre doğru teklif ürünü: A/B testinde (test_variant_b) 399, ana vitrinde 499.
+        // offerProduct yüklenemediğinde fallback satın alma hedefi ve analytics bu id'yi kullanır.
+        const productId = activeOfferingId === 'test_variant_b'
+            ? PRODUCT_IDS.YEARLY_OFFER_399
+            : PRODUCT_IDS.YEARLY_OFFER_499;
         analytics.premiumPurchaseStarted('yearly_offer');
 
         const timeoutId = setTimeout(() => {
@@ -513,7 +573,8 @@ export default function PremiumPaywall({ variant = 'default', offeringId = 'curr
                 success();
                 setPremium(true);
                 setShowSuccess(true);
-                analytics.premiumPurchaseCompleted('yearly_offer', offerProduct?.price || 499.99, productId);
+                endOfferLiveActivity(); // Kilit ekranı sayacını kapat — teklif kullanıldı
+                analytics.premiumPurchaseCompleted('yearly_offer', offerProduct?.price || 0, productId);
             } else if (result.error && result.error !== 'cancelled') {
                 // 🔧 GEÇİCİ TANI (test aşaması): ham hatayı ekranda göster
                 setToast({ type: 'error', message: `TEST-OFFER • ürün:${offerProduct?.identifier || 'yok'} pkg:${offerProduct?.rcPackage ? 'var' : 'yok'} • ${String(result.error).slice(0, 220)}` });
@@ -529,7 +590,7 @@ export default function PremiumPaywall({ variant = 'default', offeringId = 'curr
         } finally {
             setIsLoading(false);
         }
-    }, [isLoading, t, getErrorMessage, offerProduct, success]);
+    }, [isLoading, t, getErrorMessage, offerProduct, success, activeOfferingId]);
 
     const handleSubscribe = useCallback(async (explicitPlan) => {
         if (isLoading) return;
@@ -563,6 +624,7 @@ export default function PremiumPaywall({ variant = 'default', offeringId = 'curr
                 success();
                 setPremium(true);
                 setShowSuccess(true);
+                endOfferLiveActivity(); // Kilit ekranı sayacı varsa kapat — artık premium
                 analytics.premiumPurchaseCompleted(planName, product?.price || 0, productId);
             } else if (result.error && result.error !== 'cancelled') {
                 // 🔧 GEÇİCİ TANI (test aşaması): ham hatayı ekranda göster
@@ -739,32 +801,8 @@ export default function PremiumPaywall({ variant = 'default', offeringId = 'curr
                             ✦ {t('premium.social_proof')} ✦
                         </motion.p>
 
-
-                        {/* Premium badge — centered */}
-                        <motion.div
-                            className="flex justify-center mt-1.5"
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.25, duration: 0.5 }}
-                        >
-                            <div className="relative inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full border border-[#D4AF37]/30 overflow-hidden"
-                                style={{ background: 'linear-gradient(135deg, rgba(212,175,55,0.12) 0%, rgba(212,175,55,0.04) 100%)' }}
-                            >
-                                <div className="absolute inset-0 pointer-events-none"
-                                    style={{
-                                        background: 'linear-gradient(105deg, transparent 35%, rgba(212,175,55,0.12) 45%, rgba(212,175,55,0.2) 50%, rgba(212,175,55,0.12) 55%, transparent 65%)',
-                                        animation: 'pw-card-sweep 3.5s ease-in-out infinite',
-                                    }}
-                                />
-                                <Crown size={14} className="text-[#D4AF37]" />
-                                <span className="text-[#D4AF37] text-xs font-black tracking-[0.15em] uppercase"
-                                    style={{ textShadow: '0 0 12px rgba(212,175,55,0.3)' }}
-                                >Premium</span>
-                            </div>
-                        </motion.div>
-
                         <h1
-                            className="text-[#D4AF37] font-serif text-[24px] font-bold leading-tight tracking-tight mt-2.5 select-none"
+                            className="text-[#D4AF37] font-serif text-[24px] font-bold leading-tight tracking-tight mt-2.5 mb-4 select-none"
                         >
                             {t('premium.headline')}
                         </h1>
@@ -772,7 +810,7 @@ export default function PremiumPaywall({ variant = 'default', offeringId = 'curr
 
                     {/* ── Features ── */}
                     <motion.div
-                        className="flex flex-col gap-1.5 mb-2.5 flex-shrink-0"
+                        className="flex flex-col gap-3 mb-2.5 flex-shrink-0"
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         transition={{ delay: 0.3 }}
@@ -806,7 +844,7 @@ export default function PremiumPaywall({ variant = 'default', offeringId = 'curr
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.5 }}
                     >
-                        <div className="flex items-center gap-0.5 mb-1.5">
+                        <div className="flex items-center justify-center gap-0.5 mb-1.5">
                             {[...Array(5)].map((_, i) => (
                                 <Star key={i} size={14} className="text-[#D4AF37] fill-[#D4AF37]" />
                             ))}
@@ -1202,6 +1240,21 @@ export default function PremiumPaywall({ variant = 'default', offeringId = 'curr
                                      style={{ background: 'radial-gradient(ellipse at top, rgba(212,175,55,0.15) 0%, transparent 70%)' }} />
                             )}
 
+                            {/* Yanan fitil — kalan süre sheet'in üst kenarında gerçek zamanlı azalır */}
+                            <div className="absolute top-0 left-0 right-0 h-[3px] bg-white/[0.06] z-20">
+                                <div
+                                    className="h-full origin-left rounded-r-full"
+                                    style={{
+                                        background: isOfferCritical
+                                            ? 'linear-gradient(90deg, #7f1d1d, #ef4444)'
+                                            : 'linear-gradient(90deg, #8a6d1f, #D4AF37, #FFD700)',
+                                        boxShadow: isOfferCritical ? '0 0 10px rgba(239,68,68,0.7)' : '0 0 10px rgba(255,215,0,0.45)',
+                                        transform: `scaleX(${offerTimeFraction})`,
+                                        transition: 'transform 1s linear',
+                                    }}
+                                />
+                            </div>
+
                             {/* Drag Handle */}
                             <div className="w-12 h-1.5 bg-white/20 rounded-full mx-auto mt-3 mb-2 relative z-10" />
 
@@ -1212,132 +1265,185 @@ export default function PremiumPaywall({ variant = 'default', offeringId = 'curr
                             {/* Pulse Glow Background */}
                             <div className="absolute top-0 left-0 right-0 h-48 bg-gradient-to-b from-[#D4AF37]/15 to-transparent opacity-60 pointer-events-none" />
 
-                            <div className="px-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] pt-3 relative z-10">
+                            <div className="px-6 pb-[calc(1.25rem+env(safe-area-inset-bottom))] pt-2 relative z-10 max-h-[85vh] overflow-y-auto pw-scroll">
 
-                                <div className="flex flex-col items-center mb-4 relative">
-                                    {/* Ultra Premium Live Timer (Dark Solid Glass on Android instead of expensive backdrop-blur) */}
-                                    <div className={`relative overflow-hidden px-6 py-2.5 rounded-full border border-[#D4AF37]/20 shadow-[0_8px_30px_rgba(0,0,0,0.5)] flex items-center gap-3 mb-3 ${!isAndroid ? 'bg-black/40 backdrop-blur-md' : 'bg-[#041a10]'}`}>
-                                        {/* Glassmorphic Edge Highlights */}
-                                        <div className="absolute top-0 left-1/4 right-1/4 h-[1px] bg-gradient-to-r from-transparent via-[#D4AF37]/40 to-transparent" />
-                                        <div className="absolute bottom-0 left-1/4 right-1/4 h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent" />
-                                        
-                                        {/* Animated Sweep */}
-                                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#D4AF37]/10 to-transparent -translate-x-[150%] animate-[shimmer_2.5s_infinite_ease-in-out]" />
-                                        
-                                        {/* Radar Pulse Indicator */}
-                                        <div className="relative flex items-center justify-center flex-shrink-0">
-                                            <div className="absolute w-8 h-8 bg-red-500/15 rounded-full animate-ping" style={{ animationDuration: '2s' }} />
-                                            <div className="absolute w-5 h-5 bg-red-500/30 rounded-full animate-pulse will-change-opacity transform-gpu" />
-                                            <div className="relative w-2.5 h-2.5 bg-red-500 rounded-full shadow-[0_0_12px_rgba(239,68,68,0.8)]" />
+                                {/* ── Canlı Sayaç ── */}
+                                <div className="flex flex-col items-center mt-1 mb-2">
+                                    <div className="flex items-center gap-2 mb-1">
+                                        <div className="relative flex items-center justify-center w-3 h-3">
+                                            <div className="absolute w-3 h-3 bg-red-500/25 rounded-full animate-ping" style={{ animationDuration: '1.6s' }} />
+                                            <div className="relative w-1.5 h-1.5 bg-red-500 rounded-full shadow-[0_0_8px_rgba(239,68,68,0.9)]" />
                                         </div>
-
-                                        <div className="flex flex-col relative z-10">
-                                            <span className="text-red-400/90 text-[9px] uppercase font-black tracking-[0.3em] leading-none mb-0.5 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
-                                                {t('premium.discount_ending')}
-                                            </span>
-                                            <span className="text-[#FFD700] font-mono text-[28px] font-black tracking-[0.1em] leading-none drop-shadow-[0_0_20px_rgba(255,215,0,0.25)]">
-                                                {formattedTime}
-                                            </span>
-                                        </div>
-                                    </div>
-
-                                    <h2 className="text-[#FFD700] text-[24px] font-black leading-tight text-center drop-shadow-[0_2px_10px_rgba(212,175,55,0.3)] tracking-tight">
-                                        {t('premium.discount_title')}
-                                    </h2>
-                                    <p className="text-white/80 text-center text-[12px] mt-1.5 px-2 leading-relaxed font-medium">
-                                        <span className="text-red-400 inline-block font-bold">{t('premium.discount_warning')}</span>
-                                    </p>
-                                </div>
-
-                                {/* Pricing Box (Elegant & Balanced) */}
-                                <div className="bg-gradient-to-b from-[#0a2e1d] to-[#041c11] border border-[#D4AF37]/30 rounded-3xl p-4 mb-4 relative shadow-[0_10px_30px_rgba(0,0,0,0.5)] overflow-hidden max-w-[340px] mx-auto w-full">
-                                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.05] to-transparent -translate-x-[150%] animate-[shimmer_3s_infinite_ease-in-out]" />
-
-                                    {/* Top Section: Badges and Old Price */}
-                                    <div className="flex justify-between items-center mb-2 relative z-10 border-b border-white/10 pb-2">
-                                        <div className="bg-red-500/15 text-red-400 font-black text-[11px] px-2.5 py-1 rounded-lg border border-red-500/20 shadow-sm flex items-center gap-1">
-                                            <Flame size={12} className="animate-pulse will-change-opacity transform-gpu" />
-                                            {t('premium.discount_badge')}
-                                        </div>
-                                        <div className="flex flex-col items-end">
-                                            <span className="text-white/40 text-[9px] uppercase font-bold tracking-widest">{t('premium.normal_price')}</span>
-                                            <span className="text-white/50 line-through text-[13px] font-semibold mt-0.5">{getPrice(PRODUCT_IDS.YEARLY, 'ANNUAL') || '₺739,99'}</span>
-                                        </div>
-                                    </div>
-                                    
-                                    {/* Middle Section: Daily Price — THE HERO */}
-                                    <div className="flex flex-col items-center justify-center py-3 relative z-10">
-                                        {/* Golden Radial Glow Behind Price (Replaced expensive blur with radial-gradient on Android) */}
-                                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                                            {!isAndroid ? (
-                                                <div className="w-48 h-48 rounded-full bg-[#D4AF37]/[0.08] blur-[60px] transform-gpu" style={{ willChange: 'opacity, transform' }} />
-                                            ) : (
-                                                <div className="w-56 h-56 rounded-full transform-gpu" style={{ background: 'radial-gradient(circle, rgba(212,175,55,0.15) 0%, transparent 70%)', willChange: 'opacity, transform' }} />
-                                            )}
-                                        </div>
-                                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                                            {!isAndroid ? (
-                                                <div className="w-28 h-28 rounded-full bg-[#FFD700]/[0.12] blur-[30px] animate-pulse transform-gpu" style={{ animationDuration: '3s', willChange: 'opacity, transform' }} />
-                                            ) : (
-                                                <div className="w-32 h-32 rounded-full animate-pulse transform-gpu" style={{ background: 'radial-gradient(circle, rgba(255,215,0,0.25) 0%, transparent 70%)', animationDuration: '3s', willChange: 'opacity, transform' }} />
-                                            )}
-                                        </div>
-
-                                        {/* "Günlük" Pill Badge */}
-                                        <div className="flex items-center gap-1.5 bg-[#D4AF37]/10 border border-[#D4AF37]/20 rounded-full px-4 py-1 mb-2">
-                                            <span className="text-[#D4AF37] text-[10px] font-black tracking-[0.2em] uppercase">{t('premium.daily_only', 'Günlük Sadece')}</span>
-                                        </div>
-
-                                        {/* The Price — Massive & Bold */}
-                                        <div className="flex items-baseline justify-center relative">
-                                            <span className="text-[#FFD700] font-black text-[48px] leading-none tracking-tight" style={{ textShadow: '0 0 40px rgba(255,215,0,0.3), 0 4px 20px rgba(212,175,55,0.2)', fontFeatureSettings: '"tnum"' }}>
-                                                {getDailyPrice(PRODUCT_IDS.YEARLY, 'ANNUAL') || '₺1,36'}
-                                            </span>
-                                        </div>
-
-                                        {/* Value Anchor */}
-                                        <span className="text-white/40 text-[11px] font-medium mt-2 tracking-wide">{t('premium.cheaper_than_water', '💧 Bir şişe sudan bile çok daha ucuz')}</span>
-                                    </div>
-
-                                    {/* Bottom Section: Total Price */}
-                                    <div className="mt-4 bg-black/30 rounded-xl p-3.5 flex items-center justify-between relative z-10 border border-white/[0.08]">
-                                        <span className="text-white/50 text-[12px] font-medium flex items-center gap-1.5">
-                                            <Calendar size={13} className="text-[#D4AF37]" />
-                                            {t('premium.billed_yearly')}
+                                        <span className="text-red-400/90 text-[10px] uppercase font-black tracking-[0.3em]">
+                                            {t('premium.discount_ending')}
                                         </span>
-                                        <strong className="text-white/90 text-[15px] tracking-wide font-black">{offerProduct?.priceString || '₺499,99'}</strong>
+                                    </div>
+                                    <span
+                                        className={`tabular-nums text-[34px] font-black leading-none ${isOfferCritical ? 'text-red-400' : 'text-[#FFD700]'}`}
+                                        style={{
+                                            fontVariantNumeric: 'tabular-nums',
+                                            letterSpacing: '0.06em',
+                                            textShadow: isOfferCritical ? '0 0 24px rgba(239,68,68,0.4)' : '0 0 24px rgba(255,215,0,0.25)',
+                                            animation: isOfferCritical ? 'pw-critical 1s ease-in-out infinite' : 'none',
+                                        }}
+                                    >
+                                        {formattedTime}
+                                    </span>
+                                </div>
+
+                                {/* ── Başlık ── */}
+                                <h2 className="text-[#D4AF37] font-serif text-[22px] font-bold leading-tight text-center mb-2"
+                                    style={{ textShadow: '0 2px 12px rgba(212,175,55,0.25)' }}>
+                                    {t('premium.discount_title')}
+                                </h2>
+
+                                {/* ── Altın Kapı: mihrap kemeri içinde fiyat hikayesi ── */}
+                                <div className="relative w-[260px] h-[196px] mx-auto">
+                                    {/* Kemer arkası ışıma (radial — Android'de de ucuz) */}
+                                    <div className="absolute inset-0 pointer-events-none"
+                                        style={{ background: 'radial-gradient(circle at 50% 50%, rgba(255,215,0,0.13) 0%, rgba(212,175,55,0.04) 45%, transparent 72%)' }} />
+
+                                    <svg viewBox="0 0 260 196" className="absolute inset-0 w-full h-full" fill="none">
+                                        <defs>
+                                            <linearGradient id="pw-arch-gold" x1="0" y1="0" x2="0" y2="1">
+                                                <stop offset="0%" stopColor="#FFE066" />
+                                                <stop offset="45%" stopColor="#D4AF37" />
+                                                <stop offset="100%" stopColor="rgba(212,175,55,0.06)" />
+                                            </linearGradient>
+                                        </defs>
+                                        {/* Dış kemer — açılışta kendini çizer */}
+                                        <motion.path
+                                            d="M 30 196 L 30 100 C 30 62 52 44 74 34 C 100 22 118 20 130 6 C 142 20 160 22 186 34 C 208 44 230 62 230 100 L 230 196"
+                                            stroke="url(#pw-arch-gold)" strokeWidth="2" strokeLinecap="round"
+                                            initial={{ pathLength: 0 }} animate={{ pathLength: 1 }}
+                                            transition={{ duration: 1.1, delay: 0.35, ease: 'easeInOut' }} />
+                                        {/* İç kemer yankısı */}
+                                        <motion.path
+                                            d="M 42 196 L 42 104 C 42 70 60 54 80 44 C 103 33 120 30 130 18 C 140 30 157 33 180 44 C 200 54 218 70 218 104 L 218 196"
+                                            stroke="url(#pw-arch-gold)" strokeWidth="1" strokeLinecap="round" opacity="0.4"
+                                            initial={{ pathLength: 0 }} animate={{ pathLength: 1 }}
+                                            transition={{ duration: 1.1, delay: 0.5, ease: 'easeInOut' }} />
+                                    </svg>
+
+                                    {/* Kemer tepesi — zarif hilal tepeliği (alem) */}
+                                    <div className="absolute -top-1 inset-x-0 flex justify-center z-10">
+                                        <motion.div
+                                            initial={{ opacity: 0, scale: 0.6 }}
+                                            animate={{ opacity: 1, scale: 1 }}
+                                            transition={{ delay: 1.0, duration: 0.5 }}
+                                        >
+                                            <Moon size={15} className="text-[#D4AF37] -rotate-[25deg] drop-shadow-[0_0_6px_rgba(212,175,55,0.5)]" fill="#D4AF37" fillOpacity={0.35} />
+                                        </motion.div>
+                                    </div>
+
+                                    {/* Kemerin içi: eski fiyat → yeni fiyat → günlük */}
+                                    <div className="absolute inset-x-0 top-[52px] flex flex-col items-center">
+                                        <motion.div className="flex items-center gap-2"
+                                            initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.95 }}>
+                                            <span className="text-white/35 text-[10px] uppercase tracking-[0.18em] font-bold">{t('premium.normal_price')}</span>
+                                            <span className="relative text-white/45 text-[15px] font-semibold" style={{ fontFeatureSettings: '"tnum"' }}>
+                                                {getPrice(PRODUCT_IDS.YEARLY, 'ANNUAL') || '₺739,99'}
+                                                {/* El çizimi hissi veren üstü çizme animasyonu */}
+                                                <motion.span
+                                                    className="absolute left-[-5%] top-1/2 h-[2px] w-[110%] bg-red-400/90 origin-left rounded-full"
+                                                    style={{ rotate: -7 }}
+                                                    initial={{ scaleX: 0 }} animate={{ scaleX: 1 }}
+                                                    transition={{ delay: 1.15, duration: 0.3, ease: 'easeOut' }} />
+                                            </span>
+                                        </motion.div>
+
+                                        <div className="relative mt-1.5">
+                                            <motion.span
+                                                className="block text-[#FFD700] font-black text-[44px] leading-none tracking-tight"
+                                                style={{ textShadow: '0 0 40px rgba(255,215,0,0.35), 0 4px 20px rgba(212,175,55,0.25)', fontFeatureSettings: '"tnum"' }}
+                                                initial={{ scale: 0.5, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
+                                                transition={{ delay: 1.3, type: 'spring', stiffness: 260, damping: 17 }}
+                                            >
+                                                {offerProduct?.priceString || '₺499,99'}
+                                            </motion.span>
+                                            {/* İndirim mührü — büyük fiyatın sağ üst köşesinde, ortalamayı bozmaz */}
+                                            {offerPercent && (
+                                                <motion.span
+                                                    className="absolute left-full top-1/2 -translate-y-1/2 ml-2 whitespace-nowrap text-[#021a0f] text-[12px] font-black tracking-tight rounded-full px-2 py-[3px] -rotate-[8deg]"
+                                                    style={{
+                                                        background: 'linear-gradient(135deg, #FFE066 0%, #FFD700 45%, #D4AF37 100%)',
+                                                        boxShadow: '0 3px 12px rgba(212,175,55,0.4), inset 0 1px 0 rgba(255,255,255,0.5)',
+                                                        fontFeatureSettings: '"tnum"',
+                                                    }}
+                                                    initial={{ opacity: 0, scale: 0.3, rotate: 20 }}
+                                                    animate={{ opacity: 1, scale: 1, rotate: -8 }}
+                                                    transition={{ delay: 1.55, type: 'spring', stiffness: 320, damping: 15 }}
+                                                >
+                                                    {t('premium.discount_pct_short', { percent: offerPercent })}
+                                                </motion.span>
+                                            )}
+                                        </div>
+
+                                        <motion.div
+                                            className="mt-2.5 flex items-center gap-1.5 bg-[#D4AF37]/10 border border-[#D4AF37]/25 rounded-full px-3.5 py-1"
+                                            initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1.55 }}
+                                        >
+                                            <span className="text-[#D4AF37] text-[10px] font-black tracking-[0.15em] uppercase">{t('premium.daily_only')}</span>
+                                            <span className="text-[#FFD700] text-[13px] font-black" style={{ fontFeatureSettings: '"tnum"' }}>{offerDailyPrice || '₺1,37'}</span>
+                                        </motion.div>
                                     </div>
                                 </div>
 
-                                {/* Features Grid */}
-                                <div className="grid grid-cols-2 gap-x-1 gap-y-2 mb-4 px-1 w-full max-w-[300px] mx-auto relative z-10">
-                                    <div className="flex items-center gap-2"><Check size={14} className="text-[#D4AF37]" /><span className="text-white/70 text-[11.5px] font-medium">{t('premium.feat_audio_stories')}</span></div>
-                                    <div className="flex items-center gap-2"><Check size={14} className="text-[#D4AF37]" /><span className="text-white/70 text-[11.5px] font-medium">{t('premium.feat_audio_quran')}</span></div>
-                                    <div className="flex items-center gap-2"><Check size={14} className="text-[#D4AF37]" /><span className="text-white/70 text-[11.5px] font-medium">{t('premium.feat_widgets')}</span></div>
-                                    <div className="flex items-center gap-2"><Check size={14} className="text-[#D4AF37]" /><span className="text-white/70 text-[11.5px] font-medium">{t('premium.feat_no_ads')}</span></div>
-                                    <div className="flex items-center gap-2 col-span-2 justify-center mt-1"><Check size={15} className="text-[#FFD700] drop-shadow-[0_0_8px_rgba(255,215,0,0.5)]" /><span className="text-[#FFD700] text-[12px] font-bold drop-shadow-[0_0_8px_rgba(255,215,0,0.3)]">{t('premium.feat_all_premium')}</span></div>
+                                {/* Faturalama netliği (mağaza uyumluluğu) */}
+                                <motion.p className="flex items-center justify-center gap-1.5 text-white/40 text-[11px] font-medium mt-1 mb-3.5"
+                                    initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.6 }}>
+                                    <Calendar size={12} className="text-[#D4AF37]/70" />
+                                    <span>{t('premium.billed_yearly')} · <strong className="text-white/70 font-bold" style={{ fontFeatureSettings: '"tnum"' }}>{offerProduct?.priceString || '₺499,99'}</strong></span>
+                                </motion.p>
+
+                                {/* ── Özellikler ── */}
+                                <div className="grid grid-cols-2 gap-x-2 gap-y-2 mb-3.5 w-full max-w-[300px] mx-auto">
+                                    {['feat_audio_stories', 'feat_audio_quran', 'feat_widgets', 'feat_no_ads'].map((key, i) => (
+                                        <motion.div key={key} className="flex items-center gap-2"
+                                            initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 1.65 + i * 0.08 }}>
+                                            <Check size={14} className="text-[#D4AF37] flex-shrink-0" />
+                                            <span className="text-white/70 text-[12px] font-medium">{t(`premium.${key}`)}</span>
+                                        </motion.div>
+                                    ))}
                                 </div>
 
-                                {/* CTA */}
-                                <motion.button
-                                    onClick={handleOfferSubscribe}
-                                    disabled={isLoading}
-                                    className="relative w-full py-[16px] rounded-2xl font-black text-[18px] text-[#021a0f] overflow-hidden mb-2 flex justify-center items-center tracking-wide"
-                                    style={{
-                                        background: 'linear-gradient(135deg, #FFD700 0%, #FFF5C3 30%, #D4AF37 70%, #FFD700 100%)',
-                                        boxShadow: '0 8px 30px rgba(212,175,55,0.4), inset 0 1px 0 rgba(255,255,255,0.5)',
+                                {/* Tüm premium vurgusu — CTA'nın hemen üstünde */}
+                                <motion.p className="flex items-center justify-center gap-1.5 text-center mb-2.5"
+                                    initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.85 }}>
+                                    <Check size={15} className="text-[#FFD700] drop-shadow-[0_0_8px_rgba(255,215,0,0.5)]" />
+                                    <span className="text-[#FFD700] text-[12.5px] font-bold drop-shadow-[0_0_8px_rgba(255,215,0,0.3)]">{t('premium.feat_all_premium')}</span>
+                                </motion.p>
+
+                                {/* ── CTA — giriş + sonsuz nefes alma; tap inner button'da (hız için) ── */}
+                                <motion.div
+                                    initial={{ opacity: 0, y: 14 }}
+                                    animate={{ opacity: 1, y: 0, scale: [1, 1.015, 1] }}
+                                    transition={{
+                                        opacity: { delay: 1.9 },
+                                        y: { delay: 1.9, type: 'spring', stiffness: 140, damping: 16 },
+                                        scale: { delay: 2.5, duration: 2.2, repeat: Infinity, ease: 'easeInOut' },
                                     }}
-                                    whileTap={{ scale: 0.96 }}
                                 >
-                                    <div className="absolute inset-y-0 -inset-x-full pointer-events-none"
+                                    <motion.button
+                                        onClick={handleOfferSubscribe}
+                                        disabled={isLoading}
+                                        className="relative w-full py-[17px] rounded-2xl font-black text-[17px] text-[#021a0f] overflow-hidden mb-2 flex justify-center items-center tracking-wide transform-gpu"
                                         style={{
-                                            background: 'linear-gradient(105deg, transparent 35%, rgba(255,255,255,0.6) 45%, rgba(255,255,255,0.8) 50%, rgba(255,255,255,0.6) 55%, transparent 65%)',
-                                            animation: 'pw-shimmer 2s linear infinite',
-                                            willChange: 'transform',
-                                            transform: 'translateZ(0)'
-                                        }} />
-                                    <span className="relative z-10">{isLoading ? <Loader2 className="w-6 h-6 animate-spin text-[#021a0f]" /> : t('premium.use_offer')}</span>
-                                </motion.button>
+                                            background: 'linear-gradient(135deg, #FFD700 0%, #FFF5C3 30%, #D4AF37 70%, #FFD700 100%)',
+                                            boxShadow: '0 8px 30px rgba(212,175,55,0.4), inset 0 1px 0 rgba(255,255,255,0.5)',
+                                        }}
+                                        whileTap={{ scale: 0.96 }}
+                                    >
+                                        <div className="absolute inset-y-0 -inset-x-full pointer-events-none"
+                                            style={{
+                                                background: 'linear-gradient(105deg, transparent 35%, rgba(255,255,255,0.6) 45%, rgba(255,255,255,0.8) 50%, rgba(255,255,255,0.6) 55%, transparent 65%)',
+                                                animation: 'pw-shimmer 2.6s ease-in-out infinite',
+                                                willChange: 'transform',
+                                                transform: 'translateZ(0)',
+                                            }} />
+                                        <span className="relative z-10">{isLoading ? <Loader2 className="w-6 h-6 animate-spin text-[#021a0f]" /> : t('premium.use_offer')}</span>
+                                    </motion.button>
+                                </motion.div>
 
                                 {/* Dismiss */}
                                 <button

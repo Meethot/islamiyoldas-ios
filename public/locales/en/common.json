@@ -105,7 +105,7 @@
         "feat_ai_title": "Widget Support",
         "feat_ai_desc": "Track your worship with home screen and lock screen widgets.",
         "feat_audio_title": "Quran Listening & Sleep Mode",
-        "feat_audio_desc": "Holy Quran, Islamic Stories and uninterrupted peace.",
+        "feat_audio_desc": "Audio Holy Quran with translation - Islamic Stories. Uninterrupted peace.",
         "feat_worship_title": "Unlimited Worship Tracking",
         "feat_worship_desc": "Prayer alarms, Dhikr, Qada and Today's Kindness.",
         "feat_community_title": "Community & Learning Sets",
@@ -178,6 +178,9 @@
         "feat_no_ads": "Ad-Free Experience",
         "feat_all_premium": "All Premium Features",
         "use_offer": "CLAIM OFFER",
-        "cancel_offer": "Cancel offer and exit"
+        "cancel_offer": "Cancel offer and exit",
+        "discount_badge_pct": "{{percent}}% OFF",
+        "discount_pct_short": "−{{percent}}%",
+        "last_offer": "Last Offer"
     }
 }

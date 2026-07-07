@@ -78,6 +78,53 @@
                 android:resource="@xml/dhikr_widget_info" />
         </receiver>
 
+        <receiver android:name=".VerseWidgetProvider" android:exported="true" android:label="Günün Ayeti">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/verse_widget_info" />
+        </receiver>
+
+        <receiver android:name=".HourlyVerseWidgetProvider" android:exported="true" android:label="Saatlik Ayet">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="com.islamiyoldas.app.HOURLY_VERSE_TICK" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/hourly_verse_widget_info" />
+        </receiver>
+
+        <receiver android:name=".MotivationWidgetProvider" android:exported="true" android:label="Günün Motivasyonu">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/motivation_widget_info" />
+        </receiver>
+
+        <receiver android:name=".EsmaWidgetProvider" android:exported="true" android:label="Günün Esması">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/esma_widget_info" />
+        </receiver>
+
+        <receiver android:name=".HourlyEsmaWidgetProvider" android:exported="true" android:label="Saatlik Esma">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="com.islamiyoldas.app.HOURLY_ESMA_TICK" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/hourly_esma_widget_info" />
+        </receiver>
+
     </application>
 
 </manifest>

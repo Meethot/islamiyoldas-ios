@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SF Symbol "star.fill" karşılığı -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="#D4AF37"
+        android:pathData="M12,2L14.7,8.5L21.8,9.1L16.4,13.7L18,20.6L12,17L6,20.6L7.6,13.7L2.2,9.1L9.3,8.5Z" />
+</vector>

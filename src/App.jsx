@@ -73,12 +73,21 @@ function GlobalEventHandler() {
         analytics.widgetUsed(url);
       }
       if (url.includes('islamiyoldas://premium')) {
-        navigate('/premium');
+        navigate(url.includes('offer=true') ? '/premium?offer=true' : '/premium');
       }
     });
 
+    // 2. Notification tap deep link (e.g. dhikr notification → /dhikr)
+    const handleNotifNav = (e) => {
+      if (e.detail && e.detail.route) {
+        navigate(e.detail.route);
+      }
+    };
+    window.addEventListener('notificationNavigate', handleNotifNav);
+
     return () => {
       listener.then(l => l.remove());
+      window.removeEventListener('notificationNavigate', handleNotifNav);
     };
   }, [navigate]);
   return null;
@@ -227,6 +236,13 @@ function AppContent() {
             type = 'dhikr_reminder';
           }
           analytics.notificationTapped(type);
+
+          // Deep link: navigate to route if specified in notification extra
+          if (notification.extra && notification.extra.route) {
+            setTimeout(() => {
+              window.dispatchEvent(new CustomEvent('notificationNavigate', { detail: { route: notification.extra.route } }));
+            }, 300);
+          }
         });
       } catch (e) {
         console.log('Notification listener setup error:', e);

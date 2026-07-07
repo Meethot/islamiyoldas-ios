@@ -1,9 +1,12 @@
 import { useState, useEffect } from 'react';
 import { storageService } from '@/services/storageService';
+import { startOfferLiveActivity, endOfferLiveActivity } from '@/services/liveActivityService';
+import i18n from '@/i18n';
 
 const DISCOUNT_OFFER_KEY = 'islamiyoldas_discount_offer_end';
 const DISCOUNT_COOLDOWN_KEY = 'islamiyoldas_discount_cooldown_end';
 const OFFER_DURATION_MS = 5 * 60 * 1000; // 5 minutes
+export const OFFER_DURATION_SECONDS = OFFER_DURATION_MS / 1000; // Fitil/progress göstergeleri için
 const COOLDOWN_DURATION_MS = 3 * 60 * 60 * 1000; // 3 hours
 
 export function useDiscountOffer() {
@@ -31,6 +34,8 @@ export function useDiscountOffer() {
                     // If no cooldown is set, or the offer was from a previous session and we never set cooldown
                     if (cooldownEnd === 0 || isNaN(cooldownEnd)) {
                         storageService.setItem(DISCOUNT_COOLDOWN_KEY, (now + COOLDOWN_DURATION_MS).toString());
+                        // Süre doldu → kilit ekranı/Dynamic Island sayacını kapat (iOS)
+                        endOfferLiveActivity();
                     }
                 }
             }
@@ -59,10 +64,16 @@ export function useDiscountOffer() {
         // Start fresh offer
         const newOfferEnd = now + OFFER_DURATION_MS;
         storageService.setItem(DISCOUNT_OFFER_KEY, newOfferEnd.toString());
-        
+
         // Reset cooldown (it will be set when offer ends)
         storageService.setItem(DISCOUNT_COOLDOWN_KEY, '0');
-        
+
+        // iOS: kilit ekranı + Dynamic Island'da geri sayım başlat (uygulama kapalıyken de akar)
+        startOfferLiveActivity(newOfferEnd, {
+            title: i18n.t('premium.last_offer', { ns: 'common', defaultValue: 'Son Teklif' }),
+            message: i18n.t('premium.discount_title', { ns: 'common', defaultValue: '' }),
+        });
+
         setIsActive(true);
         setTimeLeft(OFFER_DURATION_MS / 1000);
         return true;

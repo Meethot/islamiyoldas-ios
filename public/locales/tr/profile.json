@@ -1,12 +1,18 @@
 {
   "title": "Ayarlar",
   "user": {
-    "default_name": "Mümin Kullanıcı",
-    "streak_desc": "Yolculuğun {{count}}. gününde"
+    "default_name": "Kullanıcı",
+    "streak_desc": "Yolculuğun {{count}}. gününde",
+    "stat_days": "Gün",
+    "stat_streak": "Seri",
+    "stat_prayers": "Bugün"
   },
   "premium": {
     "banner_title": "Premium'a Geç",
-    "banner_desc": "İslami yolculuğunu kesintisiz yaşa, tüm Premium özellikleri keşfet."
+    "banner_desc": "İslami yolculuğunu kesintisiz yaşa, tüm Premium özellikleri keşfet.",
+    "feat_quran": "Sesli Kur'an",
+    "feat_no_ads": "Reklamsız",
+    "feat_widgets": "Widget'lar"
   },
   "personal_settings": "Kişisel Ayarlar",
   "general_settings": "Genel Ayarlar",

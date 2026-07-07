@@ -17,11 +17,13 @@ const BRIDGE_KEY = 'widget_prayer_data_bridge';
  * Called automatically when prayer times are calculated.
  * 
  * @param {Object} params
- * @param {Array} params.prayerTimes - Array of {id, name, time} objects
+ * @param {Array} params.prayerTimes - Array of {id, name, time} objects (today)
  * @param {string} params.city - Current city name
  * @param {string} [params.hijriDate] - Optional Hijri date string
+ * @param {Array} [params.days] - Multi-day schedule: [{date: 'yyyy-MM-dd', prayers: [{id, name, time}]}]
+ *                                Lets the widget stay accurate when the app isn't opened for days.
  */
-export async function syncPrayerTimesToWidget({ prayerTimes, city, hijriDate = '' }) {
+export async function syncPrayerTimesToWidget({ prayerTimes, city, hijriDate = '', days = [] }) {
     if (!Capacitor.isNativePlatform()) {
         return;
     }
@@ -34,6 +36,14 @@ export async function syncPrayerTimesToWidget({ prayerTimes, city, hijriDate = '
                 id: p.id,
                 name: p.name,
                 time: p.time
+            })),
+            days: (days || []).map(d => ({
+                date: d.date,
+                prayers: (d.prayers || []).map(p => ({
+                    id: p.id,
+                    name: p.name,
+                    time: p.time
+                }))
             }))
         };
 
@@ -53,11 +63,13 @@ export async function syncPrayerTimesToWidget({ prayerTimes, city, hijriDate = '
 /**
  * Sync the current app language to widget via Preferences bridge.
  * Called when user changes language in-app.
- * 
+ * iOS: AppDelegate copies the value to App Group UserDefaults.
+ * Android: widget providers read `widget_language_bridge` from CapacitorStorage directly.
+ *
  * @param {string} lang - Language code (tr, en, de, ru, az, ar)
  */
 export async function syncLanguageToWidget(lang = 'tr') {
-    if (!Capacitor.isNativePlatform() || Capacitor.getPlatform() !== 'ios') {
+    if (!Capacitor.isNativePlatform()) {
         return;
     }
 

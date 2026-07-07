@@ -8,6 +8,7 @@ import { App as NativeApp } from '@capacitor/app';
 import { useLocation } from '@/context/LocationContext';
 import { DAILY_VERSES, DAILY_VERSES_EN, DAILY_VERSES_DE, DAILY_VERSES_RU, DAILY_VERSES_AZ, DAILY_VERSES_AR } from '@/data/dailyVerses';
 import { getAppDate, getTodayString } from '@/lib/testDate';
+import { buildPrayerSchedule } from '@/lib/prayerTimeUtils';
 import { syncPrayerTimesToWidget } from '@/services/widgetService';
 import { analytics } from '@/services/analyticsService';
 
@@ -92,7 +93,7 @@ export const PrayerTimesProvider = ({ children }) => {
 
     // Initial Setup & Cache Validation
     useEffect(() => {
-        const CACHE_VERSION = 'v5_norm_fix'; // v5: Fixed normalizeTimings double-buffer & Diyanet source detection
+        const CACHE_VERSION = 'v6_diyanet_guard'; // v6: Diyanet search validation, monthly cache, method auto-select, midnight-crossing times
         const version = localStorage.getItem('app_data_version');
         if (version !== CACHE_VERSION) {
             // Clear cache and prayer time keys only, NOT all data
@@ -342,40 +343,83 @@ export const PrayerTimesProvider = ({ children }) => {
         return str.replace(/[İıŞşĞğÜüÖöÇç]/g, c => map[c] || c);
     };
 
-    // Resolve Diyanet location_id from district name (cached)
-    const resolveDiyanetLocationId = async (districtName) => {
-        if (!districtName) return null;
+    // Normalized comparison key: trims (API data has trailing spaces like "LONDON "),
+    // folds Turkish chars and lowercases
+    const diyanetNorm = (s) => normalizeTurkishChars(String(s || '').trim()).toLowerCase();
+
+    // Diyanet country name (normalized) for the manual selection. Manual countries are
+    // stored as English names (countriesnow.space); Diyanet uses Turkish names (ALMANYA).
+    const getManualCountryDiyanetName = () => {
+        const c = (manualCountry || '').trim();
+        if (!c || c === 'Turkey' || c === 'Türkiye') return 'turkiye';
+        try {
+            const cache = JSON.parse(localStorage.getItem('countries_data_cache') || '[]');
+            const iso2 = cache.find(x => x.country === c)?.iso2;
+            if (iso2) {
+                const trName = new Intl.DisplayNames(['tr'], { type: 'region' }).of(iso2);
+                if (trName) return diyanetNorm(trName);
+            }
+        } catch { /* fall through to English name */ }
+        return diyanetNorm(c);
+    };
+
+    // Resolve Diyanet location_id with validation (cached).
+    // Search results have shape { id, country, city (province), region (district) }.
+    // Same-named districts exist in different provinces (Ereğli: Konya vs Zonguldak)
+    // and foreign queries can match the wrong continent ("London" → London, Canada),
+    // so a result is only accepted when it matches the expected country and, if
+    // known, the expected province. No match → null → caller falls back to Aladhan.
+    const resolveDiyanetLocationId = async (name, { expectedProvince = null, expectedCountry = 'turkiye' } = {}) => {
+        if (!name) return null;
 
         // Circuit breaker: skip if Diyanet API was down recently
         if (Date.now() < diyanetDownUntilRef.current) {
             return null;
         }
 
-        // Check cache first
-        const cacheKey = `diyanet_loc_${districtName.toLowerCase()}`;
+        const query = diyanetNorm(name);
+        const province = expectedProvince ? diyanetNorm(expectedProvince) : null;
+        const cacheKey = `diyanet_loc_${expectedCountry}_${province || 'any'}_${query}`;
         const cached = localStorage.getItem(cacheKey);
         if (cached) return parseInt(cached, 10);
 
-        // Normalize Turkish characters for API compatibility
-        const searchQuery = normalizeTurkishChars(districtName);
-
         try {
             const res = await axios.get(`${DIYANET_API}/search`, {
-                params: { q: searchQuery },
+                params: { q: normalizeTurkishChars(String(name).trim()) },
                 timeout: 5000,
             });
-            const results = res.data;
-            if (results && results.length > 0) {
-                const normalizedQuery = normalizeTurkishChars(districtName).toLowerCase();
+            let results = Array.isArray(res.data) ? res.data : [];
+            results = results.filter(r => diyanetNorm(r.country) === expectedCountry);
 
-                const exact = results.find(r => {
-                    const normDistrict = normalizeTurkishChars(r.district || '').toLowerCase();
-                    const normRegion = normalizeTurkishChars(r.region || '').toLowerCase();
-                    return normDistrict === normalizedQuery || normRegion === normalizedQuery;
-                });
-                const id = (exact || results[0]).id;
-                localStorage.setItem(cacheKey, String(id));
-                return id;
+            if (province) {
+                const inProvince = results.filter(r => diyanetNorm(r.city) === province);
+                if (inProvince.length > 0) {
+                    results = inProvince;
+                } else if (results.length > 1) {
+                    // Name exists only outside the user's province — ambiguous, don't guess
+                    return null;
+                }
+            }
+
+            // Region (district) match has priority over city (province) match:
+            // searching "Istanbul" must pick the İSTANBUL center entry (9541), not the
+            // alphabetically-first district (Arnavutköy — 2 min different times).
+            const exactRegions = results.filter(r => diyanetNorm(r.region) === query);
+            let match = null;
+            if (exactRegions.length === 1) {
+                match = exactRegions[0];
+            } else if (exactRegions.length > 1) {
+                // Same district name in multiple provinces — only safe if province-filtered
+                match = province ? exactRegions[0] : null;
+            } else {
+                const exactCity = results.find(r => diyanetNorm(r.city) === query);
+                // Without an exact name match, only accept when the candidate set is
+                // unambiguous (single result, or province-validated list)
+                match = exactCity || (results.length === 1 ? results[0] : (province ? results[0] : null));
+            }
+            if (match) {
+                localStorage.setItem(cacheKey, String(match.id));
+                return match.id;
             }
         } catch (e) {
             // Network error → activate circuit breaker for 60 seconds
@@ -383,6 +427,49 @@ export const PrayerTimesProvider = ({ children }) => {
             diyanetDownUntilRef.current = Date.now() + 60000;
         }
         return null;
+    };
+
+    // ─── Diyanet monthly cache ───
+    // The proxy returns ~31 days from today; caching the whole list means the rest
+    // of the month works offline and the Aladhan fallback is almost never needed.
+    const DIYANET_MONTH_KEY = 'diyanet_month_cache';
+
+    const readDiyanetMonthCache = (locationId) => {
+        try {
+            const raw = localStorage.getItem(DIYANET_MONTH_KEY);
+            if (!raw) return null;
+            const { locationId: cachedId, days } = JSON.parse(raw);
+            if (cachedId !== locationId || !Array.isArray(days) || days.length === 0) return null;
+            const todayStr = getTodayString();
+            if (!days.some(d => d.date?.startsWith(todayStr))) return null; // stale
+            return days;
+        } catch {
+            return null;
+        }
+    };
+
+    const fetchDiyanetMonth = async (locationId) => {
+        const cached = readDiyanetMonthCache(locationId);
+        if (cached) return cached;
+
+        if (Date.now() < diyanetDownUntilRef.current) return null;
+
+        try {
+            const res = await axios.get(`${DIYANET_API}/prayertimes`, {
+                params: { location_id: locationId },
+                timeout: 5000,
+            });
+            const days = res.data;
+            if (!days || days.length === 0) return null;
+            try {
+                localStorage.setItem(DIYANET_MONTH_KEY, JSON.stringify({ locationId, days }));
+            } catch { /* quota exceeded — ignore */ }
+            return days;
+        } catch (e) {
+            console.warn('Diyanet prayer times fetch failed:', e.message);
+            diyanetDownUntilRef.current = Date.now() + 60000;
+            return null;
+        }
     };
 
     // Today's normalization helper
@@ -406,56 +493,166 @@ export const PrayerTimesProvider = ({ children }) => {
             result.Imsak = rawTimes.Fajr || rawTimes.Imsak;
             result.Fajr = rawTimes.Fajr || rawTimes.Imsak;
 
-            // Diyanet API already includes safety buffers. Only add them if falling back to Aladhan.
-            if (rawTimes._source !== 'diyanet_raw') {
-                // Diyanet Safety Buffers (Emniyet Payı)
-                // Diyanet officially adds +2 mins to Dhuhr and Asr calculations
-                result.Dhuhr = addMinutes(rawTimes.Dhuhr, 2);
-                result.Asr = addMinutes(rawTimes.Asr, 2);
+            // Öğle (Dhuhr): Diyanet delays öğle ~2 min past true zenith (praying at
+            // the exact zenith/zeval is not permitted). Neither the Diyanet proxy nor
+            // Aladhan includes this margin — both return the calculated zenith time —
+            // so it's added on BOTH paths. Verified in Urla: calc 13:23 vs ezan 13:25.
+            result.Dhuhr = addMinutes(rawTimes.Dhuhr, 2);
 
-                // Diyanet adds +1 to Sunrise for atmospheric refraction/safety
-                result.Sunrise = addMinutes(rawTimes.Sunrise, 1);
-            }
+            // Other prayers: NO offset. Verified against the real ezan that Aladhan
+            // method 13 and the Diyanet proxy match within ±1 min (İkindi/Akşam were
+            // exact once the correct district resolves — see resolveDiyanetLocationId;
+            // İstanbul now maps to the center, not the ~2-min-later first district).
 
-            // Maghrib and Isha are usually exactly what the API provides
-            result.Maghrib = rawTimes.Maghrib;
-            result.Isha = rawTimes.Isha;
             result.Sunset = result.Maghrib;
         }
 
         return result;
     };
 
-    // Fetch today's times from Diyanet
+    // Fetch today's times from Diyanet (via the cached monthly list)
     const fetchDiyanetTimes = async (locationId) => {
-        try {
-            const res = await axios.get(`${DIYANET_API}/prayertimes`, {
-                params: { location_id: locationId },
-                timeout: 5000,
-            });
-            const days = res.data;
-            if (!days || days.length === 0) return null;
+        const days = await fetchDiyanetMonth(locationId);
+        if (!days) return null;
 
-            const todayStr = getTodayString();
-            const todayData = days.find(d => d.date?.startsWith(todayStr));
-            if (!todayData) return null;
+        const todayStr = getTodayString();
+        const todayData = days.find(d => d.date?.startsWith(todayStr));
+        if (!todayData) return null;
 
-            // Raw map first
-            const raw = {
-                Fajr: todayData.fajr,
-                Sunrise: todayData.sun,
-                Dhuhr: todayData.dhuhr,
-                Asr: todayData.asr,
-                Maghrib: todayData.maghrib,
-                Isha: todayData.isha,
-                _source: 'diyanet_raw'
-            };
+        // Raw map first
+        const raw = {
+            Fajr: todayData.fajr,
+            Sunrise: todayData.sun,
+            Dhuhr: todayData.dhuhr,
+            Asr: todayData.asr,
+            Maghrib: todayData.maghrib,
+            Isha: todayData.isha,
+            _source: 'diyanet_raw'
+        };
 
-            return normalizeTimings(raw, true);
-        } catch (e) {
-            console.warn('Diyanet prayer times fetch failed:', e.message);
-            return null;
+        return normalizeTimings(raw, true);
+    };
+
+    // Where to look up Diyanet times, in priority order.
+    // Manual selection wins outright; GPS mode validates the reverse-geocoded
+    // district/province so same-named districts can't cross provinces.
+    const getDiyanetSearchPlans = (turkish) => {
+        if (manualCity) {
+            return [{ term: manualCity, opts: { expectedCountry: getManualCountryDiyanetName() } }];
         }
+        if (!turkish) return [];
+        const plans = [];
+        const district = localStorage.getItem('cached_district');
+        const provinceCtx = localStorage.getItem('cached_address');
+        if (district) plans.push({ term: district, opts: { expectedProvince: provinceCtx } });
+        if (provinceCtx) plans.push({ term: provinceCtx, opts: { expectedProvince: provinceCtx } });
+        return plans;
+    };
+
+    // ─── Shared multi-day calendar ───
+    // Builds dateKey ("DD-MM-YYYY") → normalized timings covering the next
+    // CALENDAR_WINDOW_DAYS. Used by notification scheduling AND the widget
+    // multi-day sync; session-cached so both consumers share one fetch.
+    const CALENDAR_WINDOW_DAYS = 10;
+    const calendarCacheRef = useRef({ key: null, data: null });
+
+    const fetchCalendarData = async () => {
+        const lat = (hasLocation && latitude) ? latitude : FALLBACK_COORDS.lat;
+        const lng = (hasLocation && longitude) ? longitude : FALLBACK_COORDS.lng;
+        // Same detection logic as fetchPrayerTimes
+        const localIsInTurkey = lat >= 36 && lat <= 42 && lng >= 26 && lng <= 45;
+        const countryCode = localStorage.getItem('cached_country_code');
+        const manualIsTurkey = manualCountry === 'Turkey' || manualCountry === 'Türkiye';
+        const localIsTurkish = manualCity ? manualIsTurkey : (countryCode ? countryCode === 'tr' : localIsInTurkey);
+
+        const cacheKey = `${getTodayString()}|${manualCity || `${lat},${lng}`}|${calculationMethod}`;
+        if (calendarCacheRef.current.key === cacheKey) return calendarCacheRef.current.data;
+
+        const calendarData = {};
+
+        // ── Try Diyanet first (validated search, cached monthly list) ──
+        const allowDiyanet = calculationMethod === 'auto' || calculationMethod === '13';
+        if (allowDiyanet) {
+            for (const plan of getDiyanetSearchPlans(localIsTurkish)) {
+                const locationId = await resolveDiyanetLocationId(plan.term, plan.opts);
+                if (!locationId) continue;
+                const days = await fetchDiyanetMonth(locationId) || [];
+                if (days.length === 0) continue;
+                days.forEach(d => {
+                    if (!d.date) return;
+                    const dateObj = new Date(d.date);
+                    const dd = String(dateObj.getDate()).padStart(2, '0');
+                    const mm = String(dateObj.getMonth() + 1).padStart(2, '0');
+                    const yyyy = dateObj.getFullYear();
+                    const dateKey = `${dd}-${mm}-${yyyy}`;
+                    // Map to Aladhan-compatible structure with CENTRALIZED normalization
+                    const raw = {
+                        Fajr: d.fajr,
+                        Sunrise: d.sun,
+                        Dhuhr: d.dhuhr,
+                        Asr: d.asr,
+                        Maghrib: d.maghrib,
+                        Isha: d.isha,
+                        _source: 'diyanet_raw'
+                    };
+                    calendarData[dateKey] = normalizeTimings(raw, true);
+                });
+                break;
+            }
+        }
+
+        // ── Fill gaps with Aladhan (Diyanet unavailable, or window not covered) ──
+        const today = getAppDate();
+        let hasMissingDays = false;
+        for (let d = 0; d < CALENDAR_WINDOW_DAYS; d++) {
+            const checkDate = new Date(today);
+            checkDate.setDate(checkDate.getDate() + d);
+            const dd = String(checkDate.getDate()).padStart(2, '0');
+            const mm = String(checkDate.getMonth() + 1).padStart(2, '0');
+            const yyyy = checkDate.getFullYear();
+            if (!calendarData[`${dd}-${mm}-${yyyy}`]) {
+                hasMissingDays = true;
+                break;
+            }
+        }
+
+        if (hasMissingDays) {
+            // Auto mode outside Turkey: omit `method` so Aladhan picks the local authority
+            const method = calculationMethod === 'auto' ? (localIsTurkish ? 13 : null) : parseInt(calculationMethod, 10);
+            const monthsToFetch = new Set();
+            for (let d = 0; d < CALENDAR_WINDOW_DAYS; d++) {
+                const checkDate = new Date(today);
+                checkDate.setDate(checkDate.getDate() + d);
+                monthsToFetch.add(`${checkDate.getFullYear()}-${checkDate.getMonth() + 1}`);
+            }
+
+            for (const ym of monthsToFetch) {
+                const [y, m] = ym.split('-').map(Number);
+                try {
+                    const calParams = { latitude: lat, longitude: lng };
+                    if (method != null) calParams.method = method;
+                    const res = await axios.get(`https://api.aladhan.com/v1/calendar/${y}/${m}`, {
+                        params: calParams
+                    });
+                    const days = res.data?.data || [];
+                    days.forEach(d => {
+                        const dateKey = d.date?.gregorian?.date;
+                        // Only fill gaps — don't overwrite Diyanet data
+                        if (dateKey && !calendarData[dateKey]) {
+                            calendarData[dateKey] = normalizeTimings(d.timings, localIsTurkish);
+                        }
+                    });
+                } catch (e2) {
+                    console.warn(`Aladhan calendar ${y}/${m} failed`, e2);
+                }
+            }
+        }
+
+        // Only cache successful results — a network failure must not stick for the session
+        if (Object.keys(calendarData).length > 0) {
+            calendarCacheRef.current = { key: cacheKey, data: calendarData };
+        }
+        return calendarData;
     };
 
     const fetchPrayerTimes = useCallback(async (isBackgroundRefresh = false) => {
@@ -473,82 +670,60 @@ export const PrayerTimesProvider = ({ children }) => {
                 setLocationSource('fallback');
             }
 
-            // Turkey bounding box: lat 36-42, lng 26-45
+            // Turkish location detection: manual selection wins; otherwise trust the
+            // reverse-geocoded country code and only use the bounding box when no
+            // geocode is available (the box also covers Yerevan, Aleppo, Rhodes...)
             const isInTurkey = lat >= 36 && lat <= 42 && lng >= 26 && lng <= 45;
             const countryCode = localStorage.getItem('cached_country_code');
-            const turkish = isInTurkey || countryCode === 'tr';
+            const manualIsTurkey = manualCountry === 'Turkey' || manualCountry === 'Türkiye';
+            const turkish = manualCity ? manualIsTurkey : (countryCode ? countryCode === 'tr' : isInTurkey);
             setIsTurkishLocation(turkish);
             setLocationState({ latitude: lat, longitude: lng });
             setAddressState(localStorage.getItem('cached_address') || '');
 
-            // ── Try Diyanet API first for Turkey OR if Manual City is provided ──
+            // ── Try Diyanet API first (Turkey, or a manual city Diyanet publishes) ──
             const allowDiyanet = calculationMethod === 'auto' || calculationMethod === '13';
-            if (allowDiyanet && (turkish || manualCity)) {
-                const district = localStorage.getItem('cached_district');
-                const city = manualCity || localStorage.getItem('cached_address');
-
-                // Try district first, then city, then fallback to Istanbul if we are SURE it's Turkey
-                const searchTerms = [district, city].filter(Boolean);
-                if (searchTerms.length === 0 && turkish) searchTerms.push('Istanbul');
-
-                let diyanetSuccess = false;
-                for (const term of searchTerms) {
-                    const locationId = await resolveDiyanetLocationId(term);
-                    if (locationId) {
-                        const diyanetTimings = await fetchDiyanetTimes(locationId);
-                        if (diyanetTimings) {
-                            setPrayerTimes(diyanetTimings);
-                            findNextPrayer(diyanetTimings);
-                            schedulePrayerNotifications(diyanetTimings);
-                            schedulePreReminderNotifications(diyanetTimings);
-                            syncWidgetData(diyanetTimings);
-                            cachePrayerTimes(diyanetTimings);
-                            setLoading(false);
-                            diyanetSuccess = true;
-                            return;
-                        }
+            if (allowDiyanet) {
+                for (const plan of getDiyanetSearchPlans(turkish)) {
+                    const locationId = await resolveDiyanetLocationId(plan.term, plan.opts);
+                    if (!locationId) continue;
+                    const diyanetTimings = await fetchDiyanetTimes(locationId);
+                    if (diyanetTimings) {
+                        setPrayerTimes(diyanetTimings);
+                        findNextPrayer(diyanetTimings);
+                        schedulePrayerNotifications(diyanetTimings);
+                        schedulePreReminderNotifications(diyanetTimings);
+                        syncWidgetData(diyanetTimings);
+                        cachePrayerTimes(diyanetTimings);
+                        setLoading(false);
+                        return;
                     }
                 }
-
-                // If we failed all specific queries but we are IN TURKEY, 
-                // do an absolute final fallback to Istanbul via Diyanet before Aladhan to avoid 10 min Isha shift
-                if (!diyanetSuccess && turkish && !manualCity) {
-                    const lastResortId = await resolveDiyanetLocationId('Istanbul');
-                    if (lastResortId) {
-                        const diyanetTimings = await fetchDiyanetTimes(lastResortId);
-                        if (diyanetTimings) {
-                            setPrayerTimes(diyanetTimings);
-                            findNextPrayer(diyanetTimings);
-                            schedulePrayerNotifications(diyanetTimings);
-                            schedulePreReminderNotifications(diyanetTimings);
-                            syncWidgetData(diyanetTimings);
-                            cachePrayerTimes(diyanetTimings);
-                            setLoading(false);
-                            return;
-                        }
-                    }
-                }
+                // No validated Diyanet match → Aladhan with the exact coordinates.
+                // (Guessing a city like the old Istanbul fallback is 20+ min wrong
+                // for eastern Turkey; coordinates are within ±1 min.)
             }
 
             // ── Fallback: Aladhan API ──
             const appDate = getAppDate();
             const dateStr = `${appDate.getDate()}-${appDate.getMonth() + 1}-${appDate.getFullYear()}`;
 
-            // If we are in Turkey, Aladhan is NOT accurate (Method 13 is only an approximation)
-            // We should warn or try harder for Diyanet.
-            const method = calculationMethod === 'auto' ? (turkish ? 13 : 3) : parseInt(calculationMethod, 10);
+            // In auto mode outside Turkey, omit `method` — Aladhan then selects the
+            // local authority itself (e.g. Umm al-Qura in Saudi Arabia, Egyptian
+            // Authority in Egypt). A hardcoded MWL was 7-10 min off in those regions.
+            const method = calculationMethod === 'auto' ? (turkish ? 13 : null) : parseInt(calculationMethod, 10);
 
             let response;
             // Always prioritize manual city for Aladhan if set, regardless of background physical GPS state
             if (manualCity) {
                 const addressQuery = manualCountry ? `${manualCity}, ${manualCountry}` : manualCity;
-                response = await axios.get(`https://api.aladhan.com/v1/timingsByAddress/${dateStr}`, {
-                    params: { address: addressQuery, method }
-                });
+                const params = { address: addressQuery };
+                if (method != null) params.method = method;
+                response = await axios.get(`https://api.aladhan.com/v1/timingsByAddress/${dateStr}`, { params });
             } else {
-                response = await axios.get(`https://api.aladhan.com/v1/timings/${dateStr}`, {
-                    params: { latitude: lat, longitude: lng, method }
-                });
+                const params = { latitude: lat, longitude: lng };
+                if (method != null) params.method = method;
+                response = await axios.get(`https://api.aladhan.com/v1/timings/${dateStr}`, { params });
             }
 
             const rawTimings = response.data.data.timings;
@@ -566,13 +741,12 @@ export const PrayerTimesProvider = ({ children }) => {
         } finally {
             setLoading(false);
         }
-    }, [latitude, longitude, hasLocation, manualCity, calculationMethod]);
+    }, [latitude, longitude, hasLocation, manualCity, manualCountry, calculationMethod]);
 
     // Push prayer times to iOS Widget via App Group UserDefaults
-    const syncWidgetData = useCallback((timings) => {
+    const syncWidgetData = useCallback(async (timings) => {
         if (!timings) return;
         const lang = (i18n.language || 'en').split('-')[0];
-        const useImsak = lang === 'tr' || lang === 'az';
         const city = cityName || 'Bilinmiyor';
         const prayerNames = {
             tr: { fajr: 'İmsak', dhuhr: 'Öğle', asr: 'İkindi', maghrib: 'Akşam', isha: 'Yatsı' },
@@ -583,16 +757,36 @@ export const PrayerTimesProvider = ({ children }) => {
             az: { fajr: 'Sübh', dhuhr: 'Günorta', asr: 'İkindi', maghrib: 'Axşam', isha: 'Yatsı' },
         };
         const names = prayerNames[lang] || prayerNames.en;
-        const prayers = [
-            { id: 'fajr', name: names.fajr, time: (timings.Fajr || timings.Imsak || '').split(' ')[0] },
-            { id: 'sunrise', name: (lang === 'tr' || lang === 'az') ? 'Güneş' : 'Sunrise', time: (timings.Sunrise || '').split(' ')[0] },
-            { id: 'dhuhr', name: names.dhuhr, time: (timings.Dhuhr || '').split(' ')[0] },
-            { id: 'asr', name: names.asr, time: (timings.Asr || '').split(' ')[0] },
-            { id: 'maghrib', name: names.maghrib, time: (timings.Maghrib || '').split(' ')[0] },
-            { id: 'isha', name: names.isha, time: (timings.Isha || '').split(' ')[0] },
-        ];
-        syncPrayerTimesToWidget({ prayerTimes: prayers, city });
-    }, [cityName, i18n.language]);
+        const toPrayerArray = (t) => ([
+            { id: 'fajr', name: names.fajr, time: (t.Fajr || t.Imsak || '').split(' ')[0] },
+            { id: 'sunrise', name: (lang === 'tr' || lang === 'az') ? 'Güneş' : 'Sunrise', time: (t.Sunrise || '').split(' ')[0] },
+            { id: 'dhuhr', name: names.dhuhr, time: (t.Dhuhr || '').split(' ')[0] },
+            { id: 'asr', name: names.asr, time: (t.Asr || '').split(' ')[0] },
+            { id: 'maghrib', name: names.maghrib, time: (t.Maghrib || '').split(' ')[0] },
+            { id: 'isha', name: names.isha, time: (t.Isha || '').split(' ')[0] },
+        ]);
+        const prayers = toPrayerArray(timings);
+
+        // Multi-day schedule so the widget stays accurate for days without an
+        // app open (previously it froze on the last synced day's times)
+        const days = [];
+        try {
+            const calendarData = await fetchCalendarData() || {};
+            const base = getAppDate();
+            for (let i = 0; i < CALENDAR_WINDOW_DAYS; i++) {
+                const d = new Date(base);
+                d.setDate(d.getDate() + i);
+                const dd = String(d.getDate()).padStart(2, '0');
+                const mm = String(d.getMonth() + 1).padStart(2, '0');
+                const yyyy = d.getFullYear();
+                const dayTimings = calendarData[`${dd}-${mm}-${yyyy}`] || (i === 0 ? timings : null);
+                if (!dayTimings) continue;
+                days.push({ date: `${yyyy}-${mm}-${dd}`, prayers: toPrayerArray(dayTimings) });
+            }
+        } catch { /* widget falls back to the single-day list */ }
+
+        syncPrayerTimesToWidget({ prayerTimes: prayers, city, days });
+    }, [cityName, i18n.language, latitude, longitude, hasLocation, manualCity, manualCountry, calculationMethod]);
 
     // Keep ref always pointing to the latest fetchPrayerTimes
     fetchPrayerTimesRef.current = fetchPrayerTimes;
@@ -675,13 +869,6 @@ export const PrayerTimesProvider = ({ children }) => {
     const findNextPrayer = (timings) => {
         try {
             const now = getAppDate();
-            const timeToMinutes = (time) => {
-                if (!time) return -1;
-                const clean = time.split(' ')[0];
-                const [h, m] = clean.split(':').map(Number);
-                return h * 60 + m;
-            };
-            const currentMinutes = now.getHours() * 60 + now.getMinutes();
 
             // Turkish/AZ convention: İmsak (fasting start) as first prayer
             // International convention: Fajr (dawn prayer) as first prayer
@@ -699,7 +886,16 @@ export const PrayerTimesProvider = ({ children }) => {
                 { name: 'Yatsı', time: timings.Isha }
             ];
 
-            let next = prayers.find(p => p.time && timeToMinutes(p.time) > currentMinutes);
+            // Sequence-aware schedule: a midnight-crossing Isha (e.g. 00:10 at high
+            // latitudes) counts as tonight's upcoming prayer, not as already passed
+            const schedule = buildPrayerSchedule(prayers.map(p => p.time), now);
+            let next = null;
+            for (let i = 0; i < prayers.length; i++) {
+                if (schedule[i] && schedule[i] > now) {
+                    next = prayers[i];
+                    break;
+                }
+            }
             if (!next) next = prayers[0];
             setNextPrayer(next);
         } catch (e) {
@@ -747,129 +943,11 @@ export const PrayerTimesProvider = ({ children }) => {
             const notifBody = { tr: 'vakti geldi. Haydi namaza!', en: 'time has come. Let\'s pray!', de: 'Zeit ist gekommen. Lasst uns beten!', ru: 'время пришло. Давайте помолимся!', ar: 'حان وقت الصلاة!', az: 'vaxtı gəldi. Haydi namaza!' };
             const names = prayerNames[lang] || prayerNames.en;
 
-            // Determine GPS coords for API call
-            const lat = (hasLocation && latitude) ? latitude : FALLBACK_COORDS.lat;
-            const lng = (hasLocation && longitude) ? longitude : FALLBACK_COORDS.lng;
-            const localIsInTurkey = lat >= 36 && lat <= 42 && lng >= 26 && lng <= 45;
-            const countryCode = localStorage.getItem('cached_country_code');
-            const localIsTurkish = localIsInTurkey || countryCode === 'tr';
-
             // Fetch calendar data for accurate per-day prayer times
+            // (shared with the widget multi-day sync — one fetch per session)
             let calendarData = {};
-            let useDiyanetFormat = false;
             try {
-                // ── Try Diyanet first for Turkey ──
-                const allowDiyanet = calculationMethod === 'auto' || calculationMethod === '13';
-                const district = localStorage.getItem('cached_district');
-                if (allowDiyanet && localIsTurkish && district) {
-                    const locationId = await resolveDiyanetLocationId(district);
-                    if (locationId) {
-                        const res = await axios.get(`${DIYANET_API}/prayertimes`, {
-                            params: { location_id: locationId },
-                            timeout: 5000,
-                        });
-                        const days = res.data || [];
-                        if (days.length > 0) {
-                            useDiyanetFormat = true;
-                            days.forEach(d => {
-                                if (!d.date) return;
-                                const dateObj = new Date(d.date);
-                                const dd = String(dateObj.getDate()).padStart(2, '0');
-                                const mm = String(dateObj.getMonth() + 1).padStart(2, '0');
-                                const yyyy = dateObj.getFullYear();
-                                const dateKey = `${dd}-${mm}-${yyyy}`;
-                                // Map to Aladhan-compatible structure with CENTRALIZED normalization
-                                const raw = {
-                                    Fajr: d.fajr,
-                                    Sunrise: d.sun,
-                                    Dhuhr: d.dhuhr,
-                                    Asr: d.asr,
-                                    Maghrib: d.maghrib,
-                                    Isha: d.isha
-                                };
-                                calendarData[dateKey] = normalizeTimings(raw, true);
-                            });
-                        }
-                    }
-                }
-
-                // ── Supplement missing dates (Diyanet only returns current month) ──
-                // Check if all 7 days are covered — if not, fill gaps with Aladhan
-                const today = getAppDate();
-                let hasMissingDays = false;
-                for (let d = 0; d < MAX_PRAYER_DAYS; d++) {
-                    const checkDate = new Date(today);
-                    checkDate.setDate(checkDate.getDate() + d);
-                    const dd = String(checkDate.getDate()).padStart(2, '0');
-                    const mm = String(checkDate.getMonth() + 1).padStart(2, '0');
-                    const yyyy = checkDate.getFullYear();
-                    if (!calendarData[`${dd}-${mm}-${yyyy}`]) {
-                        hasMissingDays = true;
-                        break;
-                    }
-                }
-
-                if (hasMissingDays) {
-                    // Fetch Aladhan calendar for the missing month(s)
-                    const method = calculationMethod === 'auto' ? (isTurkishLocation ? 13 : 3) : parseInt(calculationMethod, 10);
-                    const monthsToFetch = new Set();
-                    for (let d = 0; d < MAX_PRAYER_DAYS; d++) {
-                        const checkDate = new Date(today);
-                        checkDate.setDate(checkDate.getDate() + d);
-                        monthsToFetch.add(`${checkDate.getFullYear()}-${checkDate.getMonth() + 1}`);
-                    }
-
-                    for (const ym of monthsToFetch) {
-                        const [y, m] = ym.split('-').map(Number);
-                        try {
-                            const res = await axios.get(`https://api.aladhan.com/v1/calendar/${y}/${m}`, {
-                                params: { latitude: lat, longitude: lng, method }
-                            });
-                            const days = res.data?.data || [];
-                            days.forEach(d => {
-                                const dateKey = d.date?.gregorian?.date;
-                                // Only fill gaps — don't overwrite Diyanet data
-                                if (dateKey && !calendarData[dateKey]) {
-                                    calendarData[dateKey] = normalizeTimings(d.timings, localIsTurkish);
-                                }
-                            });
-                        } catch (e2) {
-                            console.warn(`Aladhan calendar ${y}/${m} failed`, e2);
-                        }
-                    }
-                }
-
-                // ── Full Aladhan fallback (no Diyanet data at all) ──
-                if (Object.keys(calendarData).length === 0) {
-                    const year = today.getFullYear();
-                    const month = today.getMonth() + 1;
-                    const method = calculationMethod === 'auto' ? (isTurkishLocation ? 13 : 3) : parseInt(calculationMethod, 10);
-
-                    const res = await axios.get(`https://api.aladhan.com/v1/calendar/${year}/${month}`, {
-                        params: { latitude: lat, longitude: lng, method }
-                    });
-                    const days = res.data?.data || [];
-                    days.forEach(d => {
-                        const dateKey = d.date?.gregorian?.date;
-                        if (dateKey) calendarData[dateKey] = normalizeTimings(d.timings, localIsTurkish);
-                    });
-
-                    // If 12-day window spans into next month, fetch that too
-                    const lastDay = new Date(today);
-                    lastDay.setDate(lastDay.getDate() + MAX_PRAYER_DAYS - 1);
-                    if (lastDay.getMonth() + 1 !== month) {
-                        const nextMonth = lastDay.getMonth() + 1;
-                        const nextYear = lastDay.getFullYear();
-                        const res2 = await axios.get(`https://api.aladhan.com/v1/calendar/${nextYear}/${nextMonth}`, {
-                            params: { latitude: lat, longitude: lng, method }
-                        });
-                        const days2 = res2.data?.data || [];
-                        days2.forEach(d => {
-                            const dateKey = d.date?.gregorian?.date;
-                            if (dateKey) calendarData[dateKey] = normalizeTimings(d.timings, localIsTurkish);
-                        });
-                    }
-                }
+                calendarData = await fetchCalendarData() || {};
             } catch (e) {
                 console.warn('Calendar API failed, using today\'s times as fallback', e);
             }
@@ -898,16 +976,13 @@ export const PrayerTimesProvider = ({ children }) => {
                 const dayTimings = calendarData[dateKey] || todayTimings;
 
                 const prayerKeys = ['Fajr', 'Sunrise', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
+                // Sequence-aware dates: a midnight-crossing Isha (high latitudes,
+                // e.g. "00:10") lands on the next calendar day instead of being
+                // scheduled in the past and silently skipped
+                const daySchedule = buildPrayerSchedule(prayerKeys.map(k => dayTimings[k]), targetDate);
                 prayerKeys.forEach((key, idx) => {
-                    const rawTime = dayTimings[key];
-                    if (!rawTime) return;
-                    // Strip timezone offset: "06:12 (+03)" → "06:12"
-                    const timeStr = rawTime.split(' ')[0];
-                    const [h, m] = timeStr.split(':').map(Number);
-                    if (isNaN(h) || isNaN(m)) return;
-
-                    const date = new Date(targetDate);
-                    date.setHours(h, m, 0, 0);
+                    const date = daySchedule[idx];
+                    if (!date) return;
 
                     if (date <= now) return;
 
@@ -970,7 +1045,7 @@ export const PrayerTimesProvider = ({ children }) => {
         } finally {
             schedulingRef.current = false;
         }
-    }, [settings.adhanEnabled, settings.vibrateOnly, latitude, longitude, hasLocation, i18n.language]);
+    }, [settings.adhanEnabled, settings.vibrateOnly, latitude, longitude, hasLocation, manualCity, manualCountry, calculationMethod, i18n.language]);
 
     const scheduleVerseNotifications = useCallback(async () => {
         if (!Capacitor.isNativePlatform()) return;
@@ -1007,8 +1082,6 @@ export const PrayerTimesProvider = ({ children }) => {
             const appDate = getAppDate();
             const verseSlots = [
                 { id: 1001, hour: 9, minute: 0, label: labels[0] },
-                { id: 1002, hour: 14, minute: 0, label: labels[1] },
-                { id: 1003, hour: 21, minute: 0, label: labels[2] }
             ];
 
             const notifications = verseSlots.map(slot => {
@@ -1023,7 +1096,7 @@ export const PrayerTimesProvider = ({ children }) => {
                 return {
                     id: slot.id,
                     title: `${verseTitle[lang] || verseTitle.en} 📖`,
-                    body: verse.text,
+                    body: `${verse.text} — ${verse.source}`,
                     schedule: {
                         at: scheduleDate,
                         every: 'day',
@@ -1200,7 +1273,8 @@ export const PrayerTimesProvider = ({ children }) => {
                         every: 'day',
                         allowWhileIdle: true
                     },
-                    smallIcon: 'ic_stat_icon_config_sample'
+                    smallIcon: 'ic_stat_icon_config_sample',
+                    extra: { type: 'dhikr_reminder', route: '/dhikr' }
                 }]
             });
 
@@ -1276,16 +1350,13 @@ export const PrayerTimesProvider = ({ children }) => {
                 const dayTimings = todayTimings;
 
                 const prayerKeys = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
+                // Sequence-aware dates (midnight-crossing Isha lands on the next day)
+                const daySchedule = buildPrayerSchedule(prayerKeys.map(k => dayTimings[k]), targetDate);
                 prayerKeys.forEach((key, idx) => {
-                    const rawTime = dayTimings[key];
-                    if (!rawTime) return;
-                    const timeStr = rawTime.split(' ')[0];
-                    const [h, m] = timeStr.split(':').map(Number);
-                    if (isNaN(h) || isNaN(m)) return;
+                    if (!daySchedule[idx]) return;
 
                     // Schedule `minutes` before the prayer time
-                    const date = new Date(targetDate);
-                    date.setHours(h, m, 0, 0);
+                    const date = new Date(daySchedule[idx]);
                     date.setMinutes(date.getMinutes() - minutes);
 
                     if (date <= now) return;

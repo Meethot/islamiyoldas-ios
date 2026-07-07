@@ -1,12 +1,18 @@
 {
   "title": "الإعدادات",
   "user": {
-    "default_name": "مستخدم مؤمن",
-    "streak_desc": "اليوم {{count}} من الرحلة"
+    "default_name": "مستخدم",
+    "streak_desc": "اليوم {{count}} من الرحلة",
+    "stat_days": "يوم",
+    "stat_streak": "سلسلة",
+    "stat_prayers": "اليوم"
   },
   "premium": {
     "banner_title": "اشترك بريميوم",
-    "banner_desc": "استمتع برحلتك الإسلامية دون انقطاع، واكتشف جميع الميزات المميزة."
+    "banner_desc": "استمتع برحلتك الإسلامية دون انقطاع، واكتشف جميع الميزات المميزة.",
+    "feat_quran": "قرآن صوتي",
+    "feat_no_ads": "بدون إعلانات",
+    "feat_widgets": "أدوات"
   },
   "personal_settings": "الإعدادات الشخصية",
   "general_settings": "الإعدادات العامة",

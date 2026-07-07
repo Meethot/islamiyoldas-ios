@@ -3,6 +3,7 @@ import { Moon, Sunrise, Sun, Sunset } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { usePrayerTimes } from '@/context/PrayerTimesContext';
 import { useLocation } from '@/context/LocationContext';
+import { buildPrayerSchedule } from '@/lib/prayerTimeUtils';
 
 /**
  * Custom hook for prayer times management
@@ -54,52 +55,31 @@ export function usePrayers() {
 
         const updateTimer = () => {
             const now = new Date();
-            let next = null;
-            let minDiff = Infinity;
 
-            prayerTimes.forEach((p) => {
-                // Handle 12h format (e.g., "5:23 AM") or 24h format (e.g., "05:23")
-                let hours, minutes;
-                const timeStr = p.time;
-
-                if (timeStr.includes('AM') || timeStr.includes('PM')) {
-                    // 12h format
-                    const match = timeStr.match(/(\d+):(\d+)\s*(AM|PM)/i);
-                    if (match) {
-                        hours = parseInt(match[1]);
-                        minutes = parseInt(match[2]);
-                        if (match[3].toUpperCase() === 'PM' && hours !== 12) hours += 12;
-                        if (match[3].toUpperCase() === 'AM' && hours === 12) hours = 0;
-                    }
-                } else {
-                    // 24h format
-                    const [h, m] = timeStr.split(':').map(Number);
-                    hours = h;
-                    minutes = m;
-                }
-
-                if (isNaN(hours) || isNaN(minutes)) return;
-
-                const pDate = new Date();
-                pDate.setHours(hours, minutes, 0, 0);
-                if (pDate < now) pDate.setDate(pDate.getDate() + 1);
-                const diff = pDate - now;
-                if (diff < minDiff) {
-                    minDiff = diff;
-                    next = { name: p.name, time: pDate };
-                }
-            });
-
-            if (next) {
-                const diff = next.time - now;
-                const pad = (n) => n.toString().padStart(2, '0');
-                setNextPrayerInfo({
-                    name: next.name,
-                    timeLeft: `${pad(Math.floor(diff / 3600000))}:${pad(Math.floor((diff / 60000) % 60))}:${pad(Math.floor((diff / 1000) % 60))}`,
-                    time: next.time.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' }),
-                    date: next.time.toISOString().split('T')[0]
-                });
+            // Sequence-aware schedule: handles 12h/24h formats and a midnight-crossing
+            // Isha (e.g. "00:10" at high latitudes) counting as upcoming, not passed
+            let schedule = buildPrayerSchedule(prayerTimes.map(p => p.time), now);
+            let nextIdx = schedule.findIndex(d => d && d > now);
+            if (nextIdx === -1) {
+                // All of today's prayers passed — wrap to tomorrow's first prayer
+                const tomorrow = new Date(now);
+                tomorrow.setDate(tomorrow.getDate() + 1);
+                schedule = buildPrayerSchedule(prayerTimes.map(p => p.time), tomorrow);
+                nextIdx = schedule.findIndex(Boolean);
             }
+            if (nextIdx === -1) return;
+
+            const next = { name: prayerTimes[nextIdx].name, time: schedule[nextIdx] };
+            const diff = next.time - now;
+            const pad = (n) => n.toString().padStart(2, '0');
+            // Local date key (toISOString is UTC and shifts the day near midnight)
+            const localDateKey = `${next.time.getFullYear()}-${pad(next.time.getMonth() + 1)}-${pad(next.time.getDate())}`;
+            setNextPrayerInfo({
+                name: next.name,
+                timeLeft: `${pad(Math.floor(diff / 3600000))}:${pad(Math.floor((diff / 60000) % 60))}:${pad(Math.floor((diff / 1000) % 60))}`,
+                time: next.time.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' }),
+                date: localDateKey
+            });
         };
 
         updateTimer();

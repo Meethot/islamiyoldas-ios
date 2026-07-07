@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Esma widget arkaplanı: iOS EsmaWidget gradient (orta ton biraz daha koyu) -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="rectangle">
+            <gradient
+                android:startColor="#032E18"
+                android:centerColor="#063C20"
+                android:endColor="#032E18"
+                android:angle="315"
+                android:type="linear" />
+            <corners android:radius="22dp" />
+        </shape>
+    </item>
+    <item>
+        <shape android:shape="rectangle">
+            <stroke
+                android:width="0.5dp"
+                android:color="#14FFFFFF" />
+            <corners android:radius="22dp" />
+            <solid android:color="#00000000" />
+        </shape>
+    </item>
+</layer-list>

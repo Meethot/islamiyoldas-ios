@@ -3,7 +3,7 @@ import { getAppDate, getDailyPrayersKey, getTodayString } from '@/lib/testDate';
 import { Button } from '@/components/ui/button';
 import {
     User, Settings, Shield, Bell, HelpCircle, RefreshCw,
-    ChevronRight, LogOut, Heart, Crown, Check, Moon, Sun, Download, Trash2, X,
+    ChevronRight, LogOut, Heart, Crown, Check, Moon, MoonStar, Sun, Download, Trash2, X, Flame, CalendarDays,
     BookOpen, Box, Landmark, Camera, Pen, Share2, UserPlus, Globe, Bug, Ticket, Gift, Sparkles, Type, Clock, Activity, Star
 } from 'lucide-react';
 import { triggerReviewPrompt } from '@/components/ReviewPrompt';
@@ -26,6 +26,25 @@ import { Share } from '@capacitor/share';
 import { CapgoInAppReview as InAppReview } from '@capgo/capacitor-in-app-review';
 import { storageService } from '@/services/storageService';
 import { usePrayerTimes } from '@/context/PrayerTimesContext';
+import { MosqueIcon } from '@/components/icons/PrayerIcons';
+
+// Rub el Hizb (۞) deseni — iç içe iki kareden oluşan sekiz köşeli yıldız dokusu
+function GirihPattern({ className }) {
+    const patternId = 'girih-' + React.useId().replace(/:/g, '');
+    return (
+        <svg aria-hidden="true" className={cn("absolute inset-0 w-full h-full pointer-events-none", className)}>
+            <defs>
+                <pattern id={patternId} width="56" height="56" patternUnits="userSpaceOnUse">
+                    <g fill="none" stroke="currentColor" strokeWidth="1">
+                        <rect x="17" y="17" width="22" height="22" />
+                        <rect x="17" y="17" width="22" height="22" transform="rotate(45 28 28)" />
+                    </g>
+                </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill={`url(#${patternId})`} />
+        </svg>
+    );
+}
 
 export default function Profile() {
     const { isDarkMode, toggleTheme } = useTheme();
@@ -38,6 +57,14 @@ export default function Profile() {
     const { t: tSettings } = useTranslation('settings');
     const [customMinuteInput, setCustomMinuteInput] = useState('');
     const [customMinuteError, setCustomMinuteError] = useState(false);
+    // 🔧 TEST: header'daki Premium/Son Teklif butonunu premium'a da göster (yayın öncesi kaldırılacak)
+    const [debugShowPaywall, setDebugShowPaywall] = useState(() => localStorage.getItem('debug_show_paywall') === 'true');
+    const toggleDebugPaywall = () => {
+        const next = !(localStorage.getItem('debug_show_paywall') === 'true');
+        localStorage.setItem('debug_show_paywall', next.toString());
+        setDebugShowPaywall(next);
+        window.dispatchEvent(new Event('debugPaywallChanged'));
+    };
 
     const handleCustomMinuteSubmit = () => {
         const val = parseInt(customMinuteInput, 10);
@@ -279,6 +306,14 @@ export default function Profile() {
         visible: { opacity: 1, y: 0 }
     };
 
+    // Kimlik kartı istatistikleri
+    const journeyDays = (() => {
+        const start = new Date(userData.installDate || new Date());
+        const now = getAppDate(); // simüle edilmiş tarih desteği
+        return Math.floor((now - start) / (1000 * 60 * 60 * 24)) + 1;
+    })();
+    const todayPrayerCount = shareData.completedPrayers?.length || 0;
+
     return (
         <motion.div
             className="space-y-6 px-5 pt-2 pb-24 overflow-x-hidden"
@@ -289,79 +324,107 @@ export default function Profile() {
             {/* Header Area */}
             <motion.div variants={itemVariants} className="relative pt-2 px-4">
 
-                {/* Profile Card */}
+                {/* Profile Card — altın CTA ile aynı iskelet: üst satır + ayraç + 3'lü alt satır */}
                 <div className={cn(
-                    "relative overflow-hidden rounded-[2.5rem] p-6 transition-all duration-500",
+                    "relative overflow-hidden rounded-[2rem] border transition-colors duration-500 shadow-md shadow-stone-200/60 dark:shadow-none",
                     isPremium
-                        ? "bg-gradient-to-br from-[#064e3b] to-[#022c22] border-2 border-islamic-gold shadow-[0_0_30px_rgba(212,175,55,0.15)]"
-                        : "bg-gradient-to-b from-white to-stone-50 dark:bg-white/5 dark:from-transparent dark:to-transparent border border-stone-200/80 dark:border-white/10 shadow-lg shadow-stone-200/50 dark:shadow-none"
+                        ? "bg-white dark:bg-white/5 border-islamic-gold/40"
+                        : "bg-white dark:bg-white/5 border-stone-200/80 dark:border-white/5"
                 )}>
-                    {isPremium && (
-                        <div className="absolute top-0 right-0 p-4">
-                            <div className="bg-islamic-gold text-[#022c22] text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full flex items-center gap-1 shadow-lg animate-pulse">
-                                <Crown size={12} className="fill-current" /> Premium
-                            </div>
-                        </div>
-                    )}
+                    <div className={cn(
+                        "hidden dark:block absolute -top-14 -left-14 w-48 h-48 rounded-full blur-3xl pointer-events-none",
+                        isPremium ? "bg-islamic-gold/15" : "bg-emerald-300/10"
+                    )} />
 
-                    <div className="flex flex-col items-center relative z-10">
-                        <div className="relative mb-4 group cursor-pointer" onClick={() => setShowAvatarModal(true)}>
+                    <div className="relative z-10 flex items-center gap-4 p-5 pb-4">
+                        {/* Squircle avatar */}
+                        <button
+                            type="button"
+                            className="relative flex-shrink-0 active:scale-95 transition-transform"
+                            onClick={() => setShowAvatarModal(true)}
+                        >
                             <div className={cn(
-                                "w-28 h-28 rounded-full flex items-center justify-center p-1 transition-all duration-500",
-                                isPremium ? "bg-gradient-to-tr from-islamic-gold via-amber-200 to-islamic-gold animate-spin-slow" : "bg-gradient-to-br from-stone-100 to-stone-200 dark:bg-white/10"
+                                "w-16 h-16 rounded-[1.35rem] p-[2.5px]",
+                                isPremium
+                                    ? "bg-[conic-gradient(from_210deg,#8a6c1c,#F2D678,#C9A227,#F7E7A0,#8a6c1c)] shadow-[0_0_20px_rgba(212,175,55,0.3)]"
+                                    : "bg-gradient-to-b from-stone-200 to-stone-100 dark:from-white/40 dark:via-emerald-200/25 dark:to-white/10"
                             )}>
-                                <div className="w-full h-full rounded-full bg-white dark:bg-[#032e18] flex items-center justify-center border-4 border-transparent overflow-hidden">
-                                    <AvatarIcon id={selectedAvatar} size={48} className={isPremium ? "text-islamic-gold" : "text-gray-300"} />
+                                <div className="w-full h-full rounded-[1.15rem] flex items-center justify-center overflow-hidden bg-[#032e18]">
+                                    <AvatarIcon id={selectedAvatar} size={30} className={isPremium ? "text-islamic-gold" : "text-emerald-100/90"} />
                                 </div>
                             </div>
-
-                            {/* Camera/Edit Badge for Avatar */}
-                            <div className="absolute 0 bottom-1 right-1 bg-islamic-green text-white p-2 rounded-full border-4 border-white dark:border-[#032e18] shadow-lg">
-                                <Camera size={14} className="fill-current" />
+                            <div className={cn(
+                                "absolute -bottom-1 -right-1 p-1.5 rounded-full shadow border-2 border-white dark:border-[#0b241a] text-[#022c22]",
+                                isPremium ? "bg-islamic-gold" : "bg-gradient-to-b from-[#F2D678] to-[#C9A227]"
+                            )}>
+                                <Camera size={10} className="fill-current" />
                             </div>
-                        </div>
+                        </button>
 
-                        {/* Editable Name Section */}
+                        {/* İsim + yolculuk günü */}
                         <div
-                            className="flex items-center justify-center gap-2 mb-1 group cursor-pointer"
+                            className="flex-1 min-w-0 cursor-pointer"
                             onClick={() => {
                                 selection();
                                 setTempName(userData.name === 'Kullanıcı' ? '' : userData.name);
                                 setShowNameModal(true);
                             }}
                         >
-                            <h2 className={cn("text-2xl font-serif font-bold", isPremium ? "text-white" : "text-gray-900 dark:text-white")}>
-                                {userData.name === 'Kullanıcı' ? t('user.default_name') : userData.name}
-                            </h2>
-                            <div className={cn(
-                                "flex items-center justify-center w-6 h-6 rounded-full opacity-50 transition-all duration-300 group-hover:opacity-100 group-hover:scale-110",
-                                isPremium ? "bg-white/20 text-white" : "bg-gray-100 dark:bg-white/10 text-gray-400 dark:text-gray-300"
-                            )}>
-                                <Pen size={12} />
+                            <div className="flex items-center gap-1.5">
+                                <h2 className="text-lg font-extrabold tracking-tight truncate text-stone-900 dark:text-white">
+                                    {userData.name === 'Kullanıcı' ? t('user.default_name') : userData.name}
+                                </h2>
+                                {isPremium && <Crown size={14} className="flex-shrink-0 text-islamic-gold fill-current" />}
                             </div>
+                            <p className={cn(
+                                "flex items-center gap-1 text-xs font-medium mt-0.5",
+                                isPremium ? "text-islamic-gold/90" : "text-stone-500 dark:text-emerald-100/70"
+                            )}>
+                                <Moon size={10} className="fill-current text-islamic-gold/90" />
+                                {t('user.streak_desc', { count: journeyDays })}
+                            </p>
                         </div>
 
-                        <p className={cn("text-sm font-medium", isPremium ? "text-islamic-gold/80" : "text-stone-500 dark:text-gray-400")}>
-                            {t('user.streak_desc', {
-                                count: (() => {
-                                    const start = new Date(userData.installDate || new Date());
-                                    const now = getAppDate(); // Use simulated date
-                                    const diff = now - start;
-                                    const todayStr = getTodayString();
-                                    const days = Math.floor(diff / (1000 * 60 * 60 * 24)) + 1;
-                                    return days;
-                                })()
-                            })}
-                        </p>
+                        {/* İsim düzenleme çipi — CTA'daki chevron'un ikizi */}
+                        <button
+                            type="button"
+                            onClick={() => {
+                                selection();
+                                setTempName(userData.name === 'Kullanıcı' ? '' : userData.name);
+                                setShowNameModal(true);
+                            }}
+                            className={cn(
+                                "flex-shrink-0 w-9 h-9 rounded-full flex items-center justify-center transition-colors active:scale-95",
+                                isPremium
+                                    ? "bg-islamic-gold/15 text-islamic-gold ring-1 ring-inset ring-islamic-gold/30"
+                                    : "bg-stone-100 text-stone-500 ring-1 ring-inset ring-stone-200/80 dark:bg-white/10 dark:text-emerald-100 dark:ring-white/15"
+                            )}
+                        >
+                            <Pen size={14} />
+                        </button>
                     </div>
 
-                    {/* Premium Ambient Background */}
-                    {isPremium && (
-                        <>
-                            <div className="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 mix-blend-overlay" />
-                            <div className="absolute -bottom-20 -left-20 w-64 h-64 bg-islamic-gold/20 rounded-full blur-3xl" />
-                        </>
-                    )}
+                    <div className={cn(
+                        "relative z-10 mx-5 h-px bg-gradient-to-r from-transparent to-transparent",
+                        isPremium ? "via-islamic-gold/30" : "via-stone-200 dark:via-white/15"
+                    )} />
+
+                    {/* İstatistikler — CTA'daki özellik satırının ikizi */}
+                    <div className="relative z-10 grid grid-cols-3 divide-x divide-stone-200/70 dark:divide-white/10 py-3.5">
+                        {[
+                            { icon: CalendarDays, value: journeyDays, label: t('user.stat_days') },
+                            { icon: Flame, value: shareData.streak || 0, label: t('user.stat_streak') },
+                            { icon: MosqueIcon, value: `${todayPrayerCount}/5`, label: t('user.stat_prayers') },
+                        ].map(({ icon: StatIcon, value, label }) => (
+                            <div key={label} className="flex flex-col items-center gap-0.5 px-2">
+                                <p className="flex items-center gap-1.5 text-base font-extrabold text-stone-900 dark:text-white leading-none">
+                                    <StatIcon size={14} className="text-islamic-gold" strokeWidth={2.25} />
+                                    {value}
+                                </p>
+                                <p className="text-[10px] font-semibold uppercase tracking-wider text-stone-500 dark:text-emerald-100/60">{label}</p>
+                            </div>
+                        ))}
+                    </div>
                 </div>
             </motion.div>
 
@@ -370,42 +433,55 @@ export default function Profile() {
                 <motion.div variants={itemVariants} className="px-4 pb-2">
                     <motion.div
                         onClick={() => { heavy(); navigate('/premium'); }}
-                        className="relative rounded-[2rem] p-6 shadow-[0_8px_30px_rgba(212,175,55,0.3)] overflow-hidden cursor-pointer group"
-                        style={{ background: 'linear-gradient(135deg, #FFD700 0%, #D4AF37 50%, #FFD700 100%)' }}
-                        whileTap={{ scale: 0.96 }}
+                        whileTap={{ scale: 0.97 }}
+                        className="relative overflow-hidden rounded-[2rem] cursor-pointer border border-[#b08d1e]/50 ring-1 ring-inset ring-white/40 shadow-[0_16px_40px_-12px_rgba(212,175,55,0.55)]"
+                        style={{ background: 'linear-gradient(150deg, #FFE066 0%, #F5C842 45%, #D4AF37 100%)' }}
                     >
-                        {/* Shimmer sweep effect */}
+                        <GirihPattern className="text-[#064e3b] opacity-[0.05]" />
+                        <div className="absolute -top-12 -right-8 w-40 h-40 bg-white/35 rounded-full blur-3xl pointer-events-none" />
+
+                        {/* İnce parıltı süpürmesi — yavaş, düşük opaklık */}
                         <motion.div
                             className="absolute inset-0 pointer-events-none"
                             style={{
-                                background: 'linear-gradient(105deg, transparent 35%, rgba(255,255,255,0.4) 45%, rgba(255,255,255,0.6) 50%, rgba(255,255,255,0.4) 55%, transparent 65%)',
-                                backgroundSize: '200% auto',
+                                background: 'linear-gradient(115deg, transparent 42%, rgba(255,255,255,0.35) 50%, transparent 58%)',
+                                backgroundSize: '250% 100%',
                             }}
-                            animate={{ backgroundPosition: ['200% center', '-200% center'] }}
-                            transition={{ repeat: Infinity, duration: 3, ease: 'linear' }}
+                            animate={{ backgroundPosition: ['250% 0%', '-150% 0%'] }}
+                            transition={{ repeat: Infinity, duration: 4.5, ease: 'linear', repeatDelay: 3 }}
                         />
-                        {/* Ambient Glows */}
-                        <div className="absolute -top-10 -right-10 w-32 h-32 bg-white/40 rounded-full blur-2xl group-hover:scale-110 transition-transform duration-700" />
-                        <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-white/20 rounded-full blur-xl" />
 
-                        <div className="relative z-10 flex items-center justify-between">
-                            <div className="pr-4">
-                                <h3 className="text-xl font-bold font-serif mb-1 tracking-tight flex items-center gap-1.5 text-[#064e3b]">
-                                    <Sparkles className="w-5 h-5 text-[#064e3b]" fill="currentColor" />
-                                    {t('premium.banner_title')}
-                                </h3>
-                                <p className="text-sm text-[#064e3b]/85 font-medium leading-snug drop-shadow-sm">
-                                    {t('premium.banner_desc')}
-                                </p>
-                            </div>
-                            <div className="bg-[#064e3b]/10 p-4 rounded-full backdrop-blur-md group-hover:scale-110 group-hover:bg-[#064e3b]/15 transition-all shadow-inner relative flex-shrink-0">
-                                <Moon className="w-8 h-8 text-[#064e3b] fill-current" />
+                        <div className="relative z-10 flex items-center gap-4 p-5 pb-4">
+                            {/* Zümrüt hilal mühür */}
+                            <div className="relative flex-shrink-0 w-14 h-14 rounded-full flex items-center justify-center bg-gradient-to-b from-[#0a5433] to-[#032e18] ring-1 ring-inset ring-white/20 shadow-[0_6px_16px_rgba(3,46,24,0.35)]">
+                                <MoonStar className="w-7 h-7 text-islamic-gold" strokeWidth={1.75} />
                                 <motion.div
-                                    className="absolute inset-0 rounded-full border border-white/50"
-                                    animate={{ scale: [1, 1.25, 1], opacity: [0.6, 0, 0.6] }}
-                                    transition={{ repeat: Infinity, duration: 2.5 }}
+                                    className="absolute inset-0 rounded-full ring-1 ring-[#064e3b]/40"
+                                    animate={{ scale: [1, 1.2], opacity: [0.5, 0] }}
+                                    transition={{ repeat: Infinity, duration: 2.8, ease: 'easeOut' }}
                                 />
                             </div>
+
+                            <div className="flex-1 min-w-0">
+                                <p className="text-[9px] font-bold uppercase tracking-[0.3em] text-[#064e3b]/70 mb-0.5">{t('app_name')}</p>
+                                <h3 className="text-lg font-serif font-bold text-[#053a22] leading-tight">{t('premium.banner_title')}</h3>
+                                <p className="text-xs text-[#064e3b]/80 font-medium leading-snug mt-1">{t('premium.banner_desc')}</p>
+                            </div>
+
+                            <div className="flex-shrink-0 w-9 h-9 rounded-full bg-gradient-to-b from-[#0a5433] to-[#032e18] text-islamic-gold flex items-center justify-center shadow-[0_4px_14px_rgba(3,46,24,0.4)]">
+                                <ChevronRight size={18} strokeWidth={2.5} />
+                            </div>
+                        </div>
+
+                        <div className="relative z-10 mx-5 h-px bg-gradient-to-r from-transparent via-[#064e3b]/25 to-transparent" />
+
+                        <div className="relative z-10 px-5 py-3.5 flex items-center justify-center gap-x-4 gap-y-1 flex-wrap">
+                            {['feat_quran', 'feat_no_ads', 'feat_widgets'].map(key => (
+                                <span key={key} className="flex items-center gap-1.5 text-[11px] font-bold text-[#064e3b]/85">
+                                    <span className="w-1 h-1 rotate-45 bg-[#064e3b]/70" aria-hidden="true" />
+                                    {t(`premium.${key}`)}
+                                </span>
+                            ))}
                         </div>
                     </motion.div>
                 </motion.div>
@@ -1086,11 +1162,11 @@ export default function Profile() {
                 >
                     🔧 Test: Paywall'ı Aç
                 </Button>
-                <Button 
-                    onClick={() => navigate('/premium?offer=true')}
+                <Button
+                    onClick={() => navigate('/premium?offer=force')}
                     className="w-full bg-red-500/20 text-red-500 py-2 rounded-xl text-xs font-bold"
                 >
-                    🔥 Test: İndirim Popup Aç
+                    🔥 Test: İndirim Popup Aç (zorla)
                 </Button>
                 <Button
                     onClick={async () => {
@@ -1101,6 +1177,12 @@ export default function Profile() {
                     className="w-full bg-yellow-500/20 text-yellow-500 py-2 rounded-xl text-xs font-bold"
                 >
                     ⏱ Test: Sayaç Cooldown Sıfırla
+                </Button>
+                <Button
+                    onClick={toggleDebugPaywall}
+                    className={`w-full py-2 rounded-xl text-xs font-bold ${debugShowPaywall ? 'bg-green-500/25 text-green-500' : 'bg-white/10 text-stone-400'}`}
+                >
+                    👁 Header Premium butonu: {debugShowPaywall ? 'AÇIK (premium\'da da görünür)' : 'KAPALI'}
                 </Button>
             </div>
 
