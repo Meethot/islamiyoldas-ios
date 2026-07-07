@@ -2,7 +2,14 @@
   "appId": "com.islamiyoldas.app",
   "appName": "İslami Yoldaş",
   "webDir": "dist",
+  "backgroundColor": "#021a0f",
   "plugins": {
+    "SplashScreen": {
+      "launchAutoHide": false,
+      "backgroundColor": "#021a0f",
+      "showSpinner": false,
+      "launchFadeOutDuration": 300
+    },
     "StatusBar": {
       "overlaysWebView": true,
       "style": "Dark"

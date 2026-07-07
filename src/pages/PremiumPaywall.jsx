@@ -9,7 +9,7 @@ import { getProducts, purchaseProduct, restorePurchases, getOfferings, getSpecif
 import { useDiscountOffer, OFFER_DURATION_SECONDS } from '@/hooks/useDiscountOffer';
 import { endOfferLiveActivity } from '@/services/liveActivityService';
 import { RevenueCatUI } from '@revenuecat/purchases-capacitor-ui';
-import { analytics } from '@/services/analyticsService';
+import { analytics, trackEvent } from '@/services/analyticsService';
 import { Capacitor } from '@capacitor/core';
 
 const isAndroid = Capacitor.getPlatform() === 'android';
@@ -286,6 +286,8 @@ export default function PremiumPaywall({ variant = 'default', offeringId = 'curr
     const [reviewIdx, setReviewIdx] = useState(0);
     const [swipeDir, setSwipeDir] = useState(1);
     const [showExitPopup, setShowExitPopup] = useState(false);
+    // "Tüm planları gör" ile sheet kapatıldı — X artık sheet'i yeniden açmaz, direkt çıkar
+    const [offerSheetDismissed, setOfferSheetDismissed] = useState(false);
     const [showStandardExitPopup, setShowStandardExitPopup] = useState(false);
     const [showSuccess, setShowSuccess] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
@@ -360,10 +362,9 @@ export default function PremiumPaywall({ variant = 'default', offeringId = 'curr
             }
             return;
         }
-        // Aktif teklif varken (örn. header sayacından girildiğinde) popup'ı göster
-        if (isOfferActive) {
-            setShowExitPopup(true);
-        }
+        // NOT: Eskiden teklif aktifken HER paywall girişinde sheet otomatik açılıyordu.
+        // Artık teklif entegre yıllık kartta göründüğü için sheet yalnızca dismiss-intent
+        // (handleClose) ve ?offer=true|force (header / Live Activity / test) ile açılır.
     }, [forcedOffer, forceRestart, isOfferActive]); // startOffer/canShowOffer stable from hook
 
     const lang = i18n.language?.split('-')[0] || 'en';
@@ -496,6 +497,53 @@ export default function PremiumPaywall({ variant = 'default', offeringId = 'curr
     const offerTimeFraction = Math.max(0, Math.min(1, timeLeft / OFFER_DURATION_SECONDS));
     const isOfferCritical = timeLeft > 0 && timeLeft <= 60;
 
+    // Teklif hem aktif hem ürün yüklü → entegre yıllık kart teklifi gösterir VE satın alma
+    // teklife yönlenir. Tek flag: gösterim ile çekilen ürün asla ayrışamaz (499 gösterip
+    // 749 çekme riski yok). offerProduct yüklenemezse kart normal kalır, normal ürün satılır.
+    const offerOnYearly = isOfferActive && !!offerProduct;
+
+    // Teklif fiyat string'i — getPrice ile aynı platform kuralı (Android'de manuel format)
+    const offerPriceString = useMemo(() => {
+        if (!offerProduct) return null;
+        const platform = window.Capacitor?.getPlatform() || 'web';
+        if (platform === 'android' && offerProduct.price && offerProduct.currencyCode) {
+            return formatPrice(offerProduct.price, offerProduct.currencyCode);
+        }
+        return offerProduct.priceString || null;
+    }, [offerProduct, formatPrice]);
+
+    // Teklif tasarruf yüzdesi — AYLIK plana göre (12 × aylık vs teklif), badge_best_value'nun
+    // %51'i ile aynı mantık. Normal yıllığa göre %32 küçük görünüyordu; aylığa göre ~%67.
+    const offerPercentVsMonthly = useMemo(() => {
+        let monthly = products.find(p => p.packageType === 'MONTHLY');
+        if (!monthly) monthly = products.find(p => p.identifier === PRODUCT_IDS.MONTHLY || p.identifier.startsWith(PRODUCT_IDS.MONTHLY + ':'));
+        if (offerProduct?.price && monthly?.price && monthly.price * 12 > offerProduct.price) {
+            return Math.round((1 - offerProduct.price / (monthly.price * 12)) * 100);
+        }
+        return null;
+    }, [offerProduct, products]);
+
+    // Rozet/indirim satırında gösterilecek yüzde: önce aylığa göre, o yoksa yıllığa göre
+    const offerDisplayPercent = offerPercentVsMonthly || offerPercent;
+
+    // Teklifin aylık eşdeğeri (yıllık ÷ 12) — entegre kartın alt satırı için
+    const offerMonthlyEquivalent = useMemo(() => {
+        if (offerProduct?.price && offerProduct?.currencyCode) {
+            return formatPrice(offerProduct.price / 12, offerProduct.currencyCode);
+        }
+        return null;
+    }, [offerProduct, formatPrice]);
+
+    // Sheet açıkken süre dolarsa kendiliğinden kapansın — kullanıcı normal paywall'a düşer.
+    // canShowOffer taze start anında true olduğundan (cooldown '0') erken kapanma olmaz;
+    // süre dolunca cooldown set edilir ve false döner.
+    useEffect(() => {
+        if (showExitPopup && !isOfferActive && !canShowOffer()) {
+            setShowExitPopup(false);
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [showExitPopup, isOfferActive, timeLeft]);
+
     // Teklif ekranı açıldığında hafif haptic dokunuşu
     useEffect(() => {
         if (showExitPopup) selection();
@@ -517,6 +565,13 @@ export default function PremiumPaywall({ variant = 'default', offeringId = 'curr
             return;
         }
 
+        // "Tüm planları gör" ile sheet zaten kapatıldıysa X sheet'i yeniden açmaz, direkt çıkar.
+        if (offerSheetDismissed) {
+            analytics.paywallDismissed('confirmed');
+            navigate('/');
+            return;
+        }
+
         // If not showing any popup yet, check if we CAN show the offer OR if it's already active
         if (canShowOffer() || isOfferActive) {
             analytics.premiumDowngradeViewed();
@@ -529,7 +584,7 @@ export default function PremiumPaywall({ variant = 'default', offeringId = 'curr
         // If offer is exhausted/in cooldown, show standard exit popup
         analytics.premiumDowngradeViewed();
         setShowStandardExitPopup(true);
-    }, [navigate, showExitPopup, showStandardExitPopup, canShowOffer, startOffer, isOfferActive]);
+    }, [navigate, showExitPopup, showStandardExitPopup, offerSheetDismissed, canShowOffer, startOffer, isOfferActive]);
 
     // Map error codes to user-friendly messages
     const getErrorMessage = useCallback((error) => {
@@ -546,22 +601,26 @@ export default function PremiumPaywall({ variant = 'default', offeringId = 'curr
         return t('premium.iap_error_generic');
     }, [t]);
 
-    const handleOfferSubscribe = useCallback(async () => {
+    const handleOfferSubscribe = useCallback(async (source) => {
         if (isLoading) return;
         setIsLoading(true);
         setToast(null);
+
+        // Kaynak ayrımı: sheet CTA'sı onClick event objesi geçirir → 'yearly_offer';
+        // entegre yıllık karttan gelen delegasyon 'paywall_card' string'i geçirir.
+        const planLabel = source === 'paywall_card' ? 'yearly_offer_card' : 'yearly_offer';
 
         // Variant'a göre doğru teklif ürünü: A/B testinde (test_variant_b) 399, ana vitrinde 499.
         // offerProduct yüklenemediğinde fallback satın alma hedefi ve analytics bu id'yi kullanır.
         const productId = activeOfferingId === 'test_variant_b'
             ? PRODUCT_IDS.YEARLY_OFFER_399
             : PRODUCT_IDS.YEARLY_OFFER_499;
-        analytics.premiumPurchaseStarted('yearly_offer');
+        analytics.premiumPurchaseStarted(planLabel);
 
         const timeoutId = setTimeout(() => {
             setIsLoading(false);
             setToast({ type: 'error', message: t('premium.iap_timeout') });
-            analytics.premiumPurchaseFailed('yearly_offer', 'timeout');
+            analytics.premiumPurchaseFailed(planLabel, 'timeout');
         }, 60000);
 
         try {
@@ -574,11 +633,11 @@ export default function PremiumPaywall({ variant = 'default', offeringId = 'curr
                 setPremium(true);
                 setShowSuccess(true);
                 endOfferLiveActivity(); // Kilit ekranı sayacını kapat — teklif kullanıldı
-                analytics.premiumPurchaseCompleted('yearly_offer', offerProduct?.price || 0, productId);
+                analytics.premiumPurchaseCompleted(planLabel, offerProduct?.price || 0, productId);
             } else if (result.error && result.error !== 'cancelled') {
                 // 🔧 GEÇİCİ TANI (test aşaması): ham hatayı ekranda göster
                 setToast({ type: 'error', message: `TEST-OFFER • ürün:${offerProduct?.identifier || 'yok'} pkg:${offerProduct?.rcPackage ? 'var' : 'yok'} • ${String(result.error).slice(0, 220)}` });
-                analytics.premiumPurchaseFailed('yearly_offer', result.error);
+                analytics.premiumPurchaseFailed(planLabel, result.error);
             } else if (result.error === 'cancelled') {
                 analytics.premiumCancelled('user_cancelled');
             }
@@ -586,7 +645,7 @@ export default function PremiumPaywall({ variant = 'default', offeringId = 'curr
             clearTimeout(timeoutId);
             // 🔧 GEÇİCİ TANI (test aşaması): ham exception'ı ekranda göster
             setToast({ type: 'error', message: `TEST-OFFER • exception • ${String(err?.message || err).slice(0, 200)}` });
-            analytics.premiumPurchaseFailed('yearly_offer', 'exception');
+            analytics.premiumPurchaseFailed(planLabel, 'exception');
         } finally {
             setIsLoading(false);
         }
@@ -594,11 +653,18 @@ export default function PremiumPaywall({ variant = 'default', offeringId = 'curr
 
     const handleSubscribe = useCallback(async (explicitPlan) => {
         if (isLoading) return;
-        setIsLoading(true);
-        setToast(null);
 
         // Allow passing explicitPlan directly from onClick without waiting for React state to batch update
         const planName = typeof explicitPlan === 'string' ? explicitPlan : selectedPlan;
+
+        // Teklif aktif ve ürün yüklüyse yıllık satın alma teklif ürününe gider —
+        // kartta gösterilen fiyat ile çekilen ürün her zaman aynı olur.
+        if (planName === 'yearly' && offerOnYearly) {
+            return handleOfferSubscribe('paywall_card');
+        }
+
+        setIsLoading(true);
+        setToast(null);
         analytics.premiumPurchaseStarted(planName);
 
         // 60-second timeout (Apple sandbox can be slow)
@@ -641,7 +707,7 @@ export default function PremiumPaywall({ variant = 'default', offeringId = 'curr
         } finally {
             setIsLoading(false);
         }
-    }, [isLoading, selectedPlan, success, t, getErrorMessage, products]);
+    }, [isLoading, selectedPlan, success, t, getErrorMessage, products, offerOnYearly, handleOfferSubscribe]);
 
     const handleRestore = useCallback(async () => {
         if (isRestoring) return;
@@ -775,6 +841,43 @@ export default function PremiumPaywall({ variant = 'default', offeringId = 'curr
 
                 {/* ═══ CONTENT ═══ */}
                 <div className="relative z-10 flex-1 flex flex-col overflow-y-auto pw-scroll px-5 pt-[calc(0.5rem+env(safe-area-inset-top))] pb-[calc(0.75rem+env(safe-area-inset-bottom))] max-w-lg mx-auto w-full">
+
+                    {/* ── Son Teklif banner — sticky: scroll edilse de ekranın tepesinde kalır,
+                        geri sayım karar anında hep görünür ── */}
+                    <AnimatePresence>
+                        {offerOnYearly && (
+                            <motion.div
+                                className="sticky z-30 flex-shrink-0 flex justify-center mb-1.5 pointer-events-none"
+                                style={{ top: 'calc(env(safe-area-inset-top) + 0.25rem)' }}
+                                initial={{ opacity: 0, y: -8 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -8 }}
+                                transition={{ duration: 0.3 }}
+                            >
+                                <div
+                                    className={`flex items-center gap-2 rounded-full px-3.5 py-1.5 border ${isOfferCritical ? 'border-red-400/50' : 'border-[#D4AF37]/40'}`}
+                                    style={{
+                                        // Solid koyu zemin: içerik altından kayarken okunur kalsın (backdrop-blur yok — Android perf)
+                                        background: 'linear-gradient(180deg, rgba(13,74,46,0.96), rgba(4,28,17,0.96))',
+                                        boxShadow: isOfferCritical
+                                            ? '0 4px 18px rgba(239,68,68,0.25), 0 2px 8px rgba(0,0,0,0.4)'
+                                            : '0 4px 18px rgba(212,175,55,0.2), 0 2px 8px rgba(0,0,0,0.4)',
+                                        ...(isOfferCritical ? { animation: 'pw-critical 1s ease-in-out infinite' } : {}),
+                                    }}
+                                >
+                                    <span className={`text-[11px] font-black uppercase tracking-[0.15em] ${isOfferCritical ? 'text-red-400' : 'text-[#D4AF37]'}`}>
+                                        🔥 {t('premium.last_offer')}
+                                    </span>
+                                    <span
+                                        className={`tabular-nums text-[13px] font-black ${isOfferCritical ? 'text-red-400' : 'text-[#FFD700]'}`}
+                                        style={{ fontVariantNumeric: 'tabular-nums' }}
+                                    >
+                                        {formattedTime}
+                                    </span>
+                                </div>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
 
                     {/* ── Hero: Visual + Badge + Title ── */}
                     <motion.div
@@ -934,7 +1037,7 @@ export default function PremiumPaywall({ variant = 'default', offeringId = 'curr
                                 } else {
                                     selection();
                                     setSelectedPlan('yearly');
-                                    analytics.premiumPlanSelected('yearly', getPrice(PRODUCT_IDS.YEARLY, 'ANNUAL'));
+                                    analytics.premiumPlanSelected('yearly', offerOnYearly ? offerPriceString : getPrice(PRODUCT_IDS.YEARLY, 'ANNUAL'));
                                 }
                             }}
                             className={`flex-1 relative text-left p-3 rounded-xl border-2 transition-all overflow-hidden ${selectedPlan === 'yearly' ? 'border-[#D4AF37]/50 bg-[#D4AF37]/[0.06]' : 'border-[#D4AF37]/15 bg-[#D4AF37]/[0.02]'}`}
@@ -951,14 +1054,23 @@ export default function PremiumPaywall({ variant = 'default', offeringId = 'curr
                                 className="absolute -top-0 right-0 left-0 mx-auto w-fit px-3 py-1 rounded-b-lg text-[9px] font-black uppercase tracking-wider text-[#021a0f]"
                                 style={{ background: 'linear-gradient(135deg, #FFD700, #D4AF37)', animation: 'pw-badge 2s ease-in-out infinite', boxShadow: '0 2px 12px rgba(212,175,55,0.3)' }}
                             >
-                                🌟 {t('premium.badge_best_value')}
+                                {offerOnYearly && offerDisplayPercent
+                                    ? `🔥 ${t('premium.badge_savings_pct', { percent: offerDisplayPercent })}`
+                                    : `🌟 ${t('premium.badge_best_value')}`}
                             </div>
                             <p className="text-[#D4AF37] font-bold text-[13px] mt-2">{t('premium.plan_yearly')}</p>
-                            <p className="text-white/35 text-[10px] mt-0.5">{getMonthlyEquivalent() ? t('premium.monthly_label', { price: getMonthlyEquivalent() }) : '...'}</p>
-                            <p className="text-[#D4AF37] font-bold text-base mt-1">{getPrice(PRODUCT_IDS.YEARLY, 'ANNUAL') || '...'}</p>
+                            <p className="text-white/35 text-[10px] mt-0.5">{(offerOnYearly ? offerMonthlyEquivalent : getMonthlyEquivalent()) ? t('premium.monthly_label', { price: offerOnYearly ? offerMonthlyEquivalent : getMonthlyEquivalent() }) : '...'}</p>
+                            {offerOnYearly ? (
+                                <div className="mt-1">
+                                    <p className="text-white/60 text-[11px] font-semibold line-through leading-none" style={{ fontFeatureSettings: '"tnum"' }}>{getPrice(PRODUCT_IDS.YEARLY, 'ANNUAL') || '...'}</p>
+                                    <p className="text-[#FFD700] font-bold text-base" style={{ fontFeatureSettings: '"tnum"' }}>{offerPriceString || '...'}</p>
+                                </div>
+                            ) : (
+                                <p className="text-[#D4AF37] font-bold text-base mt-1">{getPrice(PRODUCT_IDS.YEARLY, 'ANNUAL') || '...'}</p>
+                            )}
                             <p className="text-[#D4AF37]/40 text-[10px]">/ {t('premium.year')}</p>
                             <div className="mt-1.5 pt-1.5 border-t border-[#D4AF37]/10">
-                                <p className="text-[#D4AF37]/60 text-[12px] font-semibold text-center">{getDailyPrice(PRODUCT_IDS.YEARLY, 'ANNUAL') ? `🔥 ${t('premium.daily_label', { price: getDailyPrice(PRODUCT_IDS.YEARLY, 'ANNUAL') })}` : '...'}</p>
+                                <p className="text-[#D4AF37]/60 text-[12px] font-semibold text-center">{(offerOnYearly ? offerDailyPrice : getDailyPrice(PRODUCT_IDS.YEARLY, 'ANNUAL')) ? `🔥 ${t('premium.daily_label', { price: offerOnYearly ? offerDailyPrice : getDailyPrice(PRODUCT_IDS.YEARLY, 'ANNUAL') })}` : '...'}</p>
                             </div>
                         </button>
                     </motion.div>
@@ -993,7 +1105,9 @@ export default function PremiumPaywall({ variant = 'default', offeringId = 'curr
                                 }}
                             />
                             <span className="relative z-10 block">
-                                {selectedPlan === 'yearly' ? t('premium.cta_trial') : t('premium.cta_subscribe')}
+                                {selectedPlan === 'yearly'
+                                    ? (offerOnYearly ? t('premium.use_offer') : t('premium.cta_trial'))
+                                    : t('premium.cta_subscribe')}
                             </span>
                         </motion.button>
                     </motion.div>
@@ -1002,19 +1116,25 @@ export default function PremiumPaywall({ variant = 'default', offeringId = 'curr
                     <div className="mt-3 flex-shrink-0">
                         <p className="text-center text-white/40 text-[12px] leading-relaxed">
                             🔔 {selectedPlan === 'yearly'
-                                ? t('premium.disclaimer_yearly', { price: `${getPrice(PRODUCT_IDS.YEARLY) || '...'}/${t('premium.year')}` })
+                                ? (offerOnYearly
+                                    ? t('premium.disclaimer_offer', { price: offerPriceString || '...' })
+                                    : t('premium.disclaimer_yearly', { price: `${getPrice(PRODUCT_IDS.YEARLY) || '...'}/${t('premium.year')}` }))
                                 : t('premium.disclaimer_monthly', { price: `${getPrice(PRODUCT_IDS.MONTHLY) || '...'}/${t('premium.month')}` })}
                         </p>
 
-                        {/* Trial badge — for both plans */}
-                        <div className="flex items-center justify-center gap-1.5 mt-2">
-                            <div className="w-4 h-4 rounded-md bg-[#D4AF37]/12 flex items-center justify-center">
-                                <BookOpen size={10} className="text-[#D4AF37]" />
+                        {/* Trial badge — teklif aktifken yıllıkta trial yerine indirim rozeti */}
+                        {!(selectedPlan === 'yearly' && offerOnYearly && !offerDisplayPercent) && (
+                            <div className="flex items-center justify-center gap-1.5 mt-2">
+                                <div className="w-4 h-4 rounded-md bg-[#D4AF37]/12 flex items-center justify-center">
+                                    <BookOpen size={10} className="text-[#D4AF37]" />
+                                </div>
+                                <span className="text-[#D4AF37]/60 text-[11px] font-bold">
+                                    {selectedPlan === 'yearly'
+                                        ? (offerOnYearly ? t('premium.offer_applied', { percent: offerDisplayPercent }) : t('premium.trial_included_yearly'))
+                                        : t('premium.trial_included_monthly')}
+                                </span>
                             </div>
-                            <span className="text-[#D4AF37]/60 text-[11px] font-bold">
-                                {selectedPlan === 'yearly' ? t('premium.trial_included_yearly') : t('premium.trial_included_monthly')}
-                            </span>
-                        </div>
+                        )}
 
 
                         <motion.div
@@ -1340,8 +1460,8 @@ export default function PremiumPaywall({ variant = 'default', offeringId = 'curr
                                     <div className="absolute inset-x-0 top-[52px] flex flex-col items-center">
                                         <motion.div className="flex items-center gap-2"
                                             initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.95 }}>
-                                            <span className="text-white/35 text-[10px] uppercase tracking-[0.18em] font-bold">{t('premium.normal_price')}</span>
-                                            <span className="relative text-white/45 text-[15px] font-semibold" style={{ fontFeatureSettings: '"tnum"' }}>
+                                            <span className="text-white/60 text-[10px] uppercase tracking-[0.18em] font-bold">{t('premium.normal_price')}</span>
+                                            <span className="relative text-white/75 text-[15px] font-semibold" style={{ fontFeatureSettings: '"tnum"' }}>
                                                 {getPrice(PRODUCT_IDS.YEARLY, 'ANNUAL') || '₺739,99'}
                                                 {/* El çizimi hissi veren üstü çizme animasyonu */}
                                                 <motion.span
@@ -1362,7 +1482,7 @@ export default function PremiumPaywall({ variant = 'default', offeringId = 'curr
                                                 {offerProduct?.priceString || '₺499,99'}
                                             </motion.span>
                                             {/* İndirim mührü — büyük fiyatın sağ üst köşesinde, ortalamayı bozmaz */}
-                                            {offerPercent && (
+                                            {offerDisplayPercent && (
                                                 <motion.span
                                                     className="absolute left-full top-1/2 -translate-y-1/2 ml-2 whitespace-nowrap text-[#021a0f] text-[12px] font-black tracking-tight rounded-full px-2 py-[3px] -rotate-[8deg]"
                                                     style={{
@@ -1374,7 +1494,7 @@ export default function PremiumPaywall({ variant = 'default', offeringId = 'curr
                                                     animate={{ opacity: 1, scale: 1, rotate: -8 }}
                                                     transition={{ delay: 1.55, type: 'spring', stiffness: 320, damping: 15 }}
                                                 >
-                                                    {t('premium.discount_pct_short', { percent: offerPercent })}
+                                                    {t('premium.discount_pct_short', { percent: offerDisplayPercent })}
                                                 </motion.span>
                                             )}
                                         </div>
@@ -1445,6 +1565,18 @@ export default function PremiumPaywall({ variant = 'default', offeringId = 'curr
                                     </motion.button>
                                 </motion.div>
 
+                                {/* Planları gör — sadece sheet'i kapatır, alttaki paywall açığa çıkar
+                                    (teklif entegre yıllık kartta yaşamaya devam eder) */}
+                                <button
+                                    onClick={() => {
+                                        trackEvent('offer_see_all_plans');
+                                        setShowExitPopup(false);
+                                        setOfferSheetDismissed(true);
+                                    }}
+                                    className="w-full text-center text-[#D4AF37]/70 text-[13px] font-semibold hover:text-[#D4AF37] transition-colors py-2"
+                                >
+                                    {t('premium.see_all_plans')}
+                                </button>
                                 {/* Dismiss */}
                                 <button
                                     onClick={() => navigate('/')}

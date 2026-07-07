@@ -1,10 +1,16 @@
-import html2canvas from 'html2canvas';
 import { Capacitor } from '@capacitor/core';
 import { Share } from '@capacitor/share';
 import { Filesystem, Directory } from '@capacitor/filesystem';
 import i18n from '../i18n';
 
 const t = (key, options) => i18n.t(`share.${key}`, { ns: 'common', ...options });
+
+// html2canvas lazy — ana bundle'a girmesin, sadece paylaşım anında yüklensin
+let _html2canvas;
+const html2canvas = async (...args) => {
+    if (!_html2canvas) _html2canvas = (await import('html2canvas')).default;
+    return _html2canvas(...args);
+};
 
 /**
  * Captures a screenshot of the ShareCard component and shares it

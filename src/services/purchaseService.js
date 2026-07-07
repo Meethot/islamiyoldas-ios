@@ -1,7 +1,7 @@
 import { Capacitor } from '@capacitor/core';
 import { Purchases, LOG_LEVEL } from '@revenuecat/purchases-capacitor';
 import { storageService } from './storageService';
-import { setPremiumUserProperties } from './analyticsService';
+import { setPremiumUserProperties, setAnalyticsUserId } from './analyticsService';
 
 // RevenueCat Public API Keys
 const RC_API_KEY_IOS = 'appl_hKXYxTRTsDPOKptWBGGHoFltKZc';
@@ -114,6 +114,15 @@ export async function initializePurchases() {
             });
 
             isInitialized = true;
+
+            // Amplitude ↔ RevenueCat kullanıcı eşleşmesi: RC'nin app user ID'si
+            // Amplitude userId olur — ödeme olayları analitikte aynı kullanıcıda birleşir.
+            try {
+                const { appUserID } = await Purchases.getAppUserID();
+                setAnalyticsUserId(appUserID);
+            } catch (e) {
+                console.warn('[RC] getAppUserID failed:', e);
+            }
 
             // Uygulama açılışında mevcut abonelikleri doğrula (migration güvenli)
             await verifySubscription(isMigrating);

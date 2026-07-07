@@ -19,6 +19,7 @@ import { useTranslation } from 'react-i18next';
 import { getFakePrayersByLang, normalizeLang } from '@/data/fakePrayers';
 import CreditPaywallModal from '@/components/CreditPaywallModal';
 import { analytics } from '@/services/analyticsService';
+import { useTheme } from '@/context/ThemeContext';
 
 
 
@@ -181,6 +182,9 @@ function generateFakeDuas(lang = 'tr') {
 export default function DuaKosesi() {
     const navigate = useNavigate();
     const { t, i18n } = useTranslation(['dua', 'settings']);
+    const { isDarkMode } = useTheme();
+    // Swal iconColor string aldığı için tek JS tema istisnası: light'ta yeşil, dark'ta altın
+    const swalIconColor = isDarkMode ? '#D4AF37' : '#044d29';
     const currentLang = normalizeLang(i18n.language);
     const [showForm, setShowForm] = useState(false);
     const [showHistory, setShowHistory] = useState(false);
@@ -564,16 +568,16 @@ export default function DuaKosesi() {
 
         if (dailyCount >= 2) {
             Swal.fire({
-                title: `<span class="text-[#D4AF37] font-serif tracking-wide">${t('dailyLimitTitle')}</span>`,
+                title: `<span class="text-islamic-green dark:text-[#D4AF37] font-serif tracking-wide">${t('dailyLimitTitle')}</span>`,
                 html: `
-            <div class="text-[#FFFDF5]/80 font-serif leading-relaxed">
+            <div class="text-stone-600 dark:text-[#FFFDF5]/80 font-serif leading-relaxed">
               <p class="mb-3 text-lg">${t('dailyLimitMsg')}</p>
               <p class="text-sm opacity-70">${t('dailyLimitSub')}</p>
             </div>
           `,
                 icon: 'info',
-                iconColor: '#D4AF37', // islamic-gold
-                background: '#032e18', // islamic-dark-green (Standard app background)
+                iconColor: swalIconColor,
+                background: 'transparent',
                 showConfirmButton: true,
                 confirmButtonText: t('dailyLimitBtn'),
                 // User said "green button" looked off. Gold button on Dark Green bg looks premium.
@@ -581,7 +585,7 @@ export default function DuaKosesi() {
                 confirmButtonColor: '#D4AF37',
                 buttonsStyling: true,
                 customClass: {
-                    popup: 'rounded-[2rem] border border-[#D4AF37]/20 shadow-2xl', // Gold border
+                    popup: '!bg-white dark:!bg-[#032e18] rounded-[2rem] border border-stone-200 dark:border-[#D4AF37]/20 shadow-2xl',
                     confirmButton: 'rounded-full px-8 py-3 font-bold text-[#021a0f]' // Dark text on Gold button
                 },
                 backdrop: `
@@ -596,21 +600,21 @@ export default function DuaKosesi() {
         // Profanity Filter
         if (containsBlockedWord(text)) {
             Swal.fire({
-                title: `<span class="text-[#D4AF37] font-serif tracking-wide">${t('profanityTitle')}</span>`,
+                title: `<span class="text-islamic-green dark:text-[#D4AF37] font-serif tracking-wide">${t('profanityTitle')}</span>`,
                 html: `
-                    <div class="text-[#FFFDF5]/80 font-serif leading-relaxed">
+                    <div class="text-stone-600 dark:text-[#FFFDF5]/80 font-serif leading-relaxed">
                         <p class="mb-3 text-lg">${t('profanityMsg')}</p>
                         <p class="text-sm opacity-70">${t('profanitySub')}</p>
                     </div>
                 `,
                 icon: 'warning',
-                iconColor: '#D4AF37',
-                background: '#032e18',
+                iconColor: swalIconColor,
+                background: 'transparent',
                 showConfirmButton: true,
                 confirmButtonText: t('profanityBtn'),
                 confirmButtonColor: '#D4AF37',
                 customClass: {
-                    popup: 'rounded-[2rem] border border-[#D4AF37]/20 shadow-2xl',
+                    popup: '!bg-white dark:!bg-[#032e18] rounded-[2rem] border border-stone-200 dark:border-[#D4AF37]/20 shadow-2xl',
                     confirmButton: 'rounded-full px-8 py-3 font-bold text-[#021a0f]'
                 },
                 backdrop: 'rgba(0,0,0,0.85)'
@@ -681,25 +685,25 @@ export default function DuaKosesi() {
             // Scenario 2: Approved Prayer -> Request Deletion
             if (request.status === 'approved') {
                 const result = await Swal.fire({
-                    title: `<span class="text-[#D4AF37] font-serif tracking-wide">${t('deleteRequestTitle')}</span>`,
+                    title: `<span class="text-islamic-green dark:text-[#D4AF37] font-serif tracking-wide">${t('deleteRequestTitle')}</span>`,
                     html: `
-                    <div class="text-[#FFFDF5]/80 font-serif leading-relaxed">
+                    <div class="text-stone-600 dark:text-[#FFFDF5]/80 font-serif leading-relaxed">
                       <p class="mb-3">${t('deleteRequestMsg')}</p>
                       <p class="text-sm opacity-70">${t('deleteRequestSub')}</p>
                     </div>
                   `,
                     icon: 'warning',
-                    iconColor: '#D4AF37',
-                    background: '#032e18',
+                    iconColor: swalIconColor,
+                    background: 'transparent',
                     showCancelButton: true,
                     confirmButtonText: t('deleteRequestConfirm'),
                     cancelButtonText: t('deleteRequestCancel'),
                     confirmButtonColor: '#d33', // Red for delete action
-                    cancelButtonColor: '#374151',
+                    cancelButtonColor: isDarkMode ? '#374151' : '#e7e5e4',
                     customClass: {
-                        popup: 'rounded-[2rem] border border-[#D4AF37]/20 shadow-2xl',
+                        popup: '!bg-white dark:!bg-[#032e18] rounded-[2rem] border border-stone-200 dark:border-[#D4AF37]/20 shadow-2xl',
                         confirmButton: 'rounded-xl px-6 py-3 font-bold',
-                        cancelButton: 'rounded-xl px-6 py-3 font-medium text-gray-300'
+                        cancelButton: 'rounded-xl px-6 py-3 font-medium text-stone-600 dark:text-gray-300'
                     }
                 });
 
@@ -718,11 +722,15 @@ export default function DuaKosesi() {
                         title: t('deleteRequestSuccess'),
                         text: t('deleteRequestSuccessMsg'),
                         icon: 'success',
-                        background: '#032e18',
-                        color: '#FFFDF5',
+                        background: 'transparent',
                         confirmButtonColor: '#D4AF37',
                         timer: 2000,
-                        showConfirmButton: false
+                        showConfirmButton: false,
+                        customClass: {
+                            popup: '!bg-white dark:!bg-[#032e18] rounded-[2rem] border border-stone-200 dark:border-[#D4AF37]/20 shadow-2xl',
+                            title: 'text-stone-800 dark:text-[#FFFDF5]',
+                            htmlContainer: '!text-stone-600 dark:!text-[#FFFDF5]/80'
+                        }
                     });
                 }
                 return;
@@ -1046,15 +1054,15 @@ export default function DuaKosesi() {
                                         setShowCreditAnim(true);
                                         setTimeout(() => setShowCreditAnim(false), 1200);
                                         Swal.fire({
-                                            title: `<span class="text-emerald-400 font-serif">${t('adSuccessTitle')}</span>`,
-                                            html: `<p class="text-[#FFFDF5]/80 font-serif">${t('adSuccessTotalMsg', { reward: CREDIT_COSTS.AD_REWARD, credits: newCreds })}</p>`,
+                                            title: `<span class="text-emerald-700 dark:text-emerald-400 font-serif">${t('adSuccessTitle')}</span>`,
+                                            html: `<p class="text-stone-600 dark:text-[#FFFDF5]/80 font-serif">${t('adSuccessTotalMsg', { reward: CREDIT_COSTS.AD_REWARD, credits: newCreds })}</p>`,
                                             icon: 'success',
                                             iconColor: '#10b981',
-                                            background: '#032e18',
+                                            background: 'transparent',
                                             confirmButtonText: t('adSuccessBtn'),
                                             confirmButtonColor: '#D4AF37',
                                             customClass: {
-                                                popup: 'rounded-[2rem] border border-emerald-500/20 shadow-2xl',
+                                                popup: '!bg-white dark:!bg-[#032e18] rounded-[2rem] border border-emerald-500/20 shadow-2xl',
                                                 confirmButton: 'rounded-full px-8 py-3 font-bold text-[#021a0f]'
                                             },
                                             backdrop: 'rgba(0,0,0,0.85)',
@@ -1063,15 +1071,15 @@ export default function DuaKosesi() {
                                     }
                                 } catch {
                                     Swal.fire({
-                                        title: `<span class="text-red-400 font-serif">${t('adFailTitle')}</span>`,
-                                        html: `<p class="text-[#FFFDF5]/60 font-serif">${t('adFailMsg')}</p>`,
+                                        title: `<span class="text-red-500 dark:text-red-400 font-serif">${t('adFailTitle')}</span>`,
+                                        html: `<p class="text-stone-500 dark:text-[#FFFDF5]/60 font-serif">${t('adFailMsg')}</p>`,
                                         icon: 'error',
                                         iconColor: '#ef4444',
-                                        background: '#032e18',
+                                        background: 'transparent',
                                         confirmButtonText: t('adSuccessBtn'),
                                         confirmButtonColor: '#D4AF37',
                                         customClass: {
-                                            popup: 'rounded-[2rem] border border-red-500/20 shadow-2xl',
+                                            popup: '!bg-white dark:!bg-[#032e18] rounded-[2rem] border border-red-500/20 shadow-2xl',
                                             confirmButton: 'rounded-full px-8 py-3 font-bold text-[#021a0f]'
                                         },
                                         backdrop: 'rgba(0,0,0,0.85)'
@@ -1081,7 +1089,7 @@ export default function DuaKosesi() {
                                 }
                             }}
                             disabled={isAdLoading}
-                            className="w-full h-12 bg-gradient-to-r from-emerald-600/20 to-emerald-700/20 border border-emerald-500/30 text-emerald-400 rounded-2xl font-bold gap-2 hover:from-emerald-600/30 hover:to-emerald-700/30 disabled:opacity-50 transition-all"
+                            className="w-full h-12 bg-gradient-to-r from-emerald-600/20 to-emerald-700/20 border border-emerald-500/30 text-emerald-700 dark:text-emerald-400 rounded-2xl font-bold gap-2 hover:from-emerald-600/30 hover:to-emerald-700/30 disabled:opacity-50 transition-all"
                         >
                             <Film size={16} />
                             {isAdLoading ? t('adLoading') : t('watchAd', { reward: CREDIT_COSTS.AD_REWARD })}
@@ -1154,15 +1162,15 @@ export default function DuaKosesi() {
                                 const newCreds = addCredit(CREDIT_COSTS.AD_REWARD);
                                 setCredits(newCreds);
                                 Swal.fire({
-                                    title: `<span class="text-emerald-400 font-serif">${t('adSuccessTitle')}</span>`,
-                                    html: `<p class="text-[#FFFDF5]/80 font-serif">${t('adSuccessMsg', { reward: CREDIT_COSTS.AD_REWARD, credits: newCreds })}</p>`,
+                                    title: `<span class="text-emerald-700 dark:text-emerald-400 font-serif">${t('adSuccessTitle')}</span>`,
+                                    html: `<p class="text-stone-600 dark:text-[#FFFDF5]/80 font-serif">${t('adSuccessMsg', { reward: CREDIT_COSTS.AD_REWARD, credits: newCreds })}</p>`,
                                     icon: 'success',
                                     iconColor: '#10b981',
-                                    background: '#032e18',
+                                    background: 'transparent',
                                     confirmButtonText: t('adSuccessBtn'),
                                     confirmButtonColor: '#D4AF37',
                                     customClass: {
-                                        popup: 'rounded-[2rem] border border-emerald-500/20 shadow-2xl',
+                                        popup: '!bg-white dark:!bg-[#032e18] rounded-[2rem] border border-emerald-500/20 shadow-2xl',
                                         confirmButton: 'rounded-full px-8 py-3 font-bold text-[#021a0f]'
                                     },
                                     backdrop: 'rgba(0,0,0,0.85)',
@@ -1171,15 +1179,15 @@ export default function DuaKosesi() {
                             }
                         } catch {
                             Swal.fire({
-                                title: `<span class="text-red-400 font-serif">${t('adFailTitle')}</span>`,
-                                html: `<p class="text-[#FFFDF5]/60 font-serif">${t('adFailMsg')}</p>`,
+                                title: `<span class="text-red-500 dark:text-red-400 font-serif">${t('adFailTitle')}</span>`,
+                                html: `<p class="text-stone-500 dark:text-[#FFFDF5]/60 font-serif">${t('adFailMsg')}</p>`,
                                 icon: 'error',
                                 iconColor: '#ef4444',
-                                background: '#032e18',
+                                background: 'transparent',
                                 confirmButtonText: t('adSuccessBtn'),
                                 confirmButtonColor: '#D4AF37',
                                 customClass: {
-                                    popup: 'rounded-[2rem] border border-red-500/20 shadow-2xl',
+                                    popup: '!bg-white dark:!bg-[#032e18] rounded-[2rem] border border-red-500/20 shadow-2xl',
                                     confirmButton: 'rounded-full px-8 py-3 font-bold text-[#021a0f]'
                                 },
                                 backdrop: 'rgba(0,0,0,0.85)'

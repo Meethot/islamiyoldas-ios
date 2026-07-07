@@ -20,17 +20,6 @@
     "title": "Bildirimler",
     "subtitle": "Ezan, ayet ve motivasyon"
   },
-  "privacy": {
-    "title": "Gizlilik & Güvenlik",
-    "subtitle": "Veri koruma ve kilit",
-    "modal_title": "Veri & Gizlilik",
-    "data_info": "Verileriniz sadece <strong>bu cihazda</strong> saklanır. Sunucularımıza hiçbir veri gönderilmez.",
-    "download": "Verilerimi İndir",
-    "delete_all": "Tüm Verileri Sil",
-    "delete_confirm": "Tüm verileriniz kalıcı olarak silinecektir. Bu işlem geri alınamaz.",
-    "delete_cancel": "Vazgeç",
-    "delete_yes": "Evet, Sil"
-  },
   "appearance": {
     "title": "Görünüm",
     "dark_active": "Huzur Teması",

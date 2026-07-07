@@ -56,7 +56,9 @@ export default {
       fontFamily: {
         sans: ['Inter', 'sans-serif'],
         // BURAYA DİKKAT: Amiri fontunu ekledim, Zikirmatik'teki Arapça/Osmanlı havası için.
-        serif: ['Amiri', 'Playfair Display', 'serif']
+        serif: ['Amiri', 'Playfair Display', 'serif'],
+        // Header başlığı için native sistem fontu (iOS'ta SF Pro, Android'de Roboto)
+        display: ['-apple-system', 'BlinkMacSystemFont', 'SF Pro Display', 'Segoe UI', 'Roboto', 'system-ui', 'sans-serif']
       },
       borderRadius: {
         lg: 'var(--radius)',

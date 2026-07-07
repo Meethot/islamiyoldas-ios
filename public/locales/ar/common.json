@@ -93,6 +93,7 @@
         "plan_yearly": "الخطة السنوية",
         "plan_yearly_per_month": "فقط 83.00 ليرة / شهر",
         "badge_best_value": "الأفضل قيمة - وفر 51%",
+        "badge_savings_pct": "وفر {{percent}}%",
         "trial_included_monthly": "تجربة مجانية لمدة 3 أيام",
         "trial_included_yearly": "تجربة مجانية لمدة 7 أيام",
         "month": "شهر",
@@ -171,6 +172,9 @@
         "feat_all_premium": "جميع ميزات Premium",
         "use_offer": "احصل على العرض",
         "cancel_offer": "إلغاء العرض والخروج",
+        "see_all_plans": "عرض جميع الخطط",
+        "disclaimer_offer": "سعر عرض خاص. يتجدد الاشتراك سنوياً تلقائياً بسعر {{price}}. يمكنك الإلغاء في أي وقت.",
+        "offer_applied": "تم تطبيق خصم {{percent}}٪",
         "discount_badge_pct": "خصم {{percent}}%",
         "discount_pct_short": "−{{percent}}%",
         "last_offer": "العرض الأخير"

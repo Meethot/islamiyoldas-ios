@@ -319,11 +319,20 @@ export async function showInterstitialAd() {
 
 // ─── BANNER AD (Alt menü üstünde sürekli döner) ───
 let bannerShouldBeVisible = false;
+let bannerActive = false; // Native tarafta banner var mı (show başarılı, henüz remove edilmedi)
+let bannerOpChain = Promise.resolve();
+
+// Banner işlemlerini serileştir: eşzamanlı show/hide native tarafta (BannerExecutor)
+// race yaratıp NPE crash üretiyor (Play Console: lambda$hideBanner$1)
+function enqueueBannerOp(op) {
+    bannerOpChain = bannerOpChain.catch(() => {}).then(op);
+    return bannerOpChain;
+}
 
 export async function showBannerAd() {
     console.log('[AdMob] showBannerAd tetiklendi.');
     bannerShouldBeVisible = true;
-    
+
     if (!shouldShowAds()) {
         console.log('[AdMob] Banner gösterim koşulları sağlanmadı (Premium veya 3. gün değil).');
         hideBannerAd();
@@ -342,52 +351,49 @@ export async function showBannerAd() {
         return;
     }
 
-    // Eğer init sırasında hideBannerAd çağrıldıysa gösterme
-    if (!bannerShouldBeVisible) {
-        console.log('[AdMob] Banner iptal edildi (hideBannerAd çağrılmış).');
-        return;
-    }
-
     const platform = Capacitor.getPlatform();
     const adId = platform === 'ios'
         ? AD_IDS.BANNER.ios
         : AD_IDS.BANNER.android;
 
-    try {
-        await AdMob.showBanner({
-            adId,
-            adSize: 'ADAPTIVE_BANNER',
-            position: 'BOTTOM_CENTER',
-            margin: 75,
-            isTesting: false
-        });
-        console.log('[AdMob] Banner başarıyla gösterildi.');
-        
-        // Eğer gösterim tamamlandığı anda gizlenmesi istenmişse hemen gizle
+    return enqueueBannerOp(async () => {
+        // Init/kuyruk beklerken hideBannerAd çağrıldıysa gösterme
         if (!bannerShouldBeVisible) {
-            hideBannerAd();
+            console.log('[AdMob] Banner iptal edildi (hideBannerAd çağrılmış).');
+            return;
         }
-    } catch (error) {
-        console.error('[AdMob] Banner gösterim hatası:', error);
-    }
+
+        try {
+            await AdMob.showBanner({
+                adId,
+                adSize: 'ADAPTIVE_BANNER',
+                position: 'BOTTOM_CENTER',
+                margin: 75,
+                isTesting: false
+            });
+            bannerActive = true;
+            console.log('[AdMob] Banner başarıyla gösterildi.');
+        } catch (error) {
+            console.error('[AdMob] Banner gösterim hatası:', error);
+        }
+    });
 }
 
 export async function hideBannerAd() {
     bannerShouldBeVisible = false;
     if (!IS_NATIVE) return;
-    
-    const attemptHide = async () => {
-        try {
-            await AdMob.hideBanner();
-            await AdMob.removeBanner();
-            console.log('[AdMob] Banner gizlendi ve temizlendi.');
-        } catch (error) {}
-    };
 
-    // Race condition'ları engellemek için agresif gizleme:
-    // Hemen, 500ms, 1000ms ve 2000ms sonra tekrar tekrar dene
-    await attemptHide();
-    setTimeout(attemptHide, 500);
-    setTimeout(attemptHide, 1000);
-    setTimeout(attemptHide, 2000);
+    return enqueueBannerOp(async () => {
+        // Hiç gösterilmemiş / zaten silinmiş banner'ı gizlemeye çalışma —
+        // remove sonrası gelen hideBanner çağrısı native NPE'nin kaynağıydı
+        if (!bannerActive) return;
+        bannerActive = false;
+
+        try { await AdMob.hideBanner(); } catch (error) {}
+        try { await AdMob.removeBanner(); } catch (error) {}
+        // removeBanner UI thread'e iş atıp hemen döner; sıradaki banner işleminden
+        // önce native tarafın temizliği bitirmesi için kısa bekleme
+        await new Promise((resolve) => setTimeout(resolve, 100));
+        console.log('[AdMob] Banner gizlendi ve temizlendi.');
+    });
 }

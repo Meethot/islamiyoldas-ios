@@ -148,8 +148,8 @@ export default function AppLayout() {
                         "px-6 pb-2 flex justify-between items-center bg-[#FBF9F4]/80 dark:bg-[#032e18]/80 backdrop-blur-md sticky top-0 z-40 border-b border-amber-100/50 dark:border-white/5",
                         isIOS ? "pt-[env(safe-area-inset-top,2rem)]" : "header-safe-padding"
                     )}>
-                        <div className="flex flex-col">
-                            <span className="text-[11px] font-semibold tracking-wide text-gray-500 dark:text-emerald-100/60 uppercase mb-0.5 animate-in fade-in slide-in-from-left duration-700">
+                        <div className="flex flex-col min-w-0 mr-2">
+                            <span className="text-[11px] font-semibold tracking-[0.14em] text-stone-500/90 dark:text-emerald-100/60 uppercase mb-0.5 truncate animate-in fade-in slide-in-from-left duration-700">
                                 {(() => {
                                     const hour = new Date().getHours();
                                     if (hour >= 5 && hour < 12) return t('greeting.morning');
@@ -158,7 +158,7 @@ export default function AppLayout() {
                                     return t('greeting.night');
                                 })()}
                             </span>
-                            <h1 className="text-[22px] font-extrabold tracking-tight text-islamic-green dark:text-islamic-gold">
+                            <h1 className="font-display text-[24px] font-semibold tracking-tight leading-tight text-islamic-green dark:text-islamic-gold">
                                 {t('header.appName')}
                             </h1>
                         </div>

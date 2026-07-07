@@ -92,7 +92,7 @@ export default function PrayerRewardModal({ isOpen, onClose, content, prayerName
                         className="fixed inset-0 z-50 flex items-center justify-center p-6 pointer-events-none"
                     >
                         <div
-                            className="glass-panel max-w-md w-full rounded-3xl overflow-hidden shadow-2xl pointer-events-auto border-2 border-white/20 dark:border-islamic-gold/30"
+                            className="glass-panel max-w-md w-full rounded-3xl overflow-hidden shadow-2xl pointer-events-auto border-2 border-stone-200 dark:border-islamic-gold/30"
                             onClick={(e) => e.stopPropagation()}
                         >
                             {/* Header with gentle glow */}

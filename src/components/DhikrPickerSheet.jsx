@@ -53,8 +53,8 @@ const DhikrItem = React.memo(({ item, isActive, onSelect, meaning, isEsma }) => 
       className={cn(
         "w-full text-left px-4 py-3.5 rounded-2xl transition-all active:scale-[0.98] border",
         isActive
-          ? "bg-islamic-gold/15 border-islamic-gold/40 shadow-[0_0_20px_rgba(212,175,55,0.1)]"
-          : "bg-white/[0.03] border-white/5 hover:bg-white/[0.06] hover:border-white/10"
+          ? "bg-islamic-green/10 border-islamic-green/30 dark:bg-islamic-gold/15 dark:border-islamic-gold/40 dark:shadow-[0_0_20px_rgba(212,175,55,0.1)]"
+          : "bg-white dark:bg-white/[0.03] border-stone-200/80 dark:border-white/5 hover:bg-stone-50 dark:hover:bg-white/[0.06] hover:border-stone-300 dark:hover:border-white/10"
       )}
     >
       <div className="flex items-center gap-3">
@@ -62,7 +62,7 @@ const DhikrItem = React.memo(({ item, isActive, onSelect, meaning, isEsma }) => 
         {isEsma && (
           <div className={cn(
             "w-8 h-8 rounded-lg flex items-center justify-center text-[11px] font-bold flex-shrink-0",
-            isActive ? "bg-islamic-gold/20 text-islamic-gold" : "bg-white/5 text-white/30"
+            isActive ? "bg-islamic-green/15 text-islamic-green dark:bg-islamic-gold/20 dark:text-islamic-gold" : "bg-stone-100 text-stone-400 dark:bg-white/5 dark:text-white/30"
           )}>
             {item.number}
           </div>
@@ -71,7 +71,7 @@ const DhikrItem = React.memo(({ item, isActive, onSelect, meaning, isEsma }) => 
         {/* Arabic text */}
         <p className={cn(
           "font-serif text-xl flex-shrink-0",
-          isActive ? "text-islamic-gold" : "text-white/80"
+          isActive ? "text-islamic-green dark:text-islamic-gold" : "text-stone-700 dark:text-white/80"
         )} dir="rtl">
           {item.arabic}
         </p>
@@ -80,11 +80,11 @@ const DhikrItem = React.memo(({ item, isActive, onSelect, meaning, isEsma }) => 
         <div className="flex-1 min-w-0 ml-1">
           <p className={cn(
             "text-sm font-semibold truncate",
-            isActive ? "text-islamic-gold" : "text-white/70"
+            isActive ? "text-islamic-green dark:text-islamic-gold" : "text-stone-600 dark:text-white/70"
           )}>
             {item.transliteration || item.name}
           </p>
-          <p className="text-[11px] text-white/30 truncate leading-tight mt-0.5">
+          <p className="text-[11px] text-stone-400 dark:text-white/30 truncate leading-tight mt-0.5">
             {meaning}
           </p>
         </div>
@@ -94,9 +94,9 @@ const DhikrItem = React.memo(({ item, isActive, onSelect, meaning, isEsma }) => 
           <motion.div
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
-            className="w-6 h-6 rounded-full bg-islamic-gold/20 flex items-center justify-center flex-shrink-0"
+            className="w-6 h-6 rounded-full bg-islamic-green/15 dark:bg-islamic-gold/20 flex items-center justify-center flex-shrink-0"
           >
-            <div className="w-2.5 h-2.5 rounded-full bg-islamic-gold" />
+            <div className="w-2.5 h-2.5 rounded-full bg-islamic-green dark:bg-islamic-gold" />
           </motion.div>
         )}
       </div>
@@ -232,10 +232,10 @@ export default function DhikrPickerSheet({ isOpen, onClose, activePreset, dhikrP
             dragElastic={0.1}
             onDragEnd={handleDragEnd}
             className={cn(
-              "fixed bottom-0 left-0 right-0 z-[201] flex flex-col bg-[#061f14] shadow-[0_-20px_60px_rgba(0,0,0,0.5)] overflow-hidden transition-[max-height,border-radius,border-color] duration-300 ease-out",
-              isInputFocused 
-                ? "max-h-[100vh] h-full rounded-t-none border-t-0" 
-                : "max-h-[85vh] rounded-t-[2rem] border-t border-white/10"
+              "fixed bottom-0 left-0 right-0 z-[201] flex flex-col bg-[#FAF8F3] dark:bg-[#061f14] shadow-[0_-20px_60px_rgba(0,0,0,0.15)] dark:shadow-[0_-20px_60px_rgba(0,0,0,0.5)] overflow-hidden transition-[max-height,border-radius,border-color] duration-300 ease-out",
+              isInputFocused
+                ? "max-h-[100vh] h-full rounded-t-none border-t-0"
+                : "max-h-[85vh] rounded-t-[2rem] border-t border-stone-200 dark:border-white/10"
             )}
           >
             {/* Drag Handle or iOS Safe Area Top Margin */}
@@ -243,7 +243,7 @@ export default function DhikrPickerSheet({ isOpen, onClose, activePreset, dhikrP
               <div className="h-[env(safe-area-inset-top,20px)] flex-shrink-0" />
             ) : (
               <div className="flex justify-center py-3 cursor-grab active:cursor-grabbing flex-shrink-0">
-                <div className="w-10 h-1 rounded-full bg-white/20" />
+                <div className="w-10 h-1 rounded-full bg-stone-300 dark:bg-white/20" />
               </div>
             )}
 
@@ -251,16 +251,16 @@ export default function DhikrPickerSheet({ isOpen, onClose, activePreset, dhikrP
             <div className="px-5 pb-4 flex-shrink-0">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2.5">
-                  <div className="w-9 h-9 rounded-xl bg-islamic-gold/10 flex items-center justify-center border border-islamic-gold/20">
-                    <Sparkles size={18} className="text-islamic-gold" />
+                  <div className="w-9 h-9 rounded-xl bg-islamic-green/10 dark:bg-islamic-gold/10 flex items-center justify-center border border-islamic-green/20 dark:border-islamic-gold/20">
+                    <Sparkles size={18} className="text-islamic-green dark:text-islamic-gold" />
                   </div>
-                  <h3 className="text-lg font-serif font-bold text-white">
+                  <h3 className="text-lg font-serif font-bold text-stone-900 dark:text-white">
                     {t('changeDhikr', { defaultValue: 'Zikir Değiştir' })}
                   </h3>
                 </div>
                 <button
                   onClick={onClose}
-                  className="w-9 h-9 rounded-xl bg-white/5 hover:bg-white/10 flex items-center justify-center text-white/40 hover:text-white transition-all border border-white/10"
+                  className="w-9 h-9 rounded-xl bg-stone-100 hover:bg-stone-200 dark:bg-white/5 dark:hover:bg-white/10 flex items-center justify-center text-stone-400 hover:text-stone-700 dark:text-white/40 dark:hover:text-white transition-all border border-stone-200 dark:border-white/10"
                 >
                   <X size={18} />
                 </button>
@@ -268,7 +268,7 @@ export default function DhikrPickerSheet({ isOpen, onClose, activePreset, dhikrP
 
               {/* Search Bar */}
               <div className="relative mb-4">
-                <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/25" />
+                <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-400 dark:text-white/25" />
                 <input
                   ref={inputRef}
                   type="text"
@@ -285,12 +285,12 @@ export default function DhikrPickerSheet({ isOpen, onClose, activePreset, dhikrP
                     }, 250);
                   }}
                   placeholder={t('searchPlaceholder', { defaultValue: 'Zikir veya esma ara...' })}
-                  className="w-full bg-white/[0.04] border border-white/8 rounded-xl py-2.5 pl-10 pr-4 text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-islamic-gold/30 transition-all"
+                  className="w-full bg-white dark:bg-white/[0.04] border border-stone-200 dark:border-white/8 rounded-xl py-2.5 pl-10 pr-4 text-sm text-stone-800 dark:text-white placeholder:text-stone-400 dark:placeholder:text-white/20 focus:outline-none focus:border-islamic-green/40 dark:focus:border-islamic-gold/30 transition-all"
                 />
                 {searchQuery && (
                   <button
                     onClick={() => setSearchQuery('')}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600 dark:text-white/30 dark:hover:text-white/60"
                   >
                     <X size={14} />
                   </button>
@@ -299,7 +299,7 @@ export default function DhikrPickerSheet({ isOpen, onClose, activePreset, dhikrP
 
               {/* Category Tabs or Search Results Header */}
               {!searchQuery.trim() ? (
-                <div className="flex gap-1.5 bg-white/[0.03] p-1 rounded-xl border border-white/5">
+                <div className="flex gap-1.5 bg-stone-100 dark:bg-white/[0.03] p-1 rounded-xl border border-stone-200/80 dark:border-white/5">
                   {CATEGORIES.map(cat => (
                     <button
                       key={cat}
@@ -307,8 +307,8 @@ export default function DhikrPickerSheet({ isOpen, onClose, activePreset, dhikrP
                       className={cn(
                         "flex-1 py-2 rounded-lg text-xs font-bold uppercase tracking-[0.15em] transition-all",
                         activeCategory === cat
-                          ? "bg-islamic-gold/15 text-islamic-gold border border-islamic-gold/20 shadow-lg shadow-islamic-gold/5"
-                          : "text-white/35 hover:text-white/50"
+                          ? "bg-white text-islamic-green border border-islamic-green/20 shadow-sm dark:bg-islamic-gold/15 dark:text-islamic-gold dark:border-islamic-gold/20 dark:shadow-lg dark:shadow-islamic-gold/5"
+                          : "text-stone-400 hover:text-stone-600 dark:text-white/35 dark:hover:text-white/50"
                       )}
                     >
                       {cat === 'dhikr'
@@ -319,7 +319,7 @@ export default function DhikrPickerSheet({ isOpen, onClose, activePreset, dhikrP
                   ))}
                 </div>
               ) : (
-                <div className="text-[10px] font-bold text-white/35 uppercase tracking-[0.2em] px-1 py-1.5">
+                <div className="text-[10px] font-bold text-stone-400 dark:text-white/35 uppercase tracking-[0.2em] px-1 py-1.5">
                   {t('searchResults', { defaultValue: 'Arama Sonuçları' })} ({filteredItems.length})
                 </div>
               )}
@@ -336,8 +336,8 @@ export default function DhikrPickerSheet({ isOpen, onClose, activePreset, dhikrP
             >
               {filteredItems.length === 0 ? (
                 <div className="text-center py-12">
-                  <Search size={32} className="text-white/10 mx-auto mb-3" />
-                  <p className="text-white/25 text-sm">
+                  <Search size={32} className="text-stone-300 dark:text-white/10 mx-auto mb-3" />
+                  <p className="text-stone-400 dark:text-white/25 text-sm">
                     {t('noResults', { defaultValue: 'Sonuç bulunamadı' })}
                   </p>
                 </div>

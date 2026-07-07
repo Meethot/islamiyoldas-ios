@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { getAppDate, getDailyPrayersKey, getTodayString } from '@/lib/testDate';
 import { Button } from '@/components/ui/button';
 import {
-    User, Settings, Shield, Bell, HelpCircle, RefreshCw,
-    ChevronRight, LogOut, Heart, Crown, Check, Moon, MoonStar, Sun, Download, Trash2, X, Flame, CalendarDays,
+    User, Settings, Bell, HelpCircle, RefreshCw,
+    ChevronRight, LogOut, Heart, Crown, Check, Moon, MoonStar, Sun, Trash2, X, Flame, CalendarDays,
     BookOpen, Box, Landmark, Camera, Pen, Share2, UserPlus, Globe, Bug, Ticket, Gift, Sparkles, Type, Clock, Activity, Star
 } from 'lucide-react';
 import { triggerReviewPrompt } from '@/components/ReviewPrompt';
@@ -19,10 +19,7 @@ import { useTheme } from '@/context/ThemeContext';
 import { useFontSize } from '@/context/FontSizeContext';
 import AvatarIcon from '@/components/AvatarIcon';
 import ShareCard, { SHARE_THEMES } from '@/components/ShareCard';
-import { Capacitor } from '@capacitor/core';
 import { isPremium as checkIsPremium, setPremium } from '@/services/creditService';
-import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
-import { Share } from '@capacitor/share';
 import { CapgoInAppReview as InAppReview } from '@capgo/capacitor-in-app-review';
 import { storageService } from '@/services/storageService';
 import { usePrayerTimes } from '@/context/PrayerTimesContext';
@@ -108,8 +105,6 @@ export default function Profile() {
     const [showAvatarModal, setShowAvatarModal] = useState(false);
     const [streak, setStreak] = useState('0');
     const [notifications, setNotifications] = useState(true);
-    const [showPrivacyModal, setShowPrivacyModal] = useState(false);
-    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [showFontSizeModal, setShowFontSizeModal] = useState(false);
 
     // Name Editing State
@@ -743,20 +738,6 @@ export default function Profile() {
                         </div>
                     </div>
 
-                    {/* Privacy Modal Trigger */}
-                    <div className="p-5 flex items-center justify-between hover:bg-stone-50 dark:hover:bg-white/5 transition-colors cursor-pointer group" onClick={() => setShowPrivacyModal(true)}>
-                        <div className="flex items-center gap-4">
-                            <div className="p-3 bg-blue-100/80 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 rounded-2xl group-hover:scale-110 transition-transform">
-                                <Shield size={20} />
-                            </div>
-                            <div className="text-left">
-                                <p className="text-sm font-bold text-stone-800 dark:text-white">{t('privacy.title')}</p>
-                                <p className="text-xs text-stone-500 dark:text-gray-400 font-medium">{t('privacy.subtitle')}</p>
-                            </div>
-                        </div>
-                        <ChevronRight className="w-5 h-5 text-stone-400 dark:text-gray-300 group-hover:translate-x-1 transition-transform" />
-                    </div>
-
                     {/* Bizi Puanla */}
                     <div
                         className={`p-5 flex items-center justify-between transition-colors ${hasRated ? 'opacity-70' : 'hover:bg-stone-50 dark:hover:bg-white/5 cursor-pointer group'}`}
@@ -836,122 +817,6 @@ export default function Profile() {
                 </Button>
             </motion.div>
 
-
-            {/* Privacy Modal */}
-            <AnimatePresence>
-                {showPrivacyModal && (
-                    <motion.div
-                        initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
-                        onClick={() => setShowPrivacyModal(false)}
-                    >
-                        <motion.div
-                            initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }}
-                            onClick={(e) => e.stopPropagation()}
-                            className="bg-white dark:bg-[#032e18] w-full max-w-sm rounded-[2.5rem] p-6 shadow-2xl"
-                        >
-                            <div className="flex justify-between items-center mb-6">
-                                <h3 className="text-xl font-bold font-serif text-islamic-green dark:text-islamic-gold">{t('privacy.modal_title')}</h3>
-                                <Button size="icon" variant="ghost" onClick={() => setShowPrivacyModal(false)}><X className="w-5 h-5" /></Button>
-                            </div>
-
-                            <div className="space-y-4">
-                                <div className="p-4 bg-gray-50 dark:bg-white/5 rounded-2xl flex items-center gap-4">
-                                    <div className="bg-green-100 dark:bg-green-900/30 p-2 rounded-full text-green-600"><Check size={16} /></div>
-                                    <div className="text-xs text-gray-600 dark:text-gray-300 leading-tight" dangerouslySetInnerHTML={{ __html: t('privacy.data_info') }} />
-                                </div>
-
-                                <Button
-                                    onClick={async () => {
-                                        const data = {};
-                                        for (let i = 0; i < localStorage.length; i++) {
-                                            const key = localStorage.key(i);
-                                            try { data[key] = JSON.parse(localStorage.getItem(key)); }
-                                            catch { data[key] = localStorage.getItem(key); }
-                                        }
-                                        const jsonStr = JSON.stringify(data, null, 2);
-                                        const fileName = `islami-yoldas-verilerim-${new Date().toISOString().slice(0, 10)}.json`;
-
-                                        if (Capacitor.isNativePlatform()) {
-                                            try {
-                                                const result = await Filesystem.writeFile({
-                                                    path: fileName,
-                                                    data: jsonStr,
-                                                    directory: Directory.Cache,
-                                                    encoding: Encoding.UTF8,
-                                                });
-                                                await Share.share({
-                                                    title: 'İslami Yoldaş - Verilerim',
-                                                    url: result.uri,
-                                                });
-                                            } catch (e) { console.error('Share error', e); }
-                                        } else {
-                                            const blob = new Blob([jsonStr], { type: 'application/json' });
-                                            const url = URL.createObjectURL(blob);
-                                            const a = document.createElement('a');
-                                            a.href = url;
-                                            a.download = fileName;
-                                            a.click();
-                                            URL.revokeObjectURL(url);
-                                        }
-                                    }}
-                                    className="w-full h-12 bg-white border-2 border-gray-200 dark:bg-transparent dark:border-white/10 dark:text-white hover:bg-gray-50 rounded-xl justify-between px-4 text-gray-700"
-                                >
-                                    <span className="flex items-center gap-2"><Download size={18} /> {t('privacy.download')}</span>
-                                    <span className="text-[10px] bg-gray-100 dark:bg-white/10 px-2 py-0.5 rounded text-gray-500">JSON</span>
-                                </Button>
-
-                                <Button
-                                    onClick={() => setShowDeleteConfirm(true)}
-                                    className="w-full h-12 bg-red-50 text-red-600 hover:bg-red-100 dark:bg-red-900/20 dark:hover:bg-red-900/30 rounded-xl justify-start px-4 gap-2"
-                                >
-                                    <Trash2 size={18} /> {t('privacy.delete_all')}
-                                </Button>
-                            </div>
-                        </motion.div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
-
-            {/* Delete Confirmation Modal */}
-            <AnimatePresence>
-                {showDeleteConfirm && (
-                    <motion.div
-                        initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-[70] flex items-center justify-center bg-black/60 backdrop-blur-sm p-6"
-                        onClick={() => setShowDeleteConfirm(false)}
-                    >
-                        <motion.div
-                            initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }}
-                            onClick={(e) => e.stopPropagation()}
-                            className="bg-white dark:bg-[#032e18] w-full max-w-xs rounded-3xl p-6 shadow-2xl text-center"
-                        >
-                            <div className="w-14 h-14 mx-auto mb-4 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
-                                <Trash2 className="w-7 h-7 text-red-500" />
-                            </div>
-                            <h3 className="text-lg font-bold text-stone-800 dark:text-white mb-2">{t('privacy.delete_all')}</h3>
-                            <p className="text-sm text-stone-500 dark:text-gray-400 mb-6">{t('privacy.delete_confirm')}</p>
-                            <div className="flex gap-3">
-                                <Button
-                                    onClick={() => setShowDeleteConfirm(false)}
-                                    className="flex-1 h-11 bg-gray-100 text-stone-700 hover:bg-gray-200 dark:bg-white/10 dark:text-white dark:hover:bg-white/20 rounded-xl"
-                                >
-                                    {t('privacy.delete_cancel')}
-                                </Button>
-                                <Button
-                                    onClick={async () => {
-                                        await storageService.clearAll();
-                                        window.location.href = '/';
-                                    }}
-                                    className="flex-1 h-11 bg-red-500 text-white hover:bg-red-600 rounded-xl"
-                                >
-                                    {t('privacy.delete_yes')}
-                                </Button>
-                            </div>
-                        </motion.div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
 
             {/* Font Size Modal */}
             <AnimatePresence>

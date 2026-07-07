@@ -115,6 +115,7 @@
         "plan_yearly": "Yearly",
         "plan_yearly_per_month": "₺61.66/month",
         "badge_best_value": "SAVE 51%",
+        "badge_savings_pct": "SAVE {{percent}}%",
         "trial_included_monthly": "3-Day Free Trial Included",
         "trial_included_yearly": "7-Day Free Trial Included",
         "trial_reminder": "",
@@ -179,6 +180,9 @@
         "feat_all_premium": "All Premium Features",
         "use_offer": "CLAIM OFFER",
         "cancel_offer": "Cancel offer and exit",
+        "see_all_plans": "See all plans",
+        "disclaimer_offer": "Special offer price. Subscription auto-renews yearly at {{price}}. Cancel anytime.",
+        "offer_applied": "{{percent}}% discount applied",
         "discount_badge_pct": "{{percent}}% OFF",
         "discount_pct_short": "−{{percent}}%",
         "last_offer": "Last Offer"

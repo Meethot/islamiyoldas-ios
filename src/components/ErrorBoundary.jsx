@@ -18,6 +18,10 @@ class ErrorBoundary extends React.Component {
         console.error("Uncaught error:", error, errorInfo);
         analytics.errorOccurred(error?.name || 'ReactError', window.location.pathname);
         this.setState({ error, errorInfo });
+        // Açılışta hata olursa native splash'in takılı kalmaması için kapat
+        import('@capacitor/splash-screen')
+            .then(({ SplashScreen }) => SplashScreen.hide())
+            .catch(() => { });
     }
 
     handleReload = () => {

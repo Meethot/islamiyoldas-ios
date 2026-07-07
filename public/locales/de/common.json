@@ -93,6 +93,7 @@
         "plan_yearly": "Jahresplan",
         "plan_yearly_per_month": "Nur 83,00 TL / Monat",
         "badge_best_value": "BESTES ANGEBOT - 51% SPAREN",
+        "badge_savings_pct": "{{percent}}% SPAREN",
         "trial_included_monthly": "3 Tage kostenlose Testversion inklusive",
         "trial_included_yearly": "7 Tage kostenlose Testversion inklusive",
         "month": "Monat",
@@ -171,6 +172,9 @@
         "feat_all_premium": "Alle Premium-Funktionen",
         "use_offer": "ANGEBOT SICHERN",
         "cancel_offer": "Angebot abbrechen und verlassen",
+        "see_all_plans": "Alle Pläne ansehen",
+        "disclaimer_offer": "Sonderangebotspreis. Das Abo verlängert sich automatisch jährlich zu {{price}}. Jederzeit kündbar.",
+        "offer_applied": "{{percent}} % Rabatt angewendet",
         "discount_badge_pct": "{{percent}}% RABATT",
         "discount_pct_short": "−{{percent}}%",
         "last_offer": "Letztes Angebot"

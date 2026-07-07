@@ -776,7 +776,7 @@ export const EsmaUlHusnaWidget = memo(({ esmaList, onSelect, onShowAll }) => {
                         key={esma.name}
                         whileTap={{ scale: 0.96 }}
                         onClick={() => onSelect(esma)}
-                        className="min-w-[200px] snap-center glass-panel p-5 sm:p-6 rounded-[2.5rem] transition-all cursor-pointer relative overflow-hidden group bg-white/40 dark:bg-white/5 border border-white/20 dark:border-white/10 hover:border-islamic-gold/30 shadow-sm"
+                        className="min-w-[200px] snap-center glass-panel p-5 sm:p-6 rounded-[2.5rem] transition-all cursor-pointer relative overflow-hidden group hover:border-islamic-gold/30"
                     >
                         {/* Decorative Gradient Glow */}
                         <div className="absolute -top-12 -right-12 w-24 h-24 bg-islamic-green/5 dark:bg-islamic-gold/10 blur-3xl rounded-full" />

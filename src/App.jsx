@@ -1,6 +1,5 @@
 import React, { useState, useEffect, Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation as useRouterLocation, useNavigate } from 'react-router-dom';
-import Onboarding from './pages/Onboarding';
 import Home from './pages/Home';
 import AppLayout from './layouts/AppLayout';
 import SplashScreen from './components/SplashScreen';
@@ -23,6 +22,7 @@ import ReviewPrompt from './components/ReviewPrompt';
 import { useTranslation } from 'react-i18next';
 
 // Lazy-loaded pages — parsed only when navigated to
+const Onboarding = React.lazy(() => import('./pages/Onboarding')); // Firestore'u ana bundle'dan çıkarır
 const Learn = React.lazy(() => import('./pages/Learn'));
 const Tracking = React.lazy(() => import('./pages/Tracking'));
 const Profile = React.lazy(() => import('./pages/Profile'));

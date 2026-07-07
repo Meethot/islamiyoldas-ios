@@ -66,13 +66,13 @@ export default function NotificationSettings() {
 
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-[#021a0f] text-gray-900 dark:text-white pb-24">
-            {/* Header */}
-            <div className="bg-white dark:bg-[#044d29]/40 backdrop-blur-md sticky top-0 z-40 p-4 flex items-center gap-4 border-b dark:border-white/5">
+            <div className="px-5 pt-4 flex items-center gap-3">
                 <button
-                    onClick={() => navigate(-1)}
-                    className="w-10 h-10 rounded-xl bg-gray-100 dark:bg-white/5 flex items-center justify-center hover:bg-gray-200 dark:hover:bg-white/10 transition-colors"
+                    onClick={() => { selection(); navigate(-1); }}
+                    aria-label={t('common:common.back')}
+                    className="flex-shrink-0 w-9 h-9 rounded-full bg-white dark:bg-white/5 border border-stone-200/80 dark:border-white/10 shadow-sm dark:shadow-none flex items-center justify-center text-islamic-green dark:text-islamic-gold hover:bg-stone-50 dark:hover:bg-white/10 transition-colors active:scale-95"
                 >
-                    <ChevronLeft size={20} />
+                    <ChevronLeft size={18} />
                 </button>
                 <h1 className="text-xl font-bold font-serif text-islamic-green dark:text-islamic-gold">{t('notifications')}</h1>
             </div>
@@ -85,7 +85,6 @@ export default function NotificationSettings() {
             >
                 {/* Core Notifications */}
                 <motion.section variants={itemVariants} className="space-y-3">
-                    <h3 className="px-2 text-xs font-bold text-gray-400 dark:text-emerald-100/40 uppercase tracking-widest">{t('notifications')}</h3>
                     <div className="bg-white dark:bg-white/5 rounded-[2rem] shadow-sm border dark:border-white/5 overflow-hidden">
                         <SettingsToggle
                             icon={Bell}

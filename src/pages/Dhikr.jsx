@@ -846,8 +846,8 @@ export default function Dhikr() {
                 }
             }}
             className={cn(
-                "flex flex-col min-h-screen text-white px-5 pb-5 pt-0 relative overflow-hidden font-sans transition-colors duration-150 select-none",
-                isScreenFlash && isFullScreenTap ? "bg-[#042818]" : (dhikrTheme === 'tally' ? "bg-[#010e08]" : "bg-[#021a0f]")
+                "flex flex-col min-h-screen text-stone-800 dark:text-white px-5 pb-5 pt-0 relative overflow-hidden font-sans transition-colors duration-150 select-none",
+                isScreenFlash && isFullScreenTap ? "bg-[#DCEFE2] dark:bg-[#042818]" : (dhikrTheme === 'tally' ? "bg-[#F3F1EA] dark:bg-[#010e08]" : "bg-[#FAF8F3] dark:bg-[#021a0f]")
             )}
         >
             {/* Custom pulse animation for theme selector visibility */}
@@ -863,32 +863,32 @@ export default function Dhikr() {
             `}</style>
 
             {/* Ambient Background Elements */}
-            <div className="absolute top-[-10%] right-[-10%] w-64 h-64 bg-islamic-gold/10 rounded-full blur-[100px] pointer-events-none" />
-            <div className="absolute bottom-[-5%] left-[-5%] w-72 h-72 bg-islamic-green/20 rounded-full blur-[120px] pointer-events-none" />
+            <div className="absolute top-[-10%] right-[-10%] w-64 h-64 bg-islamic-gold/10 rounded-full blur-[100px] pointer-events-none opacity-[0.35] dark:opacity-100" />
+            <div className="absolute bottom-[-5%] left-[-5%] w-72 h-72 bg-islamic-green/20 rounded-full blur-[120px] pointer-events-none opacity-[0.35] dark:opacity-100" />
 
             {/* Islamic Geometric Background Pattern */}
-            <div 
-                className="absolute inset-0 opacity-[0.035] pointer-events-none z-0 mix-blend-overlay" 
+            <div
+                className="absolute inset-0 opacity-[0.02] dark:opacity-[0.035] pointer-events-none z-0 mix-blend-overlay"
                 style={{
                     backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Cpath d='M40 0 L80 40 L40 80 L0 40 Z' fill='none' stroke='%23D4AF37' stroke-width='0.5'/%3E%3Ccircle cx='40' cy='40' r='12' fill='none' stroke='%23D4AF37' stroke-width='0.5'/%3E%3Cpath d='M0 0 L80 80 M80 0 L0 80' stroke='%23D4AF37' stroke-width='0.3' stroke-dasharray='1,2'/%3E%3C/svg%3E")`,
                     backgroundRepeat: 'repeat'
                 }} 
             />
 
-            <header className={cn("flex justify-between items-center z-30 mb-4 sticky top-0 backdrop-blur-sm -mx-6 px-6 py-1 border-b border-white/5 transition-colors duration-150", dhikrTheme === 'tally' ? "bg-[#010e08]/80" : "bg-[#021a0f]/80")}>
+            <header className={cn("flex justify-between items-center z-30 mb-4 sticky top-0 backdrop-blur-sm -mx-6 px-6 py-1 border-b border-stone-200/60 dark:border-white/5 transition-colors duration-150", dhikrTheme === 'tally' ? "bg-[#F3F1EA]/80 dark:bg-[#010e08]/80" : "bg-[#FAF8F3]/80 dark:bg-[#021a0f]/80")}>
                 <div className="flex items-center gap-2">
                     <button
                         onClick={() => navigate(-1)}
-                        className="w-10 h-10 rounded-xl bg-white/5 hover:bg-white/10 flex items-center justify-center text-white/60 hover:text-white active:scale-90 transition-all border border-white/10"
+                        className="w-10 h-10 rounded-xl bg-stone-100 hover:bg-stone-200 dark:bg-white/5 dark:hover:bg-white/10 flex items-center justify-center text-stone-500 hover:text-stone-800 dark:text-white/60 dark:hover:text-white active:scale-90 transition-all border border-stone-200 dark:border-white/10"
                     >
                         <ChevronLeft size={20} />
                     </button>
-                    <div className="bg-islamic-gold/10 p-2 rounded-xl">
-                        <Sparkles className="w-5 h-5 text-islamic-gold animate-pulse" />
+                    <div className="bg-islamic-green/10 dark:bg-islamic-gold/10 p-2 rounded-xl">
+                        <Sparkles className="w-5 h-5 text-islamic-green dark:text-islamic-gold animate-pulse" />
                     </div>
                     <h2 className="text-xl font-serif font-bold tracking-tight">{isCountdownMode ? countdownName : t('title')}</h2>
                 </div>
-                <div className="flex items-center gap-1 bg-black/20 p-1 rounded-2xl border border-white/10 backdrop-blur-md relative">
+                <div className="flex items-center gap-1 bg-white/60 dark:bg-black/20 p-1 rounded-2xl border border-stone-200 dark:border-white/10 backdrop-blur-md relative">
                     <button
                         onClick={() => {
                             const themeOrder = ['classic', 'tasbih', 'tally'];
@@ -919,7 +919,7 @@ export default function Dhikr() {
                         }}
                         className={cn(
                             "w-10 h-10 rounded-xl transition-all relative flex items-center justify-center border active:scale-95 duration-200",
-                            showQuickSettings ? "text-islamic-gold bg-white/15 border-islamic-gold/45" : "text-white/60 hover:text-white bg-white/5 border-white/10"
+                            showQuickSettings ? "text-islamic-green bg-islamic-green/10 border-islamic-green/40 dark:text-islamic-gold dark:bg-white/15 dark:border-islamic-gold/45" : "text-stone-500 hover:text-stone-800 bg-stone-100 border-stone-200 dark:text-white/60 dark:hover:text-white dark:bg-white/5 dark:border-white/10"
                         )}
                         title={t('settings', { defaultValue: 'Hızlı Ayarlar' })}
                     >
@@ -934,23 +934,23 @@ export default function Dhikr() {
                 <div className="text-center mb-6 animate-in fade-in zoom-in duration-700">
                     {isCountdownMode ? (
                         <>
-                            <p className="text-islamic-gold font-serif text-4xl mb-2 opacity-95 drop-shadow-lg" dir="rtl">{countdownArabic || countdownName}</p>
+                            <p className="text-islamic-green dark:text-islamic-gold font-serif text-4xl mb-2 opacity-95 drop-shadow-lg" dir="rtl">{countdownArabic || countdownName}</p>
                             {countdownArabic && (
-                                <p className="text-white font-bold text-lg mb-1 tracking-wide">{countdownName}</p>
+                                <p className="text-stone-800 dark:text-white font-bold text-lg mb-1 tracking-wide">{countdownName}</p>
                             )}
-                            <p className="text-white/40 text-xs italic mb-4 font-normal tracking-wide">{countdownMeaning}</p>
-                            <div className="flex items-center justify-center gap-3 bg-islamic-gold/5 px-10 py-3.5 rounded-full border border-islamic-gold/40 mx-auto shadow-[0_0_20px_rgba(212,175,55,0.15)]">
-                                <span className="text-islamic-gold font-bold text-xs uppercase tracking-[0.25em]">{t('targetWithUnit', { count: countdownTarget })}</span>
+                            <p className="text-stone-400 dark:text-white/40 text-xs italic mb-4 font-normal tracking-wide">{countdownMeaning}</p>
+                            <div className="flex items-center justify-center gap-3 bg-islamic-green/5 border-islamic-green/40 dark:bg-islamic-gold/5 dark:border-islamic-gold/40 px-10 py-3.5 rounded-full border mx-auto shadow-[0_0_20px_rgba(212,175,55,0.15)]">
+                                <span className="text-islamic-green dark:text-islamic-gold font-bold text-xs uppercase tracking-[0.25em]">{t('targetWithUnit', { count: countdownTarget })}</span>
                             </div>
                         </>
                     ) : (
                         <>
                             {/* Display of Arabic and Meaning (Elegant, static floating layout) */}
                             <div className="flex flex-col items-center text-center select-none pointer-events-none mb-4 animate-in fade-in duration-300">
-                                <p className="text-islamic-gold font-serif text-4xl mb-2 opacity-95 drop-shadow-[0_4px_12px_rgba(212,175,55,0.2)]" dir="rtl">
+                                <p className="text-islamic-green dark:text-islamic-gold font-serif text-4xl mb-2 opacity-95 drop-shadow-[0_4px_12px_rgba(212,175,55,0.2)]" dir="rtl">
                                     {activePreset.arabic}
                                 </p>
-                                <p className="text-white/40 text-xs italic font-normal tracking-wide max-w-[280px]">
+                                <p className="text-stone-400 dark:text-white/40 text-xs italic font-normal tracking-wide max-w-[280px]">
                                     {activePreset.id === 'custom'
                                         ? ''
                                         : (activePreset.isEsma
@@ -964,19 +964,19 @@ export default function Dhikr() {
                                 {/* Zikir Selector Pill */}
                                 <button
                                     onClick={() => setShowDhikrPicker(true)}
-                                    className="group flex items-center gap-2 bg-white/5 hover:bg-white/10 px-4 py-2 rounded-full border border-white/10 transition-all active:scale-95 text-xs font-semibold text-white/80 shadow-md"
+                                    className="group flex items-center gap-2 bg-white hover:bg-stone-50 dark:bg-white/5 dark:hover:bg-white/10 px-4 py-2 rounded-full border border-stone-200 dark:border-white/10 transition-all active:scale-95 text-xs font-semibold text-stone-600 dark:text-white/80 shadow-md"
                                 >
                                     <span>{activePreset.id === 'custom' || activePreset.isEsma ? activePreset.name : t(`presets.${activePreset.id}.name`, { defaultValue: activePreset.name })}</span>
-                                    <ChevronDown size={14} className="text-islamic-gold opacity-85 transition-transform group-active:translate-y-[1px]" />
+                                    <ChevronDown size={14} className="text-islamic-green dark:text-islamic-gold opacity-85 transition-transform group-active:translate-y-[1px]" />
                                 </button>
 
                                 {/* Target Pill */}
                                 <button
                                     onClick={() => setShowTargetModal(true)}
-                                    className="group flex items-center gap-2 bg-islamic-gold/5 hover:bg-islamic-gold/10 px-4 py-2 rounded-full border border-islamic-gold/30 transition-all active:scale-95 text-xs font-bold text-islamic-gold shadow-md"
+                                    className="group flex items-center gap-2 bg-islamic-green/5 hover:bg-islamic-green/10 border-islamic-green/30 dark:bg-islamic-gold/5 dark:hover:bg-islamic-gold/10 dark:border-islamic-gold/30 px-4 py-2 rounded-full border transition-all active:scale-95 text-xs font-bold text-islamic-green dark:text-islamic-gold shadow-md"
                                 >
                                     <span>{t('target', { count: target })}</span>
-                                    <Edit3 size={11} className="text-islamic-gold/75" />
+                                    <Edit3 size={11} className="text-islamic-green/75 dark:text-islamic-gold/75" />
                                 </button>
                             </div>
                         </>
@@ -996,7 +996,7 @@ export default function Dhikr() {
                                 stroke="currentColor"
                                 strokeWidth="10"
                                 fill="transparent"
-                                className="text-white/5"
+                                className="text-stone-900/5 dark:text-white/5"
                             />
                             {/* Progress Ring */}
                             <circle
@@ -1011,7 +1011,7 @@ export default function Dhikr() {
                                 strokeLinecap="round"
                                 className={cn(
                                     "transition-all duration-300 ease-out",
-                                    celebrating ? "text-emerald-400 stroke-[14px]" : "text-islamic-gold"
+                                    celebrating ? "text-emerald-400 stroke-[14px]" : "text-islamic-green dark:text-islamic-gold"
                                 )}
                             />
                         </svg>
@@ -1046,7 +1046,7 @@ export default function Dhikr() {
                             }}
                             onContextMenu={(e) => e.preventDefault()} // Block long-press context menu
                             className={cn(
-                                "w-60 h-60 rounded-full bg-gradient-to-br from-white/10 to-black/30 border border-white/20 flex flex-col items-center justify-center relative backdrop-blur-lg group select-none touch-manipulation",
+                                "w-60 h-60 rounded-full bg-gradient-to-br from-white to-stone-100 shadow-lg dark:shadow-none dark:from-white/10 dark:to-black/30 border border-stone-200 dark:border-white/20 flex flex-col items-center justify-center relative backdrop-blur-lg group select-none touch-manipulation",
                                 celebrating && "border-emerald-500/50 shadow-emerald-500/20"
                             )}
                             style={glowStyle}
@@ -1055,7 +1055,7 @@ export default function Dhikr() {
 
                             <span className={cn(
                                 "text-7xl font-mono font-bold tracking-tighter transition-all duration-300 drop-shadow-2xl",
-                                celebrating ? "text-emerald-400 scale-110" : "text-white group-hover:text-islamic-gold",
+                                celebrating ? "text-emerald-400 scale-110" : "text-stone-900 group-hover:text-islamic-green dark:text-white dark:group-hover:text-islamic-gold",
                                 countdownCompleted && "text-emerald-400"
                             )}>
                                 {isCountdownMode ? count : (count % target === 0 && count > 0 ? target : count % target)}
@@ -1064,7 +1064,7 @@ export default function Dhikr() {
                             {isCountdownMode ? (
                                 <div className="flex flex-col items-center mt-2 opacity-40">
                                     {countdownRounds > 0 && (
-                                        <span className="text-[10px] font-bold text-islamic-gold/60 uppercase tracking-[0.15em]">{t('roundCompleted', { round: countdownRounds })}</span>
+                                        <span className="text-[10px] font-bold text-islamic-green/60 dark:text-islamic-gold/60 uppercase tracking-[0.15em]">{t('roundCompleted', { round: countdownRounds })}</span>
                                     )}
                                 </div>
                             ) : (
@@ -1106,9 +1106,9 @@ export default function Dhikr() {
 
                         <div className="relative w-80 h-80 flex flex-col items-center justify-center select-none touch-manipulation z-10">
                             {/* Round indicator for Tasbih Beads theme */}
-                            <div className="absolute top-2 bg-islamic-gold/10 px-4 py-1.5 rounded-full border border-islamic-gold/20 flex items-center gap-1.5 backdrop-blur-md z-20">
-                                <span className="text-[10px] font-bold text-islamic-gold/60 uppercase tracking-widest">{t('round')}:</span>
-                                <span className="text-xs font-mono font-bold text-islamic-gold">{Math.floor(count / target) + 1}</span>
+                            <div className="absolute top-2 bg-islamic-green/10 border-islamic-green/20 dark:bg-islamic-gold/10 dark:border-islamic-gold/20 px-4 py-1.5 rounded-full border flex items-center gap-1.5 backdrop-blur-md z-20">
+                                <span className="text-[10px] font-bold text-islamic-green/60 dark:text-islamic-gold/60 uppercase tracking-widest">{t('round')}:</span>
+                                <span className="text-xs font-mono font-bold text-islamic-green dark:text-islamic-gold">{Math.floor(count / target) + 1}</span>
                             </div>
 
                             {/* Dynamic Curved String (Sways Reactively on Bead Drag) */}
@@ -1426,7 +1426,7 @@ export default function Dhikr() {
                         </div>
 
                         {/* Bead Material Selector */}
-                        <div className="flex items-center gap-3.5 mt-4 bg-black/35 px-4 py-2 rounded-full border border-white/10 backdrop-blur-md z-20 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                        <div className="flex items-center gap-3.5 mt-4 bg-white/70 border-stone-200 dark:bg-black/35 dark:border-white/10 px-4 py-2 rounded-full border backdrop-blur-md z-20 animate-in fade-in slide-in-from-bottom-2 duration-300">
                             {[
                                 { id: 'kehribar', name: 'Kehribar', bg: 'bg-gradient-to-br from-amber-400 to-amber-700 shadow-md' },
                                 { id: 'kuka', name: 'Kuka', bg: 'bg-gradient-to-br from-[#8a5329] to-[#2b1401] shadow-md' },
@@ -1450,7 +1450,7 @@ export default function Dhikr() {
                                     }}
                                     className={cn(
                                         "w-8 h-8 rounded-full flex items-center justify-center border transition-all active:scale-90 relative",
-                                        beadType === mat.id ? "border-islamic-gold scale-110 shadow-[0_0_10px_rgba(212,175,55,0.4)]" : "border-white/20 opacity-55 hover:opacity-90"
+                                        beadType === mat.id ? "border-islamic-gold scale-110 shadow-[0_0_10px_rgba(212,175,55,0.4)]" : "border-stone-300 dark:border-white/20 opacity-55 hover:opacity-90"
                                     )}
                                     title={mat.name}
                                 >
@@ -1650,7 +1650,7 @@ export default function Dhikr() {
                         </div>
 
                         {/* Tally Casing Color Selector */}
-                        <div className="flex items-center gap-3 mt-4 bg-black/35 px-4 py-2 rounded-full border border-white/10 backdrop-blur-md z-20 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                        <div className="flex items-center gap-3 mt-4 bg-white/70 border-stone-200 dark:bg-black/35 dark:border-white/10 px-4 py-2 rounded-full border backdrop-blur-md z-20 animate-in fade-in slide-in-from-bottom-2 duration-300">
                             {[
                                 { id: 'emerald', name: t('tallyColors.emerald', { defaultValue: 'Zümrüt' }), bg: 'bg-[#064a2c] shadow-[inset_0_1px_2px_rgba(255,255,255,0.2)]' },
                                 { id: 'blue', name: t('tallyColors.blue', { defaultValue: 'Mavi' }), bg: 'bg-[#1d4ed8] shadow-[inset_0_1px_2px_rgba(255,255,255,0.2)]' },
@@ -1675,7 +1675,7 @@ export default function Dhikr() {
                                     }}
                                     className={cn(
                                         "w-8 h-8 rounded-full flex items-center justify-center border transition-all active:scale-90 relative",
-                                        tallyColor === col.id ? "border-islamic-gold scale-110 shadow-[0_0_10px_rgba(212,175,55,0.4)]" : "border-white/20 opacity-55 hover:opacity-90"
+                                        tallyColor === col.id ? "border-islamic-gold scale-110 shadow-[0_0_10px_rgba(212,175,55,0.4)]" : "border-stone-300 dark:border-white/20 opacity-55 hover:opacity-90"
                                     )}
                                     title={col.name}
                                 >
@@ -1700,7 +1700,7 @@ export default function Dhikr() {
                 )}
 
                 {/* Cumulative Counter Card - Compact floating pill */}
-                <div className="relative bg-white/[0.07] backdrop-blur-md px-6 py-3.5 rounded-full border border-white/15 flex items-center justify-between gap-4 shadow-xl max-w-[320px] mx-auto w-full mt-14 transition-all hover:bg-white/10 hover:border-islamic-gold/40 hover:shadow-[0_0_15px_rgba(255,255,255,0.05)]">
+                <div className="relative bg-white/80 border-stone-200 hover:bg-white dark:bg-white/[0.07] dark:border-white/15 dark:hover:bg-white/10 backdrop-blur-md px-6 py-3.5 rounded-full border flex items-center justify-between gap-4 shadow-xl max-w-[320px] mx-auto w-full mt-14 transition-all hover:border-islamic-green/40 dark:hover:border-islamic-gold/40 dark:hover:shadow-[0_0_15px_rgba(255,255,255,0.05)]">
                     <button
                         onClick={() => {
                             setTempTotal('');
@@ -1708,22 +1708,22 @@ export default function Dhikr() {
                         }}
                         className="flex items-center gap-3.5 text-left active:scale-[0.97] transition-transform flex-1 py-1"
                     >
-                        <div className="p-1.5 bg-islamic-gold/20 rounded-full shrink-0">
-                            <Star size={18} className="text-islamic-gold drop-shadow-[0_0_6px_rgba(212,175,55,0.6)]" />
+                        <div className="p-1.5 bg-islamic-green/15 dark:bg-islamic-gold/20 rounded-full shrink-0">
+                            <Star size={18} className="text-islamic-green dark:text-islamic-gold dark:drop-shadow-[0_0_6px_rgba(212,175,55,0.6)]" />
                         </div>
                         <div className="flex flex-col text-left">
-                            <span className="text-[10px] font-bold text-white/50 uppercase tracking-[0.15em] leading-none mb-1 flex items-center gap-1">
+                            <span className="text-[10px] font-bold text-stone-400 dark:text-white/50 uppercase tracking-[0.15em] leading-none mb-1 flex items-center gap-1">
                                 {t('totalDhikr')}
-                                <Edit3 size={11} className="text-islamic-gold/80 animate-pulse" />
+                                <Edit3 size={11} className="text-islamic-green/80 dark:text-islamic-gold/80 animate-pulse" />
                             </span>
-                            <span className="text-lg font-mono font-bold text-islamic-gold leading-none">{totalCount.toLocaleString('tr-TR')}</span>
+                            <span className="text-lg font-mono font-bold text-islamic-green dark:text-islamic-gold leading-none">{totalCount.toLocaleString('tr-TR')}</span>
                         </div>
                     </button>
 
                     {/* Reset Total Button */}
                     <button
                         onClick={() => setShowTotalResetConfirm(true)}
-                        className="p-2.5 bg-white/5 hover:bg-white/10 text-white/40 hover:text-red-400 rounded-full transition-all active:scale-90 border border-white/10 shrink-0"
+                        className="p-2.5 bg-stone-100 hover:bg-stone-200 text-stone-400 dark:bg-white/5 dark:hover:bg-white/10 dark:text-white/40 hover:text-red-500 dark:hover:text-red-400 rounded-full transition-all active:scale-90 border border-stone-200 dark:border-white/10 shrink-0"
                         title={t('resetAllTooltip')}
                     >
                         <RotateCcw size={15} />
@@ -1732,13 +1732,13 @@ export default function Dhikr() {
                     {/* Total Reset Confirmation Dialog */}
                     {showTotalResetConfirm && (
                         <div className="absolute inset-0 z-50 flex items-center justify-center animate-in fade-in zoom-in duration-200">
-                            <div className="absolute inset-0 bg-[#021a0f]/95 rounded-full backdrop-blur-md" />
+                            <div className="absolute inset-0 bg-[#FAF8F3]/95 dark:bg-[#021a0f]/95 rounded-full backdrop-blur-md" />
                             <div className="relative text-center px-4 z-10 flex flex-col items-center justify-center h-full w-full">
-                                <p className="text-[10px] text-white/90 font-bold uppercase tracking-wider mb-2 leading-none">{t('resetAllTitle')}</p>
+                                <p className="text-[10px] text-stone-700 dark:text-white/90 font-bold uppercase tracking-wider mb-2 leading-none">{t('resetAllTitle')}</p>
                                 <div className="flex gap-2.5 justify-center">
                                     <button
                                         onClick={() => setShowTotalResetConfirm(false)}
-                                        className="px-4 py-1 rounded-full bg-white/15 text-white/80 text-[10px] font-bold uppercase transition-all active:scale-95"
+                                        className="px-4 py-1 rounded-full bg-stone-200 text-stone-600 dark:bg-white/15 dark:text-white/80 text-[10px] font-bold uppercase transition-all active:scale-95"
                                     >
                                         {t('cancel')}
                                     </button>
@@ -1762,14 +1762,14 @@ export default function Dhikr() {
                         <div className="absolute top-0 left-0 w-10 h-[1px] bg-gradient-to-r from-transparent to-islamic-gold/40" />
                         <div className="absolute top-0 right-0 w-10 h-[1px] bg-gradient-to-l from-transparent to-islamic-gold/40" />
 
-                        <p className="text-islamic-gold/80 italic font-serif text-sm leading-relaxed px-2">
+                        <p className="text-islamic-green/80 dark:text-islamic-gold/80 italic font-serif text-sm leading-relaxed px-2">
                             {t('footerVerse')}
                         </p>
 
                         <div className="absolute bottom-0 left-0 w-10 h-[1px] bg-gradient-to-r from-transparent to-islamic-gold/40" />
                         <div className="absolute bottom-0 right-0 w-10 h-[1px] bg-gradient-to-l from-transparent to-islamic-gold/40" />
                     </div>
-                    <p className="text-[9px] text-white/20 mt-4 font-bold uppercase tracking-[0.2em] font-sans">{t('footerVerseSource')}</p>
+                    <p className="text-[9px] text-stone-400 dark:text-white/20 mt-4 font-bold uppercase tracking-[0.2em] font-sans">{t('footerVerseSource')}</p>
                 </div>
             </footer>
 
@@ -1780,7 +1780,7 @@ export default function Dhikr() {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        className="fixed inset-0 bg-black/30 backdrop-blur-md flex items-center justify-center z-[9999]"
+                        className="fixed inset-0 bg-white/70 dark:bg-black/30 backdrop-blur-md flex items-center justify-center z-[9999]"
                         onClick={(e) => e.stopPropagation()}
                     >
                         <motion.div
@@ -1813,19 +1813,19 @@ export default function Dhikr() {
                                         </defs>
                                     </svg>
                                     <div className="absolute inset-0 flex flex-col items-center justify-center">
-                                        <span className="text-2xl font-black text-islamic-gold">66</span>
-                                        <span className="text-[9px] text-islamic-gold/50 font-bold uppercase tracking-widest">/ 66</span>
+                                        <span className="text-2xl font-black text-islamic-green dark:text-islamic-gold">66</span>
+                                        <span className="text-[9px] text-islamic-green/50 dark:text-islamic-gold/50 font-bold uppercase tracking-widest">/ 66</span>
                                     </div>
                                 </div>
                             </div>
 
-                            <h3 className="text-xl font-serif font-bold text-white mb-2 leading-tight">
+                            <h3 className="text-xl font-serif font-bold text-stone-900 dark:text-white mb-2 leading-tight">
                                 {t('dhikrLimit.title', { defaultValue: 'Günlük Zikir Hakkınız' })}<br />
-                                <span className="text-islamic-gold">{t('dhikrLimit.completed', { defaultValue: 'Tamamlandı' })}</span>
+                                <span className="text-islamic-green dark:text-islamic-gold">{t('dhikrLimit.completed', { defaultValue: 'Tamamlandı' })}</span>
                             </h3>
 
-                            <p className="text-[13px] text-white/45 leading-relaxed mb-8">
-                                {t('dhikrLimit.desc1', { defaultValue: 'Ücretsiz olarak günde' })} <span className="text-islamic-gold/80 font-semibold">{t('dhikrLimit.count', { count: 66, defaultValue: '66 zikir' })}</span> {t('dhikrLimit.desc2', { defaultValue: 'çekebilirsiniz.' })}<br />
+                            <p className="text-[13px] text-stone-500 dark:text-white/45 leading-relaxed mb-8">
+                                {t('dhikrLimit.desc1', { defaultValue: 'Ücretsiz olarak günde' })} <span className="text-islamic-green/80 dark:text-islamic-gold/80 font-semibold">{t('dhikrLimit.count', { count: 66, defaultValue: '66 zikir' })}</span> {t('dhikrLimit.desc2', { defaultValue: 'çekebilirsiniz.' })}<br />
                                 {t('dhikrLimit.desc3', { defaultValue: 'Sınırsız zikir için Premium\'a yükseltin.' })}
                             </p>
 
@@ -1843,7 +1843,7 @@ export default function Dhikr() {
                                     setShowDhikrLimit(false);
                                     import('@/services/adService').then(({ showInterstitialAd }) => showInterstitialAd()).catch(() => {});
                                 }}
-                                className="w-full mt-4 py-2 text-white/25 text-xs font-medium hover:text-white/40 transition-colors"
+                                className="w-full mt-4 py-2 text-stone-400 hover:text-stone-600 dark:text-white/25 dark:hover:text-white/40 text-xs font-medium transition-colors"
                             >
                                 {t('dhikrLimit.dismiss', { defaultValue: 'Yarın tekrar gel' })}
                             </button>
@@ -1867,23 +1867,23 @@ export default function Dhikr() {
 
             {showTargetModal && (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 animate-in fade-in duration-300">
-                    <div className="absolute inset-0 bg-black/80 backdrop-blur-md" onClick={() => setShowTargetModal(false)} />
+                    <div className="absolute inset-0 bg-black/50 dark:bg-black/80 backdrop-blur-md" onClick={() => setShowTargetModal(false)} />
                     <div className={cn(
-                        "bg-[#032e18] border border-white/10 rounded-[3rem] p-8 w-full max-w-sm relative z-10 shadow-2xl animate-in zoom-in slide-in-from-bottom-5 duration-300 overflow-hidden transition-all duration-300",
+                        "bg-white dark:bg-[#032e18] border border-stone-200 dark:border-white/10 rounded-[3rem] p-8 w-full max-w-sm relative z-10 shadow-2xl animate-in zoom-in slide-in-from-bottom-5 duration-300 overflow-hidden transition-all duration-300",
                         isTargetInputFocused && "-translate-y-[100px]"
                     )}>
                         <div className="absolute top-0 right-0 p-4">
-                            <button onClick={() => setShowTargetModal(false)} className="text-white/40 hover:text-white p-2">
+                            <button onClick={() => setShowTargetModal(false)} className="text-stone-400 hover:text-stone-700 dark:text-white/40 dark:hover:text-white p-2">
                                 <X size={24} />
                             </button>
                         </div>
 
                         <div className="text-center mb-8">
-                            <div className="w-16 h-16 bg-islamic-gold/10 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-islamic-gold/20">
-                                <Settings className="text-islamic-gold w-8 h-8" />
+                            <div className="w-16 h-16 bg-islamic-green/10 border-islamic-green/20 dark:bg-islamic-gold/10 dark:border-islamic-gold/20 rounded-2xl flex items-center justify-center mx-auto mb-4 border">
+                                <Settings className="text-islamic-green dark:text-islamic-gold w-8 h-8" />
                             </div>
-                            <h3 className="text-2xl font-serif font-bold text-islamic-gold mb-2">{t('setTarget')}</h3>
-                            <p className="text-white/40 text-sm">{t('setTargetDesc', { name: activePreset.name })}</p>
+                            <h3 className="text-2xl font-serif font-bold text-islamic-green dark:text-islamic-gold mb-2">{t('setTarget')}</h3>
+                            <p className="text-stone-500 dark:text-white/40 text-sm">{t('setTargetDesc', { name: activePreset.name })}</p>
                         </div>
 
                         <div className="relative mb-8">
@@ -1905,7 +1905,7 @@ export default function Dhikr() {
                                 onBlur={() => setIsTargetInputFocused(false)}
                                 readOnly={!isPremium()}
                                 className={cn(
-                                    "w-full bg-black/30 border border-white/10 rounded-2xl py-5 px-6 text-4xl font-mono font-bold text-center text-islamic-gold focus:outline-none focus:border-islamic-gold/50 transition-all placeholder:opacity-20",
+                                    "w-full bg-stone-100 border-stone-200 text-islamic-green focus:border-islamic-green/50 dark:bg-black/30 dark:border-white/10 dark:text-islamic-gold dark:focus:border-islamic-gold/50 border rounded-2xl py-5 px-6 text-4xl font-mono font-bold text-center focus:outline-none transition-all placeholder:opacity-20",
                                     !isPremium() && "opacity-50 cursor-not-allowed"
                                 )}
                                 placeholder="33"
@@ -1917,10 +1917,10 @@ export default function Dhikr() {
                                         key={v}
                                         onClick={() => isPremium() ? setTempTarget(v.toString()) : navigate('/premium')}
                                         className={cn(
-                                            "text-[12px] font-bold px-3 py-1 rounded-lg border border-white/5 transition-all",
+                                            "text-[12px] font-bold px-3 py-1 rounded-lg border border-stone-200 dark:border-white/5 transition-all",
                                             isPremium()
-                                                ? "bg-white/5 hover:bg-islamic-gold/20 hover:text-islamic-gold"
-                                                : "bg-white/5 opacity-50"
+                                                ? "bg-stone-100 hover:bg-islamic-green/15 hover:text-islamic-green dark:bg-white/5 dark:hover:bg-islamic-gold/20 dark:hover:text-islamic-gold"
+                                                : "bg-stone-100 dark:bg-white/5 opacity-50"
                                         )}
                                     >
                                         {v}
@@ -1945,23 +1945,23 @@ export default function Dhikr() {
 
             {showTotalModal && (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 animate-in fade-in duration-300">
-                    <div className="absolute inset-0 bg-black/80 backdrop-blur-md" onClick={() => setShowTotalModal(false)} />
+                    <div className="absolute inset-0 bg-black/50 dark:bg-black/80 backdrop-blur-md" onClick={() => setShowTotalModal(false)} />
                     <div className={cn(
-                        "bg-[#032e18] border border-white/10 rounded-[3rem] p-8 w-full max-w-sm relative z-10 shadow-2xl animate-in zoom-in slide-in-from-bottom-5 duration-300 overflow-hidden transition-all duration-300",
+                        "bg-white dark:bg-[#032e18] border border-stone-200 dark:border-white/10 rounded-[3rem] p-8 w-full max-w-sm relative z-10 shadow-2xl animate-in zoom-in slide-in-from-bottom-5 duration-300 overflow-hidden transition-all duration-300",
                         isTotalInputFocused && "-translate-y-[100px]"
                     )}>
                         <div className="absolute top-0 right-0 p-4">
-                            <button onClick={() => setShowTotalModal(false)} className="text-white/40 hover:text-white p-2">
+                            <button onClick={() => setShowTotalModal(false)} className="text-stone-400 hover:text-stone-700 dark:text-white/40 dark:hover:text-white p-2">
                                 <X size={24} />
                             </button>
                         </div>
 
                         <div className="text-center mb-8">
-                            <div className="w-16 h-16 bg-islamic-gold/10 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-islamic-gold/20">
-                                <Star className="text-islamic-gold w-8 h-8" />
+                            <div className="w-16 h-16 bg-islamic-green/10 border-islamic-green/20 dark:bg-islamic-gold/10 dark:border-islamic-gold/20 rounded-2xl flex items-center justify-center mx-auto mb-4 border">
+                                <Star className="text-islamic-green dark:text-islamic-gold w-8 h-8" />
                             </div>
-                            <h3 className="text-2xl font-serif font-bold text-islamic-gold mb-2">{t('setTotalCount', { defaultValue: 'Toplam Zikri Ayarla' })}</h3>
-                            <p className="text-white/40 text-sm">{t('setTotalCountDesc', { defaultValue: 'Başka yerde çektiğiniz zikirleri buraya eklemek için toplam zikir sayısını güncelleyebilirsiniz.' })}</p>
+                            <h3 className="text-2xl font-serif font-bold text-islamic-green dark:text-islamic-gold mb-2">{t('setTotalCount', { defaultValue: 'Toplam Zikri Ayarla' })}</h3>
+                            <p className="text-stone-500 dark:text-white/40 text-sm">{t('setTotalCountDesc', { defaultValue: 'Başka yerde çektiğiniz zikirleri buraya eklemek için toplam zikir sayısını güncelleyebilirsiniz.' })}</p>
                         </div>
 
                         <div className="relative mb-8">
@@ -1981,7 +1981,7 @@ export default function Dhikr() {
                                 onFocus={() => setIsTotalInputFocused(true)}
                                 onBlur={() => setIsTotalInputFocused(false)}
                                 max="999999"
-                                className="w-full bg-black/30 border border-white/10 rounded-2xl py-5 px-6 text-4xl font-mono font-bold text-center text-islamic-gold focus:outline-none focus:border-islamic-gold/50 transition-all placeholder:opacity-20"
+                                className="w-full bg-stone-100 border-stone-200 text-islamic-green focus:border-islamic-green/50 dark:bg-black/30 dark:border-white/10 dark:text-islamic-gold dark:focus:border-islamic-gold/50 border rounded-2xl py-5 px-6 text-4xl font-mono font-bold text-center focus:outline-none transition-all placeholder:opacity-20"
                                 placeholder="1000"
                                 autoFocus
                             />
@@ -2003,26 +2003,26 @@ export default function Dhikr() {
 
             {showResetConfirm && (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 animate-in fade-in duration-200">
-                    <div className="absolute inset-0 bg-black/60 backdrop-blur-[3px]" onClick={() => setShowResetConfirm(false)} />
-                    <div className="bg-gradient-to-br from-[#021f11]/95 via-[#010e08]/98 to-[#010e08]/95 border border-islamic-gold/20 rounded-[2rem] p-6 w-full max-w-[290px] relative z-10 shadow-2xl animate-in zoom-in-95 duration-200 overflow-hidden text-center">
+                    <div className="absolute inset-0 bg-black/40 dark:bg-black/60 backdrop-blur-[3px]" onClick={() => setShowResetConfirm(false)} />
+                    <div className="bg-white border-stone-200 dark:bg-gradient-to-br dark:from-[#021f11]/95 dark:via-[#010e08]/98 dark:to-[#010e08]/95 dark:border-islamic-gold/20 border rounded-[2rem] p-6 w-full max-w-[290px] relative z-10 shadow-2xl animate-in zoom-in-95 duration-200 overflow-hidden text-center">
                         <div className="absolute top-0 right-0 p-3">
-                            <button onClick={() => setShowResetConfirm(false)} className="text-white/30 hover:text-white p-1 transition-colors">
+                            <button onClick={() => setShowResetConfirm(false)} className="text-stone-400 hover:text-stone-700 dark:text-white/30 dark:hover:text-white p-1 transition-colors">
                                 <X size={18} />
                             </button>
                         </div>
 
                         <div className="flex flex-col items-center mb-6">
-                            <div className="w-12 h-12 bg-islamic-gold/10 rounded-full flex items-center justify-center mb-3 border border-islamic-gold/20 shadow-[0_0_15px_rgba(212,175,55,0.05)]">
-                                <RotateCcw className="text-islamic-gold w-5 h-5" />
+                            <div className="w-12 h-12 bg-islamic-green/10 border-islamic-green/20 dark:bg-islamic-gold/10 dark:border-islamic-gold/20 rounded-full flex items-center justify-center mb-3 border dark:shadow-[0_0_15px_rgba(212,175,55,0.05)]">
+                                <RotateCcw className="text-islamic-green dark:text-islamic-gold w-5 h-5" />
                             </div>
-                            <h3 className="text-lg font-serif font-bold text-islamic-gold/90 mb-1">{t('resetDhikrTitle', { defaultValue: 'Zikri Sıfırla' })}</h3>
-                            <p className="text-[11px] text-white/50 leading-relaxed px-2">{t('confirmReset')}</p>
+                            <h3 className="text-lg font-serif font-bold text-islamic-green/90 dark:text-islamic-gold/90 mb-1">{t('resetDhikrTitle', { defaultValue: 'Zikri Sıfırla' })}</h3>
+                            <p className="text-[11px] text-stone-500 dark:text-white/50 leading-relaxed px-2">{t('confirmReset')}</p>
                         </div>
 
                         <div className="flex gap-3">
                             <button
                                 onClick={() => setShowResetConfirm(false)}
-                                className="flex-1 h-10 rounded-xl bg-white/5 hover:bg-white/10 text-white/70 text-xs font-semibold transition-all active:scale-95 border border-white/10"
+                                className="flex-1 h-10 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-600 dark:bg-white/5 dark:hover:bg-white/10 dark:text-white/70 text-xs font-semibold transition-all active:scale-95 border border-stone-200 dark:border-white/10"
                             >
                                 {t('cancel')}
                             </button>
@@ -2075,47 +2075,47 @@ export default function Dhikr() {
                             animate={{ y: 0 }}
                             exit={{ y: "100%" }}
                             transition={{ type: "spring", damping: 25, stiffness: 220 }}
-                            className="fixed inset-x-0 bottom-0 bg-gradient-to-b from-[#06331c] via-[#021f11] to-[#010e08] border-t border-white/10 rounded-t-[2.5rem] px-6 pb-8 pt-4 z-[100] shadow-[0_-10px_35px_rgba(0,0,0,0.6)] flex flex-col gap-4 no-tap-anywhere"
+                            className="fixed inset-x-0 bottom-0 bg-[#FAF8F3] dark:bg-gradient-to-b dark:from-[#06331c] dark:via-[#021f11] dark:to-[#010e08] border-t border-stone-200 dark:border-white/10 rounded-t-[2.5rem] px-6 pb-8 pt-4 z-[100] shadow-[0_-10px_35px_rgba(0,0,0,0.15)] dark:shadow-[0_-10px_35px_rgba(0,0,0,0.6)] flex flex-col gap-4 no-tap-anywhere"
                         >
                             {/* Drag handle / Grabber */}
-                            <div 
-                                className="w-14 h-1.5 bg-white/20 hover:bg-white/30 rounded-full mx-auto cursor-pointer transition-colors"
+                            <div
+                                className="w-14 h-1.5 bg-stone-300 hover:bg-stone-400 dark:bg-white/20 dark:hover:bg-white/30 rounded-full mx-auto cursor-pointer transition-colors"
                                 onClick={() => setShowQuickSettings(false)}
                             />
 
                             {/* Header */}
                             <div className="flex justify-between items-center pb-2 relative">
                                 <div className="flex items-center gap-2.5">
-                                    <div className="p-2 bg-islamic-gold/15 rounded-xl border border-islamic-gold/20 shadow-[0_0_10px_rgba(212,175,55,0.1)]">
-                                        <Sparkles className="w-5 h-5 text-islamic-gold animate-pulse" />
+                                    <div className="p-2 bg-islamic-green/10 border-islamic-green/20 dark:bg-islamic-gold/15 dark:border-islamic-gold/20 rounded-xl border dark:shadow-[0_0_10px_rgba(212,175,55,0.1)]">
+                                        <Sparkles className="w-5 h-5 text-islamic-green dark:text-islamic-gold animate-pulse" />
                                     </div>
-                                    <h3 className="text-xl font-serif font-black bg-gradient-to-r from-amber-200 via-islamic-gold to-amber-500 bg-clip-text text-transparent uppercase tracking-wider">
+                                    <h3 className="text-xl font-serif font-black text-islamic-green dark:text-transparent dark:bg-gradient-to-r dark:from-amber-200 dark:via-islamic-gold dark:to-amber-500 dark:bg-clip-text uppercase tracking-wider">
                                         {t('quickSettings', { defaultValue: 'Hızlı Ayarlar' })}
                                     </h3>
                                 </div>
-                                <button 
+                                <button
                                     onClick={() => setShowQuickSettings(false)}
-                                    className="p-2 rounded-full bg-white/5 hover:bg-white/10 text-white/55 hover:text-white transition-colors"
+                                    className="p-2 rounded-full bg-stone-100 hover:bg-stone-200 text-stone-500 hover:text-stone-800 dark:bg-white/5 dark:hover:bg-white/10 dark:text-white/55 dark:hover:text-white transition-colors"
                                 >
                                     <X size={20} />
                                 </button>
                             </div>
 
                             {/* Decorative line */}
-                            <div className="h-[1px] w-full bg-gradient-to-r from-transparent via-islamic-gold/30 to-transparent -mt-2" />
+                            <div className="h-[1px] w-full bg-gradient-to-r from-transparent via-islamic-green/25 dark:via-islamic-gold/30 to-transparent -mt-2" />
 
                             {/* Settings Container */}
-                            <div className="flex flex-col bg-black/35 rounded-3xl border border-islamic-gold/15 divide-y divide-white/5 overflow-hidden shadow-[inset_0_1px_2px_rgba(255,255,255,0.05),0_10px_30px_rgba(0,0,0,0.5)]">
+                            <div className="flex flex-col bg-white dark:bg-black/35 rounded-3xl border border-stone-200 dark:border-islamic-gold/15 divide-y divide-stone-100 dark:divide-white/5 overflow-hidden shadow-md dark:shadow-[inset_0_1px_2px_rgba(255,255,255,0.05),0_10px_30px_rgba(0,0,0,0.5)]">
                                 
                                 {/* Sound Row */}
                                 <div className="flex items-center justify-between p-5">
                                     <div className="flex items-center gap-3.5">
-                                        <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-islamic-gold shadow-[inset_0_1px_2px_rgba(255,255,255,0.05)]">
-                                            {soundMode === 'mute' ? <VolumeX size={18} className="text-white/40" /> : <Volume2 size={18} />}
+                                        <div className="w-10 h-10 rounded-xl bg-stone-100 border border-stone-200 text-islamic-green dark:bg-white/5 dark:border-white/10 dark:text-islamic-gold flex items-center justify-center dark:shadow-[inset_0_1px_2px_rgba(255,255,255,0.05)]">
+                                            {soundMode === 'mute' ? <VolumeX size={18} className="text-stone-400 dark:text-white/40" /> : <Volume2 size={18} />}
                                         </div>
                                         <div className="flex flex-col">
-                                            <span className="text-base font-bold text-white/95 tracking-wide">{t('soundLabel', { defaultValue: 'Ses Efekti' })}</span>
-                                            <span className="text-xs text-white/50 leading-relaxed mt-0.5">{soundMode === 'mute' ? t('sound.mute', { defaultValue: 'Kapalı' }) : t('sound.click', { defaultValue: 'Klik Sesi' })}</span>
+                                            <span className="text-base font-bold text-stone-800 dark:text-white/95 tracking-wide">{t('soundLabel', { defaultValue: 'Ses Efekti' })}</span>
+                                            <span className="text-xs text-stone-500 dark:text-white/50 leading-relaxed mt-0.5">{soundMode === 'mute' ? t('sound.mute', { defaultValue: 'Kapalı' }) : t('sound.click', { defaultValue: 'Klik Sesi' })}</span>
                                         </div>
                                     </div>
                                     {/* Toggle Switch */}
@@ -2134,7 +2134,7 @@ export default function Dhikr() {
                                         onTouchStart={(e) => e.stopPropagation()}
                                         className={cn(
                                             "w-12 h-7 rounded-full p-0.5 cursor-pointer transition-all duration-200 relative flex items-center shadow-md",
-                                            soundMode !== 'mute' ? "bg-gradient-to-r from-amber-500 to-islamic-gold shadow-[0_0_12px_rgba(212,175,55,0.35)]" : "bg-white/10"
+                                            soundMode !== 'mute' ? "bg-gradient-to-r from-amber-500 to-islamic-gold shadow-[0_0_12px_rgba(212,175,55,0.35)]" : "bg-stone-300 dark:bg-white/10"
                                         )}
                                     >
                                         <div 
@@ -2149,12 +2149,12 @@ export default function Dhikr() {
                                 {/* Vibration Row */}
                                 <div className="flex flex-col gap-3.5 p-5">
                                     <div className="flex items-center gap-3.5">
-                                        <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-islamic-gold shadow-[inset_0_1px_2px_rgba(255,255,255,0.05)]">
-                                            <Smartphone size={18} className={hapticsMode !== 'off' ? "text-islamic-gold" : "text-white/40"} />
+                                        <div className="w-10 h-10 rounded-xl bg-stone-100 border border-stone-200 text-islamic-green dark:bg-white/5 dark:border-white/10 dark:text-islamic-gold flex items-center justify-center dark:shadow-[inset_0_1px_2px_rgba(255,255,255,0.05)]">
+                                            <Smartphone size={18} className={hapticsMode !== 'off' ? "text-islamic-green dark:text-islamic-gold" : "text-stone-400 dark:text-white/40"} />
                                         </div>
                                         <div className="flex flex-col">
-                                            <span className="text-base font-bold text-white/95 tracking-wide">{t('vibrationLabel', { defaultValue: 'Titreşim Geri Bildirimi' })}</span>
-                                            <span className="text-xs text-white/50 leading-relaxed mt-0.5">
+                                            <span className="text-base font-bold text-stone-800 dark:text-white/95 tracking-wide">{t('vibrationLabel', { defaultValue: 'Titreşim Geri Bildirimi' })}</span>
+                                            <span className="text-xs text-stone-500 dark:text-white/50 leading-relaxed mt-0.5">
                                                 {hapticsMode === 'all' ? t('vibration.everyClick', { defaultValue: 'Her tıklamada titreşir' }) :
                                                  hapticsMode === 'target' ? t('vibration.targetOnly', { defaultValue: 'Sadece hedefe ulaşıldığında titreşir' }) :
                                                  t('vibration.off', { defaultValue: 'Titreşim kapalı' })}
@@ -2163,7 +2163,7 @@ export default function Dhikr() {
                                     </div>
                                     
                                     {/* Segmented Picker */}
-                                    <div className="grid grid-cols-3 bg-black/45 border border-white/10 rounded-2xl p-0.5 select-none relative mt-1 overflow-hidden shadow-inner">
+                                    <div className="grid grid-cols-3 bg-stone-100 border-stone-200 dark:bg-black/45 dark:border-white/10 border rounded-2xl p-0.5 select-none relative mt-1 overflow-hidden shadow-inner">
                                         {[
                                             { id: 'off', label: t('vibration.offShort', { defaultValue: 'Kapalı' }) },
                                             { id: 'target', label: t('vibration.targetOnlyShort', { defaultValue: 'Hedef' }) },
@@ -2185,8 +2185,10 @@ export default function Dhikr() {
                                                         try { haptics.medium(); } catch (e) {}
                                                     }}
                                                     onTouchStart={(e) => e.stopPropagation()}
-                                                    className="py-2.5 text-xs font-bold rounded-xl z-10 transition-all text-center relative flex items-center justify-center active:scale-95 duration-150"
-                                                    style={{ color: isSelected ? '#021a0f' : 'rgba(255,255,255,0.6)' }}
+                                                    className={cn(
+                                                        "py-2.5 text-xs font-bold rounded-xl z-10 transition-all text-center relative flex items-center justify-center active:scale-95 duration-150",
+                                                        isSelected ? "text-[#021a0f]" : "text-stone-500 dark:text-white/60"
+                                                    )}
                                                 >
                                                     {isSelected && (
                                                         <motion.div 
@@ -2205,12 +2207,12 @@ export default function Dhikr() {
                                 {/* Fullscreen Click Row */}
                                 <div className="flex items-center justify-between p-5">
                                     <div className="flex items-center gap-3.5">
-                                        <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-islamic-gold shadow-[inset_0_1px_2px_rgba(255,255,255,0.05)]">
-                                            <Fingerprint size={18} className={isFullScreenTap ? "text-islamic-gold" : "text-white/40"} />
+                                        <div className="w-10 h-10 rounded-xl bg-stone-100 border border-stone-200 text-islamic-green dark:bg-white/5 dark:border-white/10 dark:text-islamic-gold flex items-center justify-center dark:shadow-[inset_0_1px_2px_rgba(255,255,255,0.05)]">
+                                            <Fingerprint size={18} className={isFullScreenTap ? "text-islamic-green dark:text-islamic-gold" : "text-stone-400 dark:text-white/40"} />
                                         </div>
                                         <div className="flex flex-col">
-                                            <span className="text-base font-bold text-white/95 tracking-wide">{t('fullscreenTap', { defaultValue: 'Tam Ekran Tıklama' })}</span>
-                                            <span className="text-xs text-white/50 leading-relaxed mt-0.5">{t('fullScreenTapDesc', { defaultValue: 'Ekranın herhangi bir yerine dokunarak çekim yapın' })}</span>
+                                            <span className="text-base font-bold text-stone-800 dark:text-white/95 tracking-wide">{t('fullscreenTap', { defaultValue: 'Tam Ekran Tıklama' })}</span>
+                                            <span className="text-xs text-stone-500 dark:text-white/50 leading-relaxed mt-0.5">{t('fullScreenTapDesc', { defaultValue: 'Ekranın herhangi bir yerine dokunarak çekim yapın' })}</span>
                                         </div>
                                     </div>
                                     {/* Toggle Switch */}
@@ -2225,7 +2227,7 @@ export default function Dhikr() {
                                         onTouchStart={(e) => e.stopPropagation()}
                                         className={cn(
                                             "w-12 h-7 rounded-full p-0.5 cursor-pointer transition-all duration-200 relative flex items-center shadow-md",
-                                            isFullScreenTap ? "bg-gradient-to-r from-amber-500 to-islamic-gold shadow-[0_0_12px_rgba(212,175,55,0.35)]" : "bg-white/10"
+                                            isFullScreenTap ? "bg-gradient-to-r from-amber-500 to-islamic-gold shadow-[0_0_12px_rgba(212,175,55,0.35)]" : "bg-stone-300 dark:bg-white/10"
                                         )}
                                     >
                                         <div 
@@ -2241,12 +2243,12 @@ export default function Dhikr() {
                                 {Capacitor.isNativePlatform() && (
                                     <div className="flex items-center justify-between p-5">
                                         <div className="flex items-center gap-3.5">
-                                            <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-islamic-gold shadow-[inset_0_1px_2px_rgba(255,255,255,0.05)]">
-                                                <Sliders size={18} className={volumeButtonsEnabled ? "text-islamic-gold" : "text-white/40"} />
+                                            <div className="w-10 h-10 rounded-xl bg-stone-100 border border-stone-200 text-islamic-green dark:bg-white/5 dark:border-white/10 dark:text-islamic-gold flex items-center justify-center dark:shadow-[inset_0_1px_2px_rgba(255,255,255,0.05)]">
+                                                <Sliders size={18} className={volumeButtonsEnabled ? "text-islamic-green dark:text-islamic-gold" : "text-stone-400 dark:text-white/40"} />
                                             </div>
                                             <div className="flex flex-col">
-                                                <span className="text-base font-bold text-white/95 tracking-wide">{t('volumeButtonsLabel', { defaultValue: 'Ses Tuşları' })}</span>
-                                                <span className="text-xs text-white/50 leading-relaxed mt-0.5">{t('volumeButtonsDesc', { defaultValue: 'Cihazın fiziksel ses tuşları ile zikir çekin' })}</span>
+                                                <span className="text-base font-bold text-stone-800 dark:text-white/95 tracking-wide">{t('volumeButtonsLabel', { defaultValue: 'Ses Tuşları' })}</span>
+                                                <span className="text-xs text-stone-500 dark:text-white/50 leading-relaxed mt-0.5">{t('volumeButtonsDesc', { defaultValue: 'Cihazın fiziksel ses tuşları ile zikir çekin' })}</span>
                                             </div>
                                         </div>
                                         {/* Toggle Switch */}
@@ -2261,7 +2263,7 @@ export default function Dhikr() {
                                             onTouchStart={(e) => e.stopPropagation()}
                                             className={cn(
                                                 "w-12 h-7 rounded-full p-0.5 cursor-pointer transition-all duration-200 relative flex items-center shadow-md",
-                                                volumeButtonsEnabled ? "bg-gradient-to-r from-amber-500 to-islamic-gold shadow-[0_0_12px_rgba(212,175,55,0.35)]" : "bg-white/10"
+                                                volumeButtonsEnabled ? "bg-gradient-to-r from-amber-500 to-islamic-gold shadow-[0_0_12px_rgba(212,175,55,0.35)]" : "bg-stone-300 dark:bg-white/10"
                                             )}
                                         >
                                             <div 

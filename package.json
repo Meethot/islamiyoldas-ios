@@ -30,6 +30,7 @@
     "@capacitor/motion": "^8.0.0",
     "@capacitor/preferences": "^8.0.0",
     "@capacitor/share": "^8.0.0",
+    "@capacitor/splash-screen": "^8.0.1",
     "@capacitor/status-bar": "^8.0.0",
     "@capgo/capacitor-compass": "^8.1.9",
     "@capgo/capacitor-in-app-review": "^8.1.9",

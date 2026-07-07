@@ -65,6 +65,13 @@ export const trackRevenue = (productId, price, quantity = 1) => {
     amplitude.revenue(event);
 };
 
+// RevenueCat app user ID'sini Amplitude kullanıcısına bağla — bir ödemenin hangi
+// Amplitude kullanıcısına ait olduğu iki panelde de aynı ID ile eşleşir.
+export const setAnalyticsUserId = (userId) => {
+    if (!userId) return;
+    amplitude.setUserId(userId);
+};
+
 export const setUserProperties = (properties) => {
     const identify = new amplitude.Identify();
     Object.entries(properties).forEach(([key, value]) => {

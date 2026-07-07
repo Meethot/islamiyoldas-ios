@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Düz koyu splash: iOS LaunchScreen ile aynı renk, beyaz/renk patlaması yok -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <solid android:color="@color/splashBackground" />
+</shape>

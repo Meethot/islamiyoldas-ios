@@ -7,6 +7,21 @@
   <meta name="viewport"
     content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <title>İslami Yoldaş</title>
+  <!-- Splash rengiyle aynı arka plan: JS yüklenene kadarki yanlış-renk flaşı önler -->
+  <style>
+    html, body { background: #021a0f; }
+    html.light, html.light body { background: #FAF8F3; }
+  </style>
+  <script>
+    (function () {
+      var dark = true;
+      try {
+        var t = localStorage.getItem('theme') || 'dark';
+        dark = t === 'dark' || (t === 'system' && matchMedia('(prefers-color-scheme: dark)').matches);
+      } catch (e) { /* localStorage yoksa koyu varsay */ }
+      document.documentElement.classList.add(dark ? 'dark' : 'light');
+    })();
+  </script>
 </head>
 
 <body>

@@ -1,5 +1,6 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect, useRef } from "react";
+import { SplashScreen as NativeSplash } from "@capacitor/splash-screen";
 import i18n from "@/i18n";
 import logo from "../assets/logo.png";
 
@@ -11,6 +12,18 @@ export default function SplashScreen({ dataReady = false }) {
 
     useEffect(() => {
         window.scrollTo(0, 0);
+    }, []);
+
+    // Native splash'i React splash ilk karesi çizildikten sonra kapat —
+    // launchAutoHide: false, geçiş boşluğu (beyaz flaş) kalmaz
+    useEffect(() => {
+        let raf2;
+        const raf1 = requestAnimationFrame(() => {
+            raf2 = requestAnimationFrame(() => {
+                NativeSplash.hide({ fadeOutDuration: 300 }).catch(() => { });
+            });
+        });
+        return () => { cancelAnimationFrame(raf1); if (raf2) cancelAnimationFrame(raf2); };
     }, []);
 
     // Smooth continuous progress — never gets "stuck"

@@ -182,7 +182,7 @@ export default function Murakabe() {
         }).length;
 
     return (
-        <div className="min-h-screen bg-gradient-to-b from-[#022c22] via-[#064e3b] to-[#000000] relative overflow-hidden">
+        <div className="min-h-screen bg-gradient-to-b from-[#FAF8F3] via-[#F5F0E6] to-[#EDE6D6] dark:from-[#022c22] dark:via-[#064e3b] dark:to-[#000000] relative overflow-hidden">
             {/* Ambient Glow */}
             <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-emerald-500/10 rounded-full blur-[150px] pointer-events-none" />
 
@@ -196,19 +196,19 @@ export default function Murakabe() {
             />
 
             {/* Header */}
-            <header className="relative z-10 flex items-center justify-between px-4 py-6 border-b border-white/5">
+            <header className="relative z-10 flex items-center justify-between px-4 py-6 border-b border-stone-900/5 dark:border-white/5">
                 <button
                     onClick={handleBack}
-                    className="p-2 rounded-full hover:bg-white/5 transition-colors"
+                    className="p-2 rounded-full hover:bg-stone-900/5 dark:hover:bg-white/5 transition-colors"
                 >
-                    <ChevronLeft className="w-6 h-6 text-white/70" />
+                    <ChevronLeft className="w-6 h-6 text-stone-600 dark:text-white/70" />
                 </button>
                 <div className="text-center">
-                    <h1 className="text-lg font-serif font-bold text-islamic-gold tracking-wide">
+                    <h1 className="text-lg font-serif font-bold text-islamic-green dark:text-islamic-gold tracking-wide">
                         {t('title')}
                     </h1>
                     {!isCompleted && questions.length > 0 && (
-                        <p className="text-xs text-white/40 mt-1">
+                        <p className="text-xs text-stone-400 dark:text-white/40 mt-1">
                             {currentIndex + 1} / {questions.length}
                         </p>
                     )}
@@ -218,9 +218,9 @@ export default function Murakabe() {
 
             {/* Progress Bar */}
             {!isCompleted && (
-                <div className="relative z-10 h-1 bg-white/5 mx-6 mt-4 rounded-full overflow-hidden">
+                <div className="relative z-10 h-1 bg-stone-900/10 dark:bg-white/5 mx-6 mt-4 rounded-full overflow-hidden">
                     <motion.div
-                        className="h-full bg-gradient-to-r from-islamic-gold/80 to-islamic-gold"
+                        className="h-full bg-gradient-to-r from-islamic-green/80 to-islamic-green dark:from-islamic-gold/80 dark:to-islamic-gold"
                         initial={{ width: 0 }}
                         animate={{ width: `${progress}%` }}
                         transition={{ duration: 0.4, ease: 'easeOut' }}
@@ -242,24 +242,24 @@ export default function Murakabe() {
                             className="w-full max-w-md"
                         >
                             {/* The Card */}
-                            <div className="bg-emerald-900/40 backdrop-blur-xl border border-emerald-700/50 rounded-[2rem] p-8 shadow-2xl shadow-black/30">
+                            <div className="bg-white/80 dark:bg-emerald-900/40 backdrop-blur-xl border border-stone-200/80 dark:border-emerald-700/50 rounded-[2rem] p-8 shadow-2xl shadow-stone-300/50 dark:shadow-black/30">
                                 {/* Icon */}
                                 <div className="flex justify-center mb-8">
-                                    <div className="p-5 bg-islamic-gold/10 rounded-full border border-islamic-gold/20">
+                                    <div className="p-5 bg-islamic-green/10 dark:bg-islamic-gold/10 rounded-full border border-islamic-green/20 dark:border-islamic-gold/20">
                                         <currentQuestion.icon
-                                            className="w-12 h-12 text-islamic-gold"
+                                            className="w-12 h-12 text-islamic-green dark:text-islamic-gold"
                                             strokeWidth={1.5}
                                         />
                                     </div>
                                 </div>
 
                                 {/* Question */}
-                                <h2 className="text-2xl font-serif text-amber-100 text-center leading-relaxed min-h-[100px] flex items-center justify-center">
+                                <h2 className="text-2xl font-serif text-stone-800 dark:text-amber-100 text-center leading-relaxed min-h-[100px] flex items-center justify-center">
                                     {typeof currentQuestion.text === 'object' ? (currentQuestion.text[currentLang] || currentQuestion.text.tr) : currentQuestion.text}
                                 </h2>
 
                                 {/* Decorative Line */}
-                                <div className="h-px w-16 mx-auto mt-8 bg-gradient-to-r from-transparent via-islamic-gold/50 to-transparent" />
+                                <div className="h-px w-16 mx-auto mt-8 bg-gradient-to-r from-transparent via-islamic-green/40 dark:via-islamic-gold/50 to-transparent" />
                             </div>
 
                             {/* Answer Buttons */}
@@ -268,7 +268,7 @@ export default function Murakabe() {
                                     onClick={() => handleAnswer(false)}
                                     className={cn(
                                         "flex-1 h-16 rounded-2xl font-semibold text-lg transition-all active:scale-95",
-                                        "bg-white/5 border border-white/10 text-white/70 hover:bg-white/10 hover:text-white"
+                                        "bg-white border border-stone-200 text-stone-600 hover:bg-stone-50 hover:text-stone-800 dark:bg-white/5 dark:border-white/10 dark:text-white/70 dark:hover:bg-white/10 dark:hover:text-white"
                                     )}
                                 >
                                     <X className="w-5 h-5 mr-2" />
@@ -362,7 +362,7 @@ export default function Murakabe() {
 
                             {/* Title - Staggered */}
                             <motion.h2
-                                className="text-5xl font-serif text-islamic-gold mb-4 tracking-wide"
+                                className="text-5xl font-serif text-islamic-green dark:text-islamic-gold mb-4 tracking-wide"
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: 0.6, duration: 0.6 }}
@@ -372,7 +372,7 @@ export default function Murakabe() {
 
                             {/* Spiritual Message - Staggered */}
                             <motion.p
-                                className="text-xl text-emerald-100/80 font-light mb-12 leading-relaxed px-4 text-center"
+                                className="text-xl text-stone-600 dark:text-emerald-100/80 font-light mb-12 leading-relaxed px-4 text-center"
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: 0.9, duration: 0.6 }}
@@ -383,30 +383,30 @@ export default function Murakabe() {
                             {/* Daily Destiny (Ayah) Card */}
                             {selectedAyah && (
                                 <motion.div
-                                    className="bg-gradient-to-br from-emerald-900/60 to-emerald-950/80 backdrop-blur-xl border border-islamic-gold/20 rounded-3xl p-8 mb-8 max-w-sm mx-auto"
+                                    className="bg-white/80 dark:bg-gradient-to-br dark:from-emerald-900/60 dark:to-emerald-950/80 backdrop-blur-xl border border-islamic-green/15 dark:border-islamic-gold/20 rounded-3xl p-8 mb-8 max-w-sm mx-auto"
                                     initial={{ opacity: 0, y: 20 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ delay: 1.2, duration: 0.6 }}
                                 >
                                     {/* Intro Label */}
-                                    <p className="text-sm text-islamic-gold/70 italic text-center mb-4 tracking-wide">
+                                    <p className="text-sm text-islamic-green/70 dark:text-islamic-gold/70 italic text-center mb-4 tracking-wide">
                                         {t('yourShare')}
                                     </p>
 
                                     {/* Decorative Line */}
                                     <div className="flex items-center justify-center gap-3 mb-6">
-                                        <div className="h-px w-12 bg-islamic-gold/30" />
-                                        <div className="w-1.5 h-1.5 rounded-full bg-islamic-gold/50" />
-                                        <div className="h-px w-12 bg-islamic-gold/30" />
+                                        <div className="h-px w-12 bg-islamic-green/25 dark:bg-islamic-gold/30" />
+                                        <div className="w-1.5 h-1.5 rounded-full bg-islamic-green/40 dark:bg-islamic-gold/50" />
+                                        <div className="h-px w-12 bg-islamic-green/25 dark:bg-islamic-gold/30" />
                                     </div>
 
                                     {/* Ayah Text */}
-                                    <p className="text-xl font-serif text-amber-100 text-center leading-relaxed mb-6">
+                                    <p className="text-xl font-serif text-stone-800 dark:text-amber-100 text-center leading-relaxed mb-6">
                                         "{typeof selectedAyah.text === 'object' ? (selectedAyah.text[currentLang] || selectedAyah.text.tr) : selectedAyah.text}"
                                     </p>
 
                                     {/* Reference */}
-                                    <p className="text-sm text-white/40 text-center tracking-wider">
+                                    <p className="text-sm text-stone-400 dark:text-white/40 text-center tracking-wider">
                                         — {typeof selectedAyah.source === 'object' ? (selectedAyah.source[currentLang] || selectedAyah.source.tr) : selectedAyah.source}
                                     </p>
                                 </motion.div>
@@ -420,7 +420,7 @@ export default function Murakabe() {
                             >
                                 <Button
                                     onClick={handleFinish}
-                                    className="w-full h-16 rounded-2xl font-semibold text-lg bg-black/30 border border-white/20 text-white hover:bg-black/50 backdrop-blur-md transition-all active:scale-95"
+                                    className="w-full h-16 rounded-2xl font-semibold text-lg bg-white border border-stone-200 text-stone-700 hover:bg-stone-50 dark:bg-black/30 dark:border-white/20 dark:text-white dark:hover:bg-black/50 backdrop-blur-md transition-all active:scale-95"
                                 >
                                     {t('goHome')}
                                 </Button>
@@ -431,7 +431,7 @@ export default function Murakabe() {
             </main>
 
             {/* Bottom Gradient Fade */}
-            <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-black/50 to-transparent pointer-events-none" />
+            <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-stone-300/30 dark:from-black/50 to-transparent pointer-events-none" />
         </div >
     );
 }

@@ -222,15 +222,10 @@ export default function ReviewPrompt() {
                         exit={{ scale: 0.96, opacity: 0, y: 12 }}
                         transition={{ type: 'spring', damping: 28, stiffness: 350 }}
                         onClick={(e) => e.stopPropagation()}
-                        className="relative w-full max-w-[340px] rounded-3xl overflow-hidden"
-                        style={{
-                            background: 'linear-gradient(165deg, #123824 0%, #092114 100%)',
-                            border: '1px solid rgba(212,175,55,0.18)',
-                            boxShadow: '0 25px 50px rgba(0,0,0,0.6), 0 0 0 0.5px rgba(255,255,255,0.08) inset',
-                        }}
+                        className="relative w-full max-w-[340px] rounded-3xl overflow-hidden bg-white dark:bg-[linear-gradient(165deg,#123824_0%,#092114_100%)] border border-stone-200 dark:border-[#D4AF37]/[0.18] shadow-[0_25px_50px_rgba(0,0,0,0.2)] dark:shadow-[0_25px_50px_rgba(0,0,0,0.6),0_0_0_0.5px_rgba(255,255,255,0.08)_inset]"
                     >
                         {/* Arka plan süslemesi (Premium Dotted Mesh) */}
-                        <div className="absolute inset-0 pointer-events-none opacity-60" style={{
+                        <div className="absolute inset-0 pointer-events-none opacity-60 hidden dark:block" style={{
                             backgroundImage: 'radial-gradient(rgba(212, 175, 55, 0.15) 1px, transparent 1px)',
                             backgroundSize: '20px 20px',
                             maskImage: 'linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 80%)',
@@ -238,7 +233,7 @@ export default function ReviewPrompt() {
                         }} />
 
                         {/* Üst altın ışık (Kalbin arkasından vuran parlama) */}
-                        <div className="absolute -top-16 left-1/2 -translate-x-1/2 w-72 h-72 rounded-full pointer-events-none"
+                        <div className="absolute -top-16 left-1/2 -translate-x-1/2 w-72 h-72 rounded-full pointer-events-none hidden dark:block"
                             style={{ background: 'radial-gradient(circle, rgba(212,175,55,0.12) 0%, transparent 60%)' }} />
 
                         {/* STEP: ASK — Yıldız seçtirme */}
@@ -267,18 +262,16 @@ export default function ReviewPrompt() {
                                     <Heart size={44} className="text-islamic-gold" fill="currentColor" strokeWidth={1} />
                                 </motion.div>
 
-                                <h2 className="text-[21px] font-semibold text-white mb-2 text-center leading-snug">
+                                <h2 className="text-[21px] font-semibold text-stone-900 dark:text-white mb-2 text-center leading-snug">
                                     {t('review.askTitle', 'Bize Destek Olmak İster Misin?')}
                                 </h2>
-                                <p className="text-[14px] text-white/60 leading-relaxed mb-6 text-center px-1">
+                                <p className="text-[14px] text-stone-500 dark:text-white/60 leading-relaxed mb-6 text-center px-1">
                                     {t('review.askDescription', 'İslami Yoldaş\'ı ümmet için büyük bir sevgi ve emekle geliştiriyoruz. Bize 5 yıldız vererek bu yolda elimizden tutar mısın?')}
                                 </p>
 
                                 {/* Hadis kutusu - 2. ekrandan taşındı */}
-                                <div className="w-full rounded-xl p-3 mb-6"
-                                    style={{ backgroundColor: 'rgba(212,175,55,0.06)', border: '1px solid rgba(212,175,55,0.1)' }}
-                                >
-                                    <p className="text-[13px] italic text-islamic-gold/70 text-center leading-relaxed">
+                                <div className="w-full rounded-xl p-3 mb-6 bg-islamic-green/5 border border-islamic-green/10 dark:bg-[#D4AF37]/[0.06] dark:border-[#D4AF37]/10">
+                                    <p className="text-[13px] italic text-islamic-green/80 dark:text-islamic-gold/70 text-center leading-relaxed">
                                         {t('review.hadith', '"Kim bir hayra vesile olursa, o hayrı yapanın ecri gibi ecir alır." (Müslim)')}
                                     </p>
                                 </div>
@@ -310,9 +303,9 @@ export default function ReviewPrompt() {
                                                 >
                                                     <Star
                                                         size={36}
-                                                        className="transition-all duration-200"
+                                                        className={isActive ? "transition-all duration-200" : "transition-all duration-200 text-stone-300 dark:text-white/15"}
                                                         fill={isActive ? '#D4AF37' : 'transparent'}
-                                                        stroke={isActive ? '#D4AF37' : 'rgba(255,255,255,0.15)'}
+                                                        stroke={isActive ? '#D4AF37' : 'currentColor'}
                                                         strokeWidth={isActive ? 0 : 1.5}
                                                         style={{
                                                             filter: isActive ? 'drop-shadow(0 2px 8px rgba(212,175,55,0.35))' : 'none'
@@ -325,11 +318,11 @@ export default function ReviewPrompt() {
                                 </div>
 
                                 {/* Alt ayırıcı çizgi */}
-                                <div className="w-12 h-px bg-white/10 mb-4" />
+                                <div className="w-12 h-px bg-stone-200 dark:bg-white/10 mb-4" />
 
                                 <button
                                     onClick={handleDismiss}
-                                    className="text-white/30 text-[14px] hover:text-white/50 transition-colors"
+                                    className="text-stone-400 hover:text-stone-600 dark:text-white/30 dark:hover:text-white/50 text-[14px] transition-colors"
                                 >
                                     {t('review.askLater', 'Daha Sonra Hatırlat')}
                                 </button>
@@ -351,10 +344,10 @@ export default function ReviewPrompt() {
                                     <Heart size={44} className="text-islamic-gold" strokeWidth={1.5} fill="#D4AF37" />
                                 </div>
 
-                                <h2 className="text-[21px] font-semibold text-white mb-2 text-center leading-snug">
+                                <h2 className="text-[21px] font-semibold text-stone-900 dark:text-white mb-2 text-center leading-snug">
                                     {t('review.thankYouTitle', 'Allah Razı Olsun! 🤍')}
                                 </h2>
-                                <p className="text-[14px] text-white/70 leading-relaxed mb-6 text-center">
+                                <p className="text-[14px] text-stone-600 dark:text-white/70 leading-relaxed mb-6 text-center">
                                     {t('review.thankYouDescription', 'Desteğiniz bizim için çok kıymetli. Uygulamamızı geliştirirken bizi motive ettiğiniz için teşekkür ederiz.')}
                                 </p>
                             </motion.div>
@@ -370,24 +363,20 @@ export default function ReviewPrompt() {
                                 className="flex flex-col items-center px-7 pt-10 pb-7 relative z-10"
                             >
                                 <div className="mb-5">
-                                    <Heart size={44} className="text-white/30" strokeWidth={1.5} />
+                                    <Heart size={44} className="text-stone-300 dark:text-white/30" strokeWidth={1.5} />
                                 </div>
 
-                                <h2 className="text-[21px] font-semibold text-white mb-2 text-center leading-snug">
+                                <h2 className="text-[21px] font-semibold text-stone-900 dark:text-white mb-2 text-center leading-snug">
                                     {t('review.feedbackTitle', 'Geri bildiriminiz için teşekkürler')}
                                 </h2>
-                                <p className="text-[14px] text-white/50 leading-relaxed mb-8 text-center">
+                                <p className="text-[14px] text-stone-500 dark:text-white/50 leading-relaxed mb-8 text-center">
                                     {t('review.feedbackDescription', 'Beklentilerinizi karşılayamadığımız için üzgünüz. Uygulamamızı sizin için daha iyi hale getirmek amacıyla çalışmaya devam edeceğiz.')}
                                 </p>
 
                                 <motion.button
                                     whileTap={{ scale: 0.97 }}
                                     onClick={handleDismiss}
-                                    className="w-full py-3.5 rounded-xl font-medium text-[15px] cursor-pointer"
-                                    style={{
-                                        backgroundColor: 'rgba(255,255,255,0.07)',
-                                        color: 'rgba(255,255,255,0.8)',
-                                    }}
+                                    className="w-full py-3.5 rounded-xl font-medium text-[15px] cursor-pointer bg-stone-100 text-stone-700 dark:bg-white/[0.07] dark:text-white/80"
                                 >
                                     {t('review.closeUnderstand', 'Tamam')}
                                 </motion.button>

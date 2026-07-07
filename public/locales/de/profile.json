@@ -20,17 +20,6 @@
     "title": "Benachrichtigungen",
     "subtitle": "Adhan, Vers & Motivation"
   },
-  "privacy": {
-    "title": "Datenschutz & Sicherheit",
-    "subtitle": "Datenschutz und Sperre",
-    "modal_title": "Daten & Datenschutz",
-    "data_info": "Deine Daten werden <strong>nur auf diesem Gerät</strong> gespeichert. Es werden keine Daten an unsere Server gesendet.",
-    "download": "Meine Daten herunterladen",
-    "delete_all": "Alle Daten löschen",
-    "delete_confirm": "Alle Ihre Daten werden dauerhaft gelöscht. Dies kann nicht rückgängig gemacht werden.",
-    "delete_cancel": "Abbrechen",
-    "delete_yes": "Ja, löschen"
-  },
   "appearance": {
     "title": "Erscheinungsbild",
     "dark_active": "Design der Ruhe",

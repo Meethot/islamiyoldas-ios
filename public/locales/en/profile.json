@@ -20,17 +20,6 @@
     "title": "Notifications",
     "subtitle": "Adhan, verse & motivation"
   },
-  "privacy": {
-    "title": "Privacy & Security",
-    "subtitle": "Data protection and lock",
-    "modal_title": "Data & Privacy",
-    "data_info": "Your data is stored <strong>only on this device</strong>. No data is sent to our servers.",
-    "download": "Download My Data",
-    "delete_all": "Delete All Data",
-    "delete_confirm": "All your data will be permanently deleted. This action cannot be undone.",
-    "delete_cancel": "Cancel",
-    "delete_yes": "Yes, Delete"
-  },
   "appearance": {
     "title": "Appearance",
     "dark_active": "Serenity Theme",

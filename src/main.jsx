@@ -12,9 +12,14 @@ import QueryProvider from './providers/QueryProvider.jsx'
 import { initAnalytics } from './services/analyticsService'
 import { Haptics } from '@capacitor/haptics'
 import { Preferences } from '@capacitor/preferences'
+import { SplashScreen as NativeSplash } from '@capacitor/splash-screen'
 
 // Initialize Amplitude Analytics
 initAnalytics();
+
+// Güvenlik ağı: JS bir sebeple SplashScreen.jsx'e ulaşamazsa bile
+// native splash 6 sn sonra mutlaka kapanır (launchAutoHide: false)
+setTimeout(() => { NativeSplash.hide().catch(() => { }); }, 6000);
 
 // Intercept Haptics globally to respect user settings
 const originalImpact = Haptics.impact;

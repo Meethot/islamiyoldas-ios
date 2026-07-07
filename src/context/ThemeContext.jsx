@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { Capacitor } from '@capacitor/core';
 
 const ThemeContext = createContext();
 
@@ -29,8 +30,17 @@ export function ThemeProvider({ children }) {
 
             if (active === 'dark') {
                 root.classList.add('dark');
+                root.classList.remove('light');
             } else {
                 root.classList.remove('dark');
+                root.classList.add('light');
+            }
+
+            // Status bar metni temaya uysun (Style.Dark = koyu zemin/açık metin)
+            if (Capacitor.isNativePlatform()) {
+                import('@capacitor/status-bar').then(({ StatusBar, Style }) => {
+                    StatusBar.setStyle({ style: active === 'dark' ? Style.Dark : Style.Light }).catch(() => {});
+                }).catch(() => {});
             }
         };
 

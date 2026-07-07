@@ -115,6 +115,7 @@
         "plan_yearly": "Yıllık",
         "plan_yearly_per_month": "Aylık ₺61,66",
         "badge_best_value": "%51 TASARRUF",
+        "badge_savings_pct": "%{{percent}} TASARRUF",
         "trial_included_monthly": "3 Gün Ücretsiz Deneme Dahil",
         "trial_included_yearly": "7 Gün Ücretsiz Deneme Dahil",
         "trial_reminder": "",
@@ -179,6 +180,9 @@
         "feat_all_premium": "Tüm Premium Özellikler",
         "use_offer": "TEKLİFİ KULLAN",
         "cancel_offer": "Teklifi iptal et ve çık",
+        "see_all_plans": "Tüm planları gör",
+        "disclaimer_offer": "Özel teklif fiyatıdır. Abonelik yıllık {{price}} üzerinden otomatik yenilenir. İstediğiniz zaman iptal edebilirsiniz.",
+        "offer_applied": "%{{percent}} indirim uygulandı",
         "discount_badge_pct": "%{{percent}} İNDİRİM",
         "discount_pct_short": "−%{{percent}}",
         "last_offer": "Son Teklif"

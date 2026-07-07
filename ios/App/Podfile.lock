@@ -32,6 +32,8 @@ PODS:
     - Capacitor
   - CapacitorShare (8.0.0):
     - Capacitor
+  - CapacitorSplashScreen (8.0.1):
+    - Capacitor
   - CapacitorStatusBar (8.0.0):
     - Capacitor
   - CapgoCapacitorCompass (8.1.9):
@@ -183,6 +185,7 @@ DEPENDENCIES:
   - "CapacitorLocalNotifications (from `../../node_modules/@capacitor/local-notifications`)"
   - "CapacitorPreferences (from `../../node_modules/@capacitor/preferences`)"
   - "CapacitorShare (from `../../node_modules/@capacitor/share`)"
+  - "CapacitorSplashScreen (from `../../node_modules/@capacitor/splash-screen`)"
   - "CapacitorStatusBar (from `../../node_modules/@capacitor/status-bar`)"
   - "CapgoCapacitorCompass (from `../../node_modules/@capgo/capacitor-compass`)"
   - "CapgoCapacitorInAppReview (from `../../node_modules/@capgo/capacitor-in-app-review`)"
@@ -248,6 +251,8 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/@capacitor/preferences"
   CapacitorShare:
     :path: "../../node_modules/@capacitor/share"
+  CapacitorSplashScreen:
+    :path: "../../node_modules/@capacitor/splash-screen"
   CapacitorStatusBar:
     :path: "../../node_modules/@capacitor/status-bar"
   CapgoCapacitorCompass:
@@ -282,6 +287,7 @@ SPEC CHECKSUMS:
   CapacitorLocalNotifications: 177cfbf8228d9bd82a147e094cb7984d7afb9e29
   CapacitorPreferences: 443fabe9670226200e595658a87ef0b1566716d4
   CapacitorShare: 12f1d192170cbcf9f108fd675ac8e343761a4638
+  CapacitorSplashScreen: 4b46c72298db552b3c57ce021ef028b6dc7f1fa7
   CapacitorStatusBar: 312e2e67928dfe9514c4a8916a1fd610552f5f35
   CapgoCapacitorCompass: c022080dea4313bdedb0e300a0702b96220de8a9
   CapgoCapacitorInAppReview: 79c8349ae0266d5437aca46e570837c733a2409b
@@ -314,6 +320,6 @@ SPEC CHECKSUMS:
   RevenuecatPurchasesCapacitorUi: 1a974121358fa37f729d3bba030b22159dee5d71
   RevenueCatUI: 32998f100fe73f1d0172df7eef4f0dd1bc781a05
 
-PODFILE CHECKSUM: a62292447d49a8f60dd19b3b459acc3c85107e13
+PODFILE CHECKSUM: 80bd5732413006f7fc384187b3924e88cd5069bf
 
 COCOAPODS: 1.16.2
