@@ -147,7 +147,7 @@ function AppContent() {
       analytics.appLoaded(loadTime, isFirstOpen);
       analytics.firstScreenVisible(onboardingComplete ? 'home' : 'onboarding', loadTime);
       if (isFirstOpen) storageService.setItem('has_launched_before', 'true');
-    }, 800);
+    }, 250);
     return () => clearTimeout(timer);
   }, [dataReady]);
 

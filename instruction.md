@@ -32,12 +32,12 @@ Proje bilgileri ve mevcut durum için `Memory.md`'ye bak.
 
 ## Canlıya çıkmadan önce (release checklist)
 > Kullanıcı dedi: "unutma live'a çıkarken kaldırıcaz bunları."
-- [ ] RevenueCat `setLogLevel(DEBUG)` → kapat
-- [ ] TEST amaçlı error toast'ları kaldır
-- [ ] Profile'daki test butonları (🔧 🔥 ⏱ 👁) kaldır
-- [ ] `appTestDayOffset` localStorage kalıntısını sıfırla (⏱ gün ilerletme testi) — kalırsa TÜM ezan vakitleri ileri tarihten hesaplanır
-- [ ] `AppLayout` / `Profile` içindeki `debugShowPaywall` kaldır
-- [ ] App Store Connect'te `offer.499` / `offer.399` ürünlerini doğrula
+- [x] RevenueCat `setLogLevel(DEBUG)` → `import.meta.env.DEV` koşuluna alındı (2026-07-08)
+- [x] TEST amaçlı error toast'ları kaldırıldı — paywall artık `getErrorMessage` ile kullanıcı-dostu mesaj gösteriyor
+- [x] Profile'daki test butonları (🔧 🔥 ⏱ 👁) kaldırıldı
+- [x] `appTestDayOffset` — prod build offset'i yok sayar (`testDate.js` DEV gate) + `main.jsx` açılışta localStorage kalıntısını siler
+- [x] `AppLayout` / `Profile` içindeki `debugShowPaywall` kaldırıldı
+- [x] App Store Connect'te `offer.499` / `offer.399` doğrulandı — ikisi de APPROVED (₺499,99 / ₺399,99)
 - [ ] Gerçek satın alma testi: Android Internal Testing + iOS TestFlight
 
 ## Effort / Ultracode notu

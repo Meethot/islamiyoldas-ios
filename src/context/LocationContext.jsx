@@ -25,6 +25,14 @@ const readManualActive = () =>
 export function LocationProvider({ children }) {
     const [location, setLocation] = useState(null);
     const [address, setAddress] = useState(null);
+    // District (ilçe) as STATE, not a render-time localStorage read: the geocode
+    // often resolves the same province ("İzmir"), so setAddress bails out and the
+    // UI never re-reads localStorage — cityName would stay stuck on the province.
+    const [district, setDistrict] = useState(() => localStorage.getItem('cached_district') || null);
+    // Bumped after every successful reverse geocode — PrayerTimesContext listens
+    // to this to re-resolve times (its first fetch may have run while
+    // cached_district was cleared and picked the province instead of the district)
+    const [geoRevision, setGeoRevision] = useState(0);
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(true);
     const [permissionStatus, setPermissionStatus] = useState('prompt');
@@ -43,6 +51,7 @@ export function LocationProvider({ children }) {
         localStorage.setItem('cached_district', city);
         localStorage.setItem('cached_address', city);
         setAddress(city);
+        setDistrict(city);
     }, []);
 
     // Called when the user re-enables auto location — GPS becomes authoritative again
@@ -104,7 +113,12 @@ export function LocationProvider({ children }) {
             if (!readManualActive()) {
                 setAddress(city);
                 localStorage.setItem('cached_address', city);
-                if (district) localStorage.setItem('cached_district', district);
+                if (district) {
+                    localStorage.setItem('cached_district', district);
+                    setDistrict(district);
+                }
+                // Fresh geocode landed — let PrayerTimesContext re-resolve with it
+                setGeoRevision(r => r + 1);
             }
             if (countryCode) localStorage.setItem('cached_country_code', countryCode);
 
@@ -148,7 +162,9 @@ export function LocationProvider({ children }) {
 
             // Clear stale district/address so prayer times don't use old cached data
             // (reverse geocode below will set the correct values shortly) — unless a
-            // manual city is active, in which case those keys belong to the user's choice
+            // manual city is active, in which case those keys belong to the user's choice.
+            // NOTE: only localStorage is cleared — the `district` STATE stays so the UI
+            // keeps showing the last known ilçe instead of flashing the province.
             if (!readManualActive()) {
                 localStorage.removeItem('cached_district');
                 localStorage.removeItem('cached_address');
@@ -279,12 +295,13 @@ export function LocationProvider({ children }) {
     const effectiveManualCity = manualActive ? manualCity : null;
     // On GPS, prefer the district (ilçe) for display — prayer times are
     // district-specific, so "Urla" is more accurate/meaningful than the province "İzmir".
-    const gpsDistrict = manualActive ? null : (localStorage.getItem('cached_district') || null);
+    const gpsDistrict = manualActive ? null : district;
     const value = {
         location,
         address,
         error,
         loading,
+        geoRevision,
         permissionStatus,
         refreshLocation,
         setManualLocation,
@@ -298,7 +315,7 @@ export function LocationProvider({ children }) {
         longitude: location?.longitude || null,
         hasLocation: !!location,
         cityName: effectiveManualCity || gpsDistrict || address || 'İstanbul',
-        districtName: localStorage.getItem('cached_district') || null,
+        districtName: district,
         countryCode: localStorage.getItem('cached_country_code') || null,
     };
 

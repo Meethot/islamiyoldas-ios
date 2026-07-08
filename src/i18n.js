@@ -23,6 +23,11 @@ if (savedLng) {
     document.documentElement.lang = savedLng;
 }
 
+// Açılışta SADECE 'common' yüklenir (splash bunu bekler — suspense);
+// kalan namespace'ler init biter bitmez arkaplanda çekilir. 18 ns × (dil + en
+// fallback) = ~36 fetch'i ilk kareden önce beklemek splash'i geciktiriyordu.
+const LAZY_NS = ['home', 'profile', 'onboarding', 'settings', 'tracking', 'dhikr', 'stories', 'qibla', 'fasting', 'learn', 'misc', 'sleep', 'tefekkur', 'murakabe', 'goals', 'dua', 'quran'];
+
 i18n
     .use(HttpBackend)
     .use(LanguageDetector)
@@ -32,7 +37,7 @@ i18n
         fallbackLng: 'en',
         supportedLngs,
         debug: false,
-        ns: ['common', 'home', 'profile', 'onboarding', 'settings', 'tracking', 'dhikr', 'stories', 'qibla', 'fasting', 'learn', 'misc', 'sleep', 'tefekkur', 'murakabe', 'goals', 'dua', 'quran'],
+        ns: ['common'],
         defaultNS: 'common',
 
         interpolation: {
@@ -52,7 +57,9 @@ i18n
         react: {
             useSuspense: true
         }
-    });
+    })
+    .then(() => i18n.loadNamespaces(LAZY_NS))
+    .catch(() => { });
 
 // Reactively update document direction & lang when language changes
 i18n.on('languageChanged', (lng) => {

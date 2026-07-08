@@ -14,8 +14,16 @@ import { Haptics } from '@capacitor/haptics'
 import { Preferences } from '@capacitor/preferences'
 import { SplashScreen as NativeSplash } from '@capacitor/splash-screen'
 
-// Initialize Amplitude Analytics
-initAnalytics();
+// Test kalıntılarını temizle: appTestDayOffset kalırsa tüm ezan vakitleri
+// ileri tarihten hesaplanır; debug_show_paywall test bayrağıydı.
+if (!import.meta.env.DEV) {
+    localStorage.removeItem('appTestDayOffset');
+    localStorage.removeItem('debug_show_paywall');
+}
+
+// Amplitude init ilk kare sonrasına ertelenir — açılışta main thread'i bloklamasın.
+// SDK init öncesi track çağrılarını kuyruklar; ilk event zaten splash kapanışında (~2.5s) atılır.
+setTimeout(initAnalytics, 500);
 
 // Güvenlik ağı: JS bir sebeple SplashScreen.jsx'e ulaşamazsa bile
 // native splash 6 sn sonra mutlaka kapanır (launchAutoHide: false)

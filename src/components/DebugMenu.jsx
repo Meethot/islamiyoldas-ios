@@ -31,7 +31,8 @@ const DebugMenu = () => {
     const [lastAction, setLastAction] = useState(null);
     const [shouldCrash, setShouldCrash] = useState(false);
 
-    if (!DEBUG_MODE) return null;
+    // Prod build'de bayrak yanlışlıkla true bırakılsa bile menü asla render olmaz.
+    if (!DEBUG_MODE || !import.meta.env.DEV) return null;
 
     // ===== TIME TRAVEL =====
     const simulateNextDay = () => {

@@ -100,9 +100,10 @@ export async function initializePurchases() {
                 apiKey: apiKey,
             });
 
-            // 🔧 TEST AŞAMASI: her zaman verbose log (adb logcat'te [Purchases] detayları için).
-            // Yayına çıkmadan önce tekrar if (import.meta.env.DEV) koşuluna alınacak!
-            await Purchases.setLogLevel({ level: LOG_LEVEL.DEBUG });
+            // Verbose log sadece geliştirme build'inde
+            if (import.meta.env.DEV) {
+                await Purchases.setLogLevel({ level: LOG_LEVEL.DEBUG });
+            }
 
             // Müşteri bilgisi değişikliklerini dinle (yenilenme, iptal, geri ödeme)
             await Purchases.addCustomerInfoUpdateListener((customerInfo) => {
@@ -163,7 +164,7 @@ export async function initializePurchases() {
  */
 export async function getOfferings() {
     if (!Capacitor.isNativePlatform()) return null;
-    if (!isInitialized && !isConfiguring) {
+    if (!isInitialized) { // init devam ediyorsa initializePurchases in-flight initPromise'i döndürür, bekleriz
         await initializePurchases();
     }
     try {
@@ -189,7 +190,7 @@ export async function getProducts(offeringIdentifier = 'current') {
             { identifier: PRODUCT_IDS.YEARLY, priceString: '₺739,99', price: 739.99, currencyCode: 'TRY', title: 'Yıllık Premium', description: 'Yıllık abonelik' },
         ];
     }
-    if (!isInitialized && !isConfiguring) {
+    if (!isInitialized) { // init devam ediyorsa initializePurchases in-flight initPromise'i döndürür, bekleriz
         await initializePurchases();
     }
     try {
@@ -255,7 +256,7 @@ export async function getSpecificProducts(productIdentifiers) {
         }));
     }
 
-    if (!isInitialized && !isConfiguring) {
+    if (!isInitialized) { // init devam ediyorsa initializePurchases in-flight initPromise'i döndürür, bekleriz
         await initializePurchases();
     }
     
@@ -289,7 +290,7 @@ export async function purchaseProduct(productIdOrObj) {
         updatePremiumStatus(true, productIdentifier);
         return { success: true };
     }
-    if (!isInitialized && !isConfiguring) {
+    if (!isInitialized) { // init devam ediyorsa initializePurchases in-flight initPromise'i döndürür, bekleriz
         await initializePurchases();
     }
     try {
@@ -307,8 +308,11 @@ export async function purchaseProduct(productIdOrObj) {
                 // ⚠️ Tüm vitrinlerde aramak YANLIŞ: paket id'leri ($rc_annual vb.) vitrinler
                 // arası ortaktır; yanlış vitrinin paketi Google Play'de "invalid arguments" verir.
                 const offerings = await Purchases.getOfferings();
+                // İstenen vitrin taze listede yoksa current'a DÜŞME — current'ın $rc_annual'ı
+                // tam fiyatlı üründür; indirim gösterip tam fiyat çekmiş olurduk.
+                // Bulunamazsa eldeki rcPackage ile devam edilir.
                 const targetOffering = wantedOfferingId
-                    ? (offerings?.all?.[wantedOfferingId] || offerings?.current)
+                    ? offerings?.all?.[wantedOfferingId]
                     : offerings?.current;
                 const foundPkg = targetOffering?.availablePackages?.find(p => p.identifier === wantedPkgId);
                 if (foundPkg) packageToBuy = foundPkg;
@@ -351,7 +355,7 @@ export async function purchaseProduct(productIdOrObj) {
         if (msg.includes('cancel') || msg.includes('Cancel') || readable === 'PURCHASE_CANCELLED' || err?.code === 1 || err?.code === '1') {
             return { success: false, error: 'cancelled' };
         }
-        // 🔧 TEST AŞAMASI: Asıl sebebi (Google Play debug mesajı) hataya ekle
+        // Asıl sebep (store hata kodu) analytics'e gider; UI tarafı getErrorMessage ile kullanıcı-dostu mesaja çevirir
         const detail = [readable, info.underlyingErrorMessage].filter(Boolean).join(' | ');
         return { success: false, error: detail ? `${msg} [${detail}]` : msg };
     }
@@ -364,7 +368,7 @@ export async function restorePurchases() {
     if (!Capacitor.isNativePlatform()) {
         return { success: false, isPremium: false };
     }
-    if (!isInitialized && !isConfiguring) {
+    if (!isInitialized) { // init devam ediyorsa initializePurchases in-flight initPromise'i döndürür, bekleriz
         await initializePurchases();
     }
     try {
@@ -387,7 +391,7 @@ export async function verifySubscription(isMigration = false) {
     if (!Capacitor.isNativePlatform()) {
         return storageService.getItem(PREMIUM_KEY) === 'true';
     }
-    if (!isInitialized && !isConfiguring) {
+    if (!isInitialized) { // init devam ediyorsa initializePurchases in-flight initPromise'i döndürür, bekleriz
         await initializePurchases();
     }
     try {

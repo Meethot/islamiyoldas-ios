@@ -9,7 +9,14 @@ import { usePopup } from '@/hooks/usePopup';
 
 const STORAGE_KEY = 'review_prompt_v4'; // Tüm eski kullanıcılarda yeniden çıkması için v4 yapıldı
 const APP_STORE_ID = '6759666173';
-const COOLDOWN_MS_DEFAULT = 24 * 60 * 60 * 1000; // Reddedilirse 24 saat sonra tekrar çık (puanlayana kadar sonsuz)
+// Reddedildikçe artan bekleme süresi: 1. kapatma → 24 saat, 2. kapatma → 3 gün, 3. ve sonrası → 7 gün (puanlayana kadar 7'şer gün devam)
+const COOLDOWN_LADDER_MS = [
+    24 * 60 * 60 * 1000,
+    3 * 24 * 60 * 60 * 1000,
+    7 * 24 * 60 * 60 * 1000,
+];
+const getCooldownMs = (dismissCount) =>
+    COOLDOWN_LADDER_MS[Math.min(Math.max(dismissCount, 1), COOLDOWN_LADDER_MS.length) - 1];
 
 const getReviewData = () => {
     try {
@@ -35,7 +42,7 @@ const isCooldownActive = () => {
     const data = getReviewData();
     if (data.reviewed) return true;
     if (!data.lastDismissedAt) return false;
-    return Date.now() - data.lastDismissedAt < COOLDOWN_MS_DEFAULT;
+    return Date.now() - data.lastDismissedAt < getCooldownMs(data.dismissCount || 1);
 };
 
 // Global trigger — bileşenler bunu çağırır

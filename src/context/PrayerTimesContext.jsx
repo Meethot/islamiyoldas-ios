@@ -60,7 +60,7 @@ export const PrayerTimesProvider = ({ children }) => {
     // Circuit breaker: skip Diyanet API for 60s after a network failure
     const diyanetDownUntilRef = useRef(0);
 
-    const { latitude, longitude, hasLocation, manualCity, manualCountry, cityName } = useLocation();
+    const { latitude, longitude, hasLocation, manualCity, manualCountry, cityName, geoRevision } = useLocation();
     const { i18n } = useTranslation();
 
     const FALLBACK_COORDS = { lat: 41.0082, lng: 28.9784 };
@@ -815,6 +815,18 @@ export const PrayerTimesProvider = ({ children }) => {
             fetchPrayerTimesRef.current?.();
         }
     }, []);
+
+    // Fresh reverse geocode landed: the initial fetch may have run in the window
+    // where cached_district was cleared (cold-start GPS refresh) and resolved the
+    // PROVINCE (e.g. İzmir merkez) instead of the district (Urla). Re-resolve
+    // silently with the now-correct district/country data.
+    useEffect(() => {
+        if (!geoRevision) return; // 0 = mount, initial fetch handles it
+        // Calendar session cache doesn't key on district — bust it so the widget
+        // and notification schedules also re-resolve, not just today's times
+        calendarCacheRef.current = { key: null, data: null };
+        fetchPrayerTimesRef.current?.(true);
+    }, [geoRevision]);
 
     // Re-fetch prayer times + re-schedule notifications every time app becomes active
     // This handles: 7-day notification expiry, date changes, and stale cached data

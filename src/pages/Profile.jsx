@@ -54,15 +54,6 @@ export default function Profile() {
     const { t: tSettings } = useTranslation('settings');
     const [customMinuteInput, setCustomMinuteInput] = useState('');
     const [customMinuteError, setCustomMinuteError] = useState(false);
-    // 🔧 TEST: header'daki Premium/Son Teklif butonunu premium'a da göster (yayın öncesi kaldırılacak)
-    const [debugShowPaywall, setDebugShowPaywall] = useState(() => localStorage.getItem('debug_show_paywall') === 'true');
-    const toggleDebugPaywall = () => {
-        const next = !(localStorage.getItem('debug_show_paywall') === 'true');
-        localStorage.setItem('debug_show_paywall', next.toString());
-        setDebugShowPaywall(next);
-        window.dispatchEvent(new Event('debugPaywallChanged'));
-    };
-
     const handleCustomMinuteSubmit = () => {
         const val = parseInt(customMinuteInput, 10);
         if (val >= 1 && val <= 120) {
@@ -1019,39 +1010,7 @@ export default function Profile() {
                 )}
             </AnimatePresence>
 
-            {/* Developer Test Buttons (Temporary for testing) */}
-            <div className="flex flex-col gap-2 mx-6 mt-4 opacity-50 mb-4">
-                <Button 
-                    onClick={() => navigate('/premium')}
-                    className="w-full bg-blue-500/20 text-blue-500 py-2 rounded-xl text-xs font-bold"
-                >
-                    🔧 Test: Paywall'ı Aç
-                </Button>
-                <Button
-                    onClick={() => navigate('/premium?offer=force')}
-                    className="w-full bg-red-500/20 text-red-500 py-2 rounded-xl text-xs font-bold"
-                >
-                    🔥 Test: İndirim Popup Aç (zorla)
-                </Button>
-                <Button
-                    onClick={async () => {
-                        await storageService.removeItem('islamiyoldas_discount_offer_end');
-                        await storageService.removeItem('islamiyoldas_discount_cooldown_end');
-                        window.location.reload();
-                    }}
-                    className="w-full bg-yellow-500/20 text-yellow-500 py-2 rounded-xl text-xs font-bold"
-                >
-                    ⏱ Test: Sayaç Cooldown Sıfırla
-                </Button>
-                <Button
-                    onClick={toggleDebugPaywall}
-                    className={`w-full py-2 rounded-xl text-xs font-bold ${debugShowPaywall ? 'bg-green-500/25 text-green-500' : 'bg-white/10 text-stone-400'}`}
-                >
-                    👁 Header Premium butonu: {debugShowPaywall ? 'AÇIK (premium\'da da görünür)' : 'KAPALI'}
-                </Button>
-            </div>
-
-            <div className="flex flex-col items-center pb-0 opacity-50 mt-0">
+            <div className="flex flex-col items-center pb-0 opacity-50 mt-4">
                 <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-stone-800 dark:text-white">
                     İSLAMİ YOLDAŞ
                 </p>

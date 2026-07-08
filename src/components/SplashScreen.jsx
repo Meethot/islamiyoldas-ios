@@ -38,7 +38,7 @@ export default function SplashScreen({ dataReady = false }) {
 
                 if (dataReady) {
                     // Smooth fill: faster when far from target, slower when close
-                    const step = Math.max(1.5, (100 - prev) * 0.12);
+                    const step = Math.max(3, (100 - prev) * 0.2);
                     return Math.min(prev + step, 100);
                 }
 
@@ -83,26 +83,22 @@ export default function SplashScreen({ dataReady = false }) {
                     data-amp-track="false"
                     className="amplitude-ignore fixed inset-0 z-[9999] bg-[#021a0f] flex flex-col items-center justify-center overflow-hidden"
                     initial={{ opacity: 1 }}
-                    exit={{ opacity: 0, transition: { duration: 0.8, ease: "easeInOut" } }}
+                    exit={{ opacity: 0, transition: { duration: 0.45, ease: "easeInOut" } }}
                 >
                     {/* Background Subtle Radial Glow — using radial gradient instead of blur for performance */}
                     <div className="absolute inset-0 -z-10" style={{ background: 'radial-gradient(ellipse at center, rgba(34,197,94,0.12) 0%, transparent 70%)' }} />
 
                     <div className="flex flex-col items-center w-full max-w-[340px] px-6">
-                        {/* Logo with Glow */}
-                        <motion.div
-                            initial={{ scale: 0.8, opacity: 0 }}
-                            animate={{ scale: 1, opacity: 1 }}
-                            transition={{ duration: 1, ease: "easeOut" }}
-                            className="relative mb-8"
-                        >
+                        {/* Logo — animasyonsuz: native splash'taki logoyla aynı karede durur,
+                            giriş animasyonu olsaydı geçişte logo kaybolup yeniden belirirdi */}
+                        <div className="relative mb-8">
                             <div className="absolute inset-0 rounded-full scale-150" style={{ background: 'radial-gradient(circle, rgba(34,197,94,0.15) 0%, transparent 70%)' }} />
                             <img
                                 src={logo}
                                 alt={i18n.t('common:splash.title')}
                                 className="relative z-10 w-32 h-32 sm:w-40 sm:h-40 object-cover rounded-[2rem] overflow-hidden"
                             />
-                        </motion.div>
+                        </div>
 
                         {/* Title */}
                         <motion.h1

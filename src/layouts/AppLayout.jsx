@@ -57,16 +57,6 @@ export default function AppLayout() {
     // Real-time avatar sync using ID
     const [headerAvatarId, setHeaderAvatarId] = React.useState(localStorage.getItem('userAvatar') || 'male');
 
-    // 🔧 TEST: premium kullanıcının da paywall giriş butonunu görebilmesi için debug bayrağı.
-    // Varsayılan kapalı; Profile'dan açılır. YAYIN ÖNCESİ KALDIRILACAK.
-    const [debugShowPaywall, setDebugShowPaywall] = React.useState(() => localStorage.getItem('debug_show_paywall') === 'true');
-    React.useEffect(() => {
-        const h = () => setDebugShowPaywall(localStorage.getItem('debug_show_paywall') === 'true');
-        window.addEventListener('debugPaywallChanged', h);
-        window.addEventListener('storage', h);
-        return () => { window.removeEventListener('debugPaywallChanged', h); window.removeEventListener('storage', h); };
-    }, []);
-
     React.useEffect(() => {
         const updateHeaderAvatar = () => {
             const savedId = localStorage.getItem('userAvatar');
@@ -163,8 +153,8 @@ export default function AppLayout() {
                             </h1>
                         </div>
                         <div className="flex items-center gap-2">
-                            {/* Premium CTA Button — non-premium users (veya test için debug bayrağı açıkken premium'a da) */}
-                            {(!hasPremium || debugShowPaywall) && (
+                            {/* Premium CTA Button — non-premium users */}
+                            {!hasPremium && (
                                 <button
                                     onClick={() => {
                                         selection();

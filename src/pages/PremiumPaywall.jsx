@@ -8,7 +8,6 @@ import { setPremium } from '@/services/creditService';
 import { getProducts, purchaseProduct, restorePurchases, getOfferings, getSpecificProducts, PRODUCT_IDS } from '@/services/purchaseService';
 import { useDiscountOffer, OFFER_DURATION_SECONDS } from '@/hooks/useDiscountOffer';
 import { endOfferLiveActivity } from '@/services/liveActivityService';
-import { RevenueCatUI } from '@revenuecat/purchases-capacitor-ui';
 import { analytics, trackEvent } from '@/services/analyticsService';
 import { Capacitor } from '@capacitor/core';
 
@@ -534,6 +533,14 @@ export default function PremiumPaywall({ variant = 'default', offeringId = 'curr
         return null;
     }, [offerProduct, formatPrice]);
 
+    // Sheet fiyatları yüklenemeden açılırsa '...' yerine ABD mağaza fiyatı gösterilir
+    // (App Store Connect'teki gerçek USD tarifeler — 2026-07-08 doğrulandı).
+    // Satın alma her zaman mağazanın YEREL fiyatıyla gerçekleşir; bu sadece görsel fallback.
+    const isVariantB = activeOfferingId === 'test_variant_b';
+    const offerUsdFallback = isVariantB ? '$6.99' : '$9.99';
+    const normalYearlyUsdFallback = isVariantB ? '$9.99' : '$12.99';
+    const offerDailyUsdFallback = isVariantB ? '$0.02' : '$0.03';
+
     // Sheet açıkken süre dolarsa kendiliğinden kapansın — kullanıcı normal paywall'a düşer.
     // canShowOffer taze start anında true olduğundan (cooldown '0') erken kapanma olmaz;
     // süre dolunca cooldown set edilir ve false döner.
@@ -617,7 +624,11 @@ export default function PremiumPaywall({ variant = 'default', offeringId = 'curr
             : PRODUCT_IDS.YEARLY_OFFER_499;
         analytics.premiumPurchaseStarted(planLabel);
 
+        // Timeout sonrası geç gelen sonuç yok sayılır (restore'daki desenin aynısı) —
+        // yoksa hata toast'ının üstüne başarı ekranı + çift analytics geliyordu.
+        let timeoutFired = false;
         const timeoutId = setTimeout(() => {
+            timeoutFired = true;
             setIsLoading(false);
             setToast({ type: 'error', message: t('premium.iap_timeout') });
             analytics.premiumPurchaseFailed(planLabel, 'timeout');
@@ -626,28 +637,31 @@ export default function PremiumPaywall({ variant = 'default', offeringId = 'curr
         try {
             const purchaseTarget = offerProduct ? offerProduct : productId;
             const result = await purchaseProduct(purchaseTarget);
+            // Geç başarı durumunda premium zaten purchaseService'te storage'a yazıldı,
+            // UI premiumStatusChanged event'iyle güncellenir.
+            if (timeoutFired) return;
             clearTimeout(timeoutId);
 
             if (result.success) {
+                if (!result.isPremium) console.warn('[Paywall] Purchase success but entitlement not active yet (RC delay?)');
                 success();
-                setPremium(true);
+                setPremium(true, productId);
                 setShowSuccess(true);
                 endOfferLiveActivity(); // Kilit ekranı sayacını kapat — teklif kullanıldı
                 analytics.premiumPurchaseCompleted(planLabel, offerProduct?.price || 0, productId);
             } else if (result.error && result.error !== 'cancelled') {
-                // 🔧 GEÇİCİ TANI (test aşaması): ham hatayı ekranda göster
-                setToast({ type: 'error', message: `TEST-OFFER • ürün:${offerProduct?.identifier || 'yok'} pkg:${offerProduct?.rcPackage ? 'var' : 'yok'} • ${String(result.error).slice(0, 220)}` });
+                setToast({ type: 'error', message: getErrorMessage(result.error) });
                 analytics.premiumPurchaseFailed(planLabel, result.error);
             } else if (result.error === 'cancelled') {
                 analytics.premiumCancelled('user_cancelled');
             }
         } catch (err) {
+            if (timeoutFired) return;
             clearTimeout(timeoutId);
-            // 🔧 GEÇİCİ TANI (test aşaması): ham exception'ı ekranda göster
-            setToast({ type: 'error', message: `TEST-OFFER • exception • ${String(err?.message || err).slice(0, 200)}` });
+            setToast({ type: 'error', message: getErrorMessage(String(err?.message || err)) });
             analytics.premiumPurchaseFailed(planLabel, 'exception');
         } finally {
-            setIsLoading(false);
+            if (!timeoutFired) setIsLoading(false);
         }
     }, [isLoading, t, getErrorMessage, offerProduct, success, activeOfferingId]);
 
@@ -667,8 +681,10 @@ export default function PremiumPaywall({ variant = 'default', offeringId = 'curr
         setToast(null);
         analytics.premiumPurchaseStarted(planName);
 
-        // 60-second timeout (Apple sandbox can be slow)
+        // 60-second timeout (Apple sandbox can be slow) — geç gelen sonuç yok sayılır
+        let timeoutFired = false;
         const timeoutId = setTimeout(() => {
+            timeoutFired = true;
             setIsLoading(false);
             setToast({ type: 'error', message: t('premium.iap_timeout') });
             analytics.premiumPurchaseFailed(planName, 'timeout');
@@ -685,27 +701,29 @@ export default function PremiumPaywall({ variant = 'default', offeringId = 'curr
             const purchaseTarget = product ? product : productId;
 
             const result = await purchaseProduct(purchaseTarget);
+            // Geç başarı: premium purchaseService'te yazıldı, UI event'le güncellenir.
+            if (timeoutFired) return;
             clearTimeout(timeoutId);
             if (result.success) {
+                if (!result.isPremium) console.warn('[Paywall] Purchase success but entitlement not active yet (RC delay?)');
                 success();
-                setPremium(true);
+                setPremium(true, productId);
                 setShowSuccess(true);
                 endOfferLiveActivity(); // Kilit ekranı sayacı varsa kapat — artık premium
                 analytics.premiumPurchaseCompleted(planName, product?.price || 0, productId);
             } else if (result.error && result.error !== 'cancelled') {
-                // 🔧 GEÇİCİ TANI (test aşaması): ham hatayı ekranda göster
-                setToast({ type: 'error', message: `TEST • ürün:${products.length} pkg:${product?.rcPackage ? 'var' : 'yok'} • ${String(result.error).slice(0, 220)}` });
+                setToast({ type: 'error', message: getErrorMessage(result.error) });
                 analytics.premiumPurchaseFailed(planName, result.error);
             } else if (result.error === 'cancelled') {
                 analytics.premiumCancelled('user_cancelled');
             }
         } catch (err) {
+            if (timeoutFired) return;
             clearTimeout(timeoutId);
-            // 🔧 GEÇİCİ TANI (test aşaması): ham exception'ı ekranda göster
-            setToast({ type: 'error', message: `TEST • exception • ${String(err?.message || err).slice(0, 180)}` });
+            setToast({ type: 'error', message: getErrorMessage(String(err?.message || err)) });
             analytics.premiumPurchaseFailed(planName, 'exception');
         } finally {
-            setIsLoading(false);
+            if (!timeoutFired) setIsLoading(false);
         }
     }, [isLoading, selectedPlan, success, t, getErrorMessage, products, offerOnYearly, handleOfferSubscribe]);
 
@@ -714,7 +732,7 @@ export default function PremiumPaywall({ variant = 'default', offeringId = 'curr
         setIsRestoring(true);
         setToast(null);
 
-        // Fail-safe 30s timeout
+        // Fail-safe 60s timeout
         let timeoutFired = false;
         const timeoutId = setTimeout(() => {
             timeoutFired = true;
@@ -732,7 +750,9 @@ export default function PremiumPaywall({ variant = 'default', offeringId = 'curr
 
             if (result.isPremium) {
                 success();
-                setPremium(true);
+                // Not: premium storage + analytics zaten restorePurchases içinde doğru
+                // planId ile yazıldı; burada tekrar setPremium çağırmak planId'yi 'promo'
+                // ile eziyordu.
                 setToast({ type: 'success', message: t('premium.iap_restore_success', 'Satın alımlarınız başarıyla yüklendi.') });
                 setTimeout(() => {
                     setShowSuccess(true);
@@ -1462,7 +1482,7 @@ export default function PremiumPaywall({ variant = 'default', offeringId = 'curr
                                             initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.95 }}>
                                             <span className="text-white/60 text-[10px] uppercase tracking-[0.18em] font-bold">{t('premium.normal_price')}</span>
                                             <span className="relative text-white/75 text-[15px] font-semibold" style={{ fontFeatureSettings: '"tnum"' }}>
-                                                {getPrice(PRODUCT_IDS.YEARLY, 'ANNUAL') || '₺739,99'}
+                                                {getPrice(PRODUCT_IDS.YEARLY, 'ANNUAL') || normalYearlyUsdFallback}
                                                 {/* El çizimi hissi veren üstü çizme animasyonu */}
                                                 <motion.span
                                                     className="absolute left-[-5%] top-1/2 h-[2px] w-[110%] bg-red-400/90 origin-left rounded-full"
@@ -1479,7 +1499,7 @@ export default function PremiumPaywall({ variant = 'default', offeringId = 'curr
                                                 initial={{ scale: 0.5, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
                                                 transition={{ delay: 1.3, type: 'spring', stiffness: 260, damping: 17 }}
                                             >
-                                                {offerProduct?.priceString || '₺499,99'}
+                                                {offerPriceString || offerUsdFallback}
                                             </motion.span>
                                             {/* İndirim mührü — büyük fiyatın sağ üst köşesinde, ortalamayı bozmaz */}
                                             {offerDisplayPercent && (
@@ -1504,7 +1524,7 @@ export default function PremiumPaywall({ variant = 'default', offeringId = 'curr
                                             initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1.55 }}
                                         >
                                             <span className="text-[#D4AF37] text-[10px] font-black tracking-[0.15em] uppercase">{t('premium.daily_only')}</span>
-                                            <span className="text-[#FFD700] text-[13px] font-black" style={{ fontFeatureSettings: '"tnum"' }}>{offerDailyPrice || '₺1,37'}</span>
+                                            <span className="text-[#FFD700] text-[13px] font-black" style={{ fontFeatureSettings: '"tnum"' }}>{offerDailyPrice || offerDailyUsdFallback}</span>
                                         </motion.div>
                                     </div>
                                 </div>
@@ -1513,7 +1533,7 @@ export default function PremiumPaywall({ variant = 'default', offeringId = 'curr
                                 <motion.p className="flex items-center justify-center gap-1.5 text-white/40 text-[11px] font-medium mt-1 mb-3.5"
                                     initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.6 }}>
                                     <Calendar size={12} className="text-[#D4AF37]/70" />
-                                    <span>{t('premium.billed_yearly')} · <strong className="text-white/70 font-bold" style={{ fontFeatureSettings: '"tnum"' }}>{offerProduct?.priceString || '₺499,99'}</strong></span>
+                                    <span>{t('premium.billed_yearly')} · <strong className="text-white/70 font-bold" style={{ fontFeatureSettings: '"tnum"' }}>{offerPriceString || offerUsdFallback}</strong></span>
                                 </motion.p>
 
                                 {/* ── Özellikler ── */}

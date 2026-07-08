@@ -6,7 +6,7 @@
  * This is used throughout the app instead of `new Date()` for consistency
  */
 export const getAppDate = () => {
-    const testDayOffset = parseInt(localStorage.getItem('appTestDayOffset') || '0', 10);
+    const testDayOffset = getTestDayOffset();
     const date = new Date();
 
     if (testDayOffset !== 0) {
@@ -18,8 +18,11 @@ export const getAppDate = () => {
 
 /**
  * Get current test day offset
+ * Production build'de her zaman 0 — kalıntı bir offset TÜM ezan vakitlerini
+ * ileri tarihten hesaplatır, o yüzden offset sadece DEV'de okunur.
  */
 export const getTestDayOffset = () => {
+    if (!import.meta.env.DEV) return 0;
     return parseInt(localStorage.getItem('appTestDayOffset') || '0', 10);
 };
 
