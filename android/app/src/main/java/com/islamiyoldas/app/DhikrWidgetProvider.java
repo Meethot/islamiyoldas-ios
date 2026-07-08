@@ -81,6 +81,10 @@ public class DhikrWidgetProvider extends AppWidgetProvider {
             .putString("dhikr_widget_preset_index", String.valueOf(presetIndex))
             .putString("dhikr_widget_total", String.valueOf(total))
             .putString("dhikr_widget_target", String.valueOf(target))
+            // Dhikr.jsx only accepts widget values when this flag is set
+            // (on iOS the AppDelegate bridge sets it); without it the app
+            // overwrites widget taps with its stale localStorage counts
+            .putString("widget_sync_flag", "true")
             .apply();
 
         refreshAllWidgets(context, true);
@@ -88,7 +92,10 @@ public class DhikrWidgetProvider extends AppWidgetProvider {
 
     private void handleReset(Context context) {
         SharedPreferences capPrefs = context.getSharedPreferences("CapacitorStorage", Context.MODE_PRIVATE);
-        capPrefs.edit().putString("dhikr_widget_count", "0").apply();
+        capPrefs.edit()
+            .putString("dhikr_widget_count", "0")
+            .putString("widget_sync_flag", "true")
+            .apply();
         refreshAllWidgets(context, false);
     }
 

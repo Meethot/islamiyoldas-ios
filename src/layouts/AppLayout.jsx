@@ -148,11 +148,11 @@ export default function AppLayout() {
                                     return t('greeting.night');
                                 })()}
                             </span>
-                            <h1 className="font-display text-[24px] font-semibold tracking-tight leading-tight text-islamic-green dark:text-islamic-gold">
+                            <h1 className="font-display text-[clamp(17px,6vw,24px)] font-semibold tracking-tight leading-tight text-islamic-green dark:text-islamic-gold break-words">
                                 {t('header.appName')}
                             </h1>
                         </div>
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 shrink-0">
                             {/* Premium CTA Button — non-premium users */}
                             {!hasPremium && (
                                 <button
@@ -240,7 +240,7 @@ export default function AppLayout() {
                                     ) : (
                                         <>
                                             <Crown size={14} className="text-[#D4AF37] relative z-10" fill="#D4AF37" fillOpacity={0.3} />
-                                            <span className="text-[11px] font-black tracking-wider text-[#D4AF37] uppercase relative z-10"
+                                            <span className="text-[11px] font-black tracking-wider text-[#D4AF37] uppercase relative z-10 whitespace-nowrap"
                                                   style={{ textShadow: '0 0 8px rgba(212,175,55,0.3)' }}>
                                                 Premium
                                             </span>
