@@ -9,6 +9,8 @@
     "turnLeft": "Sola Döndür",
     "turnRight": "Sağa Döndür",
     "degreesRemaining": "Hizalamaya Kalan",
+    "holdFlat": "Cihazı Düz Tutun",
+    "calibrationNeeded": "Pusulayı kalibre et: telefonu 8 çizerek döndür",
     "distance": "MESAFE:",
     "km": "KM",
     "compassDirections": {
@@ -29,6 +31,11 @@
     "hadith": "\"Nerede olursanız olun, yüzünüzü Mescid-i Haram'a doğru çevirin.\"",
     "hadithSource": "— Bakara Suresi, 144",
     "understood": "Anladım ✨",
+    "locationRequired": {
+        "title": "Konum Gerekli",
+        "desc": "Kıble yönü bulunduğun konuma göre hesaplanır. Doğru yönü görebilmek için konum izni ver.",
+        "button": "Konum İzni Ver"
+    },
     "sensorMissing": {
         "title": "Pusula Sensörü Bulunamadı",
         "subtitle": "Donanım Kısıtlaması",
@@ -41,6 +48,9 @@
         "hadithSource": "— Bakara Suresi, 115",
         "close": "Anladım 🧭",
         "openSettings": "Konum Ayarlarına Git",
-        "openSettingsDesc": "Konumu açıp tekrar deneyin."
+        "openSettingsDesc": "Konumu açıp tekrar deneyin.",
+        "permissionTitle": "Konum İzni Gerekli",
+        "permissionReason": "Pusula konum izni olmadan çalışamıyor",
+        "permissionReasonDesc": "Gerçek kuzey yönü konumuna göre hesaplanır. Ayarlardan konum iznini açıp tekrar dene."
     }
 }

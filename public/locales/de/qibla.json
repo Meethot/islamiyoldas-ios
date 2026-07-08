@@ -9,6 +9,8 @@
     "turnLeft": "Links drehen",
     "turnRight": "Rechts drehen",
     "degreesRemaining": "Grad bis zur Ausrichtung",
+    "holdFlat": "Gerät flach halten",
+    "calibrationNeeded": "Kompass kalibrieren: Bewege dein Telefon in einer 8",
     "distance": "ENTFERNUNG:",
     "km": "KM",
     "compassDirections": {
@@ -29,6 +31,11 @@
     "hadith": "\"Wo immer ihr auch seid, wendet euer Gesicht zur Heiligen Moschee.\"",
     "hadithSource": "— Sure Al-Baqara, 144",
     "understood": "Verstanden ✨",
+    "locationRequired": {
+        "title": "Standort erforderlich",
+        "desc": "Die Qibla-Richtung wird anhand deines Standorts berechnet. Erteile die Standortberechtigung, um die richtige Richtung zu sehen.",
+        "button": "Standortzugriff erlauben"
+    },
     "sensorMissing": {
         "title": "Kompass-Sensor nicht gefunden",
         "subtitle": "Hardware-Einschränkung",
@@ -41,6 +48,9 @@
         "hadithSource": "— Sure Al-Baqara, 115",
         "close": "Verstanden 🧭",
         "openSettings": "Standorteinstellungen öffnen",
-        "openSettingsDesc": "Aktivieren Sie den Standort und versuchen Sie es erneut."
+        "openSettingsDesc": "Aktivieren Sie den Standort und versuchen Sie es erneut.",
+        "permissionTitle": "Standortberechtigung erforderlich",
+        "permissionReason": "Der Kompass funktioniert nicht ohne Standortberechtigung",
+        "permissionReasonDesc": "Der geografische Norden wird anhand deines Standorts berechnet. Aktiviere die Standortberechtigung in den Einstellungen und versuche es erneut."
     }
 }

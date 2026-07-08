@@ -9,6 +9,8 @@
     "turnLeft": "Turn Left",
     "turnRight": "Turn Right",
     "degreesRemaining": "Degrees to Align",
+    "holdFlat": "Hold Device Flat",
+    "calibrationNeeded": "Calibrate compass: move your phone in a figure-8",
     "distance": "DISTANCE:",
     "km": "KM",
     "compassDirections": {
@@ -29,6 +31,11 @@
     "hadith": "\"Wherever you are, turn your face toward the Sacred Mosque.\"",
     "hadithSource": "— Surah Al-Baqarah, 144",
     "understood": "Got it ✨",
+    "locationRequired": {
+        "title": "Location Needed",
+        "desc": "The Qibla direction is calculated from your location. Grant location permission to see the correct direction.",
+        "button": "Grant Location Permission"
+    },
     "sensorMissing": {
         "title": "Compass Sensor Not Found",
         "subtitle": "Hardware Limitation",
@@ -41,6 +48,9 @@
         "hadithSource": "— Surah Al-Baqarah, 115",
         "close": "Got it 🧭",
         "openSettings": "Open Location Settings",
-        "openSettingsDesc": "Turn on location and try again."
+        "openSettingsDesc": "Turn on location and try again.",
+        "permissionTitle": "Location Permission Needed",
+        "permissionReason": "The compass can't work without location permission",
+        "permissionReasonDesc": "True north is calculated from your location. Enable location permission in Settings and try again."
     }
 }

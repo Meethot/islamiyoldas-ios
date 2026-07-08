@@ -9,6 +9,8 @@
     "turnLeft": "Sola Döndər",
     "turnRight": "Sağa Döndər",
     "degreesRemaining": "Hizalamaya Qalan",
+    "holdFlat": "Cihazı Düz Tut",
+    "calibrationNeeded": "Kompası kalibrə et: telefonu 8 rəqəmi şəklində hərəkət etdir",
     "distance": "MƏSAFƏ:",
     "km": "KM",
     "compassDirections": {
@@ -29,6 +31,11 @@
     "hadith": "\"Harada olursanız olun, üzünüzü Məscid-i Harama tərəf çevirin.\"",
     "hadithSource": "— Bəqərə Surəsi, 144",
     "understood": "Anladım ✨",
+    "locationRequired": {
+        "title": "Məkan Tələb Olunur",
+        "desc": "Qiblə istiqaməti olduğun məkana əsasən hesablanır. Doğru istiqaməti görmək üçün məkan icazəsi ver.",
+        "button": "Məkan İcazəsi Ver"
+    },
     "sensorMissing": {
         "title": "Pusula Sensoru Tapılmadı",
         "subtitle": "Avadanlıq Məhdudiyyəti",
@@ -41,6 +48,9 @@
         "hadithSource": "— Bəqərə Surəsi, 115",
         "close": "Anladım 🧭",
         "openSettings": "Məkan Ayarlarına Keç",
-        "openSettingsDesc": "Məkanı açıb yenidən yoxlayın."
+        "openSettingsDesc": "Məkanı açıb yenidən yoxlayın.",
+        "permissionTitle": "Məkan İcazəsi Tələb Olunur",
+        "permissionReason": "Kompas məkan icazəsi olmadan işləyə bilmir",
+        "permissionReasonDesc": "Həqiqi şimal istiqaməti məkanına əsasən hesablanır. Ayarlardan məkan icazəsini açıb yenidən yoxla."
     }
 }

@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-    Compass as CompassIcon, Info, X, Star,
-    Loader2, Smartphone, MapPin, Navigation2, Vibrate, RotateCcw, ChevronLeft,
+    Compass as CompassIcon, Info, X,
+    Loader2, Smartphone, MapPin, Vibrate, ChevronLeft,
     AlertTriangle, ExternalLink
 } from 'lucide-react';
 import { Capacitor } from '@capacitor/core';
@@ -14,7 +14,7 @@ import { Haptics, ImpactStyle } from '@capacitor/haptics';
 import { CapgoCompass as Compass } from '@capgo/capacitor-compass'; // Native Compass Plugin
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { calculateGeodesicAzimuth, getDetailedDeclination, lowPassFilter, calculateGeodesicDistance } from '../utils/qiblaLogic';
+import { calculateGeodesicAzimuth, getDetailedDeclination, calculateGeodesicDistance } from '../utils/qiblaLogic';
 import { useTranslation } from 'react-i18next';
 
 const DEFAULT_ALIGNMENT_THRESHOLD = 3.5;
@@ -88,8 +88,8 @@ const CompassTicks = () => {
 export default function Qibla() {
     const navigate = useNavigate();
     const { selection, success } = useHaptics();
-    const { latitude, longitude, loading: locationLoading, error: locationError, hasLocation } = useLocation();
-    const { t } = useTranslation('qibla');
+    const { latitude, longitude, loading: locationLoading, hasLocation, refreshLocation } = useLocation();
+    const { t, i18n } = useTranslation('qibla');
 
     // State
     const [qiblaAngle, setQiblaAngle] = useState(0);
@@ -99,13 +99,13 @@ export default function Qibla() {
     const [showInfo, setShowInfo] = useState(false);
     const [status, setStatus] = useState('loading');
     const [compassReady, setCompassReady] = useState(false); // True after first real reading
-    const [debugAligned, setDebugAligned] = useState(false);
     const [hapticEnabled, setHapticEnabled] = useState(true);
     const [declination, setDeclination] = useState(0);
     const [distanceKM, setDistanceKM] = useState(0);
     const [sensorMissing, setSensorMissing] = useState(false);
+    const [permissionIssue, setPermissionIssue] = useState(false); // iOS: no readings because location permission denied
     const [isFlat, setIsFlat] = useState(true);
-    const [tiltStatus, setTiltStatus] = useState({ beta: 0, gamma: 0 });
+    const [needsCalibration, setNeedsCalibration] = useState(false); // Android magnetometer accuracy LOW/UNRELIABLE
 
     // Refs — direct DOM manipulation for 60fps smooth rotation
     const compassRef = useRef(null);
@@ -121,6 +121,7 @@ export default function Qibla() {
     const lastUIUpdateRef = useRef(0);
     const firstReadingRef = useRef(true); // Skip smoothing on first compass reading
     const compassReadyTimeRef = useRef(0); // Warmup: ignore alignment for first 2s
+    const debugAlignedRef = useRef(false); // Ref (not state): compass listener effect never re-runs on toggle
 
     // Update refs when state changes
     useEffect(() => { qiblaAngleRef.current = qiblaAngle; }, [qiblaAngle]);
@@ -145,8 +146,8 @@ export default function Qibla() {
             if (diff > 180) diff -= 360;
             if (diff < -180) diff += 360;
 
-            // Smooth interpolation (lerp factor 0.12 = very smooth)
-            const lerp = 0.12;
+            // Smooth interpolation — gentle for jitter, faster for real turns
+            const lerp = Math.min(0.35, 0.12 + Math.abs(diff) * 0.004);
             const newHeading = Math.abs(diff) < 0.05
                 ? target
                 : (current + diff * lerp + 360) % 360;
@@ -197,10 +198,8 @@ export default function Qibla() {
                     const isNowAligned = absAngleDiff < DEFAULT_ALIGNMENT_THRESHOLD;
                     if (isNowAligned !== isAlignedRef.current) {
                         setIsAligned(isNowAligned);
-                        if (isNowAligned) {
-                            success();
-                            import('@/services/adService').then(({ showInterstitialAd }) => showInterstitialAd()).catch(() => {});
-                        }
+                        // No interstitial here — user is about to pray; banner only (user decision 2026-07-08)
+                        if (isNowAligned) success();
                     }
                 }
             }
@@ -214,7 +213,8 @@ export default function Qibla() {
         };
     }, [success]);
 
-    // Initial Setup — location is already available (splash screen waited for it)
+    // Initial Setup — Qibla is only shown with real coordinates; a fallback city
+    // would silently point the wrong way (huge error abroad), so block instead.
     useEffect(() => {
         if (hasLocation && latitude && longitude) {
             const trueQibla = calculateGeodesicAzimuth(latitude, longitude);
@@ -224,15 +224,10 @@ export default function Qibla() {
             setDeclination(declInfo.declination);
             setDistanceKM(Math.round(dist));
             setStatus('active');
-        } else {
-            const fallbackLat = 41.0082;
-            const fallbackLng = 28.9784;
-            setQiblaAngle(calculateGeodesicAzimuth(fallbackLat, fallbackLng));
-            setDeclination(getDetailedDeclination(fallbackLat, fallbackLng).declination);
-            setDistanceKM(Math.round(calculateGeodesicDistance(fallbackLat, fallbackLng)));
-            setStatus('active');
+        } else if (!locationLoading) {
+            setStatus('no-location');
         }
-    }, [hasLocation, latitude, longitude]);
+    }, [hasLocation, latitude, longitude, locationLoading]);
 
     // --- TILT DETECTION (Motion API) ---
     useEffect(() => {
@@ -242,16 +237,34 @@ export default function Qibla() {
             const { beta, gamma } = event; // beta: front-back, gamma: left-right
             const isDeviceFlat = Math.abs(beta) < 15 && Math.abs(gamma) < 15;
             setIsFlat(isDeviceFlat);
-            setTiltStatus({ beta, gamma });
         };
 
-        const startMotion = async () => {
+        // iOS 13+ requires DeviceOrientationEvent.requestPermission() from a USER
+        // GESTURE — calling it on mount silently rejects and the listener never
+        // attaches. Defer the request to the first touch on the page instead.
+        let firstTouchHandler = null;
+
+        const startMotion = () => {
             try {
-                // Request permission if needed (iOS 13+)
-                if (DeviceOrientationEvent && typeof DeviceOrientationEvent.requestPermission === 'function') {
-                    await DeviceOrientationEvent.requestPermission();
+                const needsPermission = typeof DeviceOrientationEvent !== 'undefined'
+                    && typeof DeviceOrientationEvent.requestPermission === 'function';
+
+                if (!needsPermission) {
+                    Motion.addListener('orientation', handleMotion);
+                    return;
                 }
-                Motion.addListener('orientation', handleMotion);
+
+                firstTouchHandler = () => {
+                    firstTouchHandler = null;
+                    DeviceOrientationEvent.requestPermission()
+                        .then((res) => {
+                            if (res === 'granted' && mountedRef.current) {
+                                Motion.addListener('orientation', handleMotion);
+                            }
+                        })
+                        .catch(() => { /* tilt warning is optional — fail silent */ });
+                };
+                document.addEventListener('pointerdown', firstTouchHandler, { once: true });
             } catch (e) {
                 console.warn("Motion detection failed", e);
             }
@@ -259,6 +272,7 @@ export default function Qibla() {
 
         startMotion();
         return () => {
+            if (firstTouchHandler) document.removeEventListener('pointerdown', firstTouchHandler);
             Motion.removeAllListeners();
         };
     }, [status]);
@@ -283,11 +297,27 @@ export default function Qibla() {
                     if (perm.compass !== 'granted') await Compass.requestPermissions();
                 } catch (e) { console.warn("Perm check skipped", e); }
 
+                // User may have left the page during the permission prompt —
+                // don't attach listeners / start the sensor for an unmounted page
+                if (!mountedRef.current) return;
+
                 await Compass.removeAllListeners();
+
+                // Android-only: magnetometer accuracy (0=UNRELIABLE 1=LOW 2=MEDIUM 3=HIGH).
+                // LOW/UNRELIABLE can mean 15°+ error — tell the user to calibrate.
+                // Events only flow after watchAccuracy() (native sets the callback there).
+                if (Capacitor.getPlatform() === 'android') {
+                    await Compass.addListener('accuracyChange', ({ accuracy }) => {
+                        if (!mountedRef.current) return;
+                        setNeedsCalibration(accuracy >= 0 && accuracy <= 1);
+                    });
+                    Compass.watchAccuracy().catch(() => {});
+                }
 
                 // Lightweight listener — only updates the target ref, no React state
                 await Compass.addListener('headingChange', (data) => {
                     if (!mountedRef.current) return;
+                    if (!Number.isFinite(data.value)) return; // NaN poisons the smoothing chain permanently
 
                     // Collect raw values for sensor verification
                     if (!sensorVerified) {
@@ -304,7 +334,7 @@ export default function Qibla() {
                     let trueHeading = isIOS
                         ? (data.value + 360) % 360
                         : (data.value + declinationRef.current + 360) % 360;
-                    if (debugAligned) trueHeading = qiblaAngleRef.current;
+                    if (debugAlignedRef.current) trueHeading = qiblaAngleRef.current;
 
                     // First reading: jump directly, don't smooth from 0
                     if (firstReadingRef.current) {
@@ -322,10 +352,11 @@ export default function Qibla() {
                     if (diff > 180) diff -= 360;
                     if (diff < -180) diff += 360;
 
-                    // Responsive alpha — faster for large changes, smooth for small
-                    // Responsive alpha — even tighter for micro-stutters
+                    // Responsive alpha — micro-jitter stays damped (~0.1) but real
+                    // turns track fast (0.5 cap). The old 0.20 cap lagged ~2s on a
+                    // 90° turn, which read as "pointing the wrong way".
                     const absDiff = Math.abs(diff);
-                    const alpha = Math.min(0.20, 0.08 + absDiff * 0.002);
+                    const alpha = Math.min(0.5, 0.1 + absDiff * 0.015);
                     const smoothed = (current + alpha * diff + 360) % 360;
 
                     targetHeadingRef.current = smoothed;
@@ -336,13 +367,32 @@ export default function Qibla() {
                     minHeadingChange: 0.5  // Filter sensor noise at hardware level
                 });
 
+                // Unmounted while the sensor was starting — shut it back down
+                if (!mountedRef.current) {
+                    Compass.stopListening();
+                    Compass.removeAllListeners();
+                    return;
+                }
+
                 // Start 6s timeout to verify sensor is actually sending data
-                sensorCheckTimeout = setTimeout(() => {
+                sensorCheckTimeout = setTimeout(async () => {
                     if (sensorVerified || !mountedRef.current) return;
 
                     const sensorDead = readings.length === 0;
                     if (sensorDead) {
                         console.warn(`Sensor dead: ${readings.length} readings received.`);
+                        // iOS drops all headings when location permission is missing
+                        // (trueHeading needs location) — that's a permission problem,
+                        // not missing hardware. Diagnose before blaming the sensor.
+                        let permissionDenied = false;
+                        if (Capacitor.getPlatform() === 'ios') {
+                            try {
+                                const perm = await Compass.checkPermissions();
+                                permissionDenied = perm.compass !== 'granted';
+                            } catch (e) { console.warn("Perm re-check failed", e); }
+                        }
+                        if (!mountedRef.current) return;
+                        setPermissionIssue(permissionDenied);
                         setSensorMissing(true);
                     }
                     if (mountedRef.current) setCompassReady(true);
@@ -361,6 +411,9 @@ export default function Qibla() {
             if (sensorCheckTimeout) clearTimeout(sensorCheckTimeout);
             Compass.stopListening();
             Compass.removeAllListeners();
+            if (Capacitor.getPlatform() === 'android') {
+                Compass.unwatchAccuracy().catch(() => {});
+            }
         };
     }, [status]);
 
@@ -377,7 +430,7 @@ export default function Qibla() {
     }, [isAligned, hapticEnabled]);
 
     useEffect(() => {
-        const handleDebug = () => setDebugAligned(p => !p);
+        const handleDebug = () => { debugAlignedRef.current = !debugAlignedRef.current; };
         window.addEventListener('qiblaDebugToggle', handleDebug);
         return () => window.removeEventListener('qiblaDebugToggle', handleDebug);
     }, []);
@@ -431,7 +484,24 @@ export default function Qibla() {
             </header>
 
             <main className="relative z-10 flex-1 flex flex-col items-center justify-center p-6 gap-6">
-                {(status === 'loading' || status === 'calculating' || (status === 'active' && !compassReady)) ? (
+                {status === 'no-location' ? (
+                    <div className="flex flex-col items-center gap-6 max-w-xs text-center">
+                        <div className="w-20 h-20 rounded-full bg-amber-400/10 border border-amber-400/20 flex items-center justify-center">
+                            <MapPin className="w-9 h-9 text-amber-400" />
+                        </div>
+                        <div className="flex flex-col gap-2">
+                            <h2 className="text-xl text-white font-serif tracking-wide">{t('locationRequired.title')}</h2>
+                            <p className="text-sm text-emerald-100/50 leading-relaxed">{t('locationRequired.desc')}</p>
+                        </div>
+                        <button
+                            onClick={() => { selection(); setStatus('loading'); refreshLocation(); }}
+                            className="flex items-center gap-2 py-3 px-6 rounded-2xl bg-gradient-to-r from-emerald-800 to-emerald-700 hover:from-emerald-700 hover:to-emerald-600 border border-emerald-500/20 text-emerald-50 font-medium tracking-wide active:scale-[0.98] transition-all"
+                        >
+                            <MapPin className="w-4 h-4 text-amber-400" />
+                            {t('locationRequired.button')}
+                        </button>
+                    </div>
+                ) : (status === 'loading' || (status === 'active' && !compassReady)) ? (
                     <div className="flex flex-col items-center gap-6">
                         <Loader2 className="w-12 h-12 text-amber-400 animate-spin" />
                         <div className="flex flex-col items-center gap-2">
@@ -441,17 +511,29 @@ export default function Qibla() {
                     </div>
                 ) : (
                     <div className="relative flex flex-col items-center gap-4">
-                        {/* Tilt Warning */}
-                        <AnimatePresence>
-                            {!isFlat && (
+                        {/* Sensor warnings — calibration (accuracy) outranks tilt */}
+                        <AnimatePresence mode="wait">
+                            {needsCalibration ? (
                                 <motion.div
+                                    key="calibration-warning"
+                                    initial={{ opacity: 0, y: -10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0, y: -10 }}
+                                    className="absolute -top-12 px-4 py-1.5 bg-amber-500/20 border border-amber-500/30 rounded-full backdrop-blur-md flex items-center gap-2 z-50 text-amber-200"
+                                >
+                                    <CompassIcon className="w-3.5 h-3.5 animate-spin [animation-duration:3s]" />
+                                    <span className="text-[10px] uppercase font-bold tracking-tighter">{t('calibrationNeeded')}</span>
+                                </motion.div>
+                            ) : !isFlat && (
+                                <motion.div
+                                    key="tilt-warning"
                                     initial={{ opacity: 0, y: -10 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     exit={{ opacity: 0, y: -10 }}
                                     className="absolute -top-12 px-4 py-1.5 bg-red-500/20 border border-red-500/30 rounded-full backdrop-blur-md flex items-center gap-2 z-50 text-red-200"
                                 >
                                     <Smartphone className="w-3.5 h-3.5 animate-bounce" />
-                                    <span className="text-[10px] uppercase font-bold tracking-tighter">Cihazı Düz Tutun / Hold Device Flat</span>
+                                    <span className="text-[10px] uppercase font-bold tracking-tighter">{t('holdFlat')}</span>
                                 </motion.div>
                             )}
                         </AnimatePresence>
@@ -596,7 +678,7 @@ export default function Qibla() {
                     <div className="flex items-center gap-2 py-2 px-4 rounded-full bg-emerald-950/40 border border-emerald-500/10">
                         <MapPin className="w-3 h-3 text-emerald-400" />
                         <span className="text-[10px] tracking-widest text-emerald-100/60">
-                            {t('distance')} <span className="text-amber-400">{Math.round(distanceKM).toLocaleString('tr-TR')} {t('km')}</span>
+                            {t('distance')} <span className="text-amber-400">{Math.round(distanceKM).toLocaleString(i18n.language)} {t('km')}</span>
                         </span>
                     </div>
                 )}
@@ -630,8 +712,8 @@ export default function Qibla() {
                                         </div>
                                     </div>
                                 </motion.div>
-                                <h3 className="text-lg text-white font-serif tracking-wide text-center">{t('sensorMissing.title')}</h3>
-                                <p className="text-[11px] tracking-[0.3em] text-amber-400/60 mt-1 uppercase">{t('sensorMissing.subtitle')}</p>
+                                <h3 className="text-lg text-white font-serif tracking-wide text-center">{permissionIssue ? t('sensorMissing.permissionTitle') : t('sensorMissing.title')}</h3>
+                                {!permissionIssue && <p className="text-[11px] tracking-[0.3em] text-amber-400/60 mt-1 uppercase">{t('sensorMissing.subtitle')}</p>}
                             </div>
 
                             {/* Explanation */}
@@ -639,8 +721,8 @@ export default function Qibla() {
                                 <div className="flex items-start gap-3 p-3.5 rounded-xl bg-amber-500/[0.06] border border-amber-500/10">
                                     <AlertTriangle className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
                                     <div>
-                                        <p className="text-sm text-emerald-100/80 font-medium">{t('sensorMissing.reason')}</p>
-                                        <p className="text-xs text-emerald-100/40 mt-1">{t('sensorMissing.reasonDesc')}</p>
+                                        <p className="text-sm text-emerald-100/80 font-medium">{permissionIssue ? t('sensorMissing.permissionReason') : t('sensorMissing.reason')}</p>
+                                        <p className="text-xs text-emerald-100/40 mt-1">{permissionIssue ? t('sensorMissing.permissionReasonDesc') : t('sensorMissing.reasonDesc')}</p>
                                     </div>
                                 </div>
                                 <div className="flex items-start gap-3 p-3.5 rounded-xl bg-white/[0.03] border border-white/[0.05]">
@@ -748,7 +830,7 @@ export default function Qibla() {
                                 <div className="flex items-center justify-center gap-2 py-2.5 px-4 rounded-full bg-emerald-950/60 border border-emerald-500/10 mb-6">
                                     <MapPin className="w-3.5 h-3.5 text-amber-400" />
                                     <span className="text-xs tracking-wider text-emerald-100/50">
-                                        {t('distanceToKaaba', { distance: distanceKM.toLocaleString('tr-TR') })}
+                                        {t('distanceToKaaba', { distance: distanceKM.toLocaleString(i18n.language) })}
                                     </span>
                                 </div>
                             )}
