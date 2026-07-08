@@ -2576,6 +2576,9 @@ export const TasbihIcon = memo(({ className, size = 24 }) => (
 
 export const QuickAction = memo(({ to, icon: Icon, label, color, subtitle, onClick }) => {
     const Component = to ? motion.a : motion.button;
+    // "Kıble/Cami" gibi etiketler tek kelime sayılıp dar ekranda taşıyor —
+    // slash sonrasına zero-width space ekleyerek satır kırılabilir yapılır
+    const breakableLabel = typeof label === 'string' ? label.replace(/\//g, '/\u200b') : label;
 
     return (
         <Component
@@ -2583,14 +2586,14 @@ export const QuickAction = memo(({ to, icon: Icon, label, color, subtitle, onCli
             onClick={onClick}
             variants={itemVariants}
             whileTap={{ scale: 0.96 }}
-            className="glass-panel flex flex-col items-start gap-3 min-h-[122px] p-4 rounded-[2rem] w-full text-left bg-white dark:bg-white/5 border dark:border-white/10 shadow-sm"
+            className="glass-panel flex flex-col items-start gap-3 min-h-[122px] min-w-0 p-4 rounded-[2rem] w-full text-left bg-white dark:bg-white/5 border dark:border-white/10 shadow-sm overflow-hidden"
         >
             <div className="p-3 rounded-2xl bg-white/40 dark:bg-white/15 backdrop-blur-md shadow-sm text-islamic-green dark:text-islamic-gold">
                 <Icon className="w-6 h-6" strokeWidth={2} />
             </div>
-            <div className="mt-auto">
-                <p className="text-sm font-bold text-gray-900 dark:text-islamic-gold leading-tight">{label}</p>
-                <p className="text-[10px] font-medium text-gray-500 dark:text-emerald-100/40 mt-0.5">{subtitle}</p>
+            <div className="mt-auto min-w-0 w-full">
+                <p className="text-[13px] font-bold text-gray-900 dark:text-islamic-gold leading-tight break-words">{breakableLabel}</p>
+                <p className="text-[10px] font-medium text-gray-500 dark:text-emerald-100/40 mt-0.5 truncate">{subtitle}</p>
             </div>
         </Component>
     );

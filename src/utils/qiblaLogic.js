@@ -17,14 +17,13 @@ const RADIUS_EARTH_KM = 6371.0;
 /**
  * Calculates Great Circle Azimuth (Bearing) from Point A to Point B
  * Formula: tan(θ) = sin(Δλ) / (cos(φ1) * tan(φ2) - sin(φ1) * cos(Δλ))
- * @param {number} lat1 User Latitude
- * @param {number} lng1 User Longitude
+ * @param {number} lat1 Origin Latitude
+ * @param {number} lng1 Origin Longitude
+ * @param {number} lat2 Destination Latitude
+ * @param {number} lng2 Destination Longitude
  * @returns {number} True North Azimuth (0-360)
  */
-export const calculateGeodesicAzimuth = (lat1, lng1) => {
-    const lat2 = KAABA.LAT;
-    const lng2 = KAABA.LNG;
-
+export const bearingBetween = (lat1, lng1, lat2, lng2) => {
     const phi1 = lat1 * (Math.PI / 180);
     const phi2 = lat2 * (Math.PI / 180);
     const deltaLambda = (lng2 - lng1) * (Math.PI / 180);
@@ -37,6 +36,14 @@ export const calculateGeodesicAzimuth = (lat1, lng1) => {
 
     return (bearing + 360) % 360;
 };
+
+/**
+ * Calculates Great Circle Azimuth (Bearing) from user location to the Kaaba
+ * @param {number} lat1 User Latitude
+ * @param {number} lng1 User Longitude
+ * @returns {number} True North Azimuth (0-360)
+ */
+export const calculateGeodesicAzimuth = (lat1, lng1) => bearingBetween(lat1, lng1, KAABA.LAT, KAABA.LNG);
 
 /**
  * Calculates Magnetic Declination using World Magnetic Model (WMM)
@@ -77,15 +84,14 @@ export const lowPassFilter = (currentRaw, previousSmoothed, alpha) => {
 };
 
 /**
- * Calculates precise Distance using Haversine
- * @param {number} lat1 
- * @param {number} lng1 
+ * Calculates precise Distance between two points using Haversine
+ * @param {number} lat1 Origin Latitude
+ * @param {number} lng1 Origin Longitude
+ * @param {number} lat2 Destination Latitude
+ * @param {number} lng2 Destination Longitude
  * @returns {number} Distance in KM
  */
-export const calculateGeodesicDistance = (lat1, lng1) => {
-    const lat2 = KAABA.LAT;
-    const lng2 = KAABA.LNG;
-
+export const distanceBetweenKM = (lat1, lng1, lat2, lng2) => {
     const phi1 = lat1 * Math.PI / 180;
     const phi2 = lat2 * Math.PI / 180;
     const dPhi = (lat2 - lat1) * Math.PI / 180;
@@ -98,3 +104,11 @@ export const calculateGeodesicDistance = (lat1, lng1) => {
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     return RADIUS_EARTH_KM * c;
 };
+
+/**
+ * Calculates precise Distance from user location to the Kaaba
+ * @param {number} lat1 User Latitude
+ * @param {number} lng1 User Longitude
+ * @returns {number} Distance in KM
+ */
+export const calculateGeodesicDistance = (lat1, lng1) => distanceBetweenKM(lat1, lng1, KAABA.LAT, KAABA.LNG);

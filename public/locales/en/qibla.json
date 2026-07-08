@@ -52,5 +52,9 @@
         "permissionTitle": "Location Permission Needed",
         "permissionReason": "The compass can't work without location permission",
         "permissionReasonDesc": "True north is calculated from your location. Enable location permission in Settings and try again."
+    },
+    "mosques": {
+        "trigger": "Nearby Mosques",
+        "searchTerm": "Mosque"
     }
 }

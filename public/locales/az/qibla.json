@@ -52,5 +52,9 @@
         "permissionTitle": "Məkan İcazəsi Tələb Olunur",
         "permissionReason": "Kompas məkan icazəsi olmadan işləyə bilmir",
         "permissionReasonDesc": "Həqiqi şimal istiqaməti məkanına əsasən hesablanır. Ayarlardan məkan icazəsini açıb yenidən yoxla."
+    },
+    "mosques": {
+        "trigger": "Yaxınlıqdakı Məscidlər",
+        "searchTerm": "Məscid"
     }
 }

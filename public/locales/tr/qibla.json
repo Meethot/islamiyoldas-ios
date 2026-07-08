@@ -52,5 +52,9 @@
         "permissionTitle": "Konum İzni Gerekli",
         "permissionReason": "Pusula konum izni olmadan çalışamıyor",
         "permissionReasonDesc": "Gerçek kuzey yönü konumuna göre hesaplanır. Ayarlardan konum iznini açıp tekrar dene."
+    },
+    "mosques": {
+        "trigger": "Yakındaki Camiler",
+        "searchTerm": "Cami"
     }
 }

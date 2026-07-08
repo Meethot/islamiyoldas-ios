@@ -52,5 +52,9 @@
         "permissionTitle": "Standortberechtigung erforderlich",
         "permissionReason": "Der Kompass funktioniert nicht ohne Standortberechtigung",
         "permissionReasonDesc": "Der geografische Norden wird anhand deines Standorts berechnet. Aktiviere die Standortberechtigung in den Einstellungen und versuche es erneut."
+    },
+    "mosques": {
+        "trigger": "Moscheen in der Nähe",
+        "searchTerm": "Moschee"
     }
 }

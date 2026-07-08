@@ -16,6 +16,8 @@ import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { calculateGeodesicAzimuth, getDetailedDeclination, calculateGeodesicDistance } from '../utils/qiblaLogic';
 import { useTranslation } from 'react-i18next';
+import { MosqueIcon } from '@/components/icons/PrayerIcons';
+import { openMosqueSearch } from '@/utils/mapsLauncher';
 
 const DEFAULT_ALIGNMENT_THRESHOLD = 3.5;
 
@@ -673,14 +675,23 @@ export default function Qibla() {
                 )}
             </main>
 
-            <footer className="relative z-20 px-10 pb-24 flex flex-col items-center">
+            <footer className="relative z-20 px-6 pb-24 flex items-center justify-center gap-2 flex-wrap">
                 {latitude && (
-                    <div className="flex items-center gap-2 py-2 px-4 rounded-full bg-emerald-950/40 border border-emerald-500/10">
-                        <MapPin className="w-3 h-3 text-emerald-400" />
-                        <span className="text-[10px] tracking-widest text-emerald-100/60">
-                            {t('distance')} <span className="text-amber-400">{Math.round(distanceKM).toLocaleString(i18n.language)} {t('km')}</span>
-                        </span>
-                    </div>
+                    <>
+                        <div className="flex items-center gap-2 py-2 px-4 rounded-full bg-emerald-950/40 border border-emerald-500/10">
+                            <MapPin className="w-3 h-3 text-emerald-400" />
+                            <span className="text-[10px] tracking-widest text-emerald-100/60">
+                                {t('distance')} <span className="text-amber-400">{Math.round(distanceKM).toLocaleString(i18n.language)} {t('km')}</span>
+                            </span>
+                        </div>
+                        <button
+                            onClick={() => { selection(); openMosqueSearch(latitude, longitude, t('mosques.searchTerm')); }}
+                            className="flex items-center gap-2 py-2 px-4 rounded-full bg-emerald-950/40 border border-emerald-500/10 active:scale-95 transition-all"
+                        >
+                            <MosqueIcon size={13} className="text-amber-400" />
+                            <span className="text-[10px] tracking-widest text-emerald-100/60 uppercase">{t('mosques.trigger')}</span>
+                        </button>
+                    </>
                 )}
             </footer>
 
