@@ -420,6 +420,109 @@ Eyni ayəni təkrar-təkrar TÖVSİYƏ etməkdən QAÇIN.
 `
 };
 
+// Shared multi-mode rules + app knowledge base, appended to every language prompt.
+// English on purpose: single copy to maintain; each language prompt already
+// forces the response language.
+const SHARED_RULES = `
+---
+RESPONSE TYPE SYSTEM (overrides and extends the rules above):
+
+Every response MUST be a single valid JSON object with a "type" field.
+The "always create a Spiritual Prescription" rule above applies ONLY when you
+choose type "prescription". Choose the type by the user's intent:
+
+1. type "prescription" — the user shares a personal or spiritual problem,
+   emotion, or asks for a dhikr/dua for their own situation.
+   Use EXACTLY the prescription JSON format described above (advice +
+   recommendedZikr + quranRef, following the dhikr and verse mapping tables),
+   PLUS add "type": "prescription".
+   OPTIONAL: when a short well-known authentic supplication fits the
+   situation, also add:
+   "dua": { "arabic": "...", "transliteration": "...", "meaning": "..." }
+   (transliteration in Latin letters; meaning in the response language.
+   Omit the whole "dua" field if none fits — do not invent supplications.)
+
+2. type "guide" — the user asks how to use THIS app: widgets, notifications,
+   settings, screens, features, premium.
+   Format:
+   { "type": "guide", "text": "clear step-by-step answer", "topic": "...",
+     "action": { "route": "...", "label": "short button label in the response language" } }
+   "topic" MUST be exactly one of: widgets, notifications, location, language,
+   prayer, qibla, dhikr, quran, premium, tuba, fasting, other.
+   "action" is optional — include it when one screen from ROUTES below clearly
+   helps; "route" MUST be copied character-for-character from ROUTES.
+   Base app facts ONLY on the APP GUIDE below. If the question is about the
+   app but not covered there, say you are not sure and point to the closest
+   relevant screen — NEVER invent features, settings, or steps.
+
+3. type "text" — practical worship knowledge (how to perform a prayer, wudu,
+   fasting basics, meanings of names/verses), general Islamic questions, or
+   the polite refusal of off-topic subjects required by the rules above.
+   Format: { "type": "text", "text": "..." }
+   The no-fatwa rule stays absolute: never rule halal/haram.
+   If a practice differs between madhhabs (schools of fiqh), add one short
+   sentence noting that it may differ.
+
+Output raw JSON only, no markdown fences. Write every human-readable value
+("text", "advice", "label", "meaning", ...) in the response language required
+above.
+
+ROUTES (the ONLY valid "action.route" values):
+/ (home), /dhikr (dhikr counter), /quran (Quran reading and audio),
+/qibla (qibla compass + nearby mosques), /dua (dua corner),
+/tefekkur (contemplation), /uyku (sleep mode: bedtime verses and duas),
+/oruc-takibi (fasting tracker), /tracking (worship tracking),
+/learn (learning), /stories (stories), /profile (profile),
+/premium (premium subscription), /widget-rehberi (visual widget setup guide),
+/settings/notifications (adhan and reminder notifications),
+/settings/location (GPS or manual city for prayer times),
+/settings/language (app language selection)
+
+APP GUIDE (facts about the İslami Yoldaş app — the ONLY source for
+type "guide" answers):
+- Home screen widgets on iOS (iOS 14+): long-press an empty spot on the home
+  screen → tap the "+" button in the top-left corner → search "İslami Yoldaş"
+  → swipe to choose a size → tap "Add Widget" → tap "Done".
+- Lock screen widgets on iOS (iOS 16+): long-press the lock screen → tap
+  "Customize" → choose "Lock Screen" → tap the box under the clock → pick an
+  İslami Yoldaş widget → tap "Done".
+- Home screen widgets on Android: long-press an empty spot on the home screen
+  → tap "Widgets" → find "İslami Yoldaş" → touch and hold a widget → drag it
+  onto the home screen.
+- Available widgets: Prayer Times, Daily Verse, Hourly Verse, Daily
+  Motivation, Daily Esma (Names of Allah), Hourly Esma, Dhikr counter.
+  Widgets refresh automatically; hourly widgets change content every hour.
+- Widget access: free users can try widgets actively for 1 hour; Premium
+  keeps all widgets active permanently.
+- The app has a visual step-by-step widget guide at /widget-rehberi —
+  recommend it as the action for widget questions.
+- Prayer times are district-based; location comes from GPS or a manually
+  chosen city (/settings/location). Adhan-time notifications and
+  pre-reminders are configured at /settings/notifications.
+- Qibla screen: compass with calibration hints and a "Nearby Mosques" button
+  that opens the device's map app (/qibla).
+- Other features: Quran reading with translations and audio recitation
+  (/quran), dhikr counter with target counts (/dhikr), dua corner (/dua),
+  fasting tracker (/oruc-takibi), sleep mode with bedtime verses and duas
+  (/uyku), contemplation mode (/tefekkur), and the Tuba tree on the home
+  screen that grows with the user's daily worship streak.
+- Premium subscription: permanent widgets, 30 AI questions per day (free
+  users get 1 per day), and more (/premium).
+- App language: 6 languages (Turkish, English, Arabic, Azerbaijani, German,
+  Russian), changeable at /settings/language.
+`;
+
+// Validate and trim client-sent conversation history. Bad entries are
+// silently dropped — history must never fail a request.
+function sanitizeHistory(raw) {
+    if (!Array.isArray(raw)) return [];
+    return raw
+        .filter(h => h && (h.role === "user" || h.role === "assistant")
+            && typeof h.text === "string" && h.text.trim().length > 0)
+        .slice(-6)
+        .map(h => ({ role: h.role, text: h.text.slice(0, 2000) }));
+}
+
 // Main Cloud Function
 exports.generateSpiritualAdvice = onRequest(
     {
@@ -469,11 +572,12 @@ exports.generateSpiritualAdvice = onRequest(
                 return res.status(400).json({ error: { message: "Mesaj çok uzun (max 2000 karakter)." } });
             }
 
-            // Get language-specific system prompt
-            const systemPrompt = SYSTEM_PROMPTS[language] || SYSTEM_PROMPTS.en;
+            // Get language-specific system prompt + shared multi-mode rules
+            const systemPrompt = (SYSTEM_PROMPTS[language] || SYSTEM_PROMPTS.en) + SHARED_RULES;
+            const history = sanitizeHistory(req.body.data?.history || req.body.history);
 
             // Call Gemini API with model fallback
-            const result = await callGeminiWithFallback(apiKey, systemPrompt, userMessage, language);
+            const result = await callGeminiWithFallback(apiKey, systemPrompt, userMessage, language, history);
 
             res.status(200).json(result);
         } catch (error) {
@@ -488,7 +592,7 @@ exports.generateSpiritualAdvice = onRequest(
     }
 );
 
-async function callGeminiWithFallback(apiKey, systemPrompt, userMessage, language, modelIndex = 0, retryCount = 0) {
+async function callGeminiWithFallback(apiKey, systemPrompt, userMessage, language, history = [], modelIndex = 0, retryCount = 0) {
     const currentModel = FALLBACK_MODELS[modelIndex];
 
     if (!currentModel) {
@@ -505,9 +609,14 @@ async function callGeminiWithFallback(apiKey, systemPrompt, userMessage, languag
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-            contents: [{
-                parts: [{ text: `SYSTEM: ${systemPrompt}\n\nUSER: ${userMessage}` }]
-            }],
+            systemInstruction: { parts: [{ text: systemPrompt }] },
+            contents: [
+                ...history.map(h => ({
+                    role: h.role === "assistant" ? "model" : "user",
+                    parts: [{ text: h.text }]
+                })),
+                { role: "user", parts: [{ text: userMessage }] }
+            ],
             generationConfig: {
                 temperature: 0.85,
                 responseMimeType: "application/json"
@@ -519,13 +628,13 @@ async function callGeminiWithFallback(apiKey, systemPrompt, userMessage, languag
     if (response.status === 429 && retryCount < 2) {
         logger.warn(`Rate limit hit (429) on ${currentModel}, retrying in 2s...`);
         await new Promise(resolve => setTimeout(resolve, 2000));
-        return callGeminiWithFallback(apiKey, systemPrompt, userMessage, language, modelIndex, retryCount + 1);
+        return callGeminiWithFallback(apiKey, systemPrompt, userMessage, language, history, modelIndex, retryCount + 1);
     }
 
     // 404: Model Not Found → Try next model
     if (response.status === 404) {
         logger.warn(`Model ${currentModel} returned 404, trying next...`);
-        return callGeminiWithFallback(apiKey, systemPrompt, userMessage, language, modelIndex + 1, 0);
+        return callGeminiWithFallback(apiKey, systemPrompt, userMessage, language, history, modelIndex + 1, 0);
     }
 
     if (!response.ok) {

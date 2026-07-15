@@ -52,6 +52,130 @@
         "salati_tefriciye": {
             "name": "Salati-Təfriciyə",
             "meaning": "Bütün çətinliklərin aradan qaldırılması və diləklərin qəbulu üçün."
+        },
+        "kelime_i_tevhid": {
+            "name": "Kəlmeyi-Tövhid",
+            "meaning": "Allahdan başqa ilah yoxdur, Muhəmməd Onun elçisidir."
+        },
+        "kelime_i_sehadet": {
+            "name": "Kəlmeyi-Şəhadət",
+            "meaning": "Şahidlik edirəm ki, Allahdan başqa ilah yoxdur və Muhəmməd Onun qulu və elçisidir."
+        },
+        "besmele": {
+            "name": "Bəsmələ",
+            "meaning": "Rəhman və Rəhim olan Allahın adı ilə."
+        },
+        "subhanallahi_ve_bihamdihi": {
+            "name": "Sübhanallahi və Bihəmdihi",
+            "meaning": "Allaha həmd edərək Onu təsbih edirəm."
+        },
+        "subhanallahi_velazim": {
+            "name": "Sübhanallahi və Bihəmdihi Sübhanallahil-Əzim",
+            "meaning": "Dilə yüngül, tərəzidə ağır iki cümlə."
+        },
+        "bakiyat_salihat": {
+            "name": "Sübhanallahi vəlhəmdülillahi və lə iləhə illəllahü vallahü əkbər",
+            "meaning": "Ən qalıcı gözəl əməllər: təsbih, həmd, tövhid və təkbir."
+        },
+        "tevhid_zikri": {
+            "name": "Lə iləhə illəllahü vəhdəhu lə şərikə ləh",
+            "meaning": "Allah təkdir, şəriki yoxdur; mülk Onundur, həmd Onadır; O hər şeyə qadirdir."
+        },
+        "seyyidul_istigfar": {
+            "name": "Seyyidül-İstiğfar",
+            "meaning": "İstiğfar dualarının ən üstünü — səhər-axşam oxunur."
+        },
+        "hasbiyallah": {
+            "name": "Həsbiyallahü lə iləhə illə Hu",
+            "meaning": "Allah mənə yetər; Ondan başqa ilah yoxdur, Ona təvəkkül etdim."
+        },
+        "allahumme_ecirni": {
+            "name": "Allahümmə Əcirni Minən-Nar",
+            "meaning": "Allahım, məni cəhənnəm odundan qoru."
+        },
+        "rabbena_atina": {
+            "name": "Rəbbəna Atina",
+            "meaning": "Rəbbimiz! Bizə dünyada və axirətdə yaxşılıq ver, bizi od əzabından qoru."
+        },
+        "salaten_tuncina": {
+            "name": "Salati-Münciyə (Tüncina)",
+            "meaning": "Bütün təhlükə və çətinliklərdən qurtuluş üçün oxunan salavat."
+        },
+        "felak": {
+            "name": "Fələq surəsi",
+            "meaning": "Yaratdıqlarının şərindən sübhün Rəbbinə sığınıram."
+        },
+        "nas": {
+            "name": "Nas surəsi",
+            "meaning": "İnsanların Rəbbinə, Məlikinə və İlahına sığınıram."
+        },
+        "subhane_rabbiyel_azim": {
+            "name": "Sübhanə Rəbbiyəl-Əzim",
+            "meaning": "Uca Rəbbimi təsbih edirəm — rüku təsbihi."
+        },
+        "subhane_rabbiyel_ala": {
+            "name": "Sübhanə Rəbbiyəl-Əla",
+            "meaning": "Ən uca Rəbbimi təsbih edirəm — səcdə təsbihi."
+        },
+        "subbuhun_kuddusun": {
+            "name": "Sübbuhun Quddusun",
+            "meaning": "Mələklərin və Ruhun Rəbbi; hər nöqsandan uzaq, müqəddəsdir."
+        },
+        "rabbi_zidni_ilma": {
+            "name": "Rəbbi Zidni İlma",
+            "meaning": "Rəbbim, elmimi artır. (Taha 114)"
+        },
+        "rabbisrah_li_sadri": {
+            "name": "Rəbbişrəh li Sədri",
+            "meaning": "Rəbbim! Köksümü genişlət, işimi asanlaşdır. (Taha 25-26)"
+        },
+        "rabbena_la_tuzig": {
+            "name": "Rəbbəna la Tuziğ Qulubəna",
+            "meaning": "Rəbbimiz! Bizi doğru yola yönəltdikdən sonra qəlblərimizi azdırma. (Ali-İmran 8)"
+        },
+        "ya_hayyu_ya_kayyum": {
+            "name": "Ya Həyyu Ya Qəyyum",
+            "meaning": "Ey Həyy və Qəyyum! Rəhmətinlə kömək diləyirəm."
+        },
+        "ya_erhamer_rahimin": {
+            "name": "Ya Ərhəmər-Rahimin",
+            "meaning": "Ey mərhəmətlilərin ən mərhəmətlisi!"
+        },
+        "melikul_hakkul_mubin": {
+            "name": "Lə iləhə illəllahül-Məlikül-Həqqül-Mübin",
+            "meaning": "Açıq-aşkar haqq və mülkün sahibi olan Allahdan başqa ilah yoxdur."
+        },
+        "estagfirullah_elazim": {
+            "name": "Əstəğfirullahəl-Əzim və Ətubu İleyh",
+            "meaning": "Həyy və Qəyyum olan uca Allahdan bağışlanma diləyir, Ona tövbə edirəm."
+        },
+        "afv_afiyet": {
+            "name": "Allahümmə inni əs'əlükəl-Əfvə vəl-Afiyə",
+            "meaning": "Allahım! Səndən əfv və afiyət diləyirəm."
+        },
+        "bismillahillezi": {
+            "name": "Bismillahilləzi la Yədurru",
+            "meaning": "Onun adı ilə; yerdə və göydə heç nə zərər verə bilməz. (səhər-axşam 3 dəfə)"
+        },
+        "euzu_bikelimatillah": {
+            "name": "Əuzü bi-Kəlimatillah",
+            "meaning": "Yaratdıqlarının şərindən Allahın kamil kəlmələrinə sığınıram."
+        },
+        "radiytu_billahi": {
+            "name": "Raditü Billahi Rəbba",
+            "meaning": "Rəbb olaraq Allahdan, din olaraq İslamdan, peyğəmbər olaraq Muhəmməddən razıyam."
+        },
+        "adede_halkihi": {
+            "name": "Sübhanallahi və Bihəmdihi Ədədə Xəlqihi",
+            "meaning": "Yaratdıqları sayınca, zatının rizasınca, ərşinin ağırlığınca Allahı təsbih edirəm."
+        },
+        "salat_i_fetih": {
+            "name": "Salati-Fətih",
+            "meaning": "Maddi və mənəvi fəthlər, işlərin açılması üçün oxunan salavat."
+        },
+        "allahumme_entes_selam": {
+            "name": "Allahümmə Əntəs-Səlam",
+            "meaning": "Allahım! Sən Səlamsan, salamatlıq Səndəndir — namazdan sonrakı zikr."
         }
     },
     "vibration": {

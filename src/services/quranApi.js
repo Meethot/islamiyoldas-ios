@@ -219,14 +219,23 @@ export async function fetchAyahAudio(verseKey, recitationId = 7) {
  */
 export async function fetchChapterAudioFiles(chapterId, recitationId = 7) {
     try {
-        const response = await fetch(`${BASE_URL}/recitations/${recitationId}/by_chapter/${chapterId}`);
-        if (!response.ok) throw new Error('Sure ses dosyaları alınamadı');
-        const data = await response.json();
-        
-        return data.audio_files.map(file => ({
-            verseKey: file.verse_key,
-            url: file.url.startsWith('http') ? file.url : `https://verses.quran.com/${file.url}`
-        }));
+        // API paginates (default 10/page) — per_page=300 covers the longest surah (286),
+        // page loop is a safety net in case the server caps per_page lower.
+        const files = [];
+        let page = 1;
+        let nextPage = 1;
+        while (nextPage) {
+            const response = await fetch(`${BASE_URL}/recitations/${recitationId}/by_chapter/${chapterId}?per_page=300&page=${page}`);
+            if (!response.ok) throw new Error('Sure ses dosyaları alınamadı');
+            const data = await response.json();
+            files.push(...data.audio_files.map(file => ({
+                verseKey: file.verse_key,
+                url: file.url.startsWith('http') ? file.url : `https://verses.quran.com/${file.url}`
+            })));
+            nextPage = data.pagination?.next_page || null;
+            page += 1;
+        }
+        return files;
     } catch (error) {
         console.error('Chapter Audio Files Error:', error);
         return [];

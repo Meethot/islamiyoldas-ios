@@ -57,7 +57,7 @@ export default function AiPrescriptionCard({ data }) {
     const [audioLoading, setAudioLoading] = useState(false);
     const audioRef = useRef(null);
 
-    const { advice, recommendedZikr, quranRef } = data;
+    const { advice, recommendedZikr, quranRef, dua } = data;
 
     // Enrich AI recommendation with local esma data
     const enrichedZikr = useMemo(() => {
@@ -159,7 +159,7 @@ export default function AiPrescriptionCard({ data }) {
         <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="w-full max-w-sm mx-auto mt-4 mb-2"
+            className="w-full max-w-sm mx-auto"
         >
             <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-stone-50 to-stone-100 dark:from-[#032e18] dark:to-[#0a4a2e] border border-stone-200 dark:border-islamic-gold/20 shadow-xl">
                 {/* Decorative Background */}
@@ -207,6 +207,26 @@ export default function AiPrescriptionCard({ data }) {
                                 📿 {t('prescription.startDhikr')}
                                 <ArrowRight className="w-4 h-4" />
                             </Button>
+                        </div>
+                    )}
+
+                    {/* 2b. Dua Tavsiyesi (opsiyonel — model uygun görürse) */}
+                    {dua?.arabic && (
+                        <div className="bg-stone-100 dark:bg-white/5 rounded-2xl p-4 border border-stone-200 dark:border-white/5">
+                            <p className="text-[10px] text-islamic-gold/60 uppercase tracking-widest font-bold mb-3">🤲 {t('prescription.duaLabel')}</p>
+                            <p className="text-right font-arabic text-xl text-islamic-gold/90 leading-loose mb-2" dir="rtl">
+                                {dua.arabic}
+                            </p>
+                            {dua.transliteration && (
+                                <p className="text-stone-500 dark:text-white/50 text-xs italic leading-relaxed mb-2">
+                                    {dua.transliteration}
+                                </p>
+                            )}
+                            {dua.meaning && (
+                                <p className="text-stone-600 dark:text-gray-300 text-sm leading-relaxed">
+                                    "{dua.meaning}"
+                                </p>
+                            )}
                         </div>
                     )}
 

@@ -60,7 +60,7 @@ export const PrayerTimesProvider = ({ children }) => {
     // Circuit breaker: skip Diyanet API for 60s after a network failure
     const diyanetDownUntilRef = useRef(0);
 
-    const { latitude, longitude, hasLocation, manualCity, manualCountry, cityName, geoRevision } = useLocation();
+    const { latitude, longitude, hasLocation, manualCity, manualCountry, manualCountryCode, manualCoords, cityName, geoRevision } = useLocation();
     const { i18n } = useTranslation();
 
     const FALLBACK_COORDS = { lat: 41.0082, lng: 28.9784 };
@@ -93,11 +93,11 @@ export const PrayerTimesProvider = ({ children }) => {
 
     // Initial Setup & Cache Validation
     useEffect(() => {
-        const CACHE_VERSION = 'v6_diyanet_guard'; // v6: Diyanet search validation, monthly cache, method auto-select, midnight-crossing times
+        const CACHE_VERSION = 'v7_az_method'; // v7: Azerbaijan QMİ method, Photon city picker (countriesnow cache dropped)
         const version = localStorage.getItem('app_data_version');
         if (version !== CACHE_VERSION) {
             // Clear cache and prayer time keys only, NOT all data
-            const keysToRemove = [];
+            const keysToRemove = ['countries_data_cache'];
             for (let i = 0; i < localStorage.length; i++) {
                 const k = localStorage.key(i);
                 if (k.startsWith('diyanet_') || k.startsWith('prayers_') || k.startsWith('cached_')) {
@@ -347,20 +347,93 @@ export const PrayerTimesProvider = ({ children }) => {
     // folds Turkish chars and lowercases
     const diyanetNorm = (s) => normalizeTurkishChars(String(s || '').trim()).toLowerCase();
 
-    // Diyanet country name (normalized) for the manual selection. Manual countries are
-    // stored as English names (countriesnow.space); Diyanet uses Turkish names (ALMANYA).
+    // Diyanet country name (normalized) for the manual selection. Diyanet uses
+    // Turkish names (ALMANYA) — derive from the stored ISO code when available
+    // (Photon selections); legacy selections fall back to the old countriesnow cache.
     const getManualCountryDiyanetName = () => {
         const c = (manualCountry || '').trim();
         if (!c || c === 'Turkey' || c === 'Türkiye') return 'turkiye';
         try {
-            const cache = JSON.parse(localStorage.getItem('countries_data_cache') || '[]');
-            const iso2 = cache.find(x => x.country === c)?.iso2;
+            const iso2 = manualCountryCode
+                || JSON.parse(localStorage.getItem('countries_data_cache') || '[]').find(x => x.country === c)?.iso2;
             if (iso2) {
-                const trName = new Intl.DisplayNames(['tr'], { type: 'region' }).of(iso2);
+                const trName = new Intl.DisplayNames(['tr'], { type: 'region' }).of(iso2.toUpperCase());
                 if (trName) return diyanetNorm(trName);
             }
         } catch { /* fall through to English name */ }
         return diyanetNorm(c);
+    };
+
+    // ─── Country-aware calculation params (Aladhan) ───
+    // Azerbaijan follows the Caucasus Muslim Board (QMİ) calendar, which no
+    // built-in Aladhan method matches: Fajr 16° / Isha 15° with HANAFI Asr and a
+    // delayed Maghrib (sun ~3.7° below horizon, Shia-style precaution). Verified
+    // against namazvaxti.az (Baku, whole of July 2026): all six times within
+    // ±1 min. Aladhan's own auto-pick assigns Tehran (method 7) here, which put
+    // Fajr/adhan 20+ min early — the reported Balakən bug. Tune (+1 Sunrise,
+    // Dhuhr, Isha) compensates QMİ's round-up convention.
+    const AZ_METHOD_PARAMS = { method: 99, methodSettings: '16,3.7,15', school: 1, tune: '0,0,1,1,0,0,0,1,0' };
+
+    const isAzerbaijanLocation = () => {
+        if (manualCity) {
+            if (manualCountryCode) return manualCountryCode === 'az';
+            return manualCountry === 'Azerbaijan' || manualCountry === 'Azərbaycan';
+        }
+        // GPS: only trust the reverse geocode — a bounding box would swallow
+        // Tbilisi and northern Iran
+        return localStorage.getItem('cached_country_code') === 'az';
+    };
+
+    const isTurkmenistanLocation = () => {
+        if (manualCity) {
+            if (manualCountryCode) return manualCountryCode === 'tm';
+            return manualCountry === 'Turkmenistan' || manualCountry === 'Türkmenistan';
+        }
+        return localStorage.getItem('cached_country_code') === 'tm';
+    };
+
+    // Turkmenistan Muftiate (Türkmenistanyň Müftüsiniň müdiriýeti) publishes
+    // rule-based times, reverse-engineered from all 5 official welaýat tables
+    // (Oraza 2026): İmsak = sunrise − 110 min, Öýle FIXED 13:30 (Balkan 13:40 —
+    // single +05 timezone, west needs later zawal guard), İkindi = Agşam − 100
+    // min, Agşam = sunset + temkin (Ahal/Aşgabat/Arkadag table +12 — regional
+    // envelope; other welaýats +5), Ýassy = Agşam + 80 min. Verified ±1 min
+    // against the official tables at all 5 capitals. No Aladhan method matches
+    // this (auto-pick assigns Tehran: İkindi ~30 min off, Ýassy ~1.5 h off).
+    // Note: mosques pray Ertir (fajr jamaat) 40 min AFTER imsak; the app shows
+    // imsak, consistent with the TR convention.
+    const getTurkmenRules = (lat, lng) => {
+        if (calculationMethod !== 'auto' || !isTurkmenistanLocation()) return null;
+        const isAhal = lat < 40.6 && lng >= 56.6 && lng <= 61.4;
+        const isBalkan = lng < 56.6;
+        return { dhuhrFixed: isBalkan ? '13:40' : '13:30', maghribOffset: isAhal ? 12 : 5 };
+    };
+
+    // Hanafi-majority countries where mosques follow the Hanafi Asr — Aladhan's
+    // auto-pick NEVER sets `school` (measured: STANDARD everywhere), leaving Asr
+    // ~1 hour early across South/Central Asia. Verified against namozvaqti.uz
+    // (Tashkent Asr 17:41 = Hanafi; standard calc gives ~16:45). Turkey is NOT
+    // here — Diyanet publishes the standard (asr-ı evvel) time.
+    const HANAFI_SCHOOL_COUNTRIES = new Set(['pk', 'in', 'bd', 'af', 'tj', 'kg', 'kz', 'uz']);
+
+    const getEffectiveCountryCode = () => {
+        if (manualCity) return manualCountryCode || null;
+        return localStorage.getItem('cached_country_code') || null;
+    };
+
+    // Extra query params for Aladhan. Explicit user choice always wins; auto mode
+    // maps Turkey → Diyanet 13, Azerbaijan → QMİ approximation, Uzbekistan →
+    // Russia angles + Hanafi (auto-pick assigns Shia Tehran there), other Hanafi
+    // countries → keep Aladhan's method pick but fix the Asr school, elsewhere →
+    // no method so Aladhan selects the local authority itself.
+    const getAladhanMethodParams = (turkish) => {
+        if (calculationMethod !== 'auto') return { method: parseInt(calculationMethod, 10) };
+        if (turkish) return { method: 13 };
+        if (isAzerbaijanLocation()) return { ...AZ_METHOD_PARAMS };
+        const cc = getEffectiveCountryCode();
+        if (cc === 'uz') return { method: 14, school: 1 };
+        if (cc && HANAFI_SCHOOL_COUNTRIES.has(cc)) return { school: 1 };
+        return {};
     };
 
     // Resolve Diyanet location_id with validation (cached).
@@ -473,7 +546,7 @@ export const PrayerTimesProvider = ({ children }) => {
     };
 
     // Today's normalization helper
-    const normalizeTimings = (rawTimes, isTurkish) => {
+    const normalizeTimings = (rawTimes, isTurkish, isAzerbaijan = false, tmRules = null) => {
         if (!rawTimes) return null;
 
         const addMinutes = (timeStr, mins) => {
@@ -504,6 +577,28 @@ export const PrayerTimesProvider = ({ children }) => {
             // exact once the correct district resolves — see resolveDiyanetLocationId;
             // İstanbul now maps to the center, not the ~2-min-later first district).
 
+            result.Sunset = result.Maghrib;
+        }
+
+        // Azerbaijan (QMİ): no separate imsak exists — fasting starts at Sübh
+        // (Fajr). Without this, Aladhan's Imsak field (a fixed Fajr−10 buffer)
+        // leaks into the az-language home countdown and the sahur alarm.
+        if (isAzerbaijan) {
+            result.Imsak = rawTimes.Fajr || rawTimes.Imsak;
+        }
+
+        // Turkmenistan: the muftiate derives everything from sunrise/sunset
+        // (see getTurkmenRules) — the requested method's Fajr/Asr/Isha are
+        // replaced wholesale, so which method Aladhan used doesn't matter.
+        if (tmRules) {
+            const sunrise = (rawTimes.Sunrise || '').split(' ')[0];
+            const sunset = (rawTimes.Sunset || rawTimes.Maghrib || '').split(' ')[0];
+            result.Fajr = addMinutes(sunrise, -110);
+            result.Imsak = result.Fajr;
+            result.Dhuhr = tmRules.dhuhrFixed;
+            result.Maghrib = addMinutes(sunset, tmRules.maghribOffset);
+            result.Asr = addMinutes(result.Maghrib, -100);
+            result.Isha = addMinutes(result.Maghrib, 80);
             result.Sunset = result.Maghrib;
         }
 
@@ -538,6 +633,11 @@ export const PrayerTimesProvider = ({ children }) => {
     // district/province so same-named districts can't cross provinces.
     const getDiyanetSearchPlans = (turkish) => {
         if (manualCity) {
+            // Azerbaijan (QMİ) and Turkmenistan (Muftiate) have their own
+            // authorities — in auto mode skip the Diyanet lookup (Diyanet
+            // publishes their cities with its own 18° imsak, 15-40 min off the
+            // local official calendars). Explicit Diyanet (13) still uses it.
+            if (calculationMethod === 'auto' && (isAzerbaijanLocation() || isTurkmenistanLocation())) return [];
             return [{ term: manualCity, opts: { expectedCountry: getManualCountryDiyanetName() } }];
         }
         if (!turkish) return [];
@@ -557,15 +657,30 @@ export const PrayerTimesProvider = ({ children }) => {
     const calendarCacheRef = useRef({ key: null, data: null });
 
     const fetchCalendarData = async () => {
-        const lat = (hasLocation && latitude) ? latitude : FALLBACK_COORDS.lat;
-        const lng = (hasLocation && longitude) ? longitude : FALLBACK_COORDS.lng;
+        // Manual city coords first — without them a manual selection with GPS off
+        // used to fill days 2+ with FALLBACK (İstanbul!) times
+        let lat, lng;
+        if (manualCity && manualCoords) {
+            lat = manualCoords.latitude;
+            lng = manualCoords.longitude;
+        } else if (hasLocation && latitude && longitude) {
+            lat = latitude;
+            lng = longitude;
+        } else {
+            lat = FALLBACK_COORDS.lat;
+            lng = FALLBACK_COORDS.lng;
+        }
         // Same detection logic as fetchPrayerTimes
         const localIsInTurkey = lat >= 36 && lat <= 42 && lng >= 26 && lng <= 45;
         const countryCode = localStorage.getItem('cached_country_code');
-        const manualIsTurkey = manualCountry === 'Turkey' || manualCountry === 'Türkiye';
+        const manualIsTurkey = manualCountryCode
+            ? manualCountryCode === 'tr'
+            : (manualCountry === 'Turkey' || manualCountry === 'Türkiye');
         const localIsTurkish = manualCity ? manualIsTurkey : (countryCode ? countryCode === 'tr' : localIsInTurkey);
+        const localIsAzerbaijan = isAzerbaijanLocation();
+        const localTmRules = getTurkmenRules(lat, lng);
 
-        const cacheKey = `${getTodayString()}|${manualCity || `${lat},${lng}`}|${calculationMethod}`;
+        const cacheKey = `${getTodayString()}|${manualCity || ''}@${lat},${lng}|${calculationMethod}`;
         if (calendarCacheRef.current.key === cacheKey) return calendarCacheRef.current.data;
 
         const calendarData = {};
@@ -617,8 +732,7 @@ export const PrayerTimesProvider = ({ children }) => {
         }
 
         if (hasMissingDays) {
-            // Auto mode outside Turkey: omit `method` so Aladhan picks the local authority
-            const method = calculationMethod === 'auto' ? (localIsTurkish ? 13 : null) : parseInt(calculationMethod, 10);
+            const methodParams = getAladhanMethodParams(localIsTurkish);
             const monthsToFetch = new Set();
             for (let d = 0; d < CALENDAR_WINDOW_DAYS; d++) {
                 const checkDate = new Date(today);
@@ -629,8 +743,7 @@ export const PrayerTimesProvider = ({ children }) => {
             for (const ym of monthsToFetch) {
                 const [y, m] = ym.split('-').map(Number);
                 try {
-                    const calParams = { latitude: lat, longitude: lng };
-                    if (method != null) calParams.method = method;
+                    const calParams = { latitude: lat, longitude: lng, ...methodParams };
                     const res = await axios.get(`https://api.aladhan.com/v1/calendar/${y}/${m}`, {
                         params: calParams
                     });
@@ -639,7 +752,7 @@ export const PrayerTimesProvider = ({ children }) => {
                         const dateKey = d.date?.gregorian?.date;
                         // Only fill gaps — don't overwrite Diyanet data
                         if (dateKey && !calendarData[dateKey]) {
-                            calendarData[dateKey] = normalizeTimings(d.timings, localIsTurkish);
+                            calendarData[dateKey] = normalizeTimings(d.timings, localIsTurkish, localIsAzerbaijan, localTmRules);
                         }
                     });
                 } catch (e2) {
@@ -660,7 +773,11 @@ export const PrayerTimesProvider = ({ children }) => {
             if (!isBackgroundRefresh) setLoading(true);
 
             let lat, lng;
-            if (hasLocation && latitude && longitude) {
+            if (manualCity && manualCoords) {
+                lat = manualCoords.latitude;
+                lng = manualCoords.longitude;
+                setLocationSource('manual');
+            } else if (hasLocation && latitude && longitude) {
                 lat = latitude;
                 lng = longitude;
                 setLocationSource('gps');
@@ -675,7 +792,9 @@ export const PrayerTimesProvider = ({ children }) => {
             // geocode is available (the box also covers Yerevan, Aleppo, Rhodes...)
             const isInTurkey = lat >= 36 && lat <= 42 && lng >= 26 && lng <= 45;
             const countryCode = localStorage.getItem('cached_country_code');
-            const manualIsTurkey = manualCountry === 'Turkey' || manualCountry === 'Türkiye';
+            const manualIsTurkey = manualCountryCode
+                ? manualCountryCode === 'tr'
+                : (manualCountry === 'Turkey' || manualCountry === 'Türkiye');
             const turkish = manualCity ? manualIsTurkey : (countryCode ? countryCode === 'tr' : isInTurkey);
             setIsTurkishLocation(turkish);
             setLocationState({ latitude: lat, longitude: lng });
@@ -708,26 +827,31 @@ export const PrayerTimesProvider = ({ children }) => {
             const appDate = getAppDate();
             const dateStr = `${appDate.getDate()}-${appDate.getMonth() + 1}-${appDate.getFullYear()}`;
 
-            // In auto mode outside Turkey, omit `method` — Aladhan then selects the
-            // local authority itself (e.g. Umm al-Qura in Saudi Arabia, Egyptian
-            // Authority in Egypt). A hardcoded MWL was 7-10 min off in those regions.
-            const method = calculationMethod === 'auto' ? (turkish ? 13 : null) : parseInt(calculationMethod, 10);
+            // In auto mode outside Turkey/Azerbaijan, omit `method` — Aladhan then
+            // selects the local authority itself (e.g. Umm al-Qura in Saudi Arabia).
+            // A hardcoded MWL was 7-10 min off in those regions.
+            const methodParams = getAladhanMethodParams(turkish);
 
             let response;
             // Always prioritize manual city for Aladhan if set, regardless of background physical GPS state
-            if (manualCity) {
+            if (manualCity && !manualCoords) {
+                // Legacy manual selection (no coords stored) — name-based lookup
                 const addressQuery = manualCountry ? `${manualCity}, ${manualCountry}` : manualCity;
-                const params = { address: addressQuery };
-                if (method != null) params.method = method;
+                const params = { address: addressQuery, ...methodParams };
                 response = await axios.get(`https://api.aladhan.com/v1/timingsByAddress/${dateStr}`, { params });
             } else {
-                const params = { latitude: lat, longitude: lng };
-                if (method != null) params.method = method;
+                // lat/lng already resolves manual coords > GPS > fallback
+                const params = { latitude: lat, longitude: lng, ...methodParams };
                 response = await axios.get(`https://api.aladhan.com/v1/timings/${dateStr}`, { params });
             }
 
             const rawTimings = response.data.data.timings;
-            const normalized = normalizeTimings(rawTimings, turkish);
+            // Address-based lookups resolve their own coordinates — use the
+            // response meta so region rules (Turkmen welaýat) don't read the
+            // fallback coords
+            const metaLat = response.data.data.meta?.latitude ?? lat;
+            const metaLng = response.data.data.meta?.longitude ?? lng;
+            const normalized = normalizeTimings(rawTimings, turkish, isAzerbaijanLocation(), getTurkmenRules(metaLat, metaLng));
             normalized._source = turkish ? 'aladhan_tr_norm' : 'aladhan';
 
             setPrayerTimes(normalized);
@@ -741,7 +865,7 @@ export const PrayerTimesProvider = ({ children }) => {
         } finally {
             setLoading(false);
         }
-    }, [latitude, longitude, hasLocation, manualCity, manualCountry, calculationMethod]);
+    }, [latitude, longitude, hasLocation, manualCity, manualCountry, manualCountryCode, manualCoords, calculationMethod]);
 
     // Push prayer times to iOS Widget via App Group UserDefaults
     const syncWidgetData = useCallback(async (timings) => {
@@ -882,11 +1006,13 @@ export const PrayerTimesProvider = ({ children }) => {
         try {
             const now = getAppDate();
 
-            // Turkish/AZ convention: İmsak (fasting start) as first prayer
-            // International convention: Fajr (dawn prayer) as first prayer
+            // Turkish/AZ convention: İmsak label for the first prayer; the VALUE is
+            // always Fajr — Diyanet/QMİ define imsak = fajr, and Aladhan's Imsak
+            // field is a fixed Fajr−10 buffer that would disagree with the adhan
+            // notification (which fires at Fajr)
             const lang = (i18n.language || 'en').split('-')[0];
             const useImsak = lang === 'tr' || lang === 'az';
-            const firstPrayerTime = useImsak ? timings.Imsak : timings.Fajr;
+            const firstPrayerTime = timings.Fajr || timings.Imsak;
             const firstPrayerName = useImsak ? 'İmsak' : 'Fajr';
 
             const prayers = [
@@ -917,10 +1043,11 @@ export const PrayerTimesProvider = ({ children }) => {
 
     // iOS limit: 64 pending notifications
     // Budget: 3 repeating verse + 1 repeating friday + 1 dhikr = 5 permanent
-    // Prayer: 3 days × 5 prayers = 15 slots (IDs 1-15)
-    // Pre-reminder: 3 days x 5 = 15 slots
-    // This totals to ~35 scheduled notifications, giving 100% safety buffer against iOS limit crashes.
-    const MAX_PRAYER_DAYS = 3;
+    // Prayer: 5 days × 6 slots (5 prayers + sunrise) = 30 (IDs 1-30, cancel range 1-35)
+    // Pre-reminder: 3 days × 5 = 15 slots (IDs 100-114)
+    // + 1 sahur alarm ≈ 51 total — leaves headroom against iOS limit crashes.
+    // 5 days so the adhan keeps firing even if the app isn't opened for days.
+    const MAX_PRAYER_DAYS = 5;
 
     const schedulePrayerNotifications = useCallback(async (todayTimings) => {
         if (!Capacitor.isNativePlatform()) return;

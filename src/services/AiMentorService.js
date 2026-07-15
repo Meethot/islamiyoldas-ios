@@ -9,9 +9,10 @@ const FUNCTION_URL_BASE = "https://us-central1-islami-yoldas-app.cloudfunctions.
  * Calls the server-side Gemini proxy for spiritual advice.
  * @param {string} userMessage - The user's input/problem.
  * @param {string} language - The current app language ('en', 'tr', 'de', etc.).
- * @returns {Promise<Object>} - The parsed JSON response (advice, zikr, verse).
+ * @param {Array} history - Son mesajlar [{role, text}] (opsiyonel).
+ * @returns {Promise<Object>} - The parsed JSON response (type + advice/zikr/verse or text).
  */
-export async function getSpiritualAdvice(userMessage, language = 'tr') {
+export async function getSpiritualAdvice(userMessage, language = 'tr', history = []) {
   if (!userMessage || userMessage.trim().length === 0) {
     throw new Error(language === 'en' ? "Please type something." : "Lütfen bir şeyler yazın.");
   }
@@ -27,7 +28,8 @@ export async function getSpiritualAdvice(userMessage, language = 'tr') {
       body: JSON.stringify({
         data: {
           message: userMessage,
-          language: language
+          language: language,
+          history: Array.isArray(history) ? history.slice(-6) : []
         }
       })
     });

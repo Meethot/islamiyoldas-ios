@@ -622,16 +622,23 @@ export default function DuaKosesi() {
             return;
         }
 
-        // Kredi kontrolü ve düşümü (Premium bypass)
-        if (!isPremium()) {
-            if (!spendCredits(CREDIT_COSTS.POST_DUA)) {
-                return; // Paywall zaten butonda gösterildi
-            }
-            setCredits(getCredits());
+        // Kredi kontrolü — YETERLİLİK burada, DÜŞÜM başarılı gönderimden sonra.
+        // (Önceden kredi Firestore yazımından önce düşülüyordu; yazma başarısız
+        // olunca krediler yanıyor, dua da gitmiyordu — "30 token biriktirdim ama
+        // gönderemiyorum" şikayeti buydu.)
+        if (!isPremium() && getCredits() < CREDIT_COSTS.POST_DUA) {
+            setShowPaywall(true);
+            return;
         }
 
         try {
             const id = await addPrayer(text, currentLang);
+
+            // Yazma başarılı — krediyi ancak ŞİMDİ düş
+            if (!isPremium()) {
+                spendCredits(CREDIT_COSTS.POST_DUA);
+                setCredits(getCredits());
+            }
 
             // Increment daily count on success
             const newCount = dailyCount + 1;

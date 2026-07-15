@@ -2,7 +2,7 @@
     "aiMentor": {
         "title": "Manevi Asistan",
         "subtitle": "Yapay Zeka Destekli Asistan",
-        "welcomeMessage": "Selamün aleyküm güzel kardeşim. Ben senin Manevi Asistanınım. Kalbinde ne var, seni daraltan veya şükrettiren nedir? Bana anlat, sana Kur'an ve Sünnet ışığında bir reçete hazırlayayım.",
+        "welcomeMessage": "Selamün aleyküm güzel kardeşim. Ben senin Manevi Asistanınım. Kalbinde ne var, seni daraltan veya şükrettiren nedir? Bana anlat, sana Kur'an ve Sünnet ışığında bir reçete hazırlayayım. Ayrıca bana dua ve ibadetlerle ilgili soru sorabilir, uygulamanın özelliklerini (örneğin widget kurulumunu) danışabilirsin.",
         "thinking": "Tefekkür ediliyor...",
         "placeholder": "Derdim var, içim daralıyor...",
         "errorPrefix": "Hata oluştu:",
@@ -14,7 +14,8 @@
         "premiumQuota": "{{count}} hakkın kaldı",
         "suggestion1": "İçim daralıyor, hangi zikir ve duayı çekeyim?",
         "suggestion2": "Ailem huzurlu olsun istiyorum, ne yapmalıyım?",
-        "suggestion3": "Rızık ve bereket için hangi duaları okumalıyım?"
+        "suggestion3": "Ana ekrana widget nasıl eklerim?",
+        "suggestion4": "Uyumadan önce hangi dualar okunur?"
     },
     "prescription": {
         "title": "Manevi Reçete",
@@ -25,7 +26,8 @@
         "listen": "Dinle",
         "pause": "Durakla",
         "ebced": "Ebced",
-        "count": "Adet"
+        "count": "Adet",
+        "duaLabel": "Dua"
     },
     "comingSoon": "Çok Yakında! Bu dil hazırlanıyor. 🌍",
     "connectionError": "Şu an yanıt verilemedi. Lütfen bir süre sonra tekrar deneyiniz.",

@@ -52,6 +52,130 @@
         "salati_tefriciye": {
             "name": "Salat al-Tafrijiyyah",
             "meaning": "Segen zur Linderung aller Schwierigkeiten und Erfüllung von Wünschen."
+        },
+        "kelime_i_tevhid": {
+            "name": "Kalima Tauhid",
+            "meaning": "Es gibt keinen Gott außer Allah; Muhammad ist der Gesandte Allahs."
+        },
+        "kelime_i_sehadet": {
+            "name": "Kalima Schahada",
+            "meaning": "Ich bezeuge, dass es keinen Gott außer Allah gibt und dass Muhammad Sein Diener und Gesandter ist."
+        },
+        "besmele": {
+            "name": "Bismillah",
+            "meaning": "Im Namen Allahs, des Allerbarmers, des Barmherzigen."
+        },
+        "subhanallahi_ve_bihamdihi": {
+            "name": "SubhanAllahi wa bihamdihi",
+            "meaning": "Gepriesen sei Allah und Ihm gebührt das Lob."
+        },
+        "subhanallahi_velazim": {
+            "name": "SubhanAllahi wa bihamdihi, SubhanAllahil-Azim",
+            "meaning": "Zwei Worte, leicht auf der Zunge, schwer auf der Waage."
+        },
+        "bakiyat_salihat": {
+            "name": "SubhanAllah walhamdulillah wa la ilaha illallah wallahu akbar",
+            "meaning": "Die bleibenden guten Taten: Lobpreisung, Dank, Einheit und Größe Allahs."
+        },
+        "tevhid_zikri": {
+            "name": "La ilaha illallahu wahdahu la scharika lah",
+            "meaning": "Allah ist Einer, ohne Partner; Ihm gehört die Herrschaft und das Lob, und Er hat Macht über alle Dinge."
+        },
+        "seyyidul_istigfar": {
+            "name": "Sayyid al-Istighfar",
+            "meaning": "Das beste Bittgebet um Vergebung — morgens und abends rezitiert."
+        },
+        "hasbiyallah": {
+            "name": "Hasbiyallahu la ilaha illa Hu",
+            "meaning": "Allah genügt mir; es gibt keinen Gott außer Ihm. Auf Ihn vertraue ich."
+        },
+        "allahumme_ecirni": {
+            "name": "Allahumma adschirni minan-nar",
+            "meaning": "O Allah, bewahre mich vor dem Feuer."
+        },
+        "rabbena_atina": {
+            "name": "Rabbana atina",
+            "meaning": "Unser Herr! Gib uns Gutes im Diesseits und im Jenseits und bewahre uns vor der Strafe des Feuers."
+        },
+        "salaten_tuncina": {
+            "name": "Salat al-Mundschiya (Tundschina)",
+            "meaning": "Das Salawat, das zur Rettung aus allen Nöten und Gefahren rezitiert wird."
+        },
+        "felak": {
+            "name": "Sure Al-Falaq",
+            "meaning": "Ich suche Zuflucht beim Herrn des Morgengrauens vor dem Übel dessen, was Er erschaffen hat."
+        },
+        "nas": {
+            "name": "Sure An-Nas",
+            "meaning": "Ich suche Zuflucht beim Herrn der Menschen, ihrem König und ihrem Gott."
+        },
+        "subhane_rabbiyel_azim": {
+            "name": "Subhana Rabbiyal-Azim",
+            "meaning": "Gepriesen sei mein Herr, der Gewaltige — Tasbih der Verbeugung."
+        },
+        "subhane_rabbiyel_ala": {
+            "name": "Subhana Rabbiyal-A'la",
+            "meaning": "Gepriesen sei mein Herr, der Höchste — Tasbih der Niederwerfung."
+        },
+        "subbuhun_kuddusun": {
+            "name": "Subbuhun Quddusun",
+            "meaning": "Vollkommen und Heilig ist der Herr der Engel und des Geistes."
+        },
+        "rabbi_zidni_ilma": {
+            "name": "Rabbi zidni ilma",
+            "meaning": "Mein Herr, mehre mein Wissen. (Taha 114)"
+        },
+        "rabbisrah_li_sadri": {
+            "name": "Rabbi-schrah li sadri",
+            "meaning": "Mein Herr, weite mir meine Brust und erleichtere mir meine Aufgabe. (Taha 25-26)"
+        },
+        "rabbena_la_tuzig": {
+            "name": "Rabbana la tuzigh qulubana",
+            "meaning": "Unser Herr! Lass unsere Herzen nicht abweichen, nachdem Du uns rechtgeleitet hast. (Al Imran 8)"
+        },
+        "ya_hayyu_ya_kayyum": {
+            "name": "Ya Hayyu Ya Qayyum",
+            "meaning": "O Lebendiger, o Beständiger! Durch Deine Barmherzigkeit suche ich Hilfe."
+        },
+        "ya_erhamer_rahimin": {
+            "name": "Ya Arhamar-Rahimin",
+            "meaning": "O Barmherzigster der Barmherzigen!"
+        },
+        "melikul_hakkul_mubin": {
+            "name": "La ilaha illallahul-Malikul-Haqqul-Mubin",
+            "meaning": "Es gibt keinen Gott außer Allah, dem König, der offenkundigen Wahrheit."
+        },
+        "estagfirullah_elazim": {
+            "name": "Astaghfirullahal-Azim wa atubu ilayh",
+            "meaning": "Ich bitte Allah den Gewaltigen, den Lebendigen, den Beständigen um Vergebung und wende mich Ihm reuevoll zu."
+        },
+        "afv_afiyet": {
+            "name": "Allahumma inni as'alukal-afwa wal-afiya",
+            "meaning": "O Allah, ich bitte Dich um Verzeihung und Wohlergehen."
+        },
+        "bismillahillezi": {
+            "name": "Bismillahilladhi la yadurru",
+            "meaning": "In Seinem Namen kann nichts auf Erden noch im Himmel schaden. (3x morgens und abends)"
+        },
+        "euzu_bikelimatillah": {
+            "name": "A'udhu bikalimatillah",
+            "meaning": "Ich suche Zuflucht in den vollkommenen Worten Allahs vor dem Übel Seiner Schöpfung."
+        },
+        "radiytu_billahi": {
+            "name": "Raditu billahi Rabba",
+            "meaning": "Ich bin zufrieden mit Allah als Herrn, dem Islam als Religion und Muhammad als Propheten."
+        },
+        "adede_halkihi": {
+            "name": "SubhanAllahi wa bihamdihi adada khalqihi",
+            "meaning": "Gepriesen sei Allah so oft, wie Seine Schöpfung zählt, Sein Wohlgefallen reicht und Sein Thron wiegt."
+        },
+        "salat_i_fetih": {
+            "name": "Salat al-Fatih",
+            "meaning": "Das Salawat für Öffnung und Erleichterung in weltlichen und geistigen Angelegenheiten."
+        },
+        "allahumme_entes_selam": {
+            "name": "Allahumma antas-Salam",
+            "meaning": "O Allah, Du bist der Frieden und von Dir kommt der Frieden — Dhikr nach dem Gebet."
         }
     },
     "vibration": {

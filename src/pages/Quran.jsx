@@ -50,6 +50,15 @@ const SURAH_BOOKMARKS_KEY = 'quran_surah_bookmarks';
 const PLACEHOLDER_SURAHS = Array.from({ length: 114 }, (_, i) => ({ id: i + 1 }));
 const PLACEHOLDER_AYAHS = Array.from({ length: 5 }, (_, i) => ({ id: i + 1 }));
 
+// Case- and diacritics-insensitive search: "FATIHA"/"fatiha" matches "Fâtiha", "IHLAS" matches "İhlâs".
+// NFD strip folds â/î/û/ş/ç/ö/ü/ğ to base letters; ı→i covers the Turkish dotless-i/I pair.
+const normalizeSearch = (s) => (s || '')
+    .toLocaleLowerCase('tr')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/\u0131/g, 'i')
+    .replace(/['\u2019\u02BC-]/g, '');
+
 export default function Quran({ isTrackingTab = false }) {
     const navigate = useNavigate();
     const { t, i18n } = useTranslation('quran');
@@ -194,25 +203,27 @@ export default function Quran({ isTrackingTab = false }) {
         loadSurahs();
     }, [currentLang]);
 
+    const searchNorm = normalizeSearch(searchQuery);
+
     const filteredSurahs = surahs.filter(surah =>
-        surah.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        surah.nameSimple.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        normalizeSearch(surah.name).includes(searchNorm) ||
+        normalizeSearch(surah.nameSimple).includes(searchNorm) ||
         surah.arabic.includes(searchQuery) ||
         String(surah.id) === searchQuery.trim()
     );
 
     const filteredSurahBookmarks = surahBookmarks.filter(surah =>
-        !searchQuery || 
-        surah.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        surah.nameSimple?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        !searchQuery ||
+        normalizeSearch(surah.name).includes(searchNorm) ||
+        normalizeSearch(surah.nameSimple).includes(searchNorm) ||
         surah.arabic?.includes(searchQuery) ||
         String(surah.id) === searchQuery.trim()
     );
 
-    const filteredVerseBookmarks = bookmarks.filter(b => 
-        !searchQuery || 
-        (b.surahName || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (b.translation || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+    const filteredVerseBookmarks = bookmarks.filter(b =>
+        !searchQuery ||
+        normalizeSearch(b.surahName).includes(searchNorm) ||
+        normalizeSearch(b.translation).includes(searchNorm) ||
         (b.arabic || '').includes(searchQuery) ||
         String(b.verseNumber) === searchQuery.trim()
     );
@@ -408,9 +419,9 @@ export default function Quran({ isTrackingTab = false }) {
     }, [audio]);
 
     return (
-        <div className="min-h-screen bg-gradient-to-b from-background to-muted dark:from-[#032e18] dark:to-[#021a0f] pb-24">
-            {/* Header */}
-            <div className="bg-white dark:bg-gradient-to-br dark:from-[#032e18] dark:via-[#032e18] dark:to-[#021a0f] p-5 sticky top-0 z-40 border-b border-stone-200 dark:border-white/10 shadow-sm dark:shadow-lg dark:shadow-black/20">
+        <div className={cn(!isTrackingTab && "min-h-screen bg-gradient-to-b from-background to-muted dark:from-[#032e18] dark:to-[#021a0f] pb-24")}>
+            {/* Header — embedded (tracking tab): controls sit directly on page bg; standalone: sticky panel */}
+            <div className={cn(!isTrackingTab && "bg-white dark:bg-gradient-to-br dark:from-[#032e18] dark:via-[#032e18] dark:to-[#021a0f] p-5 sticky top-0 z-40 border-b border-stone-200 dark:border-white/10 shadow-sm dark:shadow-lg dark:shadow-black/20")}>
                 {!(isTrackingTab && !selectedSurah) && (
                     <div className="flex items-center justify-between mb-4">
                         <div className="flex items-center gap-3">
@@ -466,8 +477,16 @@ export default function Quran({ isTrackingTab = false }) {
                             placeholder={t('searchPlaceholder')}
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className="w-full pl-12 pr-4 py-3 bg-stone-100 dark:bg-[#0d2a18] border border-stone-200 dark:border-white/20 rounded-2xl text-stone-800 dark:text-white placeholder-stone-400 dark:placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-islamic-green dark:focus:ring-islamic-gold"
+                            className="w-full pl-12 pr-11 py-3 bg-stone-100 dark:bg-[#0d2a18] border border-stone-200 dark:border-white/20 rounded-2xl text-stone-800 dark:text-white placeholder-stone-400 dark:placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-islamic-green dark:focus:ring-islamic-gold"
                         />
+                        {searchQuery && (
+                            <button
+                                onClick={() => { selection(); setSearchQuery(''); }}
+                                className="absolute right-3.5 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-stone-300/70 dark:bg-white/20 flex items-center justify-center active:scale-90 transition-transform"
+                            >
+                                <X className="w-3.5 h-3.5 text-stone-600 dark:text-white/80" />
+                            </button>
+                        )}
                     </div>
                 )}
 
@@ -514,11 +533,11 @@ export default function Quran({ isTrackingTab = false }) {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -20 }}
-                        className="p-5 space-y-2"
+                        className={cn("space-y-2", isTrackingTab ? "pt-5" : "p-5")}
                     >
                         {/* Premium Promo Banner */}
                         {!isPremium() && (
-                            <div className="mb-5 relative overflow-visible mt-4">
+                            <div className="mb-5 relative overflow-visible">
                                 <div className="relative overflow-hidden rounded-[1.75rem]">
                                 {/* Background layers */}
                                 <div className="absolute inset-0 bg-gradient-to-br from-[#0a3d22] via-[#0d4a2a] to-[#063018]" />
@@ -538,10 +557,10 @@ export default function Quran({ isTrackingTab = false }) {
                                     {/* Text */}
                                     <div className="flex-1 min-w-0">
                                         <p className="text-[13px] font-bold text-white leading-tight mb-0.5">
-                                            Sesli Kur'an Dinleme
+                                            {t('premiumBannerTitle')}
                                         </p>
                                         <p className="text-[11px] text-emerald-200/60 leading-tight">
-                                            Mealli sesli dinleme için Premium'a geçin
+                                            {t('premiumBannerSubtitle')}
                                         </p>
                                     </div>
                                     
@@ -595,23 +614,23 @@ export default function Quran({ isTrackingTab = false }) {
                                 >
                                     <div
                                         onClick={() => handleSurahSelect(surah)}
-                                        className="group relative overflow-hidden rounded-[2.5rem] bg-islamic-green/[0.03] dark:bg-islamic-gold/5 border border-islamic-green/10 dark:border-islamic-gold/10 hover:border-islamic-gold/30 transition-all cursor-pointer hover:shadow-xl active:scale-[0.98]"
+                                        className="group relative overflow-hidden rounded-[2.5rem] bg-islamic-green/[0.03] dark:bg-[#0c2a16] border border-islamic-green/10 dark:border-islamic-gold/10 hover:border-islamic-gold/30 transition-all cursor-pointer hover:shadow-xl active:scale-[0.98]"
                                     >
                                         <div className="absolute top-0 right-0 w-40 h-40 bg-islamic-gold/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 group-hover:bg-islamic-gold/10 transition-colors duration-500" />
 
                                         <div className="p-6 flex items-start gap-5 relative z-10">
                                             {/* Number Box - Reverted to static for mobile UX */}
-                                            <div className="w-12 h-12 rounded-2xl bg-islamic-green/10 dark:bg-islamic-gold/10 flex items-center justify-center text-islamic-green dark:text-islamic-gold font-bold text-lg shadow-sm shrink-0 group-hover:scale-110 transition-transform duration-300">
+                                            <div className="w-12 h-12 rounded-2xl bg-islamic-green/10 dark:bg-islamic-gold/10 flex items-center justify-center text-islamic-green dark:text-white font-bold text-lg shadow-sm shrink-0 group-hover:scale-110 transition-transform duration-300">
                                                 {surah.id}
                                             </div>
 
                                             {/* Content */}
                                             <div className="flex-1 min-w-0">
                                                 <div className="flex items-center justify-between mb-1.5">
-                                                    <h3 className="text-xl font-bold text-gray-900 dark:text-white font-serif tracking-tight">
+                                                    <h3 className="text-xl font-bold text-gray-900 dark:text-white font-serif tracking-tight truncate min-w-0 mr-2">
                                                         {surah.name}
                                                     </h3>
-                                                    <div className="flex items-center gap-2">
+                                                    <div className="flex items-center gap-2 shrink-0">
                                                         <span className="font-arabic text-2xl text-islamic-gold group-hover:scale-110 transition-transform duration-300">
                                                             {surah.arabic}
                                                         </span>
@@ -671,7 +690,7 @@ export default function Quran({ isTrackingTab = false }) {
                                                 {summaryData && (
                                                     <div className="relative mt-2">
                                                         <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-islamic-gold/40 to-transparent rounded-full" />
-                                                        <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed italic pl-4">
+                                                        <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed italic pl-4 line-clamp-3">
                                                             "{summaryData.summary}"
                                                         </p>
                                                     </div>
@@ -698,7 +717,7 @@ export default function Quran({ isTrackingTab = false }) {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -20 }}
-                        className="p-5 space-y-3"
+                        className={cn("space-y-3", isTrackingTab ? "pt-5" : "p-5")}
                     >
                         {bookmarks.length === 0 && surahBookmarks.length === 0 ? (
                             <div className="text-center py-16 space-y-4">
@@ -737,10 +756,10 @@ export default function Quran({ isTrackingTab = false }) {
                                                     >
                                                         <div
                                                             onClick={() => { selection(); navigate(`/quran/${surah.id}`); }}
-                                                            className="group relative overflow-hidden rounded-[2.5rem] bg-islamic-green/[0.03] dark:bg-islamic-gold/5 border border-islamic-green/10 dark:border-islamic-gold/10 hover:border-islamic-gold/30 transition-all cursor-pointer hover:shadow-xl active:scale-[0.98]"
+                                                            className="group relative overflow-hidden rounded-[2.5rem] bg-islamic-green/[0.03] dark:bg-[#0c2a16] border border-islamic-green/10 dark:border-islamic-gold/10 hover:border-islamic-gold/30 transition-all cursor-pointer hover:shadow-xl active:scale-[0.98]"
                                                         >
                                                             <div className="p-5 flex items-center gap-4 relative z-10">
-                                                                <div className="w-12 h-12 rounded-2xl bg-islamic-green/10 dark:bg-islamic-gold/10 flex items-center justify-center text-islamic-green dark:text-islamic-gold font-bold text-lg shadow-sm shrink-0">
+                                                                <div className="w-12 h-12 rounded-2xl bg-islamic-green/10 dark:bg-islamic-gold/10 flex items-center justify-center text-islamic-green dark:text-white font-bold text-lg shadow-sm shrink-0">
                                                                     {surah.id}
                                                                 </div>
                                                                 <div className="flex-1 min-w-0">

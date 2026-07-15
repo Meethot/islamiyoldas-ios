@@ -38,13 +38,33 @@ export function LocationProvider({ children }) {
     const [permissionStatus, setPermissionStatus] = useState('prompt');
     const [manualCity, setManualCityState] = useState(localStorage.getItem('userCity') || null);
     const [manualCountry, setManualCountryState] = useState(localStorage.getItem('userCountry') || 'Turkey');
+    const [manualCountryCode, setManualCountryCodeState] = useState(localStorage.getItem('userCountryCode') || null);
+    const [manualCoords, setManualCoordsState] = useState(() => {
+        try {
+            const raw = localStorage.getItem('userCityCoords');
+            return raw ? JSON.parse(raw) : null;
+        } catch { return null; }
+    });
     const [manualActive, setManualActiveState] = useState(readManualActive);
 
-    const setManualLocation = useCallback((country, city) => {
+    // Geocoder-backed selection: coords + ISO country code ride along so prayer
+    // times can use exact coordinates instead of a name-based address lookup.
+    // Cities selected before this existed have no coords — callers must handle null.
+    const setManualLocation = useCallback((country, city, extra = {}) => {
         setManualCountryState(country);
         setManualCityState(city);
         if (country) localStorage.setItem('userCountry', country);
         if (city) localStorage.setItem('userCity', city);
+        const code = extra.countryCode ? String(extra.countryCode).toLowerCase() : null;
+        setManualCountryCodeState(code);
+        if (code) localStorage.setItem('userCountryCode', code);
+        else localStorage.removeItem('userCountryCode');
+        const coords = (Number.isFinite(extra.latitude) && Number.isFinite(extra.longitude))
+            ? { latitude: extra.latitude, longitude: extra.longitude }
+            : null;
+        setManualCoordsState(coords);
+        if (coords) localStorage.setItem('userCityCoords', JSON.stringify(coords));
+        else localStorage.removeItem('userCityCoords');
         localStorage.setItem('manual_location_active', 'true');
         setManualActiveState(true);
         // Also update cached_district and cached_address for Diyanet API prayer time lookup
@@ -308,6 +328,8 @@ export function LocationProvider({ children }) {
         disableManualLocation,
         manualCity: effectiveManualCity,
         manualCountry,
+        manualCountryCode: manualActive ? manualCountryCode : null,
+        manualCoords: manualActive ? manualCoords : null,
         // Raw stored values for the settings UI
         storedManualCity: manualCity,
         storedManualCountry: manualCountry,

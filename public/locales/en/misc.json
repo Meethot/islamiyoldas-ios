@@ -2,7 +2,7 @@
     "aiMentor": {
         "title": "Spiritual Mentor",
         "subtitle": "AI-Powered Assistant",
-        "welcomeMessage": "Peace be upon you, dear friend. I am your Spiritual Mentor. What's in your heart, what troubles you or what are you grateful for? Tell me, and I'll prepare a prescription for you based on the Quran and Sunnah.",
+        "welcomeMessage": "Peace be upon you, dear friend. I am your Spiritual Mentor. What's in your heart, what troubles you or what are you grateful for? Tell me, and I'll prepare a prescription for you based on the Quran and Sunnah. You can also ask me about duas and worship, or how to use the app's features (like adding widgets).",
         "thinking": "Contemplating...",
         "placeholder": "I need help, my heart is heavy...",
         "errorPrefix": "Error occurred:",
@@ -14,7 +14,8 @@
         "premiumQuota": "{{count}} questions left",
         "suggestion1": "My heart is heavy, which dhikr and dua should I read?",
         "suggestion2": "I want my family to be peaceful, what should I do?",
-        "suggestion3": "Which prayers should I read for abundance and sustenance?"
+        "suggestion3": "How do I add a widget to my home screen?",
+        "suggestion4": "Which duas should I read before sleeping?"
     },
     "prescription": {
         "title": "Spiritual Prescription",
@@ -25,7 +26,8 @@
         "listen": "Listen",
         "pause": "Pause",
         "ebced": "Abjad",
-        "count": "Count"
+        "count": "Count",
+        "duaLabel": "Dua"
     },
     "comingSoon": "Coming Soon! This language is being prepared. 🌍",
     "connectionError": "Unable to respond right now. Please try again in a moment.",

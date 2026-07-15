@@ -52,6 +52,130 @@
         "salati_tefriciye": {
             "name": "Salat al-Tafrijiyyah",
             "meaning": "Blessing for relief of all difficulties and acceptance of wishes."
+        },
+        "kelime_i_tevhid": {
+            "name": "Kalima Tawhid",
+            "meaning": "There is no god but Allah; Muhammad is the Messenger of Allah."
+        },
+        "kelime_i_sehadet": {
+            "name": "Kalima Shahada",
+            "meaning": "I bear witness that there is no god but Allah, and Muhammad is His servant and Messenger."
+        },
+        "besmele": {
+            "name": "Bismillah",
+            "meaning": "In the name of Allah, the Most Gracious, the Most Merciful."
+        },
+        "subhanallahi_ve_bihamdihi": {
+            "name": "SubhanAllahi wa bihamdihi",
+            "meaning": "Glory be to Allah and praise Him."
+        },
+        "subhanallahi_velazim": {
+            "name": "SubhanAllahi wa bihamdihi, SubhanAllahil-Azim",
+            "meaning": "Two phrases light on the tongue, heavy on the scale."
+        },
+        "bakiyat_salihat": {
+            "name": "SubhanAllah walhamdulillah wa la ilaha illallah wallahu akbar",
+            "meaning": "The enduring good deeds: glorification, praise, oneness and greatness of Allah."
+        },
+        "tevhid_zikri": {
+            "name": "La ilaha illallahu wahdahu la sharika lah",
+            "meaning": "Allah is One, without partner; His is the dominion and the praise, and He is able to do all things."
+        },
+        "seyyidul_istigfar": {
+            "name": "Sayyid al-Istighfar",
+            "meaning": "The master supplication for forgiveness — recited morning and evening."
+        },
+        "hasbiyallah": {
+            "name": "Hasbiyallahu la ilaha illa Hu",
+            "meaning": "Allah is sufficient for me; there is no god but Him. In Him I put my trust."
+        },
+        "allahumme_ecirni": {
+            "name": "Allahumma ajirni minan-nar",
+            "meaning": "O Allah, protect me from the Fire."
+        },
+        "rabbena_atina": {
+            "name": "Rabbana atina",
+            "meaning": "Our Lord! Give us good in this world and the Hereafter, and protect us from the punishment of the Fire."
+        },
+        "salaten_tuncina": {
+            "name": "Salat al-Munjiyah (Tunjina)",
+            "meaning": "The salawat recited for salvation from all calamities and hardships."
+        },
+        "felak": {
+            "name": "Surah Al-Falaq",
+            "meaning": "I seek refuge in the Lord of daybreak from the evil of what He created."
+        },
+        "nas": {
+            "name": "Surah An-Nas",
+            "meaning": "I seek refuge in the Lord of mankind, their King and their God."
+        },
+        "subhane_rabbiyel_azim": {
+            "name": "Subhana Rabbiyal-Azim",
+            "meaning": "Glory be to my Lord, the Almighty — tasbih of ruku."
+        },
+        "subhane_rabbiyel_ala": {
+            "name": "Subhana Rabbiyal-A'la",
+            "meaning": "Glory be to my Lord, the Most High — tasbih of sujud."
+        },
+        "subbuhun_kuddusun": {
+            "name": "Subbuhun Quddusun",
+            "meaning": "Perfect and Holy is the Lord of the angels and the Spirit."
+        },
+        "rabbi_zidni_ilma": {
+            "name": "Rabbi zidni ilma",
+            "meaning": "My Lord, increase me in knowledge. (Taha 114)"
+        },
+        "rabbisrah_li_sadri": {
+            "name": "Rabbi-shrah li sadri",
+            "meaning": "My Lord, expand my chest and ease my task. (Taha 25-26)"
+        },
+        "rabbena_la_tuzig": {
+            "name": "Rabbana la tuzigh qulubana",
+            "meaning": "Our Lord! Let not our hearts deviate after You have guided us. (Al Imran 8)"
+        },
+        "ya_hayyu_ya_kayyum": {
+            "name": "Ya Hayyu Ya Qayyum",
+            "meaning": "O Ever-Living, O Sustainer! By Your mercy I seek help."
+        },
+        "ya_erhamer_rahimin": {
+            "name": "Ya Arhamar-Rahimin",
+            "meaning": "O Most Merciful of the merciful!"
+        },
+        "melikul_hakkul_mubin": {
+            "name": "La ilaha illallahul-Malikul-Haqqul-Mubin",
+            "meaning": "There is no god but Allah, the King, the Manifest Truth."
+        },
+        "estagfirullah_elazim": {
+            "name": "Astaghfirullahal-Azim wa atubu ilayh",
+            "meaning": "I seek forgiveness of Allah the Almighty, the Living, the Sustainer, and repent to Him."
+        },
+        "afv_afiyet": {
+            "name": "Allahumma inni as'alukal-afwa wal-afiyah",
+            "meaning": "O Allah, I ask You for pardon and well-being."
+        },
+        "bismillahillezi": {
+            "name": "Bismillahilladhi la yadurru",
+            "meaning": "In His name, nothing on earth or in heaven can cause harm. (3x morning and evening)"
+        },
+        "euzu_bikelimatillah": {
+            "name": "A'udhu bikalimatillah",
+            "meaning": "I seek refuge in the perfect words of Allah from the evil of what He created."
+        },
+        "radiytu_billahi": {
+            "name": "Raditu billahi Rabba",
+            "meaning": "I am pleased with Allah as Lord, Islam as religion, and Muhammad as Prophet."
+        },
+        "adede_halkihi": {
+            "name": "SubhanAllahi wa bihamdihi adada khalqihi",
+            "meaning": "Glory and praise to Allah as much as His creation, His pleasure, and the weight of His Throne."
+        },
+        "salat_i_fetih": {
+            "name": "Salat al-Fatih",
+            "meaning": "The salawat recited for openings and relief in worldly and spiritual matters."
+        },
+        "allahumme_entes_selam": {
+            "name": "Allahumma antas-Salam",
+            "meaning": "O Allah, You are Peace and from You comes peace — dhikr after prayer."
         }
     },
     "vibration": {

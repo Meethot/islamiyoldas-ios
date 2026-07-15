@@ -2,7 +2,7 @@
     "aiMentor": {
         "title": "Mənəvi Köməkçi",
         "subtitle": "Süni Zəka ilə Dəstək",
-        "welcomeMessage": "Əssalamu ələykum, əziz qardaşım. Mən sənin Mənəvi Köməkçinəm. Qəlbində nə var, səni darıxdıran və ya şükür etdirən nədir? Mənə danış, sənə Quran və Sünnə işığında bir reçete hazırlayım.",
+        "welcomeMessage": "Əssalamu ələykum, əziz qardaşım. Mən sənin Mənəvi Köməkçinəm. Qəlbində nə var, səni darıxdıran və ya şükür etdirən nədir? Mənə danış, sənə Quran və Sünnə işığında bir reçete hazırlayım. Həmçinin məndən dua və ibadətlərlə bağlı sual soruşa, tətbiqin xüsusiyyətlərini (məsələn, widget qurulumunu) öyrənə bilərsən.",
         "thinking": "Təfəkkür edilir...",
         "placeholder": "Kömək lazımdır, qəlbim ağırdır...",
         "errorPrefix": "Xəta baş verdi:",
@@ -14,7 +14,8 @@
         "premiumQuota": "{{count}} haqqın qaldı",
         "suggestion1": "İçim darıxır, hansı zikr və duanı oxumalıyam?",
         "suggestion2": "Ailəmin hüzurlu olmasını istəyirəm, nə etməliyəm?",
-        "suggestion3": "Ruzi və bərəkət üçün hansı duaları oxumalıyam?"
+        "suggestion3": "Əsas ekrana widget necə əlavə edim?",
+        "suggestion4": "Yatmazdan əvvəl hansı dualar oxunur?"
     },
     "prescription": {
         "title": "Mənəvi Reçete",
@@ -25,7 +26,8 @@
         "listen": "Dinlə",
         "pause": "Fasilə",
         "ebced": "Əbcəd",
-        "count": "Say"
+        "count": "Say",
+        "duaLabel": "Dua"
     },
     "comingSoon": "Tezliklə! Bu dil hazırlanır. 🌍",
     "connectionError": "Bağlantı xətası.",

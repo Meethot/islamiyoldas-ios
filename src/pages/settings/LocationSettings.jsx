@@ -4,6 +4,7 @@ import {
     ChevronLeft, ChevronRight, MapPin, Globe, Crosshair, Navigation, Loader2,
     RefreshCw, AlertTriangle, Search, Check, X
 } from 'lucide-react';
+import { COUNTRY_CODES } from '@/data/countryCodes';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence, useDragControls } from 'framer-motion';
@@ -165,71 +166,176 @@ function CalculationMethodModal({ currentMethod, onSelect, onClose, t }) {
     );
 }
 
-function LocationSelectionModal({ currentCountry, currentCity, initialMode = 'country', onSelect, onClose, t, i18n }) {
+// Two-step picker: country (static ISO list, localized via Intl — no API) →
+// full city list from the bundled GeoNames dataset (public/data/cities/{cc}.json,
+// every settlement with 5000+ population, offline, with coordinates — the old
+// countriesnow.space list had huge gaps: 8 cities for all of Azerbaijan). Typing
+// filters the bundled list; places too small for the dataset fall back to a
+// Photon (OSM) search restricted to the selected country.
+const PLACE_TYPES = new Set(['city', 'town', 'village', 'municipality', 'locality', 'district']);
+
+// Diacritic-tolerant matching: "balakan" finds "Balakən", "uskudar" finds "Üsküdar"
+const FOLD_MAP = { 'ə': 'e', 'ı': 'i', 'ğ': 'g', 'ş': 's', 'ç': 'c', 'ö': 'o', 'ü': 'u', 'ʻ': '' };
+const foldText = (s) => (s || '')
+    .toLowerCase()
+    .replace(/[əığşçöüʻ]/g, c => FOLD_MAP[c] ?? c)
+    .normalize('NFD').replace(/[̀-ͯ]/g, '');
+
+// Long country lists (US ~5k towns) would jank the WebView — cap the DOM,
+// typing narrows the rest
+const MAX_LIST_ROWS = 400;
+
+const parsePhotonPlaces = (data, countryCode) => {
+    const seen = new Set();
+    return (data.features || [])
+        .filter(f => PLACE_TYPES.has(f.properties?.type) && f.properties?.name && f.geometry?.coordinates)
+        .filter(f => (f.properties.countrycode || '').toLowerCase() === countryCode)
+        .map(f => {
+            const p = f.properties;
+            return {
+                name: p.name,
+                region: p.state || p.county || '',
+                countryCode: p.countrycode.toLowerCase(),
+                country: p.country || '',
+                latitude: f.geometry.coordinates[1],
+                longitude: f.geometry.coordinates[0],
+            };
+        })
+        .filter(pl => {
+            const key = `${pl.name}|${pl.region}`;
+            if (seen.has(key)) return false;
+            seen.add(key);
+            return true;
+        });
+};
+
+function LocationSelectionModal({ currentCountryCode, currentCity, initialMode = 'country', onSelect, onClose, t, i18n }) {
     const dragControls = useDragControls();
     const [searchTerm, setSearchTerm] = useState('');
     const [mode, setMode] = useState(initialMode); // 'country' or 'city'
-    const [selectedCountry, setSelectedCountry] = useState(currentCountry || 'Turkey');
-    const [countriesData, setCountriesData] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const { selection, success, medium } = useHaptics();
+    const [selectedCountry, setSelectedCountry] = useState(currentCountryCode || 'tr');
+    const [cityList, setCityList] = useState(null); // null = loading bundled list
+    const [results, setResults] = useState([]); // Photon fallback results
+    const [loading, setLoading] = useState(false);
+    const [failed, setFailed] = useState(false);
+    const { selection, success } = useHaptics();
 
+    // Static, localized country list — matches against both the user's language
+    // and the English name ("Almanya" and "Germany" both find DE)
+    const countries = useMemo(() => {
+        let dn = null, dnEn = null;
+        try { dn = new Intl.DisplayNames([i18n.language], { type: 'region' }); } catch { /* old WebView */ }
+        try { dnEn = new Intl.DisplayNames(['en'], { type: 'region' }); } catch { /* old WebView */ }
+        return COUNTRY_CODES
+            .map(code => ({
+                code: code.toLowerCase(),
+                display: dn?.of(code) || dnEn?.of(code) || code,
+                en: dnEn?.of(code) || code,
+            }))
+            .filter(c => c.display !== c.code.toUpperCase())
+            .sort((a, b) => a.display.localeCompare(b.display, i18n.language));
+    }, [i18n.language]);
+
+    const filteredCountries = useMemo(() => {
+        const q = searchTerm.trim().toLowerCase();
+        if (!q) return countries;
+        return countries.filter(c => c.display.toLowerCase().includes(q) || c.en.toLowerCase().includes(q));
+    }, [countries, searchTerm]);
+
+    const selectedCountryObj = countries.find(c => c.code === selectedCountry);
+    const selectedCountryEn = selectedCountryObj?.en || '';
+
+    // Load the bundled city list for the selected country
     useEffect(() => {
-        const fetchCountries = async () => {
+        if (mode !== 'city') return;
+        let cancelled = false;
+        setCityList(null);
+        fetch(`/data/cities/${selectedCountry}.json`)
+            .then(r => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
+            .then(rows => {
+                if (cancelled) return;
+                setCityList(rows.map(([name, region, lat, lon]) => ({
+                    name,
+                    region,
+                    countryCode: selectedCountry,
+                    country: selectedCountryObj?.display || '',
+                    latitude: lat,
+                    longitude: lon,
+                })));
+            })
+            .catch(() => { if (!cancelled) setCityList([]); }); // tiny countries / fetch fail → Photon only
+        return () => { cancelled = true; };
+    }, [mode, selectedCountry]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    // Bundled list filtered by the query (diacritic-tolerant)
+    const localMatches = useMemo(() => {
+        if (mode !== 'city' || !cityList) return [];
+        const q = foldText(searchTerm.trim());
+        if (!q) return cityList.slice(0, MAX_LIST_ROWS);
+        return cityList.filter(c => foldText(c.name).includes(q)).slice(0, MAX_LIST_ROWS);
+    }, [mode, cityList, searchTerm]);
+
+    // Photon fallback — only when the bundled list has no match for the query
+    useEffect(() => {
+        if (mode !== 'city') return;
+        const query = searchTerm.trim();
+        const needRemote = query.length >= 2 && cityList !== null && localMatches.length === 0;
+        if (!needRemote) {
+            setResults([]);
+            setLoading(false);
+            setFailed(false);
+            return;
+        }
+
+        const controller = new AbortController();
+        setLoading(true);
+        const timer = setTimeout(async () => {
             try {
-                // Check if we have cached data
-                const cached = localStorage.getItem('countries_data_cache');
-                if (cached) {
-                    setCountriesData(JSON.parse(cached));
-                    setLoading(false);
+                const search = async (q) => {
+                    const res = await fetch(
+                        `https://photon.komoot.io/api/?q=${encodeURIComponent(q)}&limit=50`,
+                        { signal: controller.signal }
+                    );
+                    return parsePhotonPlaces(await res.json(), selectedCountry);
+                };
+                let places = await search(query);
+                // Common name crowded out of the global top-50 by other countries?
+                // Retry with the country name appended — the filter still guards.
+                if (places.length === 0 && selectedCountryEn) {
+                    places = await search(`${query} ${selectedCountryEn}`);
                 }
-                
-                const response = await fetch('https://countriesnow.space/api/v0.1/countries');
-                const result = await response.json();
-                if (result && result.data) {
-                    setCountriesData(result.data);
-                    localStorage.setItem('countries_data_cache', JSON.stringify(result.data));
-                }
+                setResults(places);
+                setFailed(false);
             } catch (err) {
-                console.error('Failed to fetch countries', err);
+                if (err.name !== 'AbortError') {
+                    console.error('City search failed', err);
+                    setResults([]);
+                    setFailed(true);
+                }
             } finally {
-                setLoading(false);
+                if (!controller.signal.aborted) setLoading(false);
             }
+        }, 450);
+
+        return () => {
+            clearTimeout(timer);
+            controller.abort();
         };
-        fetchCountries();
-    }, []);
+    }, [searchTerm, mode, selectedCountry, selectedCountryEn, cityList, localMatches.length]);
 
-    const filteredItems = useMemo(() => {
-        if (mode === 'country') {
-            return countriesData
-                .map(d => {
-                    const display = getTranslatedCountry(d.iso2, d.country, i18n.language);
-                    return { original: d.country, display };
-                })
-                .filter(c => c.display.toLowerCase().includes(searchTerm.toLowerCase()) || c.original.toLowerCase().includes(searchTerm.toLowerCase()))
-                .sort((a, b) => a.display.localeCompare(b.display, i18n.language));
-        } else {
-            const countryObj = countriesData.find(d => d.country === selectedCountry);
-            if (!countryObj) return [];
-            return countryObj.cities
-                .map(c => ({ original: c, display: c }))
-                .filter(c => c.display.toLowerCase().includes(searchTerm.toLowerCase()))
-                .sort((a, b) => a.display.localeCompare(b.display, i18n.language));
-        }
-    }, [searchTerm, mode, countriesData, selectedCountry, i18n.language]);
-
-    const handleSelect = (itemOriginal) => {
+    const handleCountrySelect = (country) => {
         selection();
-        if (mode === 'country') {
-            setSelectedCountry(itemOriginal);
-            setSearchTerm('');
-            setMode('city'); // move to city selection
-        } else {
-            // City selected
-            success();
-            onSelect(selectedCountry, itemOriginal);
-            onClose();
-        }
+        setSelectedCountry(country.code);
+        setSearchTerm('');
+        setResults([]);
+        setMode('city');
+    };
+
+    const handleCitySelect = (place) => {
+        selection();
+        success();
+        onSelect(place);
+        onClose();
     };
 
     return (
@@ -270,7 +376,7 @@ function LocationSelectionModal({ currentCountry, currentCity, initialMode = 'co
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
                             {mode === 'city' && (
-                                <button onClick={() => setMode('country')} className="p-2 -ml-2 rounded-full hover:bg-gray-100 dark:hover:bg-white/10 transition-colors">
+                                <button onClick={() => { setMode('country'); setSearchTerm(''); setResults([]); }} className="p-2 -ml-2 rounded-full hover:bg-gray-100 dark:hover:bg-white/10 transition-colors">
                                     <ChevronLeft size={24} className="text-gray-600 dark:text-gray-300" />
                                 </button>
                             )}
@@ -292,47 +398,92 @@ function LocationSelectionModal({ currentCountry, currentCity, initialMode = 'co
                             onChange={(e) => setSearchTerm(e.target.value)}
                             className="w-full bg-gray-100 dark:bg-white/5 border-none rounded-2xl pl-12 pr-4 py-4 text-gray-900 dark:text-white placeholder:text-gray-400 focus:ring-2 focus:ring-islamic-green dark:focus:ring-islamic-gold transition-all"
                         />
+                        {mode === 'city' && loading && (
+                            <Loader2 size={18} className="absolute right-4 top-1/2 -translate-y-1/2 animate-spin text-islamic-green dark:text-islamic-gold" />
+                        )}
                     </div>
                 </div>
 
                 {/* List */}
                 <div className="flex-1 overflow-y-auto p-4 animate-in fade-in duration-500">
-                    {loading ? (
-                        <div className="flex flex-col items-center justify-center h-full opacity-50 space-y-4">
-                            <Loader2 size={40} className="animate-spin text-islamic-green dark:text-islamic-gold" />
-                            <p className="text-gray-500 font-medium">{t('loadingLocations', 'Loading locations...')}</p>
-                        </div>
-                    ) : (
-                        <div className="grid grid-cols-1 gap-2">
-                            {filteredItems.map(item => (
+                    <div className="grid grid-cols-1 gap-2">
+                        {mode === 'country' && filteredCountries.map(country => {
+                            const isCurrent = selectedCountry === country.code;
+                            return (
                                 <button
-                                    key={item.original}
-                                    onClick={() => handleSelect(item.original)}
+                                    key={country.code}
+                                    onClick={() => handleCountrySelect(country)}
                                     className={cn(
-                                        "flex items-center justify-between p-4 rounded-2xl transition-all duration-300 group",
-                                        (mode === 'country' ? selectedCountry === item.original : currentCity === item.original)
+                                        "flex items-center justify-between p-4 rounded-2xl transition-all duration-300 group text-left",
+                                        isCurrent
                                             ? "bg-islamic-green dark:bg-islamic-gold text-white dark:text-[#032e18] shadow-lg shadow-islamic-green/20"
                                             : "hover:bg-gray-50 dark:hover:bg-white/5 text-gray-700 dark:text-gray-300"
                                     )}
                                 >
-                                    <span className={cn("font-bold text-lg", (mode === 'country' ? selectedCountry === item.original : currentCity === item.original) ? "translate-x-2" : "group-hover:translate-x-2")} style={{ transition: 'transform 0.2s' }}>
-                                        {item.display}
+                                    <span className={cn("font-bold text-lg", isCurrent ? "translate-x-2" : "group-hover:translate-x-2")} style={{ transition: 'transform 0.2s' }}>
+                                        {country.display}
                                     </span>
-                                    {(mode === 'country' ? selectedCountry === item.original : currentCity === item.original) && (
-                                        <div className="bg-white/20 dark:bg-black/10 p-2 rounded-full">
+                                    {isCurrent && (
+                                        <div className="bg-white/20 dark:bg-black/10 p-2 rounded-full shrink-0 ml-4">
                                             <Check size={20} className="stroke-[3]" />
                                         </div>
                                     )}
                                 </button>
-                            ))}
-                            {filteredItems.length === 0 && (
-                                <div className="text-center py-20 opacity-50">
-                                    <MapPin size={48} className="mx-auto mb-4 text-gray-300" />
-                                    <p className="text-gray-500 font-medium">{t('noResults', 'No results found')}</p>
-                                </div>
-                            )}
-                        </div>
-                    )}
+                            );
+                        })}
+                        {mode === 'country' && filteredCountries.length === 0 && (
+                            <div className="text-center py-20 opacity-50">
+                                <MapPin size={48} className="mx-auto mb-4 text-gray-300" />
+                                <p className="text-gray-500 font-medium">{t('noResults', 'No results found')}</p>
+                            </div>
+                        )}
+
+                        {mode === 'city' && cityList === null && (
+                            <div className="flex flex-col items-center justify-center py-20 opacity-50 space-y-4">
+                                <Loader2 size={40} className="animate-spin text-islamic-green dark:text-islamic-gold" />
+                                <p className="text-gray-500 font-medium">{t('loadingLocations', 'Loading locations...')}</p>
+                            </div>
+                        )}
+                        {mode === 'city' && cityList !== null && (localMatches.length > 0 ? localMatches : results).map(place => {
+                            const isCurrent = currentCity === place.name;
+                            return (
+                                <button
+                                    key={`${place.name}|${place.region}|${place.latitude}`}
+                                    onClick={() => handleCitySelect(place)}
+                                    className={cn(
+                                        "flex items-center justify-between p-4 rounded-2xl transition-all duration-300 group text-left",
+                                        isCurrent
+                                            ? "bg-islamic-green dark:bg-islamic-gold text-white dark:text-[#032e18] shadow-lg shadow-islamic-green/20"
+                                            : "hover:bg-gray-50 dark:hover:bg-white/5 text-gray-700 dark:text-gray-300"
+                                    )}
+                                >
+                                    <div className={cn(isCurrent ? "translate-x-2" : "group-hover:translate-x-2")} style={{ transition: 'transform 0.2s' }}>
+                                        <p className="font-bold text-lg leading-tight">{place.name}</p>
+                                        {place.region && (
+                                            <p className={cn("text-xs mt-0.5", isCurrent ? "text-white/70 dark:text-black/50" : "text-gray-400 dark:text-gray-500")}>
+                                                {place.region}
+                                            </p>
+                                        )}
+                                    </div>
+                                    {isCurrent && (
+                                        <div className="bg-white/20 dark:bg-black/10 p-2 rounded-full shrink-0 ml-4">
+                                            <Check size={20} className="stroke-[3]" />
+                                        </div>
+                                    )}
+                                </button>
+                            );
+                        })}
+                        {mode === 'city' && cityList !== null && localMatches.length === 0 && results.length === 0 && !loading && (
+                            <div className="text-center py-20 opacity-50">
+                                <MapPin size={48} className="mx-auto mb-4 text-gray-300" />
+                                <p className="text-gray-500 font-medium">
+                                    {searchTerm.trim().length < 2
+                                        ? t('searchCity', 'Search city...')
+                                        : (failed ? t('locationFailed', 'Location failed') : t('noResults', 'No results found'))}
+                                </p>
+                            </div>
+                        )}
+                    </div>
                 </div>
             </motion.div>
         </motion.div>
@@ -347,26 +498,27 @@ export default function LocationSettings() {
 
     const [city, setCityState] = useState(storedManualCity || 'İstanbul');
     const [country, setCountryState] = useState(storedManualCountry || 'Turkey');
+    const [countryCode, setCountryCode] = useState(() => localStorage.getItem('userCountryCode') || null);
     const [isCityModalOpen, setIsCityModalOpen] = useState(false);
     const [modalMode, setModalMode] = useState('country');
     const [useAutoLocation, setUseAutoLocation] = useState(false);
     const { calculationMethod, setCalculationMethod, refreshPrayerTimes } = usePrayerTimes();
     const [isCalcModalOpen, setIsCalcModalOpen] = useState(false);
-    const [globalCountriesData, setGlobalCountriesData] = useState(() => {
-        const cached = localStorage.getItem('countries_data_cache');
-        return cached ? JSON.parse(cached) : [];
-    });
 
     const displayCountry = useMemo(() => {
-        const obj = globalCountriesData.find(c => c.country === country);
-        if (obj && obj.iso2) return getTranslatedCountry(obj.iso2, country, i18n.language);
+        if (countryCode) return getTranslatedCountry(countryCode.toUpperCase(), country, i18n.language);
         return country;
-    }, [country, globalCountriesData, i18n.language]);
+    }, [country, countryCode, i18n.language]);
 
-    const setLocationData = (newCountry, newCity) => {
-        setCountryState(newCountry);
-        setCityState(newCity);
-        setManualLocation(newCountry, newCity);
+    const setLocationData = (place) => {
+        setCountryState(place.country || '');
+        setCityState(place.name);
+        setCountryCode(place.countryCode || null);
+        setManualLocation(place.country || '', place.name, {
+            countryCode: place.countryCode,
+            latitude: place.latitude,
+            longitude: place.longitude,
+        });
     };
 
     // Sync toggle with actual OS permission state
@@ -431,16 +583,6 @@ export default function LocationSettings() {
             console.error('[LOCATION] Permission error:', e);
             setUseAutoLocation(false);
         }
-    };
-
-    const setCity = (newCity) => {
-        setCityState(newCity);
-        setManualLocation(country, newCity);
-        // Automatically disable auto-location if they pick a manual city to prevent GPS re-overwriting it
-        setUseAutoLocation(false);
-        localStorage.setItem('location_permission_granted', 'false');
-        success();
-        setIsCityModalOpen(false);
     };
 
     const containerVariants = {
@@ -540,7 +682,7 @@ export default function LocationSettings() {
                             </div>
                         )}
 
-                        {/* Manual Location Selection */}
+                        {/* Manual Location Selection — country first, then city (Photon, country-filtered) */}
                         {!useAutoLocation && (
                             <div className="flex flex-col border-t dark:border-white/5">
                                 <button
@@ -613,7 +755,7 @@ export default function LocationSettings() {
             <AnimatePresence>
                 {isCityModalOpen && (
                     <LocationSelectionModal
-                        currentCountry={country}
+                        currentCountryCode={countryCode}
                         currentCity={city}
                         initialMode={modalMode}
                         onSelect={setLocationData}

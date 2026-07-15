@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, User, Bot, Sparkles, ChevronLeft, Crown, MessageCircle } from 'lucide-react';
+import { Send, User, Bot, Sparkles, ChevronLeft, Crown, MessageCircle, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { getSpiritualAdvice } from '@/services/AiMentorService';
@@ -16,6 +16,27 @@ import { analytics } from '@/services/analyticsService';
 
 const DAILY_LIMIT_FREE = 1;
 const DAILY_LIMIT_PREMIUM = 30;
+
+// Deep-link routes the AI may target — must mirror the backend prompt's ROUTES list.
+const ROUTE_WHITELIST = new Set([
+    '/', '/dhikr', '/quran', '/qibla', '/dua', '/tefekkur', '/uyku',
+    '/oruc-takibi', '/tracking', '/learn', '/stories', '/profile', '/premium',
+    '/widget-rehberi', '/settings/notifications', '/settings/location',
+    '/settings/language'
+]);
+
+// Flatten a chat message into plain text for backend history.
+function summarizeForHistory(msg) {
+    if (msg.role === 'user') return msg.text || '';
+    if (msg.isPrescription && msg.data) {
+        const parts = [];
+        if (msg.data.advice) parts.push(msg.data.advice);
+        if (msg.data.recommendedZikr?.name) parts.push(`Zikir: ${msg.data.recommendedZikr.name}`);
+        if (msg.data.quranRef?.surah) parts.push(`Ayet: ${msg.data.quranRef.surah}:${msg.data.quranRef.verse}`);
+        return parts.join(' — ');
+    }
+    return msg.text || '';
+}
 
 function getQuotaKey() {
     const d = getAppDate();
@@ -73,9 +94,9 @@ export default function AiMentor() {
         scrollToBottom();
     }, [messages]);
 
-    // Persist last 3 messages (excluding welcome)
+    // Persist last 6 messages (excluding welcome) — enough context for follow-ups
     useEffect(() => {
-        const toSave = messages.filter(m => m.id !== 'welcome').slice(-3);
+        const toSave = messages.filter(m => m.id !== 'welcome').slice(-6);
         if (toSave.length > 0) {
             try { localStorage.setItem('ai_mentor_history', JSON.stringify(toSave)); }
             catch { /* quota exceeded */ }
@@ -112,23 +133,41 @@ export default function AiMentor() {
         const requestStart = performance.now();
 
         try {
-            // Call AI Service
-            const adviceData = await getSpiritualAdvice(userMsg.text, i18n.language);
+            // Build history from messages BEFORE this send (welcome excluded).
+            // userMsg is already appended to state above, so take from `messages`.
+            const history = messages
+                .filter(m => m.id !== 'welcome')
+                .slice(-6)
+                .map(m => ({ role: m.role, text: summarizeForHistory(m) }))
+                .filter(h => h.text);
+
+            const adviceData = await getSpiritualAdvice(userMsg.text, i18n.language, history);
+
+            const type = adviceData?.type
+                || (adviceData?.advice ? 'prescription' : 'text');
+            const isPrescription = type === 'prescription' && !!adviceData?.advice;
 
             const responseTime = Math.round(performance.now() - requestStart);
-            analytics.aiResponseReceived('spiritual', premium, responseTime);
+            analytics.aiResponseReceived(type, premium, responseTime);
 
-            // Increment usage on successful response
-            incrementUsed();
-            setUsedCount(prev => prev + 1);
+            // Widget how-to answers are quota-exempt (user decision); everything else counts.
+            const quotaExempt = type === 'guide' && adviceData?.topic === 'widgets';
+            if (!quotaExempt) {
+                incrementUsed();
+                setUsedCount(prev => prev + 1);
+            }
 
-            const aiMsg = {
-                id: Date.now() + 1,
-                role: 'assistant',
-                text: null,
-                data: adviceData,
-                isPrescription: true
-            };
+            // Deep-link button only for whitelisted routes (defense in depth vs. model output)
+            const action = (!isPrescription
+                && adviceData?.action?.route
+                && ROUTE_WHITELIST.has(adviceData.action.route)
+                && adviceData.action.label)
+                ? { route: adviceData.action.route, label: adviceData.action.label }
+                : null;
+
+            const aiMsg = isPrescription
+                ? { id: Date.now() + 1, role: 'assistant', text: null, data: adviceData, isPrescription: true }
+                : { id: Date.now() + 1, role: 'assistant', text: adviceData?.text || adviceData?.advice || t('connectionError'), action, isPrescription: false };
             setMessages(prev => {
                 const next = [...prev, aiMsg];
                 const aiCount = next.filter(m => m.role === 'assistant' && m.id !== 'welcome').length;
@@ -268,15 +307,28 @@ export default function AiMentor() {
                             {msg.role === 'user' ? <User size={14} className="text-white" /> : <Bot size={14} className="text-white dark:text-[#032e18]" />}
                         </div>
 
-                        {/* Bubble */}
-                        <div className={`max-w-[85%] rounded-2xl p-4 shadow-md ${msg.role === 'user'
-                            ? 'bg-islamic-green/10 dark:bg-gradient-to-br dark:from-emerald-600/30 dark:to-emerald-900/30 border border-islamic-green/20 dark:border-emerald-500/20 text-stone-800 dark:text-white rounded-tr-sm backdrop-blur-sm'
-                            : 'bg-white dark:bg-white/5 border border-stone-200 dark:border-white/10 text-stone-700 dark:text-gray-100 rounded-tl-sm w-full backdrop-blur-md shadow-sm'
+                        {/* Bubble — prescription cards render bare (no bubble box behind them) */}
+                        <div className={msg.isPrescription
+                            ? 'w-full max-w-[85%]'
+                            : `max-w-[85%] rounded-2xl p-4 shadow-md ${msg.role === 'user'
+                                ? 'bg-islamic-green/10 dark:bg-gradient-to-br dark:from-emerald-600/30 dark:to-emerald-900/30 border border-islamic-green/20 dark:border-emerald-500/20 text-stone-800 dark:text-white rounded-tr-sm backdrop-blur-sm'
+                                : 'bg-white dark:bg-white/5 border border-stone-200 dark:border-white/10 text-stone-700 dark:text-gray-100 rounded-tl-sm w-full backdrop-blur-md shadow-sm'
                             }`}>
                             {msg.isPrescription ? (
                                 <AiPrescriptionCard data={msg.data} />
                             ) : (
-                                <p className="leading-relaxed text-[15px] whitespace-pre-wrap font-light tracking-wide">{msg.text}</p>
+                                <>
+                                    <p className="leading-relaxed text-[15px] whitespace-pre-wrap font-light tracking-wide">{msg.text}</p>
+                                    {msg.action && (
+                                        <Button
+                                            onClick={() => navigate(msg.action.route)}
+                                            className="mt-3 w-full bg-islamic-gold hover:bg-amber-400 text-[#032e18] font-bold rounded-xl h-10 gap-2"
+                                        >
+                                            {msg.action.label}
+                                            <ArrowRight className="w-4 h-4" />
+                                        </Button>
+                                    )}
+                                </>
                             )}
                         </div>
                     </motion.div>
@@ -293,7 +345,7 @@ export default function AiMentor() {
                         <p className="text-[10px] text-stone-400 dark:text-white/20 font-bold uppercase tracking-widest mb-1">
                             {i18n.language === 'tr' ? 'Hızlı Sorular' : 'Quick Prompts'}
                         </p>
-                        {[1, 2, 3].map((num) => (
+                        {[1, 2, 3, 4].map((num) => (
                             <button
                                 key={num}
                                 onClick={() => sendMessage(t(`aiMentor.suggestion${num}`))}
@@ -341,7 +393,12 @@ export default function AiMentor() {
                         value={input}
                         maxLength={1000}
                         onChange={(e) => setInput(e.target.value)}
-                        onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleSend()}
+                        onKeyDown={(e) => {
+                            if (e.key === 'Enter' && !e.shiftKey) {
+                                e.preventDefault();
+                                handleSend();
+                            }
+                        }}
                         placeholder={remaining <= 0 && !premium ? t('aiMentor.limitReachedPlaceholder') : t('aiMentor.placeholder')}
                         disabled={remaining <= 0 && !premium}
                         className="w-full bg-transparent text-stone-800 dark:text-white placeholder-stone-400 dark:placeholder-white/30 resize-none outline-none py-3 max-h-32 min-h-[50px] text-[15px] leading-relaxed scrollbar-hide disabled:cursor-not-allowed"

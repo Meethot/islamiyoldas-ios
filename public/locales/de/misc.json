@@ -2,7 +2,7 @@
     "aiMentor": {
         "title": "Spiritueller Mentor",
         "subtitle": "KI-gestützter Assistent",
-        "welcomeMessage": "Friede sei mit dir, lieber Freund. Ich bin dein Spiritueller Mentor. Was liegt dir auf dem Herzen, was bedrückt dich oder wofür bist du dankbar? Erzähle es mir, und ich bereite eine Empfehlung für dich vor, basierend auf Quran und Sunnah.",
+        "welcomeMessage": "Friede sei mit dir, lieber Freund. Ich bin dein Spiritueller Mentor. Was liegt dir auf dem Herzen, was bedrückt dich oder wofür bist du dankbar? Erzähle es mir, und ich bereite eine Empfehlung für dich vor, basierend auf Quran und Sunnah. Du kannst mich auch zu Bittgebeten und zur Ibada befragen oder dazu, wie du die Funktionen der App nutzt (z. B. Widgets hinzufügen).",
         "thinking": "Nachdenken...",
         "placeholder": "Ich brauche Hilfe, mein Herz ist schwer...",
         "errorPrefix": "Fehler aufgetreten:",
@@ -14,7 +14,8 @@
         "premiumQuota": "{{count}} Fragen übrig",
         "suggestion1": "Mein Herz ist schwer, welchen Dhikr und welches Bittgebet soll ich lesen?",
         "suggestion2": "Ich möchte, dass meine Familie friedlich ist, was soll ich tun?",
-        "suggestion3": "Welche Gebete soll ich für reichlich Lebensunterhalt lesen?"
+        "suggestion3": "Wie füge ich ein Widget zum Startbildschirm hinzu?",
+        "suggestion4": "Welche Bittgebete liest man vor dem Schlafen?"
     },
     "prescription": {
         "title": "Spirituelle Empfehlung",
@@ -25,7 +26,8 @@
         "listen": "Anhören",
         "pause": "Pause",
         "ebced": "Abdschad",
-        "count": "Anzahl"
+        "count": "Anzahl",
+        "duaLabel": "Bittgebet"
     },
     "comingSoon": "Demnächst verfügbar! Diese Sprache wird vorbereitet. 🌍",
     "connectionError": "Verbindungsfehler.",
