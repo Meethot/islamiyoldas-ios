@@ -12,12 +12,12 @@ function SettingsToggle({ icon: Icon, label, subtitle, active, onToggle }) {
     return (
         <button
             onClick={onToggle}
-            className="w-full flex items-center justify-between p-5 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors border-b last:border-0 dark:border-white/5"
+            className="w-full flex items-center justify-between p-5 hover:bg-[#F0E8D5] dark:hover:bg-white/5 transition-colors border-b last:border-0 dark:border-white/5"
         >
             <div className="flex items-center gap-4">
                 <div className={cn(
                     "p-3 rounded-2xl transition-colors",
-                    active ? "bg-islamic-green/10 text-islamic-green dark:bg-islamic-gold/20 dark:text-islamic-gold" : "bg-gray-100 text-gray-400 dark:bg-white/5 dark:text-gray-500"
+                    active ? "bg-islamic-green/10 text-islamic-green dark:bg-islamic-gold/20 dark:text-islamic-gold" : "bg-[#F0E8D5] text-gray-400 dark:bg-white/5 dark:text-gray-500"
                 )}>
                     <Icon size={20} />
                 </div>
@@ -31,7 +31,7 @@ function SettingsToggle({ icon: Icon, label, subtitle, active, onToggle }) {
                 active ? "bg-islamic-green dark:bg-islamic-gold" : "bg-gray-200 dark:bg-white/10"
             )}>
                 <div className={cn(
-                    "w-4 h-4 bg-white rounded-full shadow-sm transition-transform",
+                    "w-4 h-4 bg-[#FFFDF6] rounded-full shadow-sm transition-transform",
                     active ? "translate-x-6" : "translate-x-0"
                 )} />
             </div>
@@ -65,12 +65,12 @@ export default function NotificationSettings() {
     };
 
     return (
-        <div className="min-h-screen bg-slate-50 dark:bg-[#021a0f] text-gray-900 dark:text-white pb-24">
+        <div className="min-h-screen bg-[#F6F0E1] dark:bg-[#021a0f] text-gray-900 dark:text-white pb-24">
             <div className="px-5 pt-4 flex items-center gap-3">
                 <button
                     onClick={() => { selection(); navigate(-1); }}
                     aria-label={t('common:common.back')}
-                    className="flex-shrink-0 w-9 h-9 rounded-full bg-white dark:bg-white/5 border border-stone-200/80 dark:border-white/10 shadow-sm dark:shadow-none flex items-center justify-center text-islamic-green dark:text-islamic-gold hover:bg-stone-50 dark:hover:bg-white/10 transition-colors active:scale-95"
+                    className="flex-shrink-0 w-9 h-9 rounded-full bg-[#FFFDF6] dark:bg-white/5 border border-[#E2D9C4]/80 dark:border-white/10 shadow-sm dark:shadow-none flex items-center justify-center text-islamic-green dark:text-islamic-gold hover:bg-stone-50 dark:hover:bg-white/10 transition-colors active:scale-95"
                 >
                     <ChevronLeft size={18} />
                 </button>
@@ -85,7 +85,7 @@ export default function NotificationSettings() {
             >
                 {/* Core Notifications */}
                 <motion.section variants={itemVariants} className="space-y-3">
-                    <div className="bg-white dark:bg-white/5 rounded-[2rem] shadow-sm border dark:border-white/5 overflow-hidden">
+                    <div className="bg-[#FFFDF6] dark:bg-white/5 rounded-[2rem] shadow-sm border dark:border-white/5 overflow-hidden">
                         <SettingsToggle
                             icon={Bell}
                             label={t('adhanTime')}
@@ -124,7 +124,7 @@ export default function NotificationSettings() {
                 {/* Prayer Motivation */}
                 <motion.section variants={itemVariants} className="space-y-3">
                     <h3 className="px-2 text-xs font-bold text-gray-400 dark:text-emerald-100/40 uppercase tracking-widest">{t('prayerMotivation')}</h3>
-                    <div className="bg-white dark:bg-white/5 rounded-[2rem] shadow-sm border dark:border-white/5 overflow-hidden">
+                    <div className="bg-[#FFFDF6] dark:bg-white/5 rounded-[2rem] shadow-sm border dark:border-white/5 overflow-hidden">
                         <SettingsToggle
                             icon={Moon}
                             label={t('prayerMode')}

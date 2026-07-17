@@ -184,7 +184,7 @@ export default function DuaKosesi() {
     const { t, i18n } = useTranslation(['dua', 'settings']);
     const { isDarkMode } = useTheme();
     // Swal iconColor string aldığı için tek JS tema istisnası: light'ta yeşil, dark'ta altın
-    const swalIconColor = isDarkMode ? '#D4AF37' : '#044d29';
+    const swalIconColor = isDarkMode ? '#D4AF37' : '#B45309';
     const currentLang = normalizeLang(i18n.language);
     const [showForm, setShowForm] = useState(false);
     const [showHistory, setShowHistory] = useState(false);
@@ -519,13 +519,13 @@ export default function DuaKosesi() {
             confirmButtonText: t('reportConfirm', 'Şikayet Et ve Gizle'),
             cancelButtonText: t('cancel', 'İptal'),
             customClass: {
-                // !bg-white and !bg-[#021a0f] will override the inline transparent background
-                popup: '!bg-white dark:!bg-[#021a0f] rounded-[2rem] max-w-[320px] pb-4 border dark:border-white/10',
+                // !bg-[#FFFDF6] and !bg-[#021a0f] will override the inline transparent background
+                popup: '!bg-[#FFFDF6] dark:!bg-[#021a0f] rounded-[2rem] max-w-[320px] pb-4 border dark:border-white/10',
                 title: 'text-xl font-bold text-gray-900 dark:text-white',
                 htmlContainer: 'text-sm text-gray-500 dark:text-gray-400 mt-2 mb-4',
                 actions: 'w-full flex-col-reverse px-6 gap-2',
                 confirmButton: 'w-full rounded-2xl bg-red-500 hover:bg-red-600 text-white font-bold py-3.5 m-0',
-                cancelButton: 'w-full rounded-2xl bg-gray-100 hover:bg-gray-200 dark:bg-white/10 dark:hover:bg-white/20 text-gray-900 dark:text-white font-bold py-3.5 m-0'
+                cancelButton: 'w-full rounded-2xl bg-[#F0E8D5] hover:bg-gray-200 dark:bg-white/10 dark:hover:bg-white/20 text-gray-900 dark:text-white font-bold py-3.5 m-0'
             },
             buttonsStyling: false
         }).then((result) => {
@@ -545,7 +545,7 @@ export default function DuaKosesi() {
                     showConfirmButton: false,
                     timer: 2000,
                     customClass: {
-                        popup: '!bg-white dark:!bg-[#021a0f] rounded-[2rem] max-w-[280px] border dark:border-white/10',
+                        popup: '!bg-[#FFFDF6] dark:!bg-[#021a0f] rounded-[2rem] max-w-[280px] border dark:border-white/10',
                         title: 'text-xl font-bold text-gray-900 dark:text-white',
                         htmlContainer: 'text-sm text-gray-500 dark:text-gray-400 mt-1',
                     }
@@ -585,7 +585,7 @@ export default function DuaKosesi() {
                 confirmButtonColor: '#D4AF37',
                 buttonsStyling: true,
                 customClass: {
-                    popup: '!bg-white dark:!bg-[#032e18] rounded-[2rem] border border-stone-200 dark:border-[#D4AF37]/20 shadow-2xl',
+                    popup: '!bg-[#FFFDF6] dark:!bg-[#032e18] rounded-[2rem] border border-[#E2D9C4] dark:border-[#D4AF37]/20 shadow-2xl',
                     confirmButton: 'rounded-full px-8 py-3 font-bold text-[#021a0f]' // Dark text on Gold button
                 },
                 backdrop: `
@@ -614,7 +614,7 @@ export default function DuaKosesi() {
                 confirmButtonText: t('profanityBtn'),
                 confirmButtonColor: '#D4AF37',
                 customClass: {
-                    popup: '!bg-white dark:!bg-[#032e18] rounded-[2rem] border border-stone-200 dark:border-[#D4AF37]/20 shadow-2xl',
+                    popup: '!bg-[#FFFDF6] dark:!bg-[#032e18] rounded-[2rem] border border-[#E2D9C4] dark:border-[#D4AF37]/20 shadow-2xl',
                     confirmButton: 'rounded-full px-8 py-3 font-bold text-[#021a0f]'
                 },
                 backdrop: 'rgba(0,0,0,0.85)'
@@ -708,7 +708,7 @@ export default function DuaKosesi() {
                     confirmButtonColor: '#d33', // Red for delete action
                     cancelButtonColor: isDarkMode ? '#374151' : '#e7e5e4',
                     customClass: {
-                        popup: '!bg-white dark:!bg-[#032e18] rounded-[2rem] border border-stone-200 dark:border-[#D4AF37]/20 shadow-2xl',
+                        popup: '!bg-[#FFFDF6] dark:!bg-[#032e18] rounded-[2rem] border border-[#E2D9C4] dark:border-[#D4AF37]/20 shadow-2xl',
                         confirmButton: 'rounded-xl px-6 py-3 font-bold',
                         cancelButton: 'rounded-xl px-6 py-3 font-medium text-stone-600 dark:text-gray-300'
                     }
@@ -734,7 +734,7 @@ export default function DuaKosesi() {
                         timer: 2000,
                         showConfirmButton: false,
                         customClass: {
-                            popup: '!bg-white dark:!bg-[#032e18] rounded-[2rem] border border-stone-200 dark:border-[#D4AF37]/20 shadow-2xl',
+                            popup: '!bg-[#FFFDF6] dark:!bg-[#032e18] rounded-[2rem] border border-[#E2D9C4] dark:border-[#D4AF37]/20 shadow-2xl',
                             title: 'text-stone-800 dark:text-[#FFFDF5]',
                             htmlContainer: '!text-stone-600 dark:!text-[#FFFDF5]/80'
                         }
@@ -826,7 +826,7 @@ export default function DuaKosesi() {
                 );
             case 'approved':
                 return (
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 text-[10px] font-bold uppercase tracking-wider rounded-full">
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-100 dark:bg-emerald-500/20 text-amber-700 dark:text-emerald-400 text-[10px] font-bold uppercase tracking-wider rounded-full">
                         <Check size={12} />
                         {t('statusApproved')}
                     </span>
@@ -856,10 +856,10 @@ export default function DuaKosesi() {
     };
 
     return (
-        <div className="min-h-screen bg-[#fdfaf5] dark:bg-[#032e18] pb-32">
+        <div className="min-h-screen bg-[#F6F0E1] dark:bg-[#032e18] pb-32">
             <div className="max-w-md mx-auto py-8 px-4 space-y-6">
                 {/* Featured Quote with Integrated Back Button */}
-                <div className="bg-emerald-900 shadow-xl rounded-[2.5rem] p-8 relative overflow-hidden text-center group">
+                <div className="bg-[#92400e] dark:bg-emerald-900 shadow-xl rounded-[2.5rem] p-8 relative overflow-hidden text-center group">
                     {/* Back Button */}
                     <Button
                         variant="ghost"
@@ -884,7 +884,7 @@ export default function DuaKosesi() {
                                         animate={{ opacity: 0, y: -20 }}
                                         exit={{ opacity: 0 }}
                                         transition={{ duration: 1 }}
-                                        className="absolute -top-4 right-0 text-sm font-black text-emerald-400"
+                                        className="absolute -top-4 right-0 text-sm font-black text-amber-300 dark:text-emerald-400"
                                     >
                                         +1
                                     </motion.span>
@@ -895,7 +895,7 @@ export default function DuaKosesi() {
 
                     <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-islamic-gold/10 to-transparent" />
                     <Sparkles className="mx-auto text-islamic-gold mb-4 opacity-50 group-hover:scale-110 transition-transform duration-700" size={32} />
-                    <p className="font-serif italic text-emerald-50 text-xl leading-relaxed relative z-10">
+                    <p className="font-serif italic text-amber-50 dark:text-emerald-50 text-xl leading-relaxed relative z-10">
                         {t('headerQuote')}
                     </p>
                     <p className="text-islamic-gold/60 text-xs mt-4 font-bold uppercase tracking-widest relative z-10">{t('headerSource')}</p>
@@ -908,14 +908,14 @@ export default function DuaKosesi() {
                             initial={{ opacity: 0, y: -20 }}
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, y: -20 }}
-                            className="fixed top-4 left-4 right-4 z-50 bg-emerald-600 text-white p-4 rounded-2xl shadow-xl flex items-center gap-3"
+                            className="fixed top-4 left-4 right-4 z-50 bg-amber-600 dark:bg-emerald-600 text-white p-4 rounded-2xl shadow-xl flex items-center gap-3"
                         >
                             <div className="p-2 bg-white/20 rounded-full">
                                 <Check size={20} />
                             </div>
                             <div>
                                 <p className="font-bold">{t('successTitle')}</p>
-                                <p className="text-sm text-emerald-100">{t('successDesc')}</p>
+                                <p className="text-sm text-amber-100 dark:text-emerald-100">{t('successDesc')}</p>
                             </div>
                         </motion.div>
                     )}
@@ -942,12 +942,12 @@ export default function DuaKosesi() {
                 <div className="space-y-4">
                     <div className="flex items-center justify-between px-1">
                         <h3 className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">{t('feedTitle')}</h3>
-                        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500/10">
+                        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-500/10 dark:bg-emerald-500/10">
                             <span className="relative flex h-2 w-2">
-                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-500 dark:bg-emerald-400 opacity-75" />
+                                <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-600 dark:bg-emerald-500" />
                             </span>
-                            <span className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest">{t('settings:live', 'Canlı')}</span>
+                            <span className="text-[10px] font-bold text-amber-600 dark:text-emerald-500 uppercase tracking-widest">{t('settings:live', 'Canlı')}</span>
                         </div>
                     </div>{
                         allDuas.length === 0 ? (
@@ -981,7 +981,7 @@ export default function DuaKosesi() {
                                                         <div className="flex items-center gap-3">
                                                             <button 
                                                                 onClick={() => handleShare(dua)}
-                                                                className="text-gray-400 hover:text-emerald-500 transition-colors"
+                                                                className="text-gray-400 hover:text-amber-600 dark:hover:text-emerald-500 transition-colors"
                                                                 title={t('share', 'Paylaş')}
                                                             >
                                                                 <Share2 size={16} />
@@ -1015,7 +1015,7 @@ export default function DuaKosesi() {
                                                     className={cn(
                                                         "rounded-full px-8 h-12 font-bold transition-all active:scale-95 shadow-lg",
                                                         isAmined
-                                                            ? "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20"
+                                                            ? "bg-amber-100 dark:bg-emerald-900/30 text-amber-700 dark:text-emerald-400 border border-amber-500/20 dark:border-emerald-500/20"
                                                             : "bg-islamic-green dark:bg-islamic-gold text-white dark:text-[#032e18] hover:opacity-90"
                                                     )}
                                                 >
@@ -1031,7 +1031,7 @@ export default function DuaKosesi() {
                 </div >
 
                 {/* Add Own Dua - Floating Action Style */}
-                <div className="bg-white dark:bg-white/5 border border-islamic-gold/20 p-6 rounded-[2.5rem] text-center shadow-lg space-y-3">
+                <div className="bg-[#FFFDF6] dark:bg-white/5 border border-islamic-gold/20 p-6 rounded-[2.5rem] text-center shadow-lg space-y-3">
                     <p className="text-sm font-bold text-gray-700 dark:text-emerald-100/80 mb-4">{t('joinQuestion')}</p>
 
                     <Button
@@ -1061,7 +1061,7 @@ export default function DuaKosesi() {
                                         setShowCreditAnim(true);
                                         setTimeout(() => setShowCreditAnim(false), 1200);
                                         Swal.fire({
-                                            title: `<span class="text-emerald-700 dark:text-emerald-400 font-serif">${t('adSuccessTitle')}</span>`,
+                                            title: `<span class="text-amber-700 dark:text-emerald-400 font-serif">${t('adSuccessTitle')}</span>`,
                                             html: `<p class="text-stone-600 dark:text-[#FFFDF5]/80 font-serif">${t('adSuccessTotalMsg', { reward: CREDIT_COSTS.AD_REWARD, credits: newCreds })}</p>`,
                                             icon: 'success',
                                             iconColor: '#10b981',
@@ -1069,7 +1069,7 @@ export default function DuaKosesi() {
                                             confirmButtonText: t('adSuccessBtn'),
                                             confirmButtonColor: '#D4AF37',
                                             customClass: {
-                                                popup: '!bg-white dark:!bg-[#032e18] rounded-[2rem] border border-emerald-500/20 shadow-2xl',
+                                                popup: '!bg-[#FFFDF6] dark:!bg-[#032e18] rounded-[2rem] border border-amber-500/20 dark:border-emerald-500/20 shadow-2xl',
                                                 confirmButton: 'rounded-full px-8 py-3 font-bold text-[#021a0f]'
                                             },
                                             backdrop: 'rgba(0,0,0,0.85)',
@@ -1086,7 +1086,7 @@ export default function DuaKosesi() {
                                         confirmButtonText: t('adSuccessBtn'),
                                         confirmButtonColor: '#D4AF37',
                                         customClass: {
-                                            popup: '!bg-white dark:!bg-[#032e18] rounded-[2rem] border border-red-500/20 shadow-2xl',
+                                            popup: '!bg-[#FFFDF6] dark:!bg-[#032e18] rounded-[2rem] border border-red-500/20 shadow-2xl',
                                             confirmButton: 'rounded-full px-8 py-3 font-bold text-[#021a0f]'
                                         },
                                         backdrop: 'rgba(0,0,0,0.85)'
@@ -1096,7 +1096,7 @@ export default function DuaKosesi() {
                                 }
                             }}
                             disabled={isAdLoading}
-                            className="w-full h-12 bg-gradient-to-r from-emerald-600/20 to-emerald-700/20 border border-emerald-500/30 text-emerald-700 dark:text-emerald-400 rounded-2xl font-bold gap-2 hover:from-emerald-600/30 hover:to-emerald-700/30 disabled:opacity-50 transition-all"
+                            className="w-full h-12 bg-gradient-to-r from-amber-600/20 to-amber-700/20 dark:from-emerald-600/20 dark:to-emerald-700/20 border border-amber-500/30 dark:border-emerald-500/30 text-amber-700 dark:text-emerald-400 rounded-2xl font-bold gap-2 hover:from-amber-600/30 hover:to-amber-700/30 dark:hover:from-emerald-600/30 dark:hover:to-emerald-700/30 disabled:opacity-50 transition-all"
                         >
                             <Film size={16} />
                             {isAdLoading ? t('adLoading') : t('watchAd', { reward: CREDIT_COSTS.AD_REWARD })}
@@ -1107,7 +1107,7 @@ export default function DuaKosesi() {
                             <Button
                                 onClick={() => setShowHistory(true)}
                                 variant="ghost"
-                                className="w-full h-12 text-gray-500 dark:text-gray-400 rounded-2xl font-medium gap-2 hover:bg-gray-100 dark:hover:bg-white/5"
+                                className="w-full h-12 text-gray-500 dark:text-gray-400 rounded-2xl font-medium gap-2 hover:bg-[#F0E8D5] dark:hover:bg-white/5"
                             >
                                 <History size={18} />
                                 {t('myRequests')} ({myRequests.length})
@@ -1169,7 +1169,7 @@ export default function DuaKosesi() {
                                 const newCreds = addCredit(CREDIT_COSTS.AD_REWARD);
                                 setCredits(newCreds);
                                 Swal.fire({
-                                    title: `<span class="text-emerald-700 dark:text-emerald-400 font-serif">${t('adSuccessTitle')}</span>`,
+                                    title: `<span class="text-amber-700 dark:text-emerald-400 font-serif">${t('adSuccessTitle')}</span>`,
                                     html: `<p class="text-stone-600 dark:text-[#FFFDF5]/80 font-serif">${t('adSuccessMsg', { reward: CREDIT_COSTS.AD_REWARD, credits: newCreds })}</p>`,
                                     icon: 'success',
                                     iconColor: '#10b981',
@@ -1177,7 +1177,7 @@ export default function DuaKosesi() {
                                     confirmButtonText: t('adSuccessBtn'),
                                     confirmButtonColor: '#D4AF37',
                                     customClass: {
-                                        popup: '!bg-white dark:!bg-[#032e18] rounded-[2rem] border border-emerald-500/20 shadow-2xl',
+                                        popup: '!bg-[#FFFDF6] dark:!bg-[#032e18] rounded-[2rem] border border-amber-500/20 dark:border-emerald-500/20 shadow-2xl',
                                         confirmButton: 'rounded-full px-8 py-3 font-bold text-[#021a0f]'
                                     },
                                     backdrop: 'rgba(0,0,0,0.85)',
@@ -1194,7 +1194,7 @@ export default function DuaKosesi() {
                                 confirmButtonText: t('adSuccessBtn'),
                                 confirmButtonColor: '#D4AF37',
                                 customClass: {
-                                    popup: '!bg-white dark:!bg-[#032e18] rounded-[2rem] border border-red-500/20 shadow-2xl',
+                                    popup: '!bg-[#FFFDF6] dark:!bg-[#032e18] rounded-[2rem] border border-red-500/20 shadow-2xl',
                                     confirmButton: 'rounded-full px-8 py-3 font-bold text-[#021a0f]'
                                 },
                                 backdrop: 'rgba(0,0,0,0.85)'
@@ -1245,7 +1245,7 @@ function DuaIstegiFormu({ onSubmit, onCancel, initialText = '', mode = 'create',
                     }
                 }}
                 onClick={(e) => e.stopPropagation()}
-                className="w-full max-w-sm bg-[#fdfaf5] dark:bg-[#032e18] rounded-[2rem] overflow-hidden flex flex-col shadow-2xl max-h-[90vh]"
+                className="w-full max-w-sm bg-[#F6F0E1] dark:bg-[#032e18] rounded-[2rem] overflow-hidden flex flex-col shadow-2xl max-h-[90vh]"
             >
                 {/* Header */}
                 <div className="p-6 pb-4 border-b dark:border-white/5 bg-white/50 dark:bg-[#032e18]/50 backdrop-blur-xl">
@@ -1259,7 +1259,7 @@ function DuaIstegiFormu({ onSubmit, onCancel, initialText = '', mode = 'create',
                                 {mode === 'edit' ? t('formSubEdit') : t('formSubCreate')}
                             </p>
                         </div>
-                        <Button variant="ghost" size="icon" onClick={onCancel} className="rounded-full bg-gray-100 dark:bg-white/10">
+                        <Button variant="ghost" size="icon" onClick={onCancel} className="rounded-full bg-[#F0E8D5] dark:bg-white/10">
                             <X size={20} />
                         </Button>
                     </div>
@@ -1268,8 +1268,8 @@ function DuaIstegiFormu({ onSubmit, onCancel, initialText = '', mode = 'create',
                 {/* Form Content */}
                 <div className="flex-1 p-6 space-y-6 overflow-y-auto">
                     {/* Spiritual Message */}
-                    <div className="bg-emerald-50 dark:bg-emerald-900/20 p-5 rounded-2xl border border-emerald-100 dark:border-emerald-500/10">
-                        <p className="text-emerald-700 dark:text-emerald-300 text-sm leading-relaxed">
+                    <div className="bg-amber-50 dark:bg-emerald-900/20 p-5 rounded-2xl border border-amber-100 dark:border-emerald-500/10">
+                        <p className="text-amber-700 dark:text-emerald-300 text-sm leading-relaxed">
                             {t('formPrivacyNote')}
                         </p>
                     </div>
@@ -1293,7 +1293,7 @@ function DuaIstegiFormu({ onSubmit, onCancel, initialText = '', mode = 'create',
                             placeholder={t('formPlaceholder')}
                             rows={6}
                             maxLength={200}
-                            className="w-full bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-2xl p-5 text-gray-900 dark:text-white placeholder:text-gray-400 focus:ring-2 focus:ring-islamic-green dark:focus:ring-islamic-gold focus:border-transparent transition-all resize-none font-serif text-lg leading-relaxed"
+                            className="w-full bg-[#FFFDF6] dark:bg-white/5 border border-[#E2D9C4] dark:border-white/10 rounded-2xl p-5 text-gray-900 dark:text-white placeholder:text-gray-400 focus:ring-2 focus:ring-islamic-green dark:focus:ring-islamic-gold focus:border-transparent transition-all resize-none font-serif text-lg leading-relaxed"
                         />
                         <div className="flex justify-between text-[11px] font-medium text-gray-400 dark:text-gray-500 px-1">
                             <span>{t('formCharLimit')}</span>
@@ -1355,7 +1355,7 @@ function DuaIstekleriGecmisi({ requests, onDelete, onEdit, onClose, getStatusBad
                     if (info.offset.y > 100) onClose();
                 }}
                 onClick={(e) => e.stopPropagation()}
-                className="w-full max-w-md h-[85vh] bg-[#fdfaf5] dark:bg-[#032e18] rounded-t-[2.5rem] overflow-hidden flex flex-col shadow-2xl"
+                className="w-full max-w-md h-[85vh] bg-[#F6F0E1] dark:bg-[#032e18] rounded-t-[2.5rem] overflow-hidden flex flex-col shadow-2xl"
             >
                 {/* Header */}
                 <div className="p-6 pb-4 border-b dark:border-white/5 bg-white/50 dark:bg-[#032e18]/50 backdrop-blur-xl">
@@ -1365,7 +1365,7 @@ function DuaIstekleriGecmisi({ requests, onDelete, onEdit, onClose, getStatusBad
                             <h2 className="text-2xl font-serif font-bold text-islamic-green dark:text-islamic-gold">{t('historyTitle')}</h2>
                             <p className="text-sm text-gray-400 dark:text-gray-500">{t('historyCount', { count: requests.length })}</p>
                         </div>
-                        <Button variant="ghost" size="icon" onClick={onClose} className="rounded-full bg-gray-100 dark:bg-white/10">
+                        <Button variant="ghost" size="icon" onClick={onClose} className="rounded-full bg-[#F0E8D5] dark:bg-white/10">
                             <X size={20} />
                         </Button>
                     </div>
@@ -1375,7 +1375,7 @@ function DuaIstekleriGecmisi({ requests, onDelete, onEdit, onClose, getStatusBad
                 <div className="flex-1 p-6 overflow-y-auto">
                     {requests.length === 0 ? (
                         <div className="text-center py-20">
-                            <div className="w-20 h-20 mx-auto bg-gray-100 dark:bg-white/5 rounded-full flex items-center justify-center mb-6">
+                            <div className="w-20 h-20 mx-auto bg-[#F0E8D5] dark:bg-white/5 rounded-full flex items-center justify-center mb-6">
                                 <History className="w-10 h-10 text-gray-300 dark:text-gray-600" />
                             </div>
                             <p className="text-gray-500 dark:text-gray-400 font-medium">{t('historyEmpty')}</p>
@@ -1398,7 +1398,7 @@ function DuaIstekleriGecmisi({ requests, onDelete, onEdit, onClose, getStatusBad
                                         <div className="flex items-center justify-between">
                                             {/* Amin Count - Only show for approved */}
                                             {request.status === 'approved' && request.aminCount > 0 ? (
-                                                <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400">
+                                                <div className="flex items-center gap-2 text-amber-700 dark:text-emerald-400">
                                                     <Users size={14} />
                                                     <span className="text-xs font-bold">{request.aminCount} Amin</span>
                                                 </div>
@@ -1425,7 +1425,7 @@ function DuaIstekleriGecmisi({ requests, onDelete, onEdit, onClose, getStatusBad
                                                     className={cn(
                                                         "gap-2 h-9 px-4 rounded-xl",
                                                         request.status === 'delete_requested'
-                                                            ? "text-gray-500 bg-gray-100/10 opacity-50 cursor-not-allowed"
+                                                            ? "text-gray-500 bg-[#F0E8D5]/10 opacity-50 cursor-not-allowed"
                                                             : "text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-500/10"
                                                     )}
                                                 >

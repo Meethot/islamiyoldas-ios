@@ -1,6 +1,6 @@
 {
     "pageTitle": "القرآن الكريم",
-    "searchPlaceholder": "ابحث عن سورة...",
+    "searchPlaceholder": "ابحث باسم السورة أو رقمها...",
     "tabSurahs": "السور",
     "tabBookmarks": "الإشارات المرجعية",
     "loadingQuran": "جارٍ تحميل القرآن...",
@@ -39,5 +39,10 @@
     "preparing": "جارٍ التحضير...",
     "jumpToVerse": "آية",
     "premiumBannerTitle": "الاستماع إلى القرآن",
-    "premiumBannerSubtitle": "اشترك في بريميوم للاستماع مع الترجمة"
+    "premiumBannerSubtitle": "اشترك في بريميوم للاستماع مع الترجمة",
+    "focusHint": "انقر مرتين على الآية للاستماع في وضع التركيز",
+    "jumpToVersePlaceholder": "أدخل رقم الآية...",
+    "modeTranslit": "النطق",
+    "modeTranslation": "الترجمة",
+    "modeArabic": "العربية"
 }

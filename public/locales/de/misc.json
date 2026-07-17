@@ -15,7 +15,12 @@
         "suggestion1": "Mein Herz ist schwer, welchen Dhikr und welches Bittgebet soll ich lesen?",
         "suggestion2": "Ich möchte, dass meine Familie friedlich ist, was soll ich tun?",
         "suggestion3": "Wie füge ich ein Widget zum Startbildschirm hinzu?",
-        "suggestion4": "Welche Bittgebete liest man vor dem Schlafen?"
+        "suggestion4": "Welche Bittgebete liest man vor dem Schlafen?",
+        "birthdayChip": "🎂 Entdecke deinen Geburtstagsvers",
+        "birthdayPickerTitle": "Wähle deinen Geburtstag",
+        "birthdayDay": "Tag",
+        "birthdayMonth": "Monat",
+        "birthdayShow": "Meinen Vers zeigen"
     },
     "prescription": {
         "title": "Spirituelle Empfehlung",
@@ -48,5 +53,12 @@
         "decline": "Ablehnen — KI nicht nutzen",
         "privacy_note": "Alle Details in unserer",
         "privacy_link": "Datenschutzerklärung"
+    },
+    "birthdayCard": {
+        "heading": "🎂 Der Vers zum {{date}}",
+        "share": "Teilen",
+        "shareText": "🎂 Der Vers zum {{date}}\n\n\"{{translation}}\"\n— {{source}}\n\nWelcher ist deiner? Entdecke ihn mit Islamischer Begleiter:\n{{link}}",
+        "cta": "Was ist dein Geburtstagsvers?\nEntdecke ihn in Islamischer Begleiter",
+        "appName": "Islamischer Begleiter"
     }
 }

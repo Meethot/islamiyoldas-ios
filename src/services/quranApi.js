@@ -225,12 +225,14 @@ export async function fetchChapterAudioFiles(chapterId, recitationId = 7) {
         let page = 1;
         let nextPage = 1;
         while (nextPage) {
-            const response = await fetch(`${BASE_URL}/recitations/${recitationId}/by_chapter/${chapterId}?per_page=300&page=${page}`);
+            const response = await fetch(`${BASE_URL}/recitations/${recitationId}/by_chapter/${chapterId}?per_page=300&page=${page}&fields=segments`);
             if (!response.ok) throw new Error('Sure ses dosyaları alınamadı');
             const data = await response.json();
             files.push(...data.audio_files.map(file => ({
                 verseKey: file.verse_key,
-                url: file.url.startsWith('http') ? file.url : `https://verses.quran.com/${file.url}`
+                url: file.url.startsWith('http') ? file.url : `https://verses.quran.com/${file.url}`,
+                // Per-word timings [index, wordNo, startMs, endMs] — drives word-synced follow-along
+                segments: Array.isArray(file.segments) ? file.segments : null
             })));
             nextPage = data.pagination?.next_page || null;
             page += 1;
@@ -242,9 +244,56 @@ export async function fetchChapterAudioFiles(chapterId, recitationId = 7) {
     }
 }
 
+// Turn quran.com's academic transliteration (dhālika, l-kitābu) into a Turkish-friendly
+// reading (zâlike, l-kitâbu). Digraphs first, then single letters. Not linguistically
+// perfect, but close to the app's existing style — used for the word-synced Okunuş view.
+function turkishizeTranslit(s) {
+    if (!s) return '';
+    return s
+        .replace(/dh/g, 'z').replace(/Dh/g, 'Z')
+        .replace(/th/g, 's').replace(/Th/g, 'S')
+        .replace(/sh/g, 'ş').replace(/Sh/g, 'Ş')
+        .replace(/gh/g, 'ğ').replace(/Gh/g, 'Ğ')
+        .replace(/kh/g, 'h').replace(/Kh/g, 'H')
+        .replace(/ā/g, 'â').replace(/ī/g, 'î').replace(/ū/g, 'û')
+        .replace(/[ṣ]/g, 's').replace(/[ḍ]/g, 'd').replace(/[ṭ]/g, 't').replace(/[ẓ]/g, 'z')
+        .replace(/[ḥẖ]/g, 'h').replace(/ʿ|ʾ|['’ʼ]/g, '')
+        .replace(/q/g, 'k').replace(/Q/g, 'K')
+        .replace(/w/g, 'v').replace(/W/g, 'V');
+}
+
+/**
+ * Word-level transliterations aligned 1:1 with the recitation segments (same quran.com
+ * source, so word count === segment count). Powers zero-drift word-synced follow-along.
+ * @returns {Object} map of verseKey → array of Turkish-friendly transliteration words
+ */
+export async function fetchChapterWordTransliterations(chapterId) {
+    try {
+        const out = {};
+        let page = 1;
+        let nextPage = 1;
+        while (nextPage) {
+            const res = await fetch(`${BASE_URL}/verses/by_chapter/${chapterId}?words=true&word_fields=transliteration&per_page=50&page=${page}&language=en`);
+            if (!res.ok) throw new Error('Kelime okunuşları alınamadı');
+            const data = await res.json();
+            data.verses.forEach(v => {
+                out[v.verse_key] = (v.words || [])
+                    .filter(w => w.char_type_name === 'word')
+                    .map(w => turkishizeTranslit(w.transliteration?.text || ''));
+            });
+            nextPage = data.pagination?.next_page || null;
+            page += 1;
+        }
+        return out;
+    } catch (error) {
+        console.error('Word Transliteration Error:', error);
+        return {};
+    }
+}
+
 /**
  * Formats academic transliteration into a cleaner user-friendly version
- * @param {string} text 
+ * @param {string} text
  */
 function formatTransliteration(text) {
     if (!text) return '';

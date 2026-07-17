@@ -4,12 +4,13 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import {
     BookOpen, ArrowLeft, Bookmark, BookmarkCheck, Share2, RefreshCw, WifiOff,
-    Loader2, ChevronDown, ChevronRight, CornerDownLeft, X, Play, Pause, Volume2, VolumeX, Crown
+    Loader2, ChevronDown, ChevronRight, CornerDownLeft, X, Play, Pause, Volume2, VolumeX, Crown,
+    SkipBack, SkipForward, MousePointerClick, Hash
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useDragControls } from 'framer-motion';
 import { useHaptics } from '@/hooks/useMobile';
-import { fetchSurahContent, fetchChapterInfo, fetchSurahAudio, fetchAyahAudio, fetchChapterAudioFiles } from '@/services/quranApi';
+import { fetchSurahContent, fetchChapterInfo, fetchSurahAudio, fetchAyahAudio, fetchChapterAudioFiles, fetchChapterWordTransliterations } from '@/services/quranApi';
 import { useQuery, useInfiniteQuery } from '@tanstack/react-query';
 import { safeGetStorage, safeSetStorage } from '@/utils/storageHelper';
 import ShareCard, { SHARE_THEMES } from '@/components/ShareCard';
@@ -54,6 +55,469 @@ const toArabicNumber = (num) => {
     return String(num).split('').map(digit => arabicNumerals[digit]).join('');
 };
 
+// Word-synced follow-along for the playing verse. Uses quran.com per-word segments
+// ([wordPos, wordNo, startMs, endMs]) when available, else falls back to linear time.
+// Keeps state local so only THIS verse re-renders.
+//
+// Sync strategy (fixes "lags behind" / "freezes"):
+//  - Prefer the real audio.currentTime. On web it advances every frame, so we track it
+//    exactly. On iOS, WKWebView hands <audio> to the native media stack and currentTime
+//    can freeze between updates — so when it stalls we bridge with a wall clock, and snap
+//    back the instant currentTime moves again. Result: exact when possible, smooth always.
+//  - Arabic: segment count matches the word count, so map the active segment straight to
+//    the word (1:1, no ratio drift). Transliteration has a different word count, so fall
+//    back to fractional progress interpolated inside the active segment.
+const KaraokeVerse = React.memo(({ audio, text, words: wordsProp, segments, readClass, currentClass, dimClass, onWordTap }) => {
+    // wordsProp (Okunuş) is already aligned 1:1 with segments; text (Arabic) is split on spaces
+    const words = React.useMemo(() => wordsProp || (text || '').split(' '), [wordsProp, text]);
+    const [wordIdx, setWordIdx] = React.useState(-1);
+
+    React.useEffect(() => {
+        let raf;
+        let anchorTime = audio.currentTime || 0;   // last trusted playhead (s)
+        let anchorAt = performance.now();           // wall clock at that read (ms)
+        const direct = !!segments && segments.length === words.length;
+
+        const compute = (t) => {
+            let idx = -1;
+            if (segments && segments.length) {
+                const ms = t * 1000;
+                let cur = -1;
+                for (let i = 0; i < segments.length; i++) {
+                    if (ms >= segments[i][2]) cur = i; else break; // last segment whose start passed
+                }
+                if (direct) {
+                    idx = cur; // 1:1 word mapping (Arabic)
+                } else {
+                    // fractional progress, smoothed inside the active segment
+                    let within = 0;
+                    if (cur >= 0) {
+                        const s = segments[cur][2], e = segments[cur][3];
+                        within = e > s ? Math.min(1, (ms - s) / (e - s)) : 0;
+                    }
+                    idx = Math.floor(((cur + within) / segments.length) * words.length);
+                }
+            } else if (audio.duration > 0 && isFinite(audio.duration)) {
+                idx = Math.floor(Math.min(1, t / audio.duration) * words.length);
+            }
+            setWordIdx(Math.min(words.length - 1, idx));
+        };
+
+        const tick = () => {
+            const now = performance.now();
+            const real = audio.currentTime || 0;
+            // Forward drift → trust it exactly; big backward jump (user scrubbed back) →
+            // re-anchor too so the highlight follows seeks in both directions.
+            if (real > anchorTime + 0.02 || real < anchorTime - 0.25) { anchorTime = real; anchorAt = now; }
+            const t = audio.paused ? anchorTime : anchorTime + (now - anchorAt) / 1000;
+            compute(t);
+            raf = requestAnimationFrame(tick);
+        };
+        raf = requestAnimationFrame(tick);
+        return () => cancelAnimationFrame(raf);
+    }, [audio, segments, words.length]);
+
+    return (
+        <>
+            {words.map((word, i) => (
+                <span
+                    key={i}
+                    onClick={onWordTap ? () => onWordTap(i, words.length) : undefined}
+                    className={cn(
+                        'transition-colors duration-200',
+                        onWordTap && 'cursor-pointer active:opacity-50',
+                        i < wordIdx ? readClass : i === wordIdx ? currentClass : dimClass
+                    )}
+                >
+                    {word}{i < words.length - 1 ? ' ' : ''}
+                </span>
+            ))}
+        </>
+    );
+});
+
+// Seekable scrubber for the focus card (Apple Music style): draggable gold track with a
+// knob, elapsed/total time labels, verse counter in the middle. All visuals are written
+// straight to the DOM from RAF (no state) so it runs at 60fps without re-rendering.
+const formatClock = (s) => {
+    s = Math.max(0, Math.floor(s || 0));
+    return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+};
+
+// ——— Islamic ornaments for the focus card (SVG, tinted via currentColor) ———
+
+// Thin divider: hairlines meeting small diamonds and a central 8-pointed star
+const OrnamentDivider = ({ className }) => (
+    <svg viewBox="0 0 300 16" className={className} fill="none" aria-hidden="true">
+        <line x1="10" y1="8" x2="118" y2="8" stroke="currentColor" strokeWidth="0.75" opacity="0.45" />
+        <line x1="182" y1="8" x2="290" y2="8" stroke="currentColor" strokeWidth="0.75" opacity="0.45" />
+        <path d="M124 8 l4 -3 4 3 -4 3 z" fill="currentColor" opacity="0.6" />
+        <path d="M168 8 l4 -3 4 3 -4 3 z" fill="currentColor" opacity="0.6" />
+        <g transform="translate(150 8)">
+            <path d="M0 -6 L1.8 -1.8 L6 0 L1.8 1.8 L0 6 L-1.8 1.8 L-6 0 L-1.8 -1.8 Z" fill="currentColor" opacity="0.9" />
+            <path transform="rotate(45)" d="M0 -6 L1.8 -1.8 L6 0 L1.8 1.8 L0 6 L-1.8 1.8 L-6 0 L-1.8 -1.8 Z" fill="currentColor" opacity="0.5" />
+        </g>
+    </svg>
+);
+
+// Corner arabesque: nested quarter arcs + a small diamond bud
+const CornerOrnament = ({ className }) => (
+    <svg viewBox="0 0 80 80" className={className} fill="none" stroke="currentColor" aria-hidden="true">
+        <path d="M2 78 C2 36 36 2 78 2" strokeWidth="0.8" opacity="0.65" />
+        <path d="M2 60 C2 27 27 2 60 2" strokeWidth="0.6" opacity="0.4" />
+        <path d="M13 13 l5 -4 5 4 -5 4 z" fill="currentColor" stroke="none" opacity="0.7" />
+    </svg>
+);
+
+// Stage themes for the verse focus card. Single-palette immersive skins (Apple Music
+// lyrics style); `light` flips the neutral chrome (header/controls/labels) accordingly.
+const FOCUS_THEMES = [
+    {
+        id: 'emerald', light: false,
+        accent: 'text-islamic-gold',
+        dot: 'bg-[#0a4d2c]',
+        sheet: 'bg-[#042313]',
+        glow: 'bg-islamic-gold/[0.08]',
+        read: 'text-white', current: 'text-islamic-gold', dim: 'text-white/25',
+        arRead: 'text-islamic-gold', arCurrent: 'text-white drop-shadow-[0_0_12px_rgba(212,175,55,0.5)]', arDim: 'text-islamic-gold/25',
+        fill: 'bg-islamic-gold',
+        play: 'bg-islamic-gold text-[#032e18] shadow-islamic-gold/25',
+    },
+    {
+        id: 'night', light: false,
+        accent: 'text-islamic-gold',
+        dot: 'bg-[#15151f]',
+        sheet: 'bg-[#0b0b14]',
+        glow: 'bg-islamic-gold/[0.07]',
+        read: 'text-white', current: 'text-islamic-gold', dim: 'text-white/25',
+        arRead: 'text-white/90', arCurrent: 'text-islamic-gold drop-shadow-[0_0_12px_rgba(212,175,55,0.5)]', arDim: 'text-white/25',
+        fill: 'bg-islamic-gold',
+        play: 'bg-islamic-gold text-[#0b0b14] shadow-islamic-gold/25',
+    },
+    {
+        id: 'sand', light: true,
+        accent: 'text-amber-700',
+        dot: 'bg-[#efe5cf]',
+        sheet: 'bg-[#F6F0E1]',
+        glow: 'bg-amber-500/[0.10]',
+        read: 'text-stone-900', current: 'text-amber-700', dim: 'text-stone-900/25',
+        arRead: 'text-emerald-900', arCurrent: 'text-amber-700', arDim: 'text-emerald-900/30',
+        fill: 'bg-amber-600',
+        play: 'bg-emerald-900 text-white shadow-emerald-900/25',
+    },
+    {
+        id: 'navy', light: false,
+        accent: 'text-sky-300',
+        dot: 'bg-[#122a52]',
+        sheet: 'bg-[#081326]',
+        glow: 'bg-sky-400/[0.08]',
+        read: 'text-white', current: 'text-sky-300', dim: 'text-white/25',
+        arRead: 'text-sky-200/90', arCurrent: 'text-white drop-shadow-[0_0_12px_rgba(125,211,252,0.5)]', arDim: 'text-sky-200/25',
+        fill: 'bg-sky-400',
+        play: 'bg-sky-400 text-[#081326] shadow-sky-400/25',
+    },
+    {
+        id: 'rose', light: false,
+        accent: 'text-rose-300',
+        dot: 'bg-[#4a1f33]',
+        sheet: 'bg-[#22101b]',
+        glow: 'bg-rose-400/[0.08]',
+        read: 'text-white', current: 'text-rose-300', dim: 'text-white/25',
+        arRead: 'text-rose-200/90', arCurrent: 'text-white drop-shadow-[0_0_12px_rgba(253,164,175,0.5)]', arDim: 'text-rose-200/25',
+        fill: 'bg-rose-400',
+        play: 'bg-rose-400 text-[#22101b] shadow-rose-400/25',
+    },
+];
+const FOCUS_THEME_KEY = 'quran_focus_theme';
+const FOCUS_HINT_KEY = 'quran_focus_hint';
+
+const AyahScrubber = ({ audio, segments, counterLabel, onSeekTo, trackClass, fillClass, labelClass }) => {
+    const trackRef = React.useRef(null);
+    const fillRef = React.useRef(null);
+    const knobRef = React.useRef(null);
+    const elapsedRef = React.useRef(null);
+    const totalRef = React.useRef(null);
+    const dragFracRef = React.useRef(null); // non-null while the user is scrubbing
+
+    const getDuration = React.useCallback(() => (
+        segments && segments.length
+            ? segments[segments.length - 1][3] / 1000
+            : (isFinite(audio.duration) ? audio.duration : 0)
+    ), [audio, segments]);
+
+    React.useEffect(() => {
+        let raf;
+        let anchorTime = audio.currentTime || 0;
+        let anchorAt = performance.now();
+
+        const tick = () => {
+            const now = performance.now();
+            const real = audio.currentTime || 0;
+            if (real > anchorTime + 0.02 || real < anchorTime - 0.25) { anchorTime = real; anchorAt = now; }
+            const t = audio.paused ? anchorTime : anchorTime + (now - anchorAt) / 1000;
+            const dur = getDuration();
+            const frac = dragFracRef.current ?? (dur > 0 ? Math.min(1, t / dur) : 0);
+            if (fillRef.current) fillRef.current.style.width = `${frac * 100}%`;
+            if (knobRef.current) knobRef.current.style.left = `${frac * 100}%`;
+            if (elapsedRef.current) elapsedRef.current.textContent = formatClock(dragFracRef.current != null ? dragFracRef.current * dur : Math.min(t, dur || t));
+            if (totalRef.current) totalRef.current.textContent = formatClock(dur);
+            raf = requestAnimationFrame(tick);
+        };
+        raf = requestAnimationFrame(tick);
+        return () => cancelAnimationFrame(raf);
+    }, [audio, segments, getDuration]);
+
+    const fracFromEvent = (e) => {
+        const rect = trackRef.current.getBoundingClientRect();
+        return Math.min(1, Math.max(0, (e.clientX - rect.left) / rect.width));
+    };
+    const handleDown = (e) => {
+        e.currentTarget.setPointerCapture(e.pointerId);
+        dragFracRef.current = fracFromEvent(e);
+        if (knobRef.current) knobRef.current.style.transform = 'translateY(-50%) scale(1.35)';
+    };
+    const handleMove = (e) => {
+        if (dragFracRef.current != null) dragFracRef.current = fracFromEvent(e);
+    };
+    const handleUp = () => {
+        if (dragFracRef.current == null) return;
+        const dur = getDuration();
+        if (dur > 0) onSeekTo(dragFracRef.current * dur);
+        dragFracRef.current = null;
+        if (knobRef.current) knobRef.current.style.transform = 'translateY(-50%) scale(1)';
+    };
+
+    return (
+        <div>
+            <div
+                ref={trackRef}
+                onPointerDown={handleDown}
+                onPointerMove={handleMove}
+                onPointerUp={handleUp}
+                onPointerCancel={handleUp}
+                className="relative h-8 flex items-center touch-none cursor-pointer"
+            >
+                <div className={cn("h-[6px] w-full rounded-full overflow-hidden", trackClass || "bg-white/10")}>
+                    <div ref={fillRef} className={cn("h-full w-0 rounded-full", fillClass || "bg-islamic-gold")} />
+                </div>
+                <div
+                    ref={knobRef}
+                    style={{ left: 0, top: '50%', transform: 'translateY(-50%) scale(1)' }}
+                    className="absolute w-4 h-4 -ml-2 rounded-full bg-[#FFFDF6] shadow-[0_1px_6px_rgba(0,0,0,0.35)] transition-transform duration-150 pointer-events-none"
+                />
+            </div>
+            <div className={cn("flex justify-between items-center text-[11px] font-medium tabular-nums", labelClass || "text-white/35")}>
+                <span ref={elapsedRef}>0:00</span>
+                <span>{counterLabel}</span>
+                <span ref={totalRef}>0:00</span>
+            </div>
+        </div>
+    );
+};
+
+// Full-screen focus sheet for a single verse (opened by double-tapping a verse in reading
+// mode). Apple Music lyrics-style: one mode, one text, huge type, minimal chrome.
+// mode: 'translit' (word-synced Okunuş) | 'ar' (word-synced Arabic) | 'tr' (Meâl, static)
+const VerseFocusCard = ({ mode, verse, surahName, ayatLabel, verseCount, audio, segments, words, isPlaying, onClose, onToggle, onPrev, onNext, onSeekTo, hasPrev, hasNext }) => {
+    const dragControls = useDragControls();
+
+    // Tap a word → jump to its timestamp. Direct when word count === segment count
+    // (Arabic / aligned Okunuş); otherwise proportional segment lookup.
+    const handleWordTap = (i, wordCount) => {
+        if (segments && segments.length) {
+            const seg = Math.min(segments.length - 1, Math.floor((i * segments.length) / wordCount));
+            onSeekTo(segments[seg][2] / 1000);
+        } else if (isFinite(audio.duration) && audio.duration > 0) {
+            onSeekTo((i / wordCount) * audio.duration);
+        }
+    };
+
+    // Stage theme (persisted)
+    const [themeId, setThemeId] = React.useState(() => safeGetStorage(FOCUS_THEME_KEY, 'emerald'));
+    const theme = FOCUS_THEMES.find(th => th.id === themeId) || FOCUS_THEMES[0];
+    const pickTheme = (id) => {
+        setThemeId(id);
+        safeSetStorage(FOCUS_THEME_KEY, id);
+    };
+    // Neutral chrome derived from the theme's light/dark stage
+    const chrome = theme.light
+        ? {
+            grabber: 'bg-stone-400/50', title: 'text-stone-900', muted: 'text-stone-500',
+            close: 'bg-stone-900/[0.06] text-stone-600', control: 'text-stone-700',
+            track: 'bg-stone-900/10', label: 'text-stone-500/80'
+        }
+        : {
+            grabber: 'bg-white/20', title: 'text-white', muted: 'text-white/40',
+            close: 'bg-white/10 text-white/70', control: 'text-white/80',
+            track: 'bg-white/10', label: 'text-white/35'
+        };
+
+    return (
+        <motion.div
+            className="fixed inset-0 z-[95]"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+        >
+            {/* Backdrop — solid (no backdrop-blur: Android perf) */}
+            <div className="absolute inset-0 bg-black/60" onClick={onClose} />
+
+            {/* Sheet */}
+            <motion.div
+                initial={{ y: '100%' }}
+                animate={{ y: 0 }}
+                exit={{ y: '100%' }}
+                transition={{ type: 'spring', bounce: 0.12, duration: 0.5 }}
+                drag="y"
+                dragListener={false}
+                dragControls={dragControls}
+                dragConstraints={{ top: 0, bottom: 0 }}
+                dragElastic={{ top: 0, bottom: 0.7 }}
+                onDragEnd={(e, info) => {
+                    if (info.offset.y > 120 || info.velocity.y > 800) onClose();
+                }}
+                className={cn(
+                    "absolute inset-x-0 bottom-0 top-[7vh] rounded-t-[2.25rem] overflow-hidden flex flex-col shadow-[0_-20px_60px_-20px_rgba(0,0,0,0.6)] transition-colors duration-300",
+                    theme.sheet
+                )}
+            >
+                {/* Ambient stage glow */}
+                <div className={cn("absolute -top-28 left-1/2 -translate-x-1/2 w-[26rem] h-[26rem] rounded-full blur-3xl pointer-events-none transition-colors duration-300", theme.glow)} />
+
+                {/* Islamic ornaments — corner arabesques */}
+                <CornerOrnament className={cn("absolute top-3 left-3 w-16 h-16 pointer-events-none", theme.accent, theme.light ? "opacity-40" : "opacity-30")} />
+                <CornerOrnament className={cn("absolute top-3 right-3 w-16 h-16 pointer-events-none -scale-x-100", theme.accent, theme.light ? "opacity-40" : "opacity-30")} />
+
+                {/* Grabber + header (drag handle area) */}
+                <div
+                    className="relative shrink-0 pt-3 pb-1 cursor-grab active:cursor-grabbing touch-none"
+                    onPointerDown={(e) => dragControls.start(e)}
+                >
+                    <div className={cn("mx-auto w-10 h-1.5 rounded-full", chrome.grabber)} />
+                    <div className="mt-4 text-center px-16">
+                        <p className={cn("text-[16px] font-semibold tracking-tight truncate", chrome.title)}>{surahName}</p>
+                        <p className={cn("text-[12px] font-medium mt-0.5", chrome.muted)}>{ayatLabel}</p>
+                    </div>
+                    <button
+                        onClick={onClose}
+                        className={cn("absolute top-4 right-4 w-9 h-9 rounded-full flex items-center justify-center active:scale-90 transition-transform", chrome.close)}
+                    >
+                        <X className="w-[18px] h-[18px]" />
+                    </button>
+                </div>
+
+                {/* Ornamental divider under the header */}
+                <OrnamentDivider className={cn("relative shrink-0 w-64 h-4 mx-auto mt-1", theme.accent, theme.light ? "opacity-80" : "opacity-70")} />
+
+                {/* Theme dots */}
+                <div className="relative shrink-0 flex justify-center gap-3 pt-1.5 pb-1">
+                    {FOCUS_THEMES.map(th => (
+                        <button
+                            key={th.id}
+                            onClick={() => pickTheme(th.id)}
+                            aria-label={th.id}
+                            className={cn(
+                                "w-5 h-5 rounded-full border transition-all duration-200",
+                                th.dot,
+                                th.light ? "border-stone-400/60" : "border-white/25",
+                                themeId === th.id
+                                    ? "scale-125 ring-2 ring-offset-1 ring-offset-transparent " + (theme.light ? "ring-stone-500/70" : "ring-white/70")
+                                    : "opacity-70"
+                            )}
+                        />
+                    ))}
+                </div>
+
+                {/* Hero text — only the active mode's content */}
+                <div className="relative flex-1 overflow-y-auto px-7">
+                    <div className="min-h-full flex flex-col justify-center py-6">
+                        <AnimatePresence mode="wait">
+                            <motion.div
+                                key={verse.verseKey}
+                                initial={{ opacity: 0, y: 28 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -20 }}
+                                transition={{ type: 'spring', bounce: 0.15, duration: 0.45 }}
+                            >
+                                {mode === 'ar' && (
+                                    <p dir="rtl" className="font-arabic text-[40px] leading-[2] text-right">
+                                        <KaraokeVerse
+                                            audio={audio}
+                                            text={verse.arabic}
+                                            segments={segments}
+                                            onWordTap={handleWordTap}
+                                            readClass={theme.arRead}
+                                            currentClass={theme.arCurrent}
+                                            dimClass={theme.arDim}
+                                        />
+                                    </p>
+                                )}
+
+                                {mode === 'translit' && (
+                                    <p className="text-[27px] leading-[1.55] font-semibold tracking-tight">
+                                        <KaraokeVerse
+                                            audio={audio}
+                                            text={verse.transliteration}
+                                            words={words}
+                                            segments={segments}
+                                            onWordTap={handleWordTap}
+                                            readClass={theme.read}
+                                            currentClass={theme.current}
+                                            dimClass={theme.dim}
+                                        />
+                                    </p>
+                                )}
+
+                                {mode === 'tr' && (
+                                    <div className={cn("text-[25px] leading-[1.5] font-semibold tracking-tight", theme.read)}>
+                                        <span dangerouslySetInnerHTML={{ __html: verse.translation }} />
+                                    </div>
+                                )}
+                            </motion.div>
+                        </AnimatePresence>
+                    </div>
+                </div>
+
+                {/* Footer — scrubber + transport */}
+                <div className="relative shrink-0 px-7 pt-1 pb-[calc(1.25rem+env(safe-area-inset-bottom))]">
+                    <OrnamentDivider className={cn("w-52 h-3.5 mx-auto mb-1.5", theme.accent, theme.light ? "opacity-60" : "opacity-50")} />
+                    <AyahScrubber
+                        audio={audio}
+                        segments={segments}
+                        counterLabel={`${verse.verseNumber}${verseCount ? ` / ${verseCount}` : ''}`}
+                        onSeekTo={onSeekTo}
+                        trackClass={chrome.track}
+                        fillClass={theme.fill}
+                        labelClass={chrome.label}
+                    />
+                    <div className="mt-3 flex items-center justify-center gap-9">
+                        <button
+                            onClick={onPrev}
+                            disabled={!hasPrev}
+                            className={cn("w-12 h-12 rounded-full flex items-center justify-center active:scale-90 transition-transform disabled:opacity-25", chrome.control)}
+                        >
+                            <SkipBack className="w-6 h-6 fill-current" />
+                        </button>
+                        <button
+                            onClick={onToggle}
+                            className={cn("w-[68px] h-[68px] rounded-full flex items-center justify-center shadow-xl active:scale-95 transition-transform", theme.play)}
+                        >
+                            {isPlaying ? <Pause className="w-8 h-8 fill-current" /> : <Play className="w-8 h-8 fill-current ml-1" />}
+                        </button>
+                        <button
+                            onClick={onNext}
+                            disabled={!hasNext}
+                            className={cn("w-12 h-12 rounded-full flex items-center justify-center active:scale-90 transition-transform disabled:opacity-25", chrome.control)}
+                        >
+                            <SkipForward className="w-6 h-6 fill-current" />
+                        </button>
+                    </div>
+                </div>
+            </motion.div>
+        </motion.div>
+    );
+};
+
 // Memoized individual verse to prevent list re-renders
 const VerseItem = React.memo(({ verse, index, isBookmarked, toggleBookmark, handleShareClick, handlePlayAyah, playFromVerse, playingAyahKey, t, verseRef, hasPremium }) => {
     const isPlaying = playingAyahKey === verse.verseKey;
@@ -66,7 +530,7 @@ const VerseItem = React.memo(({ verse, index, isBookmarked, toggleBookmark, hand
             transition={{ delay: Math.min(index * 0.05, 0.5) }}
         >
             <div className="relative mb-6">
-                <Card className="border-none shadow-xl rounded-[2.5rem] bg-white dark:bg-white/5 overflow-hidden p-6 relative dark:text-white">
+                <Card className="border-none shadow-xl rounded-[2.5rem] bg-[#FFFDF6] dark:bg-white/5 overflow-hidden p-6 relative dark:text-white">
                     <div className="space-y-6">
                         {/* Header: Number & Actions */}
                         <div className="flex items-start justify-between">
@@ -102,7 +566,7 @@ const VerseItem = React.memo(({ verse, index, isBookmarked, toggleBookmark, hand
                                         isPlaying 
                                             ? "bg-islamic-gold text-[#032e18] shadow-lg shadow-islamic-gold/40"
                                             : hasPremium 
-                                                ? "bg-stone-100 dark:bg-white/10 text-stone-600 dark:text-white/70 hover:bg-stone-200 dark:hover:bg-white/20"
+                                                ? "bg-[#F0E8D5] dark:bg-white/10 text-stone-600 dark:text-white/70 hover:bg-[#E9DFC8] dark:hover:bg-white/20"
                                                 : "premium-play-btn bg-gradient-to-br from-[#D4AF37] via-[#E8C94A] to-[#C9982A] text-[#3D2E0A] shadow-[0_2px_12px_rgba(212,175,55,0.35)]"
                                     )}
                                 >
@@ -619,6 +1083,105 @@ export default function SurahDetail() {
 
     const isBookmarked = (verseKey) => bookmarks.some(b => b.verseKey === verseKey);
 
+    // Word timings of the currently playing ayah (null → KaraokeVerse falls back to linear)
+    const playingSegments = React.useMemo(() => {
+        if (!playingAyahKey) return null;
+        return audioPlaylist.find(t => t.verseKey === playingAyahKey)?.segments || null;
+    }, [audioPlaylist, playingAyahKey]);
+
+    // Segment-aligned word transliterations (verseKey → [word,...]) for the Okunuş view
+    // and the verse focus card. Loaded once; falls back to the CDN string until ready.
+    const [verseWords, setVerseWords] = useState({});
+    const [focusVerseKey, setFocusVerseKey] = useState(null);
+    useEffect(() => {
+        if (readingSubMode !== 'translit' && !focusVerseKey) return;
+        if (Object.keys(verseWords).length) return;
+        let alive = true;
+        fetchChapterWordTransliterations(surahId).then(w => { if (alive) setVerseWords(w); });
+        return () => { alive = false; };
+    }, [readingSubMode, focusVerseKey, surahId]);
+
+    // One-time coach mark: teach the double-tap gesture (max 3 shows, done once used)
+    const [showFocusHint, setShowFocusHint] = useState(false);
+    const hintScheduledRef = useRef(false);
+    useEffect(() => {
+        if (versesLoading || verses.length === 0 || hintScheduledRef.current) return;
+        const st = safeGetStorage(FOCUS_HINT_KEY, { count: 0, done: false });
+        if (st.done || st.count >= 3) return;
+        hintScheduledRef.current = true;
+        const showTimer = setTimeout(() => {
+            setShowFocusHint(true);
+            safeSetStorage(FOCUS_HINT_KEY, { ...st, count: (st.count || 0) + 1 });
+        }, 1200);
+        const hideTimer = setTimeout(() => setShowFocusHint(false), 9000);
+        return () => { clearTimeout(showTimer); clearTimeout(hideTimer); };
+    }, [versesLoading, verses.length]);
+
+    // Double-tap a verse in reading mode → open its focus card and play it
+    const lastVerseTapRef = useRef({ key: null, t: 0 });
+    const handleVerseTap = (verse) => {
+        const now = Date.now();
+        const last = lastVerseTapRef.current;
+        lastVerseTapRef.current = { key: verse.verseKey, t: now };
+        if (last.key === verse.verseKey && now - last.t < 350) {
+            selection();
+            setFocusVerseKey(verse.verseKey);
+            if (playingAyahKey !== verse.verseKey) playFromVerse(verse.verseNumber);
+            // Gesture learned — never show the coach mark again
+            setShowFocusHint(false);
+            safeSetStorage(FOCUS_HINT_KEY, { count: 99, done: true });
+        }
+    };
+
+    // While the focus card is open, follow the recitation to the next ayah
+    useEffect(() => {
+        if (focusVerseKey && playingAyahKey && playingAyahKey !== focusVerseKey) {
+            setFocusVerseKey(playingAyahKey);
+        }
+    }, [playingAyahKey]);
+
+    const focusVerse = focusVerseKey ? verses.find(v => v.verseKey === focusVerseKey) : null;
+
+    const toggleFocusPlayback = () => {
+        selection();
+        if (!focusVerse) return;
+        if (isSurahPlaying && playingAyahKey === focusVerseKey) {
+            audio.pause();
+            setIsSurahPlaying(false);
+        } else if (!isSurahPlaying && playingAyahKey === focusVerseKey && audio.src) {
+            audio.play();
+            setIsSurahPlaying(true);
+        } else {
+            playFromVerse(focusVerse.verseNumber);
+        }
+    };
+
+    // Seek within the focus verse (scrubber drag / word tap). If the audio isn't on this
+    // verse anymore (e.g. playback ended), restart the verse instead of seeking stale audio.
+    const seekFocusTo = (seconds) => {
+        if (!focusVerse) return;
+        if (playingAyahKey !== focusVerseKey || !audio.src) {
+            playFromVerse(focusVerse.verseNumber);
+            return;
+        }
+        audio.currentTime = seconds;
+        if (audio.paused) {
+            audio.play();
+            setIsSurahPlaying(true);
+        }
+    };
+
+    const stepFocusVerse = (delta) => {
+        if (!focusVerse) return;
+        const target = focusVerse.verseNumber + delta;
+        if (target < 1 || (surahInfo?.ayahCount && target > surahInfo.ayahCount)) return;
+        selection();
+        const targetVerse = verses.find(v => v.verseNumber === target);
+        if (targetVerse) setFocusVerseKey(targetVerse.verseKey);
+        else setPendingJumpVerse(target); // loads missing pages; follow effect catches up
+        playFromVerse(target);
+    };
+
     // Auto-Pagination Effect for Jump to Verse
     useEffect(() => {
         if (!pendingJumpVerse) return;
@@ -660,7 +1223,7 @@ export default function SurahDetail() {
     // Initial Loading State
     if (infoLoading || (versesLoading && !verseData)) {
         return (
-            <div className="min-h-screen bg-gradient-to-b from-white to-gray-50 dark:from-[#032e18] dark:to-[#021a0f] flex items-center justify-center">
+            <div className="min-h-screen bg-gradient-to-b from-[#F6F0E1] to-[#EDE5D1] dark:from-[#032e18] dark:to-[#021a0f] flex items-center justify-center">
                 <div className="text-center space-y-4">
                     <motion.div
                         animate={{ rotate: 360 }}
@@ -678,7 +1241,7 @@ export default function SurahDetail() {
     const error = infoError || versesError;
     if (error) {
         return (
-            <div className="min-h-screen bg-gradient-to-b from-white to-gray-50 dark:from-[#032e18] dark:to-[#021a0f] flex items-center justify-center p-6">
+            <div className="min-h-screen bg-gradient-to-b from-[#F6F0E1] to-[#EDE5D1] dark:from-[#032e18] dark:to-[#021a0f] flex items-center justify-center p-6">
                 <Card className="w-full max-w-md glass-panel border-none">
                     <CardContent className="p-8 text-center space-y-6">
                         <div className="w-20 h-20 mx-auto rounded-full bg-red-500/10 flex items-center justify-center">
@@ -696,7 +1259,7 @@ export default function SurahDetail() {
                             <Button
                                 onClick={() => { selection(); navigate(-1); }}
                                 variant="outline"
-                                className="border-gray-200 dark:border-white/10"
+                                className="border-[#E2D9C4] dark:border-white/10"
                             >
                                 <ArrowLeft className="w-4 h-4 mr-2" />
                                 {t('quran.back', 'Back')}
@@ -716,7 +1279,7 @@ export default function SurahDetail() {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-b from-white to-gray-50 dark:from-[#032e18] dark:to-[#021a0f] pb-24">
+        <div className="min-h-screen bg-gradient-to-b from-[#F6F0E1] to-[#EDE5D1] dark:from-[#032e18] dark:to-[#021a0f] pb-24">
             <>
                 <div className="bg-islamic-green dark:bg-[#032e18] px-4 py-2 sticky top-0 z-40 border-b border-white/10 shadow-lg">
                     <div className="flex items-center gap-3">
@@ -796,48 +1359,55 @@ export default function SurahDetail() {
                                             className="absolute inset-0 bg-white/20 rounded-lg -z-10"
                                         />
                                     )}
-                                    {mode === 'tr' ? 'Meâl' : mode === 'ar' ? 'Arapça' : 'Okunuş'}
+                                    {mode === 'tr' ? t('quran:modeTranslation') : mode === 'ar' ? t('quran:modeArabic') : t('quran:modeTranslit')}
                                 </button>
                             ))}
                         </div>
-                        {/* Jump to verse: scrolls there, premium also starts listening from it */}
-                        <form onSubmit={handleJumpToVerse} className="shrink-0 bg-black/5 dark:bg-white/5 p-1 rounded-xl flex items-center">
+                    </div>
+                </div>
+            </>
+
+            <div className="p-4 space-y-4">
+                {/* Surah opening panel — bismillah + jump-to-verse */}
+                <motion.div
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="rounded-[1.75rem] bg-[#FFFDF6] dark:bg-white/[0.06] border border-[#E2D9C4]/60 dark:border-white/10 shadow-[0_8px_24px_-12px_rgba(4,77,41,0.12)] dark:shadow-lg dark:shadow-black/20 p-5"
+                >
+                    {surahInfo?.id !== 1 && surahInfo?.id !== 9 && (
+                        <>
+                            <p className="text-2xl font-arabic text-islamic-green dark:text-islamic-gold leading-relaxed text-center">
+                                بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
+                            </p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 text-center">
+                                {t('quran.bismillah_translation')}
+                            </p>
+                            <OrnamentDivider className="w-48 h-4 mx-auto my-3 text-amber-700/70 dark:text-islamic-gold/80" />
+                        </>
+                    )}
+                    {/* Jump to verse: scrolls there, premium also starts listening from it */}
+                    <form onSubmit={handleJumpToVerse} className="flex items-center gap-2">
+                        <div className="relative flex-1">
+                            <Hash className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400 dark:text-white/40" />
                             <input
                                 type="text"
                                 inputMode="numeric"
                                 pattern="[0-9]*"
                                 value={jumpTarget}
                                 onChange={(e) => setJumpTarget(e.target.value.replace(/\D/g, ''))}
-                                placeholder={t('quran:jumpToVerse')}
-                                className="w-14 bg-transparent text-center text-[12px] font-bold text-white placeholder-white/40 focus:outline-none py-2"
+                                placeholder={t('quran:jumpToVersePlaceholder')}
+                                className="w-full h-11 pl-10 pr-3 rounded-xl bg-[#F0E8D5] dark:bg-white/10 text-[15px] font-semibold text-stone-800 dark:text-white placeholder-stone-400 dark:placeholder-white/40 placeholder:font-medium focus:outline-none focus:ring-2 focus:ring-islamic-green/40 dark:focus:ring-islamic-gold/40"
                             />
-                            <button
-                                type="submit"
-                                disabled={!jumpTarget}
-                                className="w-8 h-8 rounded-lg bg-white/15 flex items-center justify-center text-white active:scale-95 transition-all disabled:opacity-40"
-                            >
-                                <Play className="w-3.5 h-3.5 fill-current ml-0.5" />
-                            </button>
-                        </form>
-                    </div>
-                </div>
-            </>
-
-            <div className="p-4 space-y-4">
-                {surahInfo?.id !== 1 && surahInfo?.id !== 9 && (
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="text-center py-8"
-                    >
-                        <p className="text-3xl font-arabic text-islamic-green dark:text-islamic-gold leading-loose">
-                            بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
-                        </p>
-                        <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
-                            {t('quran.bismillah_translation')}
-                        </p>
-                    </motion.div>
-                )}
+                        </div>
+                        <button
+                            type="submit"
+                            disabled={!jumpTarget}
+                            className="h-11 w-14 rounded-xl bg-islamic-green dark:bg-islamic-gold text-white dark:text-[#032e18] flex items-center justify-center shadow-md shadow-islamic-green/25 dark:shadow-islamic-gold/30 active:scale-95 transition-all disabled:opacity-40 disabled:shadow-none"
+                        >
+                            <Play className="w-5 h-5 fill-current ml-0.5" />
+                        </button>
+                    </form>
+                </motion.div>
 
                 <AnimatePresence mode="wait">
                     {viewMode === 'verses' ? (
@@ -878,34 +1448,47 @@ export default function SurahDetail() {
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, scale: 0.98 }}
                         >
-                            <Card className="border-none shadow-xl rounded-[2.5rem] bg-white dark:bg-white/5 overflow-hidden p-8 dark:text-white">
+                            <Card className="border-none shadow-xl rounded-[2.5rem] bg-[#FFFDF6] dark:bg-white/5 overflow-hidden p-8 dark:text-white">
                                 {readingSubMode === 'ar' && (
                                     <div className="text-right font-arabic" dir="rtl">
-                                        {verses.map((verse) => (
-                                            <span
-                                                key={verse.id}
-                                                id={`verse-${verse.verseKey}`}
-                                                ref={(el) => { if (el) verseRefs.current[verse.verseKey] = el; }}
-                                                className={cn(
-                                                    "inline transition-all duration-700",
-                                                    getArabicZoomClass(),
-                                                    playingAyahKey === verse.verseKey
-                                                        ? "text-islamic-gold drop-shadow-[0_0_8px_rgba(212,175,55,0.4)]"
-                                                        : "text-islamic-green dark:text-islamic-gold"
-                                                )}
-                                            >
-                                                {verse.arabic} <span
-                                                    role="button"
-                                                    onClick={(e) => { e.stopPropagation(); playFromVerse(verse.verseNumber); }}
+                                        {verses.map((verse) => {
+                                            const isPlayingVerse = playingAyahKey === verse.verseKey;
+                                            return (
+                                                <span
+                                                    key={verse.id}
+                                                    id={`verse-${verse.verseKey}`}
+                                                    ref={(el) => { if (el) verseRefs.current[verse.verseKey] = el; }}
+                                                    onClick={() => handleVerseTap(verse)}
                                                     className={cn(
-                                                    "text-islamic-gold/70 inline-flex items-center justify-center mr-1 ml-2 relative top-1 cursor-pointer active:scale-90 transition-transform",
-                                                    zoomLevel >= 3 ? "text-4xl" : "text-2xl"
-                                                )}>۝<span className={cn(
-                                                    "absolute font-sans font-bold text-islamic-green dark:text-white/80",
-                                                    zoomLevel >= 3 ? "text-sm" : "text-[11px]"
-                                                )}>{toArabicNumber(verse.verseNumber)}</span></span>
-                                            </span>
-                                        ))}
+                                                        "inline",
+                                                        getArabicZoomClass(),
+                                                        !isPlayingVerse && "text-islamic-green dark:text-islamic-gold"
+                                                    )}
+                                                >
+                                                    {isPlayingVerse ? (
+                                                        <KaraokeVerse
+                                                            audio={audio}
+                                                            text={verse.arabic}
+                                                            segments={playingSegments}
+                                                            readClass="text-islamic-green dark:text-islamic-gold"
+                                                            currentClass="text-islamic-gold drop-shadow-[0_0_8px_rgba(212,175,55,0.4)] dark:text-white"
+                                                            dimClass="text-islamic-green/40 dark:text-islamic-gold/30"
+                                                        />
+                                                    ) : (
+                                                        verse.arabic
+                                                    )}{' '}<span
+                                                        role="button"
+                                                        onClick={(e) => { e.stopPropagation(); playFromVerse(verse.verseNumber); }}
+                                                        className={cn(
+                                                        "text-islamic-gold/70 inline-flex items-center justify-center mr-1 ml-2 relative top-1 cursor-pointer active:scale-90 transition-transform",
+                                                        zoomLevel >= 3 ? "text-4xl" : "text-2xl"
+                                                    )}>۝<span className={cn(
+                                                        "absolute font-sans font-bold text-islamic-green dark:text-white/80",
+                                                        zoomLevel >= 3 ? "text-sm" : "text-[11px]"
+                                                    )}>{toArabicNumber(verse.verseNumber)}</span></span>
+                                                </span>
+                                            );
+                                        })}
                                     </div>
                                 )}
 
@@ -916,6 +1499,7 @@ export default function SurahDetail() {
                                                 key={verse.id}
                                                 id={`verse-${verse.verseKey}`}
                                                 ref={(el) => { if (el) verseRefs.current[verse.verseKey] = el; }}
+                                                onClick={() => handleVerseTap(verse)}
                                                 className={cn(
                                                     "font-sans transition-all duration-700 inline rounded-md py-0.5",
                                                     getLatinZoomClass(),
@@ -927,7 +1511,7 @@ export default function SurahDetail() {
                                                 <button
                                                     type="button"
                                                     onClick={(e) => { e.stopPropagation(); playFromVerse(verse.verseNumber); }}
-                                                    className="text-[10px] font-bold bg-islamic-green/10 text-islamic-green dark:bg-islamic-gold/10 dark:text-islamic-gold px-1.5 py-0.5 rounded-md mx-1 relative -top-0.5 active:scale-90 transition-transform"
+                                                    className="text-[10px] font-bold bg-amber-600/10 text-amber-700 dark:bg-islamic-gold/10 dark:text-islamic-gold px-1.5 py-0.5 rounded-md mx-1 relative -top-0.5 active:scale-90 transition-transform"
                                                 >
                                                     {verse.verseNumber}
                                                 </button>
@@ -940,30 +1524,51 @@ export default function SurahDetail() {
 
                                 {readingSubMode === 'translit' && (
                                     <div className="text-left space-y-2">
-                                        {verses.map((verse) => (
-                                            <span
-                                                key={verse.id}
-                                                id={`verse-${verse.verseKey}`}
-                                                ref={(el) => { if (el) verseRefs.current[verse.verseKey] = el; }}
-                                                className={cn(
-                                                    "font-sans transition-all duration-700 inline rounded-md py-0.5",
-                                                    getLatinZoomClass(),
-                                                    playingAyahKey === verse.verseKey
-                                                        ? "bg-islamic-gold/20 dark:bg-islamic-gold/30 text-gray-900 dark:text-white font-semibold"
-                                                        : "text-gray-800 dark:text-emerald-50"
-                                                )}
-                                            >
-                                                <button
-                                                    type="button"
-                                                    onClick={(e) => { e.stopPropagation(); playFromVerse(verse.verseNumber); }}
-                                                    className="text-[10px] font-bold bg-islamic-green/10 text-islamic-green dark:bg-islamic-gold/10 dark:text-islamic-gold px-1.5 py-0.5 rounded-md mx-1 relative -top-0.5 active:scale-90 transition-transform"
+                                        {verses.map((verse) => {
+                                            const isPlayingVerse = playingAyahKey === verse.verseKey;
+                                            // Segment-aligned words when loaded, else the CDN string
+                                            const wordArr = verseWords[verse.verseKey];
+                                            return (
+                                                <span
+                                                    key={verse.id}
+                                                    id={`verse-${verse.verseKey}`}
+                                                    ref={(el) => { if (el) verseRefs.current[verse.verseKey] = el; }}
+                                                    onClick={() => handleVerseTap(verse)}
+                                                    className={cn(
+                                                        "font-sans inline py-0.5",
+                                                        getLatinZoomClass(),
+                                                        !isPlayingVerse && "text-gray-800 dark:text-emerald-50"
+                                                    )}
                                                 >
-                                                    {verse.verseNumber}
-                                                </button>
-                                                {verse.transliteration}
-                                                {" "}
-                                            </span>
-                                        ))}
+                                                    <button
+                                                        type="button"
+                                                        onClick={(e) => { e.stopPropagation(); playFromVerse(verse.verseNumber); }}
+                                                        className={cn(
+                                                            "text-[10px] font-bold px-1.5 py-0.5 rounded-md mx-1 relative -top-0.5 active:scale-90 transition-all",
+                                                            isPlayingVerse
+                                                                ? "bg-islamic-gold text-[#032e18]"
+                                                                : "bg-amber-600/10 text-amber-700 dark:bg-islamic-gold/10 dark:text-islamic-gold"
+                                                        )}
+                                                    >
+                                                        {verse.verseNumber}
+                                                    </button>
+                                                    {isPlayingVerse ? (
+                                                        <KaraokeVerse
+                                                            audio={audio}
+                                                            text={verse.transliteration}
+                                                            words={wordArr}
+                                                            segments={playingSegments}
+                                                            readClass="text-gray-800 dark:text-emerald-50"
+                                                            currentClass="text-amber-600 dark:text-islamic-gold"
+                                                            dimClass="text-gray-300 dark:text-emerald-50/30"
+                                                        />
+                                                    ) : (
+                                                        wordArr ? wordArr.join(' ') : verse.transliteration
+                                                    )}
+                                                    {" "}
+                                                </span>
+                                            );
+                                        })}
                                     </div>
                                 )}
                             </Card>
@@ -1023,7 +1628,7 @@ export default function SurahDetail() {
                                 selection();
                                 navigate(`/quran/${parseInt(surahId) + 1}`);
                             }}
-                            className="w-full py-4 bg-emerald-900/50 text-islamic-gold rounded-xl border border-emerald-800 flex justify-center items-center gap-2 font-semibold active:scale-95 transition-all hover:bg-emerald-900/70"
+                            className="w-full py-4 bg-amber-600/10 dark:bg-emerald-900/50 text-amber-800 dark:text-islamic-gold rounded-xl border border-amber-600/30 dark:border-emerald-800 flex justify-center items-center gap-2 font-semibold active:scale-95 transition-all hover:bg-amber-600/20 dark:hover:bg-emerald-900/70"
                         >
                             {t('quran.next_surah')}
                             <ChevronRight className="w-5 h-5" />
@@ -1031,6 +1636,55 @@ export default function SurahDetail() {
                     </motion.div>
                 )}
             </div>
+
+            {/* Coach mark: double-tap hint */}
+            <AnimatePresence>
+                {showFocusHint && (
+                    <div className="fixed bottom-[calc(2.5rem+env(safe-area-inset-bottom))] inset-x-0 z-[80] flex justify-center pointer-events-none">
+                        <motion.button
+                            initial={{ opacity: 0, y: 16 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: 8 }}
+                            transition={{ type: 'spring', bounce: 0.3, duration: 0.5 }}
+                            onClick={() => setShowFocusHint(false)}
+                            className="pointer-events-auto flex items-center gap-2.5 pl-2.5 pr-4 py-2 rounded-full bg-[#FFFDF6] dark:bg-[#0b2f1a]/95 border border-[#E2D9C4] dark:border-islamic-gold/25 shadow-xl shadow-black/20 dark:shadow-black/40"
+                        >
+                            <motion.span
+                                animate={{ scale: [1, 0.8, 1, 0.8, 1] }}
+                                transition={{ duration: 1.1, repeat: Infinity, repeatDelay: 1.4 }}
+                                className="w-8 h-8 rounded-full bg-islamic-green/10 dark:bg-islamic-gold/15 flex items-center justify-center shrink-0"
+                            >
+                                <MousePointerClick className="w-[18px] h-[18px] text-islamic-green dark:text-islamic-gold" />
+                            </motion.span>
+                            <span className="text-[13px] font-medium text-stone-800 dark:text-white">{t('quran:focusHint')}</span>
+                        </motion.button>
+                    </div>
+                )}
+            </AnimatePresence>
+
+            {/* Verse Focus Card (double-tap a verse to open) */}
+            <AnimatePresence>
+                {focusVerse && (
+                    <VerseFocusCard
+                        mode={readingSubMode}
+                        verse={focusVerse}
+                        surahName={currentLang === 'tr' ? (surahInfo?.translatedName || surahInfo?.name) : surahInfo?.name}
+                        ayatLabel={t('quran:ayat', { number: focusVerse.verseNumber })}
+                        verseCount={surahInfo?.ayahCount}
+                        audio={audio}
+                        segments={playingSegments}
+                        words={verseWords[focusVerse.verseKey]}
+                        isPlaying={isSurahPlaying && playingAyahKey === focusVerse.verseKey}
+                        onClose={() => { selection(); setFocusVerseKey(null); }}
+                        onToggle={toggleFocusPlayback}
+                        onPrev={() => stepFocusVerse(-1)}
+                        onNext={() => stepFocusVerse(1)}
+                        onSeekTo={seekFocusTo}
+                        hasPrev={focusVerse.verseNumber > 1}
+                        hasNext={!surahInfo?.ayahCount || focusVerse.verseNumber < surahInfo.ayahCount}
+                    />
+                )}
+            </AnimatePresence>
 
             <AnimatePresence>
                 {shareModalData && (
@@ -1045,7 +1699,7 @@ export default function SurahDetail() {
                             initial={{ scale: 0.9, opacity: 0 }}
                             animate={{ scale: 1, opacity: 1 }}
                             exit={{ scale: 0.95, opacity: 0 }}
-                            className="bg-[#F9F8F3] dark:bg-[#021a0f] w-full max-w-sm rounded-[2.5rem] p-6 shadow-2xl relative border border-white/10"
+                            className="bg-[#F6F0E1] dark:bg-[#021a0f] w-full max-w-sm rounded-[2.5rem] p-6 shadow-2xl relative border border-white/10"
                             onClick={(e) => e.stopPropagation()}
                         >
                             <div className="flex justify-between items-center mb-6">

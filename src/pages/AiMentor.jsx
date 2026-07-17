@@ -5,6 +5,8 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { getSpiritualAdvice } from '@/services/AiMentorService';
 import AiPrescriptionCard from '@/components/AiPrescriptionCard';
+import BirthdayVerseCard from '@/components/BirthdayVerseCard';
+import { birthdayToVerseRef } from '@/lib/birthdayVerse';
 import { triggerReviewPrompt } from '@/components/ReviewPrompt';
 import AiConsentModal, { hasAiConsent } from '@/components/AiConsentModal';
 import { useTranslation } from 'react-i18next';
@@ -28,6 +30,7 @@ const ROUTE_WHITELIST = new Set([
 // Flatten a chat message into plain text for backend history.
 function summarizeForHistory(msg) {
     if (msg.role === 'user') return msg.text || '';
+    if (msg.isBirthday) return 'Doğum günü ayeti gösterildi';
     if (msg.isPrescription && msg.data) {
         const parts = [];
         if (msg.data.advice) parts.push(msg.data.advice);
@@ -77,6 +80,27 @@ export default function AiMentor() {
     const [isLoading, setIsLoading] = useState(false);
     const [usedCount, setUsedCount] = useState(getUsedToday());
     const [consentGranted, setConsentGranted] = useState(hasAiConsent());
+    const [showBirthdayPicker, setShowBirthdayPicker] = useState(false);
+    const [birthdayDay, setBirthdayDay] = useState(1);
+    const [birthdayMonth, setBirthdayMonth] = useState(1);
+
+    const daysInMonth = (m) => [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][m - 1];
+    const monthName = (m) => new Date(2000, m - 1, 1).toLocaleDateString(i18n.language, { month: 'long' });
+
+    const openBirthdayVerse = (day, month) => {
+        const ref = birthdayToVerseRef(day, month);
+        if (!ref) return;
+        light();
+        const dateLabel = new Date(2000, month - 1, day)
+            .toLocaleDateString(i18n.language, { day: 'numeric', month: 'long' });
+        const userMsg = { id: Date.now(), role: 'user', text: `🎂 ${dateLabel}` };
+        const cardMsg = {
+            id: Date.now() + 1, role: 'assistant', isBirthday: true,
+            birthday: { day: ref.day, month: ref.month }, isPrescription: false
+        };
+        setMessages(prev => [...prev, userMsg, cardMsg]);
+        setShowBirthdayPicker(false);
+    };
 
     const premium = isPremium();
     const dailyLimit = premium ? DAILY_LIMIT_PREMIUM : DAILY_LIMIT_FREE;
@@ -147,27 +171,38 @@ export default function AiMentor() {
                 || (adviceData?.advice ? 'prescription' : 'text');
             const isPrescription = type === 'prescription' && !!adviceData?.advice;
 
+            // Birthday verse: verse computed client-side (deterministic); AI only extracts day/month.
+            const birthdayRef = type === 'birthday_verse'
+                ? birthdayToVerseRef(parseInt(adviceData?.day, 10), parseInt(adviceData?.month, 10))
+                : null;
+            const isBirthday = !!birthdayRef;
+
             const responseTime = Math.round(performance.now() - requestStart);
             analytics.aiResponseReceived(type, premium, responseTime);
 
-            // Widget how-to answers are quota-exempt (user decision); everything else counts.
-            const quotaExempt = type === 'guide' && adviceData?.topic === 'widgets';
+            // Widget how-to and birthday-verse answers are quota-exempt; everything else counts.
+            const quotaExempt = (type === 'guide' && adviceData?.topic === 'widgets') || isBirthday;
             if (!quotaExempt) {
                 incrementUsed();
                 setUsedCount(prev => prev + 1);
             }
 
             // Deep-link button only for whitelisted routes (defense in depth vs. model output)
-            const action = (!isPrescription
+            const action = (!isPrescription && !isBirthday
                 && adviceData?.action?.route
                 && ROUTE_WHITELIST.has(adviceData.action.route)
                 && adviceData.action.label)
                 ? { route: adviceData.action.route, label: adviceData.action.label }
                 : null;
 
-            const aiMsg = isPrescription
-                ? { id: Date.now() + 1, role: 'assistant', text: null, data: adviceData, isPrescription: true }
-                : { id: Date.now() + 1, role: 'assistant', text: adviceData?.text || adviceData?.advice || t('connectionError'), action, isPrescription: false };
+            let aiMsg;
+            if (isPrescription) {
+                aiMsg = { id: Date.now() + 1, role: 'assistant', text: null, data: adviceData, isPrescription: true };
+            } else if (isBirthday) {
+                aiMsg = { id: Date.now() + 1, role: 'assistant', isBirthday: true, birthday: { day: birthdayRef.day, month: birthdayRef.month }, isPrescription: false };
+            } else {
+                aiMsg = { id: Date.now() + 1, role: 'assistant', text: adviceData?.text || adviceData?.advice || t('connectionError'), action, isPrescription: false };
+            }
             setMessages(prev => {
                 const next = [...prev, aiMsg];
                 const aiCount = next.filter(m => m.role === 'assistant' && m.id !== 'welcome').length;
@@ -196,16 +231,16 @@ export default function AiMentor() {
         <div className="fixed inset-0 flex flex-col bg-stone-50 dark:bg-[#021a0f] text-stone-800 dark:text-white overflow-hidden">
 
             {/* Header */}
-            <div className="pt-safe px-4 py-3 relative flex items-center justify-center bg-white/90 dark:bg-[#032e18]/90 backdrop-blur-xl z-20 border-b border-stone-200 dark:border-white/5 shrink-0 shadow-sm min-h-[60px]">
+            <div className="pt-safe px-4 py-3 relative flex items-center justify-center bg-white/90 dark:bg-[#032e18]/90 backdrop-blur-xl z-20 border-b border-[#E2D9C4] dark:border-white/5 shrink-0 shadow-sm min-h-[60px]">
                 {/* Back Button - absolute left */}
-                <Button variant="ghost" size="icon" onClick={() => navigate(-1)} className="absolute left-2 text-stone-500 dark:text-white/70 hover:text-stone-800 dark:hover:text-white rounded-full hover:bg-stone-100 dark:hover:bg-white/5">
+                <Button variant="ghost" size="icon" onClick={() => navigate(-1)} className="absolute left-2 text-stone-500 dark:text-white/70 hover:text-stone-800 dark:hover:text-white rounded-full hover:bg-[#F0E8D5] dark:hover:bg-white/5">
                     <ChevronLeft />
                 </Button>
 
                 {/* Centered Title */}
                 <div className="flex flex-col items-center">
                     <div className="flex items-center gap-2">
-                        <span className="w-2 h-2 rounded-full bg-islamic-green dark:bg-islamic-gold animate-pulse shadow-[0_0_10px_rgba(4,77,41,0.3)] dark:shadow-[0_0_10px_rgba(212,175,55,0.5)]" />
+                        <span className="w-2 h-2 rounded-full bg-islamic-green dark:bg-islamic-gold animate-pulse shadow-[0_0_10px_rgba(180,83,9,0.3)] dark:shadow-[0_0_10px_rgba(212,175,55,0.5)]" />
                         <h1 className="font-serif font-bold text-lg text-islamic-green dark:text-islamic-gold tracking-wide">{t('aiMentor.title')}</h1>
                     </div>
                     <p className="text-[10px] text-stone-400 dark:text-white/50 font-medium tracking-wider uppercase">{t('aiMentor.subtitle')}</p>
@@ -302,20 +337,22 @@ export default function AiMentor() {
                         className={`flex gap-3 ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}
                     >
                         {/* Avatar */}
-                        <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 shadow-lg ${msg.role === 'user' ? 'bg-gradient-to-br from-islamic-green to-emerald-700' : 'bg-gradient-to-br from-islamic-gold to-amber-600'
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 shadow-lg ${msg.role === 'user' ? 'bg-gradient-to-br from-islamic-green to-amber-700 dark:to-emerald-700' : 'bg-gradient-to-br from-islamic-gold to-amber-600'
                             }`}>
                             {msg.role === 'user' ? <User size={14} className="text-white" /> : <Bot size={14} className="text-white dark:text-[#032e18]" />}
                         </div>
 
-                        {/* Bubble — prescription cards render bare (no bubble box behind them) */}
-                        <div className={msg.isPrescription
+                        {/* Bubble — prescription & birthday cards render bare (no bubble box) */}
+                        <div className={(msg.isPrescription || msg.isBirthday)
                             ? 'w-full max-w-[85%]'
                             : `max-w-[85%] rounded-2xl p-4 shadow-md ${msg.role === 'user'
                                 ? 'bg-islamic-green/10 dark:bg-gradient-to-br dark:from-emerald-600/30 dark:to-emerald-900/30 border border-islamic-green/20 dark:border-emerald-500/20 text-stone-800 dark:text-white rounded-tr-sm backdrop-blur-sm'
-                                : 'bg-white dark:bg-white/5 border border-stone-200 dark:border-white/10 text-stone-700 dark:text-gray-100 rounded-tl-sm w-full backdrop-blur-md shadow-sm'
+                                : 'bg-[#FFFDF6] dark:bg-white/5 border border-[#E2D9C4] dark:border-white/10 text-stone-700 dark:text-gray-100 rounded-tl-sm w-full backdrop-blur-md shadow-sm'
                             }`}>
                             {msg.isPrescription ? (
                                 <AiPrescriptionCard data={msg.data} />
+                            ) : msg.isBirthday ? (
+                                <BirthdayVerseCard day={msg.birthday.day} month={msg.birthday.month} />
                             ) : (
                                 <>
                                     <p className="leading-relaxed text-[15px] whitespace-pre-wrap font-light tracking-wide">{msg.text}</p>
@@ -349,12 +386,62 @@ export default function AiMentor() {
                             <button
                                 key={num}
                                 onClick={() => sendMessage(t(`aiMentor.suggestion${num}`))}
-                                className="w-full max-w-md px-5 py-3.5 rounded-[18px] bg-white/70 dark:bg-white/[0.03] backdrop-blur-md border border-stone-200/50 dark:border-white/5 hover:border-islamic-gold/40 dark:hover:border-islamic-gold/40 hover:bg-stone-50 dark:hover:bg-white/[0.06] active:scale-[0.98] transition-all flex items-center justify-center text-center shadow-sm hover:shadow-md text-stone-700 dark:text-stone-200 hover:text-islamic-gold dark:hover:text-islamic-gold font-medium text-[13.5px] leading-relaxed relative overflow-hidden group"
+                                className="w-full max-w-md px-5 py-3.5 rounded-[18px] bg-white/70 dark:bg-white/[0.03] backdrop-blur-md border border-[#E2D9C4]/50 dark:border-white/5 hover:border-islamic-gold/40 dark:hover:border-islamic-gold/40 hover:bg-stone-50 dark:hover:bg-white/[0.06] active:scale-[0.98] transition-all flex items-center justify-center text-center shadow-sm hover:shadow-md text-stone-700 dark:text-stone-200 hover:text-islamic-gold dark:hover:text-islamic-gold font-medium text-[13.5px] leading-relaxed relative overflow-hidden group"
                             >
                                 <span className="relative z-10">{t(`aiMentor.suggestion${num}`)}</span>
                                 <div className="absolute inset-0 bg-gradient-to-r from-islamic-gold/0 via-islamic-gold/[0.03] to-islamic-gold/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
                             </button>
                         ))}
+
+                        {/* Birthday verse — special discovery chip + inline date picker */}
+                        {!showBirthdayPicker ? (
+                            <button
+                                onClick={() => { light(); setShowBirthdayPicker(true); }}
+                                className="w-full max-w-md mt-1 px-5 py-3.5 rounded-[18px] bg-islamic-gold/10 border border-islamic-gold/30 hover:bg-islamic-gold/15 active:scale-[0.98] transition-all flex items-center justify-center gap-2 text-islamic-gold font-semibold text-[13.5px]"
+                            >
+                                {t('aiMentor.birthdayChip')}
+                            </button>
+                        ) : (
+                            <div className="w-full max-w-md mt-1 p-4 rounded-[18px] bg-white/70 dark:bg-white/[0.04] border border-islamic-gold/30 flex flex-col gap-3">
+                                <p className="text-[11px] font-bold uppercase tracking-widest text-islamic-gold/70 text-center">{t('aiMentor.birthdayPickerTitle')}</p>
+                                <div className="flex gap-2">
+                                    <label className="flex-1 flex flex-col gap-1">
+                                        <span className="text-[10px] text-stone-400 dark:text-white/40 font-medium">{t('aiMentor.birthdayDay')}</span>
+                                        <select
+                                            value={birthdayDay}
+                                            onChange={(e) => setBirthdayDay(parseInt(e.target.value, 10))}
+                                            className="rounded-xl bg-[#F0E8D5] dark:bg-black/30 border border-[#E2D9C4] dark:border-white/10 px-3 py-2 text-sm text-stone-800 dark:text-white outline-none"
+                                        >
+                                            {Array.from({ length: daysInMonth(birthdayMonth) }, (_, i) => i + 1).map(d => (
+                                                <option key={d} value={d}>{d}</option>
+                                            ))}
+                                        </select>
+                                    </label>
+                                    <label className="flex-1 flex flex-col gap-1">
+                                        <span className="text-[10px] text-stone-400 dark:text-white/40 font-medium">{t('aiMentor.birthdayMonth')}</span>
+                                        <select
+                                            value={birthdayMonth}
+                                            onChange={(e) => {
+                                                const m = parseInt(e.target.value, 10);
+                                                setBirthdayMonth(m);
+                                                if (birthdayDay > daysInMonth(m)) setBirthdayDay(daysInMonth(m));
+                                            }}
+                                            className="rounded-xl bg-[#F0E8D5] dark:bg-black/30 border border-[#E2D9C4] dark:border-white/10 px-3 py-2 text-sm text-stone-800 dark:text-white outline-none"
+                                        >
+                                            {Array.from({ length: 12 }, (_, i) => i + 1).map(m => (
+                                                <option key={m} value={m}>{monthName(m)}</option>
+                                            ))}
+                                        </select>
+                                    </label>
+                                </div>
+                                <Button
+                                    onClick={() => openBirthdayVerse(birthdayDay, birthdayMonth)}
+                                    className="w-full bg-islamic-gold hover:bg-amber-400 text-[#032e18] font-bold rounded-xl h-10 gap-2"
+                                >
+                                    🎂 {t('aiMentor.birthdayShow')}
+                                </Button>
+                            </div>
+                        )}
                     </motion.div>
                 )}
 
@@ -364,7 +451,7 @@ export default function AiMentor() {
                         <div className="w-8 h-8 rounded-full bg-islamic-gold flex items-center justify-center shrink-0">
                             <Bot size={14} className="text-[#032e18]" />
                         </div>
-                        <div className="bg-white dark:bg-white/5 border border-stone-200 dark:border-white/10 rounded-2xl p-4 rounded-tl-sm flex items-center gap-3">
+                        <div className="bg-[#FFFDF6] dark:bg-white/5 border border-[#E2D9C4] dark:border-white/10 rounded-2xl p-4 rounded-tl-sm flex items-center gap-3">
                             <div className="flex gap-1.5">
                                 {[0, 1, 2].map(i => (
                                     <motion.div
@@ -384,10 +471,10 @@ export default function AiMentor() {
             </div>
 
             {/* Input Area - Fixed Bottom */}
-            <div className="p-4 bg-white/95 dark:bg-[#021a0f]/95 backdrop-blur-xl border-t border-stone-200 dark:border-white/5 pb-safe shrink-0 z-50 shadow-[0_-10px_30px_-10px_rgba(0,0,0,0.05)] dark:shadow-[0_-10px_30px_-10px_rgba(0,0,0,0.5)]">
+            <div className="p-4 bg-white/95 dark:bg-[#021a0f]/95 backdrop-blur-xl border-t border-[#E2D9C4] dark:border-white/5 pb-safe shrink-0 z-50 shadow-[0_-10px_30px_-10px_rgba(0,0,0,0.05)] dark:shadow-[0_-10px_30px_-10px_rgba(0,0,0,0.5)]">
                 <div className={`relative max-w-2xl mx-auto flex items-end gap-2 border rounded-[24px] p-2 pl-4 transition-all ${remaining <= 0 && !premium
                     ? 'bg-red-500/5 border-red-500/15 opacity-60'
-                    : 'bg-stone-100 dark:bg-black/20 border-stone-200 dark:border-white/10 focus-within:border-islamic-green/50 dark:focus-within:border-islamic-gold/50 focus-within:bg-stone-50 dark:focus-within:bg-black/40 focus-within:shadow-[0_0_15px_rgba(4,77,41,0.05)] dark:focus-within:shadow-[0_0_15px_rgba(212,175,55,0.1)]'
+                    : 'bg-[#F0E8D5] dark:bg-black/20 border-[#E2D9C4] dark:border-white/10 focus-within:border-islamic-green/50 dark:focus-within:border-islamic-gold/50 focus-within:bg-stone-50 dark:focus-within:bg-black/40 focus-within:shadow-[0_0_15px_rgba(180,83,9,0.05)] dark:focus-within:shadow-[0_0_15px_rgba(212,175,55,0.1)]'
                     }`}>
                     <textarea
                         value={input}

@@ -314,8 +314,8 @@ export default function Profile() {
                 <div className={cn(
                     "relative overflow-hidden rounded-[2rem] border transition-colors duration-500 shadow-md shadow-stone-200/60 dark:shadow-none",
                     isPremium
-                        ? "bg-white dark:bg-white/5 border-islamic-gold/40"
-                        : "bg-white dark:bg-white/5 border-stone-200/80 dark:border-white/5"
+                        ? "bg-[#FFFDF6] dark:bg-white/5 border-islamic-gold/40"
+                        : "bg-[#FFFDF6] dark:bg-white/5 border-[#E2D9C4]/80 dark:border-white/5"
                 )}>
                     <div className={cn(
                         "hidden dark:block absolute -top-14 -left-14 w-48 h-48 rounded-full blur-3xl pointer-events-none",
@@ -335,8 +335,8 @@ export default function Profile() {
                                     ? "bg-[conic-gradient(from_210deg,#8a6c1c,#F2D678,#C9A227,#F7E7A0,#8a6c1c)] shadow-[0_0_20px_rgba(212,175,55,0.3)]"
                                     : "bg-gradient-to-b from-stone-200 to-stone-100 dark:from-white/40 dark:via-emerald-200/25 dark:to-white/10"
                             )}>
-                                <div className="w-full h-full rounded-[1.15rem] flex items-center justify-center overflow-hidden bg-[#032e18]">
-                                    <AvatarIcon id={selectedAvatar} size={30} className={isPremium ? "text-islamic-gold" : "text-emerald-100/90"} />
+                                <div className="w-full h-full rounded-[1.15rem] flex items-center justify-center overflow-hidden bg-[#78350f] dark:bg-[#032e18]">
+                                    <AvatarIcon id={selectedAvatar} size={30} className={isPremium ? "text-islamic-gold" : "text-amber-100/90 dark:text-emerald-100/90"} />
                                 </div>
                             </div>
                             <div className={cn(
@@ -383,7 +383,7 @@ export default function Profile() {
                                 "flex-shrink-0 w-9 h-9 rounded-full flex items-center justify-center transition-colors active:scale-95",
                                 isPremium
                                     ? "bg-islamic-gold/15 text-islamic-gold ring-1 ring-inset ring-islamic-gold/30"
-                                    : "bg-stone-100 text-stone-500 ring-1 ring-inset ring-stone-200/80 dark:bg-white/10 dark:text-emerald-100 dark:ring-white/15"
+                                    : "bg-[#F0E8D5] text-stone-500 ring-1 ring-inset ring-stone-200/80 dark:bg-white/10 dark:text-emerald-100 dark:ring-white/15"
                             )}
                         >
                             <Pen size={14} />
@@ -423,7 +423,7 @@ export default function Profile() {
                         className="relative overflow-hidden rounded-[2rem] cursor-pointer border border-[#b08d1e]/50 ring-1 ring-inset ring-white/40 shadow-[0_16px_40px_-12px_rgba(212,175,55,0.55)]"
                         style={{ background: 'linear-gradient(150deg, #FFE066 0%, #F5C842 45%, #D4AF37 100%)' }}
                     >
-                        <GirihPattern className="text-[#064e3b] opacity-[0.05]" />
+                        <GirihPattern className="text-[#78350f] dark:text-[#064e3b] opacity-[0.05]" />
                         <div className="absolute -top-12 -right-8 w-40 h-40 bg-white/35 rounded-full blur-3xl pointer-events-none" />
 
                         {/* İnce parıltı süpürmesi — yavaş, düşük opaklık */}
@@ -439,32 +439,32 @@ export default function Profile() {
 
                         <div className="relative z-10 flex items-center gap-4 p-5 pb-4">
                             {/* Zümrüt hilal mühür */}
-                            <div className="relative flex-shrink-0 w-14 h-14 rounded-full flex items-center justify-center bg-gradient-to-b from-[#0a5433] to-[#032e18] ring-1 ring-inset ring-white/20 shadow-[0_6px_16px_rgba(3,46,24,0.35)]">
+                            <div className="relative flex-shrink-0 w-14 h-14 rounded-full flex items-center justify-center bg-gradient-to-b from-[#92400e] to-[#451a03] dark:from-[#0a5433] dark:to-[#032e18] ring-1 ring-inset ring-white/20 shadow-[0_6px_16px_rgba(120,53,15,0.35)] dark:shadow-[0_6px_16px_rgba(3,46,24,0.35)]">
                                 <MoonStar className="w-7 h-7 text-islamic-gold" strokeWidth={1.75} />
                                 <motion.div
-                                    className="absolute inset-0 rounded-full ring-1 ring-[#064e3b]/40"
+                                    className="absolute inset-0 rounded-full ring-1 ring-[#78350f]/40 dark:ring-[#064e3b]/40"
                                     animate={{ scale: [1, 1.2], opacity: [0.5, 0] }}
                                     transition={{ repeat: Infinity, duration: 2.8, ease: 'easeOut' }}
                                 />
                             </div>
 
                             <div className="flex-1 min-w-0">
-                                <p className="text-[9px] font-bold uppercase tracking-[0.3em] text-[#064e3b]/70 mb-0.5">{t('app_name')}</p>
-                                <h3 className="text-lg font-serif font-bold text-[#053a22] leading-tight">{t('premium.banner_title')}</h3>
-                                <p className="text-xs text-[#064e3b]/80 font-medium leading-snug mt-1">{t('premium.banner_desc')}</p>
+                                <p className="text-[9px] font-bold uppercase tracking-[0.3em] text-[#78350f]/70 dark:text-[#064e3b]/70 mb-0.5">{t('app_name')}</p>
+                                <h3 className="text-lg font-serif font-bold text-[#6b3608] dark:text-[#053a22] leading-tight">{t('premium.banner_title')}</h3>
+                                <p className="text-xs text-[#78350f]/80 dark:text-[#064e3b]/80 font-medium leading-snug mt-1">{t('premium.banner_desc')}</p>
                             </div>
 
-                            <div className="flex-shrink-0 w-9 h-9 rounded-full bg-gradient-to-b from-[#0a5433] to-[#032e18] text-islamic-gold flex items-center justify-center shadow-[0_4px_14px_rgba(3,46,24,0.4)]">
+                            <div className="flex-shrink-0 w-9 h-9 rounded-full bg-gradient-to-b from-[#92400e] to-[#451a03] dark:from-[#0a5433] dark:to-[#032e18] text-islamic-gold flex items-center justify-center shadow-[0_4px_14px_rgba(120,53,15,0.4)] dark:shadow-[0_4px_14px_rgba(3,46,24,0.4)]">
                                 <ChevronRight size={18} strokeWidth={2.5} />
                             </div>
                         </div>
 
-                        <div className="relative z-10 mx-5 h-px bg-gradient-to-r from-transparent via-[#064e3b]/25 to-transparent" />
+                        <div className="relative z-10 mx-5 h-px bg-gradient-to-r from-transparent via-[#78350f]/25 dark:via-[#064e3b]/25 to-transparent" />
 
                         <div className="relative z-10 px-5 py-3.5 flex items-center justify-center gap-x-4 gap-y-1 flex-wrap">
                             {['feat_quran', 'feat_no_ads', 'feat_widgets'].map(key => (
-                                <span key={key} className="flex items-center gap-1.5 text-[11px] font-bold text-[#064e3b]/85">
-                                    <span className="w-1 h-1 rotate-45 bg-[#064e3b]/70" aria-hidden="true" />
+                                <span key={key} className="flex items-center gap-1.5 text-[11px] font-bold text-[#78350f]/85 dark:text-[#064e3b]/85">
+                                    <span className="w-1 h-1 rotate-45 bg-[#78350f]/70 dark:bg-[#064e3b]/70" aria-hidden="true" />
                                     {t(`premium.${key}`)}
                                 </span>
                             ))}
@@ -476,7 +476,7 @@ export default function Profile() {
             {/* Settings Navigation (Drill-Down Pattern) */}
             <motion.div variants={itemVariants} className="px-4 space-y-4">
                 <h3 className="text-[10px] font-bold text-stone-500 dark:text-gray-400 uppercase tracking-widest px-2">{t('personal_settings')}</h3>
-                <div className="bg-white dark:bg-white/5 rounded-[2rem] shadow-md shadow-stone-200/60 dark:shadow-none border border-stone-200/80 dark:border-white/5 overflow-hidden divide-y divide-stone-100 dark:divide-white/5">
+                <div className="bg-[#FFFDF6] dark:bg-white/5 rounded-[2rem] shadow-md shadow-stone-200/60 dark:shadow-none border border-[#E2D9C4]/80 dark:border-white/5 overflow-hidden divide-y divide-stone-100 dark:divide-white/5">
 
                     {/* Location - Navigate to sub-page */}
                     <div
@@ -484,7 +484,7 @@ export default function Profile() {
                         onClick={() => { selection(); navigate('/settings/location'); }}
                     >
                         <div className="flex items-center gap-4">
-                            <div className="p-3 bg-emerald-100/80 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 rounded-2xl group-hover:scale-110 transition-transform">
+                            <div className="p-3 bg-amber-100/80 dark:bg-emerald-900/20 text-amber-700 dark:text-emerald-400 rounded-2xl group-hover:scale-110 transition-transform">
                                 <Box size={20} />
                             </div>
                             <div className="text-left">
@@ -501,7 +501,7 @@ export default function Profile() {
                         onClick={() => { selection(); navigate('/settings/notifications'); }}
                     >
                         <div className="flex items-center gap-4">
-                            <div className="p-3 bg-emerald-100 text-emerald-700 dark:bg-islamic-green/20 dark:text-islamic-gold rounded-2xl group-hover:scale-110 transition-transform">
+                            <div className="p-3 bg-amber-100 text-amber-700 dark:bg-islamic-green/20 dark:text-islamic-gold rounded-2xl group-hover:scale-110 transition-transform">
                                 <Bell size={20} />
                             </div>
                             <div className="text-left">
@@ -526,7 +526,7 @@ export default function Profile() {
                                     "p-3 rounded-2xl group-hover:scale-110 transition-all",
                                     prayerSettings.preReminderEnabled
                                         ? "bg-islamic-green/10 text-islamic-green dark:bg-islamic-gold/20 dark:text-islamic-gold"
-                                        : "bg-stone-100 text-stone-400 dark:bg-white/5 dark:text-gray-500"
+                                        : "bg-[#F0E8D5] text-stone-400 dark:bg-white/5 dark:text-gray-500"
                                 )}>
                                     <Clock size={20} />
                                 </div>
@@ -545,7 +545,7 @@ export default function Profile() {
                                 prayerSettings.preReminderEnabled ? "bg-islamic-green dark:bg-islamic-gold" : "bg-stone-300 dark:bg-white/10"
                             )}>
                                 <div className={cn(
-                                    "w-4 h-4 bg-white rounded-full shadow-sm transition-transform",
+                                    "w-4 h-4 bg-[#FFFDF6] rounded-full shadow-sm transition-transform",
                                     prayerSettings.preReminderEnabled ? "translate-x-6" : "translate-x-0"
                                 )} />
                             </div>
@@ -563,7 +563,7 @@ export default function Profile() {
                                                 "flex-1 py-2 rounded-xl text-xs font-bold transition-all active:scale-95",
                                                 (prayerSettings.preReminderMinutes || 30) === min
                                                     ? "bg-islamic-green dark:bg-islamic-gold text-white dark:text-[#021a0f] shadow-md"
-                                                    : "bg-stone-100 dark:bg-white/[0.06] text-stone-500 dark:text-gray-400"
+                                                    : "bg-[#F0E8D5] dark:bg-white/[0.06] text-stone-500 dark:text-gray-400"
                                             )}
                                         >
                                             {min} {tSettings('preReminderMin')}
@@ -589,10 +589,10 @@ export default function Profile() {
                                             }}
                                             placeholder={tSettings('preReminderCustomPlaceholder')}
                                             className={cn(
-                                                "flex-1 px-3 py-2 rounded-xl text-xs font-semibold bg-stone-100 dark:bg-white/[0.06] text-stone-900 dark:text-white outline-none transition-colors placeholder:text-stone-400",
+                                                "flex-1 px-3 py-2 rounded-xl text-xs font-semibold bg-[#F0E8D5] dark:bg-white/[0.06] text-stone-900 dark:text-white outline-none transition-colors placeholder:text-stone-400",
                                                 customMinuteError
                                                     ? "border border-red-500 dark:border-red-400"
-                                                    : "border border-stone-200/60 dark:border-white/10 focus:border-islamic-green dark:focus:border-islamic-gold"
+                                                    : "border border-[#E2D9C4]/60 dark:border-white/10 focus:border-islamic-green dark:focus:border-islamic-gold"
                                             )}
                                         />
                                         <button
@@ -633,7 +633,7 @@ export default function Profile() {
                             isDarkMode ? "bg-islamic-green dark:bg-islamic-gold" : "bg-stone-300 dark:bg-white/10"
                         )}>
                             <div className={cn(
-                                "w-4 h-4 bg-white rounded-full shadow-sm transition-transform",
+                                "w-4 h-4 bg-[#FFFDF6] rounded-full shadow-sm transition-transform",
                                 isDarkMode ? "translate-x-6" : "translate-x-0"
                             )} />
                         </div>
@@ -649,7 +649,7 @@ export default function Profile() {
                         }}
                     >
                         <div className="flex items-center gap-4">
-                            <div className="p-3 bg-emerald-100 text-emerald-700 dark:bg-islamic-green/20 dark:text-islamic-gold rounded-2xl group-hover:scale-110 transition-transform">
+                            <div className="p-3 bg-amber-100 text-amber-700 dark:bg-islamic-green/20 dark:text-islamic-gold rounded-2xl group-hover:scale-110 transition-transform">
                                 <UserPlus size={20} />
                             </div>
                             <div className="text-left">
@@ -666,7 +666,7 @@ export default function Profile() {
             {/* General Settings (New Section) */}
             <motion.div variants={itemVariants} className="px-4 space-y-4">
                 <h3 className="text-[10px] font-bold text-stone-500 dark:text-gray-400 uppercase tracking-widest px-2">{t('general_settings')}</h3>
-                <div className="bg-white dark:bg-white/5 rounded-[2rem] shadow-md shadow-stone-200/60 dark:shadow-none border border-stone-200/80 dark:border-white/5 overflow-hidden divide-y divide-stone-100 dark:divide-white/5">
+                <div className="bg-[#FFFDF6] dark:bg-white/5 rounded-[2rem] shadow-md shadow-stone-200/60 dark:shadow-none border border-[#E2D9C4]/80 dark:border-white/5 overflow-hidden divide-y divide-stone-100 dark:divide-white/5">
 
                     {/* Language Selector */}
                     <div
@@ -691,7 +691,7 @@ export default function Profile() {
                         onClick={() => { selection(); setShowFontSizeModal(true); }}
                     >
                         <div className="flex items-center gap-4">
-                            <div className="p-3 bg-stone-100 dark:bg-white/5 text-stone-600 dark:text-gray-400 rounded-2xl group-hover:scale-110 transition-transform">
+                            <div className="p-3 bg-[#F0E8D5] dark:bg-white/5 text-stone-600 dark:text-gray-400 rounded-2xl group-hover:scale-110 transition-transform">
                                 <Type size={20} />
                             </div>
                             <div className="text-left">
@@ -723,7 +723,7 @@ export default function Profile() {
                             prayerSettings.hapticsEnabled ? "bg-islamic-green dark:bg-islamic-gold" : "bg-stone-300 dark:bg-white/10"
                         )}>
                             <div className={cn(
-                                "w-4 h-4 bg-white rounded-full shadow-sm transition-transform",
+                                "w-4 h-4 bg-[#FFFDF6] rounded-full shadow-sm transition-transform",
                                 prayerSettings.hapticsEnabled ? "translate-x-6" : "translate-x-0"
                             )} />
                         </div>
@@ -781,7 +781,7 @@ export default function Profile() {
                         onClick={() => { selection(); navigate('/settings/legal'); }}
                     >
                         <div className="flex items-center gap-4">
-                            <div className="p-3 bg-stone-200/80 dark:bg-white/5 text-stone-600 dark:text-gray-400 rounded-2xl group-hover:scale-110 transition-transform">
+                            <div className="p-3 bg-[#E9DFC8]/80 dark:bg-white/5 text-stone-600 dark:text-gray-400 rounded-2xl group-hover:scale-110 transition-transform">
                                 <HelpCircle size={20} />
                             </div>
                             <div className="text-left">
@@ -820,7 +820,7 @@ export default function Profile() {
                         <motion.div
                             initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }}
                             onClick={(e) => e.stopPropagation()}
-                            className="bg-white dark:bg-[#032e18] w-full max-w-sm rounded-[2.5rem] p-6 shadow-2xl border dark:border-white/10"
+                            className="bg-[#FFFDF6] dark:bg-[#032e18] w-full max-w-sm rounded-[2.5rem] p-6 shadow-2xl border dark:border-white/10"
                         >
                             <div className="flex justify-between items-center mb-6">
                                 <div className="flex items-center gap-2">
@@ -852,7 +852,7 @@ export default function Profile() {
                                                 "w-full p-4 rounded-2xl flex items-center justify-between transition-all active:scale-[0.98] border-2",
                                                 fontSize === size.id
                                                     ? "bg-islamic-green/10 border-islamic-green dark:bg-islamic-gold/10 dark:border-islamic-gold"
-                                                    : "bg-gray-50 dark:bg-white/5 border-transparent hover:bg-gray-100 dark:hover:bg-white/10"
+                                                    : "bg-[#F6F0E1] dark:bg-white/5 border-transparent hover:bg-[#F0E8D5] dark:hover:bg-white/10"
                                             )}
                                         >
                                             <div className="flex flex-col items-start gap-0.5">
@@ -898,7 +898,7 @@ export default function Profile() {
                         <motion.div
                             initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }}
                             onClick={(e) => e.stopPropagation()}
-                            className="bg-white dark:bg-[#032e18] w-full max-w-sm rounded-[2.5rem] p-6 shadow-2xl border dark:border-white/10"
+                            className="bg-[#FFFDF6] dark:bg-[#032e18] w-full max-w-sm rounded-[2.5rem] p-6 shadow-2xl border dark:border-white/10"
                         >
                             <div className="flex justify-between items-center mb-6">
                                 <h3 className="text-xl font-bold font-serif text-islamic-green dark:text-islamic-gold">{t('avatar_modal_title')}</h3>
@@ -914,7 +914,7 @@ export default function Profile() {
                                             "aspect-square rounded-2xl flex flex-col items-center justify-center gap-2 transition-all active:scale-95 border-2",
                                             selectedAvatar === avatar.id
                                                 ? "bg-islamic-green/10 border-islamic-green dark:bg-islamic-gold/10 dark:border-islamic-gold"
-                                                : "bg-gray-50 dark:bg-white/5 border-transparent hover:bg-gray-100 dark:hover:bg-white/10"
+                                                : "bg-[#F6F0E1] dark:bg-white/5 border-transparent hover:bg-[#F0E8D5] dark:hover:bg-white/10"
                                         )}
                                     >
                                         <div className={cn("p-2 rounded-full", isPremium ? "text-islamic-gold" : "text-gray-600 dark:text-gray-300")}>
@@ -943,7 +943,7 @@ export default function Profile() {
                             animate={{ scale: 1, opacity: 1, y: 0 }}
                             exit={{ scale: 0.9, opacity: 0, y: 20 }}
                             onClick={(e) => e.stopPropagation()}
-                            className="bg-white dark:bg-[#032e18] w-full max-w-sm rounded-[2.5rem] p-6 shadow-2xl border dark:border-white/10"
+                            className="bg-[#FFFDF6] dark:bg-[#032e18] w-full max-w-sm rounded-[2.5rem] p-6 shadow-2xl border dark:border-white/10"
                         >
                             <div className="flex justify-between items-center mb-6">
                                 <h3 className="text-xl font-bold font-serif text-islamic-green dark:text-islamic-gold flex items-center gap-2">
@@ -967,7 +967,7 @@ export default function Profile() {
                                         }}
                                         placeholder="Kullanıcı"
                                         maxLength={25}
-                                        className="w-full p-4 pl-12 bg-gray-50 dark:bg-white/5 border-2 border-gray-200 dark:border-white/10 rounded-xl text-lg font-bold text-gray-900 dark:text-white focus:outline-none focus:border-islamic-green dark:focus:border-islamic-gold transition-colors"
+                                        className="w-full p-4 pl-12 bg-[#F6F0E1] dark:bg-white/5 border-2 border-[#E2D9C4] dark:border-white/10 rounded-xl text-lg font-bold text-gray-900 dark:text-white focus:outline-none focus:border-islamic-green dark:focus:border-islamic-gold transition-colors"
                                         autoFocus
                                         onKeyDown={(e) => e.key === 'Enter' && tempName.trim() && (() => {
                                             success();
@@ -984,7 +984,7 @@ export default function Profile() {
                                 <div className="flex gap-3">
                                     <Button
                                         onClick={() => setShowNameModal(false)}
-                                        className="flex-1 h-12 bg-gray-100 text-stone-700 hover:bg-gray-200 dark:bg-white/10 dark:text-white dark:hover:bg-white/20 rounded-xl font-medium transition-colors"
+                                        className="flex-1 h-12 bg-[#F0E8D5] text-stone-700 hover:bg-gray-200 dark:bg-white/10 dark:text-white dark:hover:bg-white/20 rounded-xl font-medium transition-colors"
                                     >
                                         İptal
                                     </Button>
@@ -1042,13 +1042,13 @@ export default function Profile() {
                             exit={{ y: 300 }}
                             transition={{ type: 'spring', damping: 25 }}
                             onClick={(e) => e.stopPropagation()}
-                            className="w-full max-w-md bg-white dark:bg-gray-900 rounded-t-3xl p-6 pb-safe"
+                            className="w-full max-w-md bg-[#FFFDF6] dark:bg-gray-900 rounded-t-3xl p-6 pb-safe"
                         >
                             <div className="flex items-center justify-between mb-6">
                                 <h3 className="text-lg font-bold text-gray-900 dark:text-white">{t('theme_select_title')}</h3>
                                 <button
                                     onClick={() => setShowShareModal(false)}
-                                    className="p-2 rounded-full bg-gray-100 dark:bg-gray-800"
+                                    className="p-2 rounded-full bg-[#F0E8D5] dark:bg-gray-800"
                                 >
                                     <X size={18} className="text-gray-500" />
                                 </button>

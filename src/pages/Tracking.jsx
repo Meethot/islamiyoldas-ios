@@ -408,8 +408,8 @@ export default function Tracking() {
                             className={cn(
                                 "relative px-3 py-3 overflow-hidden rounded-2xl font-bold text-xs uppercase tracking-wider transition-all",
                                 isActive
-                                    ? "bg-islamic-green dark:bg-islamic-gold text-white dark:text-[#032e18] shadow-lg"
-                                    : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/5"
+                                    ? "bg-amber-600 dark:bg-islamic-gold text-white dark:text-[#032e18] shadow-lg"
+                                    : "text-gray-600 dark:text-gray-300 hover:bg-[#F0E8D5] dark:hover:bg-white/5"
                             )}
                             whileTap={{ scale: 0.95 }}
                         >
@@ -466,7 +466,7 @@ export default function Tracking() {
                         className="space-y-6"
                     >
                         {/* Kaza Content (Same as before) */}
-                        <Card className="border-none shadow-2xl bg-gradient-to-br from-islamic-green to-[#033a1f] dark:from-[#064e3b] dark:to-[#022c22] text-white p-8 rounded-[2.5rem] overflow-hidden relative">
+                        <Card className="border-none shadow-2xl bg-gradient-to-br from-islamic-green to-[#92400e] dark:from-[#064e3b] dark:to-[#022c22] text-white p-8 rounded-[2.5rem] overflow-hidden relative">
                             <div className="absolute top-0 right-0 p-4 opacity-5">
                                 <Target size={180} />
                             </div>
@@ -474,16 +474,16 @@ export default function Tracking() {
                             <div className="relative z-10 flex flex-col items-center">
                                 <CircularProgress value={progress} />
                                 <div className="mt-6 text-center">
-                                    <h3 className="text-lg font-serif font-bold italic mb-2 text-center text-balance text-emerald-100/90">
+                                    <h3 className="text-lg font-serif font-bold italic mb-2 text-center text-balance text-amber-100/90 dark:text-emerald-100/90">
                                         {t('kazaVerse')}
-                                        <span className="block text-xs font-sans font-normal not-italic text-emerald-100/50 mt-1 opacity-70">{t('kazaVerseSource')}</span>
+                                        <span className="block text-xs font-sans font-normal not-italic text-amber-100/50 dark:text-emerald-100/50 mt-1 opacity-70">{t('kazaVerseSource')}</span>
                                     </h3>
-                                    <p className="text-emerald-100/60 text-sm">{t('target', { goal, paid: totalPaid })}</p>
+                                    <p className="text-amber-100/60 dark:text-emerald-100/60 text-sm">{t('target', { goal, paid: totalPaid })}</p>
                                 </div>
                                 <div className="w-full h-px bg-white/10 my-6" />
                                 <div className="flex justify-center w-full">
                                     <div className="bg-white/5 rounded-2xl p-4 flex items-center justify-center gap-2 min-w-[200px] shadow-lg shadow-black/10 border border-white/5">
-                                        <p className="text-sm text-emerald-100/60 uppercase font-bold tracking-wider">{t('remaining')}</p>
+                                        <p className="text-sm text-amber-100/60 dark:text-emerald-100/60 uppercase font-bold tracking-wider">{t('remaining')}</p>
                                         <p className="text-2xl font-black text-islamic-gold">{Math.max(0, goal - totalPaid)}</p>
                                     </div>
                                 </div>
@@ -525,7 +525,7 @@ export default function Tracking() {
                                             <div className="flex items-center gap-2">
                                                 <button
                                                     onClick={() => openEditModal(prayer)}
-                                                    className="p-1 hover:bg-gray-100 dark:hover:bg-white/10 rounded-full transition-colors text-gray-400 hover:text-islamic-gold"
+                                                    className="p-1 hover:bg-[#F0E8D5] dark:hover:bg-white/10 rounded-full transition-colors text-gray-400 hover:text-islamic-gold"
                                                 >
                                                     <Edit2 size={14} />
                                                 </button>
@@ -540,7 +540,7 @@ export default function Tracking() {
                                         <div className="flex gap-2">
                                             <button
                                                 onClick={() => updateCount(prayer.key, -1)}
-                                                className="flex-1 h-10 rounded-xl bg-gray-50 dark:bg-white/5 flex items-center justify-center text-gray-400 dark:text-gray-300 active:bg-red-50 dark:active:bg-red-500/20 active:text-red-500 transition-colors"
+                                                className="flex-1 h-10 rounded-xl bg-[#F6F0E1] dark:bg-white/5 flex items-center justify-center text-gray-400 dark:text-gray-300 active:bg-red-50 dark:active:bg-red-500/20 active:text-red-500 transition-colors"
                                             >
                                                 <Minus size={16} />
                                             </button>
@@ -588,7 +588,7 @@ export default function Tracking() {
                             animate={{ scale: 1, opacity: 1 }}
                             exit={{ scale: 0.9, opacity: 0 }}
                             onClick={(e) => e.stopPropagation()}
-                            className="bg-white dark:bg-[#032e18] w-[90%] max-w-sm rounded-[2rem] shadow-2xl border dark:border-white/10 overflow-hidden"
+                            className="bg-[#FFFDF6] dark:bg-[#032e18] w-[90%] max-w-sm rounded-[2rem] shadow-2xl border dark:border-white/10 overflow-hidden"
                         >
                             <div className="p-6">
                                 <div className="flex justify-between items-center mb-6">
@@ -598,7 +598,7 @@ export default function Tracking() {
                                     </h3>
                                     <button
                                         onClick={() => setEditingPrayer(null)}
-                                        className="p-2 hover:bg-gray-100 dark:hover:bg-white/5 rounded-full transition-colors"
+                                        className="p-2 hover:bg-[#F0E8D5] dark:hover:bg-white/5 rounded-full transition-colors"
                                     >
                                         <X className="w-5 h-5" />
                                     </button>
@@ -617,7 +617,7 @@ export default function Tracking() {
                                                 const val = e.target.value.replace(/[^0-9]/g, '');
                                                 setEditValue(val);
                                             }}
-                                            className="w-full p-4 bg-gray-50 dark:bg-white/5 border-2 border-gray-200 dark:border-white/10 rounded-xl text-2xl font-black text-center text-islamic-green dark:text-islamic-gold focus:outline-none focus:border-islamic-gold"
+                                            className="w-full p-4 bg-[#F6F0E1] dark:bg-white/5 border-2 border-[#E2D9C4] dark:border-white/10 rounded-xl text-2xl font-black text-center text-islamic-green dark:text-islamic-gold focus:outline-none focus:border-islamic-gold"
                                             autoFocus
                                         />
                                     </div>
@@ -651,7 +651,7 @@ export default function Tracking() {
                             animate={{ scale: 1, opacity: 1 }}
                             exit={{ scale: 0.9, opacity: 0 }}
                             onClick={(e) => e.stopPropagation()}
-                            className="bg-white dark:bg-[#032e18] w-[90%] max-w-md max-h-[85vh] overflow-y-auto rounded-[2rem] shadow-2xl border dark:border-white/10"
+                            className="bg-[#FFFDF6] dark:bg-[#032e18] w-[90%] max-w-md max-h-[85vh] overflow-y-auto rounded-[2rem] shadow-2xl border dark:border-white/10"
                         >
                             {/* Header */}
                             <div className="p-6 pb-4 flex justify-between items-center border-b dark:border-white/10 sticky top-0 bg-white/80 dark:bg-[#032e18]/80 backdrop-blur-sm z-10">
@@ -663,7 +663,7 @@ export default function Tracking() {
                                 </div>
                                 <button
                                     onClick={() => setShowGoalModal(false)}
-                                    className="p-2 hover:bg-gray-100 dark:hover:bg-white/5 rounded-full transition-colors"
+                                    className="p-2 hover:bg-[#F0E8D5] dark:hover:bg-white/5 rounded-full transition-colors"
                                 >
                                     <X className="w-5 h-5" />
                                 </button>
@@ -677,7 +677,7 @@ export default function Tracking() {
                                         "flex-1 py-3 px-4 rounded-xl font-bold text-sm transition-all active:scale-95",
                                         goalTab === 'manual'
                                             ? "bg-islamic-green dark:bg-islamic-gold text-white dark:text-[#032e18] shadow-md"
-                                            : "bg-gray-100 dark:bg-white/5 text-gray-500 dark:text-gray-400"
+                                            : "bg-[#F0E8D5] dark:bg-white/5 text-gray-500 dark:text-gray-400"
                                     )}
                                 >
                                     {t('manualEntry')}
@@ -688,7 +688,7 @@ export default function Tracking() {
                                         "flex-1 py-3 px-4 rounded-xl font-bold text-sm transition-all active:scale-95",
                                         goalTab === 'auto'
                                             ? "bg-islamic-green dark:bg-islamic-gold text-white dark:text-[#032e18] shadow-md"
-                                            : "bg-gray-100 dark:bg-white/5 text-gray-500 dark:text-gray-400"
+                                            : "bg-[#F0E8D5] dark:bg-white/5 text-gray-500 dark:text-gray-400"
                                     )}
                                 >
                                     {t('autoCalc')}
@@ -721,7 +721,7 @@ export default function Tracking() {
                                                         const val = e.target.value.replace(/[^0-9]/g, '');
                                                         setManualGoal(val);
                                                     }}
-                                                    className="w-full p-4 bg-gray-50 dark:bg-white/5 border-2 border-gray-200 dark:border-white/10 rounded-xl text-lg font-bold text-islamic-green dark:text-islamic-gold focus:outline-none focus:border-islamic-gold"
+                                                    className="w-full p-4 bg-[#F6F0E1] dark:bg-white/5 border-2 border-[#E2D9C4] dark:border-white/10 rounded-xl text-lg font-bold text-islamic-green dark:text-islamic-gold focus:outline-none focus:border-islamic-gold"
                                                     placeholder="100"
                                                 />
                                             </div>
@@ -756,7 +756,7 @@ export default function Tracking() {
                                                         }
                                                         setBirthDate(val);
                                                     }}
-                                                    className="w-full p-4 bg-gray-50 dark:bg-white/5 border-2 border-gray-200 dark:border-white/10 rounded-xl text-base dark:text-white focus:outline-none focus:border-islamic-gold min-h-[50px]"
+                                                    className="w-full p-4 bg-[#F6F0E1] dark:bg-white/5 border-2 border-[#E2D9C4] dark:border-white/10 rounded-xl text-base dark:text-white focus:outline-none focus:border-islamic-gold min-h-[50px]"
                                                 />
                                             </div>
 
@@ -827,7 +827,7 @@ export default function Tracking() {
                                             )}
 
                                             {!birthDate && (
-                                                <div className="p-4 bg-gray-50 dark:bg-white/5 rounded-2xl text-center border border-dashed border-gray-200 dark:border-white/10">
+                                                <div className="p-4 bg-[#F6F0E1] dark:bg-white/5 rounded-2xl text-center border border-dashed border-[#E2D9C4] dark:border-white/10">
                                                     <p className="text-xs text-gray-500 dark:text-gray-400 italic">
                                                         {t('selectBirthHint')}
                                                     </p>

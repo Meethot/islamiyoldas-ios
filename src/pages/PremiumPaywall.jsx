@@ -808,7 +808,7 @@ export default function PremiumPaywall({ variant = 'default', offeringId = 'curr
                     <motion.div
                         className={`fixed top-12 left-4 right-4 z-[210] px-4 py-3 rounded-2xl backdrop-blur-xl border shadow-xl flex items-start gap-3 ${toast.type === 'error'
                             ? 'bg-red-500/15 border-red-500/20 text-red-200'
-                            : toast.type === 'success' ? 'bg-green-500/15 border-green-500/20 text-green-200' : 'bg-white/10 border-white/15 text-white/80'
+                            : toast.type === 'success' ? 'bg-amber-500/15 dark:bg-green-500/15 border-amber-500/20 dark:border-green-500/20 text-amber-200 dark:text-green-200' : 'bg-white/10 border-white/15 text-white/80'
                             }`}
                         initial={{ opacity: 0, y: -20, scale: 0.95 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -827,8 +827,7 @@ export default function PremiumPaywall({ variant = 'default', offeringId = 'curr
             </AnimatePresence>
 
             <div
-                className="absolute inset-0 z-50 flex flex-col"
-                style={{ background: 'linear-gradient(170deg, #0d4a2e 0%, #072a1a 20%, #041c11 50%, #010d07 100%)' }}
+                className="absolute inset-0 z-50 flex flex-col bg-[linear-gradient(170deg,#8a4a0f_0%,#4a2708_20%,#2a1605_50%,#0e0803_100%)] dark:bg-[linear-gradient(170deg,#0d4a2e_0%,#072a1a_20%,#041c11_50%,#010d07_100%)]"
             >
                 {/* Islamic pattern overlay */}
                 <div
@@ -844,7 +843,7 @@ export default function PremiumPaywall({ variant = 'default', offeringId = 'curr
                     style={{ background: 'radial-gradient(circle, rgba(212,175,55,0.1), transparent 70%)', animation: 'pw-breathe 6s ease-in-out infinite' }}
                 />
                 <div className="fixed bottom-[-8%] left-[-8%] w-72 h-72 rounded-full blur-[120px] pointer-events-none z-0"
-                    style={{ background: 'radial-gradient(circle, rgba(16,185,129,0.08), transparent 70%)', animation: 'pw-breathe 8s ease-in-out infinite 2s' }}
+                    style={{ background: 'radial-gradient(circle, rgba(217,119,6,0.08), transparent 70%)', animation: 'pw-breathe 8s ease-in-out infinite 2s' }}
                 />
 
                 {/* Close button */}
@@ -951,8 +950,8 @@ export default function PremiumPaywall({ variant = 'default', offeringId = 'curr
                                 animate={{ opacity: 1, x: 0 }}
                                 transition={{ delay: 0.35 + i * 0.07 }}
                             >
-                                <span className="text-sm flex-shrink-0 mt-px">{f.emoji}</span>
-                                <div className="min-w-0">
+                                <span className="text-sm flex-shrink-0 mt-px select-none">{f.emoji}</span>
+                                <div className="min-w-0 select-none">
                                     <p className="text-[15px] font-bold text-white/85 leading-tight">{f.title}</p>
                                     <p className="text-[12px] text-white/40 leading-snug mt-0.5">{f.desc}</p>
                                 </div>
@@ -1193,10 +1192,7 @@ export default function PremiumPaywall({ variant = 'default', offeringId = 'curr
 
                         {/* Bottom Sheet Card */}
                         <motion.div
-                            className={`relative w-full rounded-t-3xl overflow-hidden transform-gpu will-change-transform ${!isAndroid ? 'shadow-[0_-10px_40px_rgba(0,0,0,0.5),_0_0_0_1px_rgba(212,175,55,0.08)]' : 'shadow-none'}`}
-                            style={{
-                                background: 'linear-gradient(175deg, #0f3d28 0%, #082b1c 35%, #041c11 75%, #010d07 100%)',
-                            }}
+                            className={`relative w-full rounded-t-3xl overflow-hidden transform-gpu will-change-transform bg-[linear-gradient(175deg,#7d420e_0%,#45250a_35%,#2a1605_75%,#0e0803_100%)] dark:bg-[linear-gradient(175deg,#0f3d28_0%,#082b1c_35%,#041c11_75%,#010d07_100%)] ${!isAndroid ? 'shadow-[0_-10px_40px_rgba(0,0,0,0.5),_0_0_0_1px_rgba(212,175,55,0.08)]' : 'shadow-none'}`}
                             initial={{ y: '100%' }}
                             animate={{ y: 0 }}
                             exit={{ y: '100%' }}
@@ -1357,10 +1353,7 @@ export default function PremiumPaywall({ variant = 'default', offeringId = 'curr
 
                         {/* Bottom Sheet Card */}
                         <motion.div
-                            className={`relative w-full max-w-md mx-auto rounded-t-3xl overflow-hidden border-t border-[#D4AF37]/30 transform-gpu will-change-transform ${!isAndroid ? 'shadow-[0_-20px_60px_rgba(0,0,0,0.8)]' : 'shadow-none'}`}
-                            style={{
-                                background: 'radial-gradient(circle at 50% 10%, #115e3b 0%, #073822 40%, #021a0f 85%, #010d07 100%)',
-                            }}
+                            className={`relative w-full max-w-md mx-auto rounded-t-3xl overflow-hidden border-t border-[#D4AF37]/30 transform-gpu will-change-transform bg-[radial-gradient(circle_at_50%_10%,#b45309_0%,#6b3608_40%,#331b04_85%,#0e0803_100%)] dark:bg-[radial-gradient(circle_at_50%_10%,#115e3b_0%,#073822_40%,#021a0f_85%,#010d07_100%)] ${!isAndroid ? 'shadow-[0_-20px_60px_rgba(0,0,0,0.8)]' : 'shadow-none'}`}
                             initial={{ y: '100%' }}
                             animate={{ y: 0 }}
                             exit={{ y: '100%' }}
@@ -1629,12 +1622,11 @@ export default function PremiumPaywall({ variant = 'default', offeringId = 'curr
             <AnimatePresence>
                 {showSuccess && (
                     <motion.div
-                        className="absolute inset-0 z-[999] flex flex-col items-center justify-center overflow-hidden"
+                        className="absolute inset-0 z-[999] flex flex-col items-center justify-center overflow-hidden bg-[linear-gradient(170deg,#8a4a0f_0%,#4a2708_15%,#2a1605_45%,#0e0803_100%)] dark:bg-[linear-gradient(170deg,#0d4a2e_0%,#072a1a_15%,#041c11_45%,#010d07_100%)]"
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         transition={{ duration: 0.8 }}
-                        style={{ background: 'linear-gradient(170deg, #0d4a2e 0%, #072a1a 15%, #041c11 45%, #010d07 100%)' }}
                     >
                         {/* Islamic pattern overlay */}
                         <div
@@ -1728,7 +1720,7 @@ export default function PremiumPaywall({ variant = 'default', offeringId = 'curr
                         {/* SVG Checkmark */}
                         <motion.div className="mb-3" initial={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }}
                             transition={{ type: 'spring', stiffness: 200, damping: 12, delay: 1.3 }}>
-                            <div className="w-10 h-10 rounded-full bg-emerald-500/15 border border-emerald-400/20 flex items-center justify-center">
+                            <div className="w-10 h-10 rounded-full bg-amber-500/15 dark:bg-emerald-500/15 border border-amber-400/20 dark:border-emerald-400/20 flex items-center justify-center">
                                 <motion.svg viewBox="0 0 24 24" className="w-5 h-5">
                                     <motion.path d="M5 12l5 5 9-9" fill="none" stroke="#34d399" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
                                         initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 0.6, delay: 1.5, ease: 'easeOut' }} />
@@ -1783,7 +1775,7 @@ export default function PremiumPaywall({ variant = 'default', offeringId = 'curr
                                         style={{ background: `${feat.color}20` }}
                                         initial={{ scale: 0 }} animate={{ scale: 1 }}
                                         transition={{ type: 'spring', stiffness: 350, damping: 14, delay: 2.6 + i * 0.18 }}>
-                                        <Check size={13} className="text-emerald-400" />
+                                        <Check size={13} className="text-amber-400 dark:text-emerald-400" />
                                     </motion.div>
                                 </motion.div>
                             ))}

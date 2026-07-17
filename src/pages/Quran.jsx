@@ -421,14 +421,14 @@ export default function Quran({ isTrackingTab = false }) {
     return (
         <div className={cn(!isTrackingTab && "min-h-screen bg-gradient-to-b from-background to-muted dark:from-[#032e18] dark:to-[#021a0f] pb-24")}>
             {/* Header — embedded (tracking tab): controls sit directly on page bg; standalone: sticky panel */}
-            <div className={cn(!isTrackingTab && "bg-white dark:bg-gradient-to-br dark:from-[#032e18] dark:via-[#032e18] dark:to-[#021a0f] p-5 sticky top-0 z-40 border-b border-stone-200 dark:border-white/10 shadow-sm dark:shadow-lg dark:shadow-black/20")}>
+            <div className={cn(!isTrackingTab && "bg-[#FFFDF6] dark:bg-gradient-to-br dark:from-[#032e18] dark:via-[#032e18] dark:to-[#021a0f] p-5 sticky top-0 z-40 border-b border-[#E2D9C4] dark:border-white/10 shadow-sm dark:shadow-lg dark:shadow-black/20")}>
                 {!(isTrackingTab && !selectedSurah) && (
                     <div className="flex items-center justify-between mb-4">
                         <div className="flex items-center gap-3">
                             {!isTrackingTab && (
                                 <button
                                     onClick={() => navigate(-1)}
-                                    className="p-2 -ml-2 rounded-xl hover:bg-stone-100 dark:hover:bg-white/10 active:bg-stone-200 dark:active:bg-white/20 transition-colors"
+                                    className="p-2 -ml-2 rounded-xl hover:bg-[#F0E8D5] dark:hover:bg-white/10 active:bg-[#E9DFC8] dark:active:bg-white/20 transition-colors"
                                 >
                                     <ChevronLeft className="w-6 h-6 text-stone-700 dark:text-white" />
                                 </button>
@@ -460,7 +460,7 @@ export default function Quran({ isTrackingTab = false }) {
                                     setShowSurahList(true);
                                 }}
                                 variant="ghost"
-                                className="text-stone-600 dark:text-white hover:bg-stone-100 dark:hover:bg-white/10"
+                                className="text-stone-600 dark:text-white hover:bg-[#F0E8D5] dark:hover:bg-white/10"
                             >
                                 <X className="w-5 h-5" />
                             </Button>
@@ -477,7 +477,7 @@ export default function Quran({ isTrackingTab = false }) {
                             placeholder={t('searchPlaceholder')}
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className="w-full pl-12 pr-11 py-3 bg-stone-100 dark:bg-[#0d2a18] border border-stone-200 dark:border-white/20 rounded-2xl text-stone-800 dark:text-white placeholder-stone-400 dark:placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-islamic-green dark:focus:ring-islamic-gold"
+                            className="w-full pl-12 pr-11 py-3 bg-[#F0E8D5] dark:bg-[#0d2a18] border border-[#E2D9C4] dark:border-white/20 rounded-2xl text-stone-800 dark:text-white placeholder-stone-400 dark:placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-islamic-green dark:focus:ring-islamic-gold"
                         />
                         {searchQuery && (
                             <button
@@ -498,8 +498,8 @@ export default function Quran({ isTrackingTab = false }) {
                             className={cn(
                                 "flex-1 py-2.5 rounded-xl text-sm font-medium transition-all",
                                 activeTab === 'surahs'
-                                    ? "bg-islamic-green dark:bg-islamic-gold text-white"
-                                    : "bg-stone-100 dark:bg-white/10 text-stone-500 dark:text-white/60 hover:bg-stone-200 dark:hover:bg-white/15"
+                                    ? "bg-amber-600 dark:bg-islamic-gold text-white"
+                                    : "bg-[#F0E8D5] dark:bg-white/10 text-stone-500 dark:text-white/60 hover:bg-[#E9DFC8] dark:hover:bg-white/15"
                             )}
                         >
                             <BookOpen className="w-4 h-4 inline-block mr-2" />
@@ -510,14 +510,14 @@ export default function Quran({ isTrackingTab = false }) {
                             className={cn(
                                 "flex-1 py-2.5 rounded-xl text-sm font-medium transition-all relative",
                                 activeTab === 'bookmarks'
-                                    ? "bg-islamic-green dark:bg-islamic-gold text-white"
-                                    : "bg-stone-100 dark:bg-white/10 text-stone-500 dark:text-white/60 hover:bg-stone-200 dark:hover:bg-white/15"
+                                    ? "bg-amber-600 dark:bg-islamic-gold text-white"
+                                    : "bg-[#F0E8D5] dark:bg-white/10 text-stone-500 dark:text-white/60 hover:bg-[#E9DFC8] dark:hover:bg-white/15"
                             )}
                         >
                             <Bookmark className="w-4 h-4 inline-block mr-2" />
                             {t('tabBookmarks')}
                             {(bookmarks.length + surahBookmarks.length) > 0 && (
-                                <span className="absolute -top-1 -right-1 w-5 h-5 bg-emerald-500 text-white text-xs rounded-full flex items-center justify-center">
+                                <span className="absolute -top-1 -right-1 w-5 h-5 bg-amber-600 dark:bg-emerald-500 text-white text-xs rounded-full flex items-center justify-center">
                                     {bookmarks.length + surahBookmarks.length}
                                 </span>
                             )}
@@ -540,10 +540,10 @@ export default function Quran({ isTrackingTab = false }) {
                             <div className="mb-5 relative overflow-visible">
                                 <div className="relative overflow-hidden rounded-[1.75rem]">
                                 {/* Background layers */}
-                                <div className="absolute inset-0 bg-gradient-to-br from-[#0a3d22] via-[#0d4a2a] to-[#063018]" />
+                                <div className="absolute inset-0 bg-gradient-to-br from-[#92400e] via-[#a8500f] to-[#78350f] dark:from-[#0a3d22] dark:via-[#0d4a2a] dark:to-[#063018]" />
                                 <div className="absolute inset-0 bg-gradient-to-r from-islamic-gold/[0.06] via-transparent to-islamic-gold/[0.03]" />
                                 <div className="absolute -top-10 -right-10 w-32 h-32 rounded-full bg-islamic-gold/[0.08] blur-2xl" />
-                                <div className="absolute bottom-0 left-0 w-24 h-24 rounded-full bg-emerald-500/[0.06] blur-2xl" />
+                                <div className="absolute bottom-0 left-0 w-24 h-24 rounded-full bg-amber-400/[0.08] dark:bg-emerald-500/[0.06] blur-2xl" />
                                 
                                 {/* Content */}
                                 <div className="relative z-10 p-4 flex items-center gap-4">
@@ -559,7 +559,7 @@ export default function Quran({ isTrackingTab = false }) {
                                         <p className="text-[13px] font-bold text-white leading-tight mb-0.5">
                                             {t('premiumBannerTitle')}
                                         </p>
-                                        <p className="text-[11px] text-emerald-200/60 leading-tight">
+                                        <p className="text-[11px] text-amber-100/70 dark:text-emerald-200/60 leading-tight">
                                             {t('premiumBannerSubtitle')}
                                         </p>
                                     </div>
@@ -620,7 +620,7 @@ export default function Quran({ isTrackingTab = false }) {
 
                                         <div className="p-6 flex items-start gap-5 relative z-10">
                                             {/* Number Box - Reverted to static for mobile UX */}
-                                            <div className="w-12 h-12 rounded-2xl bg-islamic-green/10 dark:bg-islamic-gold/10 flex items-center justify-center text-islamic-green dark:text-white font-bold text-lg shadow-sm shrink-0 group-hover:scale-110 transition-transform duration-300">
+                                            <div className="w-12 h-12 rounded-2xl bg-amber-600/10 dark:bg-islamic-gold/10 flex items-center justify-center text-amber-700 dark:text-white font-bold text-lg shadow-sm shrink-0 group-hover:scale-110 transition-transform duration-300">
                                                 {surah.id}
                                             </div>
 
@@ -677,7 +677,7 @@ export default function Quran({ isTrackingTab = false }) {
                                                 </div>
 
                                                 <div className="flex items-center gap-3 mb-3">
-                                                    <span className="text-[10px] uppercase tracking-[0.15em] font-extrabold text-islamic-green/60 dark:text-islamic-gold/60">
+                                                    <span className="text-[10px] uppercase tracking-[0.15em] font-extrabold text-amber-700/70 dark:text-islamic-gold/60">
                                                         {t(`revelation.${surah.revelationPlace}`)}
                                                     </span>
                                                     <div className="w-1 h-1 rounded-full bg-gray-300 dark:bg-gray-700" />
@@ -740,7 +740,7 @@ export default function Quran({ isTrackingTab = false }) {
                                 {/* Saved Surahs */}
                                 {filteredSurahBookmarks.length > 0 && (
                                     <div className="mb-6">
-                                        <h3 className="text-sm font-bold text-islamic-green/60 dark:text-islamic-gold/60 uppercase tracking-widest mb-3 px-1">
+                                        <h3 className="text-sm font-bold text-amber-700/70 dark:text-islamic-gold/60 uppercase tracking-widest mb-3 px-1">
                                             <BookOpen className="w-4 h-4 inline-block mr-2" />
                                             {t('savedSurahs', { defaultValue: 'Kaydedilen Sureler' })}
                                         </h3>
@@ -759,7 +759,7 @@ export default function Quran({ isTrackingTab = false }) {
                                                             className="group relative overflow-hidden rounded-[2.5rem] bg-islamic-green/[0.03] dark:bg-[#0c2a16] border border-islamic-green/10 dark:border-islamic-gold/10 hover:border-islamic-gold/30 transition-all cursor-pointer hover:shadow-xl active:scale-[0.98]"
                                                         >
                                                             <div className="p-5 flex items-center gap-4 relative z-10">
-                                                                <div className="w-12 h-12 rounded-2xl bg-islamic-green/10 dark:bg-islamic-gold/10 flex items-center justify-center text-islamic-green dark:text-white font-bold text-lg shadow-sm shrink-0">
+                                                                <div className="w-12 h-12 rounded-2xl bg-amber-600/10 dark:bg-islamic-gold/10 flex items-center justify-center text-amber-700 dark:text-white font-bold text-lg shadow-sm shrink-0">
                                                                     {surah.id}
                                                                 </div>
                                                                 <div className="flex-1 min-w-0">
@@ -768,7 +768,7 @@ export default function Quran({ isTrackingTab = false }) {
                                                                         <span className="font-arabic text-xl text-islamic-gold">{surah.arabic}</span>
                                                                     </div>
                                                                     <div className="flex items-center gap-2 mt-1">
-                                                                        <span className="text-[10px] uppercase tracking-[0.15em] font-extrabold text-islamic-green/60 dark:text-islamic-gold/60">
+                                                                        <span className="text-[10px] uppercase tracking-[0.15em] font-extrabold text-amber-700/70 dark:text-islamic-gold/60">
                                                                             {t(`revelation.${surah.revelationPlace}`)}
                                                                         </span>
                                                                         <div className="w-1 h-1 rounded-full bg-gray-300 dark:bg-gray-700" />
@@ -795,7 +795,7 @@ export default function Quran({ isTrackingTab = false }) {
                                 {/* Saved Verses */}
                                 {filteredVerseBookmarks.length > 0 && (
                                     <div>
-                                        <h3 className="text-sm font-bold text-islamic-green/60 dark:text-islamic-gold/60 uppercase tracking-widest mb-3 px-1">
+                                        <h3 className="text-sm font-bold text-amber-700/70 dark:text-islamic-gold/60 uppercase tracking-widest mb-3 px-1">
                                             <Bookmark className="w-4 h-4 inline-block mr-2" />
                                             {t('savedVerses', { defaultValue: 'Kaydedilen Ayetler' })}
                                         </h3>
@@ -807,7 +807,7 @@ export default function Quran({ isTrackingTab = false }) {
                                                 transition={{ delay: Math.min(index * 0.05, 0.3) }}
                                             >
                                                 <div className="relative mb-6">
-                                                    <Card className="border-none shadow-xl rounded-[2.5rem] bg-white dark:bg-white/5 overflow-hidden p-6 relative dark:text-white">
+                                                    <Card className="border-none shadow-xl rounded-[2.5rem] bg-[#FFFDF6] dark:bg-white/5 overflow-hidden p-6 relative dark:text-white">
                                                         <div className="space-y-6">
                                                             {/* Header: Number & Actions */}
                                                             <div className="flex items-start justify-between">
@@ -906,7 +906,7 @@ export default function Quran({ isTrackingTab = false }) {
                                     {ayah.arabic}
                                 </p>
 
-                                <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed border-t border-gray-100 dark:border-white/10 pt-4">
+                                <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed border-t border-[#EDE5D1] dark:border-white/10 pt-4">
                                     {ayah.translation}
                                 </p>
                             </CardContent>
@@ -926,7 +926,7 @@ export default function Quran({ isTrackingTab = false }) {
 
             {/* Audio Player (Fixed Bottom) */}
             {selectedSurah && (
-                <div className="fixed bottom-20 left-0 right-0 p-4 bg-white dark:bg-[#032e18] border-t border-gray-100 dark:border-white/10 backdrop-blur-xl z-40">
+                <div className="fixed bottom-20 left-0 right-0 p-4 bg-[#FFFDF6] dark:bg-[#032e18] border-t border-[#EDE5D1] dark:border-white/10 backdrop-blur-xl z-40">
                     <div className="max-w-2xl mx-auto">
                         <div className="flex items-center justify-between gap-4">
                             <div className="flex-1">

@@ -22,15 +22,15 @@ export default function LegalSettings() {
     const navigate = useNavigate();
     const { t } = useTranslation(['settings']);
     return (
-        <div className="min-h-screen bg-white dark:bg-[#021a0f] text-gray-900 dark:text-white p-5 pb-24">
+        <div className="min-h-screen bg-[#FFFDF6] dark:bg-[#021a0f] text-gray-900 dark:text-white p-5 pb-24">
             <header className="flex items-center gap-3 mb-6">
-                <button onClick={() => navigate(-1)} className="w-10 h-10 rounded-xl bg-gray-100 dark:bg-white/5 flex items-center justify-center">
+                <button onClick={() => navigate(-1)} className="w-10 h-10 rounded-xl bg-[#F0E8D5] dark:bg-white/5 flex items-center justify-center">
                     <ChevronLeft size={20} />
                 </button>
                 <h1 className="text-xl font-bold font-serif">{t('legalAbout')}</h1>
             </header>
 
-            <div className="bg-white dark:bg-white/5 rounded-[2rem] shadow-md shadow-stone-200/60 dark:shadow-none border border-stone-200/80 dark:border-white/5 overflow-hidden divide-y divide-stone-100 dark:divide-white/5">
+            <div className="bg-[#FFFDF6] dark:bg-white/5 rounded-[2rem] shadow-md shadow-stone-200/60 dark:shadow-none border border-[#E2D9C4]/80 dark:border-white/5 overflow-hidden divide-y divide-stone-100 dark:divide-white/5">
                 {/* Terms of Use */}
                 <button
                     onClick={() => openURL(LEGAL_URLS.terms)}

@@ -463,6 +463,15 @@ choose type "prescription". Choose the type by the user's intent:
    If a practice differs between madhhabs (schools of fiqh), add one short
    sentence noting that it may differ.
 
+4. type "birthday_verse" — the user asks which Quran verse matches their
+   birthday / birth date (e.g. "doğum günüm 14 şubat hangi ayet", "which verse
+   is my birthday 02/14", "hangi ayete denk geliyorum"). Extract ONLY the day
+   and month as integers:
+   { "type": "birthday_verse", "day": 14, "month": 2 }
+   Do NOT include a verse — the app computes it deterministically. If you cannot
+   clearly identify both a day (1-31) and a month (1-12), do NOT use this type;
+   answer as "text" or "prescription" instead.
+
 Output raw JSON only, no markdown fences. Write every human-readable value
 ("text", "advice", "label", "meaning", ...) in the response language required
 above.

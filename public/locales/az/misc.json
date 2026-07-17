@@ -15,7 +15,12 @@
         "suggestion1": "İçim darıxır, hansı zikr və duanı oxumalıyam?",
         "suggestion2": "Ailəmin hüzurlu olmasını istəyirəm, nə etməliyəm?",
         "suggestion3": "Əsas ekrana widget necə əlavə edim?",
-        "suggestion4": "Yatmazdan əvvəl hansı dualar oxunur?"
+        "suggestion4": "Yatmazdan əvvəl hansı dualar oxunur?",
+        "birthdayChip": "🎂 Doğum ayəni kəşf et",
+        "birthdayPickerTitle": "Doğulduğun günü seç",
+        "birthdayDay": "Gün",
+        "birthdayMonth": "Ay",
+        "birthdayShow": "Ayəmi Göstər"
     },
     "prescription": {
         "title": "Mənəvi Reçete",
@@ -48,5 +53,12 @@
         "decline": "Rədd Et — Süni Zəkanı İstifadə Etmə",
         "privacy_note": "Bütün detallar üçün",
         "privacy_link": "Gizlilik Siyasəti"
+    },
+    "birthdayCard": {
+        "heading": "🎂 {{date}} doğulanların ayəsi",
+        "share": "Paylaş",
+        "shareText": "🎂 {{date}} doğulanların ayəsi\n\n\"{{translation}}\"\n— {{source}}\n\nSəninki hansı ayədir? İslami Yoldaş ilə kəşf et:\n{{link}}",
+        "cta": "Sənin doğum ayən hansıdır?\nİslami Yoldaş-da kəşf et",
+        "appName": "İslami Yoldaş"
     }
 }

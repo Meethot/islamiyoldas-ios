@@ -54,7 +54,7 @@ const DhikrItem = React.memo(({ item, isActive, onSelect, meaning, isEsma }) => 
         "w-full text-left px-4 py-3.5 rounded-2xl transition-all active:scale-[0.98] border",
         isActive
           ? "bg-islamic-green/10 border-islamic-green/30 dark:bg-islamic-gold/15 dark:border-islamic-gold/40 dark:shadow-[0_0_20px_rgba(212,175,55,0.1)]"
-          : "bg-white dark:bg-white/[0.03] border-stone-200/80 dark:border-white/5 hover:bg-stone-50 dark:hover:bg-white/[0.06] hover:border-stone-300 dark:hover:border-white/10"
+          : "bg-[#FFFDF6] dark:bg-white/[0.03] border-[#E2D9C4]/80 dark:border-white/5 hover:bg-stone-50 dark:hover:bg-white/[0.06] hover:border-stone-300 dark:hover:border-white/10"
       )}
     >
       <div className="flex items-center gap-3">
@@ -62,7 +62,7 @@ const DhikrItem = React.memo(({ item, isActive, onSelect, meaning, isEsma }) => 
         {isEsma && (
           <div className={cn(
             "w-8 h-8 rounded-lg flex items-center justify-center text-[11px] font-bold flex-shrink-0",
-            isActive ? "bg-islamic-green/15 text-islamic-green dark:bg-islamic-gold/20 dark:text-islamic-gold" : "bg-stone-100 text-stone-400 dark:bg-white/5 dark:text-white/30"
+            isActive ? "bg-islamic-green/15 text-islamic-green dark:bg-islamic-gold/20 dark:text-islamic-gold" : "bg-[#F0E8D5] text-stone-400 dark:bg-white/5 dark:text-white/30"
           )}>
             {item.number}
           </div>
@@ -232,10 +232,10 @@ export default function DhikrPickerSheet({ isOpen, onClose, activePreset, dhikrP
             dragElastic={0.1}
             onDragEnd={handleDragEnd}
             className={cn(
-              "fixed bottom-0 left-0 right-0 z-[201] flex flex-col bg-[#FAF8F3] dark:bg-[#061f14] shadow-[0_-20px_60px_rgba(0,0,0,0.15)] dark:shadow-[0_-20px_60px_rgba(0,0,0,0.5)] overflow-hidden transition-[max-height,border-radius,border-color] duration-300 ease-out",
+              "fixed bottom-0 left-0 right-0 z-[201] flex flex-col bg-[#F6F0E1] dark:bg-[#061f14] shadow-[0_-20px_60px_rgba(0,0,0,0.15)] dark:shadow-[0_-20px_60px_rgba(0,0,0,0.5)] overflow-hidden transition-[max-height,border-radius,border-color] duration-300 ease-out",
               isInputFocused
                 ? "max-h-[100vh] h-full rounded-t-none border-t-0"
-                : "max-h-[85vh] rounded-t-[2rem] border-t border-stone-200 dark:border-white/10"
+                : "max-h-[85vh] rounded-t-[2rem] border-t border-[#E2D9C4] dark:border-white/10"
             )}
           >
             {/* Drag Handle or iOS Safe Area Top Margin */}
@@ -260,7 +260,7 @@ export default function DhikrPickerSheet({ isOpen, onClose, activePreset, dhikrP
                 </div>
                 <button
                   onClick={onClose}
-                  className="w-9 h-9 rounded-xl bg-stone-100 hover:bg-stone-200 dark:bg-white/5 dark:hover:bg-white/10 flex items-center justify-center text-stone-400 hover:text-stone-700 dark:text-white/40 dark:hover:text-white transition-all border border-stone-200 dark:border-white/10"
+                  className="w-9 h-9 rounded-xl bg-[#F0E8D5] hover:bg-[#E9DFC8] dark:bg-white/5 dark:hover:bg-white/10 flex items-center justify-center text-stone-400 hover:text-stone-700 dark:text-white/40 dark:hover:text-white transition-all border border-[#E2D9C4] dark:border-white/10"
                 >
                   <X size={18} />
                 </button>
@@ -285,7 +285,7 @@ export default function DhikrPickerSheet({ isOpen, onClose, activePreset, dhikrP
                     }, 250);
                   }}
                   placeholder={t('searchPlaceholder', { defaultValue: 'Zikir veya esma ara...' })}
-                  className="w-full bg-white dark:bg-white/[0.04] border border-stone-200 dark:border-white/8 rounded-xl py-2.5 pl-10 pr-4 text-sm text-stone-800 dark:text-white placeholder:text-stone-400 dark:placeholder:text-white/20 focus:outline-none focus:border-islamic-green/40 dark:focus:border-islamic-gold/30 transition-all"
+                  className="w-full bg-[#FFFDF6] dark:bg-white/[0.04] border border-[#E2D9C4] dark:border-white/8 rounded-xl py-2.5 pl-10 pr-4 text-sm text-stone-800 dark:text-white placeholder:text-stone-400 dark:placeholder:text-white/20 focus:outline-none focus:border-islamic-green/40 dark:focus:border-islamic-gold/30 transition-all"
                 />
                 {searchQuery && (
                   <button
@@ -299,7 +299,7 @@ export default function DhikrPickerSheet({ isOpen, onClose, activePreset, dhikrP
 
               {/* Category Tabs or Search Results Header */}
               {!searchQuery.trim() ? (
-                <div className="flex gap-1.5 bg-stone-100 dark:bg-white/[0.03] p-1 rounded-xl border border-stone-200/80 dark:border-white/5">
+                <div className="flex gap-1.5 bg-[#F0E8D5] dark:bg-white/[0.03] p-1 rounded-xl border border-[#E2D9C4]/80 dark:border-white/5">
                   {CATEGORIES.map(cat => (
                     <button
                       key={cat}
@@ -307,7 +307,7 @@ export default function DhikrPickerSheet({ isOpen, onClose, activePreset, dhikrP
                       className={cn(
                         "flex-1 py-2 rounded-lg text-xs font-bold uppercase tracking-[0.15em] transition-all",
                         activeCategory === cat
-                          ? "bg-white text-islamic-green border border-islamic-green/20 shadow-sm dark:bg-islamic-gold/15 dark:text-islamic-gold dark:border-islamic-gold/20 dark:shadow-lg dark:shadow-islamic-gold/5"
+                          ? "bg-[#FFFDF6] text-islamic-green border border-islamic-green/20 shadow-sm dark:bg-islamic-gold/15 dark:text-islamic-gold dark:border-islamic-gold/20 dark:shadow-lg dark:shadow-islamic-gold/5"
                           : "text-stone-400 hover:text-stone-600 dark:text-white/35 dark:hover:text-white/50"
                       )}
                     >

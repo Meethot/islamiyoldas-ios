@@ -111,6 +111,76 @@ export async function shareProgress(elementId = 'share-card', streak = 0, naviga
 }
 
 /**
+ * Captures a hidden fixed-size (1080x1920) card and shares it as an image.
+ * Unlike shareHiddenElement, the real DOM node is NEVER moved into the viewport —
+ * only the html2canvas clone is repositioned (onclone), so there is no visible
+ * "card flashes big then disappears" on tap. The source element must stay
+ * rendered off-screen (e.g. position:fixed; left:-9999) with a 1080x1920 child.
+ */
+export async function shareStoryCard(elementId, shareText, title) {
+    try {
+        const element = document.getElementById(elementId);
+        if (!element) return false;
+
+        const shareTitle = title || t('hidden_title');
+        const fileName = t('hidden_filename') || 'paylasim.png';
+
+        const canvas = await html2canvas(element, {
+            backgroundColor: null,
+            scale: 2,
+            width: 1080,
+            height: 1920,
+            windowWidth: 1080,
+            windowHeight: 1920,
+            x: 0,
+            y: 0,
+            useCORS: true,
+            logging: false,
+            onclone: (doc) => {
+                const clone = doc.getElementById(elementId);
+                if (clone) {
+                    clone.style.left = '0';
+                    clone.style.top = '0';
+                    clone.style.position = 'fixed';
+                    clone.style.zIndex = '2147483647';
+                }
+            }
+        });
+
+        if (Capacitor.isNativePlatform()) {
+            const base64Data = canvas.toDataURL('image/png').split(',')[1];
+            const savedFile = await Filesystem.writeFile({
+                path: fileName,
+                data: base64Data,
+                directory: Directory.Cache
+            });
+            await Share.share({ title: shareTitle, text: shareText, url: savedFile.uri, dialogTitle: shareTitle });
+            try { await Filesystem.deleteFile({ path: fileName, directory: Directory.Cache }); } catch { /* ignore */ }
+            return true;
+        }
+
+        const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png', 1.0));
+        const file = new File([blob], fileName, { type: 'image/png' });
+        const shareData = { files: [file], title: shareTitle, text: shareText };
+
+        if (navigator.share && navigator.canShare && navigator.canShare(shareData)) {
+            await navigator.share(shareData);
+            return true;
+        }
+        const url = canvas.toDataURL('image/png');
+        const link = document.createElement('a');
+        link.download = fileName;
+        link.href = url;
+        link.click();
+        return true;
+    } catch (e) {
+        if (e.name === 'AbortError' || e.message?.includes('cancel') || e.message?.includes('dismiss')) return false;
+        console.error('Story card share failed', e);
+        return false;
+    }
+}
+
+/**
  * Generates a referral link for inviting friends
  */
 export function generateReferralLink() {

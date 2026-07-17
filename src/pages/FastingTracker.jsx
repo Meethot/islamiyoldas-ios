@@ -53,7 +53,7 @@ const Atmosphere = () => (
         <motion.div
             animate={{ scale: [1, 1.15, 1], opacity: [0.15, 0.25, 0.15] }}
             transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut' }}
-            className="absolute -top-32 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-emerald-700/20 rounded-full blur-[140px]"
+            className="absolute -top-32 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-amber-700/20 dark:bg-emerald-700/20 rounded-full blur-[140px]"
         />
         <motion.div
             animate={{ scale: [1, 1.1, 1], opacity: [0.08, 0.15, 0.08] }}
@@ -63,7 +63,7 @@ const Atmosphere = () => (
         <motion.div
             animate={{ opacity: [0.05, 0.1, 0.05] }}
             transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut', delay: 3 }}
-            className="absolute top-1/2 -left-16 w-[350px] h-[350px] bg-emerald-600/10 rounded-full blur-[100px]"
+            className="absolute top-1/2 -left-16 w-[350px] h-[350px] bg-amber-600/10 dark:bg-emerald-600/10 rounded-full blur-[100px]"
         />
     </div>
 );
@@ -184,7 +184,7 @@ const GrandProgress = ({ fasted, total, todayFasted, onToggle, currentDay, strea
                                         boxShadow: '0 0 20px rgba(52,211,153,0.15), 0 0 0 1px rgba(52,211,153,0.2)',
                                     }}
                                 >
-                                    <Check className="w-7 h-7 text-emerald-600 dark:text-emerald-300" strokeWidth={2.5} />
+                                    <Check className="w-7 h-7 text-amber-700 dark:text-emerald-300" strokeWidth={2.5} />
                                 </div>
                             ) : (
                                 <div
@@ -239,7 +239,7 @@ const StatusSheet = ({ dayNum, current, onPick, onClose }) => {
                 dragConstraints={{ top: 0 }}
                 dragElastic={0.2}
                 onDragEnd={(_, info) => { if (info.offset.y > 100 || info.velocity.y > 500) onClose(); }}
-                className="w-full max-w-md rounded-t-[2.5rem] overflow-hidden border-t border-stone-200 dark:border-white/10 bg-[linear-gradient(180deg,#FFFFFF_0%,#F5F0E6_100%)] dark:bg-[linear-gradient(180deg,#0d4a30_0%,#032e18_100%)]"
+                className="w-full max-w-md rounded-t-[2.5rem] overflow-hidden border-t border-[#E2D9C4] dark:border-white/10 bg-[linear-gradient(180deg,#FFFFFF_0%,#EFE8D6_100%)] dark:bg-[linear-gradient(180deg,#0d4a30_0%,#032e18_100%)]"
                 onClick={e => e.stopPropagation()}
             >
                 {/* Handle */}
@@ -269,9 +269,9 @@ const StatusSheet = ({ dayNum, current, onPick, onClose }) => {
                         className={cn(
                             "relative overflow-hidden rounded-[1.4rem] p-4 pt-5 flex flex-col items-center gap-3 cursor-pointer",
                             "transition-all duration-200 active:scale-95",
-                            "bg-emerald-50 border border-emerald-200 dark:bg-[linear-gradient(145deg,rgba(16,185,129,0.22)_0%,rgba(5,150,105,0.12)_50%,rgba(4,120,87,0.08)_100%)] dark:border-[rgba(52,211,153,0.15)]",
+                            "bg-amber-50 border border-amber-200 dark:bg-[linear-gradient(145deg,rgba(16,185,129,0.22)_0%,rgba(5,150,105,0.12)_50%,rgba(4,120,87,0.08)_100%)] dark:border-[rgba(52,211,153,0.15)]",
                             current === ST.FASTED
-                                ? "ring-2 ring-islamic-green/60 ring-offset-2 ring-offset-[#F5F0E6] dark:ring-islamic-gold/60 dark:ring-offset-[#0d4a30]"
+                                ? "ring-2 ring-islamic-green/60 ring-offset-2 ring-offset-[#EFE8D6] dark:ring-islamic-gold/60 dark:ring-offset-[#0d4a30]"
                                 : ""
                         )}
                         style={{
@@ -285,12 +285,12 @@ const StatusSheet = ({ dayNum, current, onPick, onClose }) => {
                             className="w-14 h-14 rounded-2xl flex items-center justify-center relative z-10"
                             style={{
                                 background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-                                boxShadow: '0 4px 15px rgba(16,185,129,0.35), inset 0 1px 0 rgba(255,255,255,0.2)',
+                                boxShadow: '0 4px 15px rgba(217,119,6,0.35), inset 0 1px 0 rgba(255,255,255,0.2)',
                             }}
                         >
                             <Check size={26} className="text-white" strokeWidth={3} />
                         </div>
-                        <span className={cn("text-[13px] font-bold relative z-10", current === ST.FASTED ? "text-emerald-600 dark:text-emerald-300" : "text-stone-600 dark:text-white/70")}>{t('status.fasted')}</span>
+                        <span className={cn("text-[13px] font-bold relative z-10", current === ST.FASTED ? "text-amber-700 dark:text-emerald-300" : "text-stone-600 dark:text-white/70")}>{t('status.fasted')}</span>
                     </button>
 
                     {/* ── Kaçırıldı ── */}
@@ -301,7 +301,7 @@ const StatusSheet = ({ dayNum, current, onPick, onClose }) => {
                             "transition-all duration-200 active:scale-95",
                             "bg-red-50 border border-red-200 dark:bg-[linear-gradient(145deg,rgba(239,68,68,0.18)_0%,rgba(220,38,38,0.10)_50%,rgba(185,28,28,0.06)_100%)] dark:border-[rgba(248,113,113,0.12)]",
                             current === ST.MISSED
-                                ? "ring-2 ring-islamic-green/60 ring-offset-2 ring-offset-[#F5F0E6] dark:ring-islamic-gold/60 dark:ring-offset-[#0d4a30]"
+                                ? "ring-2 ring-islamic-green/60 ring-offset-2 ring-offset-[#EFE8D6] dark:ring-islamic-gold/60 dark:ring-offset-[#0d4a30]"
                                 : ""
                         )}
                         style={{
@@ -331,7 +331,7 @@ const StatusSheet = ({ dayNum, current, onPick, onClose }) => {
                             "transition-all duration-200 active:scale-95",
                             "bg-amber-50 border border-amber-200 dark:bg-[linear-gradient(145deg,rgba(245,158,11,0.18)_0%,rgba(217,119,6,0.10)_50%,rgba(180,83,9,0.06)_100%)] dark:border-[rgba(251,191,36,0.12)]",
                             current === ST.EXCUSED
-                                ? "ring-2 ring-islamic-green/60 ring-offset-2 ring-offset-[#F5F0E6] dark:ring-islamic-gold/60 dark:ring-offset-[#0d4a30]"
+                                ? "ring-2 ring-islamic-green/60 ring-offset-2 ring-offset-[#EFE8D6] dark:ring-islamic-gold/60 dark:ring-offset-[#0d4a30]"
                                 : ""
                         )}
                         style={{
@@ -359,9 +359,9 @@ const StatusSheet = ({ dayNum, current, onPick, onClose }) => {
                         className={cn(
                             "relative overflow-hidden rounded-[1.4rem] p-4 pt-5 flex flex-col items-center gap-3 cursor-pointer",
                             "transition-all duration-200 active:scale-95",
-                            "bg-stone-100 border border-stone-200 dark:bg-[linear-gradient(145deg,rgba(255,255,255,0.07)_0%,rgba(255,255,255,0.03)_50%,rgba(255,255,255,0.01)_100%)] dark:border-white/[0.08]",
+                            "bg-[#F0E8D5] border border-[#E2D9C4] dark:bg-[linear-gradient(145deg,rgba(255,255,255,0.07)_0%,rgba(255,255,255,0.03)_50%,rgba(255,255,255,0.01)_100%)] dark:border-white/[0.08]",
                             current === ST.PENDING
-                                ? "ring-2 ring-islamic-green/60 ring-offset-2 ring-offset-[#F5F0E6] dark:ring-islamic-gold/60 dark:ring-offset-[#0d4a30]"
+                                ? "ring-2 ring-islamic-green/60 ring-offset-2 ring-offset-[#EFE8D6] dark:ring-islamic-gold/60 dark:ring-offset-[#0d4a30]"
                                 : ""
                         )}
                         style={{
@@ -372,7 +372,7 @@ const StatusSheet = ({ dayNum, current, onPick, onClose }) => {
                     >
                         <div className="absolute inset-0 opacity-[0.02]" style={{ backgroundImage: 'radial-gradient(circle at 50% 0%, rgba(255,255,255,0.3) 0%, transparent 60%)' }} />
                         <div
-                            className="w-14 h-14 rounded-2xl flex items-center justify-center relative z-10 bg-stone-200/80 dark:bg-[linear-gradient(135deg,rgba(255,255,255,0.12)_0%,rgba(255,255,255,0.06)_100%)]"
+                            className="w-14 h-14 rounded-2xl flex items-center justify-center relative z-10 bg-[#E9DFC8]/80 dark:bg-[linear-gradient(135deg,rgba(255,255,255,0.12)_0%,rgba(255,255,255,0.06)_100%)]"
                             style={{
                                 boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.1), 0 2px 8px rgba(0,0,0,0.15)',
                             }}
@@ -579,15 +579,15 @@ export default function FastingTracker() {
     }, [light]);
 
     return (
-        <div className="min-h-screen bg-gradient-to-b from-[#FAF8F3] via-[#F5F0E6] to-[#FAF8F3] dark:from-[#021a0f] dark:via-[#032e18] dark:to-[#021a0f] text-stone-800 dark:text-white relative overflow-hidden pb-28">
+        <div className="min-h-screen bg-gradient-to-b from-[#F6F0E1] via-[#EFE8D6] to-[#F6F0E1] dark:from-[#021a0f] dark:via-[#032e18] dark:to-[#021a0f] text-stone-800 dark:text-white relative overflow-hidden pb-28">
             <Atmosphere />
             {/* Pattern removed — clean background */}
 
             {/* Header */}
-            <header className="sticky top-0 z-30 backdrop-blur-xl bg-white/85 dark:bg-[#032e18]/85 border-b border-stone-200/70 dark:border-emerald-600/10">
+            <header className="sticky top-0 z-30 backdrop-blur-xl bg-white/85 dark:bg-[#032e18]/85 border-b border-[#E2D9C4]/70 dark:border-emerald-600/10">
                 <div className="flex items-center justify-between px-4 py-3">
                     <div className="flex items-center gap-2.5">
-                        <button onClick={() => { light(); navigate(-1); }} className="w-10 h-10 rounded-xl bg-stone-100 hover:bg-stone-200 dark:bg-white/5 dark:hover:bg-white/10 flex items-center justify-center text-stone-500 dark:text-white/60 border border-stone-200 dark:border-white/10 active:scale-90 transition-all">
+                        <button onClick={() => { light(); navigate(-1); }} className="w-10 h-10 rounded-xl bg-[#F0E8D5] hover:bg-[#E9DFC8] dark:bg-white/5 dark:hover:bg-white/10 flex items-center justify-center text-stone-500 dark:text-white/60 border border-[#E2D9C4] dark:border-white/10 active:scale-90 transition-all">
                             <ChevronLeft size={20} />
                         </button>
                         <div className="bg-islamic-green/10 dark:bg-islamic-gold/10 p-2 rounded-xl border border-islamic-green/15 dark:border-islamic-gold/15">
@@ -648,7 +648,7 @@ export default function FastingTracker() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.2 }}
-                    className="mx-5 p-5 rounded-[1.8rem] bg-white/80 dark:bg-white/[0.04] border border-stone-200/80 dark:border-white/[0.06] backdrop-blur-xl shadow-xl shadow-stone-200/60 dark:shadow-black/10"
+                    className="mx-5 p-5 rounded-[1.8rem] bg-white/80 dark:bg-white/[0.04] border border-[#E2D9C4]/80 dark:border-white/[0.06] backdrop-blur-xl shadow-xl shadow-stone-200/60 dark:shadow-black/10"
                 >
                     <div className="flex items-center justify-between mb-3">
                         <span className="text-[10px] font-bold text-stone-400 dark:text-white/25 uppercase tracking-[0.2em]">{t('nextGoal')}</span>
@@ -657,7 +657,7 @@ export default function FastingTracker() {
                             <span className="text-xs font-bold text-islamic-green dark:text-islamic-gold">{t(nextMs.tKey)}</span>
                         </div>
                     </div>
-                    <div className="relative h-2.5 rounded-full bg-stone-200/70 dark:bg-white/[0.06] overflow-hidden">
+                    <div className="relative h-2.5 rounded-full bg-[#E9DFC8]/70 dark:bg-white/[0.06] overflow-hidden">
                         <motion.div
                             className="absolute inset-y-0 left-0 rounded-full"
                             style={{ background: 'linear-gradient(90deg, #b8860b, #f0d060, #D4AF37)' }}
@@ -672,7 +672,7 @@ export default function FastingTracker() {
                     </div>
 
                     {/* Milestone ribbon */}
-                    <div className="flex items-center justify-between mt-4 pt-3 border-t border-stone-200/70 dark:border-white/[0.05]">
+                    <div className="flex items-center justify-between mt-4 pt-3 border-t border-[#E2D9C4]/70 dark:border-white/[0.05]">
                         {MILESTONES.map(m => {
                             const done = stats.fasted >= m.d;
                             return (
@@ -693,10 +693,10 @@ export default function FastingTracker() {
                     className="grid grid-cols-4 gap-2.5 mx-5 mt-5"
                 >
                     {[
-                        { n: stats.fasted, l: t('status.fasted'), c: 'text-emerald-600 dark:text-emerald-400', bg: 'bg-emerald-500/10', bc: 'border-emerald-500/10' },
+                        { n: stats.fasted, l: t('status.fasted'), c: 'text-amber-700 dark:text-emerald-400', bg: 'bg-amber-500/10 dark:bg-emerald-500/10', bc: 'border-amber-500/10 dark:border-emerald-500/10' },
                         { n: stats.missed, l: t('status.missed'), c: 'text-red-500 dark:text-red-400', bg: 'bg-red-500/8', bc: 'border-red-500/10' },
                         { n: stats.excused, l: t('status.excused'), c: 'text-amber-600 dark:text-amber-400', bg: 'bg-amber-500/8', bc: 'border-amber-500/10' },
-                        { n: stats.remaining, l: t('status.remaining'), c: 'text-stone-400 dark:text-white/30', bg: 'bg-white/60 dark:bg-white/[0.03]', bc: 'border-stone-200/80 dark:border-white/[0.05]' },
+                        { n: stats.remaining, l: t('status.remaining'), c: 'text-stone-400 dark:text-white/30', bg: 'bg-white/60 dark:bg-white/[0.03]', bc: 'border-[#E2D9C4]/80 dark:border-white/[0.05]' },
                     ].map(s => (
                         <div key={s.l} className={cn("py-3.5 rounded-2xl text-center border", s.bg, s.bc)}>
                             <div className={cn("text-2xl font-black leading-none tabular-nums", s.c)}>{s.n}</div>
@@ -713,7 +713,7 @@ export default function FastingTracker() {
                     className="mx-5 mt-6"
                 >
                     {/* Calendar Card */}
-                    <div className="rounded-[1.6rem] border border-stone-200/80 dark:border-white/[0.06] p-[1px] overflow-hidden bg-white dark:bg-[linear-gradient(145deg,rgba(255,255,255,0.04)_0%,rgba(255,255,255,0.01)_100%)]">
+                    <div className="rounded-[1.6rem] border border-[#E2D9C4]/80 dark:border-white/[0.06] p-[1px] overflow-hidden bg-[#FFFDF6] dark:bg-[linear-gradient(145deg,rgba(255,255,255,0.04)_0%,rgba(255,255,255,0.01)_100%)]">
                         <div className="rounded-[1.5rem] p-4 dark:bg-[linear-gradient(180deg,rgba(255,255,255,0.03)_0%,rgba(0,0,0,0.05)_100%)] dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.05),inset_0_-1px_0_rgba(0,0,0,0.1)]">
 
                             {/* Calendar Header */}
@@ -729,7 +729,7 @@ export default function FastingTracker() {
                                     </div>
                                     <button
                                         onClick={(e) => { e.stopPropagation(); light(); setShowResetConfirm(true); }}
-                                        className="w-9 h-9 rounded-xl bg-stone-100 dark:bg-white/[0.04] hover:bg-red-500/15 border border-stone-200 dark:border-white/[0.06] hover:border-red-400/20 flex items-center justify-center transition-all active:scale-90 cursor-pointer"
+                                        className="w-9 h-9 rounded-xl bg-[#F0E8D5] dark:bg-white/[0.04] hover:bg-red-500/15 border border-[#E2D9C4] dark:border-white/[0.06] hover:border-red-400/20 flex items-center justify-center transition-all active:scale-90 cursor-pointer"
                                         title={t('reset')}
                                     >
                                         <RotateCcw size={16} className="text-stone-400 dark:text-white/30" />
@@ -777,7 +777,7 @@ export default function FastingTracker() {
                                                     : isMissed ? '#ef4444'
                                                         : isExcused ? '#d97706'
                                                             : undefined,
-                                                boxShadow: `0 2px 8px ${isFasted ? 'rgba(16,185,129,0.35)' : isMissed ? 'rgba(239,68,68,0.35)' : isExcused ? 'rgba(217,119,6,0.35)' : 'none'}`,
+                                                boxShadow: `0 2px 8px ${isFasted ? 'rgba(217,119,6,0.35)' : isMissed ? 'rgba(239,68,68,0.35)' : isExcused ? 'rgba(217,119,6,0.35)' : 'none'}`,
                                             } : undefined}
                                         >
                                             <span className={cn(
@@ -792,7 +792,7 @@ export default function FastingTracker() {
                             </div>
 
                             {/* Legend */}
-                            <div className="flex items-center justify-center gap-5 mt-3.5 pt-3 border-t border-stone-200/70 dark:border-white/[0.04]">
+                            <div className="flex items-center justify-center gap-5 mt-3.5 pt-3 border-t border-[#E2D9C4]/70 dark:border-white/[0.04]">
                                 {[
                                     { c: '#34d399', l: t('status.fasted') },
                                     { c: '#f87171', l: t('status.missed') },
@@ -825,7 +825,7 @@ export default function FastingTracker() {
                                 exit={{ scale: 0.9, opacity: 0, y: 20 }}
                                 transition={{ type: 'spring', damping: 25, stiffness: 400 }}
                                 onClick={(e) => e.stopPropagation()}
-                                className="relative w-full max-w-sm rounded-3xl overflow-hidden bg-white dark:bg-[linear-gradient(180deg,#1a2f1f_0%,#0d1f12_100%)] border border-stone-200 dark:border-white/[0.08] shadow-[0_25px_60px_rgba(0,0,0,0.2)] dark:shadow-[0_25px_60px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.05)]"
+                                className="relative w-full max-w-sm rounded-3xl overflow-hidden bg-[#FFFDF6] dark:bg-[linear-gradient(180deg,#1a2f1f_0%,#0d1f12_100%)] border border-[#E2D9C4] dark:border-white/[0.08] shadow-[0_25px_60px_rgba(0,0,0,0.2)] dark:shadow-[0_25px_60px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.05)]"
                             >
                                 <div className="p-6 text-center">
                                     <div className="w-16 h-16 rounded-2xl bg-red-500/15 border border-red-400/20 flex items-center justify-center mx-auto mb-4"
@@ -839,7 +839,7 @@ export default function FastingTracker() {
                                     <div className="flex gap-3">
                                         <button
                                             onClick={() => setShowResetConfirm(false)}
-                                            className="flex-1 py-3 rounded-xl bg-stone-100 border border-stone-200 text-stone-600 hover:bg-stone-200 dark:bg-white/5 dark:border-white/10 dark:text-white/60 dark:hover:bg-white/10 text-sm font-semibold transition-all active:scale-95 cursor-pointer"
+                                            className="flex-1 py-3 rounded-xl bg-[#F0E8D5] border border-[#E2D9C4] text-stone-600 hover:bg-[#E9DFC8] dark:bg-white/5 dark:border-white/10 dark:text-white/60 dark:hover:bg-white/10 text-sm font-semibold transition-all active:scale-95 cursor-pointer"
                                         >
                                             {t('cancel')}
                                         </button>
@@ -869,19 +869,19 @@ export default function FastingTracker() {
                         className="w-full flex items-center justify-between py-3.5 px-1"
                     >
                         <div className="flex items-center gap-2.5">
-                            <div className="w-7 h-7 rounded-lg bg-emerald-500/15 flex items-center justify-center">
-                                <Sparkles size={14} className="text-emerald-600 dark:text-emerald-400" />
+                            <div className="w-7 h-7 rounded-lg bg-amber-500/15 dark:bg-emerald-500/15 flex items-center justify-center">
+                                <Sparkles size={14} className="text-amber-700 dark:text-emerald-400" />
                             </div>
                             <h3 className="text-[10px] font-bold text-stone-400 dark:text-white/20 uppercase tracking-[0.25em]">{t('teravihTitle')}</h3>
                         </div>
                         <div className="flex items-center gap-2.5">
-                            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-400/15">
-                                <Sparkles size={13} className="text-emerald-600/70 dark:text-emerald-400/70" />
-                                <span className="text-xs font-bold text-emerald-700/80 dark:text-emerald-400/80 tabular-nums">{teravihDone}/{RAMAZAN_DAYS}</span>
+                            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-500/10 dark:bg-emerald-500/10 border border-amber-400/15 dark:border-emerald-400/15">
+                                <Sparkles size={13} className="text-amber-600/70 dark:text-emerald-400/70" />
+                                <span className="text-xs font-bold text-amber-700/80 dark:text-emerald-400/80 tabular-nums">{teravihDone}/{RAMAZAN_DAYS}</span>
                             </div>
                             <button
                                 onClick={(e) => { e.stopPropagation(); light(); setShowTeravihReset(true); }}
-                                className="w-9 h-9 rounded-xl bg-stone-100 dark:bg-white/[0.04] hover:bg-red-500/15 border border-stone-200 dark:border-white/[0.06] hover:border-red-400/20 flex items-center justify-center transition-all active:scale-90 cursor-pointer"
+                                className="w-9 h-9 rounded-xl bg-[#F0E8D5] dark:bg-white/[0.04] hover:bg-red-500/15 border border-[#E2D9C4] dark:border-white/[0.06] hover:border-red-400/20 flex items-center justify-center transition-all active:scale-90 cursor-pointer"
                                 title={t('teravihResetTooltip')}
                             >
                                 <RotateCcw size={16} className="text-stone-400 dark:text-white/30" />
@@ -898,7 +898,7 @@ export default function FastingTracker() {
                                 transition={{ duration: 0.3 }}
                                 className="overflow-hidden"
                             >
-                                <div className="rounded-[1.6rem] border border-stone-200/80 dark:border-white/[0.06] p-[1px] overflow-hidden mb-2 bg-white dark:bg-[linear-gradient(145deg,rgba(255,255,255,0.04)_0%,rgba(255,255,255,0.01)_100%)]">
+                                <div className="rounded-[1.6rem] border border-[#E2D9C4]/80 dark:border-white/[0.06] p-[1px] overflow-hidden mb-2 bg-[#FFFDF6] dark:bg-[linear-gradient(145deg,rgba(255,255,255,0.04)_0%,rgba(255,255,255,0.01)_100%)]">
                                     <div className="rounded-[1.5rem] p-4 dark:bg-[linear-gradient(180deg,rgba(255,255,255,0.03)_0%,rgba(0,0,0,0.05)_100%)] dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.05),inset_0_-1px_0_rgba(0,0,0,0.1)]">
 
                                         {/* Day Headers */}
@@ -933,12 +933,12 @@ export default function FastingTracker() {
                                                         onClick={() => toggleTeravih(n)}
                                                         className={cn(
                                                             "relative aspect-square rounded-xl flex items-center justify-center transition-all active:scale-90",
-                                                            isToday && "ring-2 ring-emerald-500/50 dark:ring-emerald-400/50 ring-offset-1 ring-offset-transparent",
+                                                            isToday && "ring-2 ring-amber-500/60 dark:ring-emerald-400/50 ring-offset-1 ring-offset-transparent",
                                                             !done && (isPast ? "bg-stone-900/[0.04] dark:bg-white/[0.03]" : "bg-transparent")
                                                         )}
                                                         style={done ? {
                                                             backgroundColor: '#10b981',
-                                                            boxShadow: '0 2px 8px rgba(16,185,129,0.3)',
+                                                            boxShadow: '0 2px 8px rgba(217,119,6,0.3)',
                                                         } : undefined}
                                                     >
                                                         {done ? (
@@ -955,7 +955,7 @@ export default function FastingTracker() {
                                         </div>
 
                                         {/* Legend */}
-                                        <div className="flex items-center justify-center gap-5 mt-3.5 pt-3 border-t border-stone-200/70 dark:border-white/[0.04]">
+                                        <div className="flex items-center justify-center gap-5 mt-3.5 pt-3 border-t border-[#E2D9C4]/70 dark:border-white/[0.04]">
                                             {[
                                                 { c: '#34d399', l: t('teravihLegend.done') },
                                                 { cls: 'bg-stone-300 dark:bg-white/15', l: t('teravihLegend.notDone') },
@@ -1113,12 +1113,12 @@ export default function FastingTracker() {
                                 exit={{ scale: 0.9, opacity: 0, y: 20 }}
                                 transition={{ type: 'spring', damping: 25, stiffness: 400 }}
                                 onClick={(e) => e.stopPropagation()}
-                                className="relative w-full max-w-sm rounded-3xl overflow-hidden bg-white dark:bg-[linear-gradient(180deg,#1a2f1f_0%,#0d1f12_100%)] border border-stone-200 dark:border-white/[0.08] shadow-[0_25px_60px_rgba(0,0,0,0.2)] dark:shadow-[0_25px_60px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.05)]"
+                                className="relative w-full max-w-sm rounded-3xl overflow-hidden bg-[#FFFDF6] dark:bg-[linear-gradient(180deg,#1a2f1f_0%,#0d1f12_100%)] border border-[#E2D9C4] dark:border-white/[0.08] shadow-[0_25px_60px_rgba(0,0,0,0.2)] dark:shadow-[0_25px_60px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.05)]"
                             >
                                 <div className="p-6 text-center">
-                                    <div className="w-16 h-16 rounded-2xl bg-emerald-500/15 border border-emerald-400/20 flex items-center justify-center mx-auto mb-4"
+                                    <div className="w-16 h-16 rounded-2xl bg-amber-500/15 dark:bg-emerald-500/15 border border-amber-400/20 dark:border-emerald-400/20 flex items-center justify-center mx-auto mb-4"
                                         style={{ boxShadow: '0 0 30px rgba(52,211,153,0.15)' }}>
-                                        <Sparkles size={28} className="text-emerald-600 dark:text-emerald-400" />
+                                        <Sparkles size={28} className="text-amber-700 dark:text-emerald-400" />
                                     </div>
                                     <h3 className="text-lg font-bold text-stone-900 dark:text-white mb-2">{t('teravihResetTitle')}</h3>
                                     <p className="text-[13px] text-stone-500 dark:text-white/40 leading-relaxed mb-6">
@@ -1127,7 +1127,7 @@ export default function FastingTracker() {
                                     <div className="flex gap-3">
                                         <button
                                             onClick={() => setShowTeravihReset(false)}
-                                            className="flex-1 py-3 rounded-xl bg-stone-100 border border-stone-200 text-stone-600 hover:bg-stone-200 dark:bg-white/5 dark:border-white/10 dark:text-white/60 dark:hover:bg-white/10 text-sm font-semibold transition-all active:scale-95 cursor-pointer"
+                                            className="flex-1 py-3 rounded-xl bg-[#F0E8D5] border border-[#E2D9C4] text-stone-600 hover:bg-[#E9DFC8] dark:bg-white/5 dark:border-white/10 dark:text-white/60 dark:hover:bg-white/10 text-sm font-semibold transition-all active:scale-95 cursor-pointer"
                                         >
                                             {t('cancel')}
                                         </button>

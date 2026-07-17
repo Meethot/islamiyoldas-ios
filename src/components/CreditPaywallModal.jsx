@@ -55,9 +55,8 @@ export default function CreditPaywallModal({
 
                     {/* Modal Sheet */}
                     <motion.div
-                        className="relative w-full max-w-lg rounded-t-[2.5rem] overflow-hidden touch-none"
+                        className="relative w-full max-w-lg rounded-t-[2.5rem] overflow-hidden touch-none bg-[linear-gradient(160deg,#8a4a0f_0%,#4a2708_35%,#2a1605_65%,#100903_100%)] dark:bg-[linear-gradient(160deg,#0d4a2e_0%,#072a1a_35%,#041c11_65%,#020f09_100%)]"
                         style={{
-                            background: 'linear-gradient(160deg, #0d4a2e 0%, #072a1a 35%, #041c11 65%, #020f09 100%)',
                             maxHeight: '92vh',
                         }}
                         initial={{ y: '100%' }}
@@ -77,7 +76,7 @@ export default function CreditPaywallModal({
                         <div
                             className="absolute inset-0 pointer-events-none opacity-60"
                             style={{
-                                background: 'radial-gradient(ellipse at 20% 0%, rgba(212,175,55,0.08) 0%, transparent 50%), radial-gradient(ellipse at 80% 100%, rgba(16,185,129,0.1) 0%, transparent 50%), radial-gradient(ellipse at 50% 50%, rgba(212,175,55,0.03) 0%, transparent 70%)',
+                                background: 'radial-gradient(ellipse at 20% 0%, rgba(212,175,55,0.08) 0%, transparent 50%), radial-gradient(ellipse at 80% 100%, rgba(217,119,6,0.1) 0%, transparent 50%), radial-gradient(ellipse at 50% 50%, rgba(212,175,55,0.03) 0%, transparent 70%)',
                             }}
                         />
 
@@ -100,7 +99,7 @@ export default function CreditPaywallModal({
 
                         {/* Ambient Glow Orbs — Enhanced */}
                         <div className="absolute top-[-15%] right-[-10%] w-64 h-64 rounded-full blur-[100px] pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(212,175,55,0.12), transparent 70%)' }} />
-                        <div className="absolute bottom-[-10%] left-[-15%] w-72 h-72 rounded-full blur-[120px] pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(16,185,129,0.15), transparent 70%)' }} />
+                        <div className="absolute bottom-[-10%] left-[-15%] w-72 h-72 rounded-full blur-[120px] pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(217,119,6,0.15), transparent 70%)' }} />
                         <div className="absolute top-[40%] left-[50%] -translate-x-1/2 w-40 h-40 rounded-full blur-[80px] pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(212,175,55,0.06), transparent 70%)' }} />
 
                         {/* Top edge gold line accent */}
@@ -207,7 +206,7 @@ export default function CreditPaywallModal({
 
                                 {/* Status Badge */}
                                 <div className={`mt-3 px-4 py-1.5 rounded-full text-xs font-bold ${isReady
-                                    ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/25'
+                                    ? 'bg-amber-500/15 dark:bg-emerald-500/15 text-amber-400 dark:text-emerald-400 border border-amber-500/25 dark:border-emerald-500/25'
                                     : 'bg-white/5 text-white/50 border border-white/10'
                                     }`}>
                                     {isReady ? t('paywallReady') : t('paywallRemaining', { count: remaining })}
@@ -275,13 +274,13 @@ export default function CreditPaywallModal({
                                 {/* Amin Card */}
                                 <button
                                     onClick={onEarnAmin}
-                                    className="relative bg-white/[0.04] backdrop-blur-sm border border-emerald-500/15 rounded-2xl p-4 text-left transition-all active:scale-[0.96] hover:bg-white/[0.07] hover:border-emerald-500/30 group"
+                                    className="relative bg-white/[0.04] backdrop-blur-sm border border-amber-500/15 dark:border-emerald-500/15 rounded-2xl p-4 text-left transition-all active:scale-[0.96] hover:bg-white/[0.07] hover:border-amber-500/30 dark:hover:border-emerald-500/30 group"
                                 >
                                     <div className="flex items-center justify-between mb-3">
-                                        <div className="w-9 h-9 rounded-xl bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20">
-                                            <Heart size={16} className="text-emerald-400" />
+                                        <div className="w-9 h-9 rounded-xl bg-amber-500/10 dark:bg-emerald-500/10 flex items-center justify-center border border-amber-500/20 dark:border-emerald-500/20">
+                                            <Heart size={16} className="text-amber-400 dark:text-emerald-400" />
                                         </div>
-                                        <span className="text-[11px] font-bold bg-emerald-500/15 text-emerald-400 px-2.5 py-1 rounded-full border border-emerald-500/20">
+                                        <span className="text-[11px] font-bold bg-amber-500/15 dark:bg-emerald-500/15 text-amber-400 dark:text-emerald-400 px-2.5 py-1 rounded-full border border-amber-500/20 dark:border-emerald-500/20">
                                             +1
                                         </span>
                                     </div>

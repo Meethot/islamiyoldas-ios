@@ -161,14 +161,14 @@ export default function AiPrescriptionCard({ data }) {
             animate={{ opacity: 1, y: 0 }}
             className="w-full max-w-sm mx-auto"
         >
-            <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-stone-50 to-stone-100 dark:from-[#032e18] dark:to-[#0a4a2e] border border-stone-200 dark:border-islamic-gold/20 shadow-xl">
+            <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-stone-50 to-stone-100 dark:from-[#032e18] dark:to-[#0a4a2e] border border-[#E2D9C4] dark:border-islamic-gold/20 shadow-xl">
                 {/* Decorative Background */}
                 <div className="absolute top-0 right-0 w-32 h-32 bg-islamic-green/5 dark:bg-islamic-gold/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
-                <div className="absolute bottom-0 left-0 w-24 h-24 bg-emerald-500/5 dark:bg-emerald-500/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
+                <div className="absolute bottom-0 left-0 w-24 h-24 bg-amber-500/5 dark:bg-emerald-500/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
 
                 <div className="p-6 space-y-5 relative z-10">
                     {/* Header */}
-                    <div className="flex items-center gap-2 border-b border-stone-200 dark:border-white/10 pb-3">
+                    <div className="flex items-center gap-2 border-b border-[#E2D9C4] dark:border-white/10 pb-3">
                         <Sparkles className="w-5 h-5 text-islamic-green dark:text-islamic-gold" />
                         <h3 className="text-islamic-green dark:text-islamic-gold font-serif font-bold text-lg tracking-wide">
                             {t('prescription.title')}
@@ -212,7 +212,7 @@ export default function AiPrescriptionCard({ data }) {
 
                     {/* 2b. Dua Tavsiyesi (opsiyonel — model uygun görürse) */}
                     {dua?.arabic && (
-                        <div className="bg-stone-100 dark:bg-white/5 rounded-2xl p-4 border border-stone-200 dark:border-white/5">
+                        <div className="bg-[#F0E8D5] dark:bg-white/5 rounded-2xl p-4 border border-[#E2D9C4] dark:border-white/5">
                             <p className="text-[10px] text-islamic-gold/60 uppercase tracking-widest font-bold mb-3">🤲 {t('prescription.duaLabel')}</p>
                             <p className="text-right font-arabic text-xl text-islamic-gold/90 leading-loose mb-2" dir="rtl">
                                 {dua.arabic}
@@ -231,8 +231,8 @@ export default function AiPrescriptionCard({ data }) {
                     )}
 
                     {/* 3. Şifa Ayeti (Audio Verse) */}
-                    <div className="bg-stone-100 dark:bg-white/5 rounded-2xl p-4 border border-stone-200 dark:border-white/5">
-                        <p className="text-[10px] text-emerald-400/60 uppercase tracking-widest font-bold mb-3">📖 {t('prescription.verseLabel')}</p>
+                    <div className="bg-[#F0E8D5] dark:bg-white/5 rounded-2xl p-4 border border-[#E2D9C4] dark:border-white/5">
+                        <p className="text-[10px] text-amber-600/70 dark:text-emerald-400/60 uppercase tracking-widest font-bold mb-3">📖 {t('prescription.verseLabel')}</p>
 
                         {loadingVerse ? (
                             <div className="h-20 animate-pulse bg-white/5 rounded-xl" />
@@ -254,7 +254,7 @@ export default function AiPrescriptionCard({ data }) {
                                         <button
                                             onClick={toggleAudio}
                                             className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold transition-all active:scale-95 ${isPlaying
-                                                ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
+                                                ? 'bg-amber-500/15 dark:bg-emerald-500/20 text-amber-700 dark:text-emerald-400 border border-amber-500/30 dark:border-emerald-500/30'
                                                 : 'bg-islamic-gold/10 text-islamic-gold border border-islamic-gold/30 hover:bg-islamic-gold/20'
                                                 }`}
                                         >

@@ -72,9 +72,9 @@ export default function Tefekkur() {
     };
 
     return (
-        <div className="h-[100dvh] bg-gradient-to-b from-[#FAF8F3] via-[#F5F0E6] to-[#EDE6D6] dark:from-[#022c22] dark:via-[#064e3b] dark:to-[#000000] relative overflow-hidden flex flex-col">
+        <div className="h-[100dvh] bg-gradient-to-b from-[#F6F0E1] via-[#EFE8D6] to-[#EAE1CB] dark:from-[#022c22] dark:via-[#064e3b] dark:to-[#000000] relative overflow-hidden flex flex-col">
             {/* Ambient Glow */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-emerald-500/10 rounded-full blur-[150px] pointer-events-none" />
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-amber-500/10 dark:bg-emerald-500/10 rounded-full blur-[150px] pointer-events-none" />
 
             {/* Header */}
             <header className="relative z-10 flex items-center justify-between px-4 py-4 border-b border-stone-900/5 dark:border-white/5">
@@ -107,22 +107,22 @@ export default function Tefekkur() {
                     } : {}}
                 >
                     {/* Glow Rings */}
-                    <div className="absolute inset-0 bg-gradient-to-br from-emerald-400/20 to-teal-600/20 rounded-full blur-3xl animate-pulse" />
+                    <div className="absolute inset-0 bg-gradient-to-br from-amber-400/20 to-orange-600/20 dark:from-emerald-400/20 dark:to-teal-600/20 rounded-full blur-3xl animate-pulse" />
                     <motion.div
-                        className="absolute inset-0 bg-gradient-to-br from-emerald-300/10 to-teal-500/10 rounded-full blur-2xl"
+                        className="absolute inset-0 bg-gradient-to-br from-amber-300/10 to-orange-500/10 dark:from-emerald-300/10 dark:to-teal-500/10 rounded-full blur-2xl"
                         animate={{ rotate: 360 }}
                         transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
                     />
 
                     {/* Main Circle */}
                     <motion.div
-                        className="relative w-40 h-40 rounded-full bg-gradient-to-br from-emerald-500/20 via-teal-600/20 to-emerald-800/20 backdrop-blur-sm border border-emerald-900/10 dark:border-white/10 shadow-[0_0_50px_rgba(16,185,129,0.2)] flex items-center justify-center"
+                        className="relative w-40 h-40 rounded-full bg-gradient-to-br from-amber-500/20 via-orange-600/20 to-amber-800/20 dark:from-emerald-500/20 dark:via-teal-600/20 dark:to-emerald-800/20 backdrop-blur-sm border border-amber-900/10 dark:border-white/10 shadow-[0_0_50px_rgba(217,119,6,0.2)] dark:shadow-[0_0_50px_rgba(16,185,129,0.2)] flex items-center justify-center"
                         animate={active ? {
                             boxShadow: [
-                                '0 0 50px rgba(16,185,129,0.2)',
-                                '0 0 100px rgba(16,185,129,0.5)',
-                                '0 0 100px rgba(16,185,129,0.5)',
-                                '0 0 50px rgba(16,185,129,0.2)'
+                                '0 0 50px rgba(217,119,6,0.2)',
+                                '0 0 100px rgba(217,119,6,0.45)',
+                                '0 0 100px rgba(217,119,6,0.45)',
+                                '0 0 50px rgba(217,119,6,0.2)'
                             ]
                         } : {}}
                         transition={active ? {
@@ -137,12 +137,12 @@ export default function Tefekkur() {
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
                                 exit={{ opacity: 0 }}
-                                className="text-2xl font-serif text-emerald-950 dark:text-white font-medium tracking-widest"
+                                className="text-2xl font-serif text-amber-950 dark:text-white font-medium tracking-widest"
                             >
                                 <BreathText t={t} />
                             </motion.span>
                         ) : (
-                            <Wind className="w-16 h-16 text-emerald-700/50 dark:text-emerald-200/50" />
+                            <Wind className="w-16 h-16 text-amber-700/50 dark:text-emerald-200/50" />
                         )}
                     </motion.div>
                 </motion.div>
@@ -173,7 +173,7 @@ export default function Tefekkur() {
                                                 "py-3 rounded-xl text-sm font-bold transition-all border",
                                                 duration === dur.value
                                                     ? "bg-islamic-green text-white border-islamic-green dark:bg-islamic-gold dark:text-[#022c22] dark:border-islamic-gold shadow-lg scale-105"
-                                                    : "bg-white dark:bg-white/5 text-stone-500 dark:text-white/60 border-stone-200 dark:border-white/10 hover:bg-stone-50 dark:hover:bg-white/10"
+                                                    : "bg-[#FFFDF6] dark:bg-white/5 text-stone-500 dark:text-white/60 border-[#E2D9C4] dark:border-white/10 hover:bg-stone-50 dark:hover:bg-white/10"
                                             )}
                                         >
                                             {t(dur.labelKey)}
@@ -183,7 +183,7 @@ export default function Tefekkur() {
 
                                 <Button
                                     onClick={() => { selection(); setActive(true); setCompleted(false); }}
-                                    className="w-full h-14 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg flex items-center justify-center gap-2 text-lg font-bold transition-all hover:scale-105 active:scale-95"
+                                    className="w-full h-14 rounded-2xl bg-amber-600 hover:bg-amber-500 dark:bg-emerald-600 dark:hover:bg-emerald-500 text-white shadow-lg flex items-center justify-center gap-2 text-lg font-bold transition-all hover:scale-105 active:scale-95"
                                 >
                                     <Play className="w-5 h-5 fill-current" /> {t('start')}
                                 </Button>
@@ -195,14 +195,14 @@ export default function Tefekkur() {
                                 animate={{ opacity: 1, scale: 1 }}
                                 className="w-full max-w-sm mx-auto"
                             >
-                                <div className="relative overflow-hidden p-8 rounded-[2rem] bg-white/70 dark:bg-gradient-to-br dark:from-emerald-900/40 dark:to-teal-900/40 backdrop-blur-xl border border-stone-200/80 dark:border-white/10 shadow-2xl">
+                                <div className="relative overflow-hidden p-8 rounded-[2rem] bg-white/70 dark:bg-gradient-to-br dark:from-emerald-900/40 dark:to-teal-900/40 backdrop-blur-xl border border-[#E2D9C4]/80 dark:border-white/10 shadow-2xl">
                                     {/* Decorative Elements */}
                                     <div className="absolute top-0 right-0 p-8 opacity-20 transform translate-x-1/3 -translate-y-1/3">
                                         <div className="w-32 h-32 rounded-full bg-islamic-gold blur-3xl" />
                                     </div>
 
                                     <div className="relative z-10 flex flex-col items-center text-center space-y-6">
-                                        <div className="w-16 h-16 rounded-full bg-emerald-500/20 flex items-center justify-center mb-2 animate-bounce-slow">
+                                        <div className="w-16 h-16 rounded-full bg-amber-500/20 dark:bg-emerald-500/20 flex items-center justify-center mb-2 animate-bounce-slow">
                                             <Sparkles className="w-8 h-8 text-islamic-green dark:text-islamic-gold" />
                                         </div>
 
@@ -216,7 +216,7 @@ export default function Tefekkur() {
                                         </div>
 
                                         {/* Verse Card */}
-                                        <div className="w-full p-6 rounded-2xl bg-emerald-950/5 dark:bg-black/20 border border-emerald-950/10 dark:border-white/5 space-y-3">
+                                        <div className="w-full p-6 rounded-2xl bg-amber-950/5 dark:bg-black/20 border border-amber-950/10 dark:border-white/5 space-y-3">
                                             <p className="text-xl font-serif text-islamic-green dark:text-islamic-gold leading-relaxed">
                                                 {t('verse2')}
                                             </p>
@@ -230,13 +230,13 @@ export default function Tefekkur() {
                                             <Button
                                                 variant="outline"
                                                 onClick={() => { selection(); navigate('/'); }}
-                                                className="flex-1 h-12 rounded-xl border-stone-200 bg-white hover:bg-stone-50 text-stone-600 hover:text-stone-800 dark:border-white/10 dark:bg-white/5 dark:hover:bg-white/10 dark:text-white/80 dark:hover:text-white"
+                                                className="flex-1 h-12 rounded-xl border-[#E2D9C4] bg-[#FFFDF6] hover:bg-stone-50 text-stone-600 hover:text-stone-800 dark:border-white/10 dark:bg-white/5 dark:hover:bg-white/10 dark:text-white/80 dark:hover:text-white"
                                             >
                                                 {t('home')}
                                             </Button>
                                             <Button
                                                 onClick={() => { selection(); setCompleted(false); setActive(false); setTimeLeft(duration); }}
-                                                className="flex-1 h-12 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg"
+                                                className="flex-1 h-12 rounded-xl bg-amber-600 hover:bg-amber-500 dark:bg-emerald-600 dark:hover:bg-emerald-500 text-white shadow-lg"
                                             >
                                                 <RotateCcw className="w-4 h-4 mr-2" /> {t('repeat')}
                                             </Button>

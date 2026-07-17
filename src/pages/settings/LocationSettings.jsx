@@ -31,12 +31,12 @@ function SettingsToggle({ icon: Icon, label, subtitle, active, onToggle }) {
     return (
         <button
             onClick={onToggle}
-            className="w-full flex items-center justify-between p-5 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors border-b last:border-0 dark:border-white/5"
+            className="w-full flex items-center justify-between p-5 hover:bg-[#F0E8D5] dark:hover:bg-white/5 transition-colors border-b last:border-0 dark:border-white/5"
         >
             <div className="flex items-center gap-4">
                 <div className={cn(
                     "p-3 rounded-2xl transition-colors",
-                    active ? "bg-islamic-green/10 text-islamic-green dark:bg-islamic-gold/20 dark:text-islamic-gold" : "bg-gray-100 text-gray-400 dark:bg-white/5 dark:text-gray-500"
+                    active ? "bg-islamic-green/10 text-islamic-green dark:bg-islamic-gold/20 dark:text-islamic-gold" : "bg-[#F0E8D5] text-gray-400 dark:bg-white/5 dark:text-gray-500"
                 )}>
                     <Icon size={20} />
                 </div>
@@ -50,7 +50,7 @@ function SettingsToggle({ icon: Icon, label, subtitle, active, onToggle }) {
                 active ? "bg-islamic-green dark:bg-islamic-gold" : "bg-gray-200 dark:bg-white/10"
             )}>
                 <div className={cn(
-                    "w-4 h-4 bg-white rounded-full shadow-sm transition-transform",
+                    "w-4 h-4 bg-[#FFFDF6] rounded-full shadow-sm transition-transform",
                     active ? "translate-x-6" : "translate-x-0"
                 )} />
             </div>
@@ -114,7 +114,7 @@ function CalculationMethodModal({ currentMethod, onSelect, onClose, t }) {
                         onClose();
                     }
                 }}
-                className="mt-auto max-h-[85vh] bg-white dark:bg-[#032e18] rounded-t-[2.5rem] overflow-hidden flex flex-col shadow-2xl"
+                className="mt-auto max-h-[85vh] bg-[#FFFDF6] dark:bg-[#032e18] rounded-t-[2.5rem] overflow-hidden flex flex-col shadow-2xl"
             >
                 {/* Drag Handle */}
                 <div 
@@ -128,7 +128,7 @@ function CalculationMethodModal({ currentMethod, onSelect, onClose, t }) {
                     <h2 className="text-2xl font-serif font-bold text-islamic-green dark:text-islamic-gold">
                         {t('calculationMethod', 'Hesaplama Yöntemi')}
                     </h2>
-                    <Button variant="ghost" size="icon" onClick={onClose} className="rounded-full bg-gray-100 dark:bg-white/10">
+                    <Button variant="ghost" size="icon" onClick={onClose} className="rounded-full bg-[#F0E8D5] dark:bg-white/10">
                         <X size={20} />
                     </Button>
                 </div>
@@ -142,7 +142,7 @@ function CalculationMethodModal({ currentMethod, onSelect, onClose, t }) {
                                 "w-full flex items-center justify-between p-4 rounded-2xl transition-all duration-300 group",
                                 currentMethod === method.id
                                     ? "bg-islamic-green dark:bg-islamic-gold text-white dark:text-[#032e18] shadow-lg shadow-islamic-green/20"
-                                    : "hover:bg-gray-50 dark:hover:bg-white/5 text-gray-700 dark:text-gray-300"
+                                    : "hover:bg-[#F6F0E1] dark:hover:bg-white/5 text-gray-700 dark:text-gray-300"
                             )}
                         >
                             <div className="text-left">
@@ -360,7 +360,7 @@ function LocationSelectionModal({ currentCountryCode, currentCity, initialMode =
                         onClose();
                     }
                 }}
-                className="mt-auto h-[90vh] bg-white dark:bg-[#032e18] rounded-t-[2.5rem] overflow-hidden flex flex-col shadow-2xl"
+                className="mt-auto h-[90vh] bg-[#FFFDF6] dark:bg-[#032e18] rounded-t-[2.5rem] overflow-hidden flex flex-col shadow-2xl"
             >
                 {/* Drag Handle */}
                 <div 
@@ -376,7 +376,7 @@ function LocationSelectionModal({ currentCountryCode, currentCity, initialMode =
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
                             {mode === 'city' && (
-                                <button onClick={() => { setMode('country'); setSearchTerm(''); setResults([]); }} className="p-2 -ml-2 rounded-full hover:bg-gray-100 dark:hover:bg-white/10 transition-colors">
+                                <button onClick={() => { setMode('country'); setSearchTerm(''); setResults([]); }} className="p-2 -ml-2 rounded-full hover:bg-[#F0E8D5] dark:hover:bg-white/10 transition-colors">
                                     <ChevronLeft size={24} className="text-gray-600 dark:text-gray-300" />
                                 </button>
                             )}
@@ -384,7 +384,7 @@ function LocationSelectionModal({ currentCountryCode, currentCity, initialMode =
                                 {mode === 'country' ? t('selectCountry', 'Select Country') : t('selectCity', 'Select City')}
                             </h2>
                         </div>
-                        <Button variant="ghost" size="icon" onClick={onClose} className="rounded-full bg-gray-100 dark:bg-white/10">
+                        <Button variant="ghost" size="icon" onClick={onClose} className="rounded-full bg-[#F0E8D5] dark:bg-white/10">
                             <X size={20} />
                         </Button>
                     </div>
@@ -396,7 +396,7 @@ function LocationSelectionModal({ currentCountryCode, currentCity, initialMode =
                             placeholder={mode === 'country' ? t('searchCountry', 'Search country...') : t('searchCity', 'Search city...')}
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full bg-gray-100 dark:bg-white/5 border-none rounded-2xl pl-12 pr-4 py-4 text-gray-900 dark:text-white placeholder:text-gray-400 focus:ring-2 focus:ring-islamic-green dark:focus:ring-islamic-gold transition-all"
+                            className="w-full bg-[#F0E8D5] dark:bg-white/5 border-none rounded-2xl pl-12 pr-4 py-4 text-gray-900 dark:text-white placeholder:text-gray-400 focus:ring-2 focus:ring-islamic-green dark:focus:ring-islamic-gold transition-all"
                         />
                         {mode === 'city' && loading && (
                             <Loader2 size={18} className="absolute right-4 top-1/2 -translate-y-1/2 animate-spin text-islamic-green dark:text-islamic-gold" />
@@ -417,7 +417,7 @@ function LocationSelectionModal({ currentCountryCode, currentCity, initialMode =
                                         "flex items-center justify-between p-4 rounded-2xl transition-all duration-300 group text-left",
                                         isCurrent
                                             ? "bg-islamic-green dark:bg-islamic-gold text-white dark:text-[#032e18] shadow-lg shadow-islamic-green/20"
-                                            : "hover:bg-gray-50 dark:hover:bg-white/5 text-gray-700 dark:text-gray-300"
+                                            : "hover:bg-[#F6F0E1] dark:hover:bg-white/5 text-gray-700 dark:text-gray-300"
                                     )}
                                 >
                                     <span className={cn("font-bold text-lg", isCurrent ? "translate-x-2" : "group-hover:translate-x-2")} style={{ transition: 'transform 0.2s' }}>
@@ -454,7 +454,7 @@ function LocationSelectionModal({ currentCountryCode, currentCity, initialMode =
                                         "flex items-center justify-between p-4 rounded-2xl transition-all duration-300 group text-left",
                                         isCurrent
                                             ? "bg-islamic-green dark:bg-islamic-gold text-white dark:text-[#032e18] shadow-lg shadow-islamic-green/20"
-                                            : "hover:bg-gray-50 dark:hover:bg-white/5 text-gray-700 dark:text-gray-300"
+                                            : "hover:bg-[#F6F0E1] dark:hover:bg-white/5 text-gray-700 dark:text-gray-300"
                                     )}
                                 >
                                     <div className={cn(isCurrent ? "translate-x-2" : "group-hover:translate-x-2")} style={{ transition: 'transform 0.2s' }}>
@@ -596,12 +596,12 @@ export default function LocationSettings() {
     };
 
     return (
-        <div className="min-h-screen bg-slate-50 dark:bg-[#021a0f] text-gray-900 dark:text-white pb-24">
+        <div className="min-h-screen bg-[#F6F0E1] dark:bg-[#021a0f] text-gray-900 dark:text-white pb-24">
             <div className="px-5 pt-4 flex items-center gap-3">
                 <button
                     onClick={() => { selection(); navigate(-1); }}
                     aria-label={t('common:common.back')}
-                    className="flex-shrink-0 w-9 h-9 rounded-full bg-white dark:bg-white/5 border border-stone-200/80 dark:border-white/10 shadow-sm dark:shadow-none flex items-center justify-center text-islamic-green dark:text-islamic-gold hover:bg-stone-50 dark:hover:bg-white/10 transition-colors active:scale-95"
+                    className="flex-shrink-0 w-9 h-9 rounded-full bg-[#FFFDF6] dark:bg-white/5 border border-[#E2D9C4]/80 dark:border-white/10 shadow-sm dark:shadow-none flex items-center justify-center text-islamic-green dark:text-islamic-gold hover:bg-stone-50 dark:hover:bg-white/10 transition-colors active:scale-95"
                 >
                     <ChevronLeft size={18} />
                 </button>
@@ -614,7 +614,7 @@ export default function LocationSettings() {
                 variants={containerVariants}
             >
                 <motion.section variants={itemVariants} className="space-y-3">
-                    <div className="bg-white dark:bg-white/5 rounded-[2rem] shadow-sm border dark:border-white/5 overflow-hidden">
+                    <div className="bg-[#FFFDF6] dark:bg-white/5 rounded-[2rem] shadow-sm border dark:border-white/5 overflow-hidden">
                         {/* Auto Location Toggle */}
                         <SettingsToggle
                             icon={Crosshair}
@@ -639,13 +639,13 @@ export default function LocationSettings() {
                                     </div>
                                 ) : hasLocation && latitude && longitude ? (
                                     <div className="flex items-center gap-4">
-                                        <div className="p-3 bg-emerald-100 dark:bg-emerald-500/20 rounded-2xl">
-                                            <Navigation className="w-5 h-5 text-emerald-600 dark:text-emerald-400 fill-current" />
+                                        <div className="p-3 bg-amber-100 dark:bg-emerald-500/20 rounded-2xl">
+                                            <Navigation className="w-5 h-5 text-amber-700 dark:text-emerald-400 fill-current" />
                                         </div>
                                         <div className="flex-1">
                                             <div className="flex items-center gap-2">
-                                                <p className="text-sm font-bold text-emerald-600 dark:text-emerald-400">{t('gpsActive')}</p>
-                                                <span className="px-2 py-0.5 bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 text-[8px] font-black uppercase tracking-wider rounded-full">
+                                                <p className="text-sm font-bold text-amber-700 dark:text-emerald-400">{t('gpsActive')}</p>
+                                                <span className="px-2 py-0.5 bg-amber-100 dark:bg-emerald-500/20 text-amber-700 dark:text-emerald-300 text-[8px] font-black uppercase tracking-wider rounded-full">
                                                     {t('live')}
                                                 </span>
                                             </div>
@@ -655,7 +655,7 @@ export default function LocationSettings() {
                                         </div>
                                         <button
                                             onClick={() => { selection(); refreshLocation(); }}
-                                            className="p-2 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-100 dark:hover:bg-emerald-500/20 transition-all active:scale-90"
+                                            className="p-2 rounded-xl bg-amber-50 dark:bg-emerald-500/10 text-amber-700 dark:text-emerald-400 hover:bg-amber-100 dark:hover:bg-emerald-500/20 transition-all active:scale-90"
                                         >
                                             <RefreshCw className="w-4 h-4" />
                                         </button>
@@ -687,7 +687,7 @@ export default function LocationSettings() {
                             <div className="flex flex-col border-t dark:border-white/5">
                                 <button
                                     onClick={() => { medium(); setModalMode('country'); setIsCityModalOpen(true); }}
-                                    className="w-full flex items-center justify-between p-5 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors border-b dark:border-white/5"
+                                    className="w-full flex items-center justify-between p-5 hover:bg-[#F0E8D5] dark:hover:bg-white/5 transition-colors border-b dark:border-white/5"
                                 >
                                     <div className="flex items-center gap-4">
                                         <div className="p-3 bg-islamic-green/5 dark:bg-islamic-gold/10 rounded-2xl text-islamic-green dark:text-islamic-gold">
@@ -702,7 +702,7 @@ export default function LocationSettings() {
                                 </button>
                                 <button
                                     onClick={() => { medium(); setModalMode('city'); setIsCityModalOpen(true); }}
-                                    className="w-full flex items-center justify-between p-5 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors"
+                                    className="w-full flex items-center justify-between p-5 hover:bg-[#F0E8D5] dark:hover:bg-white/5 transition-colors"
                                 >
                                     <div className="flex items-center gap-4">
                                         <div className="p-3 bg-islamic-green/5 dark:bg-islamic-gold/10 rounded-2xl text-islamic-green dark:text-islamic-gold">
@@ -727,10 +727,10 @@ export default function LocationSettings() {
                     </p>
 
                     {/* Calculation Method Card */}
-                    <div className="bg-white dark:bg-[#032e18]/40 rounded-3xl border dark:border-white/5 overflow-hidden shadow-sm">
+                    <div className="bg-[#FFFDF6] dark:bg-[#032e18]/40 rounded-3xl border dark:border-white/5 overflow-hidden shadow-sm">
                         <button
                             onClick={() => { medium(); setIsCalcModalOpen(true); }}
-                            className="w-full flex items-center justify-between p-5 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors"
+                            className="w-full flex items-center justify-between p-5 hover:bg-[#F0E8D5] dark:hover:bg-white/5 transition-colors"
                         >
                             <div className="flex items-center gap-4">
                                 <div className="p-3 bg-indigo-50 dark:bg-indigo-500/10 rounded-2xl text-indigo-600 dark:text-indigo-400">

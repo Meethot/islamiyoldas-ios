@@ -898,7 +898,7 @@ const CategoryButton = memo(({ cat, isSelected, onClick }) => (
             "flex items-center gap-2 px-5 py-3 rounded-2xl border transition-all text-sm font-bold whitespace-nowrap active:scale-95",
             isSelected
                 ? "bg-islamic-green dark:bg-islamic-gold text-white dark:text-[#032e18] border-transparent shadow-lg"
-                : "bg-white dark:bg-white/5 text-gray-500 dark:text-emerald-100/40 border-gray-100 dark:border-white/5 hover:border-islamic-gold"
+                : "bg-[#FFFDF6] dark:bg-white/5 text-gray-500 dark:text-emerald-100/40 border-[#EDE5D1] dark:border-white/5 hover:border-islamic-gold"
         )}
     >
         <cat.icon size={18} />
@@ -910,7 +910,7 @@ const GuideStepCard = memo(({ step }) => {
     const { t } = useTranslation('learn');
     if (!step) return null;
     return (
-        <Card className="border-none shadow-xl rounded-[2.5rem] bg-white dark:bg-white/5 overflow-hidden p-6 relative dark:text-white">
+        <Card className="border-none shadow-xl rounded-[2.5rem] bg-[#FFFDF6] dark:bg-white/5 overflow-hidden p-6 relative dark:text-white">
             <div className="space-y-6">
                 <div className="flex items-start gap-4">
                     <div className="w-14 h-14 bg-islamic-green dark:bg-islamic-gold rounded-2xl flex items-center justify-center text-white dark:text-[#032e18] shadow-lg shrink-0">
@@ -942,7 +942,7 @@ const GuideStepCard = memo(({ step }) => {
                 </div>
 
                 {/* Tips Section */}
-                <div className="bg-gray-50 dark:bg-white/5 rounded-3xl p-6 border dark:border-white/5 shadow-sm">
+                <div className="bg-[#F6F0E1] dark:bg-white/5 rounded-3xl p-6 border dark:border-white/5 shadow-sm">
                     <h4 className="flex items-center gap-2 text-islamic-gold font-bold text-xs uppercase tracking-widest mb-4">
                         <SparklesIcon size={14} /> {t('tipsTitle')}
                     </h4>
@@ -1055,7 +1055,7 @@ export default function Learn() {
                         transition={{ type: 'spring', damping: 12, stiffness: 200, delay: 0.2 }}
                         className="relative mb-8"
                     >
-                        <div className="w-28 h-28 rounded-full bg-gradient-to-br from-islamic-green to-emerald-600 dark:from-islamic-gold dark:to-amber-500 flex items-center justify-center shadow-2xl shadow-islamic-green/30 dark:shadow-islamic-gold/30">
+                        <div className="w-28 h-28 rounded-full bg-gradient-to-br from-islamic-green to-amber-700 dark:from-islamic-gold dark:to-amber-500 flex items-center justify-center shadow-2xl shadow-islamic-green/30 dark:shadow-islamic-gold/30">
                             <CheckCircle2 className="w-14 h-14 text-white dark:text-[#032e18]" strokeWidth={2.5} />
                         </div>
                         {/* Pulse rings */}
@@ -1178,7 +1178,7 @@ export default function Learn() {
                                     ? "bg-islamic-green dark:bg-islamic-gold text-white dark:text-[#032e18] shadow-lg"
                                     : isLocked
                                         ? "text-gray-400 dark:text-gray-500 opacity-60"
-                                        : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/5"
+                                        : "text-gray-600 dark:text-gray-300 hover:bg-[#F0E8D5] dark:hover:bg-white/5"
                             )}
                             whileTap={{ scale: 0.95 }}
                         >
@@ -1204,7 +1204,7 @@ export default function Learn() {
                     <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{t('stepProgress', { current: currentStep + 1, total: totalSteps })}</span>
                 </div>
 
-                <div className="w-full h-2 bg-gray-100 dark:bg-white/10 rounded-full overflow-hidden shadow-inner">
+                <div className="w-full h-2 bg-[#F0E8D5] dark:bg-white/10 rounded-full overflow-hidden shadow-inner">
                     <motion.div
                         className="h-full bg-islamic-green dark:bg-islamic-gold shadow-sm"
                         initial={{ width: 0 }}
@@ -1235,7 +1235,7 @@ export default function Learn() {
                     variant="outline"
                     onClick={prev}
                     disabled={currentStep === 0}
-                    className="bg-white/80 dark:bg-white/10 backdrop-blur-md h-14 px-6 rounded-2xl border-gray-100 dark:border-white/10 text-gray-500 dark:text-white pointer-events-auto shadow-lg active:scale-95 disabled:opacity-30 font-bold text-sm"
+                    className="bg-white/80 dark:bg-white/10 backdrop-blur-md h-14 px-6 rounded-2xl border-[#EDE5D1] dark:border-white/10 text-gray-500 dark:text-white pointer-events-auto shadow-lg active:scale-95 disabled:opacity-30 font-bold text-sm"
                 >
                     <ChevronLeft className="mr-1.5 h-4 w-4" /> {t('navBack')}
                 </Button>

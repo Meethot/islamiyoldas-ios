@@ -59,7 +59,7 @@ export default function StoryCard({ story, onClick }) {
 
     return (
         <Card
-            className="group overflow-hidden border-none shadow-[0_4px_20px_-5px_rgba(0,0,0,0.08)] rounded-[2rem] bg-white dark:bg-white/5 cursor-pointer hover:shadow-xl transition-all duration-300"
+            className="group overflow-hidden border-none shadow-[0_4px_20px_-5px_rgba(0,0,0,0.08)] rounded-[2rem] bg-[#FFFDF6] dark:bg-white/5 cursor-pointer hover:shadow-xl transition-all duration-300"
             onClick={onClick}
         >
             <div className="flex">

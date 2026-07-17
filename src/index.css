@@ -21,17 +21,19 @@
   }
 
   :root {
-    /* Sacred Warmth Light Theme */
-    --background: 42 40% 97%;
-    /* #FAF8F3 Warm Ivory */
+    /* Ferah Cream Light Theme — krem + kehribar (user-approved 2026-07-17) */
+    /* islamic-green token'ı light'ta amber-600'e çözülür (RGB üçlüsü) */
+    --islamic-green: 217 119 6;
+    --background: 43 54% 92%;
+    /* #F6F0E1 Warm Cream */
     --foreground: 160 30% 15%;
     /* #1B3329 Deep Forest — green harmonic */
 
-    --card: 42 30% 99%;
-    /* #FEFDFB Pearl White — warmer than pure white */
+    --card: 47 100% 98%;
+    /* #FFFDF6 Warm White */
     --card-foreground: 160 30% 15%;
 
-    --popover: 42 30% 99%;
+    --popover: 47 100% 98%;
     --popover-foreground: 160 30% 15%;
 
     --primary: 158 85% 18%;
@@ -58,29 +60,31 @@
     /* Rich Gold accent */
     --secondary-foreground: 158 85% 18%;
 
-    --muted: 38 25% 93%;
-    /* #F2EDE4 Soft Sand */
+    --muted: 43 44% 87%;
+    /* #EDE5D1 Deep Cream */
     --muted-foreground: 160 12% 40%;
     /* #5C6E64 Sage — improved contrast */
 
-    --accent: 42 85% 55%;
-    /* #D4A832 Rich Gold */
-    --accent-foreground: 160 30% 15%;
-    /* Deep Forest */
+    --accent: 32 95% 44%;
+    /* #D97706 Amber */
+    --accent-foreground: 0 0% 100%;
+    /* White on amber */
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 38 20% 86%;
-    /* #E2DBCE Warm Stone — more defined */
-    --input: 38 22% 91%;
-    --ring: 42 85% 55%;
-    /* Rich Gold Ring */
+    --border: 40 30% 84%;
+    /* #E2D9C4 Warm Stone — cream-harmonic */
+    --input: 42 35% 89%;
+    --ring: 32 95% 44%;
+    /* Amber Ring */
 
     --radius: 0.5rem;
   }
 
   .dark {
+    /* dark'ta islamic-green gerçek marka yeşili kalır */
+    --islamic-green: 4 77 41;
     --background: 153 80% 17%;
     --foreground: 60 40% 98%;
 
@@ -139,7 +143,7 @@
   }
 
   .glass-panel {
-    @apply backdrop-blur-md bg-white/60 dark:bg-white/5 border border-stone-200/60 dark:border-white/10 shadow-md shadow-stone-200/50 dark:shadow-xl dark:shadow-black/10;
+    @apply backdrop-blur-md bg-[#FFFDF6]/70 dark:bg-white/5 border border-[#E2D9C4]/70 dark:border-white/10 shadow-md shadow-[#E2D9C4]/50 dark:shadow-xl dark:shadow-black/10;
   }
 
   .glass-panel-hover {
@@ -160,7 +164,7 @@
   }
 
   .glow-green {
-    box-shadow: 0 0 20px rgba(7, 77, 46, 0.18);
+    box-shadow: 0 0 20px rgba(217, 119, 6, 0.18);
     transition: box-shadow 500ms;
   }
 
@@ -169,6 +173,10 @@
   }
 
   .glow-green:hover {
+    box-shadow: 0 0 30px rgba(217, 119, 6, 0.35);
+  }
+
+  :is(.dark .glow-green:hover) {
     box-shadow: 0 0 30px rgba(7, 77, 46, 0.35);
   }
 
@@ -256,7 +264,7 @@
     background-color: hsl(var(--background));
     background-image:
       radial-gradient(at 40% 20%, rgba(212, 168, 50, 0.04) 0px, transparent 50%),
-      radial-gradient(at 80% 0%, rgba(7, 77, 46, 0.02) 0px, transparent 50%),
+      radial-gradient(at 80% 0%, rgba(217, 119, 6, 0.02) 0px, transparent 50%),
       radial-gradient(at 0% 50%, rgba(212, 168, 50, 0.03) 0px, transparent 50%),
       url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.03'/%3E%3C/svg%3E");
   }

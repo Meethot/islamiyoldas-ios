@@ -271,7 +271,7 @@ export default function SleepMode() {
             {Array.from({ length: 50 }, (_, i) => (
                 <div
                     key={i}
-                    className="absolute w-0.5 h-0.5 bg-white rounded-full animate-pulse"
+                    className="absolute w-0.5 h-0.5 bg-[#FFFDF6] rounded-full animate-pulse"
                     style={{
                         top: `${(i * 37 + 13) % 100}%`,
                         left: `${(i * 53 + 7) % 100}%`,

@@ -15,6 +15,14 @@ Proje bilgileri ve mevcut durum için `Memory.md`'ye bak.
 - Ödeme (RevenueCat), native (iOS/Swift/Capacitor plugin) ve para/abonelik akışı → **yüksek dikkat** (high/xhigh effort). Buralarda acele etme, doğrula.
 - Değişiklikten sonra mümkünse `npm run build` ile doğrula. iOS tarafı değiştiyse `npx cap sync ios` gerektiğini hatırlat.
 - Test/deneme kodu eklediğinde bana **açıkça söyle** ki canlıya çıkmadan temizleyelim.
+- **Araçları proaktif kullan (sorma, yap):** Bir görev için işe yarayacak bir skill veya MCP varsa, kullanıcı söylemeden kendin seç ve çalıştır. Örnekler:
+  - Kod tabanını/mimariyi anlamak, dosya ilişkilerini haritalamak → **graphify** (`/graphify .`).
+  - Yerel web app'i (React/Vite) test etmek, UI doğrulamak, ekran görüntüsü almak → **webapp-testing** / **playwright** MCP.
+  - Kod sembolü arama/düzenleme → **Serena** MCP (kodlamadan önce `initial_instructions`).
+  - Güncel kütüphane dokümanı → **context7** MCP.
+  - Ödeme/ürün/offering işleri → **RevenueCat** MCP. Analitik → **Amplitude** MCP (önce `get_amplitude_context`).
+  - MCP server yazmak → **mcp-builder**, yeni skill → **skill-creator**, changelog → **changelog-generator**.
+  - Uygun araç yoksa normal ilerle. Kritik/geri-alınamaz aksiyonlarda (para, native, dış servise gönderim) yine de önce doğrula.
 
 ## HER ZAMAN yap
 - Çok dilli metin eklerken **6 dilin hepsine** ekle: `tr, en, ar, az, de, ru` (`public/locales/{lang}/common.json`).
@@ -39,6 +47,7 @@ Proje bilgileri ve mevcut durum için `Memory.md`'ye bak.
 - [x] `AppLayout` / `Profile` içindeki `debugShowPaywall` kaldırıldı
 - [x] App Store Connect'te `offer.499` / `offer.399` doğrulandı — ikisi de APPROVED (₺499,99 / ₺399,99)
 - [ ] Gerçek satın alma testi: Android Internal Testing + iOS TestFlight
+- [ ] `PremiumPaywall.jsx`'teki gizli test-premium jesti (ilk özellik satırına 3 sn basılı tutma → `setPremium(true)`, `window._testPremiumTimer`) — canlıya çıkmadan KALDIR
 
 ## Effort / Ultracode notu
 - `high/xhigh` = düşünme derinliği (hız değil). Kritik iş → yüksek.

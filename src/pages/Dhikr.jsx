@@ -16,6 +16,40 @@ import { App } from '@capacitor/app';
 import { Capacitor } from '@capacitor/core';
 import { VolumeButtons } from '@capacitor-community/volume-buttons';
 
+// Tasbih theme bead materials — layered CSS gradients (base stone + veins/grain)
+// so each material reads as a real texture (amber glow, wood grain, turquoise
+// matrix, marble veins), not just a recolor. `gloss` drives the specular highlight.
+const TASBIH_MATERIALS = {
+    kehribar: {
+        name: 'Kehribar',
+        base: 'radial-gradient(circle at 32% 28%, #ffe6a1 0%, #f3ae2e 28%, #cf7410 56%, #8a4407 82%, #421c02 100%)',
+        veins: 'radial-gradient(ellipse 55% 16% at 60% 56%, rgba(120,53,15,0.32), transparent 70%), radial-gradient(ellipse 40% 11% at 32% 72%, rgba(146,64,14,0.26), transparent 70%), radial-gradient(circle at 52% 64%, rgba(255,178,48,0.4), transparent 55%)',
+        shadow: '0 5px 9px rgba(0,0,0,0.5), 0 0 16px rgba(245,158,11,0.35)',
+        gloss: 0.95
+    },
+    kuka: {
+        name: 'Kuka',
+        base: 'radial-gradient(circle at 32% 28%, #b3773c 0%, #7a4514 42%, #47230a 76%, #241001 100%)',
+        veins: 'repeating-radial-gradient(circle at 58% 52%, rgba(43,19,1,0) 0px, rgba(43,19,1,0.22) 2px, rgba(122,69,20,0) 4px, rgba(43,19,1,0) 7px), linear-gradient(80deg, transparent 44%, rgba(43,19,1,0.2) 46%, transparent 48%)',
+        shadow: '0 5px 9px rgba(0,0,0,0.55), 0 0 10px rgba(92,49,12,0.35)',
+        gloss: 0.45
+    },
+    turkuaz: {
+        name: 'Turkuaz',
+        base: 'radial-gradient(circle at 32% 28%, #8ceade 0%, #2fb9ac 34%, #10796f 68%, #053f3a 100%)',
+        veins: 'linear-gradient(115deg, transparent 42%, rgba(40,30,20,0.32) 43.5%, transparent 45%), linear-gradient(28deg, transparent 60%, rgba(40,30,20,0.26) 61.5%, transparent 63%), linear-gradient(-50deg, transparent 30%, rgba(30,22,15,0.3) 31.2%, transparent 32.6%)',
+        shadow: '0 5px 9px rgba(0,0,0,0.5), 0 0 12px rgba(13,148,136,0.35)',
+        gloss: 0.8
+    },
+    zumrut: {
+        name: 'Zümrüt',
+        base: 'radial-gradient(circle at 32% 28%, #8df4bd 0%, #10a35c 34%, #05643a 68%, #02311c 100%)',
+        veins: 'linear-gradient(105deg, transparent 38%, rgba(220,255,235,0.26) 39.5%, transparent 41%), linear-gradient(-35deg, transparent 55%, rgba(200,255,225,0.18) 56.2%, transparent 57.8%), linear-gradient(160deg, transparent 68%, rgba(3,58,32,0.35) 70%, transparent 72%)',
+        shadow: '0 5px 9px rgba(0,0,0,0.5), 0 0 14px rgba(16,185,129,0.4)',
+        gloss: 0.9
+    }
+};
+
 const DHIKR_PRESETS = [
     { id: 'subhanallah', name: 'Sübhanallah', arabic: 'سُبْحَانَ اللَّهِ', meaning: 'Allah noksan sıfatlardan uzaktır', defaultTarget: 33 },
     { id: 'elhamdulillah', name: 'Elhamdülillah', arabic: 'الْحَمْدُ لِلَّهِ', meaning: 'Hamd (şükür) Allah\'adır', defaultTarget: 33 },
@@ -100,7 +134,7 @@ export default function Dhikr() {
     const [hapticsMode, setHapticsMode] = useState(() => localStorage.getItem('dhikr_haptics_mode') || 'all');
     const [soundMode, setSoundMode] = useState(() => localStorage.getItem('dhikr_sound_mode') || 'digital'); // 'digital', 'wood', 'water', 'mute'
     const [volumeButtonsEnabled, setVolumeButtonsEnabled] = useState(() => localStorage.getItem('dhikr_volume_buttons') === 'true');
-    const [dhikrTheme, setDhikrTheme] = useState(() => localStorage.getItem('dhikr_theme') || 'classic'); // 'classic', 'tasbih', 'tally'
+    const [dhikrTheme, setDhikrTheme] = useState(() => localStorage.getItem('dhikr_theme') || 'tasbih'); // 'tasbih', 'tally', 'classic'
     const [beadType, setBeadType] = useState(() => {
         const saved = localStorage.getItem('dhikr_bead_type') || 'kehribar';
         if (saved !== 'kehribar' && !isPremium()) {
@@ -878,7 +912,7 @@ export default function Dhikr() {
             }}
             className={cn(
                 "flex flex-col min-h-screen text-stone-800 dark:text-white px-5 pb-5 pt-0 relative overflow-hidden font-sans transition-colors duration-150 select-none",
-                isScreenFlash && isFullScreenTap ? "bg-[#DCEFE2] dark:bg-[#042818]" : (dhikrTheme === 'tally' ? "bg-[#F3F1EA] dark:bg-[#010e08]" : "bg-[#FAF8F3] dark:bg-[#021a0f]")
+                isScreenFlash && isFullScreenTap ? "bg-[#DCEFE2] dark:bg-[#042818]" : (dhikrTheme === 'tally' ? "bg-[#F1EBDC] dark:bg-[#010e08]" : "bg-[#F6F0E1] dark:bg-[#021a0f]")
             )}
         >
             {/* Custom pulse animation for theme selector visibility */}
@@ -906,11 +940,11 @@ export default function Dhikr() {
                 }} 
             />
 
-            <header className={cn("flex justify-between items-center z-30 mb-4 sticky top-0 backdrop-blur-sm -mx-6 px-6 py-1 border-b border-stone-200/60 dark:border-white/5 transition-colors duration-150", dhikrTheme === 'tally' ? "bg-[#F3F1EA]/80 dark:bg-[#010e08]/80" : "bg-[#FAF8F3]/80 dark:bg-[#021a0f]/80")}>
+            <header className={cn("flex justify-between items-center z-30 mb-4 sticky top-0 backdrop-blur-sm -mx-6 px-6 py-1 border-b border-[#E2D9C4]/60 dark:border-white/5 transition-colors duration-150", dhikrTheme === 'tally' ? "bg-[#F1EBDC]/80 dark:bg-[#010e08]/80" : "bg-[#F6F0E1]/80 dark:bg-[#021a0f]/80")}>
                 <div className="flex items-center gap-2">
                     <button
                         onClick={() => navigate(-1)}
-                        className="w-10 h-10 rounded-xl bg-stone-100 hover:bg-stone-200 dark:bg-white/5 dark:hover:bg-white/10 flex items-center justify-center text-stone-500 hover:text-stone-800 dark:text-white/60 dark:hover:text-white active:scale-90 transition-all border border-stone-200 dark:border-white/10"
+                        className="w-10 h-10 rounded-xl bg-[#F0E8D5] hover:bg-[#E9DFC8] dark:bg-white/5 dark:hover:bg-white/10 flex items-center justify-center text-stone-500 hover:text-stone-800 dark:text-white/60 dark:hover:text-white active:scale-90 transition-all border border-[#E2D9C4] dark:border-white/10"
                     >
                         <ChevronLeft size={20} />
                     </button>
@@ -919,10 +953,10 @@ export default function Dhikr() {
                     </div>
                     <h2 className="text-xl font-serif font-bold tracking-tight">{isCountdownMode ? countdownName : t('title')}</h2>
                 </div>
-                <div className="flex items-center gap-1 bg-white/60 dark:bg-black/20 p-1 rounded-2xl border border-stone-200 dark:border-white/10 backdrop-blur-md relative">
+                <div className="flex items-center gap-1 bg-white/60 dark:bg-black/20 p-1 rounded-2xl border border-[#E2D9C4] dark:border-white/10 backdrop-blur-md relative">
                     <button
                         onClick={() => {
-                            const themeOrder = ['classic', 'tasbih', 'tally'];
+                            const themeOrder = ['tasbih', 'tally', 'classic'];
                             const currentIndex = themeOrder.indexOf(dhikrTheme);
                             const nextTheme = themeOrder[(currentIndex + 1) % themeOrder.length];
                             setDhikrTheme(nextTheme);
@@ -950,7 +984,7 @@ export default function Dhikr() {
                         }}
                         className={cn(
                             "w-10 h-10 rounded-xl transition-all relative flex items-center justify-center border active:scale-95 duration-200",
-                            showQuickSettings ? "text-islamic-green bg-islamic-green/10 border-islamic-green/40 dark:text-islamic-gold dark:bg-white/15 dark:border-islamic-gold/45" : "text-stone-500 hover:text-stone-800 bg-stone-100 border-stone-200 dark:text-white/60 dark:hover:text-white dark:bg-white/5 dark:border-white/10"
+                            showQuickSettings ? "text-islamic-green bg-islamic-green/10 border-islamic-green/40 dark:text-islamic-gold dark:bg-white/15 dark:border-islamic-gold/45" : "text-stone-500 hover:text-stone-800 bg-[#F0E8D5] border-[#E2D9C4] dark:text-white/60 dark:hover:text-white dark:bg-white/5 dark:border-white/10"
                         )}
                         title={t('settings', { defaultValue: 'Hızlı Ayarlar' })}
                     >
@@ -995,7 +1029,7 @@ export default function Dhikr() {
                                 {/* Zikir Selector Pill */}
                                 <button
                                     onClick={() => setShowDhikrPicker(true)}
-                                    className="group flex items-center gap-2 bg-white hover:bg-stone-50 dark:bg-white/5 dark:hover:bg-white/10 px-4 py-2 rounded-full border border-stone-200 dark:border-white/10 transition-all active:scale-95 text-xs font-semibold text-stone-600 dark:text-white/80 shadow-md"
+                                    className="group flex items-center gap-2 bg-[#FFFDF6] hover:bg-stone-50 dark:bg-white/5 dark:hover:bg-white/10 px-4 py-2 rounded-full border border-[#E2D9C4] dark:border-white/10 transition-all active:scale-95 text-xs font-semibold text-stone-600 dark:text-white/80 shadow-md"
                                 >
                                     <span>{activePreset.id === 'custom' || activePreset.isEsma ? activePreset.name : t(`presets.${activePreset.id}.name`, { defaultValue: activePreset.name })}</span>
                                     <ChevronDown size={14} className="text-islamic-green dark:text-islamic-gold opacity-85 transition-transform group-active:translate-y-[1px]" />
@@ -1042,7 +1076,7 @@ export default function Dhikr() {
                                 strokeLinecap="round"
                                 className={cn(
                                     "transition-all duration-300 ease-out",
-                                    celebrating ? "text-emerald-400 stroke-[14px]" : "text-islamic-green dark:text-islamic-gold"
+                                    celebrating ? "text-amber-500 dark:text-emerald-400 stroke-[14px]" : "text-islamic-green dark:text-islamic-gold"
                                 )}
                             />
                         </svg>
@@ -1077,8 +1111,8 @@ export default function Dhikr() {
                             }}
                             onContextMenu={(e) => e.preventDefault()} // Block long-press context menu
                             className={cn(
-                                "w-60 h-60 rounded-full bg-gradient-to-br from-white to-stone-100 shadow-lg dark:shadow-none dark:from-white/10 dark:to-black/30 border border-stone-200 dark:border-white/20 flex flex-col items-center justify-center relative backdrop-blur-lg group select-none touch-manipulation",
-                                celebrating && "border-emerald-500/50 shadow-emerald-500/20"
+                                "w-60 h-60 rounded-full bg-gradient-to-br from-white to-stone-100 shadow-lg dark:shadow-none dark:from-white/10 dark:to-black/30 border border-[#E2D9C4] dark:border-white/20 flex flex-col items-center justify-center relative backdrop-blur-lg group select-none touch-manipulation",
+                                celebrating && "border-amber-500/50 dark:border-emerald-500/50 shadow-amber-500/20 dark:shadow-emerald-500/20"
                             )}
                             style={glowStyle}
                         >
@@ -1086,8 +1120,8 @@ export default function Dhikr() {
 
                             <span className={cn(
                                 "text-7xl font-mono font-bold tracking-tighter transition-all duration-300 drop-shadow-2xl",
-                                celebrating ? "text-emerald-400 scale-110" : "text-stone-900 group-hover:text-islamic-green dark:text-white dark:group-hover:text-islamic-gold",
-                                countdownCompleted && "text-emerald-400"
+                                celebrating ? "text-amber-600 dark:text-emerald-400 scale-110" : "text-stone-900 group-hover:text-islamic-green dark:text-white dark:group-hover:text-islamic-gold",
+                                countdownCompleted && "text-amber-600 dark:text-emerald-400"
                             )}>
                                 {isCountdownMode ? count : (count % target === 0 && count > 0 ? target : count % target)}
                             </span>
@@ -1114,7 +1148,7 @@ export default function Dhikr() {
                 )}
 
                 {dhikrTheme === 'tasbih' && (
-                    <div className="flex flex-col items-center z-10">
+                    <div className="flex flex-col items-center z-10 w-full">
                         {/* Dynamic Aura Glow linked to active material */}
                         <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
                             <motion.div
@@ -1135,335 +1169,152 @@ export default function Dhikr() {
                             />
                         </div>
 
-                        <div className="relative w-80 h-80 flex flex-col items-center justify-center select-none touch-manipulation z-10">
-                            {/* Round indicator for Tasbih Beads theme */}
-                            <div className="absolute top-2 bg-islamic-green/10 border-islamic-green/20 dark:bg-islamic-gold/10 dark:border-islamic-gold/20 px-4 py-1.5 rounded-full border flex items-center gap-1.5 backdrop-blur-md z-20">
+                        {/* Realistic horizontal misbaha: the whole stage is one big tap
+                            target. Each pull slides one bead from the waiting group (left)
+                            over to the pulled group (right), like a real tasbih on a string.
+                            `no-tap-anywhere` + stopPropagation keep the fullscreen-tap
+                            handler from double counting. */}
+                        <button
+                            type="button"
+                            onClick={(e) => { e.stopPropagation(); increment(); }}
+                            className="relative w-full max-w-[400px] h-[320px] select-none touch-manipulation z-10 no-tap-anywhere cursor-pointer overflow-hidden"
+                        >
+                            {/* Round indicator */}
+                            <div className="absolute top-1 left-1/2 -translate-x-1/2 bg-islamic-green/10 border-islamic-green/20 dark:bg-islamic-gold/10 dark:border-islamic-gold/20 px-4 py-1.5 rounded-full border flex items-center gap-1.5 backdrop-blur-md z-20 pointer-events-none">
                                 <span className="text-[10px] font-bold text-islamic-green/60 dark:text-islamic-gold/60 uppercase tracking-widest">{t('round')}:</span>
-                                <span className="text-xs font-mono font-bold text-islamic-green dark:text-islamic-gold">{Math.floor(count / target) + 1}</span>
+                                <span className="text-xs font-mono font-bold text-islamic-green dark:text-islamic-gold">{isCountdownMode ? countdownRounds + 1 : Math.floor(count / target) + 1}</span>
                             </div>
 
-                            {/* Dynamic Curved String (Sways Reactively on Bead Drag) */}
-                            <svg className="absolute inset-0 w-full h-full pointer-events-none opacity-85 z-1" viewBox="0 0 320 320">
-                                {/* Base Solid Gold Thread */}
-                                <motion.path
-                                    d={stringPath}
-                                    fill="none"
-                                    stroke="url(#ropeGrad)"
-                                    strokeWidth="6"
-                                    strokeLinecap="round"
-                                />
-                                {/* Dark Grooves */}
-                                <motion.path
-                                    d={stringPath}
-                                    fill="none"
-                                    stroke="#5c4015"
-                                    strokeWidth="1.8"
-                                    strokeDasharray="3,5"
-                                    opacity="0.75"
-                                    strokeLinecap="round"
-                                />
-                                {/* Shiny Highlights */}
-                                <motion.path
-                                    d={stringPath}
-                                    fill="none"
-                                    stroke="#fff2c2"
-                                    strokeWidth="1.8"
-                                    strokeDasharray="3,5"
-                                    strokeDashoffset="4"
-                                    opacity="0.85"
-                                    strokeLinecap="round"
-                                />
-                                <defs>
-                                    <linearGradient id="ropeGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-                                        <stop offset="0%" stopColor="#aa882c" stopOpacity="0" />
-                                        <stop offset="20%" stopColor="#d4af37" stopOpacity="0.8" />
-                                        <stop offset="50%" stopColor="#ffd700" stopOpacity="1" />
-                                        <stop offset="80%" stopColor="#d4af37" stopOpacity="0.8" />
-                                        <stop offset="100%" stopColor="#aa882c" stopOpacity="0" />
-                                    </linearGradient>
-                                </defs>
-                            </svg>
-                            
-                            {/* The beads list */}
-                            <div className="relative w-full h-full flex items-center justify-center overflow-hidden z-10 no-tap-anywhere">
-                                <AnimatePresence initial={false}>
-                                    {[
-                                        { id: count + 2, position: 'top-out', y: -130, x: 0, scale: 0.45, opacity: 0.25, blurClass: "blur-[1.5px]" },
-                                        { id: count + 1, position: 'top-in', y: -65, x: 10, scale: 0.72, opacity: 0.65, blurClass: "" },
-                                        { id: count, position: 'active', y: 0, x: 20, scale: 1.0, opacity: 1, blurClass: "" },
-                                        { id: count - 1, position: 'bottom-in', y: 65, x: 10, scale: 0.72, opacity: 0.65, blurClass: "" },
-                                        { id: count - 2, position: 'bottom-out', y: 130, x: 0, scale: 0.45, opacity: 0.25, blurClass: "blur-[1.5px]" }
-                                    ].map((bead) => {
-                                        // Custom bead text color map
-                                        const beadTextColors = {
-                                            kehribar: "text-[#291703]",
-                                            kuka: "text-[#fff2e6]",
-                                            turkuaz: "text-[#021f12]",
-                                            zumrut: "text-[#021c0e]"
-                                        };
-                                        
-                                        // Custom dynamic spring physics transition
-                                        const getBeadTransition = (pos) => {
-                                            if (pos === 'active') {
-                                                return { type: 'spring', stiffness: 350, damping: 18 };
-                                            }
-                                            if (pos.startsWith('bottom')) {
-                                                return { type: 'spring', stiffness: 450, damping: 12, mass: 0.6 };
-                                            }
-                                            return { type: 'spring', stiffness: 300, damping: 20 };
-                                        };
+                            {/* Big photo-style counter: 5/100 */}
+                            <div className="absolute top-14 inset-x-0 flex flex-col items-center z-10 pointer-events-none">
+                                <div className="flex items-baseline gap-0.5">
+                                    <span className={cn(
+                                        "text-6xl font-mono font-bold tracking-tighter drop-shadow-xl transition-colors duration-300",
+                                        celebrating ? "text-amber-600 dark:text-emerald-400" : "text-stone-900 dark:text-white"
+                                    )}>
+                                        {isCountdownMode ? count : (count % target === 0 && count > 0 ? target : count % target)}
+                                    </span>
+                                    <span className="text-2xl font-mono font-bold text-stone-400 dark:text-white/35">
+                                        /{isCountdownMode ? countdownTarget : target}
+                                    </span>
+                                </div>
+                            </div>
 
-                                        const isActive = bead.position === 'active';
+                            {/* Floating +1 on every pull */}
+                            <AnimatePresence initial={false}>
+                                <motion.span
+                                    key={`plus-${totalCount}`}
+                                    initial={{ opacity: 0, y: 10, scale: 0.7 }}
+                                    animate={{ opacity: 1, y: -8, scale: 1 }}
+                                    exit={{ opacity: 0, y: -26, scale: 0.9 }}
+                                    transition={{ duration: 0.45, ease: 'easeOut' }}
+                                    className="absolute top-[130px] right-[18%] text-2xl font-mono font-bold text-islamic-green/70 dark:text-islamic-gold/80 pointer-events-none z-20"
+                                >
+                                    +1
+                                </motion.span>
+                            </AnimatePresence>
 
+                            {/* Stage: thread + beads share one 400x150 coordinate space */}
+                            <div className="absolute bottom-3 left-1/2 -translate-x-1/2 w-[400px] h-[150px] pointer-events-none">
+                                {/* Silk cord the beads ride on: soft shadow + dark core +
+                                    gold body + thin top sheen = round, polished rope look */}
+                                <svg className="absolute inset-0 w-full h-full" viewBox="0 0 400 150">
+                                    <defs>
+                                        <linearGradient id="ropeGradH" x1="0%" y1="0%" x2="100%" y2="0%">
+                                            <stop offset="0%" stopColor="#9a7a24" />
+                                            <stop offset="30%" stopColor="#d4af37" />
+                                            <stop offset="50%" stopColor="#f0cf5e" />
+                                            <stop offset="70%" stopColor="#d4af37" />
+                                            <stop offset="100%" stopColor="#9a7a24" />
+                                        </linearGradient>
+                                        <filter id="ropeShadow" x="-20%" y="-60%" width="140%" height="220%">
+                                            <feGaussianBlur stdDeviation="2.5" />
+                                        </filter>
+                                    </defs>
+                                    <path d="M -10 94 Q 200 14 410 94" fill="none" stroke="rgba(0,0,0,0.3)" strokeWidth="6" strokeLinecap="round" filter="url(#ropeShadow)" />
+                                    <path d="M -10 90 Q 200 10 410 90" fill="none" stroke="#6b4f14" strokeWidth="7" strokeLinecap="round" />
+                                    <path d="M -10 90 Q 200 10 410 90" fill="none" stroke="url(#ropeGradH)" strokeWidth="4.6" strokeLinecap="round" />
+                                    <path d="M -10 88.5 Q 200 8.5 410 88.5" fill="none" stroke="#ffedb0" strokeWidth="1.4" strokeLinecap="round" opacity="0.9" />
+                                </svg>
+
+                                {/* Beads: id = totalCount + offset, so every pull (both modes)
+                                    slides one bead across; positions re-derive from totalCount
+                                    and framer springs the whole strand into place */}
+                                {Array.from({ length: 11 }, (_, k) => {
+                                    const beadId = totalCount - 5 + k;
+                                    const s = beadId - totalCount; // >= 0 waiting (left) | <= -1 pulled (right)
+                                    const x = s >= 0 ? 148 - s * 44 : 252 + (-s - 1) * 44;
+                                    const tt = Math.min(Math.max((x + 10) / 420, 0), 1);
+                                    const y = 90 - 160 * tt * (1 - tt); // matches the ∩ Q-curve above
+                                    const hidden = x < -14 || x > 414;
+                                    return (
+                                        <motion.div
+                                            key={beadId}
+                                            initial={false}
+                                            animate={{
+                                                x: x - 24,
+                                                y: y - 24,
+                                                opacity: hidden ? 0 : 1,
+                                                scale: s === -1 ? 1.05 : 1
+                                            }}
+                                            transition={{ type: 'spring', stiffness: 320, damping: 22, mass: 0.7 }}
+                                            className="absolute left-0 top-0 w-12 h-12"
+                                            style={{ zIndex: s === -1 ? 8 : 5 }}
+                                        >
+                                            <div
+                                                className="w-12 h-12 rounded-full relative overflow-hidden"
+                                                style={{
+                                                    backgroundImage: `${TASBIH_MATERIALS[beadType].veins}, ${TASBIH_MATERIALS[beadType].base}`,
+                                                    boxShadow: TASBIH_MATERIALS[beadType].shadow
+                                                }}
+                                            >
+                                                {/* Sphere shading: lit from top-left, dark lower rim,
+                                                    inset edge falloff all around — no flat sticker look */}
+                                                <div className="absolute inset-0 rounded-full" style={{
+                                                    background: 'radial-gradient(circle at 32% 26%, rgba(255,255,255,0.2), rgba(255,255,255,0) 46%), radial-gradient(circle at 72% 84%, rgba(0,0,0,0.38), transparent 58%)',
+                                                    boxShadow: 'inset 0 -7px 9px rgba(0,0,0,0.4), inset 0 3px 5px rgba(255,255,255,0.16), inset -3px -3px 7px rgba(0,0,0,0.28)'
+                                                }} />
+                                                {/* Bottom bounce light — reflected glow that sells the sphere */}
+                                                <div className="absolute inset-0 rounded-full" style={{
+                                                    background: 'radial-gradient(ellipse 55% 20% at 50% 94%, rgba(255,255,255,0.18), transparent 75%)'
+                                                }} />
+                                                {/* Specular: sharp hotspot + soft halo (gloss per material) */}
+                                                <div className="absolute rounded-full" style={{
+                                                    top: '12%', left: '18%', width: '34%', height: '26%',
+                                                    transform: 'rotate(-22deg)',
+                                                    background: 'radial-gradient(ellipse at 42% 40%, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.4) 34%, rgba(255,255,255,0) 70%)',
+                                                    opacity: TASBIH_MATERIALS[beadType].gloss
+                                                }} />
+                                            </div>
+                                        </motion.div>
+                                    );
+                                })}
+
+                                {/* Star burst where the pulled bead lands */}
+                                <div className="absolute left-[252px] top-[60px] z-10">
+                                    {particles.map((p) => {
+                                        const rad = (p.angle * Math.PI) / 180;
+                                        const tx = Math.cos(rad) * p.distance;
+                                        const ty = Math.sin(rad) * p.distance;
                                         return (
                                             <motion.div
-                                                key={bead.id}
-                                                initial={{ y: bead.y - 30, x: bead.x, scale: bead.scale, opacity: 0 }}
-                                                animate={{ 
-                                                    y: bead.y, 
-                                                    x: bead.x,
-                                                    scale: bead.scale, 
-                                                    opacity: bead.opacity,
-                                                    transition: getBeadTransition(bead.position)
-                                                }}
-                                                exit={{ y: bead.y + 30, x: bead.x, scale: bead.scale, opacity: 0 }}
-                                                style={{ 
-                                                    zIndex: isActive ? 10 : 5,
-                                                    width: isActive ? '180px' : '110px',
-                                                    height: isActive ? '180px' : '110px',
-                                                    touchAction: 'none'
-                                                }}
-                                                onTap={(event) => {
-                                                    event.stopPropagation();
-                                                    if (isActive) {
-                                                        increment();
-                                                    }
-                                                }}
-                                                onTouchStart={(e) => {
-                                                    e.stopPropagation();
-                                                }}
-                                                onTouchEnd={(e) => {
-                                                    e.stopPropagation();
-                                                }}
-                                                className="absolute left-1/2 -translate-x-1/2 cursor-pointer flex items-center justify-center"
+                                                key={p.id}
+                                                initial={{ x: 0, y: 0, scale: 0.1, opacity: 1 }}
+                                                animate={{ x: tx, y: ty, scale: 1.1, opacity: 0, rotate: p.angle * 3 }}
+                                                transition={{ duration: 0.45, ease: "easeOut" }}
+                                                className="absolute pointer-events-none"
                                             >
-                                                <div
-                                                    className={cn(
-                                                        "transition-all duration-300 relative select-none flex items-center justify-center rounded-full overflow-hidden shadow-lg",
-                                                        bead.blurClass,
-                                                        isActive ? "w-20 h-20 border-2" : "w-14 h-14 border opacity-60 backdrop-blur-sm",
-                                                        isActive 
-                                                            ? (beadType === 'kehribar' ? "bg-gradient-to-br from-amber-300 via-amber-500 to-amber-800 shadow-[0_0_25px_rgba(245,158,11,0.65)] border-white/40"
-                                                               : beadType === 'kuka' ? "bg-gradient-to-br from-[#8a5329] via-[#5c310c] to-[#2b1401] shadow-[0_0_20px_rgba(92,49,12,0.65)] border-amber-900/60"
-                                                               : beadType === 'turkuaz' ? "bg-gradient-to-br from-cyan-400 via-teal-600 to-teal-900 shadow-[0_0_22px_rgba(13,148,136,0.65)] border-teal-300/30"
-                                                               : "bg-gradient-to-br from-emerald-400 via-emerald-600 to-emerald-950 shadow-[0_0_25px_rgba(16,185,129,0.75)] border-emerald-300/40")
-                                                            : (beadType === 'kehribar' ? "bg-gradient-to-br from-amber-300/40 via-amber-500/30 to-amber-800/30 border-white/10"
-                                                               : beadType === 'kuka' ? "bg-gradient-to-br from-[#8a5329]/40 via-[#5c310c]/30 to-[#2b1401]/30 border-amber-900/20"
-                                                               : beadType === 'turkuaz' ? "bg-gradient-to-br from-cyan-400/40 via-teal-600/30 to-teal-900/30 border-white/10"
-                                                               : "bg-gradient-to-br from-emerald-400/40 via-emerald-600/30 to-emerald-950/30 border-white/10")
-                                                    )}
-                                                >
-                                                    {/* Highlights & details depending on material */}
-                                                    {beadType === 'kehribar' && (
-                                                        <>
-                                                            {isActive ? (
-                                                                <motion.div 
-                                                                    style={{ x: glareX, y: glareY }}
-                                                                    className="absolute rounded-full blur-[0.5px] rotate-[-15deg] pointer-events-none bg-white/35 top-1.5 left-2.5 w-7 h-2.5"
-                                                                />
-                                                            ) : (
-                                                                <div className="absolute rounded-full blur-[0.5px] rotate-[-15deg] pointer-events-none bg-white/35 top-1 left-1.5 w-4 h-1.5" />
-                                                            )}
-                                                            {isActive ? (
-                                                                <motion.div 
-                                                                    style={{ x: coreX, y: coreY }}
-                                                                    className="absolute bg-gradient-to-br from-amber-300/70 to-orange-500/60 rounded-full blur-[2px] pointer-events-none inset-2"
-                                                                />
-                                                            ) : (
-                                                                <div className="absolute bg-gradient-to-br from-amber-300/70 to-orange-500/60 rounded-full blur-[2px] pointer-events-none inset-1.5" />
-                                                            )}
-                                                            <div className="absolute inset-0 opacity-25 pointer-events-none rounded-full" style={{
-                                                                backgroundImage: 'radial-gradient(circle at 35% 40%, rgba(255,255,255,0.7) 1px, transparent 1px), radial-gradient(circle at 65% 55%, rgba(255,223,0,0.9) 1.5px, transparent 1.5px)'
-                                                            }} />
-                                                        </>
-                                                    )}
-                                                    {beadType === 'kuka' && (
-                                                        <>
-                                                            <div className="absolute inset-0 opacity-25 mix-blend-overlay pointer-events-none rounded-full" style={{
-                                                                backgroundImage: 'repeating-linear-gradient(45deg, #000, #000 2px, transparent 2px, transparent 4px)'
-                                                            }} />
-                                                            {isActive ? (
-                                                                <>
-                                                                    <motion.div 
-                                                                        style={{ x: coreX, y: coreY }}
-                                                                        className="absolute border border-islamic-gold/25 rounded-full pointer-events-none inset-2.5"
-                                                                    />
-                                                                    <motion.div 
-                                                                        style={{ x: coreX, y: coreY }}
-                                                                        className="absolute border border-islamic-gold/15 rounded-full pointer-events-none inset-[14px]"
-                                                                    />
-                                                                    <motion.div 
-                                                                        style={{ x: glareX, y: glareY }}
-                                                                        className="absolute rounded-full blur-[0.5px] pointer-events-none bg-white/10 top-1.5 left-3 w-5 h-2"
-                                                                    />
-                                                                </>
-                                                            ) : (
-                                                                <>
-                                                                    <div className="absolute border border-islamic-gold/25 rounded-full pointer-events-none inset-2" />
-                                                                    <div className="absolute border border-islamic-gold/15 rounded-full pointer-events-none inset-[10px]" />
-                                                                    <div className="absolute rounded-full blur-[0.5px] pointer-events-none bg-white/10 top-1 left-2 w-3 h-1" />
-                                                                </>
-                                                            )}
-                                                        </>
-                                                    )}
-                                                    {beadType === 'turkuaz' && (
-                                                        <>
-                                                            <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,transparent_60%,rgba(0,0,0,0.5)_95%)] rounded-full pointer-events-none" />
-                                                            {isActive ? (
-                                                                <motion.div 
-                                                                    className="absolute inset-0 opacity-[0.22] pointer-events-none rounded-full"
-                                                                    style={{
-                                                                        x: coreX, 
-                                                                        y: coreY,
-                                                                        backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cpath d='M20 0 Q40 25 15 50 T80 75 T100 100 M80 0 Q50 30 65 60 T30 100 M0 70 Q35 60 70 85' fill='none' stroke='%23422006' stroke-width='1.5'/%3E%3C/svg%3E")`,
-                                                                        backgroundSize: '100% 100%'
-                                                                    }}
-                                                                />
-                                                            ) : (
-                                                                <div className="absolute inset-0 opacity-[0.22] pointer-events-none rounded-full" style={{
-                                                                    backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cpath d='M20 0 Q40 25 15 50 T80 75 T100 100 M80 0 Q50 30 65 60 T30 100 M0 70 Q35 60 70 85' fill='none' stroke='%23422006' stroke-width='1.5'/%3E%3C/svg%3E")`,
-                                                                    backgroundSize: '100% 100%'
-                                                                }} />
-                                                            )}
-                                                            {isActive ? (
-                                                                <motion.div 
-                                                                    style={{ x: glareX, y: glareY }}
-                                                                    className="absolute rounded-full blur-[0.5px] pointer-events-none bg-white/25 top-1.5 left-2.5 w-6 h-2"
-                                                                />
-                                                            ) : (
-                                                                <div className="absolute rounded-full blur-[0.5px] pointer-events-none bg-white/25 top-1 left-1.5 w-4 h-1" />
-                                                            )}
-                                                        </>
-                                                    )}
-                                                    {beadType === 'zumrut' && (
-                                                        <>
-                                                            {isActive ? (
-                                                                <motion.div 
-                                                                    className="absolute inset-0 opacity-35 mix-blend-screen pointer-events-none rounded-full"
-                                                                    style={{
-                                                                        backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Cpath d='M40 0 L80 40 L40 80 L0 40 Z M0 0 L40 40 L80 0 M0 80 L40 40 L80 80 M40 0 L40 80 M0 40 L80 40' fill='none' stroke='%23ffffff' stroke-width='0.75'/%3E%3C/svg%3E")`,
-                                                                        backgroundSize: '100% 100%',
-                                                                        x: coreX,
-                                                                        y: coreY
-                                                                    }}
-                                                                />
-                                                            ) : (
-                                                                <div className="absolute inset-0 opacity-35 mix-blend-screen pointer-events-none rounded-full" style={{
-                                                                    backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Cpath d='M40 0 L80 40 L40 80 L0 40 Z M0 0 L40 40 L80 0 M0 80 L40 40 L80 80 M40 0 L40 80 M0 40 L80 40' fill='none' stroke='%23ffffff' stroke-width='0.75'/%3E%3C/svg%3E")`,
-                                                                    backgroundSize: '100% 100%'
-                                                                }} />
-                                                            )}
-                                                            {isActive ? (
-                                                                <motion.div 
-                                                                    className="absolute rounded-full pointer-events-none bg-white/10 inset-1"
-                                                                    style={{
-                                                                        background: 'linear-gradient(135deg, rgba(255,255,255,0.4) 0%, transparent 50%, rgba(0,0,0,0.2) 100%)',
-                                                                        x: coreX,
-                                                                        y: coreY
-                                                                    }}
-                                                                />
-                                                            ) : (
-                                                                <div className="absolute rounded-full pointer-events-none bg-white/10 inset-0.5" style={{
-                                                                    background: 'linear-gradient(135deg, rgba(255,255,255,0.4) 0%, transparent 50%, rgba(0,0,0,0.2) 100%)'
-                                                                }} />
-                                                            )}
-                                                            {isActive ? (
-                                                                <motion.div 
-                                                                    style={{ x: glareX, y: glareY }}
-                                                                    className="absolute bg-emerald-400/25 rounded-full blur-[1.5px] pointer-events-none inset-[6px] top-[12px]"
-                                                                />
-                                                            ) : (
-                                                                <div className="absolute bg-emerald-400/25 rounded-full blur-[1.5px] pointer-events-none inset-[4px] top-[8px]" />
-                                                            )}
-                                                        </>
-                                                    )}
-                                                    
-                                                    {/* Active bead displays current count inside */}
-                                                    {isActive && (
-                                                        <span className={cn(
-                                                            "text-xl font-mono font-bold drop-shadow-sm select-none",
-                                                            beadTextColors[beadType]
-                                                        )}>
-                                                            {isCountdownMode ? count : (count % target === 0 && count > 0 ? target : count % target)}
-                                                        </span>
-                                                    )}
-                                                </div>
-
-                                                {/* Particle spray burst centered inside active bead wrapper */}
-                                                {isActive && (
-                                                    <>
-                                                        {particles.map((p) => {
-                                                            const rad = (p.angle * Math.PI) / 180;
-                                                            const tx = Math.cos(rad) * p.distance;
-                                                            const ty = Math.sin(rad) * p.distance;
-                                                            
-                                                            return (
-                                                                <motion.div
-                                                                    key={p.id}
-                                                                    initial={{ x: 0, y: 0, scale: 0.1, opacity: 1 }}
-                                                                    animate={{ 
-                                                                        x: tx, 
-                                                                        y: ty, 
-                                                                        scale: 1.1, 
-                                                                        opacity: 0,
-                                                                        rotate: p.angle * 3
-                                                                    }}
-                                                                    transition={{ duration: 0.45, ease: "easeOut" }}
-                                                                    className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none z-30"
-                                                                >
-                                                                    <Star size={12} className="text-[#ffd700] fill-[#ffd700] drop-shadow-[0_0_8px_rgba(212,175,55,0.9)]" />
-                                                                </motion.div>
-                                                            );
-                                                        })}
-                                                    </>
-                                                )}
+                                                <Star size={12} className="text-[#ffd700] fill-[#ffd700] drop-shadow-[0_0_8px_rgba(212,175,55,0.9)]" />
                                             </motion.div>
                                         );
                                     })}
-                                </AnimatePresence>
-
-                                {/* Swaying Tassel (Pendulum Physics on Count Change + Reacts to Drag) */}
-                                <motion.div
-                                    style={{ rotate: tasselRotate }}
-                                    className="absolute bottom-1 left-1/2 -translate-x-1/2 flex flex-col items-center origin-top z-1 pointer-events-none"
-                                >
-                                    {/* Gold Imame Connector Cap */}
-                                    <div className="w-4 h-6 bg-gradient-to-br from-[#ffd700] via-islamic-gold to-[#8a6d1c] rounded-b-md border border-white/20 shadow-lg flex flex-col items-center justify-between py-1">
-                                        <div className="w-1.5 h-1.5 rounded-full bg-white/40 shadow-inner" />
-                                        <div className="w-2.5 h-0.5 bg-black/30 rounded-full" />
-                                    </div>
-                                    {/* Red Silk Binding Cord */}
-                                    <div className="w-3 h-1.5 bg-gradient-to-r from-red-700 to-red-900 border-y border-white/10 shadow-sm" />
-                                    {/* Three Cascading Silk Threads */}
-                                    <div className="flex gap-[1.5px] items-stretch h-14">
-                                        <div className="w-1 bg-gradient-to-b from-islamic-gold via-amber-500 to-transparent rounded-b-full shadow-sm" />
-                                        <div className="w-[4px] bg-gradient-to-b from-islamic-gold via-amber-600 to-transparent rounded-b-full shadow-sm translate-y-[2px]" />
-                                        <div className="w-1 bg-gradient-to-b from-islamic-gold via-amber-500 to-transparent rounded-b-full shadow-sm" />
-                                    </div>
-                                </motion.div>
+                                </div>
                             </div>
-
-
-                        </div>
+                        </button>
 
                         {/* Bead Material Selector */}
-                        <div className="flex items-center gap-3.5 mt-4 bg-white/70 border-stone-200 dark:bg-black/35 dark:border-white/10 px-4 py-2 rounded-full border backdrop-blur-md z-20 animate-in fade-in slide-in-from-bottom-2 duration-300">
-                            {[
-                                { id: 'kehribar', name: 'Kehribar', bg: 'bg-gradient-to-br from-amber-400 to-amber-700 shadow-md' },
-                                { id: 'kuka', name: 'Kuka', bg: 'bg-gradient-to-br from-[#8a5329] to-[#2b1401] shadow-md' },
-                                { id: 'turkuaz', name: 'Turkuaz', bg: 'bg-gradient-to-br from-cyan-400 to-teal-700 shadow-md' },
-                                { id: 'zumrut', name: 'Zümrüt', bg: 'bg-gradient-to-br from-emerald-400 to-emerald-800 shadow-md' }
-                            ].map((mat) => (
+                        <div className="flex items-center gap-3.5 mt-4 bg-white/70 border-[#E2D9C4] dark:bg-black/35 dark:border-white/10 px-4 py-2 rounded-full border backdrop-blur-md z-20 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                            {Object.entries(TASBIH_MATERIALS).map(([id, m]) => ({ id, ...m })).map((mat) => (
                                 <button
                                     key={mat.id}
                                     onClick={() => {
@@ -1485,7 +1336,7 @@ export default function Dhikr() {
                                     )}
                                     title={mat.name}
                                 >
-                                    <div className={cn("w-6 h-6 rounded-full flex items-center justify-center relative", mat.bg)}>
+                                    <div className="w-6 h-6 rounded-full flex items-center justify-center relative shadow-md" style={{ backgroundImage: `${mat.veins}, ${mat.base}`, boxShadow: 'inset -2px -3px 5px rgba(0,0,0,0.45), inset 2px 2px 4px rgba(255,255,255,0.3)' }}>
                                         {mat.id !== 'kehribar' && !isPremium() && (
                                             <Crown size={8} className="text-white absolute fill-white" />
                                         )}
@@ -1505,7 +1356,7 @@ export default function Dhikr() {
                             tallyColor === 'blue' ? "bg-[#3b82f6]" :
                             tallyColor === 'red' ? "bg-[#ef4444]" :
                             tallyColor === 'gold' ? "bg-[#fbbf24]" :
-                            "bg-white"
+                            "bg-[#FFFDF6]"
                         )} />
 
                         {/* Realistic Tally Counter Chassis */}
@@ -1527,7 +1378,7 @@ export default function Dhikr() {
                                     <div className={cn(
                                         "w-1.5 h-1.5 rounded-full transition-all duration-300",
                                         isRipple 
-                                            ? "bg-emerald-400 shadow-[0_0_8px_#10b981]" 
+                                            ? "bg-amber-500 shadow-[0_0_8px_#d97706] dark:bg-emerald-400 dark:shadow-[0_0_8px_#10b981]" 
                                             : (celebrating ? "bg-amber-400 shadow-[0_0_10px_#f59e0b] animate-ping" : "bg-[#1f2d25]")
                                     )} />
                                 </div>
@@ -1549,7 +1400,7 @@ export default function Dhikr() {
                                     isRipple ? "bg-[#c4dfcd] border-[#81a18c]" : "bg-[#b4ccbd] border-[#768c7e]"
                                 )}>
                                     <div className="absolute inset-x-0 top-0 h-1.5 bg-black/10 pointer-events-none" />
-                                    <div className="absolute inset-0 bg-emerald-500/[0.02] pointer-events-none" />
+                                    <div className="absolute inset-0 bg-amber-500/[0.02] dark:bg-emerald-500/[0.02] pointer-events-none" />
                                     
                                     {/* Scanline pattern overlay */}
                                     <div className="absolute inset-0 opacity-[0.035] pointer-events-none"
@@ -1681,7 +1532,7 @@ export default function Dhikr() {
                         </div>
 
                         {/* Tally Casing Color Selector */}
-                        <div className="flex items-center gap-3 mt-4 bg-white/70 border-stone-200 dark:bg-black/35 dark:border-white/10 px-4 py-2 rounded-full border backdrop-blur-md z-20 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                        <div className="flex items-center gap-3 mt-4 bg-white/70 border-[#E2D9C4] dark:bg-black/35 dark:border-white/10 px-4 py-2 rounded-full border backdrop-blur-md z-20 animate-in fade-in slide-in-from-bottom-2 duration-300">
                             {[
                                 { id: 'emerald', name: t('tallyColors.emerald', { defaultValue: 'Zümrüt' }), bg: 'bg-[#064a2c] shadow-[inset_0_1px_2px_rgba(255,255,255,0.2)]' },
                                 { id: 'blue', name: t('tallyColors.blue', { defaultValue: 'Mavi' }), bg: 'bg-[#1d4ed8] shadow-[inset_0_1px_2px_rgba(255,255,255,0.2)]' },
@@ -1731,7 +1582,7 @@ export default function Dhikr() {
                 )}
 
                 {/* Cumulative Counter Card - Compact floating pill */}
-                <div className="relative bg-white/80 border-stone-200 hover:bg-white dark:bg-white/[0.07] dark:border-white/15 dark:hover:bg-white/10 backdrop-blur-md px-6 py-3.5 rounded-full border flex items-center justify-between gap-4 shadow-xl max-w-[320px] mx-auto w-full mt-14 transition-all hover:border-islamic-green/40 dark:hover:border-islamic-gold/40 dark:hover:shadow-[0_0_15px_rgba(255,255,255,0.05)]">
+                <div className="relative bg-white/80 border-[#E2D9C4] hover:bg-[#FFFDF6] dark:bg-white/[0.07] dark:border-white/15 dark:hover:bg-white/10 backdrop-blur-md px-6 py-3.5 rounded-full border flex items-center justify-between gap-4 shadow-xl max-w-[320px] mx-auto w-full mt-14 transition-all hover:border-islamic-green/40 dark:hover:border-islamic-gold/40 dark:hover:shadow-[0_0_15px_rgba(255,255,255,0.05)]">
                     <button
                         onClick={() => {
                             setTempTotal('');
@@ -1754,7 +1605,7 @@ export default function Dhikr() {
                     {/* Reset Total Button */}
                     <button
                         onClick={() => setShowTotalResetConfirm(true)}
-                        className="p-2.5 bg-stone-100 hover:bg-stone-200 text-stone-400 dark:bg-white/5 dark:hover:bg-white/10 dark:text-white/40 hover:text-red-500 dark:hover:text-red-400 rounded-full transition-all active:scale-90 border border-stone-200 dark:border-white/10 shrink-0"
+                        className="p-2.5 bg-[#F0E8D5] hover:bg-[#E9DFC8] text-stone-400 dark:bg-white/5 dark:hover:bg-white/10 dark:text-white/40 hover:text-red-500 dark:hover:text-red-400 rounded-full transition-all active:scale-90 border border-[#E2D9C4] dark:border-white/10 shrink-0"
                         title={t('resetAllTooltip')}
                     >
                         <RotateCcw size={15} />
@@ -1763,13 +1614,13 @@ export default function Dhikr() {
                     {/* Total Reset Confirmation Dialog */}
                     {showTotalResetConfirm && (
                         <div className="absolute inset-0 z-50 flex items-center justify-center animate-in fade-in zoom-in duration-200">
-                            <div className="absolute inset-0 bg-[#FAF8F3]/95 dark:bg-[#021a0f]/95 rounded-full backdrop-blur-md" />
+                            <div className="absolute inset-0 bg-[#F6F0E1]/95 dark:bg-[#021a0f]/95 rounded-full backdrop-blur-md" />
                             <div className="relative text-center px-4 z-10 flex flex-col items-center justify-center h-full w-full">
                                 <p className="text-[10px] text-stone-700 dark:text-white/90 font-bold uppercase tracking-wider mb-2 leading-none">{t('resetAllTitle')}</p>
                                 <div className="flex gap-2.5 justify-center">
                                     <button
                                         onClick={() => setShowTotalResetConfirm(false)}
-                                        className="px-4 py-1 rounded-full bg-stone-200 text-stone-600 dark:bg-white/15 dark:text-white/80 text-[10px] font-bold uppercase transition-all active:scale-95"
+                                        className="px-4 py-1 rounded-full bg-[#E9DFC8] text-stone-600 dark:bg-white/15 dark:text-white/80 text-[10px] font-bold uppercase transition-all active:scale-95"
                                     >
                                         {t('cancel')}
                                     </button>
@@ -1900,7 +1751,7 @@ export default function Dhikr() {
                 <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 animate-in fade-in duration-300">
                     <div className="absolute inset-0 bg-black/50 dark:bg-black/80 backdrop-blur-md" onClick={() => setShowTargetModal(false)} />
                     <div className={cn(
-                        "bg-white dark:bg-[#032e18] border border-stone-200 dark:border-white/10 rounded-[3rem] p-8 w-full max-w-sm relative z-10 shadow-2xl animate-in zoom-in slide-in-from-bottom-5 duration-300 overflow-hidden transition-all duration-300",
+                        "bg-[#FFFDF6] dark:bg-[#032e18] border border-[#E2D9C4] dark:border-white/10 rounded-[3rem] p-8 w-full max-w-sm relative z-10 shadow-2xl animate-in zoom-in slide-in-from-bottom-5 duration-300 overflow-hidden transition-all duration-300",
                         isTargetInputFocused && "-translate-y-[100px]"
                     )}>
                         <div className="absolute top-0 right-0 p-4">
@@ -1936,7 +1787,7 @@ export default function Dhikr() {
                                 onBlur={() => setIsTargetInputFocused(false)}
                                 readOnly={!isPremium()}
                                 className={cn(
-                                    "w-full bg-stone-100 border-stone-200 text-islamic-green focus:border-islamic-green/50 dark:bg-black/30 dark:border-white/10 dark:text-islamic-gold dark:focus:border-islamic-gold/50 border rounded-2xl py-5 px-6 text-4xl font-mono font-bold text-center focus:outline-none transition-all placeholder:opacity-20",
+                                    "w-full bg-[#F0E8D5] border-[#E2D9C4] text-islamic-green focus:border-islamic-green/50 dark:bg-black/30 dark:border-white/10 dark:text-islamic-gold dark:focus:border-islamic-gold/50 border rounded-2xl py-5 px-6 text-4xl font-mono font-bold text-center focus:outline-none transition-all placeholder:opacity-20",
                                     !isPremium() && "opacity-50 cursor-not-allowed"
                                 )}
                                 placeholder="33"
@@ -1948,10 +1799,10 @@ export default function Dhikr() {
                                         key={v}
                                         onClick={() => isPremium() ? setTempTarget(v.toString()) : navigate('/premium')}
                                         className={cn(
-                                            "text-[12px] font-bold px-3 py-1 rounded-lg border border-stone-200 dark:border-white/5 transition-all",
+                                            "text-[12px] font-bold px-3 py-1 rounded-lg border border-[#E2D9C4] dark:border-white/5 transition-all",
                                             isPremium()
-                                                ? "bg-stone-100 hover:bg-islamic-green/15 hover:text-islamic-green dark:bg-white/5 dark:hover:bg-islamic-gold/20 dark:hover:text-islamic-gold"
-                                                : "bg-stone-100 dark:bg-white/5 opacity-50"
+                                                ? "bg-[#F0E8D5] hover:bg-islamic-green/15 hover:text-islamic-green dark:bg-white/5 dark:hover:bg-islamic-gold/20 dark:hover:text-islamic-gold"
+                                                : "bg-[#F0E8D5] dark:bg-white/5 opacity-50"
                                         )}
                                     >
                                         {v}
@@ -1978,7 +1829,7 @@ export default function Dhikr() {
                 <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 animate-in fade-in duration-300">
                     <div className="absolute inset-0 bg-black/50 dark:bg-black/80 backdrop-blur-md" onClick={() => setShowTotalModal(false)} />
                     <div className={cn(
-                        "bg-white dark:bg-[#032e18] border border-stone-200 dark:border-white/10 rounded-[3rem] p-8 w-full max-w-sm relative z-10 shadow-2xl animate-in zoom-in slide-in-from-bottom-5 duration-300 overflow-hidden transition-all duration-300",
+                        "bg-[#FFFDF6] dark:bg-[#032e18] border border-[#E2D9C4] dark:border-white/10 rounded-[3rem] p-8 w-full max-w-sm relative z-10 shadow-2xl animate-in zoom-in slide-in-from-bottom-5 duration-300 overflow-hidden transition-all duration-300",
                         isTotalInputFocused && "-translate-y-[100px]"
                     )}>
                         <div className="absolute top-0 right-0 p-4">
@@ -2012,7 +1863,7 @@ export default function Dhikr() {
                                 onFocus={() => setIsTotalInputFocused(true)}
                                 onBlur={() => setIsTotalInputFocused(false)}
                                 max="999999"
-                                className="w-full bg-stone-100 border-stone-200 text-islamic-green focus:border-islamic-green/50 dark:bg-black/30 dark:border-white/10 dark:text-islamic-gold dark:focus:border-islamic-gold/50 border rounded-2xl py-5 px-6 text-4xl font-mono font-bold text-center focus:outline-none transition-all placeholder:opacity-20"
+                                className="w-full bg-[#F0E8D5] border-[#E2D9C4] text-islamic-green focus:border-islamic-green/50 dark:bg-black/30 dark:border-white/10 dark:text-islamic-gold dark:focus:border-islamic-gold/50 border rounded-2xl py-5 px-6 text-4xl font-mono font-bold text-center focus:outline-none transition-all placeholder:opacity-20"
                                 placeholder="1000"
                                 autoFocus
                             />
@@ -2035,7 +1886,7 @@ export default function Dhikr() {
             {showResetConfirm && (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 animate-in fade-in duration-200">
                     <div className="absolute inset-0 bg-black/40 dark:bg-black/60 backdrop-blur-[3px]" onClick={() => setShowResetConfirm(false)} />
-                    <div className="bg-white border-stone-200 dark:bg-gradient-to-br dark:from-[#021f11]/95 dark:via-[#010e08]/98 dark:to-[#010e08]/95 dark:border-islamic-gold/20 border rounded-[2rem] p-6 w-full max-w-[290px] relative z-10 shadow-2xl animate-in zoom-in-95 duration-200 overflow-hidden text-center">
+                    <div className="bg-[#FFFDF6] border-[#E2D9C4] dark:bg-gradient-to-br dark:from-[#021f11]/95 dark:via-[#010e08]/98 dark:to-[#010e08]/95 dark:border-islamic-gold/20 border rounded-[2rem] p-6 w-full max-w-[290px] relative z-10 shadow-2xl animate-in zoom-in-95 duration-200 overflow-hidden text-center">
                         <div className="absolute top-0 right-0 p-3">
                             <button onClick={() => setShowResetConfirm(false)} className="text-stone-400 hover:text-stone-700 dark:text-white/30 dark:hover:text-white p-1 transition-colors">
                                 <X size={18} />
@@ -2053,7 +1904,7 @@ export default function Dhikr() {
                         <div className="flex gap-3">
                             <button
                                 onClick={() => setShowResetConfirm(false)}
-                                className="flex-1 h-10 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-600 dark:bg-white/5 dark:hover:bg-white/10 dark:text-white/70 text-xs font-semibold transition-all active:scale-95 border border-stone-200 dark:border-white/10"
+                                className="flex-1 h-10 rounded-xl bg-[#F0E8D5] hover:bg-[#E9DFC8] text-stone-600 dark:bg-white/5 dark:hover:bg-white/10 dark:text-white/70 text-xs font-semibold transition-all active:scale-95 border border-[#E2D9C4] dark:border-white/10"
                             >
                                 {t('cancel')}
                             </button>
@@ -2106,7 +1957,7 @@ export default function Dhikr() {
                             animate={{ y: 0 }}
                             exit={{ y: "100%" }}
                             transition={{ type: "spring", damping: 25, stiffness: 220 }}
-                            className="fixed inset-x-0 bottom-0 bg-[#FAF8F3] dark:bg-gradient-to-b dark:from-[#06331c] dark:via-[#021f11] dark:to-[#010e08] border-t border-stone-200 dark:border-white/10 rounded-t-[2.5rem] px-6 pb-8 pt-4 z-[100] shadow-[0_-10px_35px_rgba(0,0,0,0.15)] dark:shadow-[0_-10px_35px_rgba(0,0,0,0.6)] flex flex-col gap-4 no-tap-anywhere"
+                            className="fixed inset-x-0 bottom-0 bg-[#F6F0E1] dark:bg-gradient-to-b dark:from-[#06331c] dark:via-[#021f11] dark:to-[#010e08] border-t border-[#E2D9C4] dark:border-white/10 rounded-t-[2.5rem] px-6 pb-8 pt-4 z-[100] shadow-[0_-10px_35px_rgba(0,0,0,0.15)] dark:shadow-[0_-10px_35px_rgba(0,0,0,0.6)] flex flex-col gap-4 no-tap-anywhere"
                         >
                             {/* Drag handle / Grabber */}
                             <div
@@ -2126,7 +1977,7 @@ export default function Dhikr() {
                                 </div>
                                 <button
                                     onClick={() => setShowQuickSettings(false)}
-                                    className="p-2 rounded-full bg-stone-100 hover:bg-stone-200 text-stone-500 hover:text-stone-800 dark:bg-white/5 dark:hover:bg-white/10 dark:text-white/55 dark:hover:text-white transition-colors"
+                                    className="p-2 rounded-full bg-[#F0E8D5] hover:bg-[#E9DFC8] text-stone-500 hover:text-stone-800 dark:bg-white/5 dark:hover:bg-white/10 dark:text-white/55 dark:hover:text-white transition-colors"
                                 >
                                     <X size={20} />
                                 </button>
@@ -2136,12 +1987,12 @@ export default function Dhikr() {
                             <div className="h-[1px] w-full bg-gradient-to-r from-transparent via-islamic-green/25 dark:via-islamic-gold/30 to-transparent -mt-2" />
 
                             {/* Settings Container */}
-                            <div className="flex flex-col bg-white dark:bg-black/35 rounded-3xl border border-stone-200 dark:border-islamic-gold/15 divide-y divide-stone-100 dark:divide-white/5 overflow-hidden shadow-md dark:shadow-[inset_0_1px_2px_rgba(255,255,255,0.05),0_10px_30px_rgba(0,0,0,0.5)]">
+                            <div className="flex flex-col bg-[#FFFDF6] dark:bg-black/35 rounded-3xl border border-[#E2D9C4] dark:border-islamic-gold/15 divide-y divide-stone-100 dark:divide-white/5 overflow-hidden shadow-md dark:shadow-[inset_0_1px_2px_rgba(255,255,255,0.05),0_10px_30px_rgba(0,0,0,0.5)]">
                                 
                                 {/* Sound Row */}
                                 <div className="flex items-center justify-between p-5">
                                     <div className="flex items-center gap-3.5">
-                                        <div className="w-10 h-10 rounded-xl bg-stone-100 border border-stone-200 text-islamic-green dark:bg-white/5 dark:border-white/10 dark:text-islamic-gold flex items-center justify-center dark:shadow-[inset_0_1px_2px_rgba(255,255,255,0.05)]">
+                                        <div className="w-10 h-10 rounded-xl bg-[#F0E8D5] border border-[#E2D9C4] text-islamic-green dark:bg-white/5 dark:border-white/10 dark:text-islamic-gold flex items-center justify-center dark:shadow-[inset_0_1px_2px_rgba(255,255,255,0.05)]">
                                             {soundMode === 'mute' ? <VolumeX size={18} className="text-stone-400 dark:text-white/40" /> : <Volume2 size={18} />}
                                         </div>
                                         <div className="flex flex-col">
@@ -2170,7 +2021,7 @@ export default function Dhikr() {
                                     >
                                         <div 
                                             className={cn(
-                                                "w-6 h-6 rounded-full bg-white shadow-md transform transition-transform duration-200",
+                                                "w-6 h-6 rounded-full bg-[#FFFDF6] shadow-md transform transition-transform duration-200",
                                                 soundMode !== 'mute' ? "translate-x-5" : "translate-x-0"
                                             )}
                                         />
@@ -2180,7 +2031,7 @@ export default function Dhikr() {
                                 {/* Vibration Row */}
                                 <div className="flex flex-col gap-3.5 p-5">
                                     <div className="flex items-center gap-3.5">
-                                        <div className="w-10 h-10 rounded-xl bg-stone-100 border border-stone-200 text-islamic-green dark:bg-white/5 dark:border-white/10 dark:text-islamic-gold flex items-center justify-center dark:shadow-[inset_0_1px_2px_rgba(255,255,255,0.05)]">
+                                        <div className="w-10 h-10 rounded-xl bg-[#F0E8D5] border border-[#E2D9C4] text-islamic-green dark:bg-white/5 dark:border-white/10 dark:text-islamic-gold flex items-center justify-center dark:shadow-[inset_0_1px_2px_rgba(255,255,255,0.05)]">
                                             <Smartphone size={18} className={hapticsMode !== 'off' ? "text-islamic-green dark:text-islamic-gold" : "text-stone-400 dark:text-white/40"} />
                                         </div>
                                         <div className="flex flex-col">
@@ -2194,7 +2045,7 @@ export default function Dhikr() {
                                     </div>
                                     
                                     {/* Segmented Picker */}
-                                    <div className="grid grid-cols-3 bg-stone-100 border-stone-200 dark:bg-black/45 dark:border-white/10 border rounded-2xl p-0.5 select-none relative mt-1 overflow-hidden shadow-inner">
+                                    <div className="grid grid-cols-3 bg-[#F0E8D5] border-[#E2D9C4] dark:bg-black/45 dark:border-white/10 border rounded-2xl p-0.5 select-none relative mt-1 overflow-hidden shadow-inner">
                                         {[
                                             { id: 'off', label: t('vibration.offShort', { defaultValue: 'Kapalı' }) },
                                             { id: 'target', label: t('vibration.targetOnlyShort', { defaultValue: 'Hedef' }) },
@@ -2238,7 +2089,7 @@ export default function Dhikr() {
                                 {/* Fullscreen Click Row */}
                                 <div className="flex items-center justify-between p-5">
                                     <div className="flex items-center gap-3.5">
-                                        <div className="w-10 h-10 rounded-xl bg-stone-100 border border-stone-200 text-islamic-green dark:bg-white/5 dark:border-white/10 dark:text-islamic-gold flex items-center justify-center dark:shadow-[inset_0_1px_2px_rgba(255,255,255,0.05)]">
+                                        <div className="w-10 h-10 rounded-xl bg-[#F0E8D5] border border-[#E2D9C4] text-islamic-green dark:bg-white/5 dark:border-white/10 dark:text-islamic-gold flex items-center justify-center dark:shadow-[inset_0_1px_2px_rgba(255,255,255,0.05)]">
                                             <Fingerprint size={18} className={isFullScreenTap ? "text-islamic-green dark:text-islamic-gold" : "text-stone-400 dark:text-white/40"} />
                                         </div>
                                         <div className="flex flex-col">
@@ -2263,7 +2114,7 @@ export default function Dhikr() {
                                     >
                                         <div 
                                             className={cn(
-                                                "w-6 h-6 rounded-full bg-white shadow-md transform transition-transform duration-200",
+                                                "w-6 h-6 rounded-full bg-[#FFFDF6] shadow-md transform transition-transform duration-200",
                                                 isFullScreenTap ? "translate-x-5" : "translate-x-0"
                                             )}
                                         />
@@ -2274,7 +2125,7 @@ export default function Dhikr() {
                                 {Capacitor.isNativePlatform() && (
                                     <div className="flex items-center justify-between p-5">
                                         <div className="flex items-center gap-3.5">
-                                            <div className="w-10 h-10 rounded-xl bg-stone-100 border border-stone-200 text-islamic-green dark:bg-white/5 dark:border-white/10 dark:text-islamic-gold flex items-center justify-center dark:shadow-[inset_0_1px_2px_rgba(255,255,255,0.05)]">
+                                            <div className="w-10 h-10 rounded-xl bg-[#F0E8D5] border border-[#E2D9C4] text-islamic-green dark:bg-white/5 dark:border-white/10 dark:text-islamic-gold flex items-center justify-center dark:shadow-[inset_0_1px_2px_rgba(255,255,255,0.05)]">
                                                 <Sliders size={18} className={volumeButtonsEnabled ? "text-islamic-green dark:text-islamic-gold" : "text-stone-400 dark:text-white/40"} />
                                             </div>
                                             <div className="flex flex-col">
@@ -2299,7 +2150,7 @@ export default function Dhikr() {
                                         >
                                             <div 
                                                 className={cn(
-                                                    "w-6 h-6 rounded-full bg-white shadow-md transform transition-transform duration-200",
+                                                    "w-6 h-6 rounded-full bg-[#FFFDF6] shadow-md transform transition-transform duration-200",
                                                     volumeButtonsEnabled ? "translate-x-5" : "translate-x-0"
                                                 )}
                                             />

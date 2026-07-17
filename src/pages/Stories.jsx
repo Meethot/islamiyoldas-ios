@@ -170,7 +170,7 @@ export default function Stories() {
                                 "relative px-3 py-3 overflow-hidden rounded-2xl font-bold text-xs uppercase tracking-wider transition-all",
                                 isActive
                                     ? "bg-islamic-green dark:bg-islamic-gold text-white dark:text-[#032e18] shadow-lg"
-                                    : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/5"
+                                    : "text-gray-600 dark:text-gray-300 hover:bg-[#F0E8D5] dark:hover:bg-white/5"
                             )}
                             whileTap={{ scale: 0.95 }}
                         >
@@ -234,7 +234,7 @@ export default function Stories() {
                             animate={{ y: 0, opacity: 1, scale: 1 }}
                             exit={{ y: "100%", opacity: 0, scale: 0.95 }}
                             transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                            className="w-full max-w-[420px] h-full max-h-[90vh] bg-white dark:bg-[#032e18] rounded-[2.5rem] shadow-2xl relative overflow-hidden flex flex-col border border-white/5 ring-4 ring-black/20"
+                            className="w-full max-w-[420px] h-full max-h-[90vh] bg-[#FFFDF6] dark:bg-[#032e18] rounded-[2.5rem] shadow-2xl relative overflow-hidden flex flex-col border border-white/5 ring-4 ring-black/20"
                             onClick={(e) => e.stopPropagation()}
                         >
                             <div
@@ -311,7 +311,7 @@ export default function Stories() {
 
                                                 {/* Thumb */}
                                                 <div
-                                                    className="absolute w-4 h-4 bg-white rounded-full shadow-[0_2px_10px_rgba(0,0,0,0.3)] opacity-0 group-hover/seek:opacity-100 transition-opacity pointer-events-none ring-2 ring-islamic-gold scale-100 group-active/seek:scale-110"
+                                                    className="absolute w-4 h-4 bg-[#FFFDF6] rounded-full shadow-[0_2px_10px_rgba(0,0,0,0.3)] opacity-0 group-hover/seek:opacity-100 transition-opacity pointer-events-none ring-2 ring-islamic-gold scale-100 group-active/seek:scale-110"
                                                     style={{ left: `${(currentTime / duration) * 100}%`, transform: 'translateX(-50%)' }}
                                                 />
 

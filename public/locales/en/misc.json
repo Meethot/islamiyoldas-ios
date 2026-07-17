@@ -15,7 +15,12 @@
         "suggestion1": "My heart is heavy, which dhikr and dua should I read?",
         "suggestion2": "I want my family to be peaceful, what should I do?",
         "suggestion3": "How do I add a widget to my home screen?",
-        "suggestion4": "Which duas should I read before sleeping?"
+        "suggestion4": "Which duas should I read before sleeping?",
+        "birthdayChip": "🎂 Discover your birthday verse",
+        "birthdayPickerTitle": "Pick the day you were born",
+        "birthdayDay": "Day",
+        "birthdayMonth": "Month",
+        "birthdayShow": "Show My Verse"
     },
     "prescription": {
         "title": "Spiritual Prescription",
@@ -48,5 +53,12 @@
         "decline": "Decline — Do Not Use AI",
         "privacy_note": "Full details in our",
         "privacy_link": "Privacy Policy"
+    },
+    "birthdayCard": {
+        "heading": "🎂 The verse for {{date}}",
+        "share": "Share",
+        "shareText": "🎂 The verse for {{date}}\n\n\"{{translation}}\"\n— {{source}}\n\nWhat's yours? Discover it with Islamic Companion:\n{{link}}",
+        "cta": "What's your birthday verse?\nDiscover it on Islamic Companion",
+        "appName": "Islamic Companion"
     }
 }

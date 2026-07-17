@@ -10,7 +10,8 @@ export default {
       colors: {
         // Senin mevcut renklerin (Zikirmatik ile uyumlu)
         islamic: {
-          green: '#044d29',
+          // Ferah tema: light'ta amber, dark'ta marka yeşili (index.css --islamic-green)
+          green: 'rgb(var(--islamic-green) / <alpha-value>)',
           gold: '#D4AF37',
           dark: '#021a0f', // Zikirmatik arka planı için ekstra bir ton ekledim (Opsiyonel kullanım için)
         },

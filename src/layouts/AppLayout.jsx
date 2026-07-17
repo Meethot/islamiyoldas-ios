@@ -122,11 +122,11 @@ export default function AppLayout() {
     }, [hasPremium, pathname]);
 
     return (
-        <div className="h-full bg-[#FAFAF5] dark:bg-[#032e18] font-sans selection:bg-islamic-gold/30">
+        <div className="h-full bg-[#F6F0E1] dark:bg-[#032e18] font-sans selection:bg-islamic-gold/30">
             {/* Mobile-First Container (Simplified for Global Wrapper) */}
             <div className={cn(
                 "h-full flex flex-col relative parchment-texture",
-                pathname === '/qibla' ? "bg-[#010a05]" : "bg-[#FBF9F4] dark:bg-[#032e18]"
+                pathname === '/qibla' ? "bg-[#010a05]" : "bg-[#F6F0E1] dark:bg-[#032e18]"
             )}>
 
                 {/* Premium button shimmer CSS */}
@@ -135,7 +135,7 @@ export default function AppLayout() {
                 {/* Top Bar (Dynamic Greeting) */}
                 {pathname !== '/qibla' && pathname !== '/ai-mentor' && (
                     <header className={cn(
-                        "px-6 pb-2 flex justify-between items-center bg-[#FBF9F4]/80 dark:bg-[#032e18]/80 backdrop-blur-md sticky top-0 z-40 border-b border-amber-100/50 dark:border-white/5",
+                        "px-6 pb-2 flex justify-between items-center bg-[#F6F0E1]/80 dark:bg-[#032e18]/80 backdrop-blur-md sticky top-0 z-40 border-b border-[#E2D9C4]/60 dark:border-white/5",
                         isIOS ? "pt-[env(safe-area-inset-top,2rem)]" : "header-safe-padding"
                     )}>
                         <div className="flex flex-col min-w-0 mr-2">
@@ -288,7 +288,7 @@ export default function AppLayout() {
 
                 {/* Bottom Navigation */}
                 {pathname !== '/ai-mentor' && (
-                    <nav className="absolute bottom-0 left-0 right-0 w-full bg-[#FBF9F4]/90 dark:bg-[#032e18]/90 backdrop-blur-xl border-t border-amber-100/50 dark:border-white/5 z-50 shadow-[0_-8px_20px_-6px_rgba(0,0,0,0.1)]">
+                    <nav className="absolute bottom-0 left-0 right-0 w-full bg-[#F6F0E1]/90 dark:bg-[#032e18]/90 backdrop-blur-xl border-t border-[#E2D9C4]/60 dark:border-white/5 z-50 shadow-[0_-8px_20px_-6px_rgba(0,0,0,0.1)]">
                         <div className="flex justify-around items-center px-4 py-2 pb-safe max-w-2xl mx-auto">
                             <NavLinkItem to="/" icon={CustomHome} label={tNav('nav.home')} onClick={selection} />
                             <NavLinkItem to="/learn" icon={CustomBookOpen} label={tNav('nav.learn')} onClick={selection} />
@@ -315,7 +315,7 @@ function NavLinkItem({ to, icon: Icon, label, onClick }) {
                 cn(
                     "flex flex-col items-center justify-center px-3 py-2.5 rounded-2xl transition-all duration-300 min-w-[64px] min-h-[48px] active:scale-90 group",
                     isActive
-                        ? "text-islamic-green dark:text-islamic-gold bg-islamic-green/5 dark:bg-islamic-gold/10 font-bold"
+                        ? "text-amber-700 dark:text-islamic-gold bg-amber-600/10 dark:bg-islamic-gold/10 font-bold"
                         : "text-gray-400 dark:text-white/40 hover:text-islamic-green/70"
                 )
             }

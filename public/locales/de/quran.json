@@ -1,6 +1,6 @@
 {
     "pageTitle": "Heiliger Quran",
-    "searchPlaceholder": "Sure suchen...",
+    "searchPlaceholder": "Nach Sure-Name oder -Nummer suchen...",
     "tabSurahs": "Suren",
     "tabBookmarks": "Lesezeichen",
     "loadingQuran": "Quran wird geladen...",
@@ -39,5 +39,10 @@
     "preparing": "Wird vorbereitet...",
     "jumpToVerse": "Vers",
     "premiumBannerTitle": "Koran-Rezitation",
-    "premiumBannerSubtitle": "Mit Premium Rezitation mit Übersetzung hören"
+    "premiumBannerSubtitle": "Mit Premium Rezitation mit Übersetzung hören",
+    "focusHint": "Tippe zweimal auf einen Vers, um im Fokusmodus zu hören",
+    "jumpToVersePlaceholder": "Versnummer eingeben...",
+    "modeTranslit": "Umschrift",
+    "modeTranslation": "Übersetzung",
+    "modeArabic": "Arabisch"
 }

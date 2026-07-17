@@ -229,7 +229,7 @@ export default function ReviewPrompt() {
                         exit={{ scale: 0.96, opacity: 0, y: 12 }}
                         transition={{ type: 'spring', damping: 28, stiffness: 350 }}
                         onClick={(e) => e.stopPropagation()}
-                        className="relative w-full max-w-[340px] rounded-3xl overflow-hidden bg-white dark:bg-[linear-gradient(165deg,#123824_0%,#092114_100%)] border border-stone-200 dark:border-[#D4AF37]/[0.18] shadow-[0_25px_50px_rgba(0,0,0,0.2)] dark:shadow-[0_25px_50px_rgba(0,0,0,0.6),0_0_0_0.5px_rgba(255,255,255,0.08)_inset]"
+                        className="relative w-full max-w-[340px] rounded-3xl overflow-hidden bg-[#FFFDF6] dark:bg-[linear-gradient(165deg,#123824_0%,#092114_100%)] border border-[#E2D9C4] dark:border-[#D4AF37]/[0.18] shadow-[0_25px_50px_rgba(0,0,0,0.2)] dark:shadow-[0_25px_50px_rgba(0,0,0,0.6),0_0_0_0.5px_rgba(255,255,255,0.08)_inset]"
                     >
                         {/* Arka plan süslemesi (Premium Dotted Mesh) */}
                         <div className="absolute inset-0 pointer-events-none opacity-60 hidden dark:block" style={{
@@ -325,7 +325,7 @@ export default function ReviewPrompt() {
                                 </div>
 
                                 {/* Alt ayırıcı çizgi */}
-                                <div className="w-12 h-px bg-stone-200 dark:bg-white/10 mb-4" />
+                                <div className="w-12 h-px bg-[#E9DFC8] dark:bg-white/10 mb-4" />
 
                                 <button
                                     onClick={handleDismiss}
@@ -383,7 +383,7 @@ export default function ReviewPrompt() {
                                 <motion.button
                                     whileTap={{ scale: 0.97 }}
                                     onClick={handleDismiss}
-                                    className="w-full py-3.5 rounded-xl font-medium text-[15px] cursor-pointer bg-stone-100 text-stone-700 dark:bg-white/[0.07] dark:text-white/80"
+                                    className="w-full py-3.5 rounded-xl font-medium text-[15px] cursor-pointer bg-[#F0E8D5] text-stone-700 dark:bg-white/[0.07] dark:text-white/80"
                                 >
                                     {t('review.closeUnderstand', 'Tamam')}
                                 </motion.button>

@@ -468,7 +468,7 @@ export default function Home() {
             <motion.div variants={itemVariants} className="px-1 cursor-pointer group" onClick={() => handleNavigate('/oruc-takibi')}>
                 <div className="glass-panel rounded-[2.5rem] p-6 flex items-center justify-between transition-all active:scale-95 group-hover:bg-white/60 dark:group-hover:bg-white/10">
                     <div className="flex items-center gap-4">
-                        <div className="p-4 bg-islamic-green/10 dark:bg-islamic-gold/10 rounded-2xl text-islamic-green dark:text-islamic-gold">
+                        <div className="p-4 bg-amber-600/10 dark:bg-islamic-gold/10 rounded-2xl text-amber-700 dark:text-islamic-gold">
                             <Moon size={24} />
                         </div>
                         <div>
@@ -487,7 +487,7 @@ export default function Home() {
                     onClick={() => handleNavigate('/widget-rehberi')}
                     className="w-full glass-panel rounded-[2.5rem] p-6 flex items-center gap-4 text-left active:scale-[0.98] transition-transform"
                 >
-                    <div className="flex-shrink-0 w-12 h-12 rounded-2xl flex items-center justify-center bg-islamic-green/10 dark:bg-islamic-gold/10 text-islamic-green dark:text-islamic-gold">
+                    <div className="flex-shrink-0 w-12 h-12 rounded-2xl flex items-center justify-center bg-amber-600/10 dark:bg-islamic-gold/10 text-amber-700 dark:text-islamic-gold">
                         <LayoutGrid size={22} strokeWidth={1.9} />
                     </div>
                     <div className="flex-1 min-w-0">
@@ -552,7 +552,7 @@ export default function Home() {
                             initial={{ scale: 0.95, opacity: 0 }}
                             animate={{ scale: 1, opacity: 1 }}
                             exit={{ scale: 0.95, opacity: 0 }}
-                            className="bg-white dark:bg-[#032e18] w-full max-w-sm rounded-[2.5rem] overflow-hidden shadow-2xl border dark:border-white/10"
+                            className="bg-[#FFFDF6] dark:bg-[#032e18] w-full max-w-sm rounded-[2.5rem] overflow-hidden shadow-2xl border dark:border-white/10"
                         >
                             <div className="p-4 flex justify-between items-center border-b dark:border-white/10">
                                 <h4 className="font-serif font-bold text-islamic-green dark:text-islamic-gold">
@@ -561,7 +561,7 @@ export default function Home() {
                                 <button
                                     onClick={() => { selection(); setShowShareModal(false); }}
                                     aria-label={t('close')}
-                                    className="touch-target hover:bg-gray-100 dark:hover:bg-white/5 rounded-full dark:text-white"
+                                    className="touch-target hover:bg-[#F0E8D5] dark:hover:bg-white/5 rounded-full dark:text-white"
                                 >
                                     <X className="w-5 h-5" />
                                 </button>
@@ -571,7 +571,7 @@ export default function Home() {
                                     id="verse-share-card" 
                                     className={cn(
                                         "aspect-[4/5] w-full min-h-[400px] rounded-[2rem] p-8 sm:p-10 flex flex-col justify-center items-center text-center transition-all duration-500 mb-6 relative overflow-hidden",
-                                        activeTheme.cardBg || "bg-white",
+                                        activeTheme.cardBg || "bg-[#FFFDF6]",
                                         activeTheme.archShadow
                                     )}
                                     style={{ background: activeTheme.background }}
@@ -879,15 +879,12 @@ function EsmaDetailModal({ esma, count, setCount, onClose }) {
                 onDragEnd={(_, info) => {
                     if (info.offset.y > 100 || info.velocity.y > 500) onClose();
                 }}
-                className="w-full rounded-t-[3rem] overflow-hidden shadow-2xl p-8 pb-12 max-w-lg cursor-grab active:cursor-grabbing relative border-t border-white/10"
-                style={{
-                    background: 'radial-gradient(circle at top, #064e3b 0%, #022c22 40%, #000000 100%)',
-                }}
+                className="w-full rounded-t-[3rem] overflow-hidden shadow-2xl p-8 pb-12 max-w-lg cursor-grab active:cursor-grabbing relative border-t border-white/10 bg-[radial-gradient(circle_at_top,#78350f_0%,#451a03_40%,#000000_100%)] dark:bg-[radial-gradient(circle_at_top,#064e3b_0%,#022c22_40%,#000000_100%)]"
                 onClick={(e) => e.stopPropagation()}
             >
                 {/* Ambient Background Glow */}
                 <div className="absolute top-[-15%] right-[-15%] w-48 h-48 bg-islamic-gold/10 rounded-full blur-[80px] pointer-events-none" />
-                <div className="absolute bottom-[-10%] left-[-10%] w-56 h-56 bg-emerald-500/15 rounded-full blur-[100px] pointer-events-none" />
+                <div className="absolute bottom-[-10%] left-[-10%] w-56 h-56 bg-amber-500/15 dark:bg-emerald-500/15 rounded-full blur-[100px] pointer-events-none" />
 
                 <div className="w-12 h-1.5 bg-white/20 rounded-full mx-auto mb-6 relative z-10" />
 
@@ -953,7 +950,7 @@ function EsmaDetailModal({ esma, count, setCount, onClose }) {
                                 key={target - (count % target)}
                                 initial={{ scale: 1.3, opacity: 0.5 }}
                                 animate={{ scale: 1, opacity: 1 }}
-                                className={`text-7xl font-mono font-bold tracking-tighter drop-shadow-2xl ${(count % target) === 0 && count > 0 ? 'text-emerald-400' : 'text-white'
+                                className={`text-7xl font-mono font-bold tracking-tighter drop-shadow-2xl ${(count % target) === 0 && count > 0 ? 'text-amber-400 dark:text-emerald-400' : 'text-white'
                                     }`}
                             >
                                 {(count % target) === 0 && count > 0 ? '✓' : target - (count % target)}

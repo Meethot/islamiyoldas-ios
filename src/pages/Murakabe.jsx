@@ -182,9 +182,9 @@ export default function Murakabe() {
         }).length;
 
     return (
-        <div className="min-h-screen bg-gradient-to-b from-[#FAF8F3] via-[#F5F0E6] to-[#EDE6D6] dark:from-[#022c22] dark:via-[#064e3b] dark:to-[#000000] relative overflow-hidden">
+        <div className="min-h-screen bg-gradient-to-b from-[#F6F0E1] via-[#EFE8D6] to-[#EAE1CB] dark:from-[#022c22] dark:via-[#064e3b] dark:to-[#000000] relative overflow-hidden">
             {/* Ambient Glow */}
-            <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-emerald-500/10 rounded-full blur-[150px] pointer-events-none" />
+            <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-amber-500/10 dark:bg-emerald-500/10 rounded-full blur-[150px] pointer-events-none" />
 
             {/* Islamic Pattern Overlay */}
             <div
@@ -242,7 +242,7 @@ export default function Murakabe() {
                             className="w-full max-w-md"
                         >
                             {/* The Card */}
-                            <div className="bg-white/80 dark:bg-emerald-900/40 backdrop-blur-xl border border-stone-200/80 dark:border-emerald-700/50 rounded-[2rem] p-8 shadow-2xl shadow-stone-300/50 dark:shadow-black/30">
+                            <div className="bg-white/80 dark:bg-emerald-900/40 backdrop-blur-xl border border-[#E2D9C4]/80 dark:border-emerald-700/50 rounded-[2rem] p-8 shadow-2xl shadow-stone-300/50 dark:shadow-black/30">
                                 {/* Icon */}
                                 <div className="flex justify-center mb-8">
                                     <div className="p-5 bg-islamic-green/10 dark:bg-islamic-gold/10 rounded-full border border-islamic-green/20 dark:border-islamic-gold/20">
@@ -268,7 +268,7 @@ export default function Murakabe() {
                                     onClick={() => handleAnswer(false)}
                                     className={cn(
                                         "flex-1 h-16 rounded-2xl font-semibold text-lg transition-all active:scale-95",
-                                        "bg-white border border-stone-200 text-stone-600 hover:bg-stone-50 hover:text-stone-800 dark:bg-white/5 dark:border-white/10 dark:text-white/70 dark:hover:bg-white/10 dark:hover:text-white"
+                                        "bg-[#FFFDF6] border border-[#E2D9C4] text-stone-600 hover:bg-stone-50 hover:text-stone-800 dark:bg-white/5 dark:border-white/10 dark:text-white/70 dark:hover:bg-white/10 dark:hover:text-white"
                                     )}
                                 >
                                     <X className="w-5 h-5 mr-2" />
@@ -420,7 +420,7 @@ export default function Murakabe() {
                             >
                                 <Button
                                     onClick={handleFinish}
-                                    className="w-full h-16 rounded-2xl font-semibold text-lg bg-white border border-stone-200 text-stone-700 hover:bg-stone-50 dark:bg-black/30 dark:border-white/20 dark:text-white dark:hover:bg-black/50 backdrop-blur-md transition-all active:scale-95"
+                                    className="w-full h-16 rounded-2xl font-semibold text-lg bg-[#FFFDF6] border border-[#E2D9C4] text-stone-700 hover:bg-stone-50 dark:bg-black/30 dark:border-white/20 dark:text-white dark:hover:bg-black/50 backdrop-blur-md transition-all active:scale-95"
                                 >
                                     {t('goHome')}
                                 </Button>

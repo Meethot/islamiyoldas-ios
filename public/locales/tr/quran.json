@@ -1,6 +1,6 @@
 {
     "pageTitle": "Kur'an-ı Kerim",
-    "searchPlaceholder": "Sure ara...",
+    "searchPlaceholder": "Sure adı veya numarası ara...",
     "tabSurahs": "Sureler",
     "tabBookmarks": "Kaydettiklerim",
     "loadingQuran": "Kur'an yükleniyor...",
@@ -39,5 +39,10 @@
     "preparing": "Hazırlanıyor...",
     "jumpToVerse": "Ayet",
     "premiumBannerTitle": "Sesli Kur'an Dinleme",
-    "premiumBannerSubtitle": "Mealli sesli dinleme için Premium'a geçin"
+    "premiumBannerSubtitle": "Mealli sesli dinleme için Premium'a geçin",
+    "focusHint": "Ayete iki kez dokun, odak modunda dinle",
+    "jumpToVersePlaceholder": "Ayet numarası yaz...",
+    "modeTranslit": "Okunuş",
+    "modeTranslation": "Meâl",
+    "modeArabic": "Arapça"
 }

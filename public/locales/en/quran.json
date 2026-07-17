@@ -1,6 +1,6 @@
 {
     "pageTitle": "Holy Quran",
-    "searchPlaceholder": "Search surah...",
+    "searchPlaceholder": "Search by surah name or number...",
     "tabSurahs": "Surahs",
     "tabBookmarks": "Bookmarks",
     "loadingQuran": "Loading Quran...",
@@ -39,5 +39,10 @@
     "preparing": "Preparing...",
     "jumpToVerse": "Verse",
     "premiumBannerTitle": "Quran Audio",
-    "premiumBannerSubtitle": "Go Premium to listen with translation"
+    "premiumBannerSubtitle": "Go Premium to listen with translation",
+    "focusHint": "Double-tap a verse to listen in focus mode",
+    "jumpToVersePlaceholder": "Enter verse number...",
+    "modeTranslit": "Reading",
+    "modeTranslation": "Translation",
+    "modeArabic": "Arabic"
 }

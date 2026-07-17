@@ -1,6 +1,6 @@
 {
     "pageTitle": "Qurani-Kərim",
-    "searchPlaceholder": "Surə axtar...",
+    "searchPlaceholder": "Surə adı və ya nömrəsi ilə axtar...",
     "tabSurahs": "Surələr",
     "tabBookmarks": "Saxladıqlarım",
     "loadingQuran": "Quran yüklənir...",
@@ -39,5 +39,10 @@
     "preparing": "Hazırlanır...",
     "jumpToVerse": "Ayə",
     "premiumBannerTitle": "Səsli Quran",
-    "premiumBannerSubtitle": "Tərcüməli səsli dinləmə üçün Premium-a keçin"
+    "premiumBannerSubtitle": "Tərcüməli səsli dinləmə üçün Premium-a keçin",
+    "focusHint": "Fokus rejimində dinləmək üçün ayəyə iki dəfə toxun",
+    "jumpToVersePlaceholder": "Ayə nömrəsini yaz...",
+    "modeTranslit": "Oxunuş",
+    "modeTranslation": "Tərcümə",
+    "modeArabic": "Ərəbcə"
 }

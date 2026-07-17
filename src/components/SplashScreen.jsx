@@ -86,13 +86,13 @@ export default function SplashScreen({ dataReady = false }) {
                     exit={{ opacity: 0, transition: { duration: 0.45, ease: "easeInOut" } }}
                 >
                     {/* Background Subtle Radial Glow — using radial gradient instead of blur for performance */}
-                    <div className="absolute inset-0 -z-10" style={{ background: 'radial-gradient(ellipse at center, rgba(34,197,94,0.12) 0%, transparent 70%)' }} />
+                    <div className="absolute inset-0 -z-10" style={{ background: 'radial-gradient(ellipse at center, rgba(217,119,6,0.12) 0%, transparent 70%)' }} />
 
                     <div className="flex flex-col items-center w-full max-w-[340px] px-6">
                         {/* Logo — animasyonsuz: native splash'taki logoyla aynı karede durur,
                             giriş animasyonu olsaydı geçişte logo kaybolup yeniden belirirdi */}
                         <div className="relative mb-8">
-                            <div className="absolute inset-0 rounded-full scale-150" style={{ background: 'radial-gradient(circle, rgba(34,197,94,0.15) 0%, transparent 70%)' }} />
+                            <div className="absolute inset-0 rounded-full scale-150" style={{ background: 'radial-gradient(circle, rgba(217,119,6,0.15) 0%, transparent 70%)' }} />
                             <img
                                 src={logo}
                                 alt={i18n.t('common:splash.title')}

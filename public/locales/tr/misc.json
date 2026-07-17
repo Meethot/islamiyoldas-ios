@@ -15,7 +15,12 @@
         "suggestion1": "İçim daralıyor, hangi zikir ve duayı çekeyim?",
         "suggestion2": "Ailem huzurlu olsun istiyorum, ne yapmalıyım?",
         "suggestion3": "Ana ekrana widget nasıl eklerim?",
-        "suggestion4": "Uyumadan önce hangi dualar okunur?"
+        "suggestion4": "Uyumadan önce hangi dualar okunur?",
+        "birthdayChip": "🎂 Doğum ayetini keşfet",
+        "birthdayPickerTitle": "Doğduğun günü seç",
+        "birthdayDay": "Gün",
+        "birthdayMonth": "Ay",
+        "birthdayShow": "Ayetini Göster"
     },
     "prescription": {
         "title": "Manevi Reçete",
@@ -48,5 +53,12 @@
         "decline": "Reddet — Yapay Zekayı Kullanma",
         "privacy_note": "Tüm detaylar için",
         "privacy_link": "Gizlilik Politikası"
+    },
+    "birthdayCard": {
+        "heading": "🎂 {{date}} doğanların ayeti",
+        "share": "Paylaş",
+        "shareText": "🎂 {{date}} doğanların ayeti\n\n\"{{translation}}\"\n— {{source}}\n\nSeninki hangi ayet? İslami Yoldaş ile keşfet:\n{{link}}",
+        "cta": "Senin doğum ayetin hangisi?\nİslami Yoldaş'ta keşfet",
+        "appName": "İslami Yoldaş"
     }
 }

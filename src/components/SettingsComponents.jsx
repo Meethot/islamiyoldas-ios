@@ -11,7 +11,7 @@ export function SettingsHeader({ title, onBack }) {
     const navigate = useNavigate();
 
     return (
-        <div className="bg-white dark:bg-[#044d29]/40 backdrop-blur-md sticky top-0 z-40 p-4 flex items-center gap-4 border-b dark:border-white/5">
+        <div className="bg-[#FFFDF6] dark:bg-[#044d29]/40 backdrop-blur-md sticky top-0 z-40 p-4 flex items-center gap-4 border-b dark:border-white/5">
             <Button
                 variant="ghost"
                 size="icon"
@@ -34,7 +34,7 @@ export function SettingsToggle({ icon: Icon, label, subtitle, active, onToggle, 
             onClick={onToggle}
             disabled={disabled}
             className={cn(
-                "w-full flex items-center justify-between p-5 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors border-b last:border-0 dark:border-white/5",
+                "w-full flex items-center justify-between p-5 hover:bg-[#F0E8D5] dark:hover:bg-white/5 transition-colors border-b last:border-0 dark:border-white/5",
                 disabled && "opacity-50 cursor-not-allowed"
             )}
         >
@@ -43,7 +43,7 @@ export function SettingsToggle({ icon: Icon, label, subtitle, active, onToggle, 
                     "p-3 rounded-2xl transition-colors",
                     active
                         ? "bg-islamic-green/10 text-islamic-green dark:bg-islamic-gold/20 dark:text-islamic-gold"
-                        : "bg-gray-100 text-gray-400 dark:bg-white/5 dark:text-gray-500"
+                        : "bg-[#F0E8D5] text-gray-400 dark:bg-white/5 dark:text-gray-500"
                 )}>
                     <Icon size={20} />
                 </div>
@@ -57,7 +57,7 @@ export function SettingsToggle({ icon: Icon, label, subtitle, active, onToggle, 
                 active ? "bg-islamic-green dark:bg-islamic-gold" : "bg-gray-200 dark:bg-white/10"
             )}>
                 <div className={cn(
-                    "w-4 h-4 bg-white rounded-full shadow-sm transition-transform",
+                    "w-4 h-4 bg-[#FFFDF6] rounded-full shadow-sm transition-transform",
                     active ? "translate-x-6" : "translate-x-0"
                 )} />
             </div>
@@ -72,10 +72,10 @@ export function SettingsLink({ icon: Icon, label, subtitle, onClick, badge }) {
     return (
         <button
             onClick={onClick}
-            className="w-full flex items-center justify-between p-5 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors border-b last:border-0 dark:border-white/5 group"
+            className="w-full flex items-center justify-between p-5 hover:bg-[#F0E8D5] dark:hover:bg-white/5 transition-colors border-b last:border-0 dark:border-white/5 group"
         >
             <div className="flex items-center gap-4">
-                <div className="p-3 bg-gray-50 dark:bg-white/5 rounded-2xl text-gray-400 dark:text-gray-500 group-hover:scale-110 transition-transform">
+                <div className="p-3 bg-[#F6F0E1] dark:bg-white/5 rounded-2xl text-gray-400 dark:text-gray-500 group-hover:scale-110 transition-transform">
                     <Icon size={20} />
                 </div>
                 <div className="text-left">
@@ -106,7 +106,7 @@ export function SettingsSection({ title, children }) {
             <h3 className="px-2 text-[10px] font-bold text-gray-400 dark:text-emerald-100/40 uppercase tracking-widest">
                 {title}
             </h3>
-            <div className="bg-white dark:bg-white/5 rounded-[2rem] shadow-sm border dark:border-white/5 overflow-hidden">
+            <div className="bg-[#FFFDF6] dark:bg-white/5 rounded-[2rem] shadow-sm border dark:border-white/5 overflow-hidden">
                 {children}
             </div>
         </section>
@@ -118,7 +118,7 @@ export function SettingsSection({ title, children }) {
  */
 export function SettingsContainer({ children }) {
     return (
-        <div className="min-h-screen bg-slate-50 dark:bg-[#032e18] pb-24 animate-in slide-in-from-right duration-300">
+        <div className="min-h-screen bg-[#F6F0E1] dark:bg-[#032e18] pb-24 animate-in slide-in-from-right duration-300">
             {children}
         </div>
     );

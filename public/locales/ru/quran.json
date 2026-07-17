@@ -1,6 +1,6 @@
 {
     "pageTitle": "Священный Коран",
-    "searchPlaceholder": "Поиск суры...",
+    "searchPlaceholder": "Поиск по названию или номеру суры...",
     "tabSurahs": "Суры",
     "tabBookmarks": "Закладки",
     "loadingQuran": "Загрузка Корана...",
@@ -39,5 +39,10 @@
     "preparing": "Подготовка...",
     "jumpToVerse": "Аят",
     "premiumBannerTitle": "Аудио Коран",
-    "premiumBannerSubtitle": "Слушайте с переводом в Премиум"
+    "premiumBannerSubtitle": "Слушайте с переводом в Премиум",
+    "focusHint": "Дважды коснитесь аята, чтобы слушать в режиме фокуса",
+    "jumpToVersePlaceholder": "Введите номер аята...",
+    "modeTranslit": "Транскрипция",
+    "modeTranslation": "Перевод",
+    "modeArabic": "Арабский"
 }

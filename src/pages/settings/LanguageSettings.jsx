@@ -39,12 +39,12 @@ export default function LanguageSettings() {
     };
 
     return (
-        <div className="min-h-screen bg-slate-50 dark:bg-[#021a0f] text-gray-900 dark:text-white pb-24">
+        <div className="min-h-screen bg-[#F6F0E1] dark:bg-[#021a0f] text-gray-900 dark:text-white pb-24">
             {/* Header */}
-            <div className="bg-white dark:bg-[#044d29]/40 backdrop-blur-md sticky top-0 z-40 p-4 flex items-center gap-4 border-b dark:border-white/5">
+            <div className="bg-[#FFFDF6] dark:bg-[#044d29]/40 backdrop-blur-md sticky top-0 z-40 p-4 flex items-center gap-4 border-b dark:border-white/5">
                 <button
                     onClick={() => navigate(-1)}
-                    className="w-10 h-10 rounded-xl bg-gray-100 dark:bg-white/5 flex items-center justify-center hover:bg-gray-200 dark:hover:bg-white/10 transition-colors"
+                    className="w-10 h-10 rounded-xl bg-[#F0E8D5] dark:bg-white/5 flex items-center justify-center hover:bg-gray-200 dark:hover:bg-white/10 transition-colors"
                 >
                     <ChevronLeft size={20} />
                 </button>
@@ -62,7 +62,7 @@ export default function LanguageSettings() {
                     <h3 className="px-2 text-[10px] font-bold text-gray-400 dark:text-emerald-100/40 uppercase tracking-widest">
                         {t('modal.select_lang')}
                     </h3>
-                    <div className="bg-white dark:bg-white/5 rounded-[2rem] shadow-sm border dark:border-white/5 overflow-hidden">
+                    <div className="bg-[#FFFDF6] dark:bg-white/5 rounded-[2rem] shadow-sm border dark:border-white/5 overflow-hidden">
                         {LANGUAGES.map((lang, idx) => (
                             <button
                                 key={lang.code}
@@ -72,7 +72,7 @@ export default function LanguageSettings() {
                                     idx < LANGUAGES.length - 1 && "border-b dark:border-white/5",
                                     i18n.language === lang.code
                                         ? "bg-islamic-gold/5 dark:bg-islamic-gold/10"
-                                        : "hover:bg-slate-50 dark:hover:bg-white/5"
+                                        : "hover:bg-[#F0E8D5] dark:hover:bg-white/5"
                                 )}
                             >
                                 <div className="flex items-center gap-4">

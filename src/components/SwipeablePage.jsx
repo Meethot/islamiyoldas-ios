@@ -24,7 +24,7 @@ export default function SwipeablePage({ children, className = "" }) {
 
     return (
         <motion.div
-            className={`absolute inset-0 z-50 bg-[#021a0f] h-[100dvh] shadow-2xl overflow-hidden ${className}`} // Ensure full screen & background
+            className={`absolute inset-0 z-50 bg-[#F6F0E1] dark:bg-[#021a0f] h-[100dvh] shadow-2xl overflow-hidden ${className}`} // Ensure full screen & background
             initial={{ x: "100%" }} // Start from right
             animate={{ x: 0 }}       // Slide in to center
             exit={{ x: "100%" }}     // Slide out to right

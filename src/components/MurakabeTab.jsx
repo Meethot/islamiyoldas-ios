@@ -282,7 +282,7 @@ export default function MurakabeTab() {
         }).length;
 
     return (
-        <div className="min-h-[60vh] sm:min-h-[70vh] relative overflow-hidden rounded-b-3xl bg-gradient-to-b from-[#FAF8F3] via-[#F5F0E6] to-[#EDE6D6] dark:from-transparent dark:via-transparent dark:to-transparent"
+        <div className="min-h-[60vh] sm:min-h-[70vh] relative overflow-hidden rounded-b-3xl bg-gradient-to-b from-[#F6F0E1] via-[#EFE8D6] to-[#EAE1CB] dark:from-transparent dark:via-transparent dark:to-transparent"
             style={{
                 '--murakabe-dark-bg': 'linear-gradient(180deg, #021a0f 0%, #032e18 25%, #064e3b 50%, #043927 75%, #021a0f 100%)'
             }}
@@ -331,7 +331,7 @@ export default function MurakabeTab() {
                 {/* Decorative Flourish */}
                 <div className="flex items-center justify-center gap-3 mb-3">
                     <div className="h-px w-12 bg-gradient-to-r from-transparent to-primary/30 dark:to-islamic-gold/40" />
-                    <div className="w-2 h-2 rounded-full bg-primary/40 dark:bg-islamic-gold/50 shadow-[0_0_8px_rgba(7,77,46,0.2)] dark:shadow-[0_0_8px_rgba(212,175,55,0.3)]" />
+                    <div className="w-2 h-2 rounded-full bg-primary/40 dark:bg-islamic-gold/50 shadow-[0_0_8px_rgba(217,119,6,0.2)] dark:shadow-[0_0_8px_rgba(212,175,55,0.3)]" />
                     <div className="h-px w-12 bg-gradient-to-l from-transparent to-primary/30 dark:to-islamic-gold/40" />
                 </div>
 
@@ -419,7 +419,7 @@ export default function MurakabeTab() {
                                     <motion.div
                                         className="p-4 rounded-2xl border border-primary/15 dark:border-islamic-gold/20 relative bg-primary/5 dark:bg-transparent"
                                         style={{
-                                            boxShadow: '0 0 20px rgba(7,77,46,0.05), inset 0 1px 0 rgba(7,77,46,0.05)'
+                                            boxShadow: '0 0 20px rgba(217,119,6,0.05), inset 0 1px 0 rgba(217,119,6,0.05)'
                                         }}
                                         animate={{ scale: [1, 1.05, 1] }}
                                         transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
@@ -702,7 +702,7 @@ export default function MurakabeTab() {
                                             <div className={cn(
                                                 "w-8 h-8 rounded-xl flex items-center justify-center transition-all border",
                                                 day.completed
-                                                    ? "bg-gradient-to-br from-emerald-500/20 dark:from-emerald-500/30 to-emerald-600/10 dark:to-emerald-600/20 border-emerald-500/20 dark:border-emerald-500/30"
+                                                    ? "bg-gradient-to-br from-amber-500/20 dark:from-emerald-500/30 to-amber-600/10 dark:to-emerald-600/20 border-amber-500/20 dark:border-emerald-500/30"
                                                     : day.isToday
                                                         ? "bg-primary/10 dark:bg-islamic-gold/10 border-primary/25 dark:border-islamic-gold/25 border-dashed"
                                                         : "bg-muted/40 dark:bg-white/[0.03] border-border/50 dark:border-white/[0.06]"
@@ -713,7 +713,7 @@ export default function MurakabeTab() {
                                                         animate={{ scale: 1 }}
                                                         transition={{ type: 'spring', stiffness: 300, damping: 15, delay: 1.8 + i * 0.08 }}
                                                     >
-                                                        <Check size={14} className="text-emerald-400" strokeWidth={3} />
+                                                        <Check size={14} className="text-amber-600 dark:text-emerald-400" strokeWidth={3} />
                                                     </motion.div>
                                                 ) : day.isToday ? (
                                                     <div className="w-2 h-2 rounded-full bg-primary/40 dark:bg-islamic-gold/50" />
@@ -761,7 +761,7 @@ export default function MurakabeTab() {
             </main>
 
             {/* Bottom Gradient Fade */}
-            <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-[#EDE6D6] dark:from-[#021a0f] to-transparent pointer-events-none" />
+            <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-[#EAE1CB] dark:from-[#021a0f] to-transparent pointer-events-none" />
         </div>
     );
 }

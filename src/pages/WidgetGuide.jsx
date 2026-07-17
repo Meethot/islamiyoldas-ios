@@ -196,14 +196,14 @@ export default function WidgetGuide() {
                     <button
                         onClick={() => { selection(); navigate(-1); }}
                         aria-label={t('widget_guide.back', 'Geri')}
-                        className="flex-shrink-0 w-9 h-9 rounded-full bg-white dark:bg-white/5 border border-stone-200/80 dark:border-white/10 shadow-sm dark:shadow-none flex items-center justify-center text-islamic-green dark:text-islamic-gold hover:bg-stone-50 dark:hover:bg-white/10 transition-colors active:scale-95"
+                        className="flex-shrink-0 w-9 h-9 rounded-full bg-[#FFFDF6] dark:bg-white/5 border border-[#E2D9C4]/80 dark:border-white/10 shadow-sm dark:shadow-none flex items-center justify-center text-islamic-green dark:text-islamic-gold hover:bg-stone-50 dark:hover:bg-white/10 transition-colors active:scale-95"
                     >
                         <ChevronLeft size={20} />
                     </button>
                     <p className="flex-1 min-w-0 text-sm text-stone-500 dark:text-gray-400 leading-relaxed px-1">
                         {t('widget_guide.subtitle')}
                     </p>
-                    <div className="flex-shrink-0 flex items-center gap-1 p-1 rounded-full bg-white dark:bg-white/5 border border-stone-200/80 dark:border-white/10 shadow-sm dark:shadow-none">
+                    <div className="flex-shrink-0 flex items-center gap-1 p-1 rounded-full bg-[#FFFDF6] dark:bg-white/5 border border-[#E2D9C4]/80 dark:border-white/10 shadow-sm dark:shadow-none">
                         {[
                             { key: 'ios', Icon: AppleLogo, label: 'iPhone' },
                             { key: 'android', Icon: AndroidLogo, label: 'Android' },
@@ -237,7 +237,7 @@ export default function WidgetGuide() {
                         <div className="wg2-shimmer absolute inset-0 pointer-events-none" />
 
                         {/* Zümrüt taç mührü */}
-                        <div className="relative flex-shrink-0 w-11 h-11 rounded-full bg-gradient-to-b from-[#0a5433] to-[#032e18] ring-1 ring-inset ring-white/20 flex items-center justify-center shadow-[0_5px_14px_rgba(3,46,24,0.35)]">
+                        <div className="relative flex-shrink-0 w-11 h-11 rounded-full bg-gradient-to-b from-[#92400e] to-[#451a03] dark:from-[#0a5433] dark:to-[#032e18] ring-1 ring-inset ring-white/20 flex items-center justify-center shadow-[0_5px_14px_rgba(120,53,15,0.35)] dark:shadow-[0_5px_14px_rgba(3,46,24,0.35)]">
                             <Crown size={18} className="text-islamic-gold fill-current" />
                             <span className="absolute inset-0 rounded-full ring-2 ring-[#064e3b]/30 animate-ping" style={{ animationDuration: '2.4s' }} />
                         </div>
@@ -247,18 +247,18 @@ export default function WidgetGuide() {
                             <p className="text-xs font-medium text-[#064e3b]/80 mt-0.5 leading-snug">{t('widget_guide.premium_desc')}</p>
                         </div>
 
-                        <span className="relative flex-shrink-0 px-3.5 py-2 rounded-xl bg-gradient-to-b from-[#0a5433] to-[#032e18] text-islamic-gold text-xs font-extrabold shadow-[0_4px_12px_rgba(3,46,24,0.4)]">
+                        <span className="relative flex-shrink-0 px-3.5 py-2 rounded-xl bg-gradient-to-b from-[#92400e] to-[#451a03] dark:from-[#0a5433] dark:to-[#032e18] text-islamic-gold text-xs font-extrabold shadow-[0_4px_12px_rgba(120,53,15,0.4)] dark:shadow-[0_4px_12px_rgba(3,46,24,0.4)]">
                             {t('widget_guide.premium_cta')}
                         </span>
                     </div>
                 )}
 
                 {/* Rehber kartı — sekme + önizleme + adımlar tek gövdede */}
-                <div className="rounded-[2rem] bg-white dark:bg-white/5 border border-stone-200/80 dark:border-white/10 shadow-sm dark:shadow-none overflow-hidden">
+                <div className="rounded-[2rem] bg-[#FFFDF6] dark:bg-white/5 border border-[#E2D9C4]/80 dark:border-white/10 shadow-sm dark:shadow-none overflow-hidden">
 
                     {/* Kilit Ekranı / Ana Ekran — yalnızca iPhone'da (Android'de kilit widget'ı yok) */}
                     {isIos && (
-                        <div className="flex gap-1 p-1 m-4 mb-0 rounded-xl bg-stone-100 dark:bg-white/[0.06]">
+                        <div className="flex gap-1 p-1 m-4 mb-0 rounded-xl bg-[#F0E8D5] dark:bg-white/[0.06]">
                             {[
                                 { key: 'lock', icon: Lock, label: t('widget_guide.tab_lock') },
                                 { key: 'home', icon: Smartphone, label: t('widget_guide.tab_home') },
@@ -269,7 +269,7 @@ export default function WidgetGuide() {
                                     className={cn(
                                         'flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-lg text-[13px] font-bold transition-all active:scale-[0.98]',
                                         activeTab === key
-                                            ? 'bg-white dark:bg-islamic-gold text-islamic-green dark:text-[#021a0f] shadow-sm'
+                                            ? 'bg-[#FFFDF6] dark:bg-islamic-gold text-islamic-green dark:text-[#021a0f] shadow-sm'
                                             : 'text-stone-500 dark:text-gray-400'
                                     )}
                                 >
@@ -317,14 +317,14 @@ export default function WidgetGuide() {
                                         )}>
                                             {isLast ? <Check size={16} strokeWidth={3} /> : i + 1}
                                         </div>
-                                        {!isLast && <div className="w-px flex-1 my-1.5 bg-stone-200 dark:bg-white/10" />}
+                                        {!isLast && <div className="w-px flex-1 my-1.5 bg-[#E9DFC8] dark:bg-white/10" />}
                                     </div>
 
                                     <div className={cn('min-w-0 pt-1', !isLast && 'pb-5')}>
                                         <p className="text-sm font-bold text-stone-900 dark:text-white leading-snug">{t(`widget_guide.${s.t}`)}</p>
                                         <p className="text-xs text-stone-500 dark:text-gray-400 mt-1 leading-relaxed">{t(`widget_guide.${s.d}`)}</p>
                                         {s.chip && (
-                                            <span className="inline-flex mt-2 px-3 py-1.5 rounded-lg bg-stone-100 dark:bg-white/10 border border-stone-300/70 dark:border-white/20 border-b-2 text-[11px] font-bold text-stone-700 dark:text-white">
+                                            <span className="inline-flex mt-2 px-3 py-1.5 rounded-lg bg-[#F0E8D5] dark:bg-white/10 border border-stone-300/70 dark:border-white/20 border-b-2 text-[11px] font-bold text-stone-700 dark:text-white">
                                                 {s.chip === '+' ? '+' : t(`widget_guide.${s.chip}`)}
                                             </span>
                                         )}
@@ -342,7 +342,7 @@ export default function WidgetGuide() {
                     </h3>
                     <div className="grid grid-cols-2 gap-3">
                         {WIDGETS.map(({ Icon, nameKey, sizes }) => (
-                            <div key={nameKey} className="rounded-2xl p-4 bg-white dark:bg-white/5 border border-stone-200/80 dark:border-white/10 shadow-sm dark:shadow-none flex flex-col items-center text-center gap-2">
+                            <div key={nameKey} className="rounded-2xl p-4 bg-[#FFFDF6] dark:bg-white/5 border border-[#E2D9C4]/80 dark:border-white/10 shadow-sm dark:shadow-none flex flex-col items-center text-center gap-2">
                                 <div className="w-11 h-11 rounded-xl bg-islamic-green/10 text-islamic-green dark:bg-islamic-gold/10 dark:text-islamic-gold flex items-center justify-center">
                                     <Icon size={22} />
                                 </div>
@@ -353,7 +353,7 @@ export default function WidgetGuide() {
                                             'px-1.5 py-0.5 rounded-md text-[9px] font-bold uppercase tracking-wide',
                                             sz === 'size_lock'
                                                 ? 'bg-islamic-gold/15 text-[#a8861f] dark:text-islamic-gold'
-                                                : 'bg-stone-100 text-stone-500 dark:bg-white/10 dark:text-gray-400'
+                                                : 'bg-[#F0E8D5] text-stone-500 dark:bg-white/10 dark:text-gray-400'
                                         )}>
                                             {t(`widget_guide.${sz}`)}
                                         </span>
@@ -365,7 +365,7 @@ export default function WidgetGuide() {
                 </div>
 
                 {/* Bilmekte fayda var */}
-                <div className="rounded-[2rem] p-5 bg-white dark:bg-white/5 border border-stone-200/80 dark:border-white/10 shadow-sm dark:shadow-none space-y-4">
+                <div className="rounded-[2rem] p-5 bg-[#FFFDF6] dark:bg-white/5 border border-[#E2D9C4]/80 dark:border-white/10 shadow-sm dark:shadow-none space-y-4">
                     <h3 className="text-base font-bold font-serif text-islamic-green dark:text-islamic-gold px-1">
                         {t('widget_guide.gtk_title')}
                     </h3>

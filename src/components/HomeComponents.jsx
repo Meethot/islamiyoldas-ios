@@ -301,14 +301,14 @@ export const WeeklyStreakWidget = memo(({ tubaData, setTubaData }) => {
             <motion.div variants={itemVariants}>
                 <Card
                     id="tuba-tree-widget"
-                    className="relative overflow-hidden rounded-[20px] backdrop-blur-xl bg-white/60 dark:bg-white/[0.045] border border-white/50 dark:border-white/10 shadow-[0_8px_32px_rgba(4,77,41,0.08)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.25)] text-stone-800 dark:text-white"
+                    className="relative overflow-hidden rounded-[20px] backdrop-blur-xl bg-white/60 dark:bg-white/[0.045] border border-white/50 dark:border-white/10 shadow-[0_8px_32px_rgba(120,53,15,0.08)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.25)] text-stone-800 dark:text-white"
                 >
                     {/* Ambient glow */}
                     <div className={cn(
                         "absolute -top-16 -right-16 w-48 h-48 rounded-full blur-3xl pointer-events-none transition-colors duration-1000",
                         isFinalStage ? "bg-islamic-gold/25" : "bg-islamic-green/10 dark:bg-islamic-gold/10"
                     )} />
-                    <div className="absolute -bottom-20 -left-16 w-44 h-44 rounded-full blur-3xl pointer-events-none bg-emerald-400/10 dark:bg-islamic-green/25" />
+                    <div className="absolute -bottom-20 -left-16 w-44 h-44 rounded-full blur-3xl pointer-events-none bg-amber-400/10 dark:bg-islamic-green/25" />
 
                     <CardContent className="p-4 sm:p-5 relative z-10">
                         {/* 7 günlük takvim şeridi — en üstte */}
@@ -333,10 +333,10 @@ export const WeeklyStreakWidget = memo(({ tubaData, setTubaData }) => {
                                                     accentSolid,
                                                     isFinalStage
                                                         ? "shadow-[0_2px_12px_rgba(212,175,55,0.45)]"
-                                                        : "shadow-[0_2px_12px_rgba(4,77,41,0.3)] dark:shadow-[0_2px_12px_rgba(212,175,55,0.35)]"
+                                                        : "shadow-[0_2px_12px_rgba(180,83,9,0.3)] dark:shadow-[0_2px_12px_rgba(212,175,55,0.35)]"
                                                 ),
                                                 !isDone && isToday && cn("border-2 font-semibold", accentBorder, accentText),
-                                                !isDone && !isToday && "border border-stone-200/80 dark:border-white/10 font-medium text-stone-300 dark:text-white/25"
+                                                !isDone && !isToday && "border border-[#E2D9C4]/80 dark:border-white/10 font-medium text-stone-300 dark:text-white/25"
                                             )}
                                         >
                                             {isDone ? <Check size={15} strokeWidth={2.5} /> : weekDayNumbers[idx]}
@@ -384,13 +384,13 @@ export const WeeklyStreakWidget = memo(({ tubaData, setTubaData }) => {
 
                                 {/* Progress Bar */}
                                 <div className="mt-3 max-w-[170px]">
-                                    <div className="h-2 w-full rounded-full overflow-hidden bg-stone-200/70 dark:bg-white/10">
+                                    <div className="h-2 w-full rounded-full overflow-hidden bg-[#E9DFC8]/70 dark:bg-white/10">
                                         <motion.div
                                             className={cn(
                                                 "h-full rounded-full",
                                                 isFinalStage
                                                     ? "bg-islamic-gold shadow-[0_0_12px_rgba(212,175,55,0.6)]"
-                                                    : "bg-islamic-green shadow-[0_0_10px_rgba(4,77,41,0.4)] dark:bg-islamic-gold dark:shadow-[0_0_12px_rgba(212,175,55,0.5)]"
+                                                    : "bg-islamic-green shadow-[0_0_10px_rgba(180,83,9,0.4)] dark:bg-islamic-gold dark:shadow-[0_0_12px_rgba(212,175,55,0.5)]"
                                             )}
                                             initial={{ width: 0 }}
                                             animate={{ width: `${Math.max(progress, 5)}%` }}
@@ -444,12 +444,12 @@ export const WeeklyStreakWidget = memo(({ tubaData, setTubaData }) => {
                             className={cn(
                                 "w-full mt-4 h-[50px] rounded-[14px] text-[17px] font-semibold flex items-center justify-center gap-2 transition-all duration-300",
                                 isCompletedToday
-                                    ? "bg-stone-100/80 dark:bg-white/[0.06] text-stone-400 dark:text-white/40 cursor-default"
+                                    ? "bg-[#F0E8D5]/80 dark:bg-white/[0.06] text-stone-400 dark:text-white/40 cursor-default"
                                     : cn(
                                         accentSolid,
                                         isFinalStage
                                             ? "shadow-[0_6px_20px_rgba(212,175,55,0.4)]"
-                                            : "shadow-[0_6px_20px_rgba(4,77,41,0.3)] dark:shadow-[0_6px_20px_rgba(212,175,55,0.3)]"
+                                            : "shadow-[0_6px_20px_rgba(180,83,9,0.3)] dark:shadow-[0_6px_20px_rgba(212,175,55,0.3)]"
                                     )
                             )}
                         >
@@ -536,7 +536,7 @@ export const WeeklyStreakWidget = memo(({ tubaData, setTubaData }) => {
                         onClick={() => setShowInfoModal(false)}
                     >
                         <motion.div
-                            className="bg-white dark:bg-[#062414] rounded-[2rem] p-6 w-full max-w-sm border border-stone-200 dark:border-white/10 shadow-2xl relative overflow-hidden"
+                            className="bg-[#FFFDF6] dark:bg-[#062414] rounded-[2rem] p-6 w-full max-w-sm border border-[#E2D9C4] dark:border-white/10 shadow-2xl relative overflow-hidden"
                             initial={{ scale: 0.95, y: 20, opacity: 0 }}
                             animate={{ scale: 1, y: 0, opacity: 1 }}
                             exit={{ scale: 0.95, y: 20, opacity: 0 }}
@@ -560,7 +560,7 @@ export const WeeklyStreakWidget = memo(({ tubaData, setTubaData }) => {
                                 <p className="text-sm font-medium text-stone-600 dark:text-emerald-100/70">
                                     {t('tuba.desc', 'Tuba ağacı kökleri gökte, dalları yeryüzünde olan muazzam güzellikteki cennet ağacıdır.')}
                                 </p>
-                                <ul className="text-sm text-stone-600 dark:text-emerald-100/70 font-medium space-y-2 mt-4 bg-stone-50 dark:bg-white/5 p-3 rounded-xl border border-stone-100 dark:border-white/5">
+                                <ul className="text-sm text-stone-600 dark:text-emerald-100/70 font-medium space-y-2 mt-4 bg-stone-50 dark:bg-white/5 p-3 rounded-xl border border-[#EDE5D1] dark:border-white/5">
                                     <li className="flex items-start gap-2">
                                         <Droplet size={16} className="text-islamic-green dark:text-islamic-gold mt-0.5 shrink-0" />
                                         <span>{t('tuba.water', 'Her gün uygulamaya girerek fidanını büyüt ve onu koca bir ağaca dönüştür.')}</span>
@@ -616,7 +616,7 @@ export const VerseOfDayCard = memo(({ isFriday, verse, fridayContent, onShare })
                 "border-none shadow-xl relative overflow-hidden transition-all duration-700 rounded-[2.5rem]",
                 isFriday
                     ? "bg-gradient-to-br from-stone-50 via-amber-50/50 to-stone-50 dark:from-[#062e19] dark:via-[#0a4528] dark:to-[#062e19] text-stone-800 dark:text-white shadow-[0_8px_40px_rgba(212,175,55,0.1)] dark:shadow-[0_8px_40px_rgba(212,175,55,0.15)] border border-islamic-gold/15 dark:border-islamic-gold/20"
-                    : "bg-gradient-to-br from-stone-50 via-emerald-50/40 to-stone-50 dark:from-[#062e19] dark:via-[#0a4528] dark:to-[#062e19] text-stone-800 dark:text-white shadow-[0_8px_40px_rgba(4,77,41,0.08)] dark:shadow-[0_8px_40px_rgba(4,77,41,0.3)] border border-stone-200/60 dark:border-transparent"
+                    : "bg-gradient-to-br from-stone-50 via-amber-50/40 to-stone-50 dark:from-[#062e19] dark:via-[#0a4528] dark:to-[#062e19] text-stone-800 dark:text-white shadow-[0_8px_40px_rgba(120,53,15,0.08)] dark:shadow-[0_8px_40px_rgba(4,77,41,0.3)] border border-[#E2D9C4]/60 dark:border-transparent"
             )}>
                 {/* Background Decorations */}
                 <MihrabDecoration />
@@ -937,7 +937,7 @@ export const MoodSelector = memo(({ selectedMood, moodVerse, onSelect }) => {
                         className={cn(
                             "flex flex-col items-center p-4 rounded-2xl transition-all active:scale-95 min-h-[90px] justify-center backdrop-blur-sm",
                             selectedMood?.id === mood.id
-                                ? "bg-islamic-green dark:bg-islamic-gold text-white dark:text-[#032e18] scale-105 shadow-[0_0_20px_rgba(4,77,41,0.2)] border border-transparent"
+                                ? "bg-islamic-green dark:bg-islamic-gold text-white dark:text-[#032e18] scale-105 shadow-[0_0_20px_rgba(180,83,9,0.2)] dark:shadow-[0_0_20px_rgba(212,175,55,0.25)] border border-transparent"
                                 : "bg-white/40 dark:bg-white/5 text-gray-600 dark:text-emerald-100/60 hover:bg-white/60 dark:hover:bg-white/10 shadow-sm border border-white/20 dark:border-white/5"
                         )}
                     >
@@ -1682,8 +1682,8 @@ export const PrayerCountdownWidget = memo(({ loading, city, nextPrayerInfo, pray
                             exit={{ opacity: 0, scale: 0.9, y: 20 }}
                             className="fixed inset-0 z-[101] flex items-center justify-center p-4 pointer-events-none"
                         >
-                            <div className="w-full max-w-sm bg-[#fdfaf5] dark:bg-[#044d29] rounded-[2rem] shadow-2xl overflow-hidden border border-white/10 pointer-events-auto">
-                                <div className="p-6 pb-2 border-b border-gray-100 dark:border-white/5 flex justify-between items-center bg-white/50 dark:bg-black/20">
+                            <div className="w-full max-w-sm bg-[#FFFDF6] dark:bg-[#044d29] rounded-[2rem] shadow-2xl overflow-hidden border border-white/10 pointer-events-auto">
+                                <div className="p-6 pb-2 border-b border-[#EDE5D1] dark:border-white/5 flex justify-between items-center bg-white/50 dark:bg-black/20">
                                     <div>
                                         <h3 className="text-lg font-bold font-serif text-gray-800 dark:text-white">{t('reminder.title')}</h3>
                                         {alarmSet ? (
@@ -1772,8 +1772,8 @@ export const PrayerCountdownWidget = memo(({ loading, city, nextPrayerInfo, pray
                             transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
                             className="fixed inset-0 z-[101] flex items-center justify-center p-4 pointer-events-none"
                         >
-                            <div className="w-full max-w-sm bg-[#fdfaf5] dark:bg-[#044d29] rounded-[2rem] shadow-2xl overflow-hidden border border-white/10 pointer-events-auto">
-                                <div className="p-6 pb-2 border-b border-gray-100 dark:border-white/5 flex justify-between items-center bg-white/50 dark:bg-black/20">
+                            <div className="w-full max-w-sm bg-[#FFFDF6] dark:bg-[#044d29] rounded-[2rem] shadow-2xl overflow-hidden border border-white/10 pointer-events-auto">
+                                <div className="p-6 pb-2 border-b border-[#EDE5D1] dark:border-white/5 flex justify-between items-center bg-white/50 dark:bg-black/20">
                                     <div>
                                         <h3 className="text-lg font-bold font-serif text-gray-800 dark:text-white">{t('reminder.title')}</h3>
                                         <p className="text-xs text-gray-500 dark:text-emerald-100/60 font-medium">
@@ -1959,11 +1959,11 @@ export const ReligiousCalendarWidget = memo(({ days }) => {
                             animate={{ scale: 1, opacity: 1, y: 0 }}
                             exit={{ scale: 0.95, opacity: 0, y: 10 }}
                             transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                            className="bg-[#F9F8F3] dark:bg-[#021a0f] w-full max-w-md h-[80vh] rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col relative border border-white/10"
+                            className="bg-[#F6F0E1] dark:bg-[#021a0f] w-full max-w-md h-[80vh] rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col relative border border-white/10"
                             onClick={(e) => e.stopPropagation()}
                         >
                             {/* Modal Header */}
-                            <div className="absolute top-0 left-0 right-0 p-6 z-20 flex justify-between items-start bg-gradient-to-b from-[#F9F8F3] dark:from-[#021a0f] to-transparent pointer-events-none">
+                            <div className="absolute top-0 left-0 right-0 p-6 z-20 flex justify-between items-start bg-gradient-to-b from-[#F6F0E1] dark:from-[#021a0f] to-transparent pointer-events-none">
                                 <div className="pointer-events-auto">
                                     <h2 className="text-2xl font-serif font-bold text-islamic-green dark:text-islamic-gold drop-shadow-sm">
                                         {t('calendar.modalTitle')}
@@ -2013,7 +2013,7 @@ export const ReligiousCalendarWidget = memo(({ days }) => {
                                                     "absolute left-0 top-1.5 w-4 h-4 rounded-full border-2 transition-all duration-300 z-10",
                                                     isFirst
                                                         ? "bg-islamic-gold border-islamic-gold shadow-[0_0_15px_rgba(212,175,55,0.6)] scale-125"
-                                                        : "bg-[#F9F8F3] dark:bg-[#021a0f] border-gray-300 dark:border-white/20 group-hover:border-islamic-gold/50"
+                                                        : "bg-[#F6F0E1] dark:bg-[#021a0f] border-gray-300 dark:border-white/20 group-hover:border-islamic-gold/50"
                                                 )}>
                                                     {isFirst && <div className="absolute inset-0 bg-islamic-gold blur-sm animate-pulse" />}
                                                 </div>
@@ -2053,7 +2053,7 @@ export const ReligiousCalendarWidget = memo(({ days }) => {
                             </div>
 
                             {/* Bottom Fade */}
-                            <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-[#F9F8F3] dark:from-[#021a0f] to-transparent pointer-events-none" />
+                            <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-[#F6F0E1] dark:from-[#021a0f] to-transparent pointer-events-none" />
                         </motion.div>
                     </motion.div>
                 )}
@@ -2188,7 +2188,7 @@ export const PrayerStreakBadge = memo(({ currentStreak, longestStreak, message }
                 "relative flex items-center justify-between p-4 rounded-2xl transition-all duration-500",
                 hasStreak
                     ? "bg-gradient-to-r from-amber-500/10 via-islamic-gold/15 to-amber-500/10 border border-islamic-gold/20"
-                    : "bg-gray-100/50 dark:bg-white/5 border border-gray-200/50 dark:border-white/10"
+                    : "bg-[#F0E8D5]/50 dark:bg-white/5 border border-[#E2D9C4]/50 dark:border-white/10"
             )}>
                 {/* Glow effect for high streaks */}
                 {isOnFire && (
@@ -2474,7 +2474,7 @@ export const DailyPrayerChecklist = memo(({ prayerTimes, completedPrayers, loadi
                                             "w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-500",
                                             isDone
                                                 ? "bg-islamic-green text-white shadow-lg shadow-islamic-green/30 dark:bg-islamic-gold dark:text-[#032e18] dark:shadow-islamic-gold/20 scale-110"
-                                                : "bg-gray-100 dark:bg-white/10 text-gray-400 group-hover:bg-gray-200 dark:group-hover:bg-white/20"
+                                                : "bg-[#F0E8D5] dark:bg-white/10 text-gray-400 group-hover:bg-gray-200 dark:group-hover:bg-white/20"
                                         )}>
                                             <prayer.icon className="w-5 h-5" />
                                         </div>
@@ -2586,7 +2586,7 @@ export const QuickAction = memo(({ to, icon: Icon, label, color, subtitle, onCli
             onClick={onClick}
             variants={itemVariants}
             whileTap={{ scale: 0.96 }}
-            className="glass-panel flex flex-col items-start gap-3 min-h-[122px] min-w-0 p-4 rounded-[2rem] w-full text-left bg-white dark:bg-white/5 border dark:border-white/10 shadow-sm overflow-hidden"
+            className="glass-panel flex flex-col items-start gap-3 min-h-[122px] min-w-0 p-4 rounded-[2rem] w-full text-left bg-[#FFFDF6] dark:bg-white/5 border dark:border-white/10 shadow-sm overflow-hidden"
         >
             <div className="p-3 rounded-2xl bg-white/40 dark:bg-white/15 backdrop-blur-md shadow-sm text-islamic-green dark:text-islamic-gold">
                 <Icon className="w-6 h-6" strokeWidth={2} />
@@ -2603,7 +2603,7 @@ export const QuickAction = memo(({ to, icon: Icon, label, color, subtitle, onCli
 export const LoadingPlaceholder = () => (
     <div className="p-4 space-y-4">
         {[1, 2, 3, 4, 5].map(i => (
-            <div key={i} className="flex items-center justify-between p-4 border-b border-gray-100 dark:border-white/5 last:border-0">
+            <div key={i} className="flex items-center justify-between p-4 border-b border-[#EDE5D1] dark:border-white/5 last:border-0">
                 <div className="flex items-center gap-4">
                     <div className="w-12 h-12 rounded-2xl shimmer" />
                     <div className="space-y-2">

@@ -32,7 +32,7 @@ function MinimalHeroIcon() {
 function MinimalInfoRow({ icon: Icon, label, value }) {
     return (
         <div className="flex items-start gap-3.5 py-3">
-            <div className="w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0 bg-stone-100 dark:bg-white/5 border border-stone-200/50 dark:border-white/5 mt-0.5">
+            <div className="w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0 bg-[#F0E8D5] dark:bg-white/5 border border-[#E2D9C4]/50 dark:border-white/5 mt-0.5">
                 <Icon size={13} className="text-islamic-gold dark:text-islamic-gold/80" />
             </div>
             <div className="flex-1 min-w-0">
@@ -72,7 +72,7 @@ export default function AiConsentModal({ onAccept, onDecline }) {
 
                     {/* iOS style Bottom Sheet */}
                     <motion.div
-                        className="relative w-full max-w-md z-10 flex flex-col overflow-hidden rounded-t-[28px] bg-white dark:bg-[#031d10] border-t border-stone-200/40 dark:border-white/10 shadow-2xl max-h-[90vh] pb-[calc(1.2rem+env(safe-area-inset-bottom))]"
+                        className="relative w-full max-w-md z-10 flex flex-col overflow-hidden rounded-t-[28px] bg-[#FFFDF6] dark:bg-[#031d10] border-t border-[#E2D9C4]/40 dark:border-white/10 shadow-2xl max-h-[90vh] pb-[calc(1.2rem+env(safe-area-inset-bottom))]"
                         initial={{ y: '100%' }}
                         animate={{ y: 0 }}
                         exit={{ y: '100%' }}
@@ -94,7 +94,7 @@ export default function AiConsentModal({ onAccept, onDecline }) {
                         {/* Close Button */}
                         <button
                             onClick={onDecline}
-                            className="absolute top-4 right-4 w-7 h-7 flex items-center justify-center rounded-full bg-stone-100 dark:bg-white/5 text-stone-400 dark:text-white/40 hover:text-stone-600 dark:hover:text-white active:scale-95 transition-all"
+                            className="absolute top-4 right-4 w-7 h-7 flex items-center justify-center rounded-full bg-[#F0E8D5] dark:bg-white/5 text-stone-400 dark:text-white/40 hover:text-stone-600 dark:hover:text-white active:scale-95 transition-all"
                         >
                             <X size={15} />
                         </button>
@@ -113,7 +113,7 @@ export default function AiConsentModal({ onAccept, onDecline }) {
                             </div>
 
                             {/* Flat Info List */}
-                            <div className="divide-y divide-stone-100 dark:divide-white/5 border-t border-b border-stone-100 dark:border-white/5 py-1 mb-6">
+                            <div className="divide-y divide-stone-100 dark:divide-white/5 border-t border-b border-[#EDE5D1] dark:border-white/5 py-1 mb-6">
                                 <MinimalInfoRow
                                     icon={ShieldCheck}
                                     label={t('aiConsent.data_sent_label')}
