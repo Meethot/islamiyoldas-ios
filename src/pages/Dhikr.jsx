@@ -5,6 +5,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useHaptics } from '../hooks/useMobile';
 import { triggerReviewPrompt } from '@/components/ReviewPrompt';
 import { useTranslation } from 'react-i18next';
+import { DAILY_DHIKR_LIMIT } from '@/lib/limits';
 import { isPremium } from '@/services/creditService';
 import { getAppDate } from '@/lib/testDate';
 import { AnimatePresence, motion, useMotionValue, useTransform, animate } from 'framer-motion';
@@ -630,7 +631,7 @@ export default function Dhikr() {
                 const stored = JSON.parse(localStorage.getItem('zikirmatik_daily_limit') || '{}');
                 const today = getAppDate().toISOString().slice(0, 10);
                 const dailyCount = stored.date === today ? (stored.count || 0) : 0;
-                if (dailyCount >= 66) {
+                if (dailyCount >= DAILY_DHIKR_LIMIT) {
                     setShowDhikrLimit(true);
                     return;
                 }
@@ -681,7 +682,7 @@ export default function Dhikr() {
                 const stored = JSON.parse(localStorage.getItem('zikirmatik_daily_limit') || '{}');
                 const today = getAppDate().toISOString().slice(0, 10);
                 const dailyCount = stored.date === today ? (stored.count || 0) : 0;
-                if (dailyCount >= 66) {
+                if (dailyCount >= DAILY_DHIKR_LIMIT) {
                     setShowDhikrLimit(true);
                     return;
                 }
@@ -1695,8 +1696,8 @@ export default function Dhikr() {
                                         </defs>
                                     </svg>
                                     <div className="absolute inset-0 flex flex-col items-center justify-center">
-                                        <span className="text-2xl font-black text-islamic-green dark:text-islamic-gold">66</span>
-                                        <span className="text-[9px] text-islamic-green/50 dark:text-islamic-gold/50 font-bold uppercase tracking-widest">/ 66</span>
+                                        <span className="text-2xl font-black text-islamic-green dark:text-islamic-gold">{DAILY_DHIKR_LIMIT}</span>
+                                        <span className="text-[9px] text-islamic-green/50 dark:text-islamic-gold/50 font-bold uppercase tracking-widest">/ {DAILY_DHIKR_LIMIT}</span>
                                     </div>
                                 </div>
                             </div>
@@ -1707,7 +1708,7 @@ export default function Dhikr() {
                             </h3>
 
                             <p className="text-[13px] text-stone-500 dark:text-white/45 leading-relaxed mb-8">
-                                {t('dhikrLimit.desc1', { defaultValue: 'Ücretsiz olarak günde' })} <span className="text-islamic-green/80 dark:text-islamic-gold/80 font-semibold">{t('dhikrLimit.count', { count: 66, defaultValue: '66 zikir' })}</span> {t('dhikrLimit.desc2', { defaultValue: 'çekebilirsiniz.' })}<br />
+                                {t('dhikrLimit.desc1', { defaultValue: 'Ücretsiz olarak günde' })} <span className="text-islamic-green/80 dark:text-islamic-gold/80 font-semibold">{t('dhikrLimit.count', { count: DAILY_DHIKR_LIMIT, defaultValue: `${DAILY_DHIKR_LIMIT} zikir` })}</span> {t('dhikrLimit.desc2', { defaultValue: 'çekebilirsiniz.' })}<br />
                                 {t('dhikrLimit.desc3', { defaultValue: 'Sınırsız zikir için Premium\'a yükseltin.' })}
                             </p>
 

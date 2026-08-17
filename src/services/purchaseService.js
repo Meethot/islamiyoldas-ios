@@ -352,11 +352,22 @@ export async function purchaseProduct(productIdOrObj) {
         const info = err?.data || {}; // Capacitor: native userInfo (readableErrorCode, underlyingErrorMessage) buraya düşer
         const msg = err?.message || String(err);
         const readable = info.readableErrorCode || info.readable_error_code || '';
-        if (msg.includes('cancel') || msg.includes('Cancel') || readable === 'PURCHASE_CANCELLED' || err?.code === 1 || err?.code === '1') {
+        const underlying = info.underlyingErrorMessage || '';
+        // İptal tespiti: önce güvenilir sinyaller (RC readable kodu / hata kodu 1),
+        // sonra mağazaların BİLİNEN iptal metinleri. Eskiden ham `includes('cancel')`
+        // vardı: içinde "cancel" geçen alakasız store hataları da "kullanıcı vazgeçti"
+        // sayılıp analytics'i kirletiyordu.
+        const CANCEL_PATTERN = /user cancell?ed|purchase cancell?ed|cancell?ed by (the )?user|USER_CANCELED|USER_CANCELLED|PURCHASE_CANCELLED|SKErrorPaymentCancelled/i;
+        if (
+            readable === 'PURCHASE_CANCELLED' ||
+            err?.code === 1 || err?.code === '1' ||
+            CANCEL_PATTERN.test(msg) ||
+            CANCEL_PATTERN.test(underlying)
+        ) {
             return { success: false, error: 'cancelled' };
         }
         // Asıl sebep (store hata kodu) analytics'e gider; UI tarafı getErrorMessage ile kullanıcı-dostu mesaja çevirir
-        const detail = [readable, info.underlyingErrorMessage].filter(Boolean).join(' | ');
+        const detail = [readable, underlying].filter(Boolean).join(' | ');
         return { success: false, error: detail ? `${msg} [${detail}]` : msg };
     }
 }

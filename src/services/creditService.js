@@ -13,30 +13,48 @@ export const CREDIT_COSTS = {
     AD_REWARD: 5,
 };
 
+/**
+ * Depodaki sayacı güvenli oku: bozuk değer (NaN), negatif veya eksik → 0.
+ * Ham parseInt tehlikeliydi — NaN dönünce "NaN < 30" false olduğu için kredi
+ * kontrolleri sessizce devre dışı kalıyor (bedava sınırsız dua), ekranda da
+ * "NaN 🪙" yazıyordu. NaN bir kez yazıldığında kendiliğinden düzelmiyordu.
+ */
+function readCounter(key) {
+    const parsed = parseInt(storageService.getItem(key) || '0', 10);
+    return Number.isFinite(parsed) ? Math.max(0, parsed) : 0;
+}
+
+/** Miktar argümanını güvenli tamsayıya çevir (NaN/undefined/string → 0). */
+function safeAmount(amount) {
+    return Number.isFinite(amount) ? Math.trunc(amount) : 0;
+}
+
 export function getCredits() {
-    return parseInt(storageService.getItem(STORAGE_KEYS.CREDITS) || '0', 10);
+    return readCounter(STORAGE_KEYS.CREDITS);
 }
 
 export function addCredit(amount = 1) {
-    const current = getCredits();
-    const updated = current + amount;
+    const delta = safeAmount(amount);
+    const updated = getCredits() + delta;
     storageService.setItem(STORAGE_KEYS.CREDITS, updated.toString());
 
-    const totalAmins = parseInt(storageService.getItem(STORAGE_KEYS.TOTAL_AMINS) || '0', 10);
-    storageService.setItem(STORAGE_KEYS.TOTAL_AMINS, (totalAmins + amount).toString());
+    const totalAmins = readCounter(STORAGE_KEYS.TOTAL_AMINS);
+    storageService.setItem(STORAGE_KEYS.TOTAL_AMINS, (totalAmins + delta).toString());
 
     return updated;
 }
 
 export function spendCredits(amount) {
+    const cost = safeAmount(amount);
     const current = getCredits();
-    if (current < amount) return false;
-    storageService.setItem(STORAGE_KEYS.CREDITS, (current - amount).toString());
+    // Geçersiz miktarda "başarılı" dönmemek için cost<=0 da reddedilir.
+    if (cost <= 0 || current < cost) return false;
+    storageService.setItem(STORAGE_KEYS.CREDITS, (current - cost).toString());
     return true;
 }
 
 export function getTotalAmins() {
-    return parseInt(storageService.getItem(STORAGE_KEYS.TOTAL_AMINS) || '0', 10);
+    return readCounter(STORAGE_KEYS.TOTAL_AMINS);
 }
 
 export function isPremium() {

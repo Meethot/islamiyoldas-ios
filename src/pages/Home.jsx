@@ -31,6 +31,7 @@ import { usePrayerFocus } from '@/hooks/usePrayerFocus';
 import { useSmartPermissions } from '@/hooks/useSmartPermissions';
 import SmartPermissionModal from '@/components/home/SmartPermissionModal';
 import { useTranslation } from 'react-i18next';
+import { DAILY_DHIKR_LIMIT } from '@/lib/limits';
 import { Capacitor } from '@capacitor/core';
 import { isPremium } from '@/services/creditService';
 import { storageService } from '@/services/storageService';
@@ -788,7 +789,7 @@ function EsmaDetailModal({ esma, count, setCount, onClose }) {
             const today = getAppDate().toISOString().slice(0, 10); // "YYYY-MM-DD"
             // Reset if different day
             const dailyCount = stored.date === today ? (stored.count || 0) : 0;
-            if (dailyCount >= 66) {
+            if (dailyCount >= DAILY_DHIKR_LIMIT) {
                 setShowDhikrLimit(true);
                 return;
             }
@@ -1119,8 +1120,8 @@ function EsmaDetailModal({ esma, count, setCount, onClose }) {
                                                 </defs>
                                             </svg>
                                             <div className="absolute inset-0 flex flex-col items-center justify-center">
-                                                <span className="text-2xl font-black text-islamic-gold">66</span>
-                                                <span className="text-[9px] text-islamic-gold/50 font-bold uppercase tracking-widest">/ 66</span>
+                                                <span className="text-2xl font-black text-islamic-gold">{DAILY_DHIKR_LIMIT}</span>
+                                                <span className="text-[9px] text-islamic-gold/50 font-bold uppercase tracking-widest">/ {DAILY_DHIKR_LIMIT}</span>
                                             </div>
                                         </div>
                                     </div>
@@ -1133,7 +1134,7 @@ function EsmaDetailModal({ esma, count, setCount, onClose }) {
 
                                     {/* Description */}
                                     <p className="text-[13px] text-white/45 leading-relaxed mb-8">
-                                        {t('dhikrLimit.desc1')} <span className="text-islamic-gold/80 font-semibold">{t('dhikrLimit.count', { count: 66 })}</span> {t('dhikrLimit.desc2')}<br />
+                                        {t('dhikrLimit.desc1')} <span className="text-islamic-gold/80 font-semibold">{t('dhikrLimit.count', { count: DAILY_DHIKR_LIMIT })}</span> {t('dhikrLimit.desc2')}<br />
                                         {t('dhikrLimit.desc3')}
                                     </p>
 

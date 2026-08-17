@@ -8,6 +8,7 @@ import {
     onSnapshot,
     serverTimestamp,
     doc,
+    documentId,
     updateDoc,
     increment,
     limit,
@@ -257,28 +258,63 @@ export async function syncPrayersStatus(prayerIds) {
     const statusMap = {}; // { [id]: { status, aminCount } }
     const uniqueIds = [...new Set(prayerIds)].filter(id => typeof id === 'string' && id.length > 5); // Filter out fake IDs if any
 
-    // Note: Firestore 'in' query is limited to 10-30 items depending on usage.
-    // For simplicity and robustness with small user lists, we'll fetch individually or in batches.
-    // Given usage limits, parallel getDoc is fine for typical user history (< 50 items).
+    // Eskiden her ID için ayrı getDoc atılıyordu: 200 istekli kullanıcı geçmişi
+    // her açtığında 200 istek + 200 okuma. Artık documentId() 'in' sorgusuyla
+    // 30'luk gruplar hâlinde çekiliyor — hem çok daha az gidiş-dönüş, hem SİLİNMİŞ
+    // dualar için okuma faturası yok (getDoc yok olan dokümanı da 1 okuma sayardı).
+    // Dönüş sözleşmesi birebir aynı: doküman yoksa 'rejected'.
+    const CHUNK_SIZE = 30;
+    const colRef = collection(db, COLLECTION_NAME);
 
-    await Promise.all(uniqueIds.map(async (id) => {
+    // Tek ID için tekil okuma — grup sorgusu başarısız olursa da bu yol kullanılır.
+    const fetchOne = async (id) => {
         try {
-            const docRef = doc(db, COLLECTION_NAME, id);
-            const docSnap = await getDoc(docRef);
-
+            const docSnap = await getDoc(doc(db, COLLECTION_NAME, id));
             if (docSnap.exists()) {
                 const data = docSnap.data();
-                statusMap[id] = {
-                    status: data.status,
-                    aminCount: data.aminCount || 0
-                };
-            } else {
-                // Document missing = Deleted by Admin -> 'rejected'
+                statusMap[id] = { status: data.status, aminCount: data.aminCount || 0 };
+            } else if (docSnap.metadata?.fromCache !== true) {
+                // Sunucudan geldi ve doküman yok → admin silmiş.
                 statusMap[id] = { status: 'rejected', aminCount: 0 };
             }
+            // ÖNBELLEKTEN gelip "yok" diyorsa (çevrimdışı) hiçbir şey yazma:
+            // dua sunucuda duruyor olabilir, yanlışlıkla "reddedildi" damgalamayalım.
         } catch (error) {
             console.error(`Error syncing status for ${id}:`, error);
-            // On error, keep existing status (don't override) or handle gracefully
+            // Hata → statusMap'e yazma; çağıran taraf yereldeki durumu korur.
+        }
+    };
+
+    const chunks = [];
+    for (let i = 0; i < uniqueIds.length; i += CHUNK_SIZE) {
+        chunks.push(uniqueIds.slice(i, i + CHUNK_SIZE));
+    }
+
+    await Promise.all(chunks.map(async (chunk) => {
+        try {
+            const snap = await getDocs(query(colRef, where(documentId(), 'in', chunk)));
+
+            const found = new Set();
+            snap.docs.forEach(d => {
+                const data = d.data();
+                statusMap[d.id] = { status: data.status, aminCount: data.aminCount || 0 };
+                found.add(d.id);
+            });
+
+            // Sorguda dönmeyenler = admin tarafından silinmiş.
+            // AMA sonuç önbellekten geldiyse (cihaz çevrimdışı) liste eksik olabilir —
+            // o durumda "silinmiş" çıkarımı YAPILMAZ, yereldeki durum korunur.
+            // Aksi hâlde çevrimdışı geçmiş açan kullanıcı onaylı dualarını
+            // "ONAYLANMADI" olarak görür ve bu yanlış durum localStorage'a yazılırdı.
+            if (snap.metadata?.fromCache !== true) {
+                chunk.forEach(id => {
+                    if (!found.has(id)) statusMap[id] = { status: 'rejected', aminCount: 0 };
+                });
+            }
+        } catch (error) {
+            // 'in' sorgusu desteklenmiyor/indeks hatası vb. → eski tekil yola düş.
+            console.warn('[prayerService] Batch status sync failed, falling back to per-doc reads:', error?.message || error);
+            await Promise.all(chunk.map(fetchOne));
         }
     }));
 

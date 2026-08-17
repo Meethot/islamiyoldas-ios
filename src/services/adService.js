@@ -246,11 +246,11 @@ export async function showInterstitialAd() {
         return;
     }
     
-    // Zaman damgasını hemen güncelle ki üst üste çoklu çağrı olursa hepsini göstermesin
+    // Zaman damgasını hemen güncelle ki üst üste çoklu çağrı olursa hepsini göstermesin.
+    // (Günlük kota BURADA artırılmaz — reklam gerçekten gösterilince artırılır, aşağıya bak.)
     lastInterstitialTime = now;
     interstitialCount++;
-    saveDailyInterstitialCount(dailyCount + 1);
-    console.log(`[AdMob] Interstitial #${dailyCount + 1}/${MAX_DAILY_INTERSTITIALS} gösteriliyor.`);
+    console.log(`[AdMob] Interstitial #${dailyCount + 1}/${MAX_DAILY_INTERSTITIALS} deneniyor.`);
 
     const platform = Capacitor.getPlatform();
     const adId = platform === 'ios'
@@ -307,8 +307,11 @@ export async function showInterstitialAd() {
             
             console.log('[AdMob] showInterstitial çağrılıyor...');
             await AdMob.showInterstitial();
-            console.log('[AdMob] Interstitial gösterim isteği başarıyla iletildi.');
-            
+            // Kota ancak reklam GERÇEKTEN gösterilince yakılır. Eskiden gösterimden
+            // önce artıyordu; reklam yüklenemediğinde günlük hak boşa gidiyordu.
+            saveDailyInterstitialCount(dailyCount + 1);
+            console.log(`[AdMob] Interstitial gösterildi (${dailyCount + 1}/${MAX_DAILY_INTERSTITIALS}).`);
+
         } catch (error) {
             console.error('[AdMob] Interstitial hazırlık/gösterim aşamasında beklenmeyen hata:', error);
             clearListeners();

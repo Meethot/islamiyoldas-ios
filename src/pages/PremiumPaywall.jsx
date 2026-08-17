@@ -1137,8 +1137,8 @@ export default function PremiumPaywall({ variant = 'default', offeringId = 'curr
                             🔔 {selectedPlan === 'yearly'
                                 ? (offerOnYearly
                                     ? t('premium.disclaimer_offer', { price: offerPriceString || '...' })
-                                    : t('premium.disclaimer_yearly', { price: `${getPrice(PRODUCT_IDS.YEARLY) || '...'}/${t('premium.year')}` }))
-                                : t('premium.disclaimer_monthly', { price: `${getPrice(PRODUCT_IDS.MONTHLY) || '...'}/${t('premium.month')}` })}
+                                    : t('premium.disclaimer_yearly', { price: `${getPrice(PRODUCT_IDS.YEARLY, 'ANNUAL') || '...'}/${t('premium.year')}` }))
+                                : t('premium.disclaimer_monthly', { price: `${getPrice(PRODUCT_IDS.MONTHLY, 'MONTHLY') || '...'}/${t('premium.month')}` })}
                         </p>
 
                         {/* Trial badge — teklif aktifken yıllıkta trial yerine indirim rozeti */}

@@ -18,8 +18,31 @@ const rateLimitMap = new Map();
 const RATE_LIMIT_WINDOW_MS = 60 * 1000; // 1 minute
 const RATE_LIMIT_MAX = 10; // max 10 requests per minute per IP
 
+// Bellek tavanı: rateLimitMap eskiden hiç temizlenmiyordu; her yeni IP kalıcı bir
+// girdi bırakıyor, uzun ömürlü instance'larda bellek sürekli büyüyordu.
+const RATE_LIMIT_MAX_ENTRIES = 10000;
+
+function pruneRateLimitMap(now) {
+    if (rateLimitMap.size <= RATE_LIMIT_MAX_ENTRIES) return;
+
+    // Önce süresi geçmiş pencereleri at.
+    for (const [key, entry] of rateLimitMap) {
+        if (now - entry.windowStart > RATE_LIMIT_WINDOW_MS) rateLimitMap.delete(key);
+    }
+
+    // Hâlâ tavanın üstündeyse en eski girdileri at (Map ekleme sırasını korur).
+    let excess = rateLimitMap.size - RATE_LIMIT_MAX_ENTRIES;
+    if (excess > 0) {
+        for (const key of rateLimitMap.keys()) {
+            rateLimitMap.delete(key);
+            if (--excess <= 0) break;
+        }
+    }
+}
+
 function checkRateLimit(ip) {
     const now = Date.now();
+    pruneRateLimitMap(now);
     const entry = rateLimitMap.get(ip);
 
     if (!entry || now - entry.windowStart > RATE_LIMIT_WINDOW_MS) {

@@ -15,7 +15,7 @@ export function usePrayers() {
 
     // Get prayer times from global context (already GPS-aware)
     const { prayerTimes: rawTimes, loading: loadingPrayers, fetchPrayerTimes, locationSource } = usePrayerTimes();
-    const { latitude, longitude, hasLocation } = useLocation();
+    const { latitude, longitude, hasLocation, manualCountry } = useLocation();
 
     const { t, i18n } = useTranslation('common');
 
@@ -77,7 +77,11 @@ export function usePrayers() {
             setNextPrayerInfo({
                 name: next.name,
                 timeLeft: `${pad(Math.floor(diff / 3600000))}:${pad(Math.floor((diff / 60000) % 60))}:${pad(Math.floor((diff / 1000) % 60))}`,
-                time: next.time.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' }),
+                // Liste saatleriyle aynı biçim: İngilizce'de 12 saatlik, diğerlerinde 24 saatlik.
+                // (Sabit 'tr-TR' idi; İngilizce'de liste "5:30 AM" derken burası "05:30" diyordu.)
+                time: i18n.language?.startsWith('en')
+                    ? next.time.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
+                    : `${pad(next.time.getHours())}:${pad(next.time.getMinutes())}`,
                 date: localDateKey
             });
         };
@@ -86,7 +90,7 @@ export function usePrayers() {
         const timer = setInterval(updateTimer, 1000);
 
         return () => clearInterval(timer);
-    }, [prayerTimes]);
+    }, [prayerTimes, i18n.language]);
 
     // Generate location display string
     const { cityName } = useLocation();
@@ -99,7 +103,9 @@ export function usePrayers() {
         loadingPrayers,
         nextPrayerInfo,
         city: locationDisplay,
-        country: locationSource === 'gps' ? '' : 'Türkiye',
+        // Manuel seçimde gerçekten seçilen ülke; GPS modunda zaten ilçe gösteriliyor.
+        // (Sabit 'Türkiye' idi — Berlin'i elle seçen kullanıcıya da "Türkiye" diyordu.)
+        country: locationSource === 'gps' ? '' : (manualCountry || ''),
         refreshPrayers: fetchPrayerTimes,
         locationSource,
     };

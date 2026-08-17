@@ -42,6 +42,22 @@ async function initAudio() {
 }
 initAudio();
 
+// ── Yerel kayıt tavanları ──
+// Bu üç kayıt eskiden sınırsız büyüyordu. Feed en fazla ~60 dua gösterdiği için
+// budanan eski işaretler zaten ekrana gelmiyor; tavanlar geniş tutuldu.
+const MAX_AMINED_MEMORY = 500;    // "âmin dedim" işaretleri
+const MAX_REPORTED_MEMORY = 200;  // "şikayet ettim" işaretleri
+const MAX_MY_REQUESTS = 500;      // kullanıcının kendi dua geçmişi (günde 2 hak → ~250 gün)
+
+/** Nesne biçimli id kaydını en yeni `max` girdiye indir (JS anahtar ekleme sırasını korur). */
+function trimIdMap(map, max) {
+    const keys = Object.keys(map);
+    if (keys.length <= max) return map;
+    const out = {};
+    for (const k of keys.slice(-max)) out[k] = map[k];
+    return out;
+}
+
 // Play sound instantly - unlimited overlapping sounds
 function playClickSound() {
     if (!audioContext || !audioBuffer) {
@@ -219,6 +235,12 @@ export default function DuaKosesi() {
                     if (freshData) {
                         let { status: newStatus, aminCount: newAminCount } = freshData;
                         const currentAmin = req.aminCount || 0;
+
+                        // Firestore'da status alanı yoksa/boşsa yereldeki bilinen durumu EZME.
+                        // (Eskiden undefined yazılıyor, rozet boş kalıyordu.)
+                        if (typeof newStatus !== 'string' || !newStatus.trim()) {
+                            newStatus = req.status;
+                        }
 
                         // DELETION FEEDBACK LOGIC:
                         // If local status was 'delete_requested' AND remote status is 'rejected' (doc missing),
@@ -421,8 +443,10 @@ export default function DuaKosesi() {
         setShowCreditAnim(true);
         setTimeout(() => setShowCreditAnim(false), 1200);
 
-        // Mark as amined locally
-        const newAmined = { ...aminedPrayers, [id]: true };
+        // Mark as amined locally (en yeni MAX_AMINED_MEMORY kayıt tutulur — sınırsız
+        // büyüyen kayıt localStorage'ı şişiriyordu. Feed en fazla ~60 dua gösterdiği
+        // için bu tavan fazlasıyla yeterli; budanan kayıtlar zaten ekranda çıkmıyor.)
+        const newAmined = trimIdMap({ ...aminedPrayers, [id]: true }, MAX_AMINED_MEMORY);
         setAminedPrayers(newAmined);
         localStorage.setItem('aminedPrayers', JSON.stringify(newAmined));
 
@@ -533,7 +557,8 @@ export default function DuaKosesi() {
                 if (typeof duaId === 'string') {
                     reportPrayer(duaId);
                 }
-                const newReported = [...reportedPrayers, duaId];
+                // Sınırsız büyümeyi engelle — en yeni MAX_REPORTED_MEMORY kayıt yeter.
+                const newReported = [...reportedPrayers, duaId].slice(-MAX_REPORTED_MEMORY);
                 setReportedPrayers(newReported);
                 localStorage.setItem('reportedPrayers', JSON.stringify(newReported));
 
@@ -661,7 +686,8 @@ export default function DuaKosesi() {
                 date: getAppDate().toISOString()
             };
 
-            const updated = [newRequest, ...myRequests];
+            // En yeni başta; tavanı aşan en eski kayıtlar düşer (bkz. MAX_MY_REQUESTS).
+            const updated = [newRequest, ...myRequests].slice(0, MAX_MY_REQUESTS);
             setMyRequests(updated);
             localStorage.setItem('myDuaRequests', JSON.stringify(updated));
 
@@ -815,8 +841,13 @@ export default function DuaKosesi() {
         }
     };
 
+    // Admin paneli beklenmedik bir değer yazarsa (ya da status hiç yoksa) rozet
+    // render olmuyordu: kart boş bir slotla çıkıyordu, kullanıcı duasının
+    // reddedildiğini göremiyordu. Bilinen değerler dışındaki her şey artık
+    // "onaylanmadı" sayılır — boş rozet asla çıkmaz.
     const getStatusBadge = (status) => {
-        switch (status) {
+        const normalized = typeof status === 'string' ? status.trim().toLowerCase() : '';
+        switch (normalized) {
             case 'pending':
                 return (
                     <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-400 text-[10px] font-bold uppercase tracking-wider rounded-full">
@@ -831,13 +862,6 @@ export default function DuaKosesi() {
                         {t('statusApproved')}
                     </span>
                 );
-            case 'rejected':
-                return (
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-red-900/80 text-red-200 text-[10px] font-bold uppercase tracking-wider rounded-full border border-red-700/50 shadow-sm">
-                        <AlertCircle size={12} />
-                        {t('statusRejected')}
-                    </span>
-                );
             case 'delete_requested':
                 return (
                     <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-yellow-900/40 text-yellow-500 text-[10px] font-bold uppercase tracking-wider rounded-full border border-yellow-700/30">
@@ -850,6 +874,14 @@ export default function DuaKosesi() {
                     <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-gray-500/20 text-gray-400 text-[10px] font-bold uppercase tracking-wider rounded-full border border-gray-500/30">
                         <Trash2 size={12} />
                         {t('statusDeletionApproved')}
+                    </span>
+                );
+            case 'rejected':
+            default:
+                return (
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-red-900/80 text-red-200 text-[10px] font-bold uppercase tracking-wider rounded-full border border-red-700/50 shadow-sm">
+                        <AlertCircle size={12} />
+                        {t('statusRejected')}
                     </span>
                 );
         }
@@ -1395,6 +1427,14 @@ function DuaIstekleriGecmisi({ requests, onDelete, onEdit, onClose, getStatusBad
                                         <p className="text-gray-700 dark:text-gray-300 font-serif italic leading-relaxed mb-4">
                                             "{request.text}"
                                         </p>
+                                        {request.status === 'pending' && (
+                                            <div className="flex items-start gap-2 mb-4 px-3 py-2.5 rounded-2xl bg-amber-50 dark:bg-amber-500/10 border border-amber-200/60 dark:border-amber-500/20">
+                                                <Clock size={13} className="text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+                                                <p className="text-[11px] leading-relaxed text-amber-800 dark:text-amber-300/90">
+                                                    {t('pendingHint')}
+                                                </p>
+                                            </div>
+                                        )}
                                         <div className="flex items-center justify-between">
                                             {/* Amin Count - Only show for approved */}
                                             {request.status === 'approved' && request.aminCount > 0 ? (
