@@ -19,7 +19,12 @@ const CRITICAL_KEYS = [
     'cached_country_code',
     'selectedLanguage',
     'darkMode',
-    'fontSize'
+    'fontSize',
+    // Kaza sayaçları — kullanıcının yıllarca biriktirdiği borç kaydı.
+    // Sadece localStorage'daydı: uygulama silinip kurulunca ve iOS depolama
+    // baskısında WKWebView localStorage'ı temizlediğinde geri dönüşsüz gidiyordu.
+    'qadaCounts',
+    'qadaGoal'
 ];
 
 /**

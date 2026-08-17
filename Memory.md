@@ -122,6 +122,20 @@ Projeye dair kalıcı bilgiler ve mevcut durum. Çalışma kuralları için `ins
 - **Reklam yerleşimi:** Banner bottombar üstünde kalacak (`BOTTOM_CENTER, margin:75`). İçeriğe gömülü/in-feed reklam YAPILMAYACAK — plugin banner'ı WebView üstünde yüzen native view, DOM akışına giremez; scroll-sync custom plugin emeğe değmez; native ad asset'ini HTML'de render etmek AdMob politika ihlali (ban riski). (Karar: 2026-07-07)
 
 ## Bekleyen / Yapılacaklar
+
+### Öncelikli (2026-08-17 denetiminden)
+1. **Fiyat A/B testini durdur** — `Standart Yıllık - Ucuz Yıllık` (exp8bebb7ca8c, 47 gün). Kontrol kazandı: ucuz vitrin müşteri başına net tahsilatı %2 düşürüyor, MRR'yi %18. Tek kazanan ₺399 çıkış teklifi (+%85). Sıradaki test: kontrol fiyatları (₺739,99/₺124,99) + ₺399 çıkış teklifi. Sonra yıllık fiyat ARTIŞI testi (elastisite 0,45 — zam geliri artırır).
+2. **AI endpoint'ine Firebase App Check** — `generateSpiritualAdvice` auth'suz (`onRequest` + `cors:true`), kota sadece istemcide. APK APKPure'da açıkta olduğu için URL herkesin elinde. Rate limit in-memory + instance başına, gerçek sınır değil.
+3. **Zorunlu güncelleme (minimum sürüm) kontrolü — YOK.** APKPure eski sürümleri (1.1.5, 1.1.9) sonsuza kadar barındırıyor; oradan kuran kullanıcı düzeltilmiş bug'ları yaşayıp 1 yıldız veriyor. Play'de eski sürümü durdurabilirsin, aynada duramazsın — tek kontrol noktası app içi sürüm kapısı.
+4. **`public/app-ads.txt` — YOK.** Yeniden paketlenmiş APK'lar reklam ID'lerinle yayın yaparsa AdMob hesabı askıya alınabilir.
+5. **Firestore kuralları** — bkz. `docs/firestore-rules-review.md`. En kritik: dokümanlarda sahiplik alanı olmadığı için `delete` istemciye açıksa id'yi bilen herkes başkasının duasını silebilir (feed id'leri zaten veriyor). `delete_requested` akışı kodda hazır.
+6. **Kullanıcı verisi `CRITICAL_KEYS` dışında** — `prayerStreak`, `fasting_v3`, `qadaCounts`, `qadaGoal`, `mizan_data`, `murakabe_best_streak`, `dhikr_*` sadece localStorage'da; uygulama silinince ve iOS depolama baskısında gidiyor. Tuba ağacı korunuyor, namaz serisi korunmuyor.
+7. **Dua reddetme sebebi + onay/ret push bildirimi** — kullanıcı neden reddedildiğini bilmiyor, aynı hatayla tekrar gönderiyor. Asıl şikayet kaynağı.
+8. Küçükler: dil filtresini Firestore sorgusuna taşı (Almanca/Rusça kullanıcılar gerçek dua göremiyor olabilir); "Yenile" butonunu bağla (`refresh` locale key hazır, buton yok); eski onaylı dualara `approvedAt` backfill script'i.
+
+> Not: AppBrain gibi **listeleme** siteleri zararsız ve engellenemez (Play'in kamuya açık verisi). APKPure gibi **APK aynaları** imzayı koruduğu için gelir kaybı yaratmıyor; risk yukarıdaki 2-4 maddelerinde.
+
+### Diğer
 - Entegre paywall cihaz testi: X → sheet → "Tüm planları gör" → banner+indirimli kart; aylık satın alma; süre dolumu dönüşü. (Not: TEST toast'lar kaldırıldı — hata detayını artık Amplitude `premiumPurchaseFailed` event'inden oku.)
 - Gerçek satın alma testi (Android Internal Testing + iOS TestFlight).
 - Release build al: `npm run build` + `npx cap sync` sonrası Android AAB + iOS archive.

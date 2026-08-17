@@ -24,6 +24,31 @@ Proje bilgileri ve mevcut durum için `Memory.md`'ye bak.
   - MCP server yazmak → **mcp-builder**, yeni skill → **skill-creator**, changelog → **changelog-generator**.
   - Uygun araç yoksa normal ilerle. Kritik/geri-alınamaz aksiyonlarda (para, native, dış servise gönderim) yine de önce doğrula.
 
+## İş bitince: kendi kendine denetim (SORMA, YAP)
+> Kullanıcı dedi: "sen her seferinde işin tamamen bittikten sonra aynı bu şekilde kontrol et,
+> ben bir şey demeden." Sebep: **canlıda 1000+ aktif kullanıcı var**, sessiz regresyonun
+> maliyeti yüksek. "Bitti" demeden ÖNCE aşağıdakilerin hepsini çalıştır.
+
+1. **`npm run build`** — geçmeden hiçbir şey bitmiş sayılmaz.
+2. **Backend'e dokunduysan** `node --check functions/index.js` + modülü yükleyip
+   export'ları listele (deploy etmeden hataları yakalar).
+3. **Lint'i SADECE dokunduğun dosyalarda** koştur, hata sayısını raporla. Repoda zaten
+   çok uyarı var; "benim değişikliğim 0 hata" ile "repoda 47 hata" ayrımını açıkça yaz.
+4. **Locale değiştiyse** 6 dil paritesi + format (4 boşluk, `ensure_ascii=False`,
+   dosya sonunda yeni satır YOK) doğrula.
+5. **Ölü referans taraması** — sildiğin helper/import/state adını `grep`'le, kalıntı arama.
+6. **Önemsiz olmayan mantığı birim testiyle doğrula.** Fonksiyonun izole kopyasını
+   scratchpad'e yaz, uç durumlarla (NaN, boş, çevrimdışı, bozuk veri) sına. Repoya ekleme.
+7. **Diff'i hunk hunk oku.** Aranan şey: sessiz davranış değişikliği. Örnek yakalananlar:
+   `|| 0` yedeği eski kodun "şimdi" yedeğiyle aynı değildi; `times`/keyframe uzunluğu
+   uyuşmuyordu; premium gate özelliği tamamen kapatıyordu.
+8. **Koddan çıkarılamayan ortam varsayımlarını CLI ile doğrula** (bölge, sürüm, mağaza
+   durumu, offering). Örnek: Firestore `eur3`'te olduğu için tetikleyici `us-central1`'de
+   deploy olmuyordu — sadece kodu okuyarak asla görülemezdi.
+9. **Doğrulayamadığını açıkça söyle.** "Cihazda test edilmeli", "Firestore kuralları
+   görünmüyor" gibi. Sessizce "tamam" deme.
+10. Yanlış çıkan önceki iddianı **düzelt ve söyle** (etkisini abartmışsam onu da).
+
 ## HER ZAMAN yap
 - Çok dilli metin eklerken **6 dilin hepsine** ekle: `tr, en, ar, az, de, ru` (`public/locales/{lang}/common.json`).
 - i18next placeholder'larını (`{{percent}}` vb.) çeviride **birebir koru**.

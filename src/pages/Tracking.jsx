@@ -18,6 +18,7 @@ import { triggerReviewPrompt } from '@/components/ReviewPrompt';
 import { useTranslation } from 'react-i18next';
 import { isPremium } from '@/services/creditService';
 import { analytics } from '@/services/analyticsService';
+import { storageService } from '@/services/storageService';
 
 const PRAYER_TYPES = [
     { key: 'sabah', labelKey: 'prayerTypes.sabah' },
@@ -203,7 +204,10 @@ export default function Tracking() {
         const newProgress = Math.min((newTotal / goal) * 100, 100);
 
         setQadaCounts(newCounts);
-        localStorage.setItem('qadaCounts', JSON.stringify(newCounts));
+        // storageService: localStorage + Preferences + Keychain'e birden yazar.
+        // Kaza borcu yıllarca birikiyor; sadece localStorage'da tutmak uygulama
+        // silinince veya iOS depolamayı temizleyince geri dönüşsüz kayıp demekti.
+        storageService.setItem('qadaCounts', JSON.stringify(newCounts));
 
         if (delta > 0) {
             setShowCelebration(true);
@@ -274,7 +278,7 @@ export default function Tracking() {
             newGoal = calculateMissedPrayers();
         }
         setGoal(newGoal);
-        localStorage.setItem('qadaGoal', newGoal.toString());
+        storageService.setItem('qadaGoal', newGoal.toString());
         setShowGoalModal(false);
         selection();
     };
@@ -292,7 +296,10 @@ export default function Tracking() {
 
         const newCounts = { ...qadaCounts, [editingPrayer.key]: newValue };
         setQadaCounts(newCounts);
-        localStorage.setItem('qadaCounts', JSON.stringify(newCounts));
+        // storageService: localStorage + Preferences + Keychain'e birden yazar.
+        // Kaza borcu yıllarca birikiyor; sadece localStorage'da tutmak uygulama
+        // silinince veya iOS depolamayı temizleyince geri dönüşsüz kayıp demekti.
+        storageService.setItem('qadaCounts', JSON.stringify(newCounts));
 
         // Recalculate progress/confetti logic if needed (optional)
         const newTotal = Object.values(newCounts).reduce((a, b) => a + b, 0);

@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import {
     Heart, Send, RefreshCw, ChevronLeft,
-    MessageCircle, X, Clock, Check, AlertCircle, History, Trash2, Users, Sparkles, Pencil, Coins, Film, Share2, Flag
+    X, Clock, Check, AlertCircle, History, Trash2, Users, Sparkles, Pencil, Coins, Film, Share2, Flag
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
@@ -48,6 +48,42 @@ initAudio();
 const MAX_AMINED_MEMORY = 500;    // "âmin dedim" işaretleri
 const MAX_REPORTED_MEMORY = 200;  // "şikayet ettim" işaretleri
 const MAX_MY_REQUESTS = 500;      // kullanıcının kendi dua geçmişi (günde 2 hak → ~250 gün)
+
+/**
+ * Kullanıcılar telefonda noktalamadan sonra boşluk bırakmıyor
+ * ("...diliyorum.Bu aralar..."), metin ucuz görünüyor.
+ * SADECE GÖSTERİMDE düzeltilir — Firestore'daki metne ve düzenleme
+ * ekranına dokunulmaz, kullanıcı kendi yazdığını aynen görür.
+ *
+ * Yanlış pozitiften kaçınmak için dar tutuldu:
+ *  • Cümle sonu (. ! ?) yalnız BÜYÜK harf (veya Arapça harf) geliyorsa açılır
+ *    → "3.5", "site.com", "vs.diğerleri", "..." bozulmaz.
+ *  • Virgül/noktalı virgül/iki nokta herhangi bir harften önce açılır
+ *    → "1,5" bozulmaz (rakam, harf değil).
+ */
+function formatDuaText(text) {
+    if (typeof text !== 'string') return '';
+    return text
+        .replace(/([.!?])(?=[\p{Lu}\p{Script=Arabic}])/gu, '$1 ')
+        .replace(/([,;:،])(?=\p{L})/gu, '$1 ')
+        .replace(/[ \t]{2,}/g, ' ')
+        .trim();
+}
+
+/**
+ * Zaman değerini milisaniyeye çevirir. Üç biçimi de karşılar:
+ *  • Firestore Timestamp (canlı dinleyiciden gelen)
+ *  • {seconds, nanoseconds} (localStorage'a JSON olarak yazılıp geri okunan)
+ *  • ISO string
+ * Çözülemezse null döner.
+ */
+function toMillis(value) {
+    if (!value) return null;
+    if (typeof value.toDate === 'function') return value.toDate().getTime();
+    if (typeof value.seconds === 'number') return value.seconds * 1000;
+    const parsed = new Date(value).getTime();
+    return Number.isFinite(parsed) ? parsed : null;
+}
 
 /** Nesne biçimli id kaydını en yeni `max` girdiye indir (JS anahtar ekleme sırasını korur). */
 function trimIdMap(map, max) {
@@ -209,6 +245,10 @@ export default function DuaKosesi() {
     const [editingPrayer, setEditingPrayer] = useState(null); // Track which prayer is being edited
     const [credits, setCredits] = useState(() => getCredits());
     const [showCreditAnim, setShowCreditAnim] = useState(false);
+    // Âmin'e basılan kartın id'si — ödül animasyonu SADECE o kartta oynar.
+    // (Üstteki kumbara rozetindeki "+1" sayfanın tepesinde kalıyor; kullanıcı
+    // aşağıdaki bir karta bastığında kazandığı krediyi hiç görmüyordu.)
+    const [aminBurst, setAminBurst] = useState(null);
     const [isAdLoading, setIsAdLoading] = useState(false);
     const [showPaywall, setShowPaywall] = useState(false);
 
@@ -358,15 +398,12 @@ export default function DuaKosesi() {
         let final = [...realDuas];
 
         if (freshSticky) {
-            // Safely parse timestamp
-            let stickyTime;
-            if (freshSticky.timestamp && typeof freshSticky.timestamp.toDate === 'function') {
-                stickyTime = freshSticky.timestamp.toDate().getTime();
-            } else if (freshSticky.timestamp && typeof freshSticky.timestamp.seconds === 'number') {
-                stickyTime = freshSticky.timestamp.seconds * 1000;
-            } else {
-                stickyTime = new Date(freshSticky.timestamp).getTime();
-            }
+            // 24 saatlik sabitlenme penceresi ONAY anından başlar (approvedAt).
+            // Eskiden gönderim anından başlıyordu: onay elle ve toplu yapıldığı için
+            // pencere çoğu zaman onaydan ÖNCE kapanıyor, kullanıcı yayına giren
+            // kendi duasını "📌 Sabitlendi" kartında hiç göremiyordu.
+            // approvedAt yoksa (eski kayıtlar) eski davranışa düşer.
+            const stickyTime = toMillis(freshSticky.approvedAt) ?? toMillis(freshSticky.timestamp) ?? 0;
 
             const now = getAppDate().getTime();
             const twentyFourHoursAgo = now - (24 * 60 * 60 * 1000);
@@ -442,6 +479,12 @@ export default function DuaKosesi() {
         setCredits(newCredits);
         setShowCreditAnim(true);
         setTimeout(() => setShowCreditAnim(false), 1200);
+
+        // Ödül animasyonu HERKESE oynar (basılan butonun orada bir şey olduğunu
+        // göstermesi lazım); rozetin içeriği ayrışır: ücretsizde "+1 kredi",
+        // premiumda kalp — premium zaten sınırsız, ona kredi göstermek anlamsız.
+        setAminBurst(id);
+        setTimeout(() => setAminBurst(prev => (prev === id ? null : prev)), 1500);
 
         // Mark as amined locally (en yeni MAX_AMINED_MEMORY kayıt tutulur — sınırsız
         // büyüyen kayıt localStorage'ı şişiriyordu. Feed en fazla ~60 dua gösterdiği
@@ -770,7 +813,13 @@ export default function DuaKosesi() {
             }
 
             // Scenario 3: Pending Prayer -> Direct Delete
-            if (request.status === 'pending' || request.status === 'rejected') {
+            // SADECE 'pending'. Canlı Firestore kuralı: `allow delete: if
+            // resource.data.status == 'pending'`. 'rejected' durumunda doküman ya
+            // zaten yok (admin silmiş) ya da kural silmeye izin vermiyor; her iki
+            // hâlde de istek PERMISSION_DENIED ile patlıyor, throw edip AŞAĞIDAKİ
+            // yerel temizliği de engelliyordu — kullanıcı "ONAYLANMADI" kartını
+            // geçmişinden hiçbir zaman kaldıramıyordu. Artık yalnızca yerelden silinir.
+            if (request.status === 'pending') {
                 await deletePrayer(id);
             }
 
@@ -998,12 +1047,12 @@ export default function DuaKosesi() {
                                                 </div>
                                                 <div className="flex-1">
                                                     <div className="flex items-center justify-between mb-4">
-                                                        <div className="flex items-center gap-2">
-                                                            <p className="text-[10px] font-bold text-gray-400 dark:text-emerald-100/40 uppercase tracking-widest">
+                                                        <div className="flex items-center gap-2 min-w-0">
+                                                            <p className="text-[10px] font-bold text-gray-400 dark:text-emerald-100/40 uppercase tracking-widest truncate">
                                                                 {dua.isSticky ? t('yourPrayer') : t('brotherSays')}
                                                             </p>
                                                             {dua.isSticky && (
-                                                                <span className="flex items-center gap-1 px-2 py-0.5 bg-islamic-gold/20 text-islamic-gold text-[8px] font-black rounded-full uppercase tracking-tighter">
+                                                                <span className="shrink-0 flex items-center gap-1 px-2 py-0.5 bg-islamic-gold/20 text-islamic-gold text-[8px] font-black rounded-full uppercase tracking-tighter">
                                                                     {t('pinned')}
                                                                 </span>
                                                             )}
@@ -1030,29 +1079,95 @@ export default function DuaKosesi() {
                                                         </div>
                                                     </div>
 
-                                                    <p className="text-gray-900 dark:text-white font-serif text-lg leading-relaxed italic">
-                                                        "{dua.text}"
+                                                    {/* Amiri italik = hafif el yazısı hissi. Düz Amiri "gazete metni"
+                                                        gibi duruyordu, duanın samimiyeti kayboluyordu.
+                                                        Okunabilirlik için satır aralığı açık tutuldu (leading-[1.75])
+                                                        ve harf aralığı bir tık genişletildi — italik sıkışık görünmesin. */}
+                                                    <p className="text-gray-900 dark:text-white font-serif text-lg italic leading-[1.75] tracking-[0.01em]">
+                                                        "{formatDuaText(dua.text)}"
                                                     </p>
                                                 </div>
                                             </div>
 
-                                            <div className="flex items-center justify-between pt-6 border-t border-gray-50 dark:border-white/5">
-                                                <div className="flex items-center gap-2 text-gray-400 dark:text-gray-500">
-                                                    <MessageCircle size={16} />
-                                                    <span className="text-xs font-bold">{t('peopleSaidAmin', { count: dua.aminCount || dua.count || 0 })}</span>
+                                            <div className="flex items-center justify-between gap-3 pt-6 border-t border-gray-50 dark:border-white/5">
+                                                <div className="flex items-center gap-2 min-w-0 text-gray-400 dark:text-gray-500">
+                                                    <Users size={16} className="shrink-0" />
+                                                    <span className="text-xs font-bold truncate">{t('peopleSaidAmin', { count: dua.aminCount || dua.count || 0 })}</span>
                                                 </div>
-                                                <Button
-                                                    onClick={() => handleAmin(dua.id)}
-                                                    disabled={isAmined}
-                                                    className={cn(
-                                                        "rounded-full px-8 h-12 font-bold transition-all active:scale-95 shadow-lg",
-                                                        isAmined
-                                                            ? "bg-amber-100 dark:bg-emerald-900/30 text-amber-700 dark:text-emerald-400 border border-amber-500/20 dark:border-emerald-500/20"
-                                                            : "bg-islamic-green dark:bg-islamic-gold text-white dark:text-[#032e18] hover:opacity-90"
-                                                    )}
-                                                >
-                                                    {isAmined ? t('amin') : t('amin')}
-                                                </Button>
+
+                                                <div className="relative shrink-0">
+                                                    {/* Butondan yayılan altın parıltı — sıcak bir "alındı" hissi */}
+                                                    <AnimatePresence>
+                                                        {aminBurst === dua.id && (
+                                                            <motion.span
+                                                                initial={{ opacity: 0, scale: 0.6 }}
+                                                                animate={{ opacity: [0, 0.55, 0], scale: [0.6, 1.6, 2.1] }}
+                                                                exit={{ opacity: 0 }}
+                                                                transition={{ duration: 0.85, times: [0, 0.3, 1], ease: 'easeOut' }}
+                                                                className="absolute inset-0 z-10 rounded-full bg-islamic-gold/40 blur-xl pointer-events-none"
+                                                            />
+                                                        )}
+                                                    </AnimatePresence>
+
+                                                    {/* Butondan bir kez yayılan altın halka */}
+                                                    <AnimatePresence>
+                                                        {aminBurst === dua.id && (
+                                                            <motion.span
+                                                                initial={{ opacity: 0.7, scale: 0.9 }}
+                                                                animate={{ opacity: [0.7, 0.35, 0], scale: [0.9, 1.25, 1.6] }}
+                                                                exit={{ opacity: 0 }}
+                                                                transition={{ duration: 0.8, times: [0, 0.45, 1], ease: 'easeOut' }}
+                                                                className="absolute inset-0 z-20 rounded-full border-2 border-islamic-gold pointer-events-none"
+                                                            />
+                                                        )}
+                                                    </AnimatePresence>
+
+                                                    {/* Yukarı süzülen ödül rozeti — ücretsizde "+1 kredi", premiumda kalp.
+                                                        TÜM animasyon özellikleri aynı uzunlukta keyframe dizisi; `times` ile
+                                                        birebir eşleşiyor (karışık skaler/dizi Framer'da animasyonu bozuyordu). */}
+                                                    <AnimatePresence>
+                                                        {aminBurst === dua.id && (
+                                                            <motion.div
+                                                                initial={{ opacity: 0, y: 0, scale: 0.35 }}
+                                                                animate={{
+                                                                    opacity: [0, 1, 1, 0],
+                                                                    y: [0, -26, -58, -92],
+                                                                    scale: [0.35, 1.3, 1.05, 0.85],
+                                                                }}
+                                                                exit={{ opacity: 0 }}
+                                                                transition={{ duration: 1.4, times: [0, 0.22, 0.62, 1], ease: 'easeOut' }}
+                                                                className="absolute -top-2 left-1/2 -translate-x-1/2 z-30 pointer-events-none flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-islamic-gold text-[#032e18] shadow-xl shadow-islamic-gold/50 whitespace-nowrap"
+                                                            >
+                                                                {isPremium() ? (
+                                                                    <Heart size={15} className="fill-current" />
+                                                                ) : (
+                                                                    <>
+                                                                        <Coins size={15} />
+                                                                        <span className="text-sm font-black leading-none">+{CREDIT_COSTS.AMIN_REWARD}</span>
+                                                                    </>
+                                                                )}
+                                                            </motion.div>
+                                                        )}
+                                                    </AnimatePresence>
+
+                                                    <Button
+                                                        onClick={() => handleAmin(dua.id)}
+                                                        disabled={isAmined}
+                                                        className={cn(
+                                                            "relative rounded-full h-12 font-bold transition-all active:scale-95 shadow-lg",
+                                                            isAmined
+                                                                ? "px-6 bg-amber-100 dark:bg-emerald-900/30 text-amber-700 dark:text-emerald-400 border border-amber-500/20 dark:border-emerald-500/20 disabled:opacity-100"
+                                                                : "px-8 bg-islamic-green dark:bg-islamic-gold text-white dark:text-[#032e18] hover:opacity-90"
+                                                        )}
+                                                    >
+                                                        {isAmined ? (
+                                                            <span className="flex items-center gap-1.5">
+                                                                <Check size={16} strokeWidth={3} />
+                                                                {t('aminDone')}
+                                                            </span>
+                                                        ) : t('amin')}
+                                                    </Button>
+                                                </div>
                                             </div>
                                         </CardContent>
                                     </Card>
@@ -1424,8 +1539,8 @@ function DuaIstekleriGecmisi({ requests, onDelete, onEdit, onClose, getStatusBad
                                                 {new Date(request.date).toLocaleDateString('tr-TR')}
                                             </span>
                                         </div>
-                                        <p className="text-gray-700 dark:text-gray-300 font-serif italic leading-relaxed mb-4">
-                                            "{request.text}"
+                                        <p className="text-gray-700 dark:text-gray-300 font-serif italic leading-[1.75] tracking-[0.01em] mb-4">
+                                            "{formatDuaText(request.text)}"
                                         </p>
                                         {request.status === 'pending' && (
                                             <div className="flex items-start gap-2 mb-4 px-3 py-2.5 rounded-2xl bg-amber-50 dark:bg-amber-500/10 border border-amber-200/60 dark:border-amber-500/20">

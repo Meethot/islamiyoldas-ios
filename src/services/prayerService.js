@@ -8,7 +8,6 @@ import {
     onSnapshot,
     serverTimestamp,
     doc,
-    documentId,
     updateDoc,
     increment,
     limit,
@@ -118,10 +117,17 @@ export async function getRandomApprovedPrayers(count = 6, lang = 'en') {
             const data = d.data();
             // Dil filtresi (memory)
             if ((data.lang || 'en') === normalizedLang) {
-                allDocs.push({ 
-                    id: d.id, 
-                    ...data, 
-                    date: data.timestamp?.toDate?.().toISOString() || new Date().toISOString() 
+                // Tazelik ölçüsü ONAY anı; yoksa (eski kayıtlar) gönderim anına düşer.
+                // Onay elle ve toplu yapıldığı için gönderim anına bakmak yeni
+                // onaylanan duaları daha yayına girer girmez "eski" sayıyordu.
+                // İkisi de yoksa `date` ile aynı yedeğe (şimdi) düşülür — eski
+                // davranışla birebir aynı kalsın diye.
+                const freshMs = (data.approvedAt?.toDate?.() || data.timestamp?.toDate?.())?.getTime();
+                allDocs.push({
+                    id: d.id,
+                    ...data,
+                    date: data.timestamp?.toDate?.().toISOString() || new Date().toISOString(),
+                    _freshAt: Number.isFinite(freshMs) ? freshMs : Date.now()
                 });
             }
         });
@@ -130,7 +136,7 @@ export async function getRandomApprovedPrayers(count = 6, lang = 'en') {
         const recentDocs = [];
         const olderDocs = [];
         allDocs.forEach(d => {
-            const dTime = new Date(d.date).getTime();
+            const dTime = d._freshAt;
             if (dTime >= twentyFourHoursAgo.getTime()) {
                 recentDocs.push(d);
             } else {
@@ -258,63 +264,32 @@ export async function syncPrayersStatus(prayerIds) {
     const statusMap = {}; // { [id]: { status, aminCount } }
     const uniqueIds = [...new Set(prayerIds)].filter(id => typeof id === 'string' && id.length > 5); // Filter out fake IDs if any
 
-    // Eskiden her ID için ayrı getDoc atılıyordu: 200 istekli kullanıcı geçmişi
-    // her açtığında 200 istek + 200 okuma. Artık documentId() 'in' sorgusuyla
-    // 30'luk gruplar hâlinde çekiliyor — hem çok daha az gidiş-dönüş, hem SİLİNMİŞ
-    // dualar için okuma faturası yok (getDoc yok olan dokümanı da 1 okuma sayardı).
-    // Dönüş sözleşmesi birebir aynı: doküman yoksa 'rejected'.
-    const CHUNK_SIZE = 30;
-    const colRef = collection(db, COLLECTION_NAME);
-
-    // Tek ID için tekil okuma — grup sorgusu başarısız olursa da bu yol kullanılır.
-    const fetchOne = async (id) => {
+    // NOT — neden toplu (documentId 'in') sorgu KULLANILMIYOR:
+    // Canlı Firestore kuralı `allow list: if resource.data.status == 'approved'`.
+    // Firestore'da kurallar filtre değildir; status kısıtı içermeyen bir sorgu
+    // (kendi duanın pending/rejected durumunu öğrenmek tam da bunu gerektirir)
+    // komple reddedilir. Tekil okuma ise `allow get: if true` ile serbest.
+    // Yani gruplama denendi, kural gereği her seferinde reddedilip tekil yola
+    // düşüyordu — sadece boşa giden bir istek ekliyordu. Bilerek tekil bırakıldı.
+    await Promise.all(uniqueIds.map(async (id) => {
         try {
             const docSnap = await getDoc(doc(db, COLLECTION_NAME, id));
+
             if (docSnap.exists()) {
                 const data = docSnap.data();
-                statusMap[id] = { status: data.status, aminCount: data.aminCount || 0 };
+                statusMap[id] = {
+                    status: data.status,
+                    aminCount: data.aminCount || 0
+                };
             } else if (docSnap.metadata?.fromCache !== true) {
                 // Sunucudan geldi ve doküman yok → admin silmiş.
                 statusMap[id] = { status: 'rejected', aminCount: 0 };
             }
-            // ÖNBELLEKTEN gelip "yok" diyorsa (çevrimdışı) hiçbir şey yazma:
+            // ÖNBELLEKTEN gelip "yok" diyorsa (cihaz çevrimdışı) hiçbir şey yazma:
             // dua sunucuda duruyor olabilir, yanlışlıkla "reddedildi" damgalamayalım.
         } catch (error) {
             console.error(`Error syncing status for ${id}:`, error);
             // Hata → statusMap'e yazma; çağıran taraf yereldeki durumu korur.
-        }
-    };
-
-    const chunks = [];
-    for (let i = 0; i < uniqueIds.length; i += CHUNK_SIZE) {
-        chunks.push(uniqueIds.slice(i, i + CHUNK_SIZE));
-    }
-
-    await Promise.all(chunks.map(async (chunk) => {
-        try {
-            const snap = await getDocs(query(colRef, where(documentId(), 'in', chunk)));
-
-            const found = new Set();
-            snap.docs.forEach(d => {
-                const data = d.data();
-                statusMap[d.id] = { status: data.status, aminCount: data.aminCount || 0 };
-                found.add(d.id);
-            });
-
-            // Sorguda dönmeyenler = admin tarafından silinmiş.
-            // AMA sonuç önbellekten geldiyse (cihaz çevrimdışı) liste eksik olabilir —
-            // o durumda "silinmiş" çıkarımı YAPILMAZ, yereldeki durum korunur.
-            // Aksi hâlde çevrimdışı geçmiş açan kullanıcı onaylı dualarını
-            // "ONAYLANMADI" olarak görür ve bu yanlış durum localStorage'a yazılırdı.
-            if (snap.metadata?.fromCache !== true) {
-                chunk.forEach(id => {
-                    if (!found.has(id)) statusMap[id] = { status: 'rejected', aminCount: 0 };
-                });
-            }
-        } catch (error) {
-            // 'in' sorgusu desteklenmiyor/indeks hatası vb. → eski tekil yola düş.
-            console.warn('[prayerService] Batch status sync failed, falling back to per-doc reads:', error?.message || error);
-            await Promise.all(chunk.map(fetchOne));
         }
     }));
 

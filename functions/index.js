@@ -1,6 +1,54 @@
 const { onRequest } = require("firebase-functions/v2/https");
+const { onDocumentUpdated } = require("firebase-functions/v2/firestore");
 const { defineSecret } = require("firebase-functions/params");
 const logger = require("firebase-functions/logger");
+const admin = require("firebase-admin");
+
+admin.initializeApp();
+
+/**
+ * Dua onaylanınca ONAY ANINI damgalar.
+ *
+ * Neden: `timestamp` duanın GÖNDERİM anı; onay elle (Firebase Console'dan
+ * status: pending → approved) ve genelde günler sonra yapılıyor. İstemci
+ * tazeliği gönderim anına göre ölçtüğü için yeni onaylanan dualar yayına
+ * girer girmez "eski" sayılıyor, kullanıcı kendi duasının sabitlenmiş
+ * kartını hiç göremiyordu.
+ *
+ * Bu tetikleyici sayesinde onaylama akışı DEĞİŞMEZ — Console'da status'ü
+ * approved yapmak yeterli, `approvedAt` sunucu tarafında kendiliğinden yazılır.
+ *
+ * Sonsuz döngü koruması: kendi yazdığımız update tetikleyiciyi yeniden
+ * çağırır; `before.status === 'approved'` ve `after.approvedAt` kontrolleri
+ * ikinci turda erken çıkışı garanti eder.
+ */
+// DİKKAT — bölge: Firestore veritabanı `eur3` (Avrupa çoklu bölge) konumunda.
+// Firestore v2 tetikleyicileri veritabanıyla AYNI bölgede çalışmak zorunda;
+// eur3'ün karşılığı europe-west4. Belirtilmezse varsayılan us-central1'e gider
+// ve deploy hata verir. (generateSpiritualAdvice us-central1'de KALMALI —
+// istemcideki AiMentorService.js o URL'i sabit tutuyor.)
+exports.stampPrayerApproval = onDocumentUpdated({
+    document: "prayers/{prayerId}",
+    region: "europe-west4",
+}, async (event) => {
+    const before = event.data?.before?.data();
+    const after = event.data?.after?.data();
+    if (!before || !after) return;
+
+    if (after.status !== "approved") return;      // onaya geçmemiş
+    if (before.status === "approved") return;     // zaten onaylıydı (kendi yazımız dahil)
+    if (after.approvedAt) return;                 // damga zaten var
+
+    try {
+        await event.data.after.ref.update({
+            approvedAt: admin.firestore.FieldValue.serverTimestamp(),
+        });
+        logger.info("approvedAt stamped:", event.params.prayerId);
+    } catch (error) {
+        // Damga yazılamazsa dua yine yayında kalır; istemci timestamp'e düşer.
+        logger.error("Failed to stamp approvedAt:", event.params.prayerId, error.message);
+    }
+});
 
 const geminiApiKey = defineSecret("GEMINI_API_KEY");
 

@@ -1,0 +1,75 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Alan yoksa serbest (kullanıcı adımı atlamış olabilir); varsa string ve kısa olmalı.
+    function shortText(data, key) {
+      return !(key in data) || (data[key] is string && data[key].size() <= 64);
+    }
+
+    // ---------------------------------------------------------
+    // 1. MEVCUT DUA KARDEŞLİĞİ KURALLARI (AYNEN KORUNDU)
+    // ---------------------------------------------------------
+    match /prayers/{document=**} {
+
+      allow list: if resource.data.status == 'approved';
+      allow get: if true;
+      allow create: if request.resource.data.text.size() <= 300
+                    && request.resource.data.status == 'pending';
+      allow update: if
+          (resource.data.status == 'pending'
+           && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['text'])
+           && request.resource.data.text.size() <= 300)
+          ||
+          (resource.data.status == 'approved'
+           && request.resource.data.status == 'delete_requested'
+           && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status']))
+          ||
+          (resource.data.status == 'approved'
+           && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['aminCount', 'amins']));
+      allow delete: if resource.data.status == 'pending';
+    }
+
+    // ---------------------------------------------------------
+    // 2. ONBOARDING ANALİTİK VERİSİ
+    // ---------------------------------------------------------
+    // Eskiden `allow write: if true` idi. Uygulamada kimlik doğrulaması olmadığı
+    // ve Firebase config APK'dan çıkarılabildiği için herkes bu koleksiyona
+    // sınırsız sayıda ve 1 MiB'a kadar doküman yazıp Firestore faturasını
+    // şişirebiliyordu. Ayrıca mevcut kayıtlar güncellenip silinebiliyordu.
+    //
+    // Artık: yalnızca OLUŞTURMA, bilinen alanlarla ve kısa değerlerle.
+    // (Hacim sınırı kurallarla verilemez — onun için App Check gerekir — ama
+    //  doküman başına maliyet ~1 MiB'dan ~200 bayta iner ve veri kurcalanamaz.)
+    //
+    // ⚠️ YENİ ONBOARDING ADIMI EKLERSEN anahtarını aşağıdaki listeye EKLE.
+    //    Yazma `Onboarding.jsx` içinde `.catch(() => {})` ile yutulduğu için
+    //    aksi hâlde SESSİZCE başarısız olur ve analitik verisi kaybolur.
+    match /userDemographics/{docId} {
+      allow read, update, delete: if false;
+
+      allow create: if request.resource.data.keys().hasOnly([
+                         'gender', 'age', 'prayer-status', 'quran-status',
+                         'goal', 'language', 'createdAt'
+                       ])
+                    && shortText(request.resource.data, 'gender')
+                    && shortText(request.resource.data, 'age')
+                    && shortText(request.resource.data, 'prayer-status')
+                    && shortText(request.resource.data, 'quran-status')
+                    && shortText(request.resource.data, 'goal')
+                    && shortText(request.resource.data, 'language');
+    }
+
+    // ---------------------------------------------------------
+    // 3. KULLANICI PROFİLİ VE TAKİP SİSTEMİ
+    // ---------------------------------------------------------
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+
+      // Activity logs alt koleksiyonu
+      match /activity_logs/{logId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+    }
+  }
+}
