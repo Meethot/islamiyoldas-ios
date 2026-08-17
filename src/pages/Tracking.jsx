@@ -19,6 +19,7 @@ import { useTranslation } from 'react-i18next';
 import { isPremium } from '@/services/creditService';
 import { analytics } from '@/services/analyticsService';
 import { storageService } from '@/services/storageService';
+import HintCoach from '@/components/HintCoach';
 
 const PRAYER_TYPES = [
     { key: 'sabah', labelKey: 'prayerTypes.sabah' },
@@ -36,6 +37,16 @@ const TABS = [
     { id: 'murakabe', labelKey: 'tabs.murakabe', icon: Eye },
 ];
 
+// Sekme başına tek ipucu: hangi eleman yanıp sönecek + hangi metin.
+// Hedefler `data-tour` ile işaretli; hedef yoksa ipucu sessizce iptal olur.
+const HINT_KEY = 'tracking_hints_seen';
+const TAB_HINTS = {
+    kuran: { target: 'quran-search', titleKey: 'tour.quran.title', bodyKey: 'tour.quran.body' },
+    namaz: { target: 'prayer-row', titleKey: 'tour.prayer.title', bodyKey: 'tour.prayer.body' },
+    kaza: { target: 'qada-counters', titleKey: 'tour.qada.title', bodyKey: 'tour.qada.body' },
+    murakabe: { target: 'murakabe-card', titleKey: 'tour.murakabe.title', bodyKey: 'tour.murakabe.body' },
+};
+
 export default function Tracking() {
     const navigate = useNavigate();
     const { selection, impactMedium } = useHaptics();
@@ -45,6 +56,33 @@ export default function Tracking() {
 
     // Tab State
     const [activeTab, setActiveTab] = useState('kuran');
+
+    // ── Sekme ipuçları ────────────────────────────────────────────────────
+    // Her sekmeye İLK girişte, o sekmenin en önemli elemanı yanıp söner ve
+    // yanında kısa bir ipucu çıkar. Ekran karartılmaz, hiçbir şey engellenmez.
+    const [seenHints, setSeenHints] = useState(() => {
+        try { return JSON.parse(localStorage.getItem(HINT_KEY) || '{}') || {}; } catch { return {}; }
+    });
+    const [activeHint, setActiveHint] = useState(null);
+
+    useEffect(() => {
+        setActiveHint(null);                    // sekme değişti: eskisini kapat
+        if (seenHints[activeTab] || !TAB_HINTS[activeTab]) return;
+        // Sekme geçiş animasyonu (0.3 sn) bitsin, içerik render olsun
+        const timer = setTimeout(() => setActiveHint(activeTab), 650);
+        return () => clearTimeout(timer);
+    }, [activeTab, seenHints]);
+
+    const closeHint = useCallback((markSeen = true) => {
+        if (activeHint && markSeen) {
+            setSeenHints(prev => {
+                const next = { ...prev, [activeHint]: true };
+                localStorage.setItem(HINT_KEY, JSON.stringify(next));
+                return next;
+            });
+        }
+        setActiveHint(null);
+    }, [activeHint]);
 
     // Prayer Checklist State
     const [completedPrayers, setCompletedPrayers] = useState([]);
@@ -524,7 +562,7 @@ export default function Tracking() {
                                 <Target className="w-5 h-5" />
                                 {t('kazaTitle')}
                             </h2>
-                            <div className="grid grid-cols-2 gap-3">
+                            <div data-tour="qada-counters" className="grid grid-cols-2 gap-3">
                                 {PRAYER_TYPES.map((prayer) => (
                                     <div key={prayer.key} className="glass-panel p-4 rounded-3xl flex flex-col gap-3">
                                         <div className="flex justify-between items-start">
@@ -864,6 +902,18 @@ export default function Tracking() {
                     </motion.div>
                 )}
             </AnimatePresence>
+
+            {/* Sekmeye ilk girişte tek seferlik ipucu (engellemez, karartmaz) */}
+            {activeHint && TAB_HINTS[activeHint] && (
+                <HintCoach
+                    key={activeHint}
+                    targetId={TAB_HINTS[activeHint].target}
+                    titleKey={TAB_HINTS[activeHint].titleKey}
+                    bodyKey={TAB_HINTS[activeHint].bodyKey}
+                    ns="tracking"
+                    onClose={closeHint}
+                />
+            )}
         </div>
     );
 }

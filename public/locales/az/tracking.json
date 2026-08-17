@@ -42,5 +42,24 @@
     "selectBirthHint": "👆 Doğum tarixinizi seçin, borcunuzu avtomatik hesablayaq.",
     "saveGoal": "Hədəfi Saxla",
     "saveDebt": "Borcu Saxla",
-    "approxNote": "Hesablama təxmini dəyərdir. Kəsrlər yuvarlaqlaşdırılıb."
+    "approxNote": "Hesablama təxmini dəyərdir. Kəsrlər yuvarlaqlaşdırılıb.",
+    "tour": {
+        "gotIt": "Anladım",
+        "quran": {
+            "title": "Surə axtar",
+            "body": "Surəni adı və ya nömrəsi ilə burada axtar. Oxut düyməsi əvvəldən dinlədir, sözlər oxunduqca yanır."
+        },
+        "prayer": {
+            "title": "Vaxtı işarələ",
+            "body": "Qıldığın vaxta toxun. Beş vaxtı tamamladığın günlər ardıcıllıq yaradır."
+        },
+        "qada": {
+            "title": "Qəza sayğacların",
+            "body": "Hər vaxt üçün borcunu ayrıca saxla. Artı və minus düymələri ilə yenilə."
+        },
+        "murakabe": {
+            "title": "Günü çək",
+            "body": "Sualları cavabla; tərəzi günü ruh və nəfs tərəfində çəkir."
+        }
+    }
 }

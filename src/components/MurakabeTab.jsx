@@ -399,6 +399,7 @@ export default function MurakabeTab() {
                         >
                             {/* The Card */}
                             <div
+                                data-tour="murakabe-card"
                                 className="relative rounded-[2.5rem] p-5 sm:p-7 shadow-2xl shadow-primary/10 dark:shadow-black/40 overflow-hidden border border-primary/10 dark:border-islamic-gold/[0.08] bg-white/80 dark:bg-[#043927]"
                                 style={{
                                     backdropFilter: 'blur(20px)',

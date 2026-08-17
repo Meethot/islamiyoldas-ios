@@ -42,5 +42,24 @@
     "selectBirthHint": "👆 Select your birth date to auto-calculate your debt.",
     "saveGoal": "Save Goal",
     "saveDebt": "Save Debt",
-    "approxNote": "This calculation is approximate. Fractions have been rounded."
+    "approxNote": "This calculation is approximate. Fractions have been rounded.",
+    "tour": {
+        "gotIt": "Got it",
+        "quran": {
+            "title": "Search a surah",
+            "body": "Find a surah by name or number here. Play starts it from the beginning, and each word lights up as it is recited."
+        },
+        "prayer": {
+            "title": "Mark your prayer",
+            "body": "Tap the prayer you completed. Days with all five build a streak."
+        },
+        "qada": {
+            "title": "Missed-prayer counters",
+            "body": "Keep a separate count for each prayer. Use plus and minus to update."
+        },
+        "murakabe": {
+            "title": "Weigh your day",
+            "body": "Answer the questions; the scale weighs your day between soul and ego."
+        }
+    }
 }

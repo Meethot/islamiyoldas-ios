@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Play, BookOpen, Clock, ChevronRight, X, Headphones, Sparkles, Heart, SkipBack, SkipForward, Zap, Crown } from 'lucide-react';
+import { Play, BookOpen, X, Headphones, Sparkles, Heart, SkipBack, SkipForward } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { AnimatePresence, motion, useDragControls } from 'framer-motion';
 import StoryCard from '@/components/StoryCard';
+import { useStoryImage } from '@/lib/storyImages';
 import { useTranslation } from 'react-i18next';
 import { isPremium } from '@/services/creditService';
 import { analytics } from '@/services/analyticsService';
@@ -33,27 +33,26 @@ export default function Stories() {
     const [isPlaying, setIsPlaying] = useState(false);
     const [currentTime, setCurrentTime] = useState(0);
     const [duration, setDuration] = useState(0);
-    const [volume, setVolume] = useState(1.0);
-    const [isMuted, setIsMuted] = useState(false);
-    const [showVolumeSlider, setShowVolumeSlider] = useState(false);
     const [isSpeeding, setIsSpeeding] = useState(false);
     const audioRef = React.useRef(null);
     const dragControls = useDragControls();
+    const selectedImage = useStoryImage(selectedStory);
 
     React.useEffect(() => {
-        if (selectedStory && audioRef.current) {
-            audioRef.current.src = selectedStory.audioUrl || '';
-            audioRef.current.load();
-            audioRef.current.volume = volume;
+        const audio = audioRef.current;
+        if (selectedStory && audio) {
+            audio.src = selectedStory.audioUrl || '';
+            audio.load();
+            audio.volume = 1.0;
             setIsPlaying(false);
             setCurrentTime(0);
             setIsSpeeding(false); // Reset speed on new story
         }
         return () => {
-            if (audioRef.current) {
-                audioRef.current.pause();
-                audioRef.current.src = '';
-                audioRef.current.playbackRate = 1.0;
+            if (audio) {
+                audio.pause();
+                audio.src = '';
+                audio.playbackRate = 1.0;
             }
         };
     }, [selectedStory]);
@@ -96,29 +95,6 @@ export default function Stories() {
         if (audioRef.current) {
             audioRef.current.currentTime = time;
             setCurrentTime(time);
-        }
-    };
-
-    const handleVolumeChange = (e) => {
-        const newVolume = parseFloat(e.target.value);
-        setVolume(newVolume);
-        if (audioRef.current) {
-            audioRef.current.volume = newVolume;
-            audioRef.current.muted = newVolume === 0;
-        }
-        setIsMuted(newVolume === 0);
-    };
-
-    const toggleMute = (e) => {
-        e.stopPropagation();
-        if (audioRef.current) {
-            const newMuted = !isMuted;
-            audioRef.current.muted = newMuted;
-            setIsMuted(newMuted);
-            if (!newMuted && volume === 0) {
-                setVolume(0.5);
-                audioRef.current.volume = 0.5;
-            }
         }
     };
 
@@ -182,15 +158,17 @@ export default function Stories() {
             </div>
 
             {/* Story Grid */}
-            <div className="grid gap-5">
+            <div className="grid gap-3">
                 {(activeStories[activeCategory] || []).map((story, index) => {
                     const isFree = index === 0;
                     const isLocked = !isFree && !isPremium();
                     return (
                         <div key={story.id} className="relative">
-                            <div className={cn(isLocked && "opacity-60")}>
+                            <div>
                                 <StoryCard
                                     story={story}
+                                    category={activeCategory}
+                                    locked={isLocked}
                                     onClick={() => {
                                         if (isLocked) { navigate('/premium'); return; }
                                         setSelectedStory(story);
@@ -198,11 +176,6 @@ export default function Stories() {
                                     }}
                                 />
                             </div>
-                            {isLocked && (
-                                <div className="absolute top-3 right-3 flex items-center gap-1.5 bg-gradient-to-r from-islamic-gold to-amber-600 text-white text-[10px] font-bold px-2.5 py-1 rounded-full shadow-lg shadow-islamic-gold/30">
-                                    <Crown size={10} fill="white" /> Premium
-                                </div>
-                            )}
                         </div>
                     );
                 })}
@@ -281,8 +254,12 @@ export default function Stories() {
                                     </div>
 
                                     <div className="relative z-10 flex flex-col items-center">
-                                        <div className="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center mb-5 backdrop-blur-md shadow-inner border border-white/5">
-                                            <Headphones className="w-8 h-8 text-islamic-gold" />
+                                        <div className="w-44 h-44 max-w-[70vw] bg-white/10 rounded-[1.75rem] flex items-center justify-center mb-6 overflow-hidden backdrop-blur-md shadow-2xl shadow-black/40 border border-white/10">
+                                            {selectedImage ? (
+                                                <img src={selectedImage} alt={selectedStory.title} className="w-full h-full object-cover" />
+                                            ) : (
+                                                <Headphones className="w-12 h-12 text-islamic-gold" />
+                                            )}
                                         </div>
                                         <h1 className="text-xl font-serif font-bold text-white mb-6 text-center leading-tight">{selectedStory.title}</h1>
 

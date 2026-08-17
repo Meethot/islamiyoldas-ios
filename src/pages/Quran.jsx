@@ -470,7 +470,7 @@ export default function Quran({ isTrackingTab = false }) {
 
                 {/* Search Bar */}
                 {showSurahList && (
-                    <div className="relative mb-3">
+                    <div data-tour="quran-search" className="relative mb-3">
                         <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-stone-400 dark:text-white/50" />
                         <input
                             type="text"
@@ -614,7 +614,7 @@ export default function Quran({ isTrackingTab = false }) {
                                 >
                                     <div
                                         onClick={() => handleSurahSelect(surah)}
-                                        className="group relative overflow-hidden rounded-[2.5rem] bg-islamic-green/[0.03] dark:bg-[#0c2a16] border border-islamic-green/10 dark:border-islamic-gold/10 hover:border-islamic-gold/30 transition-all cursor-pointer hover:shadow-xl active:scale-[0.98]"
+                                        className="group relative overflow-hidden rounded-[2.5rem] bg-[#FFFDF6] dark:bg-white/5 border-none shadow-[0_4px_20px_-5px_rgba(0,0,0,0.08)] hover:shadow-xl transition-all cursor-pointer active:scale-[0.98]"
                                     >
                                         <div className="absolute top-0 right-0 w-40 h-40 bg-islamic-gold/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 group-hover:bg-islamic-gold/10 transition-colors duration-500" />
 
@@ -756,7 +756,7 @@ export default function Quran({ isTrackingTab = false }) {
                                                     >
                                                         <div
                                                             onClick={() => { selection(); navigate(`/quran/${surah.id}`); }}
-                                                            className="group relative overflow-hidden rounded-[2.5rem] bg-islamic-green/[0.03] dark:bg-[#0c2a16] border border-islamic-green/10 dark:border-islamic-gold/10 hover:border-islamic-gold/30 transition-all cursor-pointer hover:shadow-xl active:scale-[0.98]"
+                                                            className="group relative overflow-hidden rounded-[2.5rem] bg-[#FFFDF6] dark:bg-white/5 border-none shadow-[0_4px_20px_-5px_rgba(0,0,0,0.08)] hover:shadow-xl transition-all cursor-pointer active:scale-[0.98]"
                                                         >
                                                             <div className="p-5 flex items-center gap-4 relative z-10">
                                                                 <div className="w-12 h-12 rounded-2xl bg-amber-600/10 dark:bg-islamic-gold/10 flex items-center justify-center text-amber-700 dark:text-white font-bold text-lg shadow-sm shrink-0">

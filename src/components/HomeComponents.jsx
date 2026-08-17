@@ -2459,11 +2459,12 @@ export const DailyPrayerChecklist = memo(({ prayerTimes, completedPrayers, loadi
                     <LoadingPlaceholder />
                 ) : (
                     <div className="divide-y divide-gray-100 dark:divide-white/5 relative z-10">
-                        {prayers.map((prayer) => {
+                        {prayers.map((prayer, prayerIndex) => {
                             const isDone = completedPrayers.includes(prayer.id);
                             return (
                                 <motion.div
                                     key={prayer.id}
+                                    data-tour={prayerIndex === 0 ? 'prayer-row' : undefined}
                                     initial={false}
                                     animate={{ backgroundColor: isDone ? "rgba(212, 175, 55, 0.05)" : "transparent" }}
                                     onClick={() => handleToggle(prayer.id)}

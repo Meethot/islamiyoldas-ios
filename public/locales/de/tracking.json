@@ -42,5 +42,24 @@
     "selectBirthHint": "👆 Wähle dein Geburtsdatum, um deine Schuld automatisch zu berechnen.",
     "saveGoal": "Ziel speichern",
     "saveDebt": "Schuld speichern",
-    "approxNote": "Diese Berechnung ist ungefähr. Bruchteile wurden gerundet."
+    "approxNote": "Diese Berechnung ist ungefähr. Bruchteile wurden gerundet.",
+    "tour": {
+        "gotIt": "Verstanden",
+        "quran": {
+            "title": "Sure suchen",
+            "body": "Suche hier eine Sure nach Name oder Nummer. Play startet sie von vorn, und jedes Wort leuchtet beim Rezitieren auf."
+        },
+        "prayer": {
+            "title": "Gebet markieren",
+            "body": "Tippe auf das verrichtete Gebet. Tage mit allen fünf bilden eine Serie."
+        },
+        "qada": {
+            "title": "Zähler für Nachholgebete",
+            "body": "Führe je Gebetszeit einen eigenen Zähler. Mit Plus und Minus anpassen."
+        },
+        "murakabe": {
+            "title": "Den Tag wiegen",
+            "body": "Beantworte die Fragen; die Waage wiegt deinen Tag zwischen Seele und Ego."
+        }
+    }
 }
