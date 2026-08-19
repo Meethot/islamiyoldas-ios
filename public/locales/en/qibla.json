@@ -28,7 +28,7 @@
     "tip3Title": "Stay away from magnetic fields",
     "tip3Desc": "Metal objects, electronic devices, and cars may affect the compass.",
     "distanceToKaaba": "You are {{distance}} km away from the Kaaba",
-    "hadith": "\"Wherever you are, turn your face toward the Sacred Mosque.\"",
+    "hadith": "“Wherever you are, turn your face toward the Sacred Mosque.”",
     "hadithSource": "— Surah Al-Baqarah, 144",
     "understood": "Got it ✨",
     "locationRequired": {
@@ -44,7 +44,7 @@
         "alternative": "Alternative method",
         "alternativeDesc": "You can see the direction to the Kaaba from your location on a map.",
         "openMaps": "Show Kaaba on Map",
-        "hadith": "\"To Allah belongs the east and the west. Wherever you turn, there is the Face of Allah.\"",
+        "hadith": "“To Allah belongs the east and the west. Wherever you turn, there is the Face of Allah.”",
         "hadithSource": "— Surah Al-Baqarah, 115",
         "close": "Got it 🧭",
         "openSettings": "Open Location Settings",

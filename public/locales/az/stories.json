@@ -7,6 +7,39 @@
     "nowListening": "İndi Dinlənilir",
     "listenersCount": "{{count}} nəfər dinləyir",
     "read": "Oxu",
-    "normalSpeed": "Normal Sürət",
-    "speedUp": "2x Sürətləndir"
+    "completed": "Tamamlandı",
+    "resume": "Davam et",
+    "back15": "15 saniyə geri",
+    "forward15": "15 saniyə irəli",
+    "speedAria": "Oxutma sürəti",
+    "nextUp": "Növbəti",
+    "audioError": "Səs yüklənmədi",
+    "retry": "Yenidən cəhd et",
+    "paused": "Dayandırıldı",
+    "mediaPlay": "Oynat",
+    "mediaPause": "Fasilə",
+    "tour": {
+        "gotIt": "Anladım",
+        "next": "İrəli",
+        "card": {
+            "title": "Dinlə və ya oxu",
+            "body": "Karta toxun: hekayəni əvvəldən dinləyə, aşağı sürüşdürüb oxuya bilərsən. İlk hekayə pulsuzdur."
+        },
+        "play": {
+            "title": "Dinləməyə başla",
+            "body": "Qızılı düyməyə toxun. Ekranı kilidləsən də kilid ekranından dayandırıb davam etdirə bilərsən."
+        },
+        "karaoke": {
+            "title": "Söz-söz izləmə",
+            "body": "Dinləyərkən oxunan söz qızılı rəngə çevrilir; mətni gözünlə rahat izləyirsən."
+        },
+        "seek": {
+            "title": "İstədiyin yerə keç",
+            "body": "Səs dalğasını sürüşdür və ya 15 saniyə irəli/geri düymələrindən istifadə et."
+        },
+        "speed": {
+            "title": "Sürəti tənzimlə",
+            "body": "1×, 1.5× və 2× arasında keçir. Uzun hekayələri daha tez bitirirsən."
+        }
+    }
 }

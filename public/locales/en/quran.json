@@ -44,5 +44,33 @@
     "jumpToVersePlaceholder": "Enter verse number...",
     "modeTranslit": "Reading",
     "modeTranslation": "Translation",
-    "modeArabic": "Arabic"
+    "modeArabic": "Arabic",
+    "tour": {
+        "gotIt": "Got it",
+        "modes": {
+            "title": "Choose how to read",
+            "body": "Switch between transliteration, translation and Arabic here. Your choice stays for the next surahs too."
+        },
+        "jump": {
+            "title": "Go to a verse",
+            "body": "Type a verse number and the page scrolls straight to it. In long surahs you find what you want in seconds."
+        },
+        "karaoke": {
+            "title": "The words read along with you",
+            "body": "The word being recited glows gold; the ones already read stay lit. Follow along — it helps most with memorising and pronunciation."
+        },
+        "next": "Next",
+        "listen": {
+            "title": "Give Listen a tap",
+            "body": "The surah starts from the beginning and each word lights up as it is recited. The first 60 seconds are free — try it whenever you like.",
+            "bodyPremium": "The surah starts from the beginning and each word lights up as it is recited. Follow along as you read."
+        }
+    },
+    "trial": {
+        "banner": "Free trial",
+        "endedTitle": "Your 60 seconds are up",
+        "endedBody": "Word-by-word following, every surah and uninterrupted listening come with Premium.",
+        "endedCta": "See Premium",
+        "endedDismiss": "Not now"
+    }
 }

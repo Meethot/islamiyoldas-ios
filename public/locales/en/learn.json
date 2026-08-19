@@ -14,11 +14,426 @@
     "navComplete": "Complete",
     "restartBtn": "Start Over",
     "goBackBtn": "Go to Last Step",
-    "completionQuote": "\"Prayer is the ascension of the believer.\"",
+    "completionQuote": "“Prayer is the ascension of the believer.”",
     "completionSource": "— Hadith",
     "repeat": "times",
     "tipsTitle": "Tips",
     "elhamdulillah": "Alhamdulillah",
     "mashallah": "Mashallah!",
-    "completionMsg": "You have successfully completed the guide."
+    "completionMsg": "You have successfully completed the guide.",
+    "translitLabel": "Transliteration",
+    "meaningLabel": "Meaning",
+    "abdestBack": "Back",
+    "abdestModeShort": "Short · fard",
+    "abdestModeFull": "Full · with sunnah",
+    "abdestSearchPlaceholder": "Search wudu, ghusl, tayammum…",
+    "handsFreeCta": "Follow along with wet hands",
+    "handsFreeStepOf": "Step {{i}} / {{n}}",
+    "handsFreeRepeat": "{{n}} times",
+    "handsFreeHint": "Put the phone on the edge of the sink. The screen stays on and the steps advance on their own.",
+    "handsFreePause": "Pause",
+    "handsFreeResume": "Resume",
+    "handsFreeDone": "Your wudu is complete",
+    "handsFreeDoneSub": "Don't forget to recite the Shahadah and the supplication after wudu.",
+    "rankFarz": "Fard",
+    "rankSunnet": "Sunnah",
+    "rankMustehab": "Mustahab",
+    "stepDuaLabel": "Supplication",
+    "topicWudu": "How to perform wudu",
+    "topicWuduSub": "Step by step, short or with the sunnah",
+    "topicBreakers": "Does it break wudu?",
+    "topicBreakersSub": "What breaks wudu and what only seems to",
+    "topicMesh": "Wiping: khuff and dressing",
+    "topicMeshSub": "Conditions and time remaining",
+    "topicGusul": "Ghusl",
+    "topicGusulSub": "Fard acts, sunnahs and the order",
+    "topicTeyemmum": "Tayammum",
+    "topicTeyemmumSub": "When there is no water, or it cannot be used",
+    "duaSearchPlaceholder": "Search duas — meal, evil eye, hardship",
+    "duaSearchClear": "Clear",
+    "duaResultCount": "{{n}} results",
+    "duaEmptyTitle": "No results for “{{query}}”",
+    "duaEmptyHint": "Browse one of the sections",
+    "duaFavorites": "My Favourites",
+    "groupDaily": "Daily Life",
+    "groupHardship": "Hardship and Healing",
+    "groupProtect": "Protection",
+    "groupPrayer": "Recited in Prayer",
+    "groupRepent": "Repentance and Faith",
+    "groupSalawat": "Salawat",
+    "groupRequest": "Asking and Acceptance",
+    "groupOther": "Other",
+    "duaRelated": "From this section",
+    "duaShare": "Share",
+    "duaShareDialogTitle": "Share the dua",
+    "duaShareFooter": "Shared from the İslami Yoldaş app — {{link}}",
+    "duaFavAdd": "Add to favourites",
+    "duaFavRemove": "Remove from favourites",
+    "duaLockTitle": "Transliteration and meaning",
+    "duaLockSub": "{{n}} more duas with transliteration and meaning",
+    "duaLockCta": "Unlock Premium",
+    "duaLockBadge": "Premium",
+    "duaClose": "Close",
+    "duaSectionCount": "{{n}} duas",
+    "duaSeeAll": "See all",
+    "duaBack": "Back",
+    "tour": {
+        "gotIt": "Got it",
+        "next": "Next",
+        "search": {
+            "title": "Find the prayer you need",
+            "body": "Type its name or any word it contains. The search also looks inside the transliteration and the meaning."
+        },
+        "shelf": {
+            "title": "Sorted into sections",
+            "body": "Shelves scroll sideways. Tap a card to open the Arabic, the transliteration and the meaning."
+        },
+        "seeAll": {
+            "title": "The whole section",
+            "body": "Tap “See all” to list every prayer in that section one under the other."
+        },
+        "favorite": {
+            "title": "Mark the ones you read often",
+            "body": "Tap the heart. Your favourites gather in their own section at the top, so you reach them without searching."
+        },
+        "sureCard": {
+            "title": "Memorization starts here",
+            "body": "Tap a surah. It is split into short parts; you listen to each part first, then the text is hidden and you recite it yourself."
+        },
+        "sureProgress": {
+            "title": "Where you left off",
+            "body": "The number of surahs you know is shown here. An unfinished surah resumes where you stopped, and ones due for review carry a “Review” badge."
+        },
+        "ezberRead": {
+            "title": "Look at the text first",
+            "body": "Transliteration, meaning and memorization tips are here. You can also start straight away."
+        },
+        "ezberStart": {
+            "title": "Work out loud",
+            "body": "Every line runs the same loop: HEAR, TOGETHER, YOUR TURN, THE ANSWER. Saying it aloud is what makes it stick."
+        },
+        "ezberSteps": {
+            "title": "A four-step loop",
+            "body": "The strip shows which step you are on. On “YOUR TURN” the text is hidden; you see the answer after you recite."
+        },
+        "ezberChain": {
+            "title": "The chain",
+            "body": "So the lines don't stay separate, you recite from the beginning up to here without stopping. This is where memorization settles."
+        },
+        "ezberPeek": {
+            "title": "Peek if you are stuck",
+            "body": "The text does not open all at once. Each tap reveals one more word."
+        }
+    },
+    "ezberDueToday": "{{title}} is due for review today.",
+    "ezberDueMore": "+{{n}} more surah",
+    "ezberDueStart": "Start",
+    "ezberClose": "Close",
+    "ezberLineOf": "{{title}} · line {{n}}/{{total}}",
+    "ezberStepListen": "HEAR",
+    "ezberStepTogether": "TOGETHER",
+    "ezberStepYou": "YOUR TURN",
+    "ezberStepAnswer": "THE ANSWER",
+    "ezberStepChain": "LINK FROM THE START · FIRST {{n}} LINES",
+    "ezberCurtain": "Text hidden",
+    "ezberIntroLearn": "This surah has {{total}} lines. Today we will work on {{n}}.",
+    "ezberIntroReview": "You know all {{n}} lines. Today is one run from start to finish.",
+    "ezberIntroHint": "Work out loud; a whisper is enough.",
+    "ezberStart": "Start",
+    "ezberStartReview": "Start review",
+    "ezberContinue": "Continue",
+    "ezberStop": "Stop",
+    "ezberSaid": "I said it",
+    "ezberPeek": "Peek",
+    "ezberGood": "Got it",
+    "ezberAgain": "Once more",
+    "ezberHintListen": "Just listen. Do not try to recite yet.",
+    "ezberHintTogether": "Say it along with the voice.",
+    "ezberHintYou": "Now say it, then tap “I said it”.",
+    "ezberHintAnswer": "Compare it with what you said.",
+    "ezberHintChain": "Recite from the beginning up to here without stopping.",
+    "ezberNoAudio": "No audio right now; you can continue with the text.",
+    "ezberDoneKeep": "Continue tomorrow where you left off.",
+    "ezberOneMore": "One more line",
+    "ezberFinish": "Finish",
+    "ezberSimilarKafirun": "Note: lines 3 and 5 are nearly identical; line 4 in between is “Wa la ana abidun ma abadtum”.",
+    "ezberSimilarFalaq": "Note: Al-Falaq and An-Nas start the same. Al-Falaq says “birabbil falaq”, An-Nas says “birabbin nas”.",
+    "ezberSimilarNas": "Note: An-Nas and Al-Falaq start the same. An-Nas says “birabbin nas”, Al-Falaq says “birabbil falaq”.",
+    "ezberSimilarHashr": "Careful: verses 22 and 23 begin identically. Verse 22 continues with “Knower of the unseen”, verse 23 with “the Sovereign, the Pure”.",
+    "ezberSimilarAhzab": "Careful: every line follows the same pattern. Order: muslim, believing, obedient, truthful, patient, humble, charitable, fasting, chaste, remembering.",
+    "ezberNotifTitle": "Time to review",
+    "ezberNotifOne": "{{title}} is due for review today.",
+    "ezberNotifMany": "{{title}} and {{n}} more surah are due today.",
+    "ezberBadgeMemorized": "Memorized",
+    "ezberBadgeDue": "Review",
+    "ezberBadgeProgressLabel": "{{done}} of {{total}} lines memorized",
+    "ezberListSummary": "{{n}} of {{total}} surahs memorized. Tap a surah to start.",
+    "ezberRead": "Full text",
+    "ezberReplay": "Listen again",
+    "ezberDoneCelebrate": "You memorized it!",
+    "ezberDoneReview": "Review complete!",
+    "ezberDoneSub": "{{title}} · {{n}} lines",
+    "ezberDoneProgress": "surahs memorized",
+    "ezberHoldCta": "Press and hold",
+    "ezberHoldHint": "Hold to set your star into the dome",
+    "ezberDoneNextLabel": "Next review",
+    "mesh": {
+        "beforeStart": "The khuffs must have been put on AFTER a complete wudu in which the feet were washed. The time does not start the moment they are put on, but the moment your wudu first breaks after putting them on.",
+        "startCta": "My wudu broke — start the timer",
+        "residentLabel": "Resident · 24 hours",
+        "travelerLabel": "Traveller · 72 hours",
+        "runningBody": "When the time is up, wiping is no longer valid. You need to take the khuffs off and wash your feet.",
+        "expiredBody": "The time is up. Take the khuffs off and wash your feet; if your wudu has not broken, washing only the feet is enough.",
+        "reset": "Reset the timer",
+        "resetHint": "If you have taken the khuffs off or entered a state requiring ghusl, the time ends by itself.",
+        "badgeHours": "{{n}}h left",
+        "badgeMinutes": "{{n}}m left",
+        "badgeExpired": "Time is up",
+        "notifWarnTitle": "Your wiping time is almost over",
+        "notifWarnBody": "One hour left of the time for wiping over your khuffs.",
+        "notifEndTitle": "Wiping time is over",
+        "notifEndBody": "You need to take the khuffs off and wash your feet.",
+        "sections": {
+            "sureBaslangici": {
+                "title": "When does the time start?",
+                "body": "The wiping time starts NOT the moment the khuffs are put on, but the moment your wudu first breaks after putting them on.\n\nExample: At 12:00 you made wudu, washed your feet and put the khuffs on. Your wudu broke at 16:00. The time runs from 16:00, not from 12:00; if you are a resident you may wipe until 16:00 the next day.\n\nIf you put the khuffs on in the morning and your wudu does not break until the evening, none of that time counts against the timer.",
+                "safii": "In the Shafi'i school the time also starts from the moment wudu breaks; there is no difference between the two schools on this point."
+            },
+            "sartlar": {
+                "title": "Conditions for wiping",
+                "body": "Five conditions must be met together:\n\n1. The khuff must have been put on after a complete wudu in which the feet were washed. This is the most critical condition; khuffs put on without wudu cannot be wiped over.\n2. They must cover the feet completely, including the ankle bones.\n3. They must be firm and thick enough to stand up on their own without being tied.\n4. They must not absorb water and let it pass straight through to the foot.\n5. Each khuff must not have a hole or tear as wide as three times the smallest toe.\n\nTaking the khuffs off and putting them back on while in wudu does not break the wudu. However, the wiping time ends the moment a khuff is taken off; for a new period you need to make wudu washing your feet and put the khuffs on after that wudu.",
+                "safii": "In the Shafi'i school it is likewise a condition that the khuff was put on after a complete wudu."
+            },
+            "nasilYapilir": {
+                "title": "How is wiping done?",
+                "body": "1. Wet your hand and keep your fingers apart.\n2. Place the fingers of your right hand on the UPPER surface of the right khuff and the fingers of your left hand on the upper surface of the left khuff.\n3. Starting from the tips of the toes, draw them once towards the leg.\n4. That much is enough; wiping is done once and is not repeated.\n\nThe obligatory amount is wetting an area the size of three fingers on the front-upper surface of each khuff. This measure applies to each foot separately; wiping one foot more does not make up for what is missing on the other.\n\nThe SOLE, the HEEL and the back and side surfaces of the khuff are not wiped. Only the upper surface is wiped; wiping the sole alone is not valid.",
+                "safii": "In the Shafi'i school the obligatory amount is smaller: an area the width of one finger on the upper surface is enough. Wiping three times is also considered mustahab."
+            },
+            "sureler": {
+                "title": "Wiping periods",
+                "body": "For a resident (someone who is not travelling) it is one day and one night, that is 24 hours.\nFor a traveller it is three days and three nights, that is 72 hours.\n\nIn both cases the timer runs from the moment wudu first breaks after the khuffs were put on.\n\nWhat counts as travelling? Someone who intends to go outside their own settlement, to a distance of about 90 kilometres or more — the measure the Diyanet has adopted — counts as a traveller from the moment they pass the boundary of that settlement. If they intend to stay 15 days or longer where they go, they become a resident there; travelling status also ends once they return to their own settlement.\n\nNote: the classical measure of 18 farsakh in fiqh corresponds to about 104 km. In Turkey the Diyanet's official practice is based on 90 km.",
+                "safii": "In the Shafi'i school the periods are the same: 24 hours for a resident, 72 hours for a traveller."
+            },
+            "bozanlar": {
+                "title": "Things that invalidate wiping",
+                "body": "• Anything that breaks wudu also invalidates the wiping.\n• The khuff coming off the foot or being taken off. One of them coming off is enough; the foot moving past the heel line inside the khuff also counts as coming off.\n• The wiping time running out.\n• A state requiring ghusl. In janabah, menstruation and postnatal bleeding the khuffs are taken off and the feet are washed.\n• A tear in the khuff larger than the set measure: if the holes and openings in one khuff add up to the width of three times the smallest toe, that khuff cannot be wiped over. Small tears in the same khuff are added together; those of the right and the left khuff are not added to each other.\n• Most of the foot getting wet inside the khuff.",
+                "safii": "In the Shafi'i school even the smallest hole in the khuff makes the wiping invalid; the three-finger tolerance of the Hanafis does not apply."
+            },
+            "sureDolunca": {
+                "title": "What to do when the time is up?",
+                "body": "If your wudu is still valid when the time is up: it is enough to take the khuffs off and wash ONLY your feet, you do not need to renew the whole wudu.\n\nIf your wudu has already broken when the time is up: you take the khuffs off and make a complete wudu from the start, washing your feet.\n\nFor a new 24/72 hour period you need to make a new wudu washing your feet and put the khuffs on after that wudu. Again, the timer starts the moment your wudu first breaks after putting the khuffs on.",
+                "safii": "According to the common view in the Shafi'i school, when the time is up or a khuff is taken off the whole wudu is made again; washing the feet alone is not considered enough."
+            },
+            "mukimMisafirGecisi": {
+                "title": "Switching between resident and traveller",
+                "body": "Setting out on a journey as a resident: if you set out before your 24 hours are up, your period extends to 72 hours. If you set out after your period has run out, it is already over; travelling does not bring back a period that has expired.\n\nBecoming a resident while a traveller: if 24 hours have not passed, your period drops to 24 hours and you may wipe for what is left of it. If 24 hours have passed, your right to wipe ends immediately.\n\nIn short: setting out on a journey extends the period (if it has not run out), becoming a resident shortens it.",
+                "safii": ""
+            },
+            "mestNedir": {
+                "title": "What is a khuff, do socks count?",
+                "body": "A khuff is a foot covering that may be wiped over in wudu instead of washing the feet. In the classical sources it is made of leather; the Diyanet, however, does not require leather and looks for these qualities: covering the feet including the ankle bones, not absorbing water and letting it through straight away, being firm enough to stand up without being tied, standing up to a walk of about 5 km, not being see-through and not having a tear larger than three fingers.\n\nDo thick socks count as khuffs? If a sock meets ALL of these conditions together, it may be wiped over. The measure is not the material but these qualities. Ordinary thin cotton, nylon or lycra socks do not meet them; wiping over those is not valid.\n\nA practical test: if you wipe the sock with a wet hand and the wetness passes straight to the foot, that sock is not a khuff. In case of doubt, washing the feet is the rule.",
+                "safii": "The Shafi'i school does not require leather either, but Shafi'i jurists are stricter than the Hanafis in keeping ordinary socks outside this definition."
+            },
+            "sargiMesh": {
+                "title": "Wiping over a dressing or a cast",
+                "body": "If there is a dressing, a cast, a bandage or a plaster because of a wound, a fracture or an operation, these are wiped over in wudu and ghusl.\n\nIf undoing the dressing or washing underneath it harms the wound, delays healing or causes unbearable pain, the dressing is wiped over. If it does no harm, the dressing is undone and the healthy part underneath is washed.\n\nWiping the whole dressing is the rule; wiping most of it has also been considered enough. The wiping is done once and that limb counts as washed.\n\nThere is NO time limit. The 24 and 72 hour limits for khuffs do not apply to a dressing; wiping continues until the wound heals.\n\nIf the dressing falls off or is changed as part of the treatment, the wiping is not invalidated; the new dressing is wiped over. But if it is removed because the wound has healed, the limb underneath must be washed. If the dressing covers most of the limbs of wudu and wiping is not possible either, tayammum is performed.",
+                "safii": "In the Shafi'i school wiping over a dressing is permissible; however, it is required that the dressing was applied while in wudu and that it does not go beyond the measure of necessity."
+            }
+        }
+    },
+    "verdict": {
+        "bozar": "Breaks it",
+        "bozmaz": "Does not break",
+        "duruma-gore": "It depends"
+    },
+    "breakerSearchPlaceholder": "Does blood break wudu?",
+    "breakerPopular": "Most asked",
+    "breakerEmptyTitle": "No results for “{{query}}”",
+    "breakerEmptyHint": "Try another word: blood, sleep, vomiting, injection, discharge.",
+    "breakerDisclaimer": "This information is based on the Hanafi school and Diyanet sources; it is not a fatwa. If you have doubts about your own situation, consult your local mufti's office.",
+    "breakers": {
+        "idrar-diski": {
+            "title": "Passing urine and stool",
+            "body": "Anything that comes out of the front or back passage breaks wudu."
+        },
+        "gaz": {
+            "title": "Passing wind",
+            "body": "Passing wind breaks wudu."
+        },
+        "meni-mezi": {
+            "title": "Semen, madhi and wadi",
+            "body": "The emission of any of these breaks wudu. Semen also requires ghusl."
+        },
+        "cinsel-iliski": {
+            "title": "Sexual intercourse",
+            "body": "It breaks wudu and also requires ghusl."
+        },
+        "bayilma": {
+            "title": "Fainting, intoxication, loss of mind",
+            "body": "Anything that takes away control of your senses breaks wudu. It makes no difference if it lasts only a short while."
+        },
+        "namazda-kahkaha": {
+            "title": "Loud laughter during prayer",
+            "body": "Laughing during prayer loudly enough for those next to you to hear breaks both the prayer and the wudu in the Hanafi school. Laughing that only you can hear breaks the prayer only.",
+            "safii": "In the Shafi'i school loud laughter breaks the prayer but not the wudu."
+        },
+        "agiz-dolusu-kan": {
+            "title": "A mouthful of blood",
+            "body": "A mouthful of blood coming from the mouth breaks wudu.",
+            "safii": "In the Shafi'i school blood coming from the mouth does not break wudu."
+        },
+        "bagirsak-kurtlari": {
+            "title": "Intestinal worms",
+            "body": "Tapeworms and similar worms coming out break wudu."
+        },
+        "kan-vermek": {
+            "title": "Blood donation, blood tests, cupping",
+            "body": "Donating blood, cupping and having blood drawn for tests break wudu; the blood has left the body. The ruling is the same for platelet donation.",
+            "safii": "In the Shafi'i school blood leaving the body does not break wudu."
+        },
+        "diyaliz": {
+            "title": "Dialysis",
+            "body": "In haemodialysis the blood leaves the body, and in peritoneal dialysis fluid is drawn from the abdominal cavity, so wudu is broken. Those under continuous treatment come under the rulings for a person with a chronic excuse.",
+            "safii": "In the Shafi'i school the blood that leaves the body in haemodialysis does not break wudu."
+        },
+        "adet-lohusalik": {
+            "title": "Menstruation and postnatal bleeding",
+            "body": "In these states prayer is not performed and fasting is not kept; wudu also comes to an end. When the bleeding has stopped completely, one performs ghusl and resumes worship.",
+            "safii": "The upper limit of postnatal bleeding is 40 days in the Hanafi school and 60 days in the Shafi'i school."
+        },
+        "uyku": {
+            "title": "Sleeping",
+            "body": "The measure is whether you are seated firmly on the ground or not. Sleeping on your side or lying down breaks wudu; dozing off while sitting upright, with your joints still firm, does not.",
+            "safii": "The Shafi'i school uses the same measure; in the Maliki and Hanbali schools the measure is the depth of the sleep."
+        },
+        "kusma": {
+            "title": "Vomiting",
+            "body": "Vomiting a mouthful breaks wudu, less than that does not. The test is whether what comes up could only be held back by forcing it; phlegm does not break it even if it is a mouthful.",
+            "safii": "In the Shafi'i school vomiting does not break wudu."
+        },
+        "kanama": {
+            "title": "Bleeding",
+            "body": "The measure is not the amount but the spreading: if blood, pus or yellow fluid goes beyond the place it came out of, wudu is broken; if it stays in place, it does not.",
+            "safii": "In the Shafi'i school blood leaving the body does not break wudu."
+        },
+        "karsi-cinse-dokunmak": {
+            "title": "Touching the opposite sex",
+            "body": "In the Hanafi school touching the opposite sex does not break wudu. Only intense contact between spouses with no barrier in between, or a discharge caused by it, breaks wudu.",
+            "safii": "In the Shafi'i school directly touching a member of the opposite sex whom one is not permanently forbidden to marry breaks the wudu of both parties, even without desire."
+        },
+        "dis-eti-kanamasi": {
+            "title": "Bleeding gums",
+            "body": "If the blood from the gums is equal to or more than half of the saliva it is mixed with, wudu is broken; if it is less, it does not.",
+            "safii": "In the Shafi'i school bleeding gums do not break wudu."
+        },
+        "burun-kanamasi": {
+            "title": "Nosebleed",
+            "body": "If the blood comes out of the nostril and flows, wudu is broken; if it stays inside and does not come out, it does not. Someone with constant bleeding counts as a person with a chronic excuse.",
+            "safii": "In the Shafi'i school a nosebleed does not break wudu."
+        },
+        "tibbi-mudahale": {
+            "title": "Injections, surgery, anaesthesia",
+            "body": "General anaesthesia breaks wudu because it takes away consciousness. Local anaesthesia on its own does not; but if blood comes out and spreads, wudu is broken. Injections and drips with no bleeding do not break it.",
+            "safii": "Loss of consciousness breaks wudu in all four schools; in the Shafi'i school the blood that comes out does not break it."
+        },
+        "kulak-goz-akintisi": {
+            "title": "Discharge from the ear, eye and navel",
+            "body": "Discharge that comes without pain or soreness does not break wudu. If it comes with pain it counts as a sign of a wound, and in the Hanafi school wudu is broken.",
+            "safii": "In the Shafi'i school these discharges do not break wudu."
+        },
+        "ozur-sahibi": {
+            "title": "Being a person with a chronic excuse",
+            "body": "Urine leakage, bleeding or discharge that does not stop at all throughout one prayer time counts as an excuse. A person with a chronic excuse makes one wudu for each prayer time; that wudu ends when the time ends.",
+            "safii": "In the Shafi'i school the measure is not the prayer time but the fard prayer: a separate wudu is made for each fard prayer."
+        },
+        "mest-cikarmak": {
+            "title": "Taking off khuffs or socks",
+            "body": "Someone who made wudu washing their feet and then put on khuffs does not break their wudu by taking them off. If they completed their wudu by wiping over the khuffs, washing only the feet is enough after taking them off."
+        },
+        "tirnak-sac-kesmek": {
+            "title": "Cutting nails, hair and beard",
+            "body": "It does not break wudu, and the place you cut does not need to be washed again either. If blood comes out of the cut and spreads, what breaks wudu is the blood.",
+            "safii": "In the Shafi'i school wudu is not broken even if there is bleeding."
+        },
+        "ter": {
+            "title": "Sweating",
+            "body": "Sweat counts as clean and does not break wudu."
+        },
+        "balgam": {
+            "title": "Phlegm, spitting, blowing the nose",
+            "body": "Phlegm has the ruling of saliva; it does not break wudu even if it is a mouthful."
+        },
+        "aglamak": {
+            "title": "Crying",
+            "body": "Crying and tears do not break wudu. Crying out loud during prayer over a worldly trouble breaks the prayer but not the wudu; crying out of fear of Allah harms neither."
+        },
+        "namaz-disinda-gulmek": {
+            "title": "Laughing outside prayer",
+            "body": "Laughing out loud outside prayer does not break wudu. Laughter breaking wudu applies only to audible laughter during prayer."
+        },
+        "kan-gormek": {
+            "title": "Seeing blood, blood that does not flow",
+            "body": "Blood that stays where it came out and does not spread around does not break wudu; a drop the size of a needle tip is the same. If it is wiped away before spreading, it still does not break it.",
+            "safii": "In the Shafi'i school blood does not break wudu however much it flows."
+        },
+        "banyo": {
+            "title": "Bathing and showering",
+            "body": "Washing while in wudu does not break wudu. Ghusl also includes wudu; there is no need to make a separate wudu after ghusl."
+        },
+        "elbise-degistirmek": {
+            "title": "Undressing, changing clothes",
+            "body": "It does not break wudu. Uncovering the private parts concerns the prayer, not the wudu."
+        },
+        "yemek-sakiz": {
+            "title": "Eating, drinking, chewing gum",
+            "body": "Eating food, drinking water and chewing gum do not break wudu; the food having been cooked on fire does not change the ruling.",
+            "safii": "Eating camel meat breaks wudu only in the Hanbali school; it does not in the Hanafi and Shafi'i schools."
+        },
+        "dis-fircalamak": {
+            "title": "Brushing teeth, using the miswak",
+            "body": "It does not break wudu; cleaning the mouth and teeth is a sunnah of wudu, and a toothbrush fulfils this sunnah too. A trace of blood on the brush that does not flow does not break it."
+        },
+        "sivrisinek-isirigi": {
+            "title": "Mosquito, flea and tick bites",
+            "body": "The blood sucked by insects is not considered flowing, so it does not break wudu. If a leech sucks blood until its belly is full, wudu is broken.",
+            "safii": "In the Shafi'i school none of these break wudu, the leech included."
+        },
+        "damla": {
+            "title": "Eye, ear and nose drops",
+            "body": "Using drops does not break wudu. If drops cause blood or pus to come out, the ruling follows the entry on bleeding."
+        },
+        "makyaj-oje": {
+            "title": "Make-up, lipstick, nail polish",
+            "body": "It does not break wudu; however, since it stops water from reaching the skin, it must be removed before wudu. Hair gel and henna do not form a layer, so they are not a barrier."
+        },
+        "kadin-akintisi": {
+            "title": "White discharge in women",
+            "body": "Colourless and odourless discharge does not break wudu; it getting on your underwear does not stop you praying either. Coloured, foul-smelling or bloody discharge is outside this ruling."
+        },
+        "yara-kabugu": {
+            "title": "A scab falling off",
+            "body": "The scab falling off without blood coming out does not break wudu. Blood and pus that stay inside the wound and do not come out do not break it either."
+        },
+        "supheye-dusmek": {
+            "title": "Doubt and waswasa",
+            "body": "If you are sure you made wudu, a doubt that comes later does not break it. Certain knowledge is not undone by doubt; waswasa is not taken into account."
+        },
+        "karsi-cinsin-saci": {
+            "title": "The hair and nails of the opposite sex",
+            "body": "Touching the hair, nails or teeth of the opposite sex does not break wudu in any school."
+        },
+        "sigara": {
+            "title": "Smoking",
+            "body": "It does not break wudu, as it is not counted among the things that break it. The ruling on smoking itself is a separate matter."
+        },
+        "cenazeye-dokunmak": {
+            "title": "Touching a dead body",
+            "body": "Touching a dead body does not break wudu. It is mustahab, not obligatory, for the person who washes the body to perform ghusl."
+        },
+        "kendi-avret-yerine-dokunmak": {
+            "title": "Touching one's own private parts",
+            "body": "In the Hanafi school it does not break wudu.",
+            "safii": "In the Shafi'i, Maliki and Hanbali schools touching them with the palm breaks wudu."
+        }
+    }
 }

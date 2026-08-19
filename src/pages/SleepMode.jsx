@@ -9,6 +9,18 @@ import { useTranslation } from 'react-i18next';
 import { isPremium } from '@/services/creditService';
 import { AnimatePresence, motion } from 'framer-motion';
 import { analytics } from '@/services/analyticsService';
+import HintCoach from '@/components/HintCoach';
+import { readSeenHints, markHintSeen } from '@/lib/hints';
+
+// Tek seferlik ipuçları (HintCoach). Hedefler `data-tour` ile işaretli; hedef DOM'da
+// yoksa ipucu sessizce iptal olur. Ortak kayıt + test bayrağı: src/lib/hints.js
+const SLEEP_HINTS = [
+    { id: 'sleep:controls', target: 'sleep-controls', titleKey: 'tour.controls.title', bodyKey: 'tour.controls.body', icon: Repeat },
+    { id: 'sleep:rain', target: 'sleep-rain', titleKey: 'tour.rain.title', bodyKey: 'tour.rain.body', icon: CloudRain },
+    { id: 'sleep:forgive', target: 'sleep-forgive', titleKey: 'tour.forgive.title', bodyKey: 'tour.forgive.body', icon: Heart },
+];
+
+const nextHint = (seen, after = -1) => SLEEP_HINTS.findIndex((h, i) => i > after && !seen[h.id]);
 
 // Background Mode Helper (Cordova Plugin)
 const BackgroundMode = {
@@ -65,6 +77,38 @@ export default function SleepMode() {
     const [forgiven, setForgiven] = useState(() => {
         return localStorage.getItem(getTodayKey()) === 'true';
     });
+
+    // ── Tek seferlik ipuçları ─────────────────────────────────────────────
+    // İlk girişte sırayla üç ipucu. Ekran karartılmaz, hiçbir şey engellenmez.
+    const [seenHints, setSeenHints] = useState(readSeenHints);
+    const [hintIndex, setHintIndex] = useState(-1);
+    const hintTimerRef = React.useRef(null);
+
+    useEffect(() => {
+        const first = nextHint(readSeenHints());
+        if (first === -1) return undefined;
+        // Sayfa geçiş animasyonu bitsin, kartlar yerleşsin
+        const timer = setTimeout(() => setHintIndex(first), 800);
+        return () => clearTimeout(timer);
+    }, []);
+
+    useEffect(() => () => clearTimeout(hintTimerRef.current), []);
+
+    const closeHint = useCallback((markSeen = true) => {
+        if (hintIndex < 0) return;
+        // markHintSeen TEST modunda hiçbir şey yazmaz (bkz. lib/hints.js)
+        const nextSeen = markSeen && SLEEP_HINTS[hintIndex] ? markHintSeen(SLEEP_HINTS[hintIndex].id) : seenHints;
+        setSeenHints(nextSeen);
+        setHintIndex(-1);
+        const nextIdx = nextHint(nextSeen, hintIndex);
+        if (nextIdx >= 0) {
+            clearTimeout(hintTimerRef.current);
+            // Kısa geçiş: uzun boşluk "tur bitti" hissi veriyordu
+            hintTimerRef.current = setTimeout(() => setHintIndex(nextIdx), 180);
+        }
+    }, [hintIndex, seenHints]);
+
+    const activeHint = hintIndex >= 0 ? SLEEP_HINTS[hintIndex] : null;
 
     // 30s sayfada kalma tetikleyicisi
     useEffect(() => {
@@ -289,7 +333,7 @@ export default function SleepMode() {
             <header className="flex justify-between items-center z-10 mb-12">
                 <Button variant="ghost" onClick={() => navigate(-1)} className="text-white/40 hover:text-white">
                     <ChevronLeft size={24} />
-                    Geri
+                    {t('back')}
                 </Button>
                 <div className="flex items-center gap-2 bg-white/5 px-4 py-2 rounded-full border border-white/10">
                     <Moon size={16} className="text-islamic-gold" />
@@ -321,7 +365,7 @@ export default function SleepMode() {
                                     <p className="text-[10px] text-gray-400">{t('mulkDesc')}</p>
                                 </div>
                             </div>
-                            <div className="flex items-center gap-2">
+                            <div data-tour="sleep-controls" className="flex items-center gap-2">
                                 <Button
                                     onClick={() => { if (checkPremiumGate()) return; setIsMulkLooping(!isMulkLooping); }}
                                     className={cn(
@@ -368,7 +412,7 @@ export default function SleepMode() {
 
                     </div>
 
-                    <div className="bg-white/5 border border-white/10 rounded-3xl p-6 flex flex-col gap-4">
+                    <div data-tour="sleep-rain" className="bg-white/5 border border-white/10 rounded-3xl p-6 flex flex-col gap-4">
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-4">
                                 <div className="p-3 bg-blue-400/10 rounded-2xl text-blue-400">
@@ -409,6 +453,7 @@ export default function SleepMode() {
                         </div>
                     ) : (
                         <Button
+                            data-tour="sleep-forgive"
                             onClick={handleForgive}
                             className="w-full h-16 bg-white/5 hover:bg-white/10 border border-white/10 rounded-3xl font-bold gap-3"
                         >
@@ -471,6 +516,21 @@ export default function SleepMode() {
                     </motion.div>
                 )}
             </AnimatePresence>
+
+            {/* Tek seferlik ipuçları — karartmaz, engellemez */}
+            {activeHint && (
+                <HintCoach
+                    key={activeHint.id}
+                    targetId={activeHint.target}
+                    titleKey={activeHint.titleKey}
+                    bodyKey={activeHint.bodyKey}
+                    icon={activeHint.icon}
+                    ns="sleep"
+                    step={SLEEP_HINTS.indexOf(activeHint)}
+                    total={SLEEP_HINTS.length}
+                    onClose={closeHint}
+                />
+            )}
         </div>
     );
 }

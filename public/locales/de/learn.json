@@ -14,11 +14,426 @@
     "navComplete": "Abschließen",
     "restartBtn": "Von vorne beginnen",
     "goBackBtn": "Zum letzten Schritt",
-    "completionQuote": "\"Das Gebet ist die Himmelfahrt des Gläubigen.\"",
+    "completionQuote": "„Das Gebet ist die Himmelfahrt des Gläubigen.“",
     "completionSource": "— Hadith",
     "repeat": "Mal",
     "tipsTitle": "Tipps",
     "elhamdulillah": "Alhamdulillah",
     "mashallah": "Maschallah!",
-    "completionMsg": "Du hast die Anleitung erfolgreich abgeschlossen."
+    "completionMsg": "Du hast die Anleitung erfolgreich abgeschlossen.",
+    "translitLabel": "Umschrift",
+    "meaningLabel": "Bedeutung",
+    "abdestBack": "Zurück",
+    "abdestModeShort": "Kurz · Fard",
+    "abdestModeFull": "Komplett · Sunna",
+    "abdestSearchPlaceholder": "Wudu, Ghusl, Tayammum … suchen",
+    "handsFreeCta": "Mit nassen Händen mitmachen",
+    "handsFreeStepOf": "Schritt {{i}} / {{n}}",
+    "handsFreeRepeat": "{{n}} Mal",
+    "handsFreeHint": "Leg das Handy an den Rand des Waschbeckens. Der Bildschirm bleibt an, die Schritte laufen von selbst weiter.",
+    "handsFreePause": "Pause",
+    "handsFreeResume": "Weiter",
+    "handsFreeDone": "Dein Wudu ist vollständig",
+    "handsFreeDoneSub": "Vergiss nicht, die Schahada und das Bittgebet nach dem Wudu zu sprechen.",
+    "rankFarz": "Fard",
+    "rankSunnet": "Sunna",
+    "rankMustehab": "Mustahab",
+    "stepDuaLabel": "Bittgebet",
+    "topicWudu": "Wudu richtig verrichten",
+    "topicWuduSub": "Schritt für Schritt, kurz oder mit Sunna",
+    "topicBreakers": "Bricht das den Wudu?",
+    "topicBreakersSub": "Was ihn bricht und was ihn nur zu brechen scheint",
+    "topicMesh": "Wischen: Chuff und Verband",
+    "topicMeshSub": "Ledersocken: Bedingungen und Restzeit",
+    "topicGusul": "Ghusl",
+    "topicGusulSub": "Fard, Sunna und Reihenfolge",
+    "topicTeyemmum": "Tayammum",
+    "topicTeyemmumSub": "Wenn kein Wasser da oder nutzbar ist",
+    "duaSearchPlaceholder": "Bittgebet suchen — Essen, Neid, Not",
+    "duaSearchClear": "Löschen",
+    "duaResultCount": "{{n}} Treffer",
+    "duaEmptyTitle": "Keine Treffer für „{{query}}“",
+    "duaEmptyHint": "Sieh dich in einem der Bereiche um",
+    "duaFavorites": "Meine Favoriten",
+    "groupDaily": "Alltag",
+    "groupHardship": "Not und Heilung",
+    "groupProtect": "Schutz",
+    "groupPrayer": "Im Gebet gesprochen",
+    "groupRepent": "Reue und Glaube",
+    "groupSalawat": "Salawat",
+    "groupRequest": "Bitte und Annahme",
+    "groupOther": "Sonstige",
+    "duaRelated": "Aus diesem Bereich",
+    "duaShare": "Teilen",
+    "duaShareDialogTitle": "Bittgebet teilen",
+    "duaShareFooter": "Geteilt aus der App İslami Yoldaş — {{link}}",
+    "duaFavAdd": "Zu Favoriten hinzufügen",
+    "duaFavRemove": "Aus Favoriten entfernen",
+    "duaLockTitle": "Umschrift und Bedeutung",
+    "duaLockSub": "{{n}} weitere Bittgebete mit Umschrift und Bedeutung",
+    "duaLockCta": "Premium freischalten",
+    "duaLockBadge": "Premium",
+    "duaClose": "Schließen",
+    "duaSectionCount": "{{n}} Bittgebete",
+    "duaSeeAll": "Alle",
+    "duaBack": "Zurück",
+    "tour": {
+        "gotIt": "Verstanden",
+        "next": "Weiter",
+        "search": {
+            "title": "Das passende Bittgebet finden",
+            "body": "Tippe den Namen oder ein enthaltenes Wort ein. Gesucht wird auch in Umschrift und Bedeutung."
+        },
+        "shelf": {
+            "title": "Nach Bereichen sortiert",
+            "body": "Die Regale scrollen seitwärts. Tippe eine Karte an – Arabisch, Umschrift und Bedeutung öffnen sich."
+        },
+        "seeAll": {
+            "title": "Der ganze Bereich",
+            "body": "Mit „Alle ansehen“ erscheinen alle Bittgebete dieses Bereichs untereinander."
+        },
+        "favorite": {
+            "title": "Häufig Gelesenes markieren",
+            "body": "Tippe auf das Herz. Deine Favoriten sammeln sich oben in einem eigenen Bereich – ohne Suche erreichbar."
+        },
+        "sureCard": {
+            "title": "Hier beginnt das Auswendiglernen",
+            "body": "Tippe auf eine Sure. Sie wird in kurze Abschnitte geteilt; jeden Abschnitt hörst du zuerst, dann wird der Text verdeckt und du sprichst ihn selbst."
+        },
+        "sureProgress": {
+            "title": "Hier steht, wo du stehst",
+            "body": "Die Zahl der gelernten Suren steht hier. Eine unfertige Sure geht dort weiter, wo du aufgehört hast, und fällige tragen das Zeichen „Wiederholen“."
+        },
+        "ezberRead": {
+            "title": "Sieh dir zuerst den Text an",
+            "body": "Umschrift, Bedeutung und Merkhilfen stehen hier. Du kannst auch sofort beginnen."
+        },
+        "ezberStart": {
+            "title": "Übe laut",
+            "body": "Jede Zeile durchläuft dieselbe Schleife: HÖREN, GEMEINSAM, DU BIST DRAN, DIE LÖSUNG. Lautes Sprechen macht es dauerhaft."
+        },
+        "ezberSteps": {
+            "title": "Eine Schleife aus vier Schritten",
+            "body": "Das Band zeigt, in welchem Schritt du bist. Bei „DU BIST DRAN“ wird der Text verdeckt; die Lösung siehst du danach."
+        },
+        "ezberChain": {
+            "title": "Die Kette",
+            "body": "Damit die Zeilen nicht einzeln bleiben, sprichst du von Anfang an bis hierher ohne Unterbrechung. Hier setzt sich das Gelernte fest."
+        },
+        "ezberPeek": {
+            "title": "Spicken, wenn du feststeckst",
+            "body": "Der Text erscheint nicht auf einmal. Jeder Tipp zeigt ein Wort mehr."
+        }
+    },
+    "ezberDueToday": "{{title}} ist heute zur Wiederholung fällig.",
+    "ezberDueMore": "+{{n}} weitere Sure",
+    "ezberDueStart": "Starten",
+    "ezberClose": "Schließen",
+    "ezberLineOf": "{{title}} · Zeile {{n}}/{{total}}",
+    "ezberStepListen": "HÖREN",
+    "ezberStepTogether": "GEMEINSAM",
+    "ezberStepYou": "DU BIST DRAN",
+    "ezberStepAnswer": "DIE LÖSUNG",
+    "ezberStepChain": "VON ANFANG AN · ERSTE {{n}} ZEILEN",
+    "ezberCurtain": "Text verborgen",
+    "ezberIntroLearn": "Diese Sure hat {{total}} Zeilen. Heute üben wir {{n}}.",
+    "ezberIntroReview": "Du kannst alle {{n}} Zeilen. Heute nur ein Durchgang von vorn bis hinten.",
+    "ezberIntroHint": "Übe laut; ein Flüstern reicht.",
+    "ezberStart": "Starten",
+    "ezberStartReview": "Wiederholung starten",
+    "ezberContinue": "Weiter",
+    "ezberStop": "Stopp",
+    "ezberSaid": "Gesagt",
+    "ezberPeek": "Spicken",
+    "ezberGood": "Passt",
+    "ezberAgain": "Noch einmal",
+    "ezberHintListen": "Nur zuhören. Noch nicht mitsprechen.",
+    "ezberHintTogether": "Sprich mit der Stimme mit.",
+    "ezberHintYou": "Jetzt du, danach auf „Gesagt“ tippen.",
+    "ezberHintAnswer": "Vergleiche es mit dem, was du gesagt hast.",
+    "ezberHintChain": "Sprich von Anfang an bis hierher ohne Unterbrechung.",
+    "ezberNoAudio": "Gerade kein Ton; du kannst mit dem Text weitermachen.",
+    "ezberDoneKeep": "Morgen geht es dort weiter, wo du aufgehört hast.",
+    "ezberOneMore": "Noch eine Zeile",
+    "ezberFinish": "Fertig",
+    "ezberSimilarKafirun": "Achtung: Zeile 3 und 5 sind fast gleich; die Zeile 4 dazwischen lautet „Wa la ana abidun ma abadtum“.",
+    "ezberSimilarFalaq": "Achtung: Al-Falaq und An-Nas beginnen gleich. Al-Falaq sagt „birabbil falaq“, An-Nas sagt „birabbin nas“.",
+    "ezberSimilarNas": "Achtung: An-Nas und Al-Falaq beginnen gleich. An-Nas sagt „birabbin nas“, Al-Falaq sagt „birabbil falaq“.",
+    "ezberSimilarHashr": "Achtung: Vers 22 und 23 beginnen gleich. Vers 22 setzt mit „Kenner des Verborgenen“ fort, Vers 23 mit „der Herrscher, der Heilige“.",
+    "ezberSimilarAhzab": "Achtung: Alle Zeilen folgen demselben Muster. Reihenfolge: muslimisch, gläubig, ergeben, wahrhaftig, standhaft, demütig, spendend, fastend, keusch, gedenkend.",
+    "ezberNotifTitle": "Zeit zu wiederholen",
+    "ezberNotifOne": "{{title}} ist heute zur Wiederholung dran.",
+    "ezberNotifMany": "{{title}} und {{n}} weitere Suren sind heute dran.",
+    "ezberBadgeMemorized": "Auswendig",
+    "ezberBadgeDue": "Wiederholen",
+    "ezberBadgeProgressLabel": "{{done}} von {{total}} Zeilen auswendig",
+    "ezberListSummary": "{{n}} von {{total}} Suren auswendig. Tippe auf eine Sure, um zu beginnen.",
+    "ezberRead": "Vollständiger Text",
+    "ezberReplay": "Nochmal hören",
+    "ezberDoneCelebrate": "Auswendig gelernt!",
+    "ezberDoneReview": "Wiederholung fertig!",
+    "ezberDoneSub": "{{title}} · {{n}} Zeilen",
+    "ezberDoneProgress": "Suren auswendig",
+    "ezberHoldCta": "Gedrückt halten",
+    "ezberHoldHint": "Halte gedrückt, um deinen Stern in die Kuppel zu setzen",
+    "ezberDoneNextLabel": "Nächste Wiederholung",
+    "mesh": {
+        "beforeStart": "Die Chuff (Ledersocken) müssen NACH einem vollständigen Wudu angezogen worden sein, bei dem die Füße gewaschen wurden. Die Frist beginnt nicht im Moment des Anziehens, sondern in dem Moment, in dem der Wudu nach dem Anziehen zum ersten Mal ungültig wird.",
+        "startCta": "Wudu gebrochen — Frist starten",
+        "residentLabel": "Ansässig · 24 Std.",
+        "travelerLabel": "Reisend · 72 Std.",
+        "runningBody": "Nach Ablauf der Frist ist das Wischen nicht mehr gültig. Du musst die Chuff ausziehen und deine Füße waschen.",
+        "expiredBody": "Die Frist ist abgelaufen. Zieh die Chuff aus und wasche deine Füße; wenn dein Wudu nicht gebrochen ist, genügt es, nur die Füße zu waschen.",
+        "reset": "Frist zurücksetzen",
+        "resetHint": "Wenn du die Chuff ausgezogen hast oder ein Zustand eingetreten ist, der Ghusl erfordert, endet die Frist von selbst.",
+        "badgeHours": "{{n}} Std.",
+        "badgeMinutes": "{{n}} Min.",
+        "badgeExpired": "Frist abgelaufen",
+        "notifWarnTitle": "Deine Wischfrist endet bald",
+        "notifWarnBody": "Für das Wischen über die Chuff bleibt noch 1 Stunde.",
+        "notifEndTitle": "Wischfrist abgelaufen",
+        "notifEndBody": "Du musst die Chuff ausziehen und deine Füße waschen.",
+        "sections": {
+            "sureBaslangici": {
+                "title": "Wann beginnt die Frist?",
+                "body": "Die Wischfrist beginnt NICHT in dem Moment, in dem die Chuff angezogen werden, sondern in dem Moment, in dem der Wudu nach dem Anziehen zum ersten Mal ungültig wird.\n\nBeispiel: Um 12.00 Uhr hast du den Wudu vollzogen, deine Füße gewaschen und die Chuff angezogen. Um 16.00 Uhr wurde dein Wudu ungültig. Die Frist läuft nicht ab 12.00 Uhr, sondern ab 16.00 Uhr; als Ansässiger darfst du bis zum nächsten Tag um 16.00 Uhr wischen.\n\nWenn du die Chuff am Morgen angezogen hast und dein Wudu bis zum Abend nicht ungültig geworden ist, wird von der verstrichenen Zeit nichts auf die Frist angerechnet.",
+                "safii": "Auch in der schafiitischen Rechtsschule beginnt die Frist ab dem Moment, in dem der Wudu ungültig wird; in dieser Frage gibt es zwischen den beiden Rechtsschulen keinen Unterschied."
+            },
+            "sartlar": {
+                "title": "Die Bedingungen für das Wischen",
+                "body": "Fünf Bedingungen müssen zusammen erfüllt sein:\n\n1. Die Chuff müssen nach einem vollständigen Wudu angezogen worden sein, bei dem die Füße gewaschen wurden. Das ist die wichtigste Bedingung; über Chuff, die ohne Wudu angezogen wurden, darf nicht gewischt werden.\n2. Sie müssen die Füße samt der Knöchel vollständig bedecken.\n3. Sie müssen so fest und dick sein, dass sie nach dem Anziehen ohne Bänder halten.\n4. Sie dürfen das Wasser nicht aufsaugen und sofort an den Fuß durchlassen.\n5. An keinem der beiden Chuff darf ein Loch oder Riss sein, die so breit sind wie das Dreifache des kleinsten Zehs.\n\nDie Chuff im Zustand des Wudu auszuziehen und wieder anzuziehen bricht den Wudu nicht. In dem Moment jedoch, in dem ein Chuff ausgezogen wird, endet die Wischfrist; für eine neue Frist muss man den Wudu mit dem Waschen der Füße vollziehen und die Chuff nach diesem Wudu anziehen.",
+                "safii": "Auch in der schafiitischen Rechtsschule ist es Bedingung, dass die Chuff nach einem vollständigen Wudu angezogen wurden."
+            },
+            "nasilYapilir": {
+                "title": "Wie wird gewischt?",
+                "body": "1. Mach deine Hand nass und halte die Finger gespreizt.\n2. Leg die Finger der rechten Hand auf die OBERSEITE des rechten Chuffs und die Finger der linken Hand auf die Oberseite des linken Chuffs.\n3. Streiche einmal von den Zehenspitzen in Richtung Bein.\n4. Das genügt; das Wischen wird einmal ausgeführt und nicht wiederholt.\n\nDas Pflichtmaß ist, auf der vorderen Oberseite jedes Chuffs eine Fläche von der Größe dreier Finger zu befeuchten. Dieses Maß gilt für jeden Fuß gesondert; einen Fuß mehr zu wischen gleicht das Fehlende beim anderen nicht aus.\n\nDie UNTERSEITE, die FERSE sowie die hinteren und seitlichen Flächen des Chuffs werden nicht gewischt. Nur die Oberseite wird gewischt; allein die Sohle zu wischen ist ungültig.",
+                "safii": "In der schafiitischen Rechtsschule ist das Pflichtmaß geringer: eine Fläche von einer Fingerbreite auf der Oberseite genügt. Zudem gilt es als mustahab, dreimal zu wischen."
+            },
+            "sureler": {
+                "title": "Wischfristen",
+                "body": "Für Ansässige (Nichtreisende) einen Tag und eine Nacht, also 24 Stunden.\nFür Reisende drei Tage und drei Nächte, also 72 Stunden.\n\nIn beiden Fällen läuft der Zähler ab dem Moment, in dem der Wudu nach dem Anziehen der Chuff zum ersten Mal ungültig wird.\n\nWas heißt Reisender sein? Wer beabsichtigt, über den eigenen Wohnort hinaus zu reisen — nach dem von Diyanet zugrunde gelegten Maß etwa 90 Kilometer oder weiter —, gilt ab dem Moment als Reisender, in dem er die Grenze seines Wohnorts überschreitet. Wird am Zielort beabsichtigt, 15 Tage oder länger zu bleiben, wird die Person dort ansässig; auch mit der Rückkehr an den eigenen Wohnort endet der Reisezustand.\n\nHinweis: Das Maß von 18 Farsach in der klassischen Rechtswissenschaft entspricht etwa 104 km. Die offizielle Praxis von Diyanet in der Türkei beruht auf 90 km.",
+                "safii": "Auch in der schafiitischen Rechtsschule sind die Fristen gleich: 24 Stunden für Ansässige, 72 Stunden für Reisende."
+            },
+            "bozanlar": {
+                "title": "Was das Wischen ungültig macht",
+                "body": "• Alles, was den Wudu bricht, macht auch das Wischen ungültig.\n• Das Abrutschen oder Ausziehen eines Chuffs. Es genügt, dass es einen der beiden trifft; auch wenn der Fuß im Chuff über die Höhe der Ferse hinausrutscht, gilt der Chuff als ausgezogen.\n• Der Ablauf der Wischfrist.\n• Ein Zustand, der Ghusl erfordert. Bei Janaba, Menstruation und Wochenbett werden die Chuff ausgezogen und die Füße gewaschen.\n• Ein Riss im Chuff, der über das festgelegte Maß hinausgeht: Erreicht die Summe der Löcher und offenen Nähte an einem Chuff die Breite des Dreifachen des kleinsten Zehs, darf über diesen Chuff nicht gewischt werden. Kleine Risse am selben Chuff werden zusammengezählt; die des rechten und die des linken Chuffs werden nicht zusammengezählt.\n• Das Nasswerden des größeren Teils des Fußes im Chuff.",
+                "safii": "In der schafiitischen Rechtsschule macht schon das kleinste Loch im Chuff das Wischen ungültig; die Toleranz von drei Fingern wie bei den Hanafiten gibt es dort nicht."
+            },
+            "sureDolunca": {
+                "title": "Was tut man, wenn die Frist abgelaufen ist?",
+                "body": "Wenn dein Wudu bei Ablauf der Frist noch gültig ist: Es genügt, die Chuff auszuziehen und NUR die Füße zu waschen; du musst nicht den ganzen Wudu erneuern.\n\nWenn dein Wudu bei Ablauf der Frist ohnehin schon gebrochen ist: Du ziehst die Chuff aus, wäschst deine Füße und vollziehst den vollständigen Wudu von vorn.\n\nFür eine neue Frist von 24 bzw. 72 Stunden musst du einen neuen Wudu mit dem Waschen der Füße vollziehen und die Chuff nach diesem Wudu anziehen. Der Zähler beginnt wieder in dem Moment, in dem dein Wudu nach dem Anziehen der Chuff zum ersten Mal ungültig wird.",
+                "safii": "Nach der verbreiteten Auffassung in der schafiitischen Rechtsschule wird bei Ablauf der Frist oder beim Ausziehen des Chuffs der gesamte Wudu erneut vollzogen; nur die Füße zu waschen gilt dort nicht als ausreichend."
+            },
+            "mukimMisafirGecisi": {
+                "title": "Wechsel zwischen ansässig und reisend",
+                "body": "Wer als Ansässiger auf Reisen geht: Bricht er auf, bevor seine 24 Stunden abgelaufen sind, verlängert sich seine Frist auf 72 Stunden. Bricht er nach Ablauf der Frist auf, ist sein Anspruch bereits erloschen; eine Reise bringt eine abgelaufene Frist nicht zurück.\n\nWer als Reisender ansässig wird: Hat er 24 Stunden nicht überschritten, verkürzt sich seine Frist auf 24 Stunden und er darf für die verbleibende Zeit wischen. Hat er 24 Stunden überschritten, entfällt das Recht auf das Wischen sofort.\n\nKurz gesagt: Eine Reise verlängert die Frist (wenn sie nicht abgelaufen ist), ansässig zu werden verkürzt sie.",
+                "safii": ""
+            },
+            "mestNedir": {
+                "title": "Was sind Chuff, gehen auch Socken?",
+                "body": "Chuff sind eine Fußbekleidung, über die im Wudu gewischt werden darf, statt die Füße zu waschen. In den klassischen Quellen werden sie aus Leder gefertigt; Diyanet setzt Leder jedoch nicht voraus, sondern verlangt folgende Eigenschaften: Sie müssen die Füße samt der Knöchel bedecken, das Wasser nicht aufsaugen und sofort durchlassen, fest genug sein, um ohne Bänder aufrecht zu stehen, einem Fußmarsch von etwa 5 km standhalten, nicht durchsichtig sein und keinen Riss aufweisen, der breiter als drei Finger ist.\n\nGelten dicke Socken als Chuff? Wenn eine Socke ALLE diese Bedingungen zugleich erfüllt, darf darüber gewischt werden. Nicht das Material ist maßgeblich, sondern diese Eigenschaften. Gewöhnliche dünne Socken aus Baumwolle, Nylon oder Elasthan erfüllen diese Bedingungen nicht; das Wischen darüber ist ungültig.\n\nEine praktische Probe: Gelangt die Nässe beim Darüberfahren mit nasser Hand sofort an den Fuß, ist die Socke kein Chuff. Im Zweifel gilt der Grundsatz, die Füße zu waschen.",
+                "safii": "Auch in der schafiitischen Rechtsschule wird Leder nicht vorausgesetzt, doch die schafiitischen Rechtsgelehrten sind strenger als die Hanafiten darin, gewöhnliche Socken von dieser Definition auszunehmen."
+            },
+            "sargiMesh": {
+                "title": "Wischen über Verband und Gips",
+                "body": "Wenn wegen einer Wunde, eines Bruchs oder einer Operation ein Verband, ein Gips, eine Bandage oder ein Pflaster vorhanden ist, wird im Wudu und im Ghusl darüber gewischt.\n\nWenn das Abnehmen des Verbands oder das Waschen darunter der Wunde schadet, die Heilung verzögert oder unerträgliche Schmerzen verursacht, wird über den Verband gewischt. Ist es nicht schädlich, wird der Verband abgenommen und die gesunde Stelle darunter gewaschen.\n\nGrundsätzlich wird der ganze Verband gewischt; auch den größeren Teil zu wischen gilt als ausreichend. Das Wischen wird einmal ausgeführt, und das betreffende Glied gilt damit als gewaschen.\n\nEs gibt KEINE zeitliche Begrenzung. Die Grenzen von 24 und 72 Stunden bei den Chuff gelten für den Verband nicht; es wird weiter gewischt, bis die Wunde geheilt ist.\n\nFällt der Verband aus Behandlungsgründen ab oder wird er gewechselt, wird das Wischen nicht ungültig, sondern es wird über den neuen Verband gewischt. Wird er jedoch abgenommen, weil die Wunde geheilt ist, muss das Glied darunter gewaschen werden. Bedeckt der Verband den größeren Teil der Wudu-Glieder und ist auch das Wischen nicht möglich, wird Tayammum vollzogen.",
+                "safii": "In der schafiitischen Rechtsschule ist das Wischen über den Verband erlaubt; vorausgesetzt wird jedoch, dass der Verband im Zustand des Wudu angelegt wurde und das Maß der Notwendigkeit nicht überschreitet."
+            }
+        }
+    },
+    "verdict": {
+        "bozar": "Bricht den Wudu",
+        "bozmaz": "Bricht nicht",
+        "duruma-gore": "Je nach Fall"
+    },
+    "breakerSearchPlaceholder": "Bricht Blut den Wudu?",
+    "breakerPopular": "Häufigste Fragen",
+    "breakerEmptyTitle": "Keine Ergebnisse für „{{query}}“",
+    "breakerEmptyHint": "Versuch ein anderes Wort: Blut, Schlaf, Erbrechen, Spritze, Ausfluss.",
+    "breakerDisclaimer": "Diese Angaben beruhen auf der hanafitischen Rechtsschule und auf Quellen von Diyanet; sie sind keine Fatwa. Bei Zweifeln zu deiner eigenen Lage wende dich an das Muftiamt.",
+    "breakers": {
+        "idrar-diski": {
+            "title": "Kleines und großes Geschäft",
+            "body": "Alles, was aus dem vorderen oder hinteren Ausgang austritt, bricht den Wudu."
+        },
+        "gaz": {
+            "title": "Blähungen",
+            "body": "Abgehende Winde brechen den Wudu."
+        },
+        "meni-mezi": {
+            "title": "Mani, Madhi und Wadi",
+            "body": "Ihr Austritt bricht den Wudu. Der Austritt von Sperma (Mani) erfordert zusätzlich Ghusl."
+        },
+        "cinsel-iliski": {
+            "title": "Geschlechtsverkehr",
+            "body": "Bricht den Wudu und erfordert zusätzlich Ghusl."
+        },
+        "bayilma": {
+            "title": "Ohnmacht, Rausch, Geistesverlust",
+            "body": "Zustände, die die Kontrolle über das Bewusstsein aufheben, brechen den Wudu. Dass sie nur kurz andauern, ändert das Urteil nicht."
+        },
+        "namazda-kahkaha": {
+            "title": "Lautes Lachen im Gebet",
+            "body": "Im Gebet so zu lachen, dass die Umstehenden es hören, bricht in der hanafitischen Rechtsschule sowohl das Gebet als auch den Wudu. Ein Lachen, das nur der Betende selbst hört, bricht allein das Gebet.",
+            "safii": "In der schafiitischen Rechtsschule bricht lautes Lachen das Gebet, aber nicht den Wudu."
+        },
+        "agiz-dolusu-kan": {
+            "title": "Ein Mund voll Blut",
+            "body": "Kommt ein Mund voll Blut hoch, bricht das den Wudu.",
+            "safii": "In der schafiitischen Rechtsschule bricht Blut aus dem Mund den Wudu nicht."
+        },
+        "bagirsak-kurtlari": {
+            "title": "Darmwürmer",
+            "body": "Der Abgang von Bandwürmern und ähnlichen Würmern bricht den Wudu."
+        },
+        "kan-vermek": {
+            "title": "Blutspende, Blutabnahme, Schröpfen",
+            "body": "Blutspende, Schröpfen (Hidschama) und die Blutabnahme für eine Untersuchung brechen den Wudu; das Blut tritt dabei aus dem Körper aus. Bei der Thrombozytenspende gilt dasselbe Urteil.",
+            "safii": "In der schafiitischen Rechtsschule bricht Blut, das aus dem Körper austritt, den Wudu nicht."
+        },
+        "diyaliz": {
+            "title": "Dialyse",
+            "body": "Bei der Hämodialyse tritt Blut aus dem Körper aus und bei der Peritonealdialyse wird Flüssigkeit aus der Bauchhöhle entnommen, deshalb wird der Wudu gebrochen. Wer dauerhaft in Behandlung ist, fällt unter die Regeln für Entschuldigte (Ma'dhur).",
+            "safii": "In der schafiitischen Rechtsschule bricht das bei der Hämodialyse austretende Blut den Wudu nicht."
+        },
+        "adet-lohusalik": {
+            "title": "Menstruation und Wochenbett",
+            "body": "In diesen Zuständen wird nicht gebetet und nicht gefastet; auch der Wudu endet. Wenn die Blutung ganz aufgehört hat, wird Ghusl vollzogen und die Gebete werden wieder aufgenommen.",
+            "safii": "Die Höchstdauer des Wochenbetts beträgt in der hanafitischen Rechtsschule 40, in der schafiitischen 60 Tage."
+        },
+        "uyku": {
+            "title": "Schlafen",
+            "body": "Maßgeblich ist, ob man fest auf dem Boden sitzt oder nicht. Auf der Seite liegend oder ausgestreckt zu schlafen bricht den Wudu; aufrecht sitzend einzunicken, ohne dass sich die Gelenke lösen, bricht ihn nicht.",
+            "safii": "Die schafiitische Rechtsschule wendet dasselbe Maß an; in der malikitischen und der hanbalitischen ist die Tiefe des Schlafs maßgeblich."
+        },
+        "kusma": {
+            "title": "Erbrechen",
+            "body": "Ein Mund voll Erbrochenes bricht den Wudu, eine geringere Menge nicht. Maßgeblich ist, dass sich das Erbrochene nicht ohne Mühe zurückhalten lässt; Schleim bricht den Wudu selbst dann nicht, wenn er einen Mund füllt.",
+            "safii": "In der schafiitischen Rechtsschule bricht Erbrechen den Wudu nicht."
+        },
+        "kanama": {
+            "title": "Blutung",
+            "body": "Maßgeblich ist nicht die Menge, sondern die Ausbreitung: Tritt Blut, Eiter oder gelbes Wundwasser über die Austrittsstelle hinaus, wird der Wudu gebrochen; bleibt es an seiner Stelle, bricht es ihn nicht.",
+            "safii": "In der schafiitischen Rechtsschule bricht Blut, das aus dem Körper austritt, den Wudu nicht."
+        },
+        "karsi-cinse-dokunmak": {
+            "title": "Das andere Geschlecht berühren",
+            "body": "In der hanafitischen Rechtsschule bricht die Berührung des anderen Geschlechts den Wudu nicht. Nur zwischen Eheleuten bricht ein intensiver Kontakt ohne etwas Trennendes dazwischen oder ein dadurch austretendes Sekret den Wudu.",
+            "safii": "In der schafiitischen Rechtsschule bricht die direkte Berührung einer Person des anderen Geschlechts, mit der eine Ehe erlaubt wäre, den Wudu beider Seiten, auch ohne Begierde."
+        },
+        "dis-eti-kanamasi": {
+            "title": "Zahnfleischbluten",
+            "body": "Wenn das Blut aus dem Zahnfleisch die Hälfte des Speichels, mit dem es sich vermischt, ausmacht oder mehr, wird der Wudu gebrochen; ist es weniger, bricht es ihn nicht.",
+            "safii": "In der schafiitischen Rechtsschule bricht Zahnfleischbluten den Wudu nicht."
+        },
+        "burun-kanamasi": {
+            "title": "Nasenbluten",
+            "body": "Tritt das Blut aus dem Nasenloch heraus und fließt, wird der Wudu gebrochen; bleibt es innen und tritt nicht heraus, bricht es ihn nicht. Wer ständig Nasenbluten hat, gilt als Entschuldigter.",
+            "safii": "In der schafiitischen Rechtsschule bricht Nasenbluten den Wudu nicht."
+        },
+        "tibbi-mudahale": {
+            "title": "Spritze, Operation, Narkose",
+            "body": "Die Vollnarkose hebt das Bewusstsein auf und bricht deshalb den Wudu. Eine örtliche Betäubung allein bricht ihn nicht; tritt jedoch Blut aus und breitet sich aus, wird der Wudu gebrochen. Spritzen und Infusionen ohne Blutaustritt brechen ihn nicht.",
+            "safii": "Der Verlust des Bewusstseins bricht den Wudu in allen vier Rechtsschulen; in der schafiitischen bricht austretendes Blut ihn zudem nicht."
+        },
+        "kulak-goz-akintisi": {
+            "title": "Ohr-, Augen- und Nabelausfluss",
+            "body": "Ein Ausfluss ohne Schmerz und Stechen bricht den Wudu nicht. Tritt er mit Schmerzen auf, gilt er als Anzeichen einer Wunde und bricht in der hanafitischen Rechtsschule den Wudu.",
+            "safii": "In der schafiitischen Rechtsschule brechen diese Ausflüsse den Wudu nicht."
+        },
+        "ozur-sahibi": {
+            "title": "Entschuldigter (Ma'dhur) sein",
+            "body": "Unwillkürlicher Harnabgang, eine Blutung oder ein Ausfluss, die während einer ganzen Gebetszeit nicht aufhören, gelten als Entschuldigung. Der Entschuldigte vollzieht für jede Gebetszeit einen Wudu; dieser endet mit dem Ablauf der Gebetszeit.",
+            "safii": "In der schafiitischen Rechtsschule ist nicht die Gebetszeit maßgeblich, sondern das Pflichtgebet: Für jedes Pflichtgebet wird ein eigener Wudu vollzogen."
+        },
+        "mest-cikarmak": {
+            "title": "Chuff oder Socken ausziehen",
+            "body": "Wer den Wudu mit dem Waschen der Füße vollzogen und danach Chuff angezogen hat, dessen Wudu wird durch das Ausziehen nicht gebrochen. Wer seinen Wudu durch das Wischen über die Chuff vollendet hat, dem genügt nach dem Ausziehen das Waschen der Füße."
+        },
+        "tirnak-sac-kesmek": {
+            "title": "Nägel, Haare und Bart schneiden",
+            "body": "Bricht den Wudu nicht; die geschnittene Stelle muss auch nicht erneut gewaschen werden. Tritt an der Schnittstelle Blut aus und breitet sich aus, ist es das Blut, das den Wudu bricht.",
+            "safii": "In der schafiitischen Rechtsschule wird der Wudu selbst bei einer Blutung nicht gebrochen."
+        },
+        "ter": {
+            "title": "Schwitzen",
+            "body": "Schweiß gilt als rein und bricht den Wudu nicht."
+        },
+        "balgam": {
+            "title": "Schleim, Spucken, Naseputzen",
+            "body": "Schleim hat dasselbe Urteil wie Speichel; er bricht den Wudu selbst dann nicht, wenn er einen Mund füllt."
+        },
+        "aglamak": {
+            "title": "Weinen",
+            "body": "Weinen und Tränen brechen den Wudu nicht. Im Gebet aus weltlichem Kummer laut zu weinen bricht das Gebet, aber nicht den Wudu; aus Gottesfurcht zu weinen schadet beidem nicht."
+        },
+        "namaz-disinda-gulmek": {
+            "title": "Lachen außerhalb des Gebets",
+            "body": "Lautes Lachen außerhalb des Gebets bricht den Wudu nicht. Dass Lachen den Wudu bricht, gilt nur für das laute Lachen innerhalb des Gebets."
+        },
+        "kan-gormek": {
+            "title": "Blut sehen, das nicht fließt",
+            "body": "Blut, das an seiner Austrittsstelle bleibt und sich nicht ausbreitet, bricht den Wudu nicht; für einen Tropfen von der Größe einer Nadelspitze gilt dasselbe. Wird es abgewischt, bevor es sich ausbreitet, bricht es ihn ebenfalls nicht.",
+            "safii": "In der schafiitischen Rechtsschule bricht Blut den Wudu nicht, so viel auch fließen mag."
+        },
+        "banyo": {
+            "title": "Bad und Dusche",
+            "body": "Sich im Zustand des Wudu zu waschen bricht ihn nicht. Der Ghusl schließt den Wudu ein; nach dem Ghusl muss kein gesonderter Wudu vollzogen werden."
+        },
+        "elbise-degistirmek": {
+            "title": "Ausziehen, Kleidung wechseln",
+            "body": "Bricht den Wudu nicht. Das Entblößen der Scham betrifft das Gebet, nicht den Wudu."
+        },
+        "yemek-sakiz": {
+            "title": "Essen, Trinken, Kaugummi",
+            "body": "Essen, Wasser trinken und Kaugummi kauen brechen den Wudu nicht; dass die Speise am Feuer gekocht wurde, ändert das Urteil nicht.",
+            "safii": "Kamelfleisch zu essen bricht den Wudu nur in der hanbalitischen Rechtsschule; in der hanafitischen und der schafiitischen bricht es ihn nicht."
+        },
+        "dis-fircalamak": {
+            "title": "Zähneputzen, Miswak",
+            "body": "Bricht den Wudu nicht; die Reinigung von Mund und Zähnen ist eine Sunna des Wudu, und auch die Zahnbürste erfüllt diese Sunna. Eine nicht fließende Blutspur an der Bürste bricht ihn nicht."
+        },
+        "sivrisinek-isirigi": {
+            "title": "Mücken-, Floh-, Zeckenstiche",
+            "body": "Das von Insekten gesaugte Blut gilt nicht als fließend und bricht den Wudu deshalb nicht. Saugt ein Blutegel so lange Blut, bis sein Bauch voll ist, wird der Wudu gebrochen.",
+            "safii": "In der schafiitischen Rechtsschule bricht nichts davon den Wudu, auch der Blutegel nicht."
+        },
+        "damla": {
+            "title": "Augen-, Ohren- und Nasentropfen",
+            "body": "Tropfen zu benutzen bricht den Wudu nicht. Tritt durch die Tropfen Blut oder Eiter aus, gilt das Urteil des Eintrags zur Blutung."
+        },
+        "makyaj-oje": {
+            "title": "Make-up, Lippenstift, Nagellack",
+            "body": "Bricht den Wudu nicht; da sie aber das Wasser daran hindern, die Haut zu erreichen, müssen sie vor dem Wudu entfernt werden. Haargel und Henna bilden keine Schicht und sind deshalb kein Hindernis."
+        },
+        "kadin-akintisi": {
+            "title": "Weißer Ausfluss bei Frauen",
+            "body": "Farb- und geruchloser Ausfluss bricht den Wudu nicht; auch dass er die Wäsche benetzt, steht dem Gebet nicht entgegen. Farbiger, riechender oder blutiger Ausfluss fällt nicht unter dieses Urteil."
+        },
+        "yara-kabugu": {
+            "title": "Abfallen des Wundschorfs",
+            "body": "Fällt der Schorf ab, ohne dass Blut austritt, bricht das den Wudu nicht. Auch Blut und Eiter, die in der Wunde bleiben und nicht heraustreten, brechen ihn nicht."
+        },
+        "supheye-dusmek": {
+            "title": "Zweifel und Einflüsterungen",
+            "body": "Wenn du sicher bist, dass du den Wudu vollzogen hast, bricht ein danach aufkommender Zweifel ihn nicht. Sicheres Wissen wird durch Zweifel nicht aufgehoben; den Einflüsterungen wird keine Beachtung geschenkt."
+        },
+        "karsi-cinsin-saci": {
+            "title": "Haare/Nägel des anderen Geschlechts",
+            "body": "Die Haare, Nägel oder Zähne einer Person des anderen Geschlechts zu berühren bricht in keiner Rechtsschule den Wudu."
+        },
+        "sigara": {
+            "title": "Rauchen",
+            "body": "Da es nicht zu den Dingen zählt, die den Wudu brechen, bricht es ihn nicht. Das Urteil über das Rauchen selbst ist ein eigenes Thema."
+        },
+        "cenazeye-dokunmak": {
+            "title": "Einen Verstorbenen berühren",
+            "body": "Einen Verstorbenen zu berühren bricht den Wudu nicht. Für denjenigen, der den Verstorbenen wäscht, ist Ghusl mustahab, nicht verpflichtend."
+        },
+        "kendi-avret-yerine-dokunmak": {
+            "title": "Die eigene Scham berühren",
+            "body": "Bricht in der hanafitischen Rechtsschule den Wudu nicht.",
+            "safii": "In der schafiitischen, der malikitischen und der hanbalitischen Rechtsschule bricht die Berührung mit der Handfläche den Wudu."
+        }
+    }
 }

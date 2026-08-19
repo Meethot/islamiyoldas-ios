@@ -28,7 +28,7 @@
     "tip3Title": "Maqnit sahələrdən uzaq dur",
     "tip3Desc": "Metal əşyalar, elektron cihazlar və avtomobillər pusulanı təsir edə bilər.",
     "distanceToKaaba": "Kəbəyə {{distance}} km uzaqdasan",
-    "hadith": "\"Harada olursanız olun, üzünüzü Məscid-i Harama tərəf çevirin.\"",
+    "hadith": "“Harada olursanız olun, üzünüzü Məscid-i Harama tərəf çevirin.”",
     "hadithSource": "— Bəqərə Surəsi, 144",
     "understood": "Anladım ✨",
     "locationRequired": {
@@ -44,7 +44,7 @@
         "alternative": "Alternativ üsul",
         "alternativeDesc": "Xəritədə konumunuzdan Kəbəyə olan istiqaməti görə bilərsiniz.",
         "openMaps": "Kəbəni Xəritədə Göstər",
-        "hadith": "\"Şərq də Qərb də Allahındır. Hara dönsəniz, Allahın üzü oradadır.\"",
+        "hadith": "“Şərq də Qərb də Allahındır. Hara dönsəniz, Allahın üzü oradadır.”",
         "hadithSource": "— Bəqərə Surəsi, 115",
         "close": "Anladım 🧭",
         "openSettings": "Məkan Ayarlarına Keç",

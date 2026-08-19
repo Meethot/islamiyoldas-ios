@@ -3,22 +3,25 @@ export const GUIDES_EN = {
         title: 'Ablution Guide',
         steps: [
             {
+                id: 'wudu-niyet',
                 title: 'Intention (Niyyah)',
-                instruction: 'Make the intention in your heart to perform ablution. It is not required to say it aloud, but it is permissible.',
+                instruction: 'Make the intention in your heart to perform wudu. It is not required to say it aloud, but it is permissible.',
                 arabic: 'نَوَيْتُ اَنْ اَتَوَضَّأَ لِرِضَا اللهِ تَعَالَى',
                 transcription: "Nawaytu an atawadda'a li-ridaillahi ta'ala.",
-                meaning: 'I intend to perform ablution for the pleasure of Allah the Almighty.',
-                tips: ['Intention is an act of the heart', 'Maintain your intention throughout the ablution']
+                meaning: 'I intend to perform wudu for the pleasure of Allah the Almighty.',
+                tips: ['Intention is an act of the heart', 'Maintain your intention throughout the wudu']
             },
             {
+                id: 'wudu-besmele',
                 title: 'Ta\'awwudh and Basmalah',
-                instruction: 'Recite the Ta\'awwudh and Basmalah at the beginning of ablution.',
+                instruction: 'Recite the Ta\'awwudh and Basmalah at the beginning of wudu.',
                 arabic: 'أَعُوذُ بِاللَّهِ مِنَ الشَّيْطَانِ الرَّجِيمِ ، بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ',
                 transcription: 'A\'udhu billahi minash-shaytanir-rajim. Bismillahir-rahmanir-rahim.',
                 meaning: 'I seek refuge in Allah from the accursed Satan. In the name of Allah, the Most Gracious, the Most Merciful.',
-                tips: ['Saying Basmalah is a Sunnah of ablution', 'Begin with tranquility']
+                tips: ['Saying Basmalah is a Sunnah of wudu', 'Begin with tranquility']
             },
             {
+                id: 'wudu-eller',
                 title: 'Washing the Hands',
                 repeat: '3x',
                 instruction: 'Wash both hands up to and including the wrists three times. Rub between the fingers thoroughly and ensure water reaches every part.',
@@ -28,14 +31,16 @@ export const GUIDES_EN = {
                 tips: ['If wearing a ring, move it to let water pass underneath', 'Ensure no dry spot remains', 'Interlacing the fingers is Sunnah']
             },
             {
+                id: 'wudu-misvak',
                 title: 'Cleaning the Teeth (Miswak)',
                 instruction: 'It is Sunnah to clean the teeth and gums using a miswak, toothbrush, or the fingers of the right hand. Brush the upper and lower teeth, right and left.',
                 arabic: 'اَللَّهُمَّ بَارِكْ لِي فِي فَمِي',
                 transcription: 'Allahumma barik li fi fami.',
                 meaning: 'O Allah! Grant blessing in my mouth.',
-                tips: ['Using a miswak is a recommended act (mustahab) of ablution', 'If unavailable, use the index and middle fingers of the right hand']
+                tips: ['Using a miswak is a recommended act (mustahab) of wudu', 'If unavailable, use the index and middle fingers of the right hand']
             },
             {
+                id: 'wudu-agiz',
                 title: 'Rinsing the Mouth (Madmadah)',
                 repeat: '3x',
                 instruction: 'Take water into the mouth with the right hand three times. Swirl the water thoroughly each time and spit it out. Ensure the teeth, palate, and tongue are all moistened.',
@@ -45,6 +50,7 @@ export const GUIDES_EN = {
                 tips: ['If fasting, be careful not to let water reach the throat', 'Water should reach every part of the mouth']
             },
             {
+                id: 'wudu-burun',
                 title: 'Sniffing Water into the Nose (Istinshaq)',
                 repeat: '3x',
                 instruction: 'Draw water into the nose three times with the right hand. Clean the nose by blowing with the left hand. Gently draw the water towards the nasal passage.',
@@ -54,16 +60,18 @@ export const GUIDES_EN = {
                 tips: ['If fasting, do not sniff water too deeply', 'Both nostrils must be cleaned']
             },
             {
-                title: 'Washing the Face (Obligatory)',
+                id: 'wudu-yuz',
+                title: 'Washing the Face',
                 repeat: '3x',
                 instruction: 'Wash the entire face three times, from the hairline at the top of the forehead to below the chin, and from one earlobe to the other. Ensure the eyebrows, eye sockets, and area beneath the beard are properly washed.',
                 arabic: 'اَللَّهُمَّ بَيِّضْ وَجْهِي بِنُورِكَ يَوْمَ تَبْيَضُّ وُجُوهٌ وَتَسْوَدُّ وُجُوهٌ',
                 transcription: 'Allahumma bayyid wajhi bi-nurika yawma tabyaddhu wujuhun wa taswaddu wujuh.',
                 meaning: 'O Allah! Brighten my face with Your light on the Day when some faces will be bright and some will be dark.',
-                tips: ['Men with beards should run wet fingers through the beard', 'The corners of the eyes and sides of the nose must be cleaned', 'Washing the face is obligatory (fard) in ablution']
+                tips: ['Men with beards should run wet fingers through the beard', 'The corners of the eyes and sides of the nose must be cleaned', 'Washing the face is obligatory (fard) in wudu']
             },
             {
-                title: 'Washing the Right Arm (Obligatory)',
+                id: 'wudu-sag-kol',
+                title: 'Washing the Right Arm',
                 repeat: '3x',
                 instruction: 'Wash the right arm from the fingertips to the elbows (including the elbows) three times. Water must reach every part.',
                 arabic: 'اَللَّهُمَّ اَعْطِنِي كِتَابِي بِيَمِينِي وَحَاسِبْنِي حِسَاباً يَسِيراً',
@@ -72,7 +80,8 @@ export const GUIDES_EN = {
                 tips: ['The elbows must be washed (obligatory)', 'Pay attention to the creases of the arm', 'Starting with the right arm is Sunnah']
             },
             {
-                title: 'Washing the Left Arm (Obligatory)',
+                id: 'wudu-sol-kol',
+                title: 'Washing the Left Arm',
                 repeat: '3x',
                 instruction: 'Wash the left arm from the fingertips to the elbows (including the elbows) three times.',
                 arabic: 'اَللَّهُمَّ لاَ تُعْطِنِي كِتَابِي بِشِمَالِي وَلاَ مِنْ وَرَاءِ ظَهْرِي',
@@ -81,7 +90,8 @@ export const GUIDES_EN = {
                 tips: ['Order matters: right before left (tartib is Sunnah)', 'No dry spot should remain']
             },
             {
-                title: 'Wiping the Head (Obligatory)',
+                id: 'wudu-bas-mesh',
+                title: 'Wiping the Head',
                 instruction: 'Wet your hands with fresh water. Run your wet hands from the hairline on the forehead to the nape, then bring them back to the forehead. Wiping at least one-quarter of the head is obligatory; wiping the entire head is Sunnah.',
                 arabic: 'اَللَّهُمَّ غَشِّنِي بِرَحْمَتِكَ وَأَنْزِلْ عَلَيَّ مِنْ بَرَكَاتِكَ',
                 transcription: 'Allahumma ghashshini bi-rahmatika wa anzil alayya min barakatik.',
@@ -89,6 +99,7 @@ export const GUIDES_EN = {
                 tips: ['Wiping (masah) means stroking with wet hands, not washing', 'Full head wiping is more meritorious', 'Fresh water must be taken for the wiping']
             },
             {
+                id: 'wudu-kulak',
                 title: 'Wiping the Ears',
                 instruction: 'With the wet hands used for wiping the head, wipe the ears. Place the index fingers into the ear openings and the thumbs behind the ears, wiping simultaneously.',
                 arabic: 'اَللَّهُمَّ اجْعَلْنِي مِنَ الَّذِينَ يَسْتَمِعُونَ الْقَوْلَ فَيَتَّبِعُونَ اَحْسَنَهُ',
@@ -97,6 +108,7 @@ export const GUIDES_EN = {
                 tips: ['The index finger wipes inside the ear, the thumb wipes behind it', 'The area behind the earlobes should also be wiped']
             },
             {
+                id: 'wudu-boyun',
                 title: 'Wiping the Neck',
                 instruction: 'With the back of both hands, wipe the sides and back of the neck. The front of the throat is not wiped.',
                 arabic: 'اَللَّهُمَّ اَعْتِقْ رَقَبَتِي مِنَ النَّارِ',
@@ -105,7 +117,8 @@ export const GUIDES_EN = {
                 tips: ['Wiping is done with the back of the hands, not the palms', 'Only the back and sides of the neck are wiped', 'The throat is not wiped']
             },
             {
-                title: 'Washing the Right Foot (Obligatory)',
+                id: 'wudu-sag-ayak',
+                title: 'Washing the Right Foot',
                 repeat: '3x',
                 instruction: 'Wash the right foot including the ankle bones three times. Interlace the fingers between the toes with the little finger of the left hand (starting from the little toe).',
                 arabic: 'اَللَّهُمَّ ثَبِّتْ قَدَمَيَّ عَلَى الصِّرَاطِ يَوْمَ تَزِلُّ فِيهِ الْأَقْدَامُ',
@@ -114,26 +127,155 @@ export const GUIDES_EN = {
                 tips: ['Fingers between the toes must be interlaced', 'The heels are the most commonly missed area', 'Ankle bones must be washed']
             },
             {
-                title: 'Washing the Left Foot (Obligatory)',
+                id: 'wudu-sol-ayak',
+                title: 'Washing the Left Foot',
                 repeat: '3x',
                 instruction: 'Wash the left foot including the ankle bones three times. Interlace the fingers between the toes in the same manner.',
                 arabic: 'اَللَّهُمَّ اجْعَلْ سَعْيِي مَشْكُوراً وَذَنْبِي مَغْفُوراً',
                 transcription: "Allahumma-j'al sa'yi mashkuran wa dhanbi maghfura.",
                 meaning: 'O Allah! Make my efforts worthy of gratitude and my sins forgiven.',
-                tips: ['The ablution is completed with the left foot', 'Check the heels and ankle bones']
+                tips: ['Wudu is completed with the left foot', 'Check the heels and ankle bones']
             },
             {
+                id: 'wudu-bitis-dua',
                 title: 'Post-Ablution Supplication',
-                instruction: 'After completing ablution, look towards the sky or face the Qiblah and recite the Shahadah and supplication. The eight gates of Paradise are opened for the one who recites this prayer.',
+                instruction: 'After completing wudu, look towards the sky or face the Qiblah and recite the Shahadah and supplication. The eight gates of Paradise are opened for the one who recites this prayer.',
                 arabic: 'أَشْهَدُ أَنْ لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ وَأَشْهَدُ أَنَّ مُحَمَّدًا عَبْدُهُ وَرَسُولُهُ ، اللَّهُمَّ اجْعَلْنِي مِنَ التَّوَّابِينَ وَاجْعَلْنِي مِنَ الْمُتَطَهِّرِينَ',
                 transcription: "Ashhadu an la ilaha illallahu wahdahu la sharika lah, wa ashhadu anna Muhammadan abduhu wa rasuluh. Allahumma-j'alni minat-tawwabina waj'alni minal-mutatahhirin.",
                 meaning: "I bear witness that there is no god but Allah alone, without partner, and I bear witness that Muhammad is His servant and messenger. O Allah! Make me among those who repent and make me among those who purify themselves.",
-                tips: ['Narrated by Muslim', 'The eight gates of Paradise are opened for the one who recites this', 'Praying 2 rak\'ahs after ablution is also Sunnah']
+                tips: ['Narrated by Muslim', 'The eight gates of Paradise are opened for the one who recites this', 'Praying 2 rak\'ahs after wudu is also Sunnah']
             }
         ]
     },
+    gusul: {
+        title: "Ghusl",
+        steps: [
+            {
+                id: "gusul-ne-zaman",
+                title: "When is ghusl required?",
+                instruction: "Ghusl becomes fard in a state of janabah, at the end of menstrual bleeding and at the end of postnatal bleeding (nifas). In these states one performs ghusl before praying, circumambulating the Kaaba and touching the Qur'an.",
+                tips: [
+                    "In menstruation and postnatal bleeding ghusl becomes fard once the bleeding has stopped completely; as long as the bleeding continues, ghusl is postponed.",
+                    "The ghusl taken on Fridays and the days of Eid, and when entering ihram, is not fard but sunnah.",
+                    "When ghusl is required it is best not to delay it, and at the very least to perform it before the prayer time ends.",
+                ]
+            },
+            {
+                id: "gusul-niyet",
+                title: "Make the intention, say the basmala",
+                instruction: "One intends to purify oneself and begins with the basmala. The intention is an act of the heart; saying it out loud is not a condition.",
+                arabic: "بِسْمِ اللّٰهِ الرَّحْمٰنِ الرَّحِيمِ",
+                transcription: "Bismillahir-rahmanir-rahim",
+                meaning: "In the name of Allah, the Most Gracious, the Most Merciful.",
+                tips: [
+                    "In the Hanafi school intention and the basmala are sunnah in ghusl; the ghusl is valid even if they are forgotten.",
+                    "In the bathroom or the toilet it is more fitting to say the basmala in the heart rather than out loud.",
+                    "In the Shafi'i school intention is one of the fard acts of ghusl; a ghusl without intention is not valid.",
+                ]
+            },
+            {
+                id: "gusul-eller-avret",
+                title: "Wash your hands and private parts",
+                repeat: "Repeat 3x",
+                instruction: "First the hands are washed up to the wrists, then the private parts and any impurity on the body are cleaned. Whatever stops water from reaching the skin is removed at this stage.",
+                tips: [
+                    "Things that form a layer on the skin, such as nail polish, waterproof make-up, plasters and sticky paint, are removed before ghusl; if water does not reach underneath, the ghusl is not complete.",
+                    "Dental fillings, crowns and hair gel do not form a layer, so they are not a barrier to ghusl.",
+                    "For people such as painters and farmers who get paint or mud under their nails because of their work, the Diyanet accepts this as a valid excuse.",
+                ]
+            },
+            {
+                id: "gusul-abdest",
+                title: "Make wudu as for prayer",
+                instruction: "Before starting the ghusl one makes a wudu like the wudu for prayer. If you are washing in a place where the water collects, washing the feet may be left to the very end.",
+                tips: [
+                    "This wudu is not a fard of ghusl; it completes the order that follows the sunnah.",
+                    "If a limb has a dressing, a cast or a wound that would be harmed by washing, that area is not washed but wiped once with the hand; wiping the whole dressing is not required.",
+                    "If the dressing or cast covers most of the parts to be washed, tayammum is performed instead of ghusl.",
+                ]
+            },
+            {
+                id: "gusul-agiz",
+                title: "Rinse your mouth",
+                repeat: "Repeat 3x",
+                instruction: "A full mouthful of water is taken so that it reaches as far as the throat, and the mouth is rinsed. In the Hanafi school this is one of the fard acts of ghusl.",
+                tips: [
+                    "The water must reach every part of the mouth, between the teeth and the beginning of the throat.",
+                    "While fasting it is done without gargling and without letting water go down the throat.",
+                    "In the Shafi'i and Maliki schools rinsing the mouth is not fard but sunnah.",
+                ]
+            },
+            {
+                id: "gusul-burun",
+                title: "Draw water into your nose",
+                repeat: "Repeat 3x",
+                instruction: "Water is drawn well up into the nose, reaching the soft part, and is blown out. This too is fard in the Hanafi school.",
+                tips: [
+                    "The essential thing is that the water reaches the soft area where the nose hairs end.",
+                    "While fasting, take care not to draw the water up too forcefully.",
+                    "In the Shafi'i and Maliki schools drawing water into the nose is sunnah.",
+                ]
+            },
+            {
+                id: "gusul-beden",
+                title: "Let the water reach your whole body",
+                repeat: "Repeat 3x",
+                instruction: "The whole body is washed by pouring water first over the head, then over the right and left shoulders. The water must reach everywhere, leaving no dry spot even the size of a needle tip.",
+                tips: [
+                    "The most commonly missed places: the roots of the hair, behind and inside the folds of the ears, the navel, the armpits, behind the knees, under the nails and earring holes.",
+                    "Women do not need to undo their braided hair; it is enough for the water to reach the roots. If the braid stops the water from reaching the roots, it is undone.",
+                    "It makes no difference whether you wash in a bathtub or a shower; what matters is that the water reaches every part of the body.",
+                ]
+            },
+        ]
+    },
+    teyemmum: {
+        title: "Tayammum",
+        steps: [
+            {
+                id: "tey-ne-zaman",
+                title: "When is tayammum permitted?",
+                instruction: "Tayammum is performed when water cannot be found, when it is too far away to go and come back easily, or when using it carries the risk of worsening an illness or delaying recovery. Tayammum takes the place of both wudu and ghusl.",
+                tips: [
+                    "In classical fiqh the measure is given as 'one mile' (about 1.5 km); the Diyanet expresses it as 'a distance one cannot easily go to and come back from on foot or by vehicle'.",
+                    "When water is available, tayammum is not performed merely because the prayer time is running out; even if the prayer is missed, it can be made up later. Funeral and Eid prayers are the exception, because they have no make-up.",
+                    "If the water at hand is needed for a more essential need such as drinking, tayammum may be performed.",
+                ]
+            },
+            {
+                id: "tey-niyet-vurus",
+                title: "Make the intention, strike your hands on the earth",
+                instruction: "One intends tayammum for wudu or for ghusl. With the fingers apart, the hands are struck on clean earth or on a surface of the same kind, moved back and forth, lifted and shaken lightly.",
+                tips: [
+                    "While intention is sunnah in wudu, it is fard in tayammum; a tayammum without intention is not valid.",
+                    "In the Hanafi school tayammum may be performed with anything clean of the same kind as earth, such as soil, sand, stone, adobe, brick or a plastered wall.",
+                    "In the Shafi'i school dust must stick to the hand, so a stone or wall with no dust on it is not considered enough.",
+                ]
+            },
+            {
+                id: "tey-yuz",
+                title: "Wipe your face",
+                instruction: "The whole face is wiped once with the inside of the hands. No part of the face should be left unwiped.",
+                tips: [
+                    "The face is the area from the forehead to under the chin and between the two ears; it is the same boundary that is washed in wudu.",
+                    "Rings and similar jewellery are moved during the wiping so that the hand touches underneath them as well.",
+                    "In the Shafi'i school keeping the order of face first and then arms is fard; in the Hanafi school this order is sunnah.",
+                ]
+            },
+            {
+                id: "tey-kollar",
+                title: "Strike a second time, wipe your arms",
+                instruction: "The hands are struck on the earth a second time. The right arm is wiped with the inside of the left hand, including the elbow; then the left arm is wiped in the same way with the inside of the right hand.",
+                tips: [
+                    "The elbows are included in the area wiped; the spaces between the fingers are not forgotten either.",
+                    "Things that invalidate tayammum: everything that breaks wudu, states that require ghusl, and the excuse that made tayammum permissible coming to an end.",
+                    "Tayammum ends the moment usable water is found or the illness passes; from then on wudu or ghusl is performed.",
+                ]
+            },
+        ]
+    },
     dualar: {
-        title: 'Fifty Prayers (Remedies for the Soul)',
+        title: 'Supplications (Remedies for the Soul)',
         steps: [
             {
                 title: 'Rabbana Atina',
@@ -526,8 +668,168 @@ export const GUIDES_EN = {
                 transcription: 'Allahumma salli wa sallim ala sayyidina Muhammadin wa ala alihi wa sahbihi ajma\'in.',
                 meaning: "O Allah! Send blessings and peace upon our master Muhammad, his family, and all his companions.",
                 tips: ['Whoever recites 100 salawat on Friday will have 80 years of sins forgiven.', 'Ihya, Bayhaqi'],
-            }
-        ]
+            },
+            {
+                title: "Leaving the Mosque",
+                instruction: "Asking for Allah's bounty.",
+                arabic: "اَللَّهُمَّ اِنِّي اَسْأَلُكَ مِنْ فَضْلِكَ",
+                transcription: "Allahumma inni as'aluka min fadlik.",
+                meaning: "O Allah! I ask You for Your bounty.",
+                tips: ["Muslim", "Leave with the left foot."],
+            },
+            {
+                title: "When Putting On Clothes",
+                instruction: "Gratitude for the blessing of clothing.",
+                arabic: "اَلْحَمْدُ للهِ الَّذِي كَسَانِي هَذَا وَرَزَقَنِيهِ مِنْ غَيْرِ حَوْلٍ مِنِّي وَلاَ قُوَّةٍ",
+                transcription: "Alhamdulillahilladhi kasani hadha wa razaqanihi min ghayri hawlin minni wa la quwwah.",
+                meaning: "Praise be to Allah who clothed me with this and provided it for me without any power or strength from myself.",
+                tips: ["Abu Dawud, Tirmidhi", "A means for past sins to be forgiven."],
+            },
+            {
+                title: "On Sighting the New Moon",
+                instruction: "For a blessed new month.",
+                arabic: "اَللَّهُمَّ اَهِلَّهُ عَلَيْنَا بِالْيُمْنِ وَاْلاِيمَانِ وَالسَّلاَمَةِ وَاْلاِسْلاَمِ",
+                transcription: "Allahumma ahillahu alayna bil-yumni wal-imani was-salamati wal-Islam.",
+                meaning: "O Allah! Bring it over us with blessing, faith, safety and Islam.",
+                tips: ["Tirmidhi", "Recited at the start of Ramadan and sacred months."],
+            },
+            {
+                title: "When Entering the Market",
+                instruction: "Remembering Allah in a place of heedlessness.",
+                arabic: "لاَ اِلَهَ اِلاَّ اللهُ وَحْدَهُ لاَ شَرِيكَ لَهُ لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ",
+                transcription: "La ilaha illallahu wahdahu la sharika lah, lahul-mulku wa lahul-hamdu wa huwa ala kulli shay'in qadir.",
+                meaning: "There is no god but Allah alone, without partner. His is the dominion and His is the praise, and He has power over all things.",
+                tips: ["Tirmidhi", "Great reward for remembering Allah amid a crowd."],
+            },
+            {
+                title: "Visiting the Sick",
+                instruction: "Wishing healing for the ill.",
+                arabic: "لاَ بَأْسَ طَهُورٌ اِنْ شَاءَ اللهُ",
+                transcription: "La ba'sa tahurun insha Allah.",
+                meaning: "No harm, it is a purification, if Allah wills.",
+                tips: ["Bukhari", "Repeated three times beside the sick person."],
+            },
+            {
+                title: "At the Time of Calamity",
+                instruction: "Patience in the face of loss.",
+                arabic: "اِنَّا للهِ وَاِنَّا اِلَيْهِ رَاجِعُونَ ، اَللَّهُمَّ اْجُرْنِي فِي مُصِيبَتِي وَاَخْلِفْ لِي خَيْرًا مِنْهَا",
+                transcription: "Inna lillahi wa inna ilayhi raji'un. Allahumma'jurni fi musibati wakhluf li khayran minha.",
+                meaning: "Indeed we belong to Allah and to Him we shall return. O Allah! Reward me in my affliction and replace it with something better.",
+                tips: ["Muslim", "Recited upon any kind of loss."],
+            },
+            {
+                title: "In Times of Sorrow",
+                instruction: "Opening a constricted heart to Allah.",
+                arabic: "يَا حَيُّ يَا قَيُّومُ بِرَحْمَتِكَ اَسْتَغِيثُ اَصْلِحْ لِي شَأْنِي كُلَّهُ",
+                transcription: "Ya Hayyu ya Qayyum, bi-rahmatika astaghith, aslih li sha'ni kullah.",
+                meaning: "O Ever-Living, O Sustainer! By Your mercy I seek help. Set right all my affairs.",
+                tips: ["Tirmidhi", "The Prophet (ﷺ) said this in times of distress."],
+            },
+            {
+                title: "Seeking Refuge from Satan",
+                instruction: "Before reciting Qur'an and before every task.",
+                arabic: "اَعُوذُ بِاللهِ مِنَ الشَّيْطَانِ الرَّجِيمِ",
+                transcription: "A'udhu billahi minash-shaytanir-rajim.",
+                meaning: "I seek refuge in Allah from the accursed Satan.",
+                tips: ["Surah An-Nahl, verse 98", "Also recited when angry."],
+            },
+            {
+                title: "After a Bad Dream",
+                instruction: "Protection from the evil of a nightmare.",
+                arabic: "اَعُوذُ بِاللهِ مِنَ الشَّيْطَانِ وَمِنْ شَرِّ مَا رَاَيْتُ",
+                transcription: "A'udhu billahi minash-shaytani wa min sharri ma ra'aytu.",
+                meaning: "I seek refuge in Allah from Satan and from the evil of what I have seen.",
+                tips: ["Muslim", "Spit lightly to the left three times, turn over, and tell no one."],
+            },
+            {
+                title: "Protection for Children",
+                instruction: "Guarding children from the evil eye and harm.",
+                arabic: "اُعِيذُكُمَا بِكَلِمَاتِ اللهِ التَّامَّةِ مِنْ كُلِّ شَيْطَانٍ وَهَامَّةٍ وَمِنْ كُلِّ عَيْنٍ لاَمَّةٍ",
+                transcription: "U'idhukuma bi-kalimatillahit-tammati min kulli shaytanin wa hammatin wa min kulli aynin lammah.",
+                meaning: "I place you both under the protection of Allah's perfect words, from every devil, every poisonous creature, and every evil eye.",
+                tips: ["Bukhari", "The Prophet (ﷺ) prayed thus for Hasan and Husayn."],
+            },
+            {
+                title: "Tasbih in Ruku",
+                instruction: "Recited while bowing in prayer.",
+                arabic: "سُبْحَانَ رَبِّيَ الْعَظِيمِ",
+                transcription: "Subhana Rabbiyal-'Azim.",
+                meaning: "Glory be to my Lord, the Most Great.",
+                tips: ["Said at least three times.", "Muslim, Abu Dawud"],
+            },
+            {
+                title: "Tasbih in Sujood",
+                instruction: "Recited while prostrating in prayer.",
+                arabic: "سُبْحَانَ رَبِّيَ اْلاَعْلَى",
+                transcription: "Subhana Rabbiyal-A'la.",
+                meaning: "Glory be to my Lord, the Most High.",
+                tips: ["Said at least three times.", "The moment a servant is closest to Allah."],
+            },
+            {
+                title: "Between the Two Prostrations",
+                instruction: "Supplication said while sitting.",
+                arabic: "رَبِّ اغْفِرْ لِي وَارْحَمْنِي وَاهْدِنِي وَعَافِنِي وَارْزُقْنِي",
+                transcription: "Rabbighfir li warhamni wahdini wa 'afini warzuqni.",
+                meaning: "My Lord! Forgive me, have mercy on me, guide me, grant me well-being and provide for me.",
+                tips: ["Abu Dawud, Tirmidhi", "Said upon sitting up from prostration."],
+            },
+            {
+                title: "The Longer Istighfar",
+                instruction: "For the forgiveness of sins.",
+                arabic: "اَسْتَغْفِرُ اللهَ الَّذِي لاَ اِلَهَ اِلاَّ هُوَ الْحَيُّ الْقَيُّومُ وَاَتُوبُ اِلَيْهِ",
+                transcription: "Astaghfirullahalladhi la ilaha illa huwal-Hayyul-Qayyumu wa atubu ilayh.",
+                meaning: "I seek forgiveness from Allah, besides whom there is no god, the Ever-Living, the Sustainer, and I repent to Him.",
+                tips: ["Abu Dawud, Tirmidhi", "It is said one is forgiven even if he fled from battle."],
+            },
+            {
+                title: "Repentance After Sin",
+                instruction: "For the forgiveness of every sin.",
+                arabic: "اَللَّهُمَّ اغْفِرْ لِي ذَنْبِي كُلَّهُ دِقَّهُ وَجِلَّهُ وَاَوَّلَهُ وَآخِرَهُ",
+                transcription: "Allahummaghfir li dhanbi kullah, diqqahu wa jillah, wa awwalahu wa akhirah.",
+                meaning: "O Allah! Forgive me all my sins, the small and the great, the first and the last.",
+                tips: ["Muslim", "Recommended to recite in prostration."],
+            },
+            {
+                title: "Salat al-Fatih",
+                instruction: "Salawat for the opening of closed doors.",
+                arabic: "اَللَّهُمَّ صَلِّ عَلَى سَيِّدِنَا مُحَمَّدٍ الْفَاتِحِ لِمَا اُغْلِقَ وَالْخَاتِمِ لِمَا سَبَقَ",
+                transcription: "Allahumma salli ala sayyidina Muhammadinil-fatihi lima ughliqa wal-khatimi lima sabaq.",
+                meaning: "O Allah! Send blessings upon our master Muhammad, the opener of what was closed and the seal of what preceded.",
+                tips: ["Among the salawat of great merit.", "Recited in times of need."],
+            },
+            {
+                title: "Prayer for Good Provision",
+                instruction: "Beneficial knowledge, pure sustenance, accepted deeds.",
+                arabic: "اَللَّهُمَّ اِنِّي اَسْأَلُكَ عِلْمًا نَافِعًا وَرِزْقًا طَيِّبًا وَعَمَلاً مُتَقَبَّلاً",
+                transcription: "Allahumma inni as'aluka 'ilman nafi'an wa rizqan tayyiban wa 'amalan mutaqabbala.",
+                meaning: "O Allah! I ask You for beneficial knowledge, pure provision and accepted deeds.",
+                tips: ["Ibn Majah", "Recommended after the Fajr prayer."],
+            },
+            {
+                title: "Prayer for Spouse and Children",
+                instruction: "For a righteous family.",
+                arabic: "رَبَّنَا هَبْ لَنَا مِنْ اَزْوَاجِنَا وَذُرِّيَّاتِنَا قُرَّةَ اَعْيُنٍ وَاجْعَلْنَا لِلْمُتَّقِينَ اِمَامًا",
+                transcription: "Rabbana hab lana min azwajina wa dhurriyyatina qurrata a'yunin waj'alna lil-muttaqina imama.",
+                meaning: "Our Lord! Grant us from among our spouses and offspring comfort to our eyes, and make us leaders for the righteous.",
+                tips: ["Surah Al-Furqan, verse 74", "The supplication of the servants of the Most Merciful."],
+            },
+            {
+                title: "Prayer for Parents",
+                instruction: "Asking mercy for one's parents.",
+                arabic: "رَبِّ ارْحَمْهُمَا كَمَا رَبَّيَانِي صَغِيرًا",
+                transcription: "Rabbirhamhuma kama rabbayani saghira.",
+                meaning: "My Lord! Have mercy upon them as they brought me up when I was small.",
+                tips: ["Surah Al-Isra, verse 24", "Recited even after they have passed away."],
+            },
+            {
+                title: "Istikhara Supplication",
+                instruction: "Seeking what is best before a decision.",
+                arabic: "اَللَّهُمَّ اِنِّي اَسْتَخِيرُكَ بِعِلْمِكَ وَاَسْتَقْدِرُكَ بِقُدْرَتِكَ وَاَسْأَلُكَ مِنْ فَضْلِكَ الْعَظِيمِ",
+                transcription: "Allahumma inni astakhiruka bi-'ilmika wa astaqdiruka bi-qudratika wa as'aluka min fadlikal-'azim.",
+                meaning: "O Allah! I seek Your guidance by Your knowledge, and Your power by Your might, and I ask You of Your immense bounty.",
+                tips: ["Bukhari", "Recited after two units of prayer, then the matter is mentioned."],
+            },
+]
     },
     sureler: {
         title: 'Surahs Guide',
@@ -627,6 +929,174 @@ export const GUIDES_EN = {
                 transcription: 'Allahu la ilaha illa huwal hayyul qayyum. La ta\'khudhuhu sinatun wa la nawm. Lahu ma fis-samawati wa ma fil ard. Man dhallathi yashfa\'u indahu illa bi-idhnih. Ya\'lamu ma bayna aydihim wa ma khalfahum. Wa la yuhituna bi-shay\'in min ilmihi illa bima sha\'a. Wasi\'a kursiyyuhus-samawati wal ard. Wa la ya\'uduhu hifdhuhuma wa huwal aliyyul adhim.',
                 meaning: 'Allah — there is no deity except Him, the Ever-Living, the Sustainer of all existence. Neither drowsiness overtakes Him nor sleep. To Him belongs whatever is in the heavens and whatever is on the earth. Who is it that can intercede with Him except by His permission? He knows what is before them and what is behind them, and they encompass not a thing of His knowledge except for what He wills. His Kursi (throne) extends over the heavens and the earth, and their preservation tires Him not. And He is the Most High, the Most Great.',
                 tips: ['It is verse 255 of Surah Al-Baqarah.', 'Named after the mention of "Allah\'s Kursi" (Throne).']
+            },
+            {
+                title: "Surah Al-'Asr",
+                instruction: "Swearing by time, it declares that man is in loss and that salvation lies in faith and righteous deeds.",
+                arabic: "بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ ۝ وَالْعَصْرِ ۝ إِنَّ الْإِنسَانَ لَفِي خُسْرٍ ۝ إِلَّا الَّذِينَ آمَنُوا وَعَمِلُوا الصَّالِحَاتِ وَتَوَاصَوْا بِالْحَقِّ وَتَوَاصَوْا بِالصَّبْرِ",
+                transcription: "Bismillahir-rahmanir-rahim. Wal-'asri. Inna l-insana lafi khusrin. Illa alladhina amanu wa'amilu l-salihati watawasaw bil-haqi watawasaw bil-sabri.",
+                meaning: "By time. Indeed, mankind is in loss. Except for those who have believed and done righteous deeds and advised each other to truth and advised each other to patience.",
+                tips: ["Imam Ash-Shafi'i: 'If people only reflected on this surah, it would be enough for them.'", "In three verses it is considered a summary of the Quran: faith, deeds, and counselling truth and patience."]
+            },
+            {
+                title: "Surah Ash-Sharh",
+                instruction: "It tells of the opening of the Prophet's breast and the lifting of his burden, giving the glad tiding that hardship is temporary.",
+                arabic: "بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ ۝ أَلَمْ نَشْرَحْ لَكَ صَدْرَكَ ۝ وَوَضَعْنَا عَنكَ وِزْرَكَ ۝ الَّذِي أَنقَضَ ظَهْرَكَ ۝ وَرَفَعْنَا لَكَ ذِكْرَكَ ۝ فَإِنَّ مَعَ الْعُسْرِ يُسْرًا ۝ إِنَّ مَعَ الْعُسْرِ يُسْرًا ۝ فَإِذَا فَرَغْتَ فَانصَبْ ۝ وَإِلَىٰ رَبِّكَ فَارْغَب",
+                transcription: "Bismillahir-rahmanir-rahim. Alam nashrah laka sadraka. Wawada'na 'anka wizraka. Alladhi anqada zahraka. Warafa'na laka dhikraka. Fa-inna ma'a l-'usri yusran. Inna ma'a l-'usri yusran. Fa-idha faraghta fa-insab. Wa-ila rabbika fa-irghab.",
+                meaning: "Did We not expand for you, [O Muhammad], your breast. And We removed from you your burden. Which had weighed upon your back. And raised high for you your repute. For indeed, with hardship [will be] ease. Indeed, with hardship [will be] ease. So when you have finished [your duties], then stand up [for worship]. And to your Lord direct [your] longing.",
+                tips: ["The glad tiding 'With hardship there is ease' is repeated twice in a row.", "It continues Surah Ad-Duhaa and is recited in times of distress."]
+            },
+            {
+                title: "Surah At-Takathur",
+                instruction: "It describes how the race for wealth and abundance distracts man, a heedlessness that lasts until death.",
+                arabic: "بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ ۝ أَلْهَاكُمُ التَّكَاثُرُ ۝ حَتَّىٰ زُرْتُمُ الْمَقَابِرَ ۝ كَلَّا سَوْفَ تَعْلَمُونَ ۝ ثُمَّ كَلَّا سَوْفَ تَعْلَمُونَ ۝ كَلَّا لَوْ تَعْلَمُونَ عِلْمَ الْيَقِينِ ۝ لَتَرَوُنَّ الْجَحِيمَ ۝ ثُمَّ لَتَرَوُنَّهَا عَيْنَ الْيَقِينِ ۝ ثُمَّ لَتُسْأَلُنَّ يَوْمَئِذٍ عَنِ النَّعِيمِ",
+                transcription: "Bismillahir-rahmanir-rahim. Alhakumu l-takathuru. Hatta zurtumu l-maqabira. Kalla sawfa ta'lamuna. Thumma kalla sawfa ta'lamuna. Kalla law ta'lamuna 'ilma l-yaqini. Latarawunna l-jahima. Thumma latarawunnaha 'ayna l-yaqini. Thumma latusalunna yawma-idhin 'ani l-na'imi.",
+                meaning: "Competition in [worldly] increase diverts you. Until you visit the graveyards. No! You are going to know. Then no! You are going to know. No! If you only knew with knowledge of certainty. You will surely see the Hellfire. Then you will surely see it with the eye of certainty. Then you will surely be asked that Day about pleasure.",
+                tips: ["Considered the antidote to worldly greed.", "Reminds us that we will be questioned about every blessing given to us."]
+            },
+            {
+                title: "Surah Al-Qadr",
+                instruction: "It declares that the Quran was sent down on the Night of Decree, and that this night is better than a thousand months.",
+                arabic: "بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ ۝ إِنَّا أَنزَلْنَاهُ فِي لَيْلَةِ الْقَدْرِ ۝ وَمَا أَدْرَاكَ مَا لَيْلَةُ الْقَدْرِ ۝ لَيْلَةُ الْقَدْرِ خَيْرٌ مِّنْ أَلْفِ شَهْرٍ ۝ تَنَزَّلُ الْمَلَائِكَةُ وَالرُّوحُ فِيهَا بِإِذْنِ رَبِّهِم مِّن كُلِّ أَمْرٍ ۝ سَلَامٌ هِيَ حَتَّىٰ مَطْلَعِ الْفَجْرِ",
+                transcription: "Bismillahir-rahmanir-rahim. Inna anzalnahu fi laylati l-qadri. Wama adraka ma laylatu l-qadri. Laylatu l-qadri khayrun min alfi shahrin. Tanazzalu l-malaikatu wal-ruhu fiha bi-idhni rabbihim min kulli amrin. Salamun hiya hatta matla'i l-fajri.",
+                meaning: "Indeed, We sent the Qur'an down during the Night of Decree. And what can make you know what is the Night of Decree. The Night of Decree is better than a thousand months. The angels and the Spirit descend therein by permission of their Lord for every matter. Peace it is until the emergence of dawn.",
+                tips: ["Recited abundantly during the last ten nights of Ramadan.", "On the Night of Decree the angels and Gabriel descend; it is a night full of peace."]
+            },
+            {
+                title: "Surah At-Tin",
+                instruction: "Swearing by the fig, the olive, Mount Sinai and the secure city, it declares that man was created in the finest form.",
+                arabic: "بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ ۝ وَالتِّينِ وَالزَّيْتُونِ ۝ وَطُورِ سِينِينَ ۝ وَهَٰذَا الْبَلَدِ الْأَمِينِ ۝ لَقَدْ خَلَقْنَا الْإِنسَانَ فِي أَحْسَنِ تَقْوِيمٍ ۝ ثُمَّ رَدَدْنَاهُ أَسْفَلَ سَافِلِينَ ۝ إِلَّا الَّذِينَ آمَنُوا وَعَمِلُوا الصَّالِحَاتِ فَلَهُمْ أَجْرٌ غَيْرُ مَمْنُونٍ ۝ فَمَا يُكَذِّبُكَ بَعْدُ بِالدِّينِ ۝ أَلَيْسَ اللَّهُ بِأَحْكَمِ الْحَاكِمِينَ",
+                transcription: "Bismillahir-rahmanir-rahim. Wal-tini wal-zaytuni. Waturi sinina. Wahadha l-baladi l-amini. Laqad khalaqna l-insana fi ahsani taqwimin. Thumma radadnahu asfala safilina. Illa alladhina amanu wa'amilu l-salihati falahum ajrun ghayru mamnunin. Fama yukadhibuka ba'du bil-dini. Alaysa l-lahu bi-ahkami l-hakimina.",
+                meaning: "By the fig and the olive. And [by] Mount Sinai. And [by] this secure city [Makkah]. We have certainly created man in the best of stature. Then We return him to the lowest of the low. Except for those who believe and do righteous deeds, for they will have a reward uninterrupted. So what yet causes you to deny the Recompense. Is not Allah the most just of judges.",
+                tips: ["Man's honour is preserved by faith and falls with disbelief.", "Frequently recited as an additional surah in prayer."]
+            },
+            {
+                title: "Surah Al-Humazah",
+                instruction: "It warns the one who slanders people behind their backs and who hoards wealth and boasts about it.",
+                arabic: "بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ ۝ وَيْلٌ لِّكُلِّ هُمَزَةٍ لُّمَزَةٍ ۝ الَّذِي جَمَعَ مَالًا وَعَدَّدَهُ ۝ يَحْسَبُ أَنَّ مَالَهُ أَخْلَدَهُ ۝ كَلَّا لَيُنبَذَنَّ فِي الْحُطَمَةِ ۝ وَمَا أَدْرَاكَ مَا الْحُطَمَةُ ۝ نَارُ اللَّهِ الْمُوقَدَةُ ۝ الَّتِي تَطَّلِعُ عَلَى الْأَفْئِدَةِ ۝ إِنَّهَا عَلَيْهِم مُّؤْصَدَةٌ ۝ فِي عَمَدٍ مُّمَدَّدَةٍ",
+                transcription: "Bismillahir-rahmanir-rahim. Waylun likulli humazatin lumazatin. Alladhi jama'a malan wa'addadahu. Yahsabu anna malahu akhladahu. Kalla layunbadhanna fi l-hutamati. Wama adraka ma l-hutamatu. Naru l-lahi l-muqadatu. Allati tattali'u 'ala l-afidati. Innaha 'alayhim musadatun. Fi 'amadin mumaddadatin.",
+                meaning: "Woe to every scorner and mocker. Who collects wealth and [continuously] counts it. He thinks that his wealth will make him immortal. No! He will surely be thrown into the Crusher. And what can make you know what is the Crusher. It is the fire of Allah, [eternally] fueled. Which mounts directed at the hearts. Indeed, Hellfire will be closed down upon them. In extended columns.",
+                tips: ["It describes the grave consequence of gossip and mockery.", "'Hutamah' is the name of the fire that penetrates the hearts."]
+            },
+            {
+                title: "Surah Az-Zalzalah",
+                instruction: "It describes the shaking of the earth on the Day of Resurrection and how everyone will see even an atom's weight of good or evil.",
+                arabic: "بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ ۝ إِذَا زُلْزِلَتِ الْأَرْضُ زِلْزَالَهَا ۝ وَأَخْرَجَتِ الْأَرْضُ أَثْقَالَهَا ۝ وَقَالَ الْإِنسَانُ مَا لَهَا ۝ يَوْمَئِذٍ تُحَدِّثُ أَخْبَارَهَا ۝ بِأَنَّ رَبَّكَ أَوْحَىٰ لَهَا ۝ يَوْمَئِذٍ يَصْدُرُ النَّاسُ أَشْتَاتًا لِّيُرَوْا أَعْمَالَهُمْ ۝ فَمَن يَعْمَلْ مِثْقَالَ ذَرَّةٍ خَيْرًا يَرَهُ ۝ وَمَن يَعْمَلْ مِثْقَالَ ذَرَّةٍ شَرًّا يَرَهُ",
+                transcription: "Bismillahir-rahmanir-rahim. Idha zulzilati l-ardu zilzalaha. Wa-akhrajati l-ardu athqalaha. Waqala l-insanu ma laha. Yawma-idhin tuhaddithu akhbaraha. Bi-anna rabbaka awha laha. Yawma-idhin yasduru l-nasu ashtatan liyuraw a'malahum. Faman ya'mal mithqala dharratin khayran yarahu. Waman ya'mal mithqala dharratin sharran yarahu.",
+                meaning: "When the earth is shaken with its [final] earthquake. And the earth discharges its burdens. And man says, “What is [wrong] with it. That Day, it will report its news. Because your Lord has commanded it. That Day, the people will depart separated [into categories] to be shown [the result of] their deeds. So whoever does an atom's weight of good will see it. And whoever does an atom's weight of evil will see it.",
+                tips: ["Reminds us that even the good deeds we consider small are recorded.", "One of the surahs that most clearly describes the justice of the Day of Reckoning."]
+            },
+            {
+                title: "Surah Al-Qari'ah",
+                instruction: "It describes the terror of the Resurrection: people like scattered moths, mountains like carded wool, and the scale of deeds.",
+                arabic: "بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ ۝ الْقَارِعَةُ ۝ مَا الْقَارِعَةُ ۝ وَمَا أَدْرَاكَ مَا الْقَارِعَةُ ۝ يَوْمَ يَكُونُ النَّاسُ كَالْفَرَاشِ الْمَبْثُوثِ ۝ وَتَكُونُ الْجِبَالُ كَالْعِهْنِ الْمَنفُوشِ ۝ فَأَمَّا مَن ثَقُلَتْ مَوَازِينُهُ ۝ فَهُوَ فِي عِيشَةٍ رَّاضِيَةٍ ۝ وَأَمَّا مَنْ خَفَّتْ مَوَازِينُهُ ۝ فَأُمُّهُ هَاوِيَةٌ ۝ وَمَا أَدْرَاكَ مَا هِيَهْ ۝ نَارٌ حَامِيَةٌ",
+                transcription: "Bismillahir-rahmanir-rahim. Al-qari'atu. Ma l-qari'atu. Wama adraka ma l-qari'atu. Yawma yakunu l-nasu kal-farashi l-mabthuthi. Watakunu l-jibalu kal-'ihni l-manfushi. Fa-amma man thaqulat mawazinuhu. Fahuwa fi 'ishatin radiyatin. Wa-amma man khaffat mawazinuhu. Fa-ummuhu hawiyatun. Wama adraka ma hiyah. Narun hamiyatun.",
+                meaning: "The Striking Calamity. What is the Striking Calamity. And what can make you know what is the Striking Calamity. It is the Day when people will be like moths, dispersed. And the mountains will be like wool, fluffed up. Then as for one whose scales are heavy [with good deeds]. He will be in a pleasant life. But as for one whose scales are light. His refuge will be an abyss. And what can make you know what that is. It is a Fire, intensely hot.",
+                tips: ["Whoever's scale is heavy will be in a pleasing life.", "One of the short surahs that portrays the scene of the Resurrection in vivid images."]
+            },
+            {
+                title: "Surah Ad-Duhaa",
+                instruction: "In the days when revelation had paused for a while, it consoles the Prophet (ﷺ) by saying 'Your Lord has not forsaken you.'",
+                arabic: "بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ ۝ وَالضُّحَىٰ ۝ وَاللَّيْلِ إِذَا سَجَىٰ ۝ مَا وَدَّعَكَ رَبُّكَ وَمَا قَلَىٰ ۝ وَلَلْآخِرَةُ خَيْرٌ لَّكَ مِنَ الْأُولَىٰ ۝ وَلَسَوْفَ يُعْطِيكَ رَبُّكَ فَتَرْضَىٰ ۝ أَلَمْ يَجِدْكَ يَتِيمًا فَآوَىٰ ۝ وَوَجَدَكَ ضَالًّا فَهَدَىٰ ۝ وَوَجَدَكَ عَائِلًا فَأَغْنَىٰ ۝ فَأَمَّا الْيَتِيمَ فَلَا تَقْهَرْ ۝ وَأَمَّا السَّائِلَ فَلَا تَنْهَرْ ۝ وَأَمَّا بِنِعْمَةِ رَبِّكَ فَحَدِّثْ",
+                transcription: "Bismillahir-rahmanir-rahim. Wal-duha. Wa-al-layli idha saja. Ma wadda'aka rabbuka wama qala. Walalakhiratu khayrun laka mina l-ula. Walasawfa yu'tika rabbuka fatarda. Alam yajidka yatiman faawa. Wawajadaka dallan fahada. Wawajadaka 'ailan fa-aghna. Fa-amma l-yatima fala taqhar. Wa-amma l-saila fala tanhar. Wa-amma bini'mati rabbika fahaddith.",
+                meaning: "By the morning brightness. And [by] the night when it covers with darkness. Your Lord has not taken leave of you, [O Muhammad], nor has He detested [you]. And the Hereafter is better for you than the first [life]. And your Lord is going to give you, and you will be satisfied. Did He not find you an orphan and give [you] refuge. And He found you lost and guided [you]. And He found you poor and made [you] self-sufficient. So as for the orphan, do not oppress [him]. And as for the petitioner, do not repel [him]. But as for the favor of your Lord, report [it].",
+                tips: ["Considered a surah of consolation for those who fall into despair.", "It counsels us never to turn away the orphan or the one who asks."]
+            },
+            {
+                title: "Surah Al-'Adiyat",
+                instruction: "Swearing by the horses charging into battle, it describes man's ingratitude towards his Lord and his love of wealth.",
+                arabic: "بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ ۝ وَالْعَادِيَاتِ ضَبْحًا ۝ فَالْمُورِيَاتِ قَدْحًا ۝ فَالْمُغِيرَاتِ صُبْحًا ۝ فَأَثَرْنَ بِهِ نَقْعًا ۝ فَوَسَطْنَ بِهِ جَمْعًا ۝ إِنَّ الْإِنسَانَ لِرَبِّهِ لَكَنُودٌ ۝ وَإِنَّهُ عَلَىٰ ذَٰلِكَ لَشَهِيدٌ ۝ وَإِنَّهُ لِحُبِّ الْخَيْرِ لَشَدِيدٌ ۝ أَفَلَا يَعْلَمُ إِذَا بُعْثِرَ مَا فِي الْقُبُورِ ۝ وَحُصِّلَ مَا فِي الصُّدُورِ ۝ إِنَّ رَبَّهُم بِهِمْ يَوْمَئِذٍ لَّخَبِيرٌ",
+                transcription: "Bismillahir-rahmanir-rahim. Wal-'adiyati dabhan. Fal-muriyati qadhan. Fal-mughirati subhan. Fa-atharna bihi naq'an. Fawasatna bihi jam'an. Inna l-insana lirabbihi lakanudun. Wa-innahu 'ala dhalika lashahidun. Wa-innahu lihubbi l-khayri lashadidun. Afala ya'lamu idha bu'thira ma fi l-quburi. Wahussila ma fi l-suduri. Inna rabbahum bihim yawma-idhin lakhabirun.",
+                meaning: "By the racers, panting. And the producers of sparks [when] striking. And the chargers at dawn. Stirring up thereby [clouds of] dust. Arriving thereby in the center collectively. Indeed mankind, to his Lord, is ungrateful. And indeed, he is to that a witness. And indeed he is, in love of wealth, intense. But does he not know that when the contents of the graves are scattered. And that within the breasts is obtained. Indeed, their Lord with them, that Day, is [fully] Acquainted.",
+                tips: ["The antidote to ingratitude is gratitude.", "It reminds us of the day when those in the graves will be raised."]
+            },
+            {
+                title: "Surah Ash-Shams",
+                instruction: "Swearing by the sun, the moon, the day and the night, it declares that whoever purifies his soul will be saved, giving Thamud as an example.",
+                arabic: "بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ ۝ وَالشَّمْسِ وَضُحَاهَا ۝ وَالْقَمَرِ إِذَا تَلَاهَا ۝ وَالنَّهَارِ إِذَا جَلَّاهَا ۝ وَاللَّيْلِ إِذَا يَغْشَاهَا ۝ وَالسَّمَاءِ وَمَا بَنَاهَا ۝ وَالْأَرْضِ وَمَا طَحَاهَا ۝ وَنَفْسٍ وَمَا سَوَّاهَا ۝ فَأَلْهَمَهَا فُجُورَهَا وَتَقْوَاهَا ۝ قَدْ أَفْلَحَ مَن زَكَّاهَا ۝ وَقَدْ خَابَ مَن دَسَّاهَا ۝ كَذَّبَتْ ثَمُودُ بِطَغْوَاهَا ۝ إِذِ انبَعَثَ أَشْقَاهَا ۝ فَقَالَ لَهُمْ رَسُولُ اللَّهِ نَاقَةَ اللَّهِ وَسُقْيَاهَا ۝ فَكَذَّبُوهُ فَعَقَرُوهَا فَدَمْدَمَ عَلَيْهِمْ رَبُّهُم بِذَنبِهِمْ فَسَوَّاهَا ۝ وَلَا يَخَافُ عُقْبَاهَا",
+                transcription: "Bismillahir-rahmanir-rahim. Wal-shamsi waduhaha. Wal-qamari idha talaha. Wal-nahari idha jallaha. Wa-al-layli idha yaghshaha. Wal-samai wama banaha. Wal-ardi wama tahaha. Wanafsin wama sawwaha. Fa-alhamaha fujuraha wataqwaha. Qad aflaha man zakkaha. Waqad khaba man dassaha. Kadhabat thamudu bitaghwaha. Idhi inba'atha ashqaha. Faqala lahum rasulu l-lahi naqata l-lahi wasuqyaha. Fakadhabuhu fa'aqaruha fadamdama 'alayhim rabbuhum bidhanbihim fasawwaha. Wala yakhafu 'uqbaha.",
+                meaning: "By the sun and its brightness. And [by] the moon when it follows it. And [by] the day when it displays it. And [by] the night when it covers it. And [by] the sky and He who constructed it. And [by] the earth and He who spread it. And [by] the soul and He who proportioned it. And inspired it [with discernment of] its wickedness and its righteousness. He has succeeded who purifies it. And he has failed who instills it [with corruption]. Thamud denied [their prophet] by reason of their transgression. When the most wretched of them was sent forth. And the messenger of Allah [Salih] said to them, “[Do not harm] the she-camel of Allah or [prevent her from] her drink. But they denied him and hamstrung her. So their Lord brought down upon them destruction for their sin and made it equal [upon all of them]. And He does not fear the consequence thereof.",
+                tips: ["The verse 'He who purifies his soul has succeeded' is the essence of the surah.", "The destruction of the people of Thamud, who slaughtered the she-camel, is told as a lesson."]
+            },
+            {
+                title: "Surah Al-Layl",
+                instruction: "Swearing by the night and the day, it describes how the path of the one who gives and fears Allah parts from that of the miser.",
+                arabic: "بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ ۝ وَاللَّيْلِ إِذَا يَغْشَىٰ ۝ وَالنَّهَارِ إِذَا تَجَلَّىٰ ۝ وَمَا خَلَقَ الذَّكَرَ وَالْأُنثَىٰ ۝ إِنَّ سَعْيَكُمْ لَشَتَّىٰ ۝ فَأَمَّا مَنْ أَعْطَىٰ وَاتَّقَىٰ ۝ وَصَدَّقَ بِالْحُسْنَىٰ ۝ فَسَنُيَسِّرُهُ لِلْيُسْرَىٰ ۝ وَأَمَّا مَن بَخِلَ وَاسْتَغْنَىٰ ۝ وَكَذَّبَ بِالْحُسْنَىٰ ۝ فَسَنُيَسِّرُهُ لِلْعُسْرَىٰ ۝ وَمَا يُغْنِي عَنْهُ مَالُهُ إِذَا تَرَدَّىٰ ۝ إِنَّ عَلَيْنَا لَلْهُدَىٰ ۝ وَإِنَّ لَنَا لَلْآخِرَةَ وَالْأُولَىٰ ۝ فَأَنذَرْتُكُمْ نَارًا تَلَظَّىٰ ۝ لَا يَصْلَاهَا إِلَّا الْأَشْقَى ۝ الَّذِي كَذَّبَ وَتَوَلَّىٰ ۝ وَسَيُجَنَّبُهَا الْأَتْقَى ۝ الَّذِي يُؤْتِي مَالَهُ يَتَزَكَّىٰ ۝ وَمَا لِأَحَدٍ عِندَهُ مِن نِّعْمَةٍ تُجْزَىٰ ۝ إِلَّا ابْتِغَاءَ وَجْهِ رَبِّهِ الْأَعْلَىٰ ۝ وَلَسَوْفَ يَرْضَىٰ",
+                transcription: "Bismillahir-rahmanir-rahim. Wa-al-layli idha yaghsha. Wal-nahari idha tajalla. Wama khalaqa l-dhakara wal-untha. Inna sa'yakum lashatta. Fa-amma man a'ta wa-ittaqa. Wasaddaqa bil-husna. Fasanuyassiruhu lilyusra. Wa-amma man bakhila wa-istaghna. Wakadhaba bil-husna. Fasanuyassiruhu lil'usra. Wama yughni 'anhu maluhu idha taradda. Inna 'alayna lalhuda. Wa-inna lana lalakhirata wal-ula. Fa-andhartukum naran talazza. La yaslaha illa l-ashqa. Alladhi kadhaba watawalla. Wasayujannabuha l-atqa. Alladhi yuti malahu yatazakka. Wama li-ahadin 'indahu min ni'matin tujza. Illa ibtighaa wajhi rabbihi l-a'la. Walasawfa yarda.",
+                meaning: "By the night when it covers. And [by] the day when it appears. And [by] He who created the male and female. Indeed, your efforts are diverse. As for he who gives and fears Allah. And believes in the best [reward]. We will ease him toward ease. But as for he who withholds and considers himself free of need. And denies the best [reward]. We will ease him toward difficulty. And what will his wealth avail him when he falls. Indeed, [incumbent] upon Us is guidance. And indeed, to Us belongs the Hereafter and the first [life]. So I have warned you of a Fire which is blazing. None will [enter to] burn therein except the most wretched one. Who had denied and turned away. But the righteous one will avoid it. [He] who gives [from] his wealth to purify himself. And not [giving] for anyone who has [done him] a favor to be rewarded. But only seeking the countenance of his Lord, Most High. And he is going to be satisfied.",
+                tips: ["It compares the outcome of generosity and of miserliness.", "It states that spending brings ease and miserliness brings hardship."]
+            },
+            {
+                title: "Surah Al-'Alaq",
+                instruction: "These are the first verses of the Quran to be revealed, 'Read in the name of your Lord who created,' declaring the value of knowledge and the pen.",
+                arabic: "بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ ۝ اقْرَأْ بِاسْمِ رَبِّكَ الَّذِي خَلَقَ ۝ خَلَقَ الْإِنسَانَ مِنْ عَلَقٍ ۝ اقْرَأْ وَرَبُّكَ الْأَكْرَمُ ۝ الَّذِي عَلَّمَ بِالْقَلَمِ ۝ عَلَّمَ الْإِنسَانَ مَا لَمْ يَعْلَمْ ۝ كَلَّا إِنَّ الْإِنسَانَ لَيَطْغَىٰ ۝ أَن رَّآهُ اسْتَغْنَىٰ ۝ إِنَّ إِلَىٰ رَبِّكَ الرُّجْعَىٰ ۝ أَرَأَيْتَ الَّذِي يَنْهَىٰ ۝ عَبْدًا إِذَا صَلَّىٰ ۝ أَرَأَيْتَ إِن كَانَ عَلَى الْهُدَىٰ ۝ أَوْ أَمَرَ بِالتَّقْوَىٰ ۝ أَرَأَيْتَ إِن كَذَّبَ وَتَوَلَّىٰ ۝ أَلَمْ يَعْلَم بِأَنَّ اللَّهَ يَرَىٰ ۝ كَلَّا لَئِن لَّمْ يَنتَهِ لَنَسْفَعًا بِالنَّاصِيَةِ ۝ نَاصِيَةٍ كَاذِبَةٍ خَاطِئَةٍ ۝ فَلْيَدْعُ نَادِيَهُ ۝ سَنَدْعُ الزَّبَانِيَةَ ۝ كَلَّا لَا تُطِعْهُ وَاسْجُدْ وَاقْتَرِب",
+                transcription: "Bismillahir-rahmanir-rahim. Iqra bi-ismi rabbika alladhi khalaqa. Khalaqa l-insana min 'alaqin. Iqra warabbuka l-akramu. Alladhi 'allama bil-qalami. 'Allama l-insana ma lam ya'lam. Kalla inna l-insana layatgha. An raahu istaghna. Inna ila rabbika l-ruj'a. Ara-ayta alladhi yanha. 'Abdan idha salla. Ara-ayta in kana 'ala l-huda. Aw amara bil-taqwa. Ara-ayta in kadhaba watawalla. Alam ya'lam bi-anna l-laha yara. Kalla la-in lam yantahi lanasfa'an bil-nasiyati. Nasiyatin kadhibatin khati-atin. Falyad'u nadiyahu. Sanad'u l-zabaniyata. Kalla la tuti'hu wa-usjud wa-iqtarib.",
+                meaning: "Recite in the name of your Lord who created. Created man from a clinging substance. Recite, and your Lord is the most Generous. Who taught by the pen. Taught man that which he knew not. No! [But] indeed, man transgresses. Because he sees himself self-sufficient. Indeed, to your Lord is the return. Have you seen the one who forbids. A servant when he prays. Have you seen if he is upon guidance. Or enjoins righteousness. Have you seen if he denies and turns away. Does he not know that Allah sees. No! If he does not desist, We will surely drag him by the forelock. A lying, sinning forelock. Then let him call his associates. We will call the angels of Hell. No! Do not obey him. But prostrate and draw near [to Allah].",
+                tips: ["Its first five verses are the first revelation, sent down in the cave of Hira.", "ATTENTION: Its last verse is a verse of prostration; whoever recites it performs the prostration of recitation."]
+            },
+            {
+                title: "Surah Al-A'la",
+                instruction: "It begins with 'Glorify the name of your Lord, the Most High' and describes the order of creation and the benefit of reminder.",
+                arabic: "بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ ۝ سَبِّحِ اسْمَ رَبِّكَ الْأَعْلَى ۝ الَّذِي خَلَقَ فَسَوَّىٰ ۝ وَالَّذِي قَدَّرَ فَهَدَىٰ ۝ وَالَّذِي أَخْرَجَ الْمَرْعَىٰ ۝ فَجَعَلَهُ غُثَاءً أَحْوَىٰ ۝ سَنُقْرِئُكَ فَلَا تَنسَىٰ ۝ إِلَّا مَا شَاءَ اللَّهُ إِنَّهُ يَعْلَمُ الْجَهْرَ وَمَا يَخْفَىٰ ۝ وَنُيَسِّرُكَ لِلْيُسْرَىٰ ۝ فَذَكِّرْ إِن نَّفَعَتِ الذِّكْرَىٰ ۝ سَيَذَّكَّرُ مَن يَخْشَىٰ ۝ وَيَتَجَنَّبُهَا الْأَشْقَى ۝ الَّذِي يَصْلَى النَّارَ الْكُبْرَىٰ ۝ ثُمَّ لَا يَمُوتُ فِيهَا وَلَا يَحْيَىٰ ۝ قَدْ أَفْلَحَ مَن تَزَكَّىٰ ۝ وَذَكَرَ اسْمَ رَبِّهِ فَصَلَّىٰ ۝ بَلْ تُؤْثِرُونَ الْحَيَاةَ الدُّنْيَا ۝ وَالْآخِرَةُ خَيْرٌ وَأَبْقَىٰ ۝ إِنَّ هَٰذَا لَفِي الصُّحُفِ الْأُولَىٰ ۝ صُحُفِ إِبْرَاهِيمَ وَمُوسَىٰ",
+                transcription: "Bismillahir-rahmanir-rahim. Sabbihi isma rabbika l-a'la. Alladhi khalaqa fasawwa. Wa-alladhi qaddara fahada. Wa-alladhi akhraja l-mar'a. Faja'alahu ghuthaan ahwa. Sanuqri-uka fala tansa. Illa ma shaa l-lahu innahu ya'lamu l-jahra wama yakhfa. Wanuyassiruka lilyusra. Fadhakkir in nafa'ati l-dhikra. Sayadhakkaru man yakhsha. Wayatajannabuha l-ashqa. Alladhi yasla l-nara l-kubra. Thumma la yamutu fiha wala yahya. Qad aflaha man tazakka. Wadhakara isma rabbihi fasalla. Bal tuthiruna l-hayata l-dunya. Wal-akhiratu khayrun wa-abqa. Inna hadha lafi l-suhufi l-ula. Suhufi ibrahima wamusa.",
+                meaning: "Exalt the name of your Lord, the Most High. Who created and proportioned. And who destined and [then] guided. And who brings out the pasture. And [then] makes it black stubble. We will make you recite, [O Muhammad], and you will not forget. Except what Allah should will. Indeed, He knows what is declared and what is hidden. And We will ease you toward ease. So remind, if the reminder should benefit. He who fears [Allah] will be reminded. But the wretched one will avoid it. [He] who will [enter and] burn in the greatest Fire. Neither dying therein nor living. He has certainly succeeded who purifies himself. And mentions the name of his Lord and prays. But you prefer the worldly life. While the Hereafter is better and more enduring. Indeed, this is in the former scriptures. The scriptures of Abraham and Moses.",
+                tips: ["The Prophet (ﷺ) used to recite it in the Friday and Eid prayers.", "It is commonly recited in the first rak'ah of the witr prayer."]
+            },
+            {
+                title: "Surah Al-Balad",
+                instruction: "Swearing by the city of Makkah, it declares that man was created amid hardship and explains what the steep path is.",
+                arabic: "بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ ۝ لَا أُقْسِمُ بِهَٰذَا الْبَلَدِ ۝ وَأَنتَ حِلٌّ بِهَٰذَا الْبَلَدِ ۝ وَوَالِدٍ وَمَا وَلَدَ ۝ لَقَدْ خَلَقْنَا الْإِنسَانَ فِي كَبَدٍ ۝ أَيَحْسَبُ أَن لَّن يَقْدِرَ عَلَيْهِ أَحَدٌ ۝ يَقُولُ أَهْلَكْتُ مَالًا لُّبَدًا ۝ أَيَحْسَبُ أَن لَّمْ يَرَهُ أَحَدٌ ۝ أَلَمْ نَجْعَل لَّهُ عَيْنَيْنِ ۝ وَلِسَانًا وَشَفَتَيْنِ ۝ وَهَدَيْنَاهُ النَّجْدَيْنِ ۝ فَلَا اقْتَحَمَ الْعَقَبَةَ ۝ وَمَا أَدْرَاكَ مَا الْعَقَبَةُ ۝ فَكُّ رَقَبَةٍ ۝ أَوْ إِطْعَامٌ فِي يَوْمٍ ذِي مَسْغَبَةٍ ۝ يَتِيمًا ذَا مَقْرَبَةٍ ۝ أَوْ مِسْكِينًا ذَا مَتْرَبَةٍ ۝ ثُمَّ كَانَ مِنَ الَّذِينَ آمَنُوا وَتَوَاصَوْا بِالصَّبْرِ وَتَوَاصَوْا بِالْمَرْحَمَةِ ۝ أُولَٰئِكَ أَصْحَابُ الْمَيْمَنَةِ ۝ وَالَّذِينَ كَفَرُوا بِآيَاتِنَا هُمْ أَصْحَابُ الْمَشْأَمَةِ ۝ عَلَيْهِمْ نَارٌ مُّؤْصَدَةٌ",
+                transcription: "Bismillahir-rahmanir-rahim. La uqsimu bihadha l-baladi. Wa-anta hillun bihadha l-baladi. Wawalidin wama walada. Laqad khalaqna l-insana fi kabadin. Ayahsabu an lan yaqdira 'alayhi ahadun. Yaqulu ahlaktu malan lubadan. Ayahsabu an lam yarahu ahadun. Alam naj'al lahu 'aynayni. Walisanan washafatayni. Wahadaynahu l-najdayni. Fala iqtahama l-'aqabata. Wama adraka ma l-'aqabatu. Fakku raqabatin. Aw it'amun fi yawmin dhi masghabatin. Yatiman dha maqrabatin. Aw miskinan dha matrabatin. Thumma kana mina alladhina amanu watawasaw bil-sabri watawasaw bil-marhamati. Ulaika ashabu l-maymanati. Wa-alladhina kafaru biayatina hum ashabu l-mashamati. 'Alayhim narun musadatun.",
+                meaning: "I swear by this city, Makkah. And you, [O Muhammad], are free of restriction in this city. And [by] the father and that which was born [of him]. We have certainly created man into hardship. Does he think that never will anyone overcome him. He says, “I have spent wealth in abundance. Does he think that no one has seen him. Have We not made for him two eyes. And a tongue and two lips. And have shown him the two ways. But he has not broken through the difficult pass. And what can make you know what is [breaking through] the difficult pass. It is the freeing of a slave. Or feeding on a day of severe hunger. An orphan of near relationship. Or a needy person in misery. And then being among those who believed and advised one another to patience and advised one another to compassion. Those are the companions of the right. But they who disbelieved in Our signs - those are the companions of the left. Over them will be fire closed in.",
+                tips: ["The steep path: freeing a slave, feeding the orphan and the poor.", "It teaches that true valour is mercy."]
+            },
+            {
+                title: "Surah Al-Ghashiyah",
+                instruction: "It describes the overwhelming Day of Resurrection with scenes of Hell and Paradise, and calls us to look at the camel and the sky.",
+                arabic: "بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ ۝ هَلْ أَتَاكَ حَدِيثُ الْغَاشِيَةِ ۝ وُجُوهٌ يَوْمَئِذٍ خَاشِعَةٌ ۝ عَامِلَةٌ نَّاصِبَةٌ ۝ تَصْلَىٰ نَارًا حَامِيَةً ۝ تُسْقَىٰ مِنْ عَيْنٍ آنِيَةٍ ۝ لَّيْسَ لَهُمْ طَعَامٌ إِلَّا مِن ضَرِيعٍ ۝ لَّا يُسْمِنُ وَلَا يُغْنِي مِن جُوعٍ ۝ وُجُوهٌ يَوْمَئِذٍ نَّاعِمَةٌ ۝ لِّسَعْيِهَا رَاضِيَةٌ ۝ فِي جَنَّةٍ عَالِيَةٍ ۝ لَّا تَسْمَعُ فِيهَا لَاغِيَةً ۝ فِيهَا عَيْنٌ جَارِيَةٌ ۝ فِيهَا سُرُرٌ مَّرْفُوعَةٌ ۝ وَأَكْوَابٌ مَّوْضُوعَةٌ ۝ وَنَمَارِقُ مَصْفُوفَةٌ ۝ وَزَرَابِيُّ مَبْثُوثَةٌ ۝ أَفَلَا يَنظُرُونَ إِلَى الْإِبِلِ كَيْفَ خُلِقَتْ ۝ وَإِلَى السَّمَاءِ كَيْفَ رُفِعَتْ ۝ وَإِلَى الْجِبَالِ كَيْفَ نُصِبَتْ ۝ وَإِلَى الْأَرْضِ كَيْفَ سُطِحَتْ ۝ فَذَكِّرْ إِنَّمَا أَنتَ مُذَكِّرٌ ۝ لَّسْتَ عَلَيْهِم بِمُصَيْطِرٍ ۝ إِلَّا مَن تَوَلَّىٰ وَكَفَرَ ۝ فَيُعَذِّبُهُ اللَّهُ الْعَذَابَ الْأَكْبَرَ ۝ إِنَّ إِلَيْنَا إِيَابَهُمْ ۝ ثُمَّ إِنَّ عَلَيْنَا حِسَابَهُم",
+                transcription: "Bismillahir-rahmanir-rahim. Hal ataka hadithu l-ghashiyati. Wujuhun yawma-idhin khashi'atun. 'Amilatun nasibatun. Tasla naran hamiyatan. Tusqa min 'aynin aniyatin. Laysa lahum ta'amun illa min dari'in. La yusminu wala yughni min ju'in. Wujuhun yawma-idhin na'imatun. Lisa'yiha radiyatun. Fi jannatin 'aliyatin. La tasma'u fiha laghiyatan. Fiha 'aynun jariyatun. Fiha sururun marfu'atun. Wa-akwabun mawdu'atun. Wanamariqu masfufatun. Wazarabiyyu mabthuthatun. Afala yanzuruna ila l-ibili kayfa khuliqat. Wa-ila l-samai kayfa rufi'at. Wa-ila l-jibali kayfa nusibat. Wa-ila l-ardi kayfa sutihat. Fadhakkir innama anta mudhakkirun. Lasta 'alayhim bimusaytirin. Illa man tawalla wakafara. Fayu'adhibuhu l-lahu l-'adhaba l-akbara. Inna ilayna iyabahum. Thumma inna 'alayna hisabahum.",
+                meaning: "Has there reached you the report of the Overwhelming [event]. [Some] faces, that Day, will be humbled. Working [hard] and exhausted. They will [enter to] burn in an intensely hot Fire. They will be given drink from a boiling spring. For them there will be no food except from a poisonous, thorny plant. Which neither nourishes nor avails against hunger. [Other] faces, that Day, will show pleasure. With their effort [they are] satisfied. In an elevated garden. Wherein they will hear no unsuitable speech. Within it is a flowing spring. Within it are couches raised high. And cups put in place. And cushions lined up. And carpets spread around. Then do they not look at the camels - how they are created. And at the sky - how it is raised. And at the mountains - how they are erected. And at the earth - how it is spread out. So remind, [O Muhammad]; you are only a reminder. You are not over them a controller. However, he who turns away and disbelieves. Then Allah will punish him with the greatest punishment. Indeed, to Us is their return. Then indeed, upon Us is their account.",
+                tips: ["The Prophet (ﷺ) used to recite it together with Surah Al-A'la in the Friday prayer.", "Its verses calling us to look at the universe and reflect are well known."]
+            },
+            {
+                title: "Surah Al-Bayyinah",
+                instruction: "It describes the Prophet (ﷺ) who is the clear proof, the pure religion, prayer and zakat, and the end of the righteous and the deniers.",
+                arabic: "بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ ۝ لَمْ يَكُنِ الَّذِينَ كَفَرُوا مِنْ أَهْلِ الْكِتَابِ وَالْمُشْرِكِينَ مُنفَكِّينَ حَتَّىٰ تَأْتِيَهُمُ الْبَيِّنَةُ ۝ رَسُولٌ مِّنَ اللَّهِ يَتْلُو صُحُفًا مُّطَهَّرَةً ۝ فِيهَا كُتُبٌ قَيِّمَةٌ ۝ وَمَا تَفَرَّقَ الَّذِينَ أُوتُوا الْكِتَابَ إِلَّا مِن بَعْدِ مَا جَاءَتْهُمُ الْبَيِّنَةُ ۝ وَمَا أُمِرُوا إِلَّا لِيَعْبُدُوا اللَّهَ مُخْلِصِينَ لَهُ الدِّينَ حُنَفَاءَ وَيُقِيمُوا الصَّلَاةَ وَيُؤْتُوا الزَّكَاةَ وَذَٰلِكَ دِينُ الْقَيِّمَةِ ۝ إِنَّ الَّذِينَ كَفَرُوا مِنْ أَهْلِ الْكِتَابِ وَالْمُشْرِكِينَ فِي نَارِ جَهَنَّمَ خَالِدِينَ فِيهَا أُولَٰئِكَ هُمْ شَرُّ الْبَرِيَّةِ ۝ إِنَّ الَّذِينَ آمَنُوا وَعَمِلُوا الصَّالِحَاتِ أُولَٰئِكَ هُمْ خَيْرُ الْبَرِيَّةِ ۝ جَزَاؤُهُمْ عِندَ رَبِّهِمْ جَنَّاتُ عَدْنٍ تَجْرِي مِن تَحْتِهَا الْأَنْهَارُ خَالِدِينَ فِيهَا أَبَدًا رَّضِيَ اللَّهُ عَنْهُمْ وَرَضُوا عَنْهُ ذَٰلِكَ لِمَنْ خَشِيَ رَبَّهُ",
+                transcription: "Bismillahir-rahmanir-rahim. Lam yakuni alladhina kafaru min ahli l-kitabi wal-mushrikina munfakkina hatta tatiyahumu l-bayinatu. Rasulun mina l-lahi yatlu suhufan mutahharatan. Fiha kutubun qayyimatun. Wama tafarraqa alladhina utu l-kitaba illa min ba'di ma jaathumu l-bayinatu. Wama umiru illa liya'budu l-laha mukhlisina lahu l-dina hunafaa wayuqimu l-salata wayutu l-zakata wadhalika dinu l-qayimati. Inna alladhina kafaru min ahli l-kitabi wal-mushrikina fi nari jahannama khalidina fiha ulaika hum sharru l-bariyati. Inna alladhina amanu wa'amilu l-salihati ulaika hum khayru l-bariyati. Jazauhum 'inda rabbihim jannatu 'adnin tajri min tahtiha l-anharu khalidina fiha abadan radiya l-lahu 'anhum waradu 'anhu dhalika liman khashiya rabbahu.",
+                meaning: "Those who disbelieved among the People of the Scripture and the polytheists were not to be parted [from misbelief] until there came to them clear evidence. A Messenger from Allah, reciting purified scriptures. Within which are correct writings. Nor did those who were given the Scripture become divided until after there had come to them clear evidence. And they were not commanded except to worship Allah, [being] sincere to Him in religion, inclining to truth, and to establish prayer and to give zakah. And that is the correct religion. Indeed, they who disbelieved among the People of the Scripture and the polytheists will be in the fire of Hell, abiding eternally therein. Those are the worst of creatures. Indeed, they who have believed and done righteous deeds - those are the best of creatures. Their reward with Allah will be gardens of perpetual residence beneath which rivers flow, wherein they will abide forever, Allah being pleased with them and they with Him. That is for whoever has feared his Lord.",
+                tips: ["Its verses are long; work through it section by section without rushing.", "It emphasises 'sincerity in religion', that is, making one's intention purely for Allah."]
+            },
+            {
+                title: "Surah Al-Fajr",
+                instruction: "It swears by the dawn and the ten nights, tells of the end of 'Ad, Thamud and Pharaoh, and gives glad tidings to the soul at peace.",
+                arabic: "بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ ۝ وَالْفَجْرِ ۝ وَلَيَالٍ عَشْرٍ ۝ وَالشَّفْعِ وَالْوَتْرِ ۝ وَاللَّيْلِ إِذَا يَسْرِ ۝ هَلْ فِي ذَٰلِكَ قَسَمٌ لِّذِي حِجْرٍ ۝ أَلَمْ تَرَ كَيْفَ فَعَلَ رَبُّكَ بِعَادٍ ۝ إِرَمَ ذَاتِ الْعِمَادِ ۝ الَّتِي لَمْ يُخْلَقْ مِثْلُهَا فِي الْبِلَادِ ۝ وَثَمُودَ الَّذِينَ جَابُوا الصَّخْرَ بِالْوَادِ ۝ وَفِرْعَوْنَ ذِي الْأَوْتَادِ ۝ الَّذِينَ طَغَوْا فِي الْبِلَادِ ۝ فَأَكْثَرُوا فِيهَا الْفَسَادَ ۝ فَصَبَّ عَلَيْهِمْ رَبُّكَ سَوْطَ عَذَابٍ ۝ إِنَّ رَبَّكَ لَبِالْمِرْصَادِ ۝ فَأَمَّا الْإِنسَانُ إِذَا مَا ابْتَلَاهُ رَبُّهُ فَأَكْرَمَهُ وَنَعَّمَهُ فَيَقُولُ رَبِّي أَكْرَمَنِ ۝ وَأَمَّا إِذَا مَا ابْتَلَاهُ فَقَدَرَ عَلَيْهِ رِزْقَهُ فَيَقُولُ رَبِّي أَهَانَنِ ۝ كَلَّا بَل لَّا تُكْرِمُونَ الْيَتِيمَ ۝ وَلَا تَحَاضُّونَ عَلَىٰ طَعَامِ الْمِسْكِينِ ۝ وَتَأْكُلُونَ التُّرَاثَ أَكْلًا لَّمًّا ۝ وَتُحِبُّونَ الْمَالَ حُبًّا جَمًّا ۝ كَلَّا إِذَا دُكَّتِ الْأَرْضُ دَكًّا دَكًّا ۝ وَجَاءَ رَبُّكَ وَالْمَلَكُ صَفًّا صَفًّا ۝ وَجِيءَ يَوْمَئِذٍ بِجَهَنَّمَ يَوْمَئِذٍ يَتَذَكَّرُ الْإِنسَانُ وَأَنَّىٰ لَهُ الذِّكْرَىٰ ۝ يَقُولُ يَا لَيْتَنِي قَدَّمْتُ لِحَيَاتِي ۝ فَيَوْمَئِذٍ لَّا يُعَذِّبُ عَذَابَهُ أَحَدٌ ۝ وَلَا يُوثِقُ وَثَاقَهُ أَحَدٌ ۝ يَا أَيَّتُهَا النَّفْسُ الْمُطْمَئِنَّةُ ۝ ارْجِعِي إِلَىٰ رَبِّكِ رَاضِيَةً مَّرْضِيَّةً ۝ فَادْخُلِي فِي عِبَادِي ۝ وَادْخُلِي جَنَّتِي",
+                transcription: "Bismillahir-rahmanir-rahim. Wal-fajri. Walayalin 'ashrin. Wal-shaf'i wal-watri. Wa-al-layli idha yasri. Hal fi dhalika qasamun lidhi hijrin. Alam tara kayfa fa'ala rabbuka bi'adin. Irama dhati l-'imadi. Allati lam yukhlaq mithluha fi l-biladi. Wathamuda alladhina jabu l-sakhra bil-wadi. Wafir'awna dhi l-awtadi. Alladhina taghaw fi l-biladi. Fa-aktharu fiha l-fasada. Fasabba 'alayhim rabbuka sawta 'adhabin. Inna rabbaka labil-mirsadi. Fa-amma l-insanu idha ma ibtalahu rabbuhu fa-akramahu wana''amahu fayaqulu rabbi akramani. Wa-amma idha ma ibtalahu faqadara 'alayhi rizqahu fayaqulu rabbi ahanani. Kalla bal la tukrimuna l-yatima. Wala tahadduna 'ala ta'ami l-miskini. Watakuluna l-turatha aklan lamman. Watuhibbuna l-mala hubban jamman. Kalla idha dukkati l-ardu dakkan dakkan. Wajaa rabbuka wal-malaku saffan saffan. Wajia yawma-idhin bijahannama yawma-idhin yatadhakkaru l-insanu wa-anna lahu l-dhikra. Yaqulu yalaytani qaddamtu lihayati. Fayawma-idhin la yu'adhibu 'adhabahu ahadun. Wala yuthiqu wathaqahu ahadun. Yaayyatuha l-nafsu l-mutma-inatu. Irji'i ila rabbiki radiyatan mardiyyatan. Fa-udkhuli fi 'ibadi. Wa-udkhuli jannati.",
+                meaning: "By the dawn. And [by] ten nights. And [by] the even [number] and the odd. And [by] the night when it passes. Is there [not] in [all] that an oath [sufficient] for one of perception. Have you not considered how your Lord dealt with 'Aad. [With] Iram - who had lofty pillars. The likes of whom had never been created in the land. And [with] Thamud, who carved out the rocks in the valley. And [with] Pharaoh, owner of the stakes. [All of] whom oppressed within the lands. And increased therein the corruption. So your Lord poured upon them a scourge of punishment. Indeed, your Lord is in observation. And as for man, when his Lord tries him and [thus] is generous to him and favors him, he says, “My Lord has honored me. But when He tries him and restricts his provision, he says, ”My Lord has humiliated me. No! But you do not honor the orphan. And you do not encourage one another to feed the poor. And you consume inheritance, devouring [it] altogether. And you love wealth with immense love. No! When the earth has been leveled - pounded and crushed. And your Lord has come and the angels, rank upon rank. And brought [within view], that Day, is Hell - that Day, man will remember, but what good to him will be the remembrance. He will say, “Oh, I wish I had sent ahead [some good] for my life. So on that Day, none will punish [as severely] as His punishment. And none will bind [as severely] as His binding [of the evildoers]. [To the righteous it will be said], ”O reassured soul. Return to your Lord, well-pleased and pleasing [to Him]. And enter among My [righteous] servants. And enter My Paradise.",
+                tips: ["The 'ten nights' are mostly held to be the first ten nights of Dhul-Hijjah.", "Its final verses are much recited at funerals and gatherings of consolation."]
+            },
+            {
+                title: "The Last Three Verses of Al-Hashr",
+                instruction: "Three verses that list the beautiful names of Allah one after another; recommended morning and evening.",
+                arabic: "هُوَ اللَّهُ الَّذِي لَا إِلَٰهَ إِلَّا هُوَ عَالِمُ الْغَيْبِ وَالشَّهَادَةِ هُوَ الرَّحْمَٰنُ الرَّحِيمُ ۝ هُوَ اللَّهُ الَّذِي لَا إِلَٰهَ إِلَّا هُوَ الْمَلِكُ الْقُدُّوسُ السَّلَامُ الْمُؤْمِنُ الْمُهَيْمِنُ الْعَزِيزُ الْجَبَّارُ الْمُتَكَبِّرُ سُبْحَانَ اللَّهِ عَمَّا يُشْرِكُونَ ۝ هُوَ اللَّهُ الْخَالِقُ الْبَارِئُ الْمُصَوِّرُ لَهُ الْأَسْمَاءُ الْحُسْنَىٰ يُسَبِّحُ لَهُ مَا فِي السَّمَاوَاتِ وَالْأَرْضِ وَهُوَ الْعَزِيزُ الْحَكِيمُ",
+                transcription: "Huwa l-lahu alladhi la ilaha illa huwa 'alimu l-ghaybi wal-shahadati. Huwa l-rahmanu l-rahimu. Huwa l-lahu alladhi la ilaha illa huwa l-maliku l-qudusu l-salamu l-muminu l-muhayminu l-'azizu l-jabaru l-mutakabiru. Subhana l-lahi 'amma yushrikuna. Huwa l-lahu l-khaliqu l-bari-u l-musawiru lahu l-asmau l-husna. Yusabbihu lahu ma fi l-samawati wal-ardi wahuwa l-'azizu l-hakimu.",
+                meaning: "He is Allah, other than whom there is no deity, Knower of the unseen and the witnessed. He is the Entirely Merciful, the Especially Merciful. He is Allah, other than whom there is no deity, the Sovereign, the Pure, the Perfection, the Bestower of Faith, the Overseer, the Exalted in Might, the Compeller, the Superior. Exalted is Allah above whatever they associate with Him. He is Allah, the Creator, the Inventor, the Fashioner; to Him belong the best names. Whatever is in the heavens and earth is exalting Him. And He is the Exalted in Might, the Wise.",
+                tips: ["It is narrated that angels pray for whoever recites them until evening, and until morning if recited at night (Tirmidhi).", "The first two verses begin identically: verse 22 continues with 'Knower of the unseen', verse 23 with 'the Sovereign, the Pure'."]
+            },
+            {
+                title: "The Last Two Verses of Al-Baqarah",
+                instruction: "The closing verses of Surah Al-Baqarah: a summary of faith and a prayer already accepted.",
+                arabic: "آمَنَ الرَّسُولُ بِمَا أُنزِلَ إِلَيْهِ مِن رَّبِّهِ وَالْمُؤْمِنُونَ كُلٌّ آمَنَ بِاللَّهِ وَمَلَائِكَتِهِ وَكُتُبِهِ وَرُسُلِهِ لَا نُفَرِّقُ بَيْنَ أَحَدٍ مِّن رُّسُلِهِ وَقَالُوا سَمِعْنَا وَأَطَعْنَا غُفْرَانَكَ رَبَّنَا وَإِلَيْكَ الْمَصِيرُ ۝ لَا يُكَلِّفُ اللَّهُ نَفْسًا إِلَّا وُسْعَهَا لَهَا مَا كَسَبَتْ وَعَلَيْهَا مَا اكْتَسَبَتْ رَبَّنَا لَا تُؤَاخِذْنَا إِن نَّسِينَا أَوْ أَخْطَأْنَا رَبَّنَا وَلَا تَحْمِلْ عَلَيْنَا إِصْرًا كَمَا حَمَلْتَهُ عَلَى الَّذِينَ مِن قَبْلِنَا رَبَّنَا وَلَا تُحَمِّلْنَا مَا لَا طَاقَةَ لَنَا بِهِ وَاعْفُ عَنَّا وَاغْفِرْ لَنَا وَارْحَمْنَا أَنتَ مَوْلَانَا فَانصُرْنَا عَلَى الْقَوْمِ الْكَافِرِينَ",
+                transcription: "Amana l-rasulu bima unzila ilayhi min rabbihi wal-muminuna. Kullun amana bil-lahi wamalaikatihi wakutubihi warusulihi. La nufarriqu bayna ahadin min rusulihi. Waqalu sami'na wa-ata'na ghufranaka rabbana wa-ilayka l-masiru. La yukallifu l-lahu nafsan illa wus'aha. Laha ma kasabat wa'alayha ma iktasabat. Rabbana la tuakhidhna in nasina aw akhtana. Rabbana wala tahmil 'alayna isran kama hamaltahu 'ala alladhina min qablina. Rabbana wala tuhammilna ma la taqata lana bihi. Wa-u'fu 'anna wa-ighfir lana wa-irhamna anta mawlana fa-unsurna 'ala l-qawmi l-kafirina.",
+                meaning: "The Messenger has believed in what was revealed to him from his Lord, and [so have] the believers. All of them have believed in Allah and His angels and His books and His messengers, [saying], “We make no distinction between any of His messengers.” And they say, “We hear and we obey. [We seek] Your forgiveness, our Lord, and to You is the [final] destination. Allah does not charge a soul except [with that within] its capacity. It will have [the consequence of] what [good] it has gained, and it will bear [the consequence of] what [evil] it has earned. ”Our Lord, do not impose blame upon us if we have forgotten or erred. Our Lord, and lay not upon us a burden like that which You laid upon those before us. Our Lord, and burden us not with that which we have no ability to bear. And pardon us; and forgive us; and have mercy upon us. You are our protector, so give us victory over the disbelieving people.",
+                tips: ["Hadith: 'Whoever recites the last two verses of Al-Baqarah at night, they will suffice him.' (Bukhari, Muslim)", "Counted among the three gifts granted to the Prophet on the night of the Ascension."]
+            },
+            {
+                title: "Al-Ahzab, Verse 35",
+                instruction: "It lists men and women side by side in the same ten qualities and promises both the same reward.",
+                arabic: "إِنَّ الْمُسْلِمِينَ وَالْمُسْلِمَاتِ وَالْمُؤْمِنِينَ وَالْمُؤْمِنَاتِ وَالْقَانِتِينَ وَالْقَانِتَاتِ وَالصَّادِقِينَ وَالصَّادِقَاتِ وَالصَّابِرِينَ وَالصَّابِرَاتِ وَالْخَاشِعِينَ وَالْخَاشِعَاتِ وَالْمُتَصَدِّقِينَ وَالْمُتَصَدِّقَاتِ وَالصَّائِمِينَ وَالصَّائِمَاتِ وَالْحَافِظِينَ فُرُوجَهُمْ وَالْحَافِظَاتِ وَالذَّاكِرِينَ اللَّهَ كَثِيرًا وَالذَّاكِرَاتِ أَعَدَّ اللَّهُ لَهُم مَّغْفِرَةً وَأَجْرًا عَظِيمًا",
+                transcription: "Inna l-muslimina wal-muslimati wal-muminina wal-muminati. Wal-qanitina wal-qanitati wal-sadiqina wal-sadiqati. Wal-sabirina wal-sabirati wal-khashi'ina wal-khashi'ati. Wal-mutasadiqina wal-mutasadiqati wal-saimina wal-saimati. Wal-hafizina furujahum wal-hafizati wal-dhakirina l-laha kathiran wal-dhakirati. A'adda l-lahu lahum maghfiratan wa-ajran 'aziman.",
+                meaning: "Indeed, the Muslim men and Muslim women, the believing men and believing women, the obedient men and obedient women, the truthful men and truthful women, the patient men and patient women, the humble men and humble women, the charitable men and charitable women, the fasting men and fasting women, the men who guard their private parts and the women who do so, and the men who remember Allah often and the women who do so - for them Allah has prepared forgiveness and a great reward.",
+                tips: ["Ten paired qualities: Muslim, believing, obedient, truthful, patient, humble, charitable, fasting, chaste, often remembering Allah.", "It is narrated that it was revealed after Umm Salama asked why women were not mentioned (Tirmidhi, an-Nasa'i)."]
             }
         ]
     },

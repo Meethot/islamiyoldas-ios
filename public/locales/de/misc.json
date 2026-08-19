@@ -57,7 +57,7 @@
     "birthdayCard": {
         "heading": "🎂 Der Vers zum {{date}}",
         "share": "Teilen",
-        "shareText": "🎂 Der Vers zum {{date}}\n\n\"{{translation}}\"\n— {{source}}\n\nWelcher ist deiner? Entdecke ihn mit Islamischer Begleiter:\n{{link}}",
+        "shareText": "🎂 Der Vers zum {{date}}\n\n„{{translation}}“\n— {{source}}\n\nWelcher ist deiner? Entdecke ihn mit Islamischer Begleiter:\n{{link}}",
         "cta": "Was ist dein Geburtstagsvers?\nEntdecke ihn in Islamischer Begleiter",
         "appName": "Islamischer Begleiter"
     }

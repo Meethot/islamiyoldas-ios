@@ -28,7 +28,7 @@
     "tip3Title": "Manyetik alanlardan uzak dur",
     "tip3Desc": "Metal eşyalar, elektronik cihazlar ve arabalar pusulayı etkileyebilir.",
     "distanceToKaaba": "Kâbe'ye {{distance}} km uzaktasın",
-    "hadith": "\"Nerede olursanız olun, yüzünüzü Mescid-i Haram'a doğru çevirin.\"",
+    "hadith": "“Nerede olursanız olun, yüzünüzü Mescid-i Haram'a doğru çevirin.”",
     "hadithSource": "— Bakara Suresi, 144",
     "understood": "Anladım ✨",
     "locationRequired": {
@@ -44,7 +44,7 @@
         "alternative": "Alternatif yöntem",
         "alternativeDesc": "Kıble yönünü bulmak için haritada konumunuzdan Kâbe'ye olan yönü görebilirsiniz.",
         "openMaps": "Haritada Kâbe'yi Göster",
-        "hadith": "\"Doğu da Batı da Allah'ındır. Nereye dönerseniz, Allah'ın yüzü oradadır.\"",
+        "hadith": "“Doğu da Batı da Allah'ındır. Nereye dönerseniz, Allah'ın yüzü oradadır.”",
         "hadithSource": "— Bakara Suresi, 115",
         "close": "Anladım 🧭",
         "openSettings": "Konum Ayarlarına Git",

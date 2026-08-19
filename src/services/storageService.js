@@ -24,7 +24,11 @@ const CRITICAL_KEYS = [
     // Sadece localStorage'daydı: uygulama silinip kurulunca ve iOS depolama
     // baskısında WKWebView localStorage'ı temizlediğinde geri dönüşsüz gidiyordu.
     'qadaCounts',
-    'qadaGoal'
+    'qadaGoal',
+    // Öğren > Dualar favorileri — kullanıcının kendi seçtiği kısa liste.
+    'dua_favorites',
+    // Sure ezber ilerlemesi ve tekrar takvimi — haftalarca emek verilen kayıt.
+    'sure_ezber_v1'
 ];
 
 /**

@@ -204,7 +204,7 @@
     "setTargetDesc": "Gib dein persönliches Ziel für {{name}} ein.",
     "saveTarget": "ZIEL SPEICHERN",
     "resetAllTooltip": "Alle Dhikr zurücksetzen",
-    "footerVerse": "\"O ihr, die ihr glaubt! Gedenkt Allahs in häufigem Gedenken und preist Ihn morgens und abends.\"",
+    "footerVerse": "„O ihr, die ihr glaubt! Gedenkt Allahs in häufigem Gedenken und preist Ihn morgens und abends.“",
     "footerVerseSource": "SURE AL-AHZAB, 41-42",
     "changeDhikr": "Dhikr ändern",
     "searchPlaceholder": "Dhikr oder Name suchen...",
@@ -212,105 +212,303 @@
     "categoryEsma": "Die schönen Namen Allahs",
     "noResults": "Keine Ergebnisse gefunden",
     "esma": {
-        "ar-rahman": { "meaning": "Der Gnädige" },
-        "ar-rahim": { "meaning": "Der Barmherzige" },
-        "al-malik": { "meaning": "Der König" },
-        "al-quddus": { "meaning": "Der Heilige" },
-        "as-salam": { "meaning": "Der Friedensstifter" },
-        "al-mumin": { "meaning": "Der Glaubensspender" },
-        "al-muhaymin": { "meaning": "Der Beschützer" },
-        "al-aziz": { "meaning": "Der Allmächtige" },
-        "al-jabbar": { "meaning": "Der Unterwerfer" },
-        "al-mutakabbir": { "meaning": "Der Erhabene" },
-        "al-khaliq": { "meaning": "Der Schöpfer" },
-        "al-bari": { "meaning": "Der Erschaffer" },
-        "al-musawwir": { "meaning": "Der Gestalter" },
-        "al-ghaffar": { "meaning": "Der Allvergebende" },
-        "al-qahhar": { "meaning": "Der Bezwinger" },
-        "al-wahhab": { "meaning": "Der Schenkende" },
-        "ar-razzaq": { "meaning": "Der Versorger" },
-        "al-fattah": { "meaning": "Der Öffner" },
-        "al-alim": { "meaning": "Der Allwissende" },
-        "al-qabid": { "meaning": "Der Einschränker" },
-        "al-basit": { "meaning": "Der Erweiterer" },
-        "al-khafid": { "meaning": "Der Erniedrigende" },
-        "ar-rafi": { "meaning": "Der Erhöhende" },
-        "al-muizz": { "meaning": "Der Ehrengeber" },
-        "al-mudhill": { "meaning": "Der Demütigende" },
-        "as-sami": { "meaning": "Der Allhörende" },
-        "al-basir": { "meaning": "Der Allsehende" },
-        "al-hakam": { "meaning": "Der Richter" },
-        "al-adl": { "meaning": "Der Gerechte" },
-        "al-latif": { "meaning": "Der Feinfühlige" },
-        "al-khabir": { "meaning": "Der Allkundige" },
-        "al-halim": { "meaning": "Der Nachsichtige" },
-        "al-azim": { "meaning": "Der Erhabene" },
-        "al-ghafur": { "meaning": "Der Vergebende" },
-        "ash-shakur": { "meaning": "Der Dankbare" },
-        "al-ali": { "meaning": "Der Höchste" },
-        "al-kabir": { "meaning": "Der Große" },
-        "al-hafiz": { "meaning": "Der Bewahrer" },
-        "al-muqit": { "meaning": "Der Ernährer" },
-        "al-hasib": { "meaning": "Der Abrechner" },
-        "al-jalil": { "meaning": "Der Majestätische" },
-        "al-karim": { "meaning": "Der Großzügige" },
-        "ar-raqib": { "meaning": "Der Wachsame" },
-        "al-mujib": { "meaning": "Der Erhörende" },
-        "al-wasi": { "meaning": "Der Allumfassende" },
-        "al-hakim": { "meaning": "Der Weise" },
-        "al-wadud": { "meaning": "Der Liebevolle" },
-        "al-majid": { "meaning": "Der Glorreiche" },
-        "al-baith": { "meaning": "Der Auferwecker" },
-        "ash-shahid": { "meaning": "Der Zeuge" },
-        "al-haqq": { "meaning": "Die Wahrheit" },
-        "al-wakil": { "meaning": "Der Sachwalter" },
-        "al-qawiy": { "meaning": "Der Starke" },
-        "al-matin": { "meaning": "Der Feste" },
-        "al-waliy": { "meaning": "Der Schutzfreund" },
-        "al-hamid": { "meaning": "Der Lobenswerte" },
-        "al-muhsi": { "meaning": "Der Aufzähler" },
-        "al-mubdi": { "meaning": "Der Urheber" },
-        "al-muid": { "meaning": "Der Wiederhersteller" },
-        "al-muhyi": { "meaning": "Der Lebensspender" },
-        "al-mumit": { "meaning": "Der Todbringer" },
-        "al-hayy": { "meaning": "Der Lebendige" },
-        "al-qayyum": { "meaning": "Der Beständige" },
-        "al-wajid": { "meaning": "Der Finder" },
-        "al-majid2": { "meaning": "Der Edle" },
-        "al-wahid": { "meaning": "Der Einzige" },
-        "al-ahad": { "meaning": "Der Eine" },
-        "as-samad": { "meaning": "Der Unabhängige" },
-        "al-qadir": { "meaning": "Der Mächtige" },
-        "al-muqtadir": { "meaning": "Der Allmächtige" },
-        "al-muqaddim": { "meaning": "Der Voranstellende" },
-        "al-muakhkhir": { "meaning": "Der Aufschiebende" },
-        "al-awwal": { "meaning": "Der Erste" },
-        "al-akhir": { "meaning": "Der Letzte" },
-        "az-zahir": { "meaning": "Der Offenbare" },
-        "al-batin": { "meaning": "Der Verborgene" },
-        "al-wali": { "meaning": "Der Regierende" },
-        "al-mutaali": { "meaning": "Der Hocherhabene" },
-        "al-barr": { "meaning": "Die Quelle der Güte" },
-        "at-tawwab": { "meaning": "Der Reueannehmende" },
-        "al-muntaqim": { "meaning": "Der Rächer" },
-        "al-afuw": { "meaning": "Der Verzeihende" },
-        "ar-rauf": { "meaning": "Der Gütige" },
-        "malik-al-mulk": { "meaning": "Der Herrscher der Herrschaft" },
-        "dhul-jalali-wal-ikram": { "meaning": "Der Herr der Majestät und Ehre" },
-        "al-muqsit": { "meaning": "Der Gerechte" },
-        "al-jami": { "meaning": "Der Versammler" },
-        "al-ghani": { "meaning": "Der Reiche" },
-        "al-mughni": { "meaning": "Der Bereichernde" },
-        "al-mani": { "meaning": "Der Verhinderer" },
-        "ad-darr": { "meaning": "Der Schadenbringer" },
-        "an-nafi": { "meaning": "Der Nützliche" },
-        "an-nur": { "meaning": "Das Licht" },
-        "al-hadi": { "meaning": "Der Rechtleitende" },
-        "al-badi": { "meaning": "Der Unvergleichliche" },
-        "al-baqi": { "meaning": "Der Ewige" },
-        "al-warith": { "meaning": "Der Erbe" },
-        "ar-rashid": { "meaning": "Der Rechtleitende" },
-        "as-sabur": { "meaning": "Der Geduldige" }
+        "ar-rahman": {
+            "meaning": "Der Gnädige"
+        },
+        "ar-rahim": {
+            "meaning": "Der Barmherzige"
+        },
+        "al-malik": {
+            "meaning": "Der König"
+        },
+        "al-quddus": {
+            "meaning": "Der Heilige"
+        },
+        "as-salam": {
+            "meaning": "Der Friedensstifter"
+        },
+        "al-mumin": {
+            "meaning": "Der Glaubensspender"
+        },
+        "al-muhaymin": {
+            "meaning": "Der Beschützer"
+        },
+        "al-aziz": {
+            "meaning": "Der Allmächtige"
+        },
+        "al-jabbar": {
+            "meaning": "Der Unterwerfer"
+        },
+        "al-mutakabbir": {
+            "meaning": "Der Erhabene"
+        },
+        "al-khaliq": {
+            "meaning": "Der Schöpfer"
+        },
+        "al-bari": {
+            "meaning": "Der Erschaffer"
+        },
+        "al-musawwir": {
+            "meaning": "Der Gestalter"
+        },
+        "al-ghaffar": {
+            "meaning": "Der Allvergebende"
+        },
+        "al-qahhar": {
+            "meaning": "Der Bezwinger"
+        },
+        "al-wahhab": {
+            "meaning": "Der Schenkende"
+        },
+        "ar-razzaq": {
+            "meaning": "Der Versorger"
+        },
+        "al-fattah": {
+            "meaning": "Der Öffner"
+        },
+        "al-alim": {
+            "meaning": "Der Allwissende"
+        },
+        "al-qabid": {
+            "meaning": "Der Einschränker"
+        },
+        "al-basit": {
+            "meaning": "Der Erweiterer"
+        },
+        "al-khafid": {
+            "meaning": "Der Erniedrigende"
+        },
+        "ar-rafi": {
+            "meaning": "Der Erhöhende"
+        },
+        "al-muizz": {
+            "meaning": "Der Ehrengeber"
+        },
+        "al-mudhill": {
+            "meaning": "Der Demütigende"
+        },
+        "as-sami": {
+            "meaning": "Der Allhörende"
+        },
+        "al-basir": {
+            "meaning": "Der Allsehende"
+        },
+        "al-hakam": {
+            "meaning": "Der Richter"
+        },
+        "al-adl": {
+            "meaning": "Der Gerechte"
+        },
+        "al-latif": {
+            "meaning": "Der Feinfühlige"
+        },
+        "al-khabir": {
+            "meaning": "Der Allkundige"
+        },
+        "al-halim": {
+            "meaning": "Der Nachsichtige"
+        },
+        "al-azim": {
+            "meaning": "Der Erhabene"
+        },
+        "al-ghafur": {
+            "meaning": "Der Vergebende"
+        },
+        "ash-shakur": {
+            "meaning": "Der Dankbare"
+        },
+        "al-ali": {
+            "meaning": "Der Höchste"
+        },
+        "al-kabir": {
+            "meaning": "Der Große"
+        },
+        "al-hafiz": {
+            "meaning": "Der Bewahrer"
+        },
+        "al-muqit": {
+            "meaning": "Der Ernährer"
+        },
+        "al-hasib": {
+            "meaning": "Der Abrechner"
+        },
+        "al-jalil": {
+            "meaning": "Der Majestätische"
+        },
+        "al-karim": {
+            "meaning": "Der Großzügige"
+        },
+        "ar-raqib": {
+            "meaning": "Der Wachsame"
+        },
+        "al-mujib": {
+            "meaning": "Der Erhörende"
+        },
+        "al-wasi": {
+            "meaning": "Der Allumfassende"
+        },
+        "al-hakim": {
+            "meaning": "Der Weise"
+        },
+        "al-wadud": {
+            "meaning": "Der Liebevolle"
+        },
+        "al-majid": {
+            "meaning": "Der Glorreiche"
+        },
+        "al-baith": {
+            "meaning": "Der Auferwecker"
+        },
+        "ash-shahid": {
+            "meaning": "Der Zeuge"
+        },
+        "al-haqq": {
+            "meaning": "Die Wahrheit"
+        },
+        "al-wakil": {
+            "meaning": "Der Sachwalter"
+        },
+        "al-qawiy": {
+            "meaning": "Der Starke"
+        },
+        "al-matin": {
+            "meaning": "Der Feste"
+        },
+        "al-waliy": {
+            "meaning": "Der Schutzfreund"
+        },
+        "al-hamid": {
+            "meaning": "Der Lobenswerte"
+        },
+        "al-muhsi": {
+            "meaning": "Der Aufzähler"
+        },
+        "al-mubdi": {
+            "meaning": "Der Urheber"
+        },
+        "al-muid": {
+            "meaning": "Der Wiederhersteller"
+        },
+        "al-muhyi": {
+            "meaning": "Der Lebensspender"
+        },
+        "al-mumit": {
+            "meaning": "Der Todbringer"
+        },
+        "al-hayy": {
+            "meaning": "Der Lebendige"
+        },
+        "al-qayyum": {
+            "meaning": "Der Beständige"
+        },
+        "al-wajid": {
+            "meaning": "Der Finder"
+        },
+        "al-majid2": {
+            "meaning": "Der Edle"
+        },
+        "al-wahid": {
+            "meaning": "Der Einzige"
+        },
+        "al-ahad": {
+            "meaning": "Der Eine"
+        },
+        "as-samad": {
+            "meaning": "Der Unabhängige"
+        },
+        "al-qadir": {
+            "meaning": "Der Mächtige"
+        },
+        "al-muqtadir": {
+            "meaning": "Der Allmächtige"
+        },
+        "al-muqaddim": {
+            "meaning": "Der Voranstellende"
+        },
+        "al-muakhkhir": {
+            "meaning": "Der Aufschiebende"
+        },
+        "al-awwal": {
+            "meaning": "Der Erste"
+        },
+        "al-akhir": {
+            "meaning": "Der Letzte"
+        },
+        "az-zahir": {
+            "meaning": "Der Offenbare"
+        },
+        "al-batin": {
+            "meaning": "Der Verborgene"
+        },
+        "al-wali": {
+            "meaning": "Der Regierende"
+        },
+        "al-mutaali": {
+            "meaning": "Der Hocherhabene"
+        },
+        "al-barr": {
+            "meaning": "Die Quelle der Güte"
+        },
+        "at-tawwab": {
+            "meaning": "Der Reueannehmende"
+        },
+        "al-muntaqim": {
+            "meaning": "Der Rächer"
+        },
+        "al-afuw": {
+            "meaning": "Der Verzeihende"
+        },
+        "ar-rauf": {
+            "meaning": "Der Gütige"
+        },
+        "malik-al-mulk": {
+            "meaning": "Der Herrscher der Herrschaft"
+        },
+        "dhul-jalali-wal-ikram": {
+            "meaning": "Der Herr der Majestät und Ehre"
+        },
+        "al-muqsit": {
+            "meaning": "Der Gerechte"
+        },
+        "al-jami": {
+            "meaning": "Der Versammler"
+        },
+        "al-ghani": {
+            "meaning": "Der Reiche"
+        },
+        "al-mughni": {
+            "meaning": "Der Bereichernde"
+        },
+        "al-mani": {
+            "meaning": "Der Verhinderer"
+        },
+        "ad-darr": {
+            "meaning": "Der Schadenbringer"
+        },
+        "an-nafi": {
+            "meaning": "Der Nützliche"
+        },
+        "an-nur": {
+            "meaning": "Das Licht"
+        },
+        "al-hadi": {
+            "meaning": "Der Rechtleitende"
+        },
+        "al-badi": {
+            "meaning": "Der Unvergleichliche"
+        },
+        "al-baqi": {
+            "meaning": "Der Ewige"
+        },
+        "al-warith": {
+            "meaning": "Der Erbe"
+        },
+        "ar-rashid": {
+            "meaning": "Der Rechtleitende"
+        },
+        "as-sabur": {
+            "meaning": "Der Geduldige"
+        }
     },
     "dhikrLimit": {
         "title": "Tägliches Dhikr-Limit",
@@ -347,5 +545,25 @@
         "enabled": "Zählen mit Lautstärketasten an",
         "disabled": "Zählen mit Lautstärketasten aus",
         "tooltip": "Zählen mit Lautstärketasten"
+    },
+    "tour": {
+        "gotIt": "Verstanden",
+        "next": "Weiter",
+        "picker": {
+            "title": "Dhikr auswählen",
+            "body": "44 fertige Dhikr und die schönen Namen Allahs sind hier. Fehlt deins, tippe es ins Suchfeld und füge es hinzu."
+        },
+        "target": {
+            "title": "Ziel festlegen",
+            "body": "33, 99 oder deine eigene Zahl. Ist sie erreicht, endet die Runde und der Zähler startet eine neue."
+        },
+        "theme": {
+            "title": "Aussehen wechseln",
+            "body": "Wechselt zwischen drei Themen: Perlen, Handzähler und Klassisch. Bei den Perlen wählst du das Material, beim Zähler die Farbe."
+        },
+        "settings": {
+            "title": "Ton, Vibration, Kürzel",
+            "body": "Klickton und Vibration stellst du hier ein. Zum Zählen ohne Hinsehen: Lautstärketasten oder Tippen auf den ganzen Bildschirm aktivieren."
+        }
     }
 }

@@ -15,7 +15,7 @@
     },
     "progress": "Fortschritt",
     "kazaTitle": "Meine Qada-Gebete",
-    "kazaVerse": "\"Mein Herr! Mache mich und meine Nachkommen standhaft im Gebet.\"",
+    "kazaVerse": "„Mein Herr! Mache mich und meine Nachkommen standhaft im Gebet.“",
     "kazaVerseSource": "(Sure Ibrahim, Vers 40)",
     "target": "Ziel: {{goal}} Gebete | Bezahlt: {{paid}}",
     "remaining": "Verbleibend:",
@@ -47,7 +47,7 @@
         "gotIt": "Verstanden",
         "quran": {
             "title": "Sure suchen",
-            "body": "Suche hier eine Sure nach Name oder Nummer. Play startet sie von vorn, und jedes Wort leuchtet beim Rezitieren auf."
+            "body": "Suche eine Sure nach Name oder Nummer: „baqara“ oder „2“ genügt. Akzente und Apostrophe stören die Suche nicht."
         },
         "prayer": {
             "title": "Gebet markieren",
@@ -58,8 +58,13 @@
             "body": "Führe je Gebetszeit einen eigenen Zähler. Mit Plus und Minus anpassen."
         },
         "murakabe": {
-            "title": "Den Tag wiegen",
-            "body": "Beantworte die Fragen; die Waage wiegt deinen Tag zwischen Seele und Ego."
+            "title": "Tägliche Selbstprüfung",
+            "body": "Kurze Fragen, die du dir am Ende des Tages stellst. Deine Antworten neigen die Waage zur Seele oder zum Ego."
+        },
+        "next": "Weiter",
+        "openSurah": {
+            "title": "Tippe auf eine Sure",
+            "body": "Ein Tippen auf die Karte öffnet die Sure. Darin kannst du die Leseansicht wechseln und zu jedem Vers springen."
         }
     }
 }

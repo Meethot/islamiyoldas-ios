@@ -6,6 +6,11 @@ const EXTENSIONS = ['jpg', 'webp'];
 
 // key -> çözülmüş url veya null (görsel yok). Kategori değişimlerinde tekrar denenmesin.
 const resolvedCache = new Map();
+// aynı görseli iki bileşen aynı anda aramasın
+const inFlight = new Map();
+// bir görsel çözülünce onu bekleyen TÜM bileşenler haberdar olsun
+const listeners = new Set();
+const notify = () => listeners.forEach((fn) => fn());
 
 // key = story.image (özel yol) veya story.id (dosya adı kuralı)
 const candidatesForKey = (key) => {
@@ -21,31 +26,51 @@ const probe = (url) => new Promise((resolve) => {
     img.src = url;
 });
 
+const resolveKey = (key) => {
+    if (resolvedCache.has(key)) return Promise.resolve(resolvedCache.get(key));
+    if (inFlight.has(key)) return inFlight.get(key);
+
+    const task = (async () => {
+        for (const url of candidatesForKey(key)) {
+            const ok = await probe(url);
+            if (ok) {
+                resolvedCache.set(key, url);
+                return url;
+            }
+        }
+        resolvedCache.set(key, null);
+        return null;
+    })().finally(() => {
+        inFlight.delete(key);
+        notify();
+    });
+
+    inFlight.set(key, task);
+    return task;
+};
+
+// Kapak yolunu bekleyerek çöz (kilit ekranı kartı için — render'a bağlı değil)
+export const resolveStoryImage = (story) => {
+    const key = story?.image ?? story?.id;
+    if (key === undefined || key === null) return Promise.resolve(null);
+    return resolveKey(key);
+};
+
 export function useStoryImage(story) {
-    const key = story?.image || story?.id;
-    // Kaynak render sırasında cache'ten türetilir; state sadece async çözüm gelince tetikler.
+    const key = story?.image ?? story?.id;
     const [, bump] = useState(0);
     const src = resolvedCache.get(key) ?? null;
 
+    // Başka bir bileşen aynı görseli çözerse bu bileşen de güncellensin
     useEffect(() => {
-        if (resolvedCache.has(key)) return undefined;
+        const onResolved = () => bump((v) => v + 1);
+        listeners.add(onResolved);
+        return () => listeners.delete(onResolved);
+    }, []);
 
-        let cancelled = false;
-        (async () => {
-            for (const url of candidatesForKey(key)) {
-                const ok = await probe(url);
-                if (cancelled) return;
-                if (ok) {
-                    resolvedCache.set(key, url);
-                    bump((v) => v + 1);
-                    return;
-                }
-            }
-            resolvedCache.set(key, null);
-            if (!cancelled) bump((v) => v + 1);
-        })();
-
-        return () => { cancelled = true; };
+    useEffect(() => {
+        if (key === undefined || key === null) return;
+        resolveKey(key);
     }, [key]);
 
     return src;

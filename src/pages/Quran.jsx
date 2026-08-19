@@ -15,8 +15,11 @@ import { getSurahSummary } from '@/data/surahSummaries';
 import { App } from '@capacitor/app';
 import { Capacitor, registerPlugin } from '@capacitor/core';
 import { isPremium } from '@/services/creditService';
+import { requestListen } from '@/lib/quranTrial';
+import { useQuranTrial } from '@/hooks/useQuranTrial';
 import { analytics } from '@/services/analyticsService';
 import { useTranslation } from 'react-i18next';
+import { clearMediaSession } from '@/lib/nowPlaying';
 
 const NowPlaying = Capacitor.isNativePlatform() ? registerPlugin('NowPlaying') : null;
 
@@ -95,6 +98,7 @@ export default function Quran({ isTrackingTab = false }) {
         if (!NowPlaying) return;
         let playListener;
         let pauseListener;
+        let stopListener;
 
         const setupListeners = async () => {
             playListener = await NowPlaying.addListener('remotePlay', () => {
@@ -109,6 +113,12 @@ export default function Quran({ isTrackingTab = false }) {
                 setIsAudioPlaying(false);
                 NowPlaying.setNowPlaying({ isPlaying: false, currentTime: audio.currentTime });
             });
+            // Android: kullanıcı bildirimi kaydırdı — ses de sussun, kart yeniden kurulmasın
+            stopListener = await NowPlaying.addListener('remoteStop', () => {
+                audio.pause();
+                setIsAudioPlaying(false);
+                clearMediaSession();
+            });
         };
 
         setupListeners();
@@ -116,6 +126,7 @@ export default function Quran({ isTrackingTab = false }) {
         return () => {
             if (playListener) playListener.remove();
             if (pauseListener) pauseListener.remove();
+            if (stopListener) stopListener.remove();
         };
     }, [audio]);
     const [currentlyPlaying, setCurrentlyPlaying] = useState(null); // surah object
@@ -126,6 +137,22 @@ export default function Quran({ isTrackingTab = false }) {
     const [volume, setVolume] = useState(1.0);
     const [showVolumeSlider, setShowVolumeSlider] = useState(false);
     const [isAudioLoading, setIsAudioLoading] = useState(false);
+
+    // Deneme süresi dolunca liste içi çalar da susmalı: kullanıcı sesi buradan
+    // başlatıp başka ekrana geçmiş olabilir, sinyal merkezden gelir.
+    const handleTrialEnd = React.useCallback(() => {
+        try { audio.pause(); } catch { /* ses kaynağı hazır değil */ }
+        setIsAudioPlaying(false);
+        setCurrentlyPlaying(null);
+        setAudioProgress(0);
+        setCurrentTime(0);
+        if (NowPlaying) NowPlaying.clearNowPlaying().catch(() => {});
+        clearMediaSession(); // ölü handler kilit ekranında kalmasın
+        BackgroundMode.disable();
+    }, [audio]);
+    const trial = useQuranTrial({ onEnd: handleTrialEnd });
+    // Oynat tuşu: premium, süren deneme veya henüz kullanılmamış deneme hakkı
+    const canPlay = isPremium() || trial.active || trial.eligible;
 
     // Remove verse bookmark
     const removeBookmark = (verseKey) => {
@@ -287,7 +314,9 @@ export default function Quran({ isTrackingTab = false }) {
                 album: album || 'Kuran-ı Kerim',
                 duration: audio.duration || 0,
                 currentTime: audio.currentTime || 0,
-                isPlaying: isPlaying
+                isPlaying: isPlaying,
+                // Android bildirim aksiyon metinleri (hikaye ile ortak çeviri)
+                labels: { play: t('stories:mediaPlay', 'Oynat'), pause: t('stories:mediaPause', 'Duraklat') }
             }).catch(() => {});
         }
         
@@ -320,7 +349,10 @@ export default function Quran({ isTrackingTab = false }) {
     const handlePlaySurah = async (e, surah) => {
         e.stopPropagation();
         selection();
-        if (!isPremium()) { navigate('/premium'); return; }
+        // Dinleme kapısı: premium, süren deneme ya da denemeyi başlat (60 sn, tek sefer)
+        const gate = requestListen();
+        if (gate === 'blocked') { navigate('/premium'); return; }
+        if (gate === 'started') analytics.quranTrialStarted('surah_list_inline');
 
         if (currentlyPlaying?.id === surah.id) {
             if (isAudioPlaying) {
@@ -376,6 +408,8 @@ export default function Quran({ isTrackingTab = false }) {
                 setCurrentlyPlaying(null);
                 setAudioProgress(0);
                 setCurrentTime(0);
+                if (NowPlaying) NowPlaying.clearNowPlaying().catch(() => {});
+                clearMediaSession();
                 BackgroundMode.disable();
             };
 
@@ -613,6 +647,7 @@ export default function Quran({ isTrackingTab = false }) {
                                     transition={{ delay: Math.min(index * 0.05, 0.5) }}
                                 >
                                     <div
+                                        data-tour={index === 0 ? 'quran-card' : undefined}
                                         onClick={() => handleSurahSelect(surah)}
                                         className="group relative overflow-hidden rounded-[2.5rem] bg-[#FFFDF6] dark:bg-white/5 border-none shadow-[0_4px_20px_-5px_rgba(0,0,0,0.08)] hover:shadow-xl transition-all cursor-pointer active:scale-[0.98]"
                                     >
@@ -652,23 +687,27 @@ export default function Quran({ isTrackingTab = false }) {
                                                         </button>
                                                         {/* Play Button */}
                                                         <button
+                                                            data-tour={index === 0 ? 'quran-play' : undefined}
                                                             onClick={(e) => {
                                                                 e.stopPropagation();
                                                                 selection();
-                                                                if (!isPremium()) {
+                                                                // Deneme hakkı varsa burada başlar; sure içinde takip canlı görülür
+                                                                const outcome = requestListen();
+                                                                if (outcome === 'blocked') {
                                                                     navigate('/premium');
                                                                     return;
                                                                 }
-                                                                navigate(`/quran/${surah.id}`, { state: { autoPlay: true, _ts: Date.now() } });
+                                                                if (outcome === 'started') analytics.quranTrialStarted('surah_card');
+                                                                navigate(`/quran/${surah.id}`, { state: { autoPlay: true, trialStarted: outcome === 'started', _ts: Date.now() } });
                                                             }}
                                                             className={cn(
                                                                 "w-9 h-9 rounded-full flex items-center justify-center transition-all duration-300",
-                                                                isPremium()
+                                                                canPlay
                                                                     ? "bg-islamic-green/10 dark:bg-islamic-gold/10 text-islamic-green dark:text-islamic-gold hover:bg-islamic-gold/20"
                                                                     : "premium-play-btn bg-gradient-to-br from-[#D4AF37] via-[#E8C94A] to-[#C9982A] text-[#3D2E0A] shadow-[0_2px_12px_rgba(212,175,55,0.35)]"
                                                             )}
                                                         >
-                                                            {isPremium() 
+                                                            {canPlay
                                                                 ? <Play className="w-4 h-4 fill-current ml-0.5" />
                                                                 : <Crown className="w-4 h-4 fill-current" />
                                                             }

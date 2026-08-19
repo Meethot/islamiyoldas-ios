@@ -57,7 +57,7 @@
     "birthdayCard": {
         "heading": "🎂 آية مواليد {{date}}",
         "share": "مشاركة",
-        "shareText": "🎂 آية مواليد {{date}}\n\n\"{{translation}}\"\n— {{source}}\n\nما هي آيتك؟ اكتشفها مع الرفيق الإسلامي:\n{{link}}",
+        "shareText": "🎂 آية مواليد {{date}}\n\n«{{translation}}»\n— {{source}}\n\nما هي آيتك؟ اكتشفها مع الرفيق الإسلامي:\n{{link}}",
         "cta": "ما هي آية ميلادك؟\nاكتشفها في تطبيق الرفيق الإسلامي",
         "appName": "الرفيق الإسلامي"
     }

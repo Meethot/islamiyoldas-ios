@@ -213,6 +213,36 @@ export async function fetchAyahAudio(verseKey, recitationId = 7) {
 }
 
 /**
+ * Ayet sesi + kelime zamanlamaları — ezber ekranı için.
+ *
+ * `fetchAyahAudio`'dan farkı: `segments` de döner. Ayetel Kürsi tek ayet olduğu
+ * için ezberde parça parça çalınır; hangi milisaniyeler arasının çalınacağı
+ * ancak kelime zamanlamasından bilinir.
+ * @param {string} verseKey "2:255"
+ * @returns {Promise<{url: string, segments: Array}|null>}
+ */
+export async function fetchAyahAudioWithSegments(verseKey, recitationId = 7) {
+    // Zaman aşımı şart: kopuk/captive-portal bağlantıda `fetch` dakikalarca
+    // asılı kalıyor, ezber ekranı da isteği bekleyerek kilitleniyordu.
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 8000);
+    try {
+        const response = await fetch(`${BASE_URL}/recitations/${recitationId}/by_ayah/${verseKey}?fields=segments`, { signal: controller.signal });
+        if (!response.ok) throw new Error('Ayet sesi alınamadı');
+        const data = await response.json();
+        const file = data.audio_files?.[0];
+        if (!file?.url) return null;
+        const url = file.url.startsWith('http') ? file.url : `https://verses.quran.com/${file.url}`;
+        return { url, segments: Array.isArray(file.segments) ? file.segments : [] };
+    } catch (error) {
+        console.error('Ayah Audio (segments) Error:', error);
+        return null;
+    } finally {
+        clearTimeout(timer);
+    }
+}
+
+/**
  * Fetch all ayah recitation audio URLs for a specific chapter
  * @param {number} chapterId 
  * @param {number} recitationId - Default to Mishary Rashid Alafasy (7)

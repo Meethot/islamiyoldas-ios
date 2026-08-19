@@ -1,5 +1,5 @@
 {
-    "headerQuote": "\"Möminin mömin qardaşı üçün qiyabında etdiyi dua məqbuldur.\"",
+    "headerQuote": "“Möminin mömin qardaşı üçün qiyabında etdiyi dua məqbuldur.”",
     "headerSource": "- Hədis-i Şərif",
     "successTitle": "Duanız Alındı!",
     "successDesc": "Redaktor təsdiqindən sonra yayımlanır (adətən 4-24 saat).",
@@ -46,7 +46,7 @@
     "paywallTitle": "Amin Kumbarası 🪙",
     "paywallCreditNeeded": "Dua istəmək üçün <strong class=\"text-[#D4AF37]\">{{cost}} kredit</strong> lazımdır.",
     "paywallCurrentCredit": "Cari kreditin: <strong class=\"text-[#D4AF37]\">{{credits}} 🪙</strong>",
-    "paywallEarnHint": "Hər <strong>\"Amin\"</strong> dediyində <strong class=\"text-emerald-400\">+1 kredit</strong> qazanırsan!",
+    "paywallEarnHint": "Hər <strong>“Amin”</strong> dediyində <strong class=\"text-emerald-400\">+1 kredit</strong> qazanırsan!",
     "paywallPremiumHint": "və ya Premium üzv ol, limitsiz dua istə ✨",
     "paywallEarnBtn": "🤲 Amin Deyərək Qazan",
     "paywallAdBtn": "🎬 Reklam İzlə (+{{reward}} Kredit)",
@@ -75,6 +75,8 @@
     "formLabel": "Dua İstəyiniz",
     "formPlaceholder": "Duanızı buraya yazın... (məs: Sağlıq, hüzur, bərəkət üçün dua istəyirəm)",
     "formCharLimit": "Ən az 10, ən çox 200 simvol",
+    "formCapsWarn": "Duanız əsasən BÖYÜK HƏRFLƏRLƏ yazılıb. Böyük hərf qışqırmaq kimi qəbul edilir; zəhmət olmasa normal yazın.",
+    "formCapsBlock": "Dua tamamilə BÖYÜK HƏRFLƏRLƏ yazılıb. Göndərmək üçün zəhmət olmasa normal yazıya çevirin.",
     "formSubmitting": "Göndərilir...",
     "formUpdating": "Yenilənir...",
     "formSubmitBtn": "Göndər",
@@ -87,5 +89,32 @@
     "historyEdit": "Redaktə Et",
     "historyDeleteRequested": "Taleb Göndərildi",
     "historyDelete": "Sil",
-    "historyClose": "Bağla"
+    "historyClose": "Bağla",
+    "tour": {
+        "gotIt": "Anladım",
+        "next": "İrəli",
+        "amin": {
+            "title": "Amin de, kuzunu doldur",
+            "body": "Qardaşının duasına Amin deyəndə həm ona şərik olursan, həm də kuzuna +{{reward}} kredit əlavə olunur.",
+            "bodyPremium": "Qardaşının duasına Amin deyəndə onun duasına şərik olursan. Premium olduğun üçün kredit yığmağa ehtiyacın yoxdur."
+        },
+        "credits": {
+            "title": "Amin kuzun",
+            "body": "Bir dua istəyi göndərmək {{cost}} kreditdir. Amin deyərək (+{{reward}}) və ya reklam izləyərək (+{{adReward}}) yığırsan."
+        },
+        "send": {
+            "title": "Öz duan üçün istə",
+            "body": "Duanı yaz və göndər. Əvvəlcə yoxlanılır, sonra hamının gördüyü siyahıda yayımlanır — adətən 4-24 saat çəkir. Gündə 2 dua göndərə bilərsən."
+        },
+        "history": {
+            "title": "İstəklərinin vəziyyəti",
+            "body": "Göndərdiyin duaların vəziyyəti buradadır: təsdiq gözləyir və ya yayımda. Mətni redaktə edə və ya silinməsini istəyə bilərsən."
+        }
+    },
+    "report": "Şikayət et",
+    "reportTitle": "Şikayət et",
+    "reportText": "Uyğunsuz və ya qaydaları pozan məzmunu şikayət edin. Dua dərhal gizlədiləcək.",
+    "reportConfirm": "Şikayət et və gizlə",
+    "reportedSuccess": "Gizləndi",
+    "reportedSuccessText": "Rəyiniz üçün təşəkkürlər."
 }

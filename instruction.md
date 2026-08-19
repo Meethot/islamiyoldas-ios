@@ -72,6 +72,12 @@ Proje bilgileri ve mevcut durum için `Memory.md`'ye bak.
 - [x] `AppLayout` / `Profile` içindeki `debugShowPaywall` kaldırıldı
 - [x] App Store Connect'te `offer.499` / `offer.399` doğrulandı — ikisi de APPROVED (₺499,99 / ₺399,99)
 - [ ] Gerçek satın alma testi: Android Internal Testing + iOS TestFlight
+> **Kur'an dinleme denemesi (60 sn):** `src/lib/quranTrial.js` kalıcı özelliktir, test bayrağı YOK.
+> Kasıtlı: bayrak unutulursa herkes sınırsız dinlerdi. Cihazda tekrar test etmek için uygulamayı
+> silip kur ya da `quran_listen_trial_at` anahtarını sil. Deneme SADECE dinlemeyi açar —
+> `isPremium()`'a dokunulmaz, kaydetme/paylaşım temaları premium kalır.
+
+- [ ] **`src/lib/hints.js` → `HINT_TEST_MODE = true` → `false` YAP** (ipuçları cihaz testi için her seferinde açılıyor; false olunca her ipucu kullanıcı başına bir kez çıkar. Tek bayrak: hem İbadetlerim sekmeleri hem sure içi ipuçları buradan)
 - [ ] `PremiumPaywall.jsx`'teki gizli test-premium jesti (ilk özellik satırına 3 sn basılı tutma → `setPremium(true)`, `window._testPremiumTimer`) — canlıya çıkmadan KALDIR
 
 ## Effort / Ultracode notu

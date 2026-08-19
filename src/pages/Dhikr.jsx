@@ -16,6 +16,20 @@ import { ESMA_UL_HUSNA } from '@/data/esmaUlHusna';
 import { App } from '@capacitor/app';
 import { Capacitor } from '@capacitor/core';
 import { VolumeButtons } from '@capacitor-community/volume-buttons';
+import HintCoach from '@/components/HintCoach';
+import { readSeenHints, markHintSeen } from '@/lib/hints';
+
+// Tek seferlik ipuçları (HintCoach). Hedefler `data-tour` ile işaretli; hedef DOM'da
+// yoksa (ör. geri sayım modunda seçici/hedef gizli) ipucu sessizce iptal olur.
+// Ortak kayıt + test bayrağı: src/lib/hints.js
+const DHIKR_HINTS = [
+    { id: 'dhikr:picker', target: 'dhikr-picker', titleKey: 'tour.picker.title', bodyKey: 'tour.picker.body', icon: ChevronDown },
+    { id: 'dhikr:target', target: 'dhikr-target', titleKey: 'tour.target.title', bodyKey: 'tour.target.body', icon: Edit3 },
+    { id: 'dhikr:theme', target: 'dhikr-theme', titleKey: 'tour.theme.title', bodyKey: 'tour.theme.body', icon: Palette },
+    { id: 'dhikr:settings', target: 'dhikr-settings', titleKey: 'tour.settings.title', bodyKey: 'tour.settings.body', icon: Sliders },
+];
+
+const nextDhikrHint = (seen, after = -1) => DHIKR_HINTS.findIndex((h, i) => i > after && !seen[h.id]);
 
 // Tasbih theme bead materials — layered CSS gradients (base stone + veins/grain)
 // so each material reads as a real texture (amber glow, wood grain, turquoise
@@ -210,6 +224,53 @@ export default function Dhikr() {
 
     // Quick Settings Bottom Sheet state
     const [showQuickSettings, setShowQuickSettings] = useState(false);
+
+    // ── Tek seferlik ipuçları ─────────────────────────────────────────────
+    // İlk girişte sırayla dört ipucu. Ekran karartılmaz, hiçbir şey engellenmez.
+    const [seenHints, setSeenHints] = useState(readSeenHints);
+    const [hintIndex, setHintIndex] = useState(-1);
+    const hintTimerRef = useRef(null);
+
+    // Tabaka açıkken ipucu balonu sayfanın üstünde asılı kalmasın
+    const hintsHidden = showQuickSettings || showDhikrPicker;
+    // Ekranda duran ipucunun kimliği — gizlenince "görüldü" yazmak için
+    const shownHintRef = useRef(null);
+    useEffect(() => { shownHintRef.current = hintIndex >= 0 ? DHIKR_HINTS[hintIndex].id : null; }, [hintIndex]);
+
+    useEffect(() => {
+        if (hintsHidden) return undefined;
+        const first = nextDhikrHint(readSeenHints());
+        // Sayfa açılış animasyonu bitsin, sayaç yerleşsin
+        const timer = first === -1 ? null : setTimeout(() => setHintIndex(first), 800);
+        return () => {
+            if (timer) clearTimeout(timer);
+            clearTimeout(hintTimerRef.current);
+            // Balon kullanıcı kapatmadan düştü. "Görüldü" yazılmazsa bağlam geri
+            // gelince aynı ipucu baştan çıkar (kullanıcı raporu 2026-08-18).
+            const shown = shownHintRef.current;
+            if (shown) {
+                setSeenHints(markHintSeen(shown));
+                shownHintRef.current = null;
+                setHintIndex(-1);
+            }
+        };
+    }, [hintsHidden]);
+
+    const closeHint = useCallback((markSeen = true) => {
+        if (hintIndex < 0) return;
+        // markHintSeen TEST modunda hiçbir şey yazmaz (bkz. lib/hints.js)
+        const nextSeen = markSeen ? markHintSeen(DHIKR_HINTS[hintIndex].id) : seenHints;
+        setSeenHints(nextSeen);
+        setHintIndex(-1);
+        const nextIdx = nextDhikrHint(nextSeen, hintIndex);
+        if (nextIdx >= 0) {
+            clearTimeout(hintTimerRef.current);
+            // Kısa geçiş: uzun boşluk "tur bitti" hissi veriyordu
+            hintTimerRef.current = setTimeout(() => setHintIndex(nextIdx), 180);
+        }
+    }, [hintIndex, seenHints]);
+
+    const activeHint = hintIndex >= 0 && !hintsHidden ? DHIKR_HINTS[hintIndex] : null;
 
     // Debouncing widget sync to prevent bridge congestion during fast tapping
     const widgetSyncTimeoutRef = useRef(null);
@@ -956,6 +1017,7 @@ export default function Dhikr() {
                 </div>
                 <div className="flex items-center gap-1 bg-white/60 dark:bg-black/20 p-1 rounded-2xl border border-[#E2D9C4] dark:border-white/10 backdrop-blur-md relative">
                     <button
+                        data-tour="dhikr-theme"
                         onClick={() => {
                             const themeOrder = ['tasbih', 'tally', 'classic'];
                             const currentIndex = themeOrder.indexOf(dhikrTheme);
@@ -977,6 +1039,7 @@ export default function Dhikr() {
                     </button>
                     
                     <button
+                        data-tour="dhikr-settings"
                         onClick={() => {
                             setShowQuickSettings(true);
                             try {
@@ -1029,6 +1092,7 @@ export default function Dhikr() {
                             <div className="flex items-center justify-center gap-2 mb-2">
                                 {/* Zikir Selector Pill */}
                                 <button
+                                    data-tour="dhikr-picker"
                                     onClick={() => setShowDhikrPicker(true)}
                                     className="group flex items-center gap-2 bg-[#FFFDF6] hover:bg-stone-50 dark:bg-white/5 dark:hover:bg-white/10 px-4 py-2 rounded-full border border-[#E2D9C4] dark:border-white/10 transition-all active:scale-95 text-xs font-semibold text-stone-600 dark:text-white/80 shadow-md"
                                 >
@@ -1038,6 +1102,7 @@ export default function Dhikr() {
 
                                 {/* Target Pill */}
                                 <button
+                                    data-tour="dhikr-target"
                                     onClick={() => setShowTargetModal(true)}
                                     className="group flex items-center gap-2 bg-islamic-green/5 hover:bg-islamic-green/10 border-islamic-green/30 dark:bg-islamic-gold/5 dark:hover:bg-islamic-gold/10 dark:border-islamic-gold/30 px-4 py-2 rounded-full border transition-all active:scale-95 text-xs font-bold text-islamic-green dark:text-islamic-gold shadow-md"
                                 >
@@ -1920,8 +1985,9 @@ export default function Dhikr() {
                 </div>
             )}
 
-            {/* Style for hiding scrollbar */}
-            <style jsx>{`
+            {/* Style for hiding scrollbar — `jsx` niteliği React'te geçersiz (styled-jsx yok),
+                konsola hata basıyordu; stil zaten global olarak uygulanıyor */}
+            <style>{`
                 .no-scrollbar::-webkit-scrollbar {
                     display: none;
                 }
@@ -2173,6 +2239,21 @@ export default function Dhikr() {
                 dhikrPresets={DHIKR_PRESETS}
                 onSelect={handleDhikrSelect}
             />
+
+            {/* Tek seferlik ipuçları — karartmaz, engellemez */}
+            {activeHint && (
+                <HintCoach
+                    key={activeHint.id}
+                    targetId={activeHint.target}
+                    titleKey={activeHint.titleKey}
+                    bodyKey={activeHint.bodyKey}
+                    icon={activeHint.icon}
+                    ns="dhikr"
+                    step={DHIKR_HINTS.indexOf(activeHint)}
+                    total={DHIKR_HINTS.length}
+                    onClose={closeHint}
+                />
+            )}
         </div>
     );
 }

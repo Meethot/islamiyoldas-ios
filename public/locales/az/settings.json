@@ -102,5 +102,6 @@
   "calcUoif": "UOIF (France)",
   "calcUoifDesc": "Fajr: 12.0° | Isha: 12.0°",
   "calcTehran": "Institute of Geophysics (Tehran)",
-  "calcTehranDesc": "Fajr: 17.7° | Isha: 14.0°"
+  "calcTehranDesc": "Fajr: 17.7° | Isha: 14.0°",
+  "calculationMethod": "Hesablama üsulu"
 }

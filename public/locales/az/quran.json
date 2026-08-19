@@ -44,5 +44,33 @@
     "jumpToVersePlaceholder": "Ayə nömrəsini yaz...",
     "modeTranslit": "Oxunuş",
     "modeTranslation": "Tərcümə",
-    "modeArabic": "Ərəbcə"
+    "modeArabic": "Ərəbcə",
+    "tour": {
+        "gotIt": "Anladım",
+        "modes": {
+            "title": "Necə oxuyacağını seç",
+            "body": "Oxunuş, məna və ərəbcə arasında buradan keçirsən. Seçdiyin format sonrakı surələrdə də açıq gəlir."
+        },
+        "jump": {
+            "title": "Ayəyə keç",
+            "body": "Ayə nömrəsini yaz, səhifə birbaşa ora sürüşsün. Uzun surələrdə axtardığını saniyələr içində taparsan."
+        },
+        "karaoke": {
+            "title": "Sözlər səninlə oxuyur",
+            "body": "Oxunan söz qızılı rənglə yanır, oxunanlar açıq qalır. Gözünlə izlə — əzbərdə və tələffüzdə ən çox bu işə yarayır."
+        },
+        "next": "İrəli",
+        "listen": {
+            "title": "Dinlə düyməsinə toxun",
+            "body": "Surə əvvəldən oxunmağa başlayır və oxunan söz bir-bir yanır. İlk 60 saniyə pulsuz — istəsən indi sına.",
+            "bodyPremium": "Surə əvvəldən oxunmağa başlayır və oxunan söz bir-bir yanır. Oxuyarkən gözünlə izlə."
+        }
+    },
+    "trial": {
+        "banner": "Pulsuz sınaq",
+        "endedTitle": "60 saniyə bitdi",
+        "endedBody": "Söz-söz izləmə, bütün surələr və fasiləsiz dinləmə Premium ilə açılır.",
+        "endedCta": "Premium-a bax",
+        "endedDismiss": "İndi yox"
+    }
 }

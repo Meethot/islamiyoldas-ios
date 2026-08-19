@@ -15,7 +15,7 @@
     },
     "progress": "İlerleme",
     "kazaTitle": "Kaza Namazlarım",
-    "kazaVerse": "\"Rabbim! Beni ve soyumdan gelecekleri namazı dosdoğru kılanlardan eyle.\"",
+    "kazaVerse": "“Rabbim! Beni ve soyumdan gelecekleri namazı dosdoğru kılanlardan eyle.”",
     "kazaVerseSource": "(İbrahim Suresi, 40. Ayet)",
     "target": "Hedef: {{goal}} Namaz | Ödenen: {{paid}}",
     "remaining": "Kalan:",
@@ -47,7 +47,7 @@
         "gotIt": "Anladım",
         "quran": {
             "title": "Sure ara",
-            "body": "Sureyi adıyla veya numarasıyla burada ara. Oynat tuşu baştan dinletir; dinlerken kelimeler okundukça yanar."
+            "body": "Sureyi adıyla ya da numarasıyla ara: 'bakara' veya '2' yazman yeterli. Şapka ve kesme işareti aramayı bozmaz."
         },
         "prayer": {
             "title": "Vakti işaretle",
@@ -58,8 +58,13 @@
             "body": "Her vakit için borcunu ayrı tut. Artı ve eksi tuşlarıyla güncelle."
         },
         "murakabe": {
-            "title": "Günü tart",
-            "body": "Soruları cevapla; terazi günü nefis ve ruh tarafında tartar."
+            "title": "Günlük muhasebe",
+            "body": "Gün sonunda kendine sorulan kısa sorular. Verdiğin cevaplar mizan terazisini ruh ya da nefis tarafına eğer."
+        },
+        "next": "İleri",
+        "openSurah": {
+            "title": "Bir sureye dokun",
+            "body": "Karta dokun, sure açılır. İçeride okuma biçimini değiştirebilir, istediğin ayete atlayabilirsin."
         }
     }
 }

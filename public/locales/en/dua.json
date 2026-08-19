@@ -1,5 +1,5 @@
 {
-    "headerQuote": "\"The supplication of a Muslim for his brother in his absence is accepted.\"",
+    "headerQuote": "“The supplication of a Muslim for his brother in his absence is accepted.”",
     "headerSource": "- Hadith",
     "successTitle": "Your Prayer is Received!",
     "successDesc": "It will be published after editor approval (usually 4-24 hours).",
@@ -46,7 +46,7 @@
     "paywallTitle": "Amin Treasury 🪙",
     "paywallCreditNeeded": "To request a prayer, <strong class=\"text-[#D4AF37]\">{{cost}} credits</strong> are needed.",
     "paywallCurrentCredit": "Your credits: <strong class=\"text-[#D4AF37]\">{{credits}} 🪙</strong>",
-    "paywallEarnHint": "Every time you say <strong>\"Amin\"</strong> you earn <strong class=\"text-emerald-400\">+1 credit</strong>!",
+    "paywallEarnHint": "Every time you say <strong>“Amin”</strong> you earn <strong class=\"text-emerald-400\">+1 credit</strong>!",
     "paywallPremiumHint": "or become Premium for unlimited prayers ✨",
     "paywallEarnBtn": "🤲 Earn by Saying Amin",
     "paywallAdBtn": "🎬 Watch Ad (+{{reward}} Credits)",
@@ -75,6 +75,8 @@
     "formLabel": "Your Prayer Request",
     "formPlaceholder": "Write your prayer here... (e.g. I request prayers for health, peace, and blessings)",
     "formCharLimit": "Minimum 10, maximum 200 characters",
+    "formCapsWarn": "Your prayer is mostly in CAPITAL LETTERS. All caps reads like shouting — please use normal writing.",
+    "formCapsBlock": "Your prayer is written entirely in CAPITAL LETTERS. Please rewrite it normally before sending.",
     "formSubmitting": "Submitting...",
     "formUpdating": "Updating...",
     "formSubmitBtn": "Submit",
@@ -87,5 +89,32 @@
     "historyEdit": "Edit",
     "historyDeleteRequested": "Request Sent",
     "historyDelete": "Delete",
-    "historyClose": "Close"
+    "historyClose": "Close",
+    "tour": {
+        "gotIt": "Got it",
+        "next": "Next",
+        "amin": {
+            "title": "Say Amin, fill your jar",
+            "body": "Saying Amin to a brother's prayer joins you to it and adds +{{reward}} credit to your jar.",
+            "bodyPremium": "Saying Amin to a brother's prayer joins you to it. With Premium you don't need to collect credits."
+        },
+        "credits": {
+            "title": "Your Amin jar",
+            "body": "Sending one prayer request costs {{cost}} credits. Collect them by saying Amin (+{{reward}}) or watching an ad (+{{adReward}})."
+        },
+        "send": {
+            "title": "Ask for your own prayer",
+            "body": "Write your prayer and send it. It is checked first, then shown in the public list — usually within 4-24 hours. You can send 2 a day."
+        },
+        "history": {
+            "title": "Status of your requests",
+            "body": "See where each request stands: awaiting approval or live. You can edit the text or ask for it to be removed."
+        }
+    },
+    "report": "Report",
+    "reportTitle": "Report",
+    "reportText": "Report content that is inappropriate or breaks the rules. The prayer will be hidden immediately.",
+    "reportConfirm": "Report and Hide",
+    "reportedSuccess": "Hidden",
+    "reportedSuccessText": "Thank you for your feedback."
 }

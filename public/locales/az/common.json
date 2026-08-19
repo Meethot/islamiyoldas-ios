@@ -46,7 +46,7 @@
         "verse_daily": "Günün Ayəsi",
         "verse_filename": "gunun-ayesi.png",
         "friday_filename": "cume-mesaji.png",
-        "verse_text": "\"{{text}}\" - {{source}}\n\nİslami Yoldaş - Mənəviyyatda Ən Yaxın Dostun 🤲",
+        "verse_text": "“{{text}}” - {{source}}\n\nİslami Yoldaş - Mənəviyyatda Ən Yaxın Dostun 🤲",
         "verse_share_error": "Paylaşım zamanı xəta baş verdi.",
         "hidden_title": "İslami Yoldaş Paylaşımı",
         "hidden_filename": "paylasim.png",
@@ -59,9 +59,17 @@
         "title": "İslami Yoldaşı Bəyəndiniz?",
         "socialProof": "10.000+ nəfərlik ailəmizə qoşulun",
         "description": "Bu tətbiqi ümmət üçün sevgi ilə hazırladıq. 5 ulduzlu dəyərləndirməniz daha çox müsəlman qardaşımızın bu tətbiqi kəşf etməsinə vəsilə olar. 🤲",
-        "hadith": "\"Kim bir xeyrə vəsilə olarsa, o xeyri edənin əcri qədər əcr qazanar.\" (Müslim)",
+        "hadith": "“Kim bir xeyrə vəsilə olarsa, o xeyri edənin əcri qədər əcr qazanar.” (Müslim)",
         "rateButton": "5 Ulduz Ver",
-        "later": "Sonra Xatırlat"
+        "later": "Sonra Xatırlat",
+        "askTitle": "Bizə dəstək olmaq istəyirsən?",
+        "askDescription": "İslami Yoldaş-ı ümmət üçün böyük sevgi və zəhmətlə hazırlayırıq. Bizə 5 ulduz verərək bu yolda əlimizdən tutarsan?",
+        "askLater": "Sonra xatırlat",
+        "thankYouTitle": "Allah razı olsun! 🤍",
+        "thankYouDescription": "Dəstəyin bizim üçün çox dəyərlidir. Tətbiqi inkişaf etdirərkən bizi ruhlandırdığın üçün təşəkkür edirik.",
+        "feedbackTitle": "Rəyin üçün təşəkkürlər",
+        "feedbackDescription": "Gözləntilərini qarşılaya bilmədiyimiz üçün üzgünük. Tətbiqi sənin üçün daha yaxşı etmək məqsədilə işləməyə davam edəcəyik.",
+        "closeUnderstand": "Anladım"
     },
     "splash": {
         "title": "İslami Yoldaş",

@@ -13,5 +13,27 @@
     "error": "Fehler:",
     "audioError": "Audio konnte nicht geladen werden. Bitte prüfe deine Internetverbindung.",
     "forgivenMsg": "Dein Herz ist in Frieden. Möge Allah dir Erleichterung gewähren.",
-    "forgiveBtn": "Ich vergebe"
+    "forgiveBtn": "Ich vergebe",
+    "premiumGate": {
+        "title": "Kostenlose Testphase genutzt",
+        "desc": "Du hast den Schlafmodus einmal kostenlos getestet. Für unbegrenzten Zugang hol dir Premium.",
+        "cta": "Unbegrenzter Schlafmodus — Premium",
+        "dismiss": "Schließen"
+    },
+    "tour": {
+        "gotIt": "Verstanden",
+        "next": "Weiter",
+        "controls": {
+            "title": "Abspielen und wiederholen",
+            "body": "Die goldene Taste startet die Sure Al-Mulk. Die Wiederholtaste daneben beginnt sie am Ende von vorn – bis du eingeschlafen bist."
+        },
+        "rain": {
+            "title": "Regengeräusch",
+            "body": "Läuft auch gleichzeitig mit dem Koran. Schalte beides ein und finde deine Mischung."
+        },
+        "forgive": {
+            "title": "Den Tag rein abschließen",
+            "body": "Sag, dass du anderen vergibst, was sie dir schulden. Einmal am Tag."
+        }
+    }
 }

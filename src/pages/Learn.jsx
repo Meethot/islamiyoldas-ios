@@ -1,8 +1,8 @@
-import React, { useState, useCallback, memo } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Card, CardContent } from '@/components/ui/card';
+import React, { useState, useCallback, useMemo, useEffect, memo } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ChevronRight, ChevronLeft, Droplets, BookOpen, Heart, Moon, PartyPopper, CheckCircle2, RotateCcw, Sparkles as SparklesIcon, Shield, Flower2, Crown } from 'lucide-react';
+import { ChevronRight, ChevronLeft, ChevronDown, Droplets, BookOpen, Heart, CheckCircle2, RotateCcw, Sparkles as SparklesIcon, Crown, CalendarCheck } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useHaptics } from '@/hooks/useMobile';
@@ -13,6 +13,22 @@ import { GUIDES_DE } from '@/data/guidesDE';
 import { GUIDES_RU } from '@/data/guidesRU';
 import { GUIDES_AR } from '@/data/guidesAR';
 import { GUIDES_AZ } from '@/data/guidesAZ';
+import DuaLibrary from '@/components/dua/DuaLibrary';
+import EzberSheet from '@/components/ezber/EzberSheet';
+import SureList from '@/components/ezber/SureList';
+import { sureKey, readProgress, dueList } from '@/lib/ezber';
+import { rescheduleEzberReminders } from '@/lib/ezberNotify';
+import AbdestHub from '@/components/abdest/AbdestHub';
+import MeshSheet from '@/components/abdest/MeshSheet';
+import BreakerSheet from '@/components/abdest/BreakerSheet';
+import HandsFree from '@/components/abdest/HandsFree';
+import { readMest, mestStatus, splitRemaining } from '@/lib/mestMesh';
+import { wuduMeta, stepImage } from '@/data/wuduSteps';
+import { useHardwareBack } from '@/hooks/useHardwareBack';
+import { analytics } from '@/services/analyticsService';
+import { storageService } from '@/services/storageService';
+import HintCoach from '@/components/HintCoach';
+import { readSeenHints, markHintSeen } from '@/lib/hints';
 
 // Secde (sujood) ikonu - erkek namazı için
 const SecdeIcon = ({ className }) => (
@@ -31,11 +47,32 @@ const CATEGORIES = [
     { id: 'kadinNamaz', labelKey: 'catKadinNamaz', icon: SparklesIcon },
 ];
 
+// Sure listesi ipuçları (HintCoach). Ezber tabakasının içindekiler ayrı zincir,
+// EzberSheet'te duruyor. Ortak kayıt + test bayrağı: src/lib/hints.js
+const SURE_HINTS = [
+    { id: 'learn:sureCard', target: 'sure-card', titleKey: 'tour.sureCard.title', bodyKey: 'tour.sureCard.body', icon: BookOpen },
+    { id: 'learn:sureProgress', target: 'sure-progress', titleKey: 'tour.sureProgress.title', bodyKey: 'tour.sureProgress.body', icon: CalendarCheck },
+];
+const nextHint = (chain, seen, after = -1) => chain.findIndex((h, i) => i > after && !seen[h.id]);
+
+/**
+ * Abdest sihirbazının "Kısa / Tam" tercihi.
+ *
+ * Varsayılan KISA: 15 adımın yeni başlayanı boğması bu bölümün asıl sorunuydu.
+ * Tam liste tek dokunuş uzakta ve etiketi ne vaat ettiğini söylüyor
+ * ("Tam · sünnetleriyle"). Varsayılanı değiştirmek tek satır.
+ */
+const WUDU_MODE_KEY = 'abdest_mode';
+const readWuduMode = () => (localStorage.getItem(WUDU_MODE_KEY) === 'full' ? 'full' : 'short');
+
+
+
 const GUIDES = {
     abdest: {
         title: 'Abdest Rehberi',
         steps: [
             {
+                id: 'wudu-niyet',
                 title: 'Niyet',
                 instruction: 'Kalbinden abdest almaya niyet et. Dil ile söylemek gerekmez ama söylenebilir.',
                 arabic: 'نَوَيْتُ اَنْ اَتَوَضَّأَ لِرِضَا اللهِ تَعَالَى',
@@ -44,6 +81,7 @@ const GUIDES = {
                 tips: ['Niyet kalbin işidir', 'Abdest boyunca niyeti muhafaza et']
             },
             {
+                id: 'wudu-besmele',
                 title: 'Eûzu Besmele',
                 instruction: 'Abdestin başında Eûzu Besmele çekilir.',
                 arabic: 'أَعُوذُ بِاللَّهِ مِنَ الشَّيْطَانِ الرَّجِيمِ ، بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ',
@@ -52,6 +90,7 @@ const GUIDES = {
                 tips: ['Besmele abdestin sünnetidir', 'Huzurla başla']
             },
             {
+                id: 'wudu-eller',
                 title: 'Elleri Yıkama',
                 repeat: '3x tekrar',
                 instruction: 'Elleri bileklere kadar (bilekler dahil) üç kere yıka. Parmak aralarını iyice ovala ve suyu her yerine ulaştır.',
@@ -61,6 +100,7 @@ const GUIDES = {
                 tips: ['Yüzük varsa altına su geçecek şekilde oynatılmalı', 'Kuru yer kalmamasına dikkat edilmeli', 'Parmak aralarını hilallemek sünnettir']
             },
             {
+                id: 'wudu-misvak',
                 title: 'Diş Temizliği (Misvak)',
                 instruction: 'Misvak, diş fırçası veya sağ elin parmakları ile dişleri ve diş etlerini temizlemek sünnettir. Dişler üst-alt ve sağ-sol olarak fırçalanır.',
                 arabic: 'اَللَّهُمَّ بَارِكْ لِي فِي فَمِي',
@@ -69,6 +109,7 @@ const GUIDES = {
                 tips: ['Misvak kullanmak abdestin müstehaplarındandır', 'Yoksa sağ elin işaret ve orta parmağıyla dişler ovalanır']
             },
             {
+                id: 'wudu-agiz',
                 title: 'Ağza Su Verme (Mazmaza)',
                 repeat: '3x tekrar',
                 instruction: 'Sağ elinle ağzına üç kere su al. Her seferinde suyu ağzında iyice çalkala ve tükür. Dişlerin, damağın ve dilin ıslanmasını sağla.',
@@ -78,6 +119,7 @@ const GUIDES = {
                 tips: ['Oruçluysan suyu genzine kaçırmamaya dikkat et', 'Ağzın her yerine su ulaşmalı']
             },
             {
+                id: 'wudu-burun',
                 title: 'Burna Su Verme (İstinşak)',
                 repeat: '3x tekrar',
                 instruction: 'Sağ elinle burnuna üç kere su çek. Sol elinle sümkürerek burnu temizle. Suyu hafifçe genzine doğru çek.',
@@ -87,7 +129,8 @@ const GUIDES = {
                 tips: ['Oruçluysan suyu fazla çekme', 'Burnun her iki deliği de temizlenmeli']
             },
             {
-                title: 'Yüzü Yıkama (Farz)',
+                id: 'wudu-yuz',
+                title: 'Yüzü Yıkama',
                 repeat: '3x tekrar',
                 instruction: 'Alnın üst kısmındaki saç bitim çizgisinden çene altına, bir kulak yumuşağından diğerine kadar bütün yüzünü üç kere yıka. Kaşların, göz çukurlarının ve sakal altının ıslanmasına dikkat et.',
                 arabic: 'اَللَّهُمَّ بَيِّضْ وَجْهِي بِنُورِكَ يَوْمَ تَبْيَضُّ وُجُوهٌ وَتَسْوَدُّ وُجُوهٌ',
@@ -96,7 +139,8 @@ const GUIDES = {
                 tips: ['Sakal olan erkekler sakal altını hilallemeli', 'Göz pınarları ve burun kenarları temizlenmeli', 'Yüz yıkamak abdestin farzlarındandır']
             },
             {
-                title: 'Sağ Kolu Yıkama (Farz)',
+                id: 'wudu-sag-kol',
+                title: 'Sağ Kolu Yıkama',
                 repeat: '3x tekrar',
                 instruction: 'Sağ kolunu parmak uçlarından dirseklere kadar (dirsekler dahil) üç kere yıka. Su her yere ulaşmalı.',
                 arabic: 'اَللَّهُمَّ اَعْطِنِي كِتَابِي بِيَمِينِي وَحَاسِبْنِي حِسَاباً يَسِيراً',
@@ -105,7 +149,8 @@ const GUIDES = {
                 tips: ['Dirsekler mutlaka yıkanmalı (farzdır)', 'Kol kıvrımlarına dikkat edilmeli', 'Sağ koldan başlamak sünnettir']
             },
             {
-                title: 'Sol Kolu Yıkama (Farz)',
+                id: 'wudu-sol-kol',
+                title: 'Sol Kolu Yıkama',
                 repeat: '3x tekrar',
                 instruction: 'Sol kolunu parmak uçlarından dirseklere kadar (dirsekler dahil) üç kere yıka.',
                 arabic: 'اَللَّهُمَّ لاَ تُعْطِنِي كِتَابِي بِشِمَالِي وَلاَ مِنْ وَرَاءِ ظَهْرِي',
@@ -114,7 +159,8 @@ const GUIDES = {
                 tips: ['Sıralama önemli: önce sağ, sonra sol (tertip sünnettir)', 'Kuru yer kalmamalı']
             },
             {
-                title: 'Başın Mesh Edilmesi (Farz)',
+                id: 'wudu-bas-mesh',
+                title: 'Başın Mesh Edilmesi',
                 instruction: 'Ellerini yeni suyla ıslat. Islak ellerini alnın saç bitim çizgisinden enseye doğru çek, sonra enseden alna doğru geri getir. Başın en az dörtte birini mesh etmek farzdır, tamamını mesh etmek sünnettir.',
                 arabic: 'اَللَّهُمَّ غَشِّنِي بِرَحْمَتِكَ وَأَنْزِلْ عَلَيَّ مِنْ بَرَكَاتِكَ',
                 transcription: 'Allahümme ğaşşinî birahmetike ve enzil aleyye min berekâtike.',
@@ -122,6 +168,7 @@ const GUIDES = {
                 tips: ['Mesh: ıslak elle sıvazlama demektir, yıkama değildir', 'Kaplama mesh (tüm baş) daha faziletlidir', 'Mesh için yeni su almak gerekir']
             },
             {
+                id: 'wudu-kulak',
                 title: 'Kulakların Meshi',
                 instruction: 'Başı mesh eden ıslak ellerle kulakları mesh et. İşaret parmaklarını kulak deliğine, baş parmaklarını kulak arkasına koy ve aynı anda mesh et.',
                 arabic: 'اَللَّهُمَّ اجْعَلْنِي مِنَ الَّذِينَ يَسْتَمِعُونَ الْقَوْلَ فَيَتَّبِعُونَ اَحْسَنَهُ',
@@ -130,6 +177,7 @@ const GUIDES = {
                 tips: ['İşaret parmağı kulak içini, baş parmak kulak arkasını mesh eder', 'Kulak memesinin arkası da mesh edilir']
             },
             {
+                id: 'wudu-boyun',
                 title: 'Boynun Meshi',
                 instruction: 'Her iki elin dış yüzeyiyle (el sırtıyla) boynunun yan ve arka kısmını mesh et. Boğaz (ön kısım) mesh edilmez.',
                 arabic: 'اَللَّهُمَّ اَعْتِقْ رَقَبَتِي مِنَ النَّارِ',
@@ -138,7 +186,8 @@ const GUIDES = {
                 tips: ['Mesh el sırtıyla yapılır, avuç içiyle değil', 'Sadece ense ve boyun yanları mesh edilir', 'Boğaza mesh yapılmaz']
             },
             {
-                title: 'Sağ Ayak Yıkama (Farz)',
+                id: 'wudu-sag-ayak',
+                title: 'Sağ Ayak Yıkama',
                 repeat: '3x tekrar',
                 instruction: 'Sağ ayağını topuk kemikleri dahil üç kere yıka. Parmak aralarını sol elin küçük parmağıyla hilalle (ayak serçe parmağından başlayarak).',
                 arabic: 'اَللَّهُمَّ ثَبِّتْ قَدَمَيَّ عَلَى الصِّرَاطِ يَوْمَ تَزِلُّ فِيهِ الْأَقْدَامُ',
@@ -147,7 +196,8 @@ const GUIDES = {
                 tips: ['Parmak araları mutlaka hilallenmeli', 'Topuklar çoğu insanın eksik bıraktığı yerdir', 'Aşık kemikleri dahil yıkanmalı']
             },
             {
-                title: 'Sol Ayak Yıkama (Farz)',
+                id: 'wudu-sol-ayak',
+                title: 'Sol Ayak Yıkama',
                 repeat: '3x tekrar',
                 instruction: 'Sol ayağını topuk kemikleri dahil üç kere yıka. Parmak aralarını aynı şekilde hilalle.',
                 arabic: 'اَللَّهُمَّ اجْعَلْ سَعْيِي مَشْكُوراً وَذَنْبِي مَغْفُوراً',
@@ -156,6 +206,7 @@ const GUIDES = {
                 tips: ['Sol ayakla abdest tamamlanır', 'Topuk ve aşık kemiklerini kontrol et']
             },
             {
+                id: 'wudu-bitis-dua',
                 title: 'Abdest Sonrası Dua',
                 instruction: 'Abdest bittikten sonra göğe doğru bakarak veya kıbleye dönerek Kelime-i Şehadet ve dua okunur. Bu duayı okuyana cennetin sekiz kapısı açılır.',
                 arabic: 'أَشْهَدُ أَنْ لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ وَأَشْهَدُ أَنَّ مُحَمَّدًا عَبْدُهُ وَرَسُولُهُ ، اللَّهُمَّ اجْعَلْنِي مِنَ التَّوَّابِينَ وَاجْعَلْنِي مِنَ الْمُتَطَهِّرِينَ',
@@ -165,8 +216,135 @@ const GUIDES = {
             }
         ]
     },
+    gusul: {
+        title: "Gusül",
+        steps: [
+            {
+                id: 'gusul-ne-zaman',
+                title: "Gusül ne zaman gerekir?",
+                instruction: "Gusül; cünüplük hâlinde, hayız (âdet) kanamasının bitiminde ve lohusalık (nifas) kanamasının bitiminde farz olur. Bu hâllerde namaz kılmak, Kâbe'yi tavaf etmek ve Kur'an'a el sürmek için önce gusledilir.",
+                tips: [
+                    "Hayız ve lohusalıkta kanama tamamen kesildiğinde gusül farz olur; kanama sürdüğü müddetçe gusül beklenir.",
+                    "Cuma ve bayram günleri, ihrama girerken alınan gusül farz değil sünnettir.",
+                    "Gusül gerektiğinde geciktirmemek, hiç değilse namaz vakti çıkmadan yerine getirmek uygundur.",
+                ]
+            },
+            {
+                id: 'gusul-niyet',
+                title: "Niyet et, besmele çek",
+                instruction: "Temizlenmeye niyet edip besmele ile başlanır. Niyet kalbin işidir; dil ile söylemek şart değildir.",
+                arabic: "بِسْمِ اللّٰهِ الرَّحْمٰنِ الرَّحِيمِ",
+                transcription: "Bismillâhirrahmânirrahîm",
+                meaning: "Rahmân ve Rahîm olan Allah'ın adıyla.",
+                tips: [
+                    "Hanefî mezhebinde gusülde niyet ve besmele sünnettir; unutulsa da gusül geçerlidir.",
+                    "Banyoda veya tuvalette besmeleyi sesli söylemek yerine kalpten getirmek edebe daha uygundur.",
+                    "Şâfiî mezhebinde niyet guslün farzlarındandır; niyetsiz gusül geçerli olmaz.",
+                ]
+            },
+            {
+                id: 'gusul-eller-avret',
+                title: "Elleri ve avret mahallini yıka",
+                repeat: "3x tekrar",
+                instruction: "Önce eller bileklere kadar yıkanır, sonra avret mahalli ve bedende kirlilik varsa temizlenir. Suyun cilde ulaşmasını engelleyen ne varsa bu aşamada giderilir.",
+                tips: [
+                    "Oje, su geçirmeyen makyaj, yara bandı, yapışkan boya gibi cilt üzerinde katman oluşturan şeyler gusülden önce çıkarılır; altına su ulaşmazsa gusül tamamlanmış olmaz.",
+                    "Diş dolgusu, kaplama ve saç jölesi katman oluşturmadığı için gusle engel değildir.",
+                    "Boyacı, çiftçi gibi işi gereği tırnağına boya veya çamur bulaşanlar için Diyanet bu durumu mazeret sayar.",
+                ]
+            },
+            {
+                id: 'gusul-abdest',
+                title: "Namaz abdesti al",
+                instruction: "Gusle başlamadan önce namaz abdesti gibi bir abdest alınır. Suyun biriktiği bir yerde yıkanılıyorsa ayakların yıkanması en sona bırakılabilir.",
+                tips: [
+                    "Bu abdest guslün farzı değildir; sünnete uygun sırayı tamamlar.",
+                    "Bir uzuvda sargı, alçı veya yıkanması zarar verecek bir yara varsa o bölge yıkanmaz, üzerine bir kez elle mesh edilir; sargının tamamını mesh etmek gerekmez.",
+                    "Sargı veya alçı yıkanacak yerlerin çoğunu kaplıyorsa gusül yerine teyemmüm yapılır.",
+                ]
+            },
+            {
+                id: 'gusul-agiz',
+                title: "Ağzına su ver",
+                repeat: "3x tekrar",
+                instruction: "Ağza boğaza kadar ulaşacak şekilde dolu dolu su alınır ve çalkalanır. Hanefî mezhebinde bu, guslün farzlarındandır.",
+                tips: [
+                    "Suyun ağzın her yerine, diş aralarına ve boğazın başlangıcına ulaşması gerekir.",
+                    "Oruçlu iken gargara yapmadan, suyu boğaza kaçırmadan yapılır.",
+                    "Şâfiî ve Mâlikî mezheplerinde ağza su vermek farz değil sünnettir.",
+                ]
+            },
+            {
+                id: 'gusul-burun',
+                title: "Burnuna su çek",
+                repeat: "3x tekrar",
+                instruction: "Buruna dolu dolu su çekilir, yumuşak kısma kadar ulaştırılır ve sümkürerek çıkarılır. Bu da Hanefî mezhebinde farzdır.",
+                tips: [
+                    "Suyun burun kıllarının bittiği yumuşak bölgeye kadar ulaşması esastır.",
+                    "Oruçlu iken suyu abartılı şekilde yukarı çekmemeye dikkat edilir.",
+                    "Şâfiî ve Mâlikî mezheplerinde buruna su çekmek sünnettir.",
+                ]
+            },
+            {
+                id: 'gusul-beden',
+                title: "Suyu tüm bedene ulaştır",
+                repeat: "3x tekrar",
+                instruction: "Önce başa, sonra sağ ve sol omuza su dökerek bedenin tamamı yıkanır. İğne ucu kadar kuru yer kalmayacak şekilde su her yere ulaşmalıdır.",
+                tips: [
+                    "En çok unutulan yerler: saç dipleri, kulak arkası ve kıvrımları, göbek deliği, koltuk altı, diz arkası, tırnak altları ve küpe delikleri.",
+                    "Kadınların saç örgüsünü çözmesi gerekmez; suyun saç diplerine ulaşması yeterlidir. Örgü suyun dibe ulaşmasını engelliyorsa çözülür.",
+                    "Küvette veya duşta yıkanmak fark etmez; önemli olan suyun bedenin her yerine ulaşmasıdır.",
+                ]
+            },
+        ]
+    },
+    teyemmum: {
+        title: "Teyemmüm",
+        steps: [
+            {
+                id: 'tey-ne-zaman',
+                title: "Teyemmüm ne zaman caizdir?",
+                instruction: "Su bulunamadığında, su kolayca gidip gelinemeyecek kadar uzakta olduğunda ya da suyu kullanmak hastalığı artırma veya iyileşmeyi geciktirme riski taşıdığında teyemmüm yapılır. Teyemmüm hem abdest hem gusül yerine geçer.",
+                tips: [
+                    "Klasik fıkıhta ölçü 'bir mil' (yaklaşık 1,5 km) olarak verilir; Diyanet bunu 'yürüyerek veya vasıtayla kolayca gidip gelinemeyecek uzaklık' diye ifade eder.",
+                    "Su varken sadece namaz vakti daralıyor diye teyemmüm yapılmaz; vakit namazı kazaya kalsa da sonradan kılınabilir. Cenaze ve bayram namazı bunun istisnasıdır, çünkü onların kazası yoktur.",
+                    "Eldeki su içme gibi daha zaruri bir ihtiyaç için gerekliyse teyemmüm yapılabilir.",
+                ]
+            },
+            {
+                id: 'tey-niyet-vurus',
+                title: "Niyet et, ellerini toprağa vur",
+                instruction: "Abdest veya gusül için teyemmüme niyet edilir. Parmaklar açık şekilde eller temiz toprağa veya toprak cinsinden bir yüzeye vurulur, ileri geri hareket ettirilip kaldırılır ve hafifçe silkelenir.",
+                tips: [
+                    "Abdestte niyet sünnetken teyemmümde farzdır; niyetsiz teyemmüm geçerli olmaz.",
+                    "Hanefî mezhebinde toprak, kum, taş, kerpiç, tuğla, sıvalı duvar gibi toprak cinsinden temiz her şeyle teyemmüm yapılabilir.",
+                    "Şâfiî mezhebinde ele toz bulaşması şart görüldüğü için tozsuz taş veya duvar yeterli sayılmaz.",
+                ]
+            },
+            {
+                id: 'tey-yuz',
+                title: "Yüzünü mesh et",
+                instruction: "Ellerin içiyle yüzün tamamı bir kez mesh edilir. Yüzde mesh edilmeyen bir yer kalmamalıdır.",
+                tips: [
+                    "Yüz, alından çene altına ve iki kulak arasındaki bölgedir; abdestte yıkanan sınırın aynısıdır.",
+                    "Yüzük ve benzeri takılar mesh sırasında oynatılır ki altına da el değsin.",
+                    "Şâfiî mezhebinde önce yüz sonra kollar sırasına uymak farzdır; Hanefî mezhebinde bu sıra sünnettir.",
+                ]
+            },
+            {
+                id: 'tey-kollar',
+                title: "İkinci kez vur, kollarını mesh et",
+                instruction: "Eller ikinci kez toprağa vurulur. Sol elin içiyle sağ kol, dirsekle birlikte mesh edilir; ardından sağ elin içiyle sol kol aynı şekilde mesh edilir.",
+                tips: [
+                    "Dirsekler mesh edilen bölgeye dahildir; parmak araları da unutulmaz.",
+                    "Teyemmümü bozan şeyler: abdesti bozan her şey, guslü gerektiren hâller ve teyemmümü mubah kılan mazeretin ortadan kalkması.",
+                    "Kullanılabilir su bulunduğu anda ya da hastalık geçtiğinde teyemmüm sona erer; artık abdest veya gusül alınır.",
+                ]
+            },
+        ]
+    },
     dualar: {
-        title: 'Elli Dua (Gönül İlaçları)',
+        title: 'Dualar (Gönül İlaçları)',
         steps: [
             {
                 title: 'Kadir Gecesi Duası',
@@ -567,8 +745,168 @@ const GUIDES = {
                 transcription: 'Lâ ilâhe illâllâh Muhammedün Rasûlullâh.',
                 meaning: 'Allah\u2019tan başka ilah yoktur, Muhammed Allah\u2019ın elçisidir.',
                 tips: ['Son sözü "Lâ ilâhe illâllâh" olan cennete girer. (Ebu Davud)', 'Zikirlerin en faziletlisi Kelime-i Tevhid\u2019dir. (Tirmizi)'],
-            }
-        ]
+            },
+            {
+                title: "Camiden Çıkarken",
+                instruction: "Allah'ın lütfunu istemek.",
+                arabic: "اَللَّهُمَّ اِنِّي اَسْأَلُكَ مِنْ فَضْلِكَ",
+                transcription: "Allahümme innî es'elüke min fadlik.",
+                meaning: "Allah'ım! Senden lütfunu isterim.",
+                tips: ["Müslim", "Sol ayakla çıkılır."],
+            },
+            {
+                title: "Elbise Giyerken",
+                instruction: "Giyilen nimete şükretmek.",
+                arabic: "اَلْحَمْدُ للهِ الَّذِي كَسَانِي هَذَا وَرَزَقَنِيهِ مِنْ غَيْرِ حَوْلٍ مِنِّي وَلاَ قُوَّةٍ",
+                transcription: "Elhamdülillâhillezî kesânî hâzâ ve razakanîhi min gayri havlin minnî ve lâ kuvveh.",
+                meaning: "Beni bunu giydiren ve gücüm kuvvetim olmadan bana rızık olarak veren Allah'a hamd olsun.",
+                tips: ["Ebu Davud, Tirmizi", "Geçmiş günahların bağışlanmasına vesiledir."],
+            },
+            {
+                title: "Hilâli Görünce",
+                instruction: "Yeni ayın hayırlı geçmesi için.",
+                arabic: "اَللَّهُمَّ اَهِلَّهُ عَلَيْنَا بِالْيُمْنِ وَاْلاِيمَانِ وَالسَّلاَمَةِ وَاْلاِسْلاَمِ",
+                transcription: "Allahümme ehillehû aleynâ bil-yümni vel-îmâni ves-selâmeti vel-İslâm.",
+                meaning: "Allah'ım! Onu bize bereket, iman, esenlik ve İslam ile hilâl kıl.",
+                tips: ["Tirmizi", "Ramazan ve kandil aylarının başında okunur."],
+            },
+            {
+                title: "Çarşıya Girerken",
+                instruction: "Gaflet yerinde Allah'ı anmak.",
+                arabic: "لاَ اِلَهَ اِلاَّ اللهُ وَحْدَهُ لاَ شَرِيكَ لَهُ لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ",
+                transcription: "Lâ ilâhe illallâhu vahdehû lâ şerîke leh, lehül-mülkü ve lehül-hamdü ve hüve alâ külli şey'in kadîr.",
+                meaning: "Allah'tan başka ilah yoktur, O tektir, ortağı yoktur. Mülk O'nundur, hamd O'nadır. O her şeye kadirdir.",
+                tips: ["Tirmizi", "Kalabalıkta Allah'ı ananın sevabı büyüktür."],
+            },
+            {
+                title: "Hasta Ziyaretinde",
+                instruction: "Hastaya şifa dilemek.",
+                arabic: "لاَ بَأْسَ طَهُورٌ اِنْ شَاءَ اللهُ",
+                transcription: "Lâ be'se tahûrun inşâallâh.",
+                meaning: "Zararı yok, inşallah günahlarına kefaret olur (temizleyicidir).",
+                tips: ["Buhari", "Hastanın yanında üç kez tekrar edilir."],
+            },
+            {
+                title: "Musibet Anında",
+                instruction: "Kayıp ve felaket karşısında sabır.",
+                arabic: "اِنَّا للهِ وَاِنَّا اِلَيْهِ رَاجِعُونَ ، اَللَّهُمَّ اْجُرْنِي فِي مُصِيبَتِي وَاَخْلِفْ لِي خَيْرًا مِنْهَا",
+                transcription: "İnnâ lillâhi ve innâ ileyhi râciûn. Allahümme'curnî fî musîbetî vahlüf lî hayran minhâ.",
+                meaning: "Biz Allah'a aitiz ve O'na döneceğiz. Allah'ım! Musibetimde bana ecir ver ve bana ondan daha hayırlısını ver.",
+                tips: ["Müslim", "Her türlü kayıpta okunur."],
+            },
+            {
+                title: "Üzüntü ve Keder Anında",
+                instruction: "Daralan gönlü Allah'a açmak.",
+                arabic: "يَا حَيُّ يَا قَيُّومُ بِرَحْمَتِكَ اَسْتَغِيثُ اَصْلِحْ لِي شَأْنِي كُلَّهُ",
+                transcription: "Yâ Hayyu yâ Kayyûm, bi-rahmetike estagîs, aslih lî şe'nî küllehû.",
+                meaning: "Ey Hayy ve Kayyûm olan Allah'ım! Rahmetinle Senden yardım dilerim. Bütün işlerimi düzelt.",
+                tips: ["Tirmizi", "Peygamberimiz sıkıntılı anlarda bunu söylerdi."],
+            },
+            {
+                title: "Şeytandan Sığınma (Eûzü)",
+                instruction: "Kur'an okumadan ve her işten önce.",
+                arabic: "اَعُوذُ بِاللهِ مِنَ الشَّيْطَانِ الرَّجِيمِ",
+                transcription: "Eûzü billâhi mineş-şeytânir-racîm.",
+                meaning: "Kovulmuş şeytanın şerrinden Allah'a sığınırım.",
+                tips: ["Nahl Suresi, 98. Ayet", "Öfke anında da okunur."],
+            },
+            {
+                title: "Kötü Rüya Görünce",
+                instruction: "Kabusun şerrinden korunmak.",
+                arabic: "اَعُوذُ بِاللهِ مِنَ الشَّيْطَانِ وَمِنْ شَرِّ مَا رَاَيْتُ",
+                transcription: "Eûzü billâhi mineş-şeytâni ve min şerri mâ raeytü.",
+                meaning: "Şeytandan ve gördüğüm şeyin şerrinden Allah'a sığınırım.",
+                tips: ["Müslim", "Sola üç kez üflenir, yan değiştirilir; rüya kimseye anlatılmaz."],
+            },
+            {
+                title: "Çocuklar İçin Koruma",
+                instruction: "Evladı nazardan ve şerden korumak.",
+                arabic: "اُعِيذُكُمَا بِكَلِمَاتِ اللهِ التَّامَّةِ مِنْ كُلِّ شَيْطَانٍ وَهَامَّةٍ وَمِنْ كُلِّ عَيْنٍ لاَمَّةٍ",
+                transcription: "Üîzükümâ bi-kelimâtillâhit-tâmmeti min külli şeytânin ve hâmmetin ve min külli aynin lâmmeh.",
+                meaning: "Sizi, her şeytandan, zehirli hayvandan ve değen her kötü gözden Allah'ın eksiksiz kelimelerine emanet ederim.",
+                tips: ["Buhari", "Peygamberimiz Hasan ve Hüseyin'e böyle dua ederdi."],
+            },
+            {
+                title: "Rükû Tesbihi",
+                instruction: "Namazda rükûda okunur.",
+                arabic: "سُبْحَانَ رَبِّيَ الْعَظِيمِ",
+                transcription: "Sübhâne Rabbiyel-azîm.",
+                meaning: "Yüce olan Rabbimi tenzih ederim.",
+                tips: ["En az üç kez söylenir.", "Müslim, Ebu Davud"],
+            },
+            {
+                title: "Secde Tesbihi",
+                instruction: "Namazda secdede okunur.",
+                arabic: "سُبْحَانَ رَبِّيَ اْلاَعْلَى",
+                transcription: "Sübhâne Rabbiyel-a'lâ.",
+                meaning: "En yüce olan Rabbimi tenzih ederim.",
+                tips: ["En az üç kez söylenir.", "Kulun Allah'a en yakın olduğu andır."],
+            },
+            {
+                title: "İki Secde Arasında",
+                instruction: "Celsede okunan dua.",
+                arabic: "رَبِّ اغْفِرْ لِي وَارْحَمْنِي وَاهْدِنِي وَعَافِنِي وَارْزُقْنِي",
+                transcription: "Rabbiğfir lî verhamnî vehdinî ve âfinî verzuknî.",
+                meaning: "Rabbim! Beni bağışla, bana merhamet et, hidayet ver, afiyet ver ve rızık ver.",
+                tips: ["Ebu Davud, Tirmizi", "Secdeden doğrulup oturunca okunur."],
+            },
+            {
+                title: "Uzun İstiğfar",
+                instruction: "Günahların bağışlanması için.",
+                arabic: "اَسْتَغْفِرُ اللهَ الَّذِي لاَ اِلَهَ اِلاَّ هُوَ الْحَيُّ الْقَيُّومُ وَاَتُوبُ اِلَيْهِ",
+                transcription: "Estağfirullâhellezî lâ ilâhe illâ hüvel-Hayyul-Kayyûmü ve etûbü ileyh.",
+                meaning: "Kendisinden başka ilah olmayan, Hayy ve Kayyûm olan Allah'tan bağışlanma diler ve O'na tövbe ederim.",
+                tips: ["Ebu Davud, Tirmizi", "Savaştan kaçmış olsa bile bağışlanır denilmiştir."],
+            },
+            {
+                title: "Günahtan Sonra Tövbe",
+                instruction: "Bütün günahların affı için.",
+                arabic: "اَللَّهُمَّ اغْفِرْ لِي ذَنْبِي كُلَّهُ دِقَّهُ وَجِلَّهُ وَاَوَّلَهُ وَآخِرَهُ",
+                transcription: "Allahümmağfir lî zenbî küllehû, dikkahû ve cillehû, ve evvelehû ve âhirah.",
+                meaning: "Allah'ım! Günahımın hepsini bağışla; küçüğünü büyüğünü, öncekini sonrakini.",
+                tips: ["Müslim", "Secdede okunması tavsiye edilmiştir."],
+            },
+            {
+                title: "Salâtü'l-Fâtih",
+                instruction: "Kapalı kapıların açılması için salavat.",
+                arabic: "اَللَّهُمَّ صَلِّ عَلَى سَيِّدِنَا مُحَمَّدٍ الْفَاتِحِ لِمَا اُغْلِقَ وَالْخَاتِمِ لِمَا سَبَقَ",
+                transcription: "Allahümme salli alâ seyyidinâ Muhammedinil-fâtihi limâ uğlika vel-hâtimi limâ sebak.",
+                meaning: "Allah'ım! Kapalı olanı açan, geçmişi mühürleyen efendimiz Muhammed'e salat eyle.",
+                tips: ["Fazileti büyük salavatlardandır.", "Hacet zamanlarında okunur."],
+            },
+            {
+                title: "Hayırlı Rızık Duası",
+                instruction: "Faydalı ilim, temiz rızık ve kabul olunmuş amel.",
+                arabic: "اَللَّهُمَّ اِنِّي اَسْأَلُكَ عِلْمًا نَافِعًا وَرِزْقًا طَيِّبًا وَعَمَلاً مُتَقَبَّلاً",
+                transcription: "Allahümme innî es'elüke ilmen nâfian ve rizkan tayyiben ve amelen mütekabbelâ.",
+                meaning: "Allah'ım! Senden faydalı ilim, temiz rızık ve kabul edilmiş amel isterim.",
+                tips: ["İbn Mace", "Sabah namazından sonra okunması tavsiye edilmiştir."],
+            },
+            {
+                title: "Eş ve Çocuk Duası",
+                instruction: "Hayırlı bir aile için.",
+                arabic: "رَبَّنَا هَبْ لَنَا مِنْ اَزْوَاجِنَا وَذُرِّيَّاتِنَا قُرَّةَ اَعْيُنٍ وَاجْعَلْنَا لِلْمُتَّقِينَ اِمَامًا",
+                transcription: "Rabbenâ heb lenâ min ezvâcinâ ve zürriyyâtinâ kurrate a'yunin vec'alnâ lil-müttekîne imâmâ.",
+                meaning: "Rabbimiz! Bize eşlerimizden ve çocuklarımızdan göz aydınlığı ver ve bizi takva sahiplerine önder kıl.",
+                tips: ["Furkan Suresi, 74. Ayet", "Rahman'ın kullarının duasıdır."],
+            },
+            {
+                title: "Anne Babaya Dua",
+                instruction: "Ebeveyn için rahmet dilemek.",
+                arabic: "رَبِّ ارْحَمْهُمَا كَمَا رَبَّيَانِي صَغِيرًا",
+                transcription: "Rabbirhamhümâ kemâ rabbeyânî sagîrâ.",
+                meaning: "Rabbim! Onlar beni küçükken nasıl yetiştirdilerse, Sen de onlara öyle merhamet et.",
+                tips: ["İsrâ Suresi, 24. Ayet", "Vefat etmiş olsalar da okunur."],
+            },
+            {
+                title: "İstihare Duası",
+                instruction: "Bir karar öncesi hayırlısını istemek.",
+                arabic: "اَللَّهُمَّ اِنِّي اَسْتَخِيرُكَ بِعِلْمِكَ وَاَسْتَقْدِرُكَ بِقُدْرَتِكَ وَاَسْأَلُكَ مِنْ فَضْلِكَ الْعَظِيمِ",
+                transcription: "Allahümme innî estehîruke bi-ilmike ve estakdiruke bi-kudretike ve es'elüke min fadlikel-azîm.",
+                meaning: "Allah'ım! İlminle benim için hayırlısını seçmeni, kudretinle güç vermeni diliyor ve büyük lütfundan istiyorum.",
+                tips: ["Buhari", "İki rekat namazdan sonra okunur, ardından niyet edilen iş söylenir."],
+            },
+]
     },
     sureler: {
         title: 'Sureler Rehberi',
@@ -668,6 +1006,174 @@ const GUIDES = {
                 transcription: 'Allâhü lâ ilâhe illâ hüvel hayyül kayyûm. Lâ te\'huzühû sinetün ve lâ nevm. Lehû mâ fis-semâvâti ve mâ fil ard. Men zellezî yeşfeu indehû illâ bi-iznih. Ya\'lemü mâ beyne eydîhim ve mâ halfehüm. Ve lâ yuhîtûne bi-şey\'in min ilmihî illâ bimâ şâe. Vesia kürsiyyühüs-semâvâti vel ard. Ve lâ yeûdühû hıfzuhumâ ve hüvel aliyyül azîm.',
                 meaning: 'Allah, O\'ndan başka ilah yoktur; O, Hayy\'dır (diridir), Kayyum\'dur (her şeyi ayakta tutandır). O\'nu ne bir uyuklama ne de bir uyku tutar. Göklerde ve yerde ne varsa O\'nundur. İzni olmadan O\'nun katında kim şefaat edebilir? O, kullarının yaptıklarını ve yapacaklarını bilir. Onlar ise, O\'nun dilediği kadarından başka ilminden hiçbir şeyi kavrayamazlar. O\'nun kürsüsü gökleri ve yeri kaplamıştır. Onları koruyup gözetmek O\'na ağır gelmez. O, Aliy\'dir (yücedir), Azim\'dir (büyüktür).',
                 tips: ['Bakara Suresi\'nin 255. ayetidir.', 'İçinde "Allah\'ın Kürsüsü" geçtiği için bu adı almıştır.']
+            },
+            {
+                title: "Asr Suresi",
+                instruction: "Zamana yemin ederek insanın hüsranda olduğunu, kurtuluşun iman ve salih amelde olduğunu bildirir.",
+                arabic: "بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ ۝ وَالْعَصْرِ ۝ إِنَّ الْإِنسَانَ لَفِي خُسْرٍ ۝ إِلَّا الَّذِينَ آمَنُوا وَعَمِلُوا الصَّالِحَاتِ وَتَوَاصَوْا بِالْحَقِّ وَتَوَاصَوْا بِالصَّبْرِ",
+                transcription: "Bismillâhirrahmânirrahîm. Vel asr. İnnel insâne le fî husr. İllellezîne âmenû ve amilûs sâlihâti ve tevâsav bil hakkı ve tevâsav bis sabr.",
+                meaning: "Asra yemin ederim ki. İnsan gerçekten ziyan içindedir. Bundan ancak iman edip iyi ameller işleyenler, birbirlerine hakkı tavsiye edenler ve sabrı tavsiye edenler müstesnadır.",
+                tips: ["İmam Şâfiî: “İnsanlar sadece bu sureyi düşünseydi, onlara yeterdi.”", "Üç ayetle Kur'an'ın özeti sayılır: iman, amel, hakkı ve sabrı tavsiye."]
+            },
+            {
+                title: "İnşirah Suresi",
+                instruction: "Peygamberimizin göğsünün açılmasını ve yükünün kaldırılmasını anlatır; sıkıntının geçici olduğunu müjdeler.",
+                arabic: "بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ ۝ أَلَمْ نَشْرَحْ لَكَ صَدْرَكَ ۝ وَوَضَعْنَا عَنكَ وِزْرَكَ ۝ الَّذِي أَنقَضَ ظَهْرَكَ ۝ وَرَفَعْنَا لَكَ ذِكْرَكَ ۝ فَإِنَّ مَعَ الْعُسْرِ يُسْرًا ۝ إِنَّ مَعَ الْعُسْرِ يُسْرًا ۝ فَإِذَا فَرَغْتَ فَانصَبْ ۝ وَإِلَىٰ رَبِّكَ فَارْغَب",
+                transcription: "Bismillâhirrahmânirrahîm. E lem neşrah leke sadrek. Ve vedagnâ anke vizrek. Ellezî enkada zahrek. Ve refa’nâ leke zikrek. Fe inne maal usri yusra. İnne maal usri yusrâ. Fe izâ feragte fensab. Ve ilâ rabbike fergab.",
+                meaning: "Biz senin göğsünü açıp genişletmedik mi. Yükünü senden alıp atmadık mı. O senin belini büken yükü. Senin şanını ve ününü yüceltmedik mi. Elbette zorluğun yanında bir kolaylık vardır. Gerçekten, zorlukla beraber bir kolaylık daha vardır. Boş kaldın mı hemen (başka) işe koyul. Yalnız Rabbine yönel.",
+                tips: ["“Zorlukla beraber bir kolaylık vardır” müjdesi arka arkaya iki kez tekrarlanır.", "Duhâ Suresi'nin devamı niteliğindedir, sıkıntı anında okunur."]
+            },
+            {
+                title: "Tekâsür Suresi",
+                instruction: "Mal ve çokluk yarışının insanı nasıl oyaladığını, ölüme kadar süren bu gafleti anlatır.",
+                arabic: "بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ ۝ أَلْهَاكُمُ التَّكَاثُرُ ۝ حَتَّىٰ زُرْتُمُ الْمَقَابِرَ ۝ كَلَّا سَوْفَ تَعْلَمُونَ ۝ ثُمَّ كَلَّا سَوْفَ تَعْلَمُونَ ۝ كَلَّا لَوْ تَعْلَمُونَ عِلْمَ الْيَقِينِ ۝ لَتَرَوُنَّ الْجَحِيمَ ۝ ثُمَّ لَتَرَوُنَّهَا عَيْنَ الْيَقِينِ ۝ ثُمَّ لَتُسْأَلُنَّ يَوْمَئِذٍ عَنِ النَّعِيمِ",
+                transcription: "Bismillâhirrahmânirrahîm. Elhâkumut tekâsur. Hattâ zurtumul mekâbir. Kellâ sevfe ta’lemûn. Summe kellâ sevfe ta’lemûn. Kellâ lev ta’lemûne ilmel yakîn. Le terevunnel cahîm. Summe le terevunnehâ aynel yakîn. Summe le tus’elunne yevmeizin anin naîm.",
+                meaning: "Çokluk kuruntusu sizi o derece oyaladı ki. Nihayet kabirleri ziyaret ettiniz. Hayır! Yakında bileceksiniz. Elbette yakında bileceksiniz. Gerçek öyle değil! Kesin bilgi ile bilmiş olsaydınız. Mutlaka cehennem ateşini görürdünüz. Sonra ahirette onu çıplak gözle göreceksiniz. Nihayet o gün (dünyada yararlandığınız) nimetlerden elbette ve elbette hesaba çekileceksiniz.",
+                tips: ["Dünya hırsının panzehiri sayılır.", "Verilen her nimetten hesap sorulacağını hatırlatır."]
+            },
+            {
+                title: "Kadir Suresi",
+                instruction: "Kur'an'ın Kadir gecesinde indirildiğini ve bu gecenin bin aydan hayırlı olduğunu bildirir.",
+                arabic: "بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ ۝ إِنَّا أَنزَلْنَاهُ فِي لَيْلَةِ الْقَدْرِ ۝ وَمَا أَدْرَاكَ مَا لَيْلَةُ الْقَدْرِ ۝ لَيْلَةُ الْقَدْرِ خَيْرٌ مِّنْ أَلْفِ شَهْرٍ ۝ تَنَزَّلُ الْمَلَائِكَةُ وَالرُّوحُ فِيهَا بِإِذْنِ رَبِّهِم مِّن كُلِّ أَمْرٍ ۝ سَلَامٌ هِيَ حَتَّىٰ مَطْلَعِ الْفَجْرِ",
+                transcription: "Bismillâhirrahmânirrahîm. İnnâ enzelnâhu fî leyletil kadr. Ve mâ edrâke mâ leyletul kadr. Leyletul kadri hayrun min elfi şehr. Tenezzelul melâiketu ver rûhu fîhâ bi izni rabbihim min kulli emrin. Selâmun, hiye hattâ matlaıl fecr.",
+                meaning: "Biz onu (Kur'an'ı) Kadir gecesinde indirdik. Kadir gecesinin ne olduğunu sen bilir misin. Kadir gecesi, bin aydan hayırlıdır. O gecede, Rablerinin izniyle melekler ve Ruh (Cebrail), her iş için iner dururlar. O gece, esenlik doludur. Ta fecrin doğuşuna kadar.",
+                tips: ["Ramazan'ın son on gecesinde çokça okunur.", "Kadir gecesi meleklerin ve Cebrail'in indiği, esenlik dolu gecedir."]
+            },
+            {
+                title: "Tîn Suresi",
+                instruction: "İncire, zeytine, Sina Dağı'na ve güvenli beldeye yemin ederek insanın en güzel biçimde yaratıldığını bildirir.",
+                arabic: "بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ ۝ وَالتِّينِ وَالزَّيْتُونِ ۝ وَطُورِ سِينِينَ ۝ وَهَٰذَا الْبَلَدِ الْأَمِينِ ۝ لَقَدْ خَلَقْنَا الْإِنسَانَ فِي أَحْسَنِ تَقْوِيمٍ ۝ ثُمَّ رَدَدْنَاهُ أَسْفَلَ سَافِلِينَ ۝ إِلَّا الَّذِينَ آمَنُوا وَعَمِلُوا الصَّالِحَاتِ فَلَهُمْ أَجْرٌ غَيْرُ مَمْنُونٍ ۝ فَمَا يُكَذِّبُكَ بَعْدُ بِالدِّينِ ۝ أَلَيْسَ اللَّهُ بِأَحْكَمِ الْحَاكِمِينَ",
+                transcription: "Bismillâhirrahmânirrahîm. Vet tîni vez zeytûn. Ve tûri sînîn. Ve hâzel beledil emîn. Lekad halaknel insâne fî ahseni takvîm. Summe redednâhu esfele sâfilîn. İllellezîne âmenû ve amilûs sâlihâti fe lehum ecrun gayru memnûn. Fe mâ yukezzibuke ba’du bid dîn. E leysallâhu bi ahkemil hâkimîn.",
+                meaning: "İncire, zeytine. Sina dağına. Ve şu emin beldeye yemin ederim ki. Biz insanı en güzel biçimde yarattık. Sonra da çevirdik aşağıların aşağısına attık. Fakat iman edip salih amel işleyenler için eksilmeyen devamlı bir ecir vardır. Artık bundan sonra, ceza günü konusunda seni kim yalanlayabilir. Allah, hüküm verenlerin en üstünü değil midir.",
+                tips: ["İnsanın şerefi imanla korunur, imansızlıkla düşer.", "Namazlarda zamm-ı sure olarak sık okunur."]
+            },
+            {
+                title: "Hümeze Suresi",
+                instruction: "İnsanları arkadan çekiştiren, mal biriktirip onunla övünen kimseyi uyarır.",
+                arabic: "بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ ۝ وَيْلٌ لِّكُلِّ هُمَزَةٍ لُّمَزَةٍ ۝ الَّذِي جَمَعَ مَالًا وَعَدَّدَهُ ۝ يَحْسَبُ أَنَّ مَالَهُ أَخْلَدَهُ ۝ كَلَّا لَيُنبَذَنَّ فِي الْحُطَمَةِ ۝ وَمَا أَدْرَاكَ مَا الْحُطَمَةُ ۝ نَارُ اللَّهِ الْمُوقَدَةُ ۝ الَّتِي تَطَّلِعُ عَلَى الْأَفْئِدَةِ ۝ إِنَّهَا عَلَيْهِم مُّؤْصَدَةٌ ۝ فِي عَمَدٍ مُّمَدَّدَةٍ",
+                transcription: "Bismillâhirrahmânirrahîm. Veylun li kulli humezetin lumezeh. Ellezî cemea mâlen ve addedeh. Yahsebu enne mâlehû ahledeh. Kellâ le yunbezenne fîl hutameh. Ve mâ edrâke mel hutameh. Nârullâhil mûkadeh. Elletî tettaliu alel ef’ideh. İnnehâ aleyhim mu’sadeh. Fî amedin mumeddedeh.",
+                meaning: "Arkadan çekiştirmeyi, yüze karşı eğlenmeyi adet edinen herkesin vay haline. O ki, toplamış ve onu sayıp durmuştur. Malının kendisini ebedi kılacağını zanneder. Hayır! Andolsun ki o, Hutame'ye atılacaktır. Hutame'nin ne olduğunu bilir misin. Allah'ın, tutuşturulmuş ateşidir. (Yandıkça) tırmanıp kalplerin ta üstüne çıkar. O, onların üzerine kapatılıp kilitlenecektir. (Bu ateşin içinde) uzatılmış sütunlara bağlanmışlar.",
+                tips: ["Dedikodu ve alay etmenin ağır sonucunu anlatır.", "“Hutame”, kalplere işleyen ateşin adıdır."]
+            },
+            {
+                title: "Zilzâl Suresi",
+                instruction: "Kıyamet günü yerin sarsılmasını ve herkesin zerre kadar hayrını da şerrini de göreceğini anlatır.",
+                arabic: "بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ ۝ إِذَا زُلْزِلَتِ الْأَرْضُ زِلْزَالَهَا ۝ وَأَخْرَجَتِ الْأَرْضُ أَثْقَالَهَا ۝ وَقَالَ الْإِنسَانُ مَا لَهَا ۝ يَوْمَئِذٍ تُحَدِّثُ أَخْبَارَهَا ۝ بِأَنَّ رَبَّكَ أَوْحَىٰ لَهَا ۝ يَوْمَئِذٍ يَصْدُرُ النَّاسُ أَشْتَاتًا لِّيُرَوْا أَعْمَالَهُمْ ۝ فَمَن يَعْمَلْ مِثْقَالَ ذَرَّةٍ خَيْرًا يَرَهُ ۝ وَمَن يَعْمَلْ مِثْقَالَ ذَرَّةٍ شَرًّا يَرَهُ",
+                transcription: "Bismillâhirrahmânirrahîm. İzâ zulziletil ardu zilzâlehâ. Ve ahrecetil ardu eskâlehâ. Ve kâlel insânu mâ lehâ. Yevme izin tuhaddisu ahbârehâ. Bi enne rabbeke ehvâlehâ. Yevme izin yasdurun nâsu eştâten li yurev a’mâlehum. Fe men ya’mel miskâle zerretin hayren yereh. Ve men ya’mel miskâle zerretin şerren yereh.",
+                meaning: "Yerküre kendine has sarsıntısıyla sallandığı. Toprak ağırlıklarını dışarı çıkardığı. Ve insan “Ne oluyor buna!” dediği vakit. İşte o gün (yer) haberlerini anlatır. Rabbinin ona bildirmesiyle. O gün insanlar amellerini görmeleri (karşılığını almaları) için darmadağınık geri dönüp gelirler. Kim zerre miktarı hayır yapmışsa onu görür. Kim de zerre miktarı şer işlemişse onu görür.",
+                tips: ["Küçük görülen iyiliklerin de kayda geçtiğini hatırlatır.", "Hesap gününün adaletini en net anlatan surelerdendir."]
+            },
+            {
+                title: "Kâria Suresi",
+                instruction: "Kıyametin dehşetini; insanların pervane, dağların atılmış yün gibi olacağını ve amel terazisini anlatır.",
+                arabic: "بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ ۝ الْقَارِعَةُ ۝ مَا الْقَارِعَةُ ۝ وَمَا أَدْرَاكَ مَا الْقَارِعَةُ ۝ يَوْمَ يَكُونُ النَّاسُ كَالْفَرَاشِ الْمَبْثُوثِ ۝ وَتَكُونُ الْجِبَالُ كَالْعِهْنِ الْمَنفُوشِ ۝ فَأَمَّا مَن ثَقُلَتْ مَوَازِينُهُ ۝ فَهُوَ فِي عِيشَةٍ رَّاضِيَةٍ ۝ وَأَمَّا مَنْ خَفَّتْ مَوَازِينُهُ ۝ فَأُمُّهُ هَاوِيَةٌ ۝ وَمَا أَدْرَاكَ مَا هِيَهْ ۝ نَارٌ حَامِيَةٌ",
+                transcription: "Bismillâhirrahmânirrahîm. El kâriah. Mel kâriah. Ve mâ edrâke mel kâriah. Yevme yekûnun nâsu kel ferâşil mebsûs. Ve tekûnul cibâlu kel ıhnil menfûş. Fe emmâ men sekulet mevâzînuh. Fe huve fî îşetin râdiyeh. Ve emmâ men haffet mevâzînuh. Fe ummuhu hâviyeh. Ve mâ edrâke mâhiyeh. Nârun hâmiyeh.",
+                meaning: "Kapı çalan. Nedir o kapı çalan. O kapı çalanın ne olduğunu bilir misin. İnsanların, ateşin etrafını sarmış pervaneler gibi olur. Dağların da atılmış renkli yüne dönüştüğü gündür (o Karia). O gün kimin tartılan ameli ağır gelirse. İşte o, hoşnut edici bir yaşayış içinde olur. Ameli yeğni olana gelince. İşte onun anası (yeri, yurdu) Haviye'dir. Nedir o (Haviye) bilir misin. Kızgın ateş.",
+                tips: ["Terazisi ağır gelen hoşnut bir hayattadır.", "Kıyamet sahnesini görüntüyle anlatan kısa surelerdendir."]
+            },
+            {
+                title: "Duhâ Suresi",
+                instruction: "Vahyin bir süre kesildiği günlerde Peygamberimize “Rabbin seni terk etmedi” diyerek teselli verir.",
+                arabic: "بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ ۝ وَالضُّحَىٰ ۝ وَاللَّيْلِ إِذَا سَجَىٰ ۝ مَا وَدَّعَكَ رَبُّكَ وَمَا قَلَىٰ ۝ وَلَلْآخِرَةُ خَيْرٌ لَّكَ مِنَ الْأُولَىٰ ۝ وَلَسَوْفَ يُعْطِيكَ رَبُّكَ فَتَرْضَىٰ ۝ أَلَمْ يَجِدْكَ يَتِيمًا فَآوَىٰ ۝ وَوَجَدَكَ ضَالًّا فَهَدَىٰ ۝ وَوَجَدَكَ عَائِلًا فَأَغْنَىٰ ۝ فَأَمَّا الْيَتِيمَ فَلَا تَقْهَرْ ۝ وَأَمَّا السَّائِلَ فَلَا تَنْهَرْ ۝ وَأَمَّا بِنِعْمَةِ رَبِّكَ فَحَدِّثْ",
+                transcription: "Bismillâhirrahmânirrahîm. Ved duhâ. Vel leyli izâ secâ. Mâ veddeake rabbuke ve mâ kalâ. Ve lel âhıretu hayrun leke minel ûlâ. Ve le sevfe yu’tîke rabbuke fe terdâ. E lem yecidke yetîmen fe âvâ. Ve vecedeke dâllen fe hedâ. Ve vecedeke âilen fe agnâ. Fe emmel yetîme fe lâ takher. Ve emmes sâile fe lâ tenher. Ve emmâ bi ni’meti rabbike fe haddis.",
+                meaning: "Andolsun kuşluk vaktine. Ve sükuna erdiğinde geceye ki. Rabbin seni bırakmadı ve sana darılmadı. Gerçekten senin için ahiret dünyadan daha hayırlıdır. Pek yakında Rabbin sana verecek de hoşnut olacaksın. O, seni yetim bulup barındırmadı mı. Şaşırmış bulup da yol göstermedi mi. Seni fakir bulup zengin etmedi mi. Öyleyse yetimi sakın ezme. El açıp isteyeni de sakın azarlama. Ve Rabbinin nimetini minnet ve şükranla an.",
+                tips: ["Ümitsizliğe düşenler için teselli suresi sayılır.", "Yetimi ve isteyeni geri çevirmemeyi öğütler."]
+            },
+            {
+                title: "Âdiyât Suresi",
+                instruction: "Savaşa koşan atlara yemin ederek insanın Rabbine karşı nankörlüğünü ve mal sevgisini anlatır.",
+                arabic: "بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ ۝ وَالْعَادِيَاتِ ضَبْحًا ۝ فَالْمُورِيَاتِ قَدْحًا ۝ فَالْمُغِيرَاتِ صُبْحًا ۝ فَأَثَرْنَ بِهِ نَقْعًا ۝ فَوَسَطْنَ بِهِ جَمْعًا ۝ إِنَّ الْإِنسَانَ لِرَبِّهِ لَكَنُودٌ ۝ وَإِنَّهُ عَلَىٰ ذَٰلِكَ لَشَهِيدٌ ۝ وَإِنَّهُ لِحُبِّ الْخَيْرِ لَشَدِيدٌ ۝ أَفَلَا يَعْلَمُ إِذَا بُعْثِرَ مَا فِي الْقُبُورِ ۝ وَحُصِّلَ مَا فِي الصُّدُورِ ۝ إِنَّ رَبَّهُم بِهِمْ يَوْمَئِذٍ لَّخَبِيرٌ",
+                transcription: "Bismillâhirrahmânirrahîm. Vel âdiyâti dabhâ. Fel mûriyâti kadhâ. Fel mugîrâti subhâ. Fe eserne bihî nak’â. Fe vesatne bihî cem’â. İnnel insâne li rabbihî le kenûd. Ve innehu alâ zâlike le şehîd. Ve innehu li hubbil hayri le şedîd. E fe lâ ya’lemu izâ bu’siramâ fîl kubûr. Ve hussıle mâ fîs sudûr. İnne rabbehum bihim yevme izin le habîr.",
+                meaning: "Harıl harıl koşanlara. (Nallarıyla) çakarak kıvılcım saçanlara. (Ansızın) sabah baskını yapanlara. Orada tozu dumana katanlara. Derken orada bir topluluğun ta ortasına girenlere yemin ederim ki. Şüphesiz insan, Rabbine karşı pek nankördür. Şüphesiz buna kendisi de şahittir. Ve o, mal sevgisine de aşırı derecede düşkündür. Kabirlerde bulunanların diriltilip dışarı atıldığını düşünmez mi. Ve kalplerde gizlenenler ortaya konduğu zaman. Şüphesiz Rableri o gün onlardan tamamıyle haberdar.",
+                tips: ["Nankörlüğün panzehiri şükürdür.", "Kabirlerdekilerin diriltileceği günü hatırlatır."]
+            },
+            {
+                title: "Şems Suresi",
+                instruction: "Güneşe, aya, gündüze ve geceye yemin ederek nefsini arındıranın kurtulacağını bildirir; Semûd kavmini örnek verir.",
+                arabic: "بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ ۝ وَالشَّمْسِ وَضُحَاهَا ۝ وَالْقَمَرِ إِذَا تَلَاهَا ۝ وَالنَّهَارِ إِذَا جَلَّاهَا ۝ وَاللَّيْلِ إِذَا يَغْشَاهَا ۝ وَالسَّمَاءِ وَمَا بَنَاهَا ۝ وَالْأَرْضِ وَمَا طَحَاهَا ۝ وَنَفْسٍ وَمَا سَوَّاهَا ۝ فَأَلْهَمَهَا فُجُورَهَا وَتَقْوَاهَا ۝ قَدْ أَفْلَحَ مَن زَكَّاهَا ۝ وَقَدْ خَابَ مَن دَسَّاهَا ۝ كَذَّبَتْ ثَمُودُ بِطَغْوَاهَا ۝ إِذِ انبَعَثَ أَشْقَاهَا ۝ فَقَالَ لَهُمْ رَسُولُ اللَّهِ نَاقَةَ اللَّهِ وَسُقْيَاهَا ۝ فَكَذَّبُوهُ فَعَقَرُوهَا فَدَمْدَمَ عَلَيْهِمْ رَبُّهُم بِذَنبِهِمْ فَسَوَّاهَا ۝ وَلَا يَخَافُ عُقْبَاهَا",
+                transcription: "Bismillâhirrahmânirrahîm. Veş şemsi ve duhâhâ. Vel kameri izâ telâhâ. Ven nehâri izâ cellâhâ. Vel leyli izâ yagşâhâ. Ves semâi ve mâ benâhâ. Vel ardı ve mâ tahâhâ. Ve nefsin ve mâ sevvâhâ. Fe elhemehâ fucûrehâ ve takvâhâ. Kad efleha men zekkâhâ. Ve kad hâbe men dessâhâ. Kezzebet semûdu bi tagvâhâ. İzin baase eşkâhâ. Fe kâle lehum resûlullâhi nâkatallâhi ve sukyâhâ. Fe kezzebûhu fe akarûhâ fe demdeme aleyhim rabbuhum bi zenbihim fe sevvâhâ. Ve lâ yehâfu ukbâhâ.",
+                meaning: "Güneşe ve kuşluk vaktindeki aydınlığına. Güneşi takip ettiğinde Ay'a. Onu açığa çıkarttığında gündüze. Onu örttüğünde geceye. Gökyüzüne ve onu bina edene. Yere ve onu yapıp döşeyene. Nefse ve ona birtakım kabiliyetler verene. Sonra da ona iyilik ve kötülükleri ilham edene yemin ederim ki. Nefsini kötülüklerden arındıran kurtuluşa ermiştir. Onu kötülüklere gömen de ziyan etmiştir. Semud kavmi azgınlığı yüzünden (Allah'ın elçisini) yalanladı. Onların en bedbahtı (deveyi kesmek için) atıldığında. Allah'ın Resulü onlara: “Allah'ın devesine ve onun su hakkına dokunmayın!” dedi. Ama onlar, onu yalanladılar ve deveyi kestiler. Bunun üzerine Rableri günahları sebebiyle onlara büyük bir felaket gönderdi de hepsini helak etti. (Allah, bu şekilde azap etmenin) akıbetinden korkacak değil ya.",
+                tips: ["“Nefsini arındıran kurtuldu” ayeti surenin özüdür.", "Deveyi kesen Semûd kavminin helâki ibret olarak anlatılır."]
+            },
+            {
+                title: "Leyl Suresi",
+                instruction: "Geceye ve gündüze yemin ederek verip sakınanla cimrilik edenin yolunun ayrıldığını anlatır.",
+                arabic: "بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ ۝ وَاللَّيْلِ إِذَا يَغْشَىٰ ۝ وَالنَّهَارِ إِذَا تَجَلَّىٰ ۝ وَمَا خَلَقَ الذَّكَرَ وَالْأُنثَىٰ ۝ إِنَّ سَعْيَكُمْ لَشَتَّىٰ ۝ فَأَمَّا مَنْ أَعْطَىٰ وَاتَّقَىٰ ۝ وَصَدَّقَ بِالْحُسْنَىٰ ۝ فَسَنُيَسِّرُهُ لِلْيُسْرَىٰ ۝ وَأَمَّا مَن بَخِلَ وَاسْتَغْنَىٰ ۝ وَكَذَّبَ بِالْحُسْنَىٰ ۝ فَسَنُيَسِّرُهُ لِلْعُسْرَىٰ ۝ وَمَا يُغْنِي عَنْهُ مَالُهُ إِذَا تَرَدَّىٰ ۝ إِنَّ عَلَيْنَا لَلْهُدَىٰ ۝ وَإِنَّ لَنَا لَلْآخِرَةَ وَالْأُولَىٰ ۝ فَأَنذَرْتُكُمْ نَارًا تَلَظَّىٰ ۝ لَا يَصْلَاهَا إِلَّا الْأَشْقَى ۝ الَّذِي كَذَّبَ وَتَوَلَّىٰ ۝ وَسَيُجَنَّبُهَا الْأَتْقَى ۝ الَّذِي يُؤْتِي مَالَهُ يَتَزَكَّىٰ ۝ وَمَا لِأَحَدٍ عِندَهُ مِن نِّعْمَةٍ تُجْزَىٰ ۝ إِلَّا ابْتِغَاءَ وَجْهِ رَبِّهِ الْأَعْلَىٰ ۝ وَلَسَوْفَ يَرْضَىٰ",
+                transcription: "Bismillâhirrahmânirrahîm. Vel leyli izâ yagşâ. Ven nehâri izâ tecellâ. Ve mâ halâkaz zekera vel unsâ. İnne sa’yekum le şettâ. Fe emmâ men a’tâ vettekâ. Ve saddeka bil husnâ. Fe senuyessiruhu lil yusrâ. Ve emmâ men bahıle vestagnâ. Ve kezzebe bil husnâ. Fe senuyessiruhu lil usrâ. Ve mâ yugnî anhu mâluhû izâ tereddâ. İnne aleynâ lel hudâ. Ve inne lenâ lel âhırete vel ûlâ. Fe enzertukum nâren telezzâ. Lâ yaslâhâ illel eşkâ. Ellezî kezzebe ve tevellâ. Ve seyucennebuhel etkâ. Ellezî yu’tî mâ lehu yetezekkâ. Ve mâ li ehadin indehu min ni´metin tuczâ. İllebtigâe vechi rabbihil a’lâ. Ve le sevfe yerdâ.",
+                meaning: "(Karanlığı ile etrafı) bürüyüp örttüğü zaman geceye. Açılıp ağardığı vakit gündüze. Erkeği ve dişiyi yaratana yemin ederim ki. Sizin işleriniz başka başkadır. Artık kim verir ve sakınırsa. Ve en güzeli de tasdik ederse. Biz de onu en kolaya hazırlarız (onda başarılı kılarız). Kim cimrilik eder, kendini müstağni sayar. Ve en güzeli de yalanlarsa. Biz de onu en zora hazırlarız. Düştüğü zaman da malı kendisine hiç fayda vermez. Doğru yolu göstermek bize aittir. Şüphesiz ahiret de dünya da bizimdir. (Ey insanlar! ) Alev alev yanan bir ateşle sizi uyardım. O ateşe, ancak kötü olan girer. Öyle kötü ki, yalanlayıp ve yüz çevirmiştir. En çok korunan ise ondan (ateşten) uzak tutulur. O ki, Allah yolunda malını verir, temizlenir. Onun nezdinde hiçbir kimseye ait şükranla karşılanacak bir nimet yoktur. O ancak Yüce Rabbinin rızasını aramak için verir. Ve o (buna kavuşarak) hoşnut olacaktır.",
+                tips: ["Cömertlik ile cimriliğin sonucunu karşılaştırır.", "İnfakın kolaylık, cimriliğin zorluk getirdiğini bildirir."]
+            },
+            {
+                title: "Alak Suresi",
+                instruction: "Kur'an'ın ilk inen ayetleridir: “Yaratan Rabbinin adıyla oku.” İlmin ve kalemin değerini bildirir.",
+                arabic: "بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ ۝ اقْرَأْ بِاسْمِ رَبِّكَ الَّذِي خَلَقَ ۝ خَلَقَ الْإِنسَانَ مِنْ عَلَقٍ ۝ اقْرَأْ وَرَبُّكَ الْأَكْرَمُ ۝ الَّذِي عَلَّمَ بِالْقَلَمِ ۝ عَلَّمَ الْإِنسَانَ مَا لَمْ يَعْلَمْ ۝ كَلَّا إِنَّ الْإِنسَانَ لَيَطْغَىٰ ۝ أَن رَّآهُ اسْتَغْنَىٰ ۝ إِنَّ إِلَىٰ رَبِّكَ الرُّجْعَىٰ ۝ أَرَأَيْتَ الَّذِي يَنْهَىٰ ۝ عَبْدًا إِذَا صَلَّىٰ ۝ أَرَأَيْتَ إِن كَانَ عَلَى الْهُدَىٰ ۝ أَوْ أَمَرَ بِالتَّقْوَىٰ ۝ أَرَأَيْتَ إِن كَذَّبَ وَتَوَلَّىٰ ۝ أَلَمْ يَعْلَم بِأَنَّ اللَّهَ يَرَىٰ ۝ كَلَّا لَئِن لَّمْ يَنتَهِ لَنَسْفَعًا بِالنَّاصِيَةِ ۝ نَاصِيَةٍ كَاذِبَةٍ خَاطِئَةٍ ۝ فَلْيَدْعُ نَادِيَهُ ۝ سَنَدْعُ الزَّبَانِيَةَ ۝ كَلَّا لَا تُطِعْهُ وَاسْجُدْ وَاقْتَرِب",
+                transcription: "Bismillâhirrahmânirrahîm. Ikra’bismi rabbikellezî halak. Halakal insâne min alak. Ikra’ ve rabbukel ekrem. Ellezî alleme bil kalem. Allemel insâne mâ lem ya’lem. Kellâ innel insâne le yatgâ. En reâhustagnâ. İnne ilâ rabbiker ruc’â. E reeytellezî yenhâ. Abden izâ sallâ. E reeyte in kâne alel hudâ. Ev emera bit takvâ. E reeyte in kezzebe ve tevellâ. E lem ya’lem bi ennellâhe yerâ. Kellâ le in lem yentehi le nesfean bin nâsıyeh. Nâsiyetin kâzibetin hâtıeh. Felyed’u nâdiyeh. Sened’uz zebâniyeh. Kellâ, lâ tutı’hu vescud vakterib.",
+                meaning: "Yaratan Rabbinin adıyla oku. O, insanı bir aşılanmış yumurtadan yarattı. Oku! Rabbin, en büyük kerem sahibidir. O Rab ki kalemle (yazmayı) öğretti. İnsana bilmedikleri şeyi öğretti. Gerçek şu ki, insan azar. Kendini kendine yeterli gördüğü için. Kuşkusuz dönüş Rabbinedir. Gördün mü şu men edeni. Namaz kılarken bir kulu (Peygamber'i namazdan). Gördün mü, ya o (Peygamber) doğru yolda olur. Yahut takvayı emrediyorsa. Ne dersin o (meneden, Peygamber'i) yalanlıyor ve doğru yoldan yüz çeviriyorsa. (Bu adam) Allah'ın, (yaptıklarını) gördüğünü bilmez mi. Hayır, hayır! Eğer vazgeçmezse, derhal onu alnından (perçeminden), yakalarız (cehenneme atarız). O yalancı, günahkar alından (perçemden). O, hemen gidip meclisini (kendi taraftarlarını) çağırsın. Biz de zebanileri çağıracağız. Hayır! Ona uyma! Allah'a secde et ve (yalnızca O'na) yaklaş.",
+                tips: ["İlk beş ayeti Hira'da inen ilk vahiydir.", "DİKKAT: Son ayeti secde ayetidir; okuyan tilâvet secdesi yapar."]
+            },
+            {
+                title: "A'lâ Suresi",
+                instruction: "“Rabbinin yüce adını tesbih et” diyerek başlar; yaratılış düzenini ve öğüdün faydasını anlatır.",
+                arabic: "بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ ۝ سَبِّحِ اسْمَ رَبِّكَ الْأَعْلَى ۝ الَّذِي خَلَقَ فَسَوَّىٰ ۝ وَالَّذِي قَدَّرَ فَهَدَىٰ ۝ وَالَّذِي أَخْرَجَ الْمَرْعَىٰ ۝ فَجَعَلَهُ غُثَاءً أَحْوَىٰ ۝ سَنُقْرِئُكَ فَلَا تَنسَىٰ ۝ إِلَّا مَا شَاءَ اللَّهُ إِنَّهُ يَعْلَمُ الْجَهْرَ وَمَا يَخْفَىٰ ۝ وَنُيَسِّرُكَ لِلْيُسْرَىٰ ۝ فَذَكِّرْ إِن نَّفَعَتِ الذِّكْرَىٰ ۝ سَيَذَّكَّرُ مَن يَخْشَىٰ ۝ وَيَتَجَنَّبُهَا الْأَشْقَى ۝ الَّذِي يَصْلَى النَّارَ الْكُبْرَىٰ ۝ ثُمَّ لَا يَمُوتُ فِيهَا وَلَا يَحْيَىٰ ۝ قَدْ أَفْلَحَ مَن تَزَكَّىٰ ۝ وَذَكَرَ اسْمَ رَبِّهِ فَصَلَّىٰ ۝ بَلْ تُؤْثِرُونَ الْحَيَاةَ الدُّنْيَا ۝ وَالْآخِرَةُ خَيْرٌ وَأَبْقَىٰ ۝ إِنَّ هَٰذَا لَفِي الصُّحُفِ الْأُولَىٰ ۝ صُحُفِ إِبْرَاهِيمَ وَمُوسَىٰ",
+                transcription: "Bismillâhirrahmânirrahîm. Sebbihısme rabbikel a’lâ. Ellezî halaka fesevvâ. Vellezî kaddere fe hedâ. Vellezî ahrecel mer’â. Fe cealehu gusâen ahvâ. Senukriuke fe lâ tensâ. İllâ mâ şâallâh, innehu ya’lemul cehre ve mâ yahfâ. Ve nuyessiruke lil yusrâ. Fe zekkir in nefeatiz zikrâ. Seyezzekkeru men yahşâ. Ve yetecennebuhel eşkâ. Ellezî yaslen nârel kubrâ. Summe lâ yemûtu fîhâ ve lâ yahyâ. Kad efleha men tezekkâ. Ve zekeresme rabbihî fe sallâ. Bel tu’sırûnel hayâted dunyâ. Vel âhıretu hayrun ve ebkâ. İnne hâzâ le fîs suhufîl ûlâ. Suhufi ibrâhîme ve mûsâ.",
+                meaning: "Yüce Rabbinin adını. Yaratıp düzene koyan. Takdir edip yol gösteren. (Topraktan) yeşil otu çıkaran. Sonra da onu kapkara bir sel artığına çeviren yüce Rabbinin adını tesbih (ve takdis) et. Sana (Kur an'ı) okutacağız; sen hiç unutmayacaksın. Artık Allah'ın dilediği hariç, Şüphesiz Allah, açığı ve gizleneni bilir. Seni en kolaya muvaffak kılacağız. O halde eğer öğüt fayda verirse öğüt ver. (Allah'tan) korkan öğütten yararlanacak. Kötü kimse ise öğütten kaçınacaktır. O ki, en büyük ateşe girecektir. Sonra o, ateşte ne ölür ne de yaşar. Doğrusu feraha ermiştir temizlenen. Rabbinin adını anıp O'na kulluk eden. Fakat siz (ey insanlar! ) dünya hayatını tercih ediyorsunuz. Oysa ahiret daha hayırlı daha devamlıdır. Şüphesiz bu (anlatılanlar), önceki kitaplarda, vardır. İbrahim ve Musa'nın kitaplarında.",
+                tips: ["Peygamberimiz cuma ve bayram namazlarında okurdu.", "Vitir namazının ilk rekâtında okunması yaygındır."]
+            },
+            {
+                title: "Beled Suresi",
+                instruction: "Mekke şehrine yemin ederek insanın zorluk içinde yaratıldığını ve sarp yokuşun ne olduğunu anlatır.",
+                arabic: "بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ ۝ لَا أُقْسِمُ بِهَٰذَا الْبَلَدِ ۝ وَأَنتَ حِلٌّ بِهَٰذَا الْبَلَدِ ۝ وَوَالِدٍ وَمَا وَلَدَ ۝ لَقَدْ خَلَقْنَا الْإِنسَانَ فِي كَبَدٍ ۝ أَيَحْسَبُ أَن لَّن يَقْدِرَ عَلَيْهِ أَحَدٌ ۝ يَقُولُ أَهْلَكْتُ مَالًا لُّبَدًا ۝ أَيَحْسَبُ أَن لَّمْ يَرَهُ أَحَدٌ ۝ أَلَمْ نَجْعَل لَّهُ عَيْنَيْنِ ۝ وَلِسَانًا وَشَفَتَيْنِ ۝ وَهَدَيْنَاهُ النَّجْدَيْنِ ۝ فَلَا اقْتَحَمَ الْعَقَبَةَ ۝ وَمَا أَدْرَاكَ مَا الْعَقَبَةُ ۝ فَكُّ رَقَبَةٍ ۝ أَوْ إِطْعَامٌ فِي يَوْمٍ ذِي مَسْغَبَةٍ ۝ يَتِيمًا ذَا مَقْرَبَةٍ ۝ أَوْ مِسْكِينًا ذَا مَتْرَبَةٍ ۝ ثُمَّ كَانَ مِنَ الَّذِينَ آمَنُوا وَتَوَاصَوْا بِالصَّبْرِ وَتَوَاصَوْا بِالْمَرْحَمَةِ ۝ أُولَٰئِكَ أَصْحَابُ الْمَيْمَنَةِ ۝ وَالَّذِينَ كَفَرُوا بِآيَاتِنَا هُمْ أَصْحَابُ الْمَشْأَمَةِ ۝ عَلَيْهِمْ نَارٌ مُّؤْصَدَةٌ",
+                transcription: "Bismillâhirrahmânirrahîm. Lâ uksimu bi hâzel beled. Ve ente hıllun bi hâzel beled. Ve vâlidin ve mâ veled. Lekad halaknel insâne fî kebed. E yahsebu en len yakdira aleyhi ehad. Yekûlu ehlektu mâlen lubedâ. E yahsebu en lem yerahû ehad. E lem nec’al lehu ayneyn. Ve lisânen ve şefeteyn. Ve hedeynâhun necdeyn. Fe laktehamel akabete. Ve mâ edrâke mel akabeh. Fekku rekabetin. Ev ıt’âmun fî yevmin zî mesgabeh. Yetîmen zâ makrabeh. Ev miskînen zâ metrabeh. Summe kâne minellezîne âmenû ve tevâsav bis sabri ve tevâsav bil merhame. Ulâike ashâbul meymeneh. Vellezîne keferû bi âyâtinâ hum ashâbul meş’emeh. Aleyhim nârun mu’sadeh.",
+                meaning: "Andolsun bu beldeye. Ki sen bu beldedesin. Ve andolsun babaya ve ondan meydana gelen çocuğa. Biz, insanı ( yüzyüze geleceği nice ) zorluklar içinde yarattık. İnsan, hiç kimsenin kendisine güç yetiremeyeceğini mi sanıyor. Pek çok mal harcadım “ diyor. Kimse onu görmedi mi sanıyor. Biz ona iki göz vermedik mi. Bir dil ve iki dudak. Ona iki yolu ( doğru ve eğriyi ) gösterdik. Fakat o, sarp yokuşu aşamadı. O sarp yokuş nedir bilir misin. Köle azat etmek. Veya açlık gününde yemek yedirmektir. Yakınlığı olan bir yetime. Veya hiçbir şeyi olmayan yoksula. Sonra iman edenlerden, birbirlerine sabrı tavsiye edenlerden ve birbirlerine acımayı öğütleyenlerden olmaktır. İşte bunlar sağdakilerdir. Ayetlerimizi inkar edenler ise işte onlar soldakilerdir. Cezaları, kapıları üzerlerine sımsıkı kapatılmış bir ateştir.",
+                tips: ["Sarp yokuş: köle azat etmek, yetimi ve yoksulu doyurmak.", "Gerçek yiğitliğin merhamet olduğunu öğretir."]
+            },
+            {
+                title: "Ğâşiye Suresi",
+                instruction: "Her şeyi kaplayan kıyamet gününü; cehennem ve cennet tablolarını anlatır, deveye ve göğe bakmaya çağırır.",
+                arabic: "بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ ۝ هَلْ أَتَاكَ حَدِيثُ الْغَاشِيَةِ ۝ وُجُوهٌ يَوْمَئِذٍ خَاشِعَةٌ ۝ عَامِلَةٌ نَّاصِبَةٌ ۝ تَصْلَىٰ نَارًا حَامِيَةً ۝ تُسْقَىٰ مِنْ عَيْنٍ آنِيَةٍ ۝ لَّيْسَ لَهُمْ طَعَامٌ إِلَّا مِن ضَرِيعٍ ۝ لَّا يُسْمِنُ وَلَا يُغْنِي مِن جُوعٍ ۝ وُجُوهٌ يَوْمَئِذٍ نَّاعِمَةٌ ۝ لِّسَعْيِهَا رَاضِيَةٌ ۝ فِي جَنَّةٍ عَالِيَةٍ ۝ لَّا تَسْمَعُ فِيهَا لَاغِيَةً ۝ فِيهَا عَيْنٌ جَارِيَةٌ ۝ فِيهَا سُرُرٌ مَّرْفُوعَةٌ ۝ وَأَكْوَابٌ مَّوْضُوعَةٌ ۝ وَنَمَارِقُ مَصْفُوفَةٌ ۝ وَزَرَابِيُّ مَبْثُوثَةٌ ۝ أَفَلَا يَنظُرُونَ إِلَى الْإِبِلِ كَيْفَ خُلِقَتْ ۝ وَإِلَى السَّمَاءِ كَيْفَ رُفِعَتْ ۝ وَإِلَى الْجِبَالِ كَيْفَ نُصِبَتْ ۝ وَإِلَى الْأَرْضِ كَيْفَ سُطِحَتْ ۝ فَذَكِّرْ إِنَّمَا أَنتَ مُذَكِّرٌ ۝ لَّسْتَ عَلَيْهِم بِمُصَيْطِرٍ ۝ إِلَّا مَن تَوَلَّىٰ وَكَفَرَ ۝ فَيُعَذِّبُهُ اللَّهُ الْعَذَابَ الْأَكْبَرَ ۝ إِنَّ إِلَيْنَا إِيَابَهُمْ ۝ ثُمَّ إِنَّ عَلَيْنَا حِسَابَهُم",
+                transcription: "Bismillâhirrahmânirrahîm. Hel etâke hadîsul gâşiyeh. Vucûhun yevmeizin hâşiah. Âmiletun nâsıbeh. Teslâ nâren hâmiyeh. Tuskâ min aynin âniyeh. Leyse lehum taâmun illâ min darî’. Lâ yusminu ve lâ yugnî min cû’. Vucûhun yevmeizin nâımeh. Li sa’yihâ râdiyeh. Fî cennetin âliyeh. Lâ tesmeu fîhâ lâgıyeh. Fîhâ aynun câriyeh. Fîhâ sururun merfûah. Ve ekvabun mevdûah. Ve nemârıku masfûfeh. Ve zerâbiyyu mebsûseh. E fe lâ yanzurûne ilel ibili keyfe hulikat. Ve iles semâi keyfe rufiat. Ve ilel cibâli keyfe nusıbet. Ve ilel ardı keyfe sutıhat. Fezekkir innemâ ente muzekkir. Leste aleyhim bi musaytır. İllâ men tevellâ ve kefer. Fe yuazzibuhullâhul azâbel ekber. İnne ileynâ iyâbehum. Summe inne aleynâ hisâbehum.",
+                meaning: "(Resulüm!) Dehşeti her şeyi kaplayan kıyametin haberi sana geldi mi. O gün bir takım yüzler zelildir. Durmadan çalışır, (fakat boşuna) yorulur. Kızgın ateşe girer. Onlara kaynar su pınarından içirilir. Onlar için kuru dikenden başka yemek yoktur. O ise ne besler ne de açlığı giderir. O gün bir takım yüzler de vardır ki, mutludurlar. (Dünyadaki) çabalarından hoşnut olmuşlardır. Yüce bir cennettedirler. Orada boş bir söz işitmezler. Orada (cennette) devamlı akan bir pınar. Yükseltilmiş tahtlar. Konulmuş kadehler. Sıra sıra dizilmiş yastıklar. Serilmiş halılar vardır. (İnsanlar) devenin nasıl yaratıldığına, bakmazlar mı. Göğe bakmıyorlar mı nasıl yükseltilmiş. Dağların nasıl dikildiğine, bakmazlar mı. Yeryüzünün nasıl yayıldığına bir bakmazlar mı. O halde (Resulüm), öğüt ver. Çünkü sen ancak öğüt vericisin. Onların üzerinde bir zorba değilsin. Ancak yüz çevirir inkar ederse. İşte öylesini Allah en büyük azap ile cezalandırır. Şüphesiz onların dönüşü sadece bizedir. Sonra onların sorguya çekilmesi de sadece bize aittir.",
+                tips: ["Peygamberimiz cuma namazında A'lâ ile birlikte okurdu.", "Kâinata bakıp düşünmeye çağıran ayetleri meşhurdur."]
+            },
+            {
+                title: "Beyyine Suresi",
+                instruction: "Apaçık delil olan Peygamberi, halis dini, namaz ve zekâtı; iyilerin ve inkârcıların âkıbetini anlatır.",
+                arabic: "بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ ۝ لَمْ يَكُنِ الَّذِينَ كَفَرُوا مِنْ أَهْلِ الْكِتَابِ وَالْمُشْرِكِينَ مُنفَكِّينَ حَتَّىٰ تَأْتِيَهُمُ الْبَيِّنَةُ ۝ رَسُولٌ مِّنَ اللَّهِ يَتْلُو صُحُفًا مُّطَهَّرَةً ۝ فِيهَا كُتُبٌ قَيِّمَةٌ ۝ وَمَا تَفَرَّقَ الَّذِينَ أُوتُوا الْكِتَابَ إِلَّا مِن بَعْدِ مَا جَاءَتْهُمُ الْبَيِّنَةُ ۝ وَمَا أُمِرُوا إِلَّا لِيَعْبُدُوا اللَّهَ مُخْلِصِينَ لَهُ الدِّينَ حُنَفَاءَ وَيُقِيمُوا الصَّلَاةَ وَيُؤْتُوا الزَّكَاةَ وَذَٰلِكَ دِينُ الْقَيِّمَةِ ۝ إِنَّ الَّذِينَ كَفَرُوا مِنْ أَهْلِ الْكِتَابِ وَالْمُشْرِكِينَ فِي نَارِ جَهَنَّمَ خَالِدِينَ فِيهَا أُولَٰئِكَ هُمْ شَرُّ الْبَرِيَّةِ ۝ إِنَّ الَّذِينَ آمَنُوا وَعَمِلُوا الصَّالِحَاتِ أُولَٰئِكَ هُمْ خَيْرُ الْبَرِيَّةِ ۝ جَزَاؤُهُمْ عِندَ رَبِّهِمْ جَنَّاتُ عَدْنٍ تَجْرِي مِن تَحْتِهَا الْأَنْهَارُ خَالِدِينَ فِيهَا أَبَدًا رَّضِيَ اللَّهُ عَنْهُمْ وَرَضُوا عَنْهُ ذَٰلِكَ لِمَنْ خَشِيَ رَبَّهُ",
+                transcription: "Bismillâhirrahmânirrahîm. Lem yekunillizîne keferû min ehlil kitâbi vel muşrikîne munfekkîne hattâ te’tiye humul beyyineh. Resûlun minallâhi yetlû suhufen mutahharah. Fîhâ kutubun kayyimeh. Ve mâ teferrekallezîne ûtûl kitâbe illâ min ba’di mâ câet humul beyyineh. Ve mâ umirû illâ li ya’budûllâhe muhlisîne lehud dîne hunefâe ve yukîmûs salâte ve yu’tûz zekâte ve zâlike dînul kayyimeh. İnnellezîne keferû min ehlil kitâbi velmuşrikîne fî nâri cehenneme hâlidîne fîhâ, ulâike hum şerrul beriyeh. İnnellezîne âmenû ve amilûs sâlihâti ulâike hum hayrul beriyyeh. Cezâuhum inde rabbihim cennâtu adnin tecrî min tahtihel enhâru hâlidîne fîhâ ebedâ, radıyallâhu anhum ve radû anh, zâlike li men haşiye rabbeh.",
+                meaning: "Apaçık delil kendilerine gelinceye kadar ehl-i kitaptan ve müşriklerden inkarcılar (küfürden) ayrılacak değillerdi. (İşte o apaçık delil,) Allah tarafından gönderilen ve tertemiz sahifeleri okuyan bir elçidir. En doğru hükümler vardır şu sahifelerde. Kendilerine kitap verilenler ancak o açık delil (Peygamber) kendilerine geldikten sonra ayrılığa düştüler. Halbuki onlara ancak, dini yalnız O'na has kılarak ve hanifler olarak Allah'a kulluk etmeleri, namaz kılmaları ve zekat vermeleri emrolunmuştu. Sağlam din de budur. Ehl-i kitap ve müşriklerden olan inkarcılar, içinde ebedi olarak kalacakları cehennem ateşindedirler. İşte halkın en şerlileri onlardır. İman edip salih ameller işleyenlere gelince, halkın en hayırlısı da onlardır. Onların Rableri katındaki mükafatları, zemininden ırmaklar akan, içinde devamlı olarak kalacakları Adn cennetleridir. Allah kendilerinden hoşnut olmuş, onlar da Allah'tan hoşnut olmuşlardır. Bu söylenenler hep Rabbinden korkan (O'na saygı gösterenler) içindir.",
+                tips: ["Ayetleri uzundur; acele etmeden bölüm bölüm çalış.", "“Dinde ihlâs” yani niyeti Allah'a halis kılmak vurgulanır."]
+            },
+            {
+                title: "Fecr Suresi",
+                instruction: "Tan yerine ve on geceye yemin eder; Âd, Semûd ve Firavun'un sonunu anlatır, huzura eren nefse müjde verir.",
+                arabic: "بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ ۝ وَالْفَجْرِ ۝ وَلَيَالٍ عَشْرٍ ۝ وَالشَّفْعِ وَالْوَتْرِ ۝ وَاللَّيْلِ إِذَا يَسْرِ ۝ هَلْ فِي ذَٰلِكَ قَسَمٌ لِّذِي حِجْرٍ ۝ أَلَمْ تَرَ كَيْفَ فَعَلَ رَبُّكَ بِعَادٍ ۝ إِرَمَ ذَاتِ الْعِمَادِ ۝ الَّتِي لَمْ يُخْلَقْ مِثْلُهَا فِي الْبِلَادِ ۝ وَثَمُودَ الَّذِينَ جَابُوا الصَّخْرَ بِالْوَادِ ۝ وَفِرْعَوْنَ ذِي الْأَوْتَادِ ۝ الَّذِينَ طَغَوْا فِي الْبِلَادِ ۝ فَأَكْثَرُوا فِيهَا الْفَسَادَ ۝ فَصَبَّ عَلَيْهِمْ رَبُّكَ سَوْطَ عَذَابٍ ۝ إِنَّ رَبَّكَ لَبِالْمِرْصَادِ ۝ فَأَمَّا الْإِنسَانُ إِذَا مَا ابْتَلَاهُ رَبُّهُ فَأَكْرَمَهُ وَنَعَّمَهُ فَيَقُولُ رَبِّي أَكْرَمَنِ ۝ وَأَمَّا إِذَا مَا ابْتَلَاهُ فَقَدَرَ عَلَيْهِ رِزْقَهُ فَيَقُولُ رَبِّي أَهَانَنِ ۝ كَلَّا بَل لَّا تُكْرِمُونَ الْيَتِيمَ ۝ وَلَا تَحَاضُّونَ عَلَىٰ طَعَامِ الْمِسْكِينِ ۝ وَتَأْكُلُونَ التُّرَاثَ أَكْلًا لَّمًّا ۝ وَتُحِبُّونَ الْمَالَ حُبًّا جَمًّا ۝ كَلَّا إِذَا دُكَّتِ الْأَرْضُ دَكًّا دَكًّا ۝ وَجَاءَ رَبُّكَ وَالْمَلَكُ صَفًّا صَفًّا ۝ وَجِيءَ يَوْمَئِذٍ بِجَهَنَّمَ يَوْمَئِذٍ يَتَذَكَّرُ الْإِنسَانُ وَأَنَّىٰ لَهُ الذِّكْرَىٰ ۝ يَقُولُ يَا لَيْتَنِي قَدَّمْتُ لِحَيَاتِي ۝ فَيَوْمَئِذٍ لَّا يُعَذِّبُ عَذَابَهُ أَحَدٌ ۝ وَلَا يُوثِقُ وَثَاقَهُ أَحَدٌ ۝ يَا أَيَّتُهَا النَّفْسُ الْمُطْمَئِنَّةُ ۝ ارْجِعِي إِلَىٰ رَبِّكِ رَاضِيَةً مَّرْضِيَّةً ۝ فَادْخُلِي فِي عِبَادِي ۝ وَادْخُلِي جَنَّتِي",
+                transcription: "Bismillâhirrahmânirrahîm. Vel fecr. Ve leyâlin aşr. Veş şef’ı vel vetr. Vel leyli izâ yesr. Hel fî zâlike kasemun lizî hicr. E lem tere keyfe feale rabbuke bi âd. İreme zâtil ımâd. Elletî lem yuhlak misluhâ fîl bilâd. Ve semûdelleziyne câbûssahre bil vâd. Ve fir avne zîl evtâd. Ellezîne tagav fîl bilâd. Fe ekserû fîhel fesâd. Fe sabbe aleyhim rabbuke sevta azâb. İnne rabbeke le bil mirsâd. Fe emmel insânu izâ mebtelâhu rabbuhu fe ekremehu ve na’amehu fe yekûlu rabbî ekremen. Ve emmâ izâ mebtelâhu fe kadere aleyhi rızkahu fe yekûlu rabbî ehânen. Kellâ bel lâ tukrimûnel yetîm. Ve lâ tehâddûne alâ taâmil miskîn. Ve te’kulûnet turâse eklen lemmâ. Ve tuhıbbûnel mâle hubben cemmâ. Kellâ izâ dukketil ardu dekken dekkâ. Ve câe rabbuke vel meleku saffen saffâ. Ve cîe yevmeizin bi cehenneme yevmeizin yetezekkerul insânu ve ennâ lehuz zikrâ. Yekûlu yâ leytenî kaddemtu li hayâtî. Fe yevmeizin lâ yuazzibu azâbehû ehad. Ve lâ yûsiku ve sâkahû ehad. Yâ eyyetuhen nefsul mutmainneh. İrciî ilâ rabbiki râdıyeten mardıyyeh. Fedhulî fî ibâdî. Vedhulî cennetî.",
+                meaning: "Andolsun Fecre. On geceye. Çifte ve teke. (Her şeyi karanlığı ile) örttüğü an geceye. Bunlarda akıl sahibi için elbette birer yemin (değeri) vardır. Görmedin mi, Rabbin ne yaptı Âd kavmine. Direkleri (yüksek binaları) olan, İrem şehrine. Ki ülkeler içinde onun benzeri yaratılmamıştı. O vadide kayaları yontan Semud kavmine. Kazıklar (çadırlar, ordular) sahibi Firavun'a. Ki onların hepsi ülkelerinde azgınlık ettiler. Oralarda kötülüğü çoğalttılar. Bu yüzden Rabbin onların üstüne azap kamçısı yağdırdı. Çünkü Rabbin (her an) gözetlemededir. İnsan var ya, Rabbi kendisini imtihan edip de ikramda bulunduğunda ve bol nimet verdiğinde “Rabbim bana ikram etti” der. Onu imtihan edip rızkını daralttığında ise “Rabbim beni önemsemedi” der. Hayır! Doğrusu siz yetime ikram etmiyorsunuz. Yoksulu yedirmeye birbirinizi teşvik etmiyorsunuz. Haram helal demeden mirası yiyorsunuz. Malı aşırı biçimde seviyorsunuz. Ama yeryüzü parça parça döküldüğü. Rabbin(in emri) geldiği ve melekler saf saf dizildiği zaman (her şey ortaya çıkacaktır). O gün cehennem getirilir, insan yaptıklarını birer birer hatırlar. Fakat bu hatırlamanın ne faydası var. (İşte o zaman insan:) “Keşke bu hayatım için bir şeyler yapıp gönderseydim!” der. Artık o gün, Allah'ın edeceği azabı kimse edemez. O'nun vuracağı bağı kimse vuramaz. Ey huzura kavuşmuş insan. Sen O'ndan hoşnut, O da senden hoşnut olarak Rabbine dön. (Seçkin) kullarım arasına katıl. Ve cennetim gir.",
+                tips: ["“On gece” çoğunlukla Zilhicce'nin ilk on gecesi kabul edilir.", "Son ayetleri cenaze ve teselli meclislerinde çok okunur."]
+            },
+            {
+                title: "Haşr Suresi Son 3 Ayet",
+                instruction: "Allah'ın güzel isimlerini arka arkaya anan üç ayettir; sabah ve akşam okunması tavsiye edilmiştir.",
+                arabic: "هُوَ اللَّهُ الَّذِي لَا إِلَٰهَ إِلَّا هُوَ عَالِمُ الْغَيْبِ وَالشَّهَادَةِ هُوَ الرَّحْمَٰنُ الرَّحِيمُ ۝ هُوَ اللَّهُ الَّذِي لَا إِلَٰهَ إِلَّا هُوَ الْمَلِكُ الْقُدُّوسُ السَّلَامُ الْمُؤْمِنُ الْمُهَيْمِنُ الْعَزِيزُ الْجَبَّارُ الْمُتَكَبِّرُ سُبْحَانَ اللَّهِ عَمَّا يُشْرِكُونَ ۝ هُوَ اللَّهُ الْخَالِقُ الْبَارِئُ الْمُصَوِّرُ لَهُ الْأَسْمَاءُ الْحُسْنَىٰ يُسَبِّحُ لَهُ مَا فِي السَّمَاوَاتِ وَالْأَرْضِ وَهُوَ الْعَزِيزُ الْحَكِيمُ",
+                transcription: "Huvallâhullezî lâ ilâhe illâ huve, âlimul gaybi veş şehâdeh. Huver rahmânur rahîm. Huvallâhullezî lâ ilâhe illâ huve, elmelikul kuddûsus selâmul mû’minul muheyminul azîzul cebbârul mutekebbir. Subhânallâhi ammâ yuşrikûn. Huvallâhul hâlikul bâriûl musavviru lehul esmâul husnâ. Yusebbihu lehu mâ fîs semâvâti vel ard ve huvel azîzul hakîm.",
+                meaning: "O, öyle Allah'tır ki, O'ndan başka tanrı yoktur. Görülmeyeni ve görüleni bilendir. O, esirgeyendir, bağışlayandır. O, öyle Allah'tır ki, kendisinden başka hiçbir tanrı yoktur. O, mülkün sahibidir, eksiklikten münezzehtir, selamet verendir, emniyete kavuşturandır, gözetip koruyandır, üstündür, istediğini zorla yaptıran, büyüklükte eşi olmayandır. Allah, müşriklerin ortak koştukları şeylerden münezzehtir. O, yaratan, var eden, şekil veren Allah'tır. En güzel isimler O'nundur. Göklerde ve yerde olanlar O'nun şanını yüceltmektedirler. O, galiptir, hikmet sahibidir.",
+                tips: ["Bir rivayette sabah okuyana akşama kadar, akşam okuyana sabaha kadar melekler dua eder (Tirmizî).", "İlk iki ayet aynı başlar: 22'de “âlimül gaybi”, 23'te “el melikül kuddûs” diye ayrılır."]
+            },
+            {
+                title: "Âmenerrasûlü",
+                instruction: "Bakara Suresi'nin son iki ayetidir; imanın özeti ve baştan kabul edilmiş bir duadır.",
+                arabic: "آمَنَ الرَّسُولُ بِمَا أُنزِلَ إِلَيْهِ مِن رَّبِّهِ وَالْمُؤْمِنُونَ كُلٌّ آمَنَ بِاللَّهِ وَمَلَائِكَتِهِ وَكُتُبِهِ وَرُسُلِهِ لَا نُفَرِّقُ بَيْنَ أَحَدٍ مِّن رُّسُلِهِ وَقَالُوا سَمِعْنَا وَأَطَعْنَا غُفْرَانَكَ رَبَّنَا وَإِلَيْكَ الْمَصِيرُ ۝ لَا يُكَلِّفُ اللَّهُ نَفْسًا إِلَّا وُسْعَهَا لَهَا مَا كَسَبَتْ وَعَلَيْهَا مَا اكْتَسَبَتْ رَبَّنَا لَا تُؤَاخِذْنَا إِن نَّسِينَا أَوْ أَخْطَأْنَا رَبَّنَا وَلَا تَحْمِلْ عَلَيْنَا إِصْرًا كَمَا حَمَلْتَهُ عَلَى الَّذِينَ مِن قَبْلِنَا رَبَّنَا وَلَا تُحَمِّلْنَا مَا لَا طَاقَةَ لَنَا بِهِ وَاعْفُ عَنَّا وَاغْفِرْ لَنَا وَارْحَمْنَا أَنتَ مَوْلَانَا فَانصُرْنَا عَلَى الْقَوْمِ الْكَافِرِينَ",
+                transcription: "Âmener resûlu bimâ unzile ileyhi min rabbihî vel mu’minûn. Kullun âmene billâhi ve melâiketihî ve kutubihî ve rusulih. Lâ nuferriku beyne ehadin min rusulih. Ve kâlû semi’nâ ve ata’nâ gufrâneke rabbenâ ve ileykel masîr. Lâ yukellifullâhu nefsen illâ vus’ahâ. Lehâ mâ kesebet ve aleyhâ mektesebet. Rabbenâ lâ tuâhıznâ in nesînâ ev ahta’nâ. Rabbenâ ve lâ tahmil aleynâ ısran kemâ hameltehu alellezîne min kablinâ. Rabbenâ ve lâ tuhammilnâ mâ lâ tâkate lenâ bih. Va’fu annâ, vagfir lenâ, verhamnâ, ente mevlânâ fensurnâ alel kavmil kâfirîn.",
+                meaning: "Peygamber ve inananlar, ona Rabb'inden indirilene inandı. Hepsi Allah'a, meleklerine, kitaplarına, peygamberlerine inandı. “Peygamberleri arasından hiçbirini ayırdetmeyiz, işittik, itaat ettik, Rabbimiz! Affını dileriz, dönüş Sanadır” dediler. Allah kişiye ancak gücünün yeteceği kadar yükler; kazandığı iyilik lehine, ettiği kötülük de aleyhinedir. Rabbimiz! Eğer unutacak veya yanılacak olursak bizi sorumlu tutma. Rabbimiz bizden öncekilere yüklediğin gibi, bize de ağır yük yükleme. Rabbimiz! Bize gücümüzün yetmeyeceği şeyi taşıtma, bizi affet, bizi bağışla, bize acı. Sen Mevlamızsın, kafirlere karşı bize yardım et.",
+                tips: ["Hadiste: “Kim geceleyin Bakara'nın son iki ayetini okursa, o iki ayet ona yeter.” (Buhârî, Müslim)", "Miraç gecesi Peygamberimize verilen üç şeyden biri sayılır."]
+            },
+            {
+                title: "Ahzâb Suresi 35. Ayet",
+                instruction: "Kadınla erkeği aynı on vasıfta yan yana sayar ve ikisine de aynı mükâfatı vaat eder.",
+                arabic: "إِنَّ الْمُسْلِمِينَ وَالْمُسْلِمَاتِ وَالْمُؤْمِنِينَ وَالْمُؤْمِنَاتِ وَالْقَانِتِينَ وَالْقَانِتَاتِ وَالصَّادِقِينَ وَالصَّادِقَاتِ وَالصَّابِرِينَ وَالصَّابِرَاتِ وَالْخَاشِعِينَ وَالْخَاشِعَاتِ وَالْمُتَصَدِّقِينَ وَالْمُتَصَدِّقَاتِ وَالصَّائِمِينَ وَالصَّائِمَاتِ وَالْحَافِظِينَ فُرُوجَهُمْ وَالْحَافِظَاتِ وَالذَّاكِرِينَ اللَّهَ كَثِيرًا وَالذَّاكِرَاتِ أَعَدَّ اللَّهُ لَهُم مَّغْفِرَةً وَأَجْرًا عَظِيمًا",
+                transcription: "İnnel muslimîne vel muslimâti vel mu’minîne vel mu’minâti. Vel kânitîne vel kânitâti ves sâdikîne ves sâdikâti. Ves sâbirîne ves sâbirâti vel hâşiîne vel hâşiâti. Vel mutesaddikîne vel mutesaddikâti ves sâimîne ves sâimâti. Vel hâfızîne furûcehum vel hâfızâti vez zâkirînallâhe kesîren vez zâkirâti. Eaddallâhu lehum magfireten ve ecren azîmâ.",
+                meaning: "Müslüman erkekler ve müslüman kadınlar, mümin erkekler ve mümin kadınlar, taata devam eden erkekler ve taata devam eden kadınlar, doğru erkekler ve doğru kadınlar, sabreden erkekler ve sabreden kadınlar, mütevazi erkekler ve mütevazi kadınlar, sadaka veren erkekler ve sadaka veren kadınlar, oruç tutan erkekler ve oruç tutan kadınlar, ırzlarını koruyan erkekler ve (ırzlarını) koruyan kadınlar, Allah'ı çok zikreden erkekler ve zikreden kadınlar var ya; işte Allah, bunlar için bir mağfiret ve büyük bir mükafat hazırlamıştır.",
+                tips: ["On çift vasıf: müslüman, mümin, itaatkâr, doğru, sabırlı, mütevazı, sadaka veren, oruç tutan, iffetini koruyan, Allah'ı çok zikreden.", "Ümmü Seleme'nin “Kadınlar neden anılmıyor?” sorusu üzerine indiği rivayet edilir (Tirmizî, Nesâî)."]
             }
         ]
     },
@@ -891,134 +1397,308 @@ const GUIDES = {
     },
 };
 
-const CategoryButton = memo(({ cat, isSelected, onClick }) => (
+
+/**
+ * Arapça metin uzadıkça punto küçülür — Ettehiyyatü gibi uzun dualar sabit
+ * puntoda kartı taşırıyor, "Hasbünallah" gibi kısa olanlar ise kaybolup gidiyordu.
+ * Satır aralığı her boyda geniş kalır: harekeler üst üste binmesin.
+ */
+function arabicTypeClass(text) {
+    const len = (text || '').length;
+    if (len <= 60) return 'text-[1.95rem] leading-[2.3]';
+    if (len <= 140) return 'text-[1.6rem] leading-[2.35]';
+    if (len <= 280) return 'text-[1.35rem] leading-[2.4]';
+    return 'text-[1.15rem] leading-[2.45]';
+}
+
+/** Etiket + içerik bloğu — okunuş ve anlam artık aynı gri yığında değil. */
+const FieldBlock = ({ label, children, className }) => (
+    <div className={className}>
+        <p className="mb-1.5 text-[10px] font-bold uppercase tracking-[0.16em] text-gray-400 dark:text-emerald-100/30">
+            {label}
+        </p>
+        {children}
+    </div>
+);
+
+// Language-indexed guide overrides — add new languages here
+const GUIDES_MAP = { en: GUIDES_EN, de: GUIDES_DE, ru: GUIDES_RU, ar: GUIDES_AR, az: GUIDES_AZ };
+
+/** Hüküm rozeti — FARZ dolgulu, sünnet/müstehap çerçeveli. */
+const RankPill = ({ rank }) => {
+    const { t } = useTranslation('learn');
+    if (!rank) return null;
+    const label = t(rank === 'farz' ? 'rankFarz' : rank === 'sunnet' ? 'rankSunnet' : 'rankMustehab');
+    return (
+        <span
+            className={cn(
+                'rounded-full px-2.5 py-0.5 text-[10px] font-black uppercase tracking-[0.1em]',
+                rank === 'farz'
+                    ? 'bg-[#B45309] text-white dark:bg-islamic-gold dark:text-[#032e18]'
+                    : 'border border-[#B45309]/30 bg-[#B45309]/10 text-[#B45309] dark:border-islamic-gold/30 dark:bg-islamic-gold/10 dark:text-islamic-gold'
+            )}
+        >
+            {label}
+        </span>
+    );
+};
+
+/** Katlanır bölüm başlığı — açık/kapalı tek satır. */
+const FoldRow = ({ label, open, onToggle }) => (
     <button
-        onClick={() => onClick(cat.id)}
+        type="button"
+        onClick={onToggle}
+        aria-expanded={open}
         className={cn(
-            "flex items-center gap-2 px-5 py-3 rounded-2xl border transition-all text-sm font-bold whitespace-nowrap active:scale-95",
-            isSelected
-                ? "bg-islamic-green dark:bg-islamic-gold text-white dark:text-[#032e18] border-transparent shadow-lg"
-                : "bg-[#FFFDF6] dark:bg-white/5 text-gray-500 dark:text-emerald-100/40 border-[#EDE5D1] dark:border-white/5 hover:border-islamic-gold"
+            'flex w-full items-center gap-2 rounded-xl border px-3 py-2 text-[0.8125rem] font-bold transition-colors',
+            open
+                ? 'border-[#B45309]/30 bg-[#B45309]/5 text-[#B45309] dark:border-islamic-gold/30 dark:bg-islamic-gold/10 dark:text-islamic-gold'
+                : 'border-[#EDE5D1] text-gray-600 dark:border-white/10 dark:text-emerald-100/60'
         )}
     >
-        <cat.icon size={18} />
-        {cat.label}
+        <span className="flex-1 text-start">{label}</span>
+        <ChevronDown className={cn('h-4 w-4 shrink-0 transition-transform', open && 'rotate-180')} />
     </button>
-));
+);
 
-const GuideStepCard = memo(({ step }) => {
+const GuideStepCard = memo(({ step, index, total, icon: Icon = Heart, isRtl, meta = null, collapsed = false }) => {
     const { t } = useTranslation('learn');
+    // Görsel dosyası henüz konmadıysa kart bozulmasın: hata olursa hiç çizilmez.
+    // `loaded` olmadan yer AYRILMAZ — aksi hâlde dosya yokken kart önce 4:3
+    // boşluk açıp sonra kapatıyor, her adımda zıplama oluyordu.
+    const [imgOk, setImgOk] = useState(true);
+    const [imgLoaded, setImgLoaded] = useState(false);
+    // Kısa modda dua ve ipuçları katlı gelir — önce hareketi öğren.
+    const [showDua, setShowDua] = useState(!collapsed);
+    const [showTips, setShowTips] = useState(!collapsed);
+
     if (!step) return null;
+
+    const image = imgOk ? stepImage(meta) : null;
+    const hasDua = !!(step.arabic || step.transcription || step.meaning);
+    const hasTips = step.tips?.length > 0;
+
+    const duaBlock = (
+        <>
+            {step.arabic && (
+                <div className="border-y border-islamic-gold/15 bg-islamic-green/[0.035] px-5 py-7 dark:bg-islamic-gold/[0.05]">
+                    <p
+                        dir="rtl"
+                        lang="ar"
+                        className={cn('break-words text-center font-arabic text-islamic-gold', arabicTypeClass(step.arabic))}
+                    >
+                        {step.arabic}
+                    </p>
+                </div>
+            )}
+
+            {(step.transcription || step.meaning) && (
+                <div className="space-y-5 px-6 pb-1 pt-5">
+                    {step.transcription && (
+                        <FieldBlock label={t('translitLabel')}>
+                            <p className="text-[15px] font-medium leading-relaxed text-gray-700 dark:text-emerald-100/80">
+                                {step.transcription}
+                            </p>
+                        </FieldBlock>
+                    )}
+
+                    {step.meaning && (
+                        <FieldBlock label={t('meaningLabel')}>
+                            <p
+                                dir={isRtl ? 'rtl' : 'ltr'}
+                                className="border-s-2 border-islamic-gold/25 ps-3.5 text-[15px] leading-relaxed text-gray-600 dark:text-emerald-100/60"
+                            >
+                                {step.meaning}
+                            </p>
+                        </FieldBlock>
+                    )}
+                </div>
+            )}
+        </>
+    );
+
+    const tipsBlock = hasTips && (
+        <div className="px-6 pb-1 pt-5">
+            <FieldBlock label={t('tipsTitle')} className="rounded-2xl bg-[#F6F0E1] p-4 dark:bg-white/5">
+                <ul className="space-y-2">
+                    {step.tips.map((tip, idx) => (
+                        <li key={idx} className="flex items-start gap-2.5 text-[13px] leading-relaxed text-gray-600 dark:text-emerald-100/45">
+                            <span className="mt-[7px] h-1 w-1 shrink-0 rounded-full bg-islamic-gold" />
+                            <span>{tip}</span>
+                        </li>
+                    ))}
+                </ul>
+            </FieldBlock>
+        </div>
+    );
+
     return (
-        <Card className="border-none shadow-xl rounded-[2.5rem] bg-[#FFFDF6] dark:bg-white/5 overflow-hidden p-6 relative dark:text-white">
-            <div className="space-y-6">
-                <div className="flex items-start gap-4">
-                    <div className="w-14 h-14 bg-islamic-green dark:bg-islamic-gold rounded-2xl flex items-center justify-center text-white dark:text-[#032e18] shadow-lg shrink-0">
-                        <Heart className="w-8 h-8 fill-current" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1">
-                            {step.repeat && (
-                                <span className="bg-islamic-gold/10 text-islamic-gold text-[10px] font-black px-2 py-0.5 rounded-full border border-islamic-gold/20 uppercase">
-                                    {step.repeat}
-                                </span>
-                            )}
-                        </div>
-                        <h2 className="text-2xl font-serif font-bold leading-tight">{step.title}</h2>
+        <Card className="relative overflow-hidden rounded-[2rem] border-none bg-[#FFFDF6] p-0 shadow-[0_10px_40px_-18px_rgba(0,0,0,0.28)] dark:bg-white/5 dark:text-white">
+            {/* Görsel kartın en başında: fiziksel bir işlem önce gösterilir,
+                sonra anlatılır. Dosya yoksa blok hiç çizilmez. */}
+            {image && (
+                <img
+                    src={image}
+                    alt=""
+                    aria-hidden="true"
+                    onLoad={() => setImgLoaded(true)}
+                    onError={() => setImgOk(false)}
+                    className={cn(
+                        'aspect-[4/3] w-full border-b border-islamic-gold/15 object-cover',
+                        !imgLoaded && 'hidden'
+                    )}
+                />
+            )}
+
+            {/* Başlık bölgesi */}
+            <div className="px-6 pt-6 pb-5">
+                <div className="mb-3 flex flex-wrap items-center gap-2">
+                    <span className="flex h-7 items-center rounded-lg bg-islamic-green px-2.5 text-[11px] font-black tabular-nums tracking-wider text-white dark:bg-islamic-gold dark:text-[#032e18]">
+                        {String(index + 1).padStart(2, '0')}
+                    </span>
+                    <span className="text-[10px] font-bold uppercase tracking-[0.16em] text-gray-400 tabular-nums dark:text-emerald-100/30">
+                        / {total}
+                    </span>
+                    <span className="ms-auto flex items-center gap-1.5">
+                        {step.repeat && (
+                            <span className="rounded-full border border-islamic-gold/25 bg-islamic-gold/10 px-2.5 py-0.5 text-[10px] font-black uppercase text-islamic-gold">
+                                {step.repeat}
+                            </span>
+                        )}
+                        <RankPill rank={meta?.rank} />
+                    </span>
+                </div>
+
+                <div className="flex items-start gap-3">
+                    <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-islamic-green/10 text-islamic-green dark:bg-islamic-gold/10 dark:text-islamic-gold">
+                        <Icon className="h-5 w-5" />
+                    </span>
+                    <div className="min-w-0 flex-1">
+                        <h2 className="font-serif text-[1.6rem] font-bold leading-tight text-balance">{step.title}</h2>
+                        {step.instruction && (
+                            <p className="mt-1.5 text-[13.5px] leading-relaxed text-gray-500 dark:text-emerald-100/50">
+                                {step.instruction}
+                            </p>
+                        )}
                     </div>
                 </div>
 
-                <p className="text-gray-600 dark:text-emerald-100/80 leading-relaxed text-base italic">
-                    "{step.instruction}"
-                </p>
-
-                {/* Arabic Content Box */}
-                <div className="bg-islamic-green/[0.03] dark:bg-islamic-gold/5 border border-islamic-green/10 dark:border-islamic-gold/10 rounded-3xl p-6 text-center space-y-4 shadow-inner">
-                    <p className="font-arabic text-[1.85rem] text-islamic-gold/90 leading-[2.1] break-words">{step.arabic}</p>
-                    <div className="space-y-1">
-                        <p className="text-gray-500 dark:text-gray-400 italic text-sm">{step.transcription}</p>
-                        <p className="text-gray-700 dark:text-emerald-100/60 font-medium text-sm">"{step.meaning}"</p>
+                {collapsed && (hasDua || hasTips) && (
+                    <div className="mt-4 grid gap-2">
+                        {hasDua && <FoldRow label={t('stepDuaLabel')} open={showDua} onToggle={() => setShowDua(v => !v)} />}
+                        {hasTips && <FoldRow label={t('tipsTitle')} open={showTips} onToggle={() => setShowTips(v => !v)} />}
                     </div>
-                </div>
-
-                {/* Tips Section */}
-                <div className="bg-[#F6F0E1] dark:bg-white/5 rounded-3xl p-6 border dark:border-white/5 shadow-sm">
-                    <h4 className="flex items-center gap-2 text-islamic-gold font-bold text-xs uppercase tracking-widest mb-4">
-                        <SparklesIcon size={14} /> {t('tipsTitle')}
-                    </h4>
-                    <ul className="space-y-3">
-                        {step.tips.map((tip, idx) => (
-                            <li key={idx} className="flex items-start gap-3 text-gray-600 dark:text-emerald-100/40 text-[14px]">
-                                <div className="w-1.5 h-1.5 rounded-full bg-islamic-gold mt-1.5 shrink-0" />
-                                <span>{tip}</span>
-                            </li>
-                        ))}
-                    </ul>
-                </div>
+                )}
             </div>
+
+            {hasDua && showDua && duaBlock}
+            {hasTips && showTips && tipsBlock}
+            {((hasDua && showDua) || (hasTips && showTips)) && <div className="pb-6" />}
         </Card>
     );
 });
 
 export default function Learn() {
     const navigate = useNavigate();
-    const [selectedCategory, setSelectedCategory] = useState('dualar');
+    /**
+     * Mest bildiriminden gelindiyse (`/learn?abdest=mesh`) doğrudan mesh
+     * ekranı açılır. `useLocation` kullanılıyor çünkü router biçimi değişse
+     * bile (hash/browser) sorgu dizesi buradan doğru okunur. Başlangıç
+     * değerleri olarak veriliyor — effect içinde setState yok.
+     */
+    const deepLink = new URLSearchParams(useLocation().search).get('abdest');
+    const [selectedCategory, setSelectedCategory] = useState(deepLink ? 'abdest' : 'dualar');
     const [currentStep, setCurrentStep] = useState(0);
     const [isComplete, setIsComplete] = useState(false);
-    const totalStepsRef = React.useRef(0);
+    // Ezber ("Perde") — yalnız Sureler kategorisinde
+    const [ezberSure, setEzberSure] = useState(null);
+    const [ezberProgress, setEzberProgress] = useState(readProgress);
+    // Abdest merkezi: hangi konu açık (null = kart listesi)
+    const [abdestTopic, setAbdestTopic] = useState(null);
+    const [abdestSheet, setAbdestSheet] = useState(deepLink === 'mesh' ? 'mesh' : null);
+    const [breakerId, setBreakerId] = useState(null);
+    const [meshSection, setMeshSection] = useState(null);
+    const [wuduMode, setWuduMode] = useState(readWuduMode);
+    const [handsFree, setHandsFree] = useState(false);
+    // Mest durumu React state'inde TUTULMAZ: tek yazan MeshSheet, tek okuyan
+    // aşağıdaki rozet. Kopyasını burada tutmak, tabaka her yazdığında iki
+    // kaynağı senkron tutmayı gerektiriyordu. Tik yalnız "yeniden oku" işareti.
+    const [mestTick, setMestTick] = useState(0);
+    const bumpMest = useCallback(() => setMestTick(v => v + 1), []);
+
     const { selection, success, heavy, light } = useHaptics();
     const { t, i18n } = useTranslation('learn');
 
     const lang = (i18n.language || 'en').split('-')[0];
 
-    // Language-indexed guide overrides — add new languages here
-    const GUIDES_MAP = { en: GUIDES_EN, de: GUIDES_DE, ru: GUIDES_RU, ar: GUIDES_AR, az: GUIDES_AZ };
-    const langGuides = GUIDES_MAP[lang] || {};
-    const activeGuides = { ...GUIDES, ...langGuides };
-    const guide = activeGuides[selectedCategory];
+    // Her render'da yeni nesne üretilirse AbdestHub'ın arama indeksi useMemo'su
+    // hiç önbelleğe girmez (67 kayıt her tuş vuruşunda baştan kurulurdu).
+    const activeGuides = useMemo(() => ({ ...GUIDES, ...(GUIDES_MAP[lang] || {}) }), [lang]);
+    /**
+     * Abdest artık tek rehber değil bir merkez: sihirbaz hangi konuya
+     * dokunulduysa onun verisiyle açılır (abdest / gusul / teyemmum).
+     * Diğer kategorilerde davranış aynı.
+     */
+    const guideKey = selectedCategory === 'abdest' ? abdestTopic : selectedCategory;
+    const guide = guideKey ? activeGuides[guideKey] : null;
 
-    // Dualar: ilk 10 dua ücretsiz, Sureler: ilk 1 sure ücretsiz
-    // Tümü gösterilir, limitten sonra next butonunda taç + premium yönlendirme
-    const FREE_DUA_COUNT = 10;
+    // Sureler: ilk 1 sure ücretsiz, gerisi premium (ezber listesinde)
     const FREE_SURE_COUNT = 1;
-    const isDualarGated = selectedCategory === 'dualar' && !isPremium();
-    const isSurelerGated = selectedCategory === 'sureler' && !isPremium();
-    const step = guide?.steps[currentStep];
-    const totalSteps = guide?.steps.length || 0;
-    totalStepsRef.current = totalSteps;
-    // Limitin sonuna gelince next butonunda taç göster
-    const showCrownOnNext = (isDualarGated && currentStep >= FREE_DUA_COUNT - 1)
-        || (isSurelerGated && currentStep >= FREE_SURE_COUNT - 1);
 
+    /**
+     * "Kısa · farzlar" modu adımları SÜZER, yeni metin üretmez.
+     * Süzgeç boş dönerse (bir dil dosyasında adım metni değişmiş olabilir)
+     * tam listeye düşülür — kullanıcı boş sihirbaz görmez.
+     */
+    const wizardSteps = useMemo(() => {
+        const all = guide?.steps || [];
+        if (guideKey !== 'abdest' || wuduMode !== 'short') return all;
+        const short = all.filter(st => wuduMeta(st)?.short);
+        return short.length ? short : all;
+    }, [guide, guideKey, wuduMode]);
+
+    /**
+     * İndeks liste boyunu ASLA aşmamalı. Bugün her geçişte sıfırlanıyor
+     * (mod değişimi, konu açma/kapama) ama liste "Kısa" modda 15'ten 7'ye
+     * düşüyor: bir yerde sıfırlama unutulursa kart boş çizilir ve göstergede
+     * "9 / 7" yazardı. Ezberde birebir bu hata yaşandı.
+     */
+    const safeStep = Math.min(currentStep, Math.max(0, wizardSteps.length - 1));
+    const step = wizardSteps[safeStep];
+    const totalSteps = wizardSteps.length;
+    // Rozet ve görsel üç temizlik rehberinde de var; namaz kategorileri hariç.
+    const stepMeta = useMemo(() => (step ? wuduMeta(step) : null), [step]);
+
+    // Adım sayısı ref'te taşınmıyordu diye değil, taşındığı için sorunluydu:
+    // ref'i render sırasında yazmak React'in kuralını çiğniyor. `useHaptics`
+    // zaten her render'da yeni kimlik döndürdüğü için `next` hiçbir zaman
+    // kararlı değildi; ref bir şey kazandırmıyordu. Yan etki de updater'ın
+    // içinden çıkarıldı (StrictMode updater'ı iki kez çalıştırıyor).
     const next = useCallback(() => {
         light();
-        setCurrentStep(prev => {
-            // Dualar: 10 adımdan sonra → premium
-            if (isDualarGated && prev >= FREE_DUA_COUNT - 1) {
-                setTimeout(() => navigate('/premium'), 0);
-                return prev;
-            }
-            // Sureler: limit aşılınca → premium
-            if (isSurelerGated && prev >= FREE_SURE_COUNT - 1) {
-                setTimeout(() => navigate('/premium'), 0);
-                return prev;
-            }
-            if (prev < totalStepsRef.current - 1) {
-                return prev + 1;
-            } else {
-                setTimeout(() => {
-                    success();
-                    setIsComplete(true);
-                }, 0);
-                return prev;
-            }
-        });
-    }, [light, success, isDualarGated, isSurelerGated, navigate]);
+        if (safeStep < totalSteps - 1) {
+            setCurrentStep(safeStep + 1);
+        } else {
+            success();
+            setIsComplete(true);
+        }
+    }, [light, safeStep, success, totalSteps]);
 
     const prev = useCallback(() => {
         light();
-        setCurrentStep(prev => Math.max(0, prev - 1));
-    }, [light]);
+        setCurrentStep(Math.max(0, safeStep - 1));
+    }, [light, safeStep]);
+
+    const ActiveIcon = CATEGORIES.find(c => c.id === selectedCategory)?.icon || Heart;
+    const isRtl = lang === 'ar';
+
+    /** Kartı yana kaydırmak adım değiştirir; RTL'de yön ters. */
+    const handleSwipe = useCallback((_e, info) => {
+        const dx = info.offset.x;
+        const vx = info.velocity.x;
+        if (!(Math.abs(dx) > 70 || Math.abs(vx) > 450)) return;
+        if (isRtl ? dx > 0 : dx < 0) next(); else prev();
+    }, [isRtl, next, prev]);
 
     const reset = useCallback(() => {
         heavy();
@@ -1031,7 +1711,167 @@ export default function Learn() {
         setSelectedCategory(id);
         setCurrentStep(0);
         setIsComplete(false);
+        setAbdestTopic(null);
+        setAbdestSheet(null);
     }, [selection]);
+
+    /** Merkezden bir konu açılır: sihirbaz konusu ya da tabaka. */
+    const openAbdestTopic = useCallback((topic, stepIndex = -1, breaker = null, section = null) => {
+        if (topic.kind === 'sheet') {
+            setBreakerId(breaker);
+            setMeshSection(section);
+            setAbdestSheet(topic.id);
+            return;
+        }
+        // Aramadan gelen adım kısa modda süzülmüş olabilir; tam listeye geç ki
+        // kullanıcı tıkladığı adımı gerçekten görsün.
+        if (stepIndex >= 0 && wuduMode === 'short') {
+            setWuduMode('full');
+            storageService.setItem(WUDU_MODE_KEY, 'full');
+        }
+        setAbdestTopic(topic.id);
+        setCurrentStep(Math.max(0, stepIndex));
+        setIsComplete(false);
+    }, [wuduMode]);
+
+    const closeAbdestTopic = useCallback(() => {
+        light();
+        setAbdestTopic(null);
+        setCurrentStep(0);
+        setIsComplete(false);
+    }, [light]);
+
+    const changeWuduMode = useCallback((mode) => {
+        selection();
+        setWuduMode(mode);
+        setCurrentStep(0);
+        storageService.setItem(WUDU_MODE_KEY, mode);
+        analytics.abdestModeChanged(mode);
+    }, [selection]);
+
+    const abdestHubVisible = selectedCategory === 'abdest' && !abdestTopic;
+
+    useEffect(() => {
+        if (!abdestHubVisible) return undefined;
+        const timer = setInterval(() => setMestTick(v => v + 1), 60000);
+        return () => clearInterval(timer);
+    }, [abdestHubVisible]);
+
+    /** Mest kartındaki kalan-süre rozeti; süre yoksa hiç çıkmaz. */
+    const meshBadge = useMemo(() => {
+        if (!abdestHubVisible) return null;
+        void mestTick;                       // dakikalık tazeleme + tabaka yazınca
+        const state = readMest();
+        if (!state || state.startedAt <= 0) return null;
+        const status = mestStatus(state);
+        if (status.expired) return t('mesh.badgeExpired');
+        const { hours, minutes } = splitRemaining(status.remainingMs);
+        return hours >= 1 ? t('mesh.badgeHours', { n: hours }) : t('mesh.badgeMinutes', { n: minutes });
+    }, [abdestHubVisible, mestTick, t]);
+
+    /**
+     * Donanım geri tuşu: sihirbazdan merkeze döner.
+     *
+     * Tabaka ve tam ekran mod kendi dinleyicilerini kurar; Capacitor
+     * dinleyicileri BİRİKTİRDİĞİ için burada da açık kalsaydı geri tuşu ikisini
+     * birden tetikler, kullanıcı bir adım geri giderken iki adım geri giderdi.
+     */
+    useHardwareBack(
+        selectedCategory === 'abdest' && !!abdestTopic && !abdestSheet && !handsFree,
+        closeAbdestTopic
+    );
+
+    /**
+     * Kubbe maskesi: sure listesiyle aynı sırada "ezberde mi" bilgisi.
+     * Her surenin kubbede SABİT yeri olsun diye sıra listeden gelir — yoksa
+     * taşlar sadece sayıya göre dolar ve İhlâs'ın yeri her seferinde değişir.
+     */
+    const ezberMask = useMemo(() => {
+        if (selectedCategory !== 'sureler') return [];
+        return (guide?.steps || []).map(st => {
+            const e = ezberProgress[sureKey(st.arabic)];
+            return !!(e && e.lines > 0 && e.done >= e.lines);
+        });
+    }, [selectedCategory, guide, ezberProgress]);
+
+    const ezberSlotIndex = useMemo(
+        () => (ezberSure ? (guide?.steps || []).indexOf(ezberSure) : -1),
+        [ezberSure, guide]
+    );
+
+    // ── Sure listesi ipuçları ────────────────────────────────────────────
+    // Yalnız liste görünürken: ezber tabakası açıkken hedefler (kart, özet satırı)
+    // perdenin altında kalır, oradaki ipuçlarını EzberSheet yönetir.
+    const [seenHints, setSeenHints] = useState(readSeenHints);
+    const [hintId, setHintId] = useState(null);
+    const hintTimerRef = React.useRef(null);
+    const shownHintRef = React.useRef(null);
+    const sureListReady = selectedCategory === 'sureler' && !ezberSure && (guide?.steps?.length || 0) > 0;
+
+    // Ekranda duran ipucunun kimliği — liste kapanırken "görüldü" yazmak için.
+    useEffect(() => { shownHintRef.current = hintId; }, [hintId]);
+
+    useEffect(() => {
+        if (!sureListReady) return undefined;
+        const first = nextHint(SURE_HINTS, readSeenHints());
+        if (first === -1) return undefined;
+        const timer = setTimeout(() => setHintId(SURE_HINTS[first].id), 800);
+        return () => {
+            clearTimeout(timer);
+            clearTimeout(hintTimerRef.current);
+            // Kullanıcı sureyi açtı: balon kendi kapanmadan düşüyor. Görüldü
+            // yazılmazsa listeye her dönüşte aynı ipucu tekrar çıkardı.
+            const shown = shownHintRef.current;
+            if (shown) {
+                setSeenHints(markHintSeen(shown));
+                shownHintRef.current = null;
+                setHintId(null);
+            }
+        };
+    }, [sureListReady]);
+
+    useEffect(() => () => clearTimeout(hintTimerRef.current), []);
+
+    const closeHint = useCallback((markSeen = true) => {
+        const index = hintId ? SURE_HINTS.findIndex(h => h.id === hintId) : -1;
+        if (index < 0) return;
+        // markHintSeen TEST modunda hiçbir şey yazmaz (bkz. lib/hints.js)
+        const nextSeen = markSeen ? markHintSeen(SURE_HINTS[index].id) : seenHints;
+        setSeenHints(nextSeen);
+        setHintId(null);
+        const nextIdx = nextHint(SURE_HINTS, nextSeen, index);
+        if (nextIdx >= 0) {
+            clearTimeout(hintTimerRef.current);
+            hintTimerRef.current = setTimeout(() => setHintId(SURE_HINTS[nextIdx].id), 180);
+        }
+    }, [hintId, seenHints]);
+
+    const activeHint = sureListReady && hintId ? SURE_HINTS.find(h => h.id === hintId) : null;
+
+    /** Bugün tekrarı gelen ilk sure — sihirbazın üstünde tek satır. */
+    const dueToday = useMemo(() => {
+        if (selectedCategory !== 'sureler') return null;
+        const keys = dueList(ezberProgress);
+        if (!keys.length) return null;
+        const steps = guide?.steps || [];
+        const hit = steps.find(st => keys.includes(sureKey(st.arabic)));
+        return hit ? { step: hit, count: keys.length } : null;
+    }, [selectedCategory, ezberProgress, guide]);
+
+    /**
+     * Tekrar hatırlatmaları. Her ilerleme değişiminde yeniden kurulur; tarihli
+     * ve tekil olduğu için tekrar günü olmayan günlerde bildirim çalmaz.
+     */
+    const surelerSteps = useMemo(() => ({ ...GUIDES, ...(GUIDES_MAP[lang] || {}) }).sureler?.steps || [], [lang]);
+    useEffect(() => {
+        if (!surelerSteps.length) return;
+        const titleOf = (k) => surelerSteps.find(st => sureKey(st.arabic) === k)?.title || null;
+        rescheduleEzberReminders(titleOf, {
+            title: t('ezberNotifTitle'),
+            bodyOne: (title) => t('ezberNotifOne', { title }),
+            bodyMany: (title, n) => t('ezberNotifMany', { title, n }),
+        });
+    }, [ezberProgress, surelerSteps, t]);
 
     if (isComplete) {
         return (
@@ -1092,7 +1932,7 @@ export default function Learn() {
                         transition={{ delay: 0.7 }}
                         className="text-gray-500 dark:text-emerald-100/50 mb-6 max-w-[280px] leading-relaxed"
                     >
-                        <span className="font-semibold text-islamic-green dark:text-islamic-gold">{guide.title}</span>
+                        <span className="font-semibold text-islamic-green dark:text-islamic-gold">{guide?.title}</span>
                         {' '}{t('completionMsg')}
                     </motion.p>
 
@@ -1154,110 +1994,290 @@ export default function Learn() {
         );
     }
 
+    // Kategori şeridi her iki kolda da ortak — Hikayeler ve İbadetlerim
+    // sekmeleriyle aynı segment paneli (kullanıcı kararı 2026-08-18).
+    const categoryStrip = (
+        <div className="glass-panel grid grid-cols-5 gap-1 rounded-3xl p-2">
+            {CATEGORIES.map((cat, index) => {
+                const Icon = cat.icon;
+                const isActive = selectedCategory === cat.id;
+                // Ücretsiz: abdest, dualar, sureler — premium: namazlar, kadinNamaz
+                const isLocked = index > 2 && !isPremium();
+                return (
+                    <motion.button
+                        key={cat.id}
+                        onClick={() => {
+                            if (isLocked) { navigate('/premium'); return; }
+                            handleCategorySelect(cat.id);
+                        }}
+                        className={cn(
+                            "relative overflow-hidden rounded-2xl px-2 py-3 text-xs font-bold uppercase tracking-wider transition-all",
+                            isActive
+                                ? "bg-islamic-green text-white shadow-lg dark:bg-islamic-gold dark:text-[#032e18]"
+                                : isLocked
+                                    ? "text-gray-400 opacity-60 dark:text-gray-500"
+                                    : "text-gray-600 hover:bg-[#F0E8D5] dark:text-gray-300 dark:hover:bg-white/5"
+                        )}
+                        whileTap={{ scale: 0.95 }}
+                    >
+                        {isLocked && (
+                            <div className="absolute right-1 top-1 flex h-4 w-4 items-center justify-center rounded-full bg-gradient-to-br from-islamic-gold to-amber-600 shadow-sm">
+                                <Crown size={8} className="text-white" fill="white" />
+                            </div>
+                        )}
+                        <Icon className={cn("mx-auto mb-1 h-5 w-5", isActive && "drop-shadow-md")} />
+                        <span className="block text-[9px] leading-tight">{t(cat.labelKey)}</span>
+                    </motion.button>
+                );
+            })}
+        </div>
+    );
+
+    // Sureler de sihirbaz değil: okuma/dinleme işini Kur'an sekmesi yapıyor,
+    // burası ezberlenen yer. Kart listesi → dokun → Perde tabakası.
+    if (selectedCategory === 'sureler') {
+        return (
+            <div className="flex flex-col space-y-6 p-5 pb-32">
+                {categoryStrip}
+
+                {/* Bugün tekrarı gelen sure — kutu değil, tek satır (Dualar'daki
+                    "0px kalıcı krom" kuralı). Tekrar yoksa hiç görünmez. */}
+                {dueToday && (
+                    <div className="-mt-2 flex items-center gap-3 px-1">
+                        <p className="min-w-0 flex-1 text-[0.875rem] leading-snug text-stone-700 dark:text-emerald-50">
+                            {t('ezberDueToday', { title: dueToday.step.title })}
+                            {dueToday.count > 1 && (
+                                <span className="text-stone-500 dark:text-emerald-100/50"> {t('ezberDueMore', { n: dueToday.count - 1 })}</span>
+                            )}
+                        </p>
+                        <button
+                            type="button"
+                            onClick={() => { selection(); setEzberSure(dueToday.step); }}
+                            className="shrink-0 rounded-full bg-islamic-green px-4 py-2 font-display text-[0.8125rem] font-bold text-white active:opacity-90 dark:bg-islamic-gold dark:text-[#032e18]"
+                        >
+                            {t('ezberDueStart')}
+                        </button>
+                    </div>
+                )}
+
+                <SureList
+                    sures={guide?.steps || []}
+                    progress={ezberProgress}
+                    freeCount={isPremium() ? Infinity : FREE_SURE_COUNT}
+                    onOpen={(sure, locked) => {
+                        if (locked) { navigate('/premium'); return; }
+                        selection();
+                        setEzberSure(sure);
+                    }}
+                />
+
+                <EzberSheet
+                    sure={ezberSure}
+                    progress={ezberProgress}
+                    mask={ezberMask}
+                    slotIndex={ezberSlotIndex}
+                    onClose={() => setEzberSure(null)}
+                    onProgress={setEzberProgress}
+                />
+
+                {/* Tek seferlik ipuçları — karartmaz, engellemez */}
+                {activeHint && (
+                    <HintCoach
+                        key={activeHint.id}
+                        targetId={activeHint.target}
+                        titleKey={activeHint.titleKey}
+                        bodyKey={activeHint.bodyKey}
+                        icon={activeHint.icon}
+                        ns="learn"
+                        step={SURE_HINTS.indexOf(activeHint)}
+                        total={SURE_HINTS.length}
+                        onClose={closeHint}
+                    />
+                )}
+            </div>
+        );
+    }
+
+    // Abdest artık tek rehber değil bir merkez: 5 konu kartı + arama.
+    // Sihirbaz yalnız bir konu seçilince açılır (aşağıdaki ortak dal).
+    if (selectedCategory === 'abdest' && !abdestTopic) {
+        return (
+            <div className="flex flex-col space-y-6 p-5 pb-32">
+                {categoryStrip}
+                <AbdestHub guides={activeGuides} meshBadge={meshBadge} onOpen={openAbdestTopic} />
+
+                <BreakerSheet
+                    open={abdestSheet === 'breakers'}
+                    initialId={breakerId}
+                    isRtl={isRtl}
+                    onClose={() => { setAbdestSheet(null); setBreakerId(null); }}
+                />
+
+                <MeshSheet
+                    open={abdestSheet === 'mesh'}
+                    initialSection={meshSection}
+                    isRtl={isRtl}
+                    onClose={() => { setAbdestSheet(null); setMeshSection(null); }}
+                    onStateChange={bumpMest}
+                />
+            </div>
+        );
+    }
+
+    // Dualar artık sıralı sihirbaz değil, aranabilir bir raf.
+    // Sihirbaz abdest/sureler/namaz gibi gerçekten prosedürel rehberlerde kalır.
+    if (selectedCategory === 'dualar') {
+        return (
+            /* pb-32: son raf bottom bar'ın altında kalmasın (sihirbaz dalında da var) */
+            <div className="flex flex-col pt-5 pb-32">
+                <div className="px-5">{categoryStrip}</div>
+                <DuaLibrary duas={guide?.steps || []} isRtl={isRtl} />
+            </div>
+        );
+    }
+
     return (
         <div className="flex flex-col space-y-6 p-5 pb-32">
-            {/* Category Selection */}
-            <div className="glass-panel rounded-3xl p-2 grid grid-cols-5 gap-1">
-                {CATEGORIES.map((cat, index) => {
-                    const Icon = cat.icon;
-                    const isActive = selectedCategory === cat.id;
-                    // Ücretsiz: abdest (0), dualar (1), sureler (2)
-                    // Premium: namazlar (3), kadinNamaz (4)
-                    const isFree = index <= 2;
-                    const isLocked = !isFree && !isPremium();
-                    return (
-                        <motion.button
-                            key={cat.id}
-                            onClick={() => {
-                                if (isLocked) { navigate('/premium'); return; }
-                                handleCategorySelect(cat.id);
-                            }}
+            {categoryStrip}
+
+            {/* Merkeze dönüş — yalnız Abdest kolunda; diğer kategorilerde
+                sihirbaz zaten kategorinin kendisi. */}
+            {selectedCategory === 'abdest' && (
+                <div className="-mb-2 flex items-center gap-1">
+                    <button
+                        type="button"
+                        onClick={closeAbdestTopic}
+                        aria-label={t('abdestBack')}
+                        className="-ms-2.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-stone-600 active:bg-black/[0.05] dark:text-emerald-100/70 dark:active:bg-white/10"
+                    >
+                        <ChevronLeft className="h-5 w-5 rtl:rotate-180" />
+                    </button>
+                    <span className="truncate font-display text-[1.0625rem] font-bold text-stone-800 dark:text-emerald-50">
+                        {guide?.title}
+                    </span>
+                </div>
+            )}
+
+            {/* Kısa / Tam — yalnız abdestte. Gusül ve teyemmümde her adım
+                gerekli, süzecek bir şey yok. */}
+            {guideKey === 'abdest' && (
+                <div className="grid grid-cols-2 gap-1 rounded-full bg-[#F0E8D5] p-1 dark:bg-white/[0.06]">
+                    {['short', 'full'].map(mode => (
+                        <button
+                            key={mode}
+                            type="button"
+                            onClick={() => changeWuduMode(mode)}
+                            aria-pressed={wuduMode === mode}
                             className={cn(
-                                "relative px-2 py-3 overflow-hidden rounded-2xl font-bold text-xs uppercase tracking-wider transition-all",
-                                isActive
-                                    ? "bg-islamic-green dark:bg-islamic-gold text-white dark:text-[#032e18] shadow-lg"
-                                    : isLocked
-                                        ? "text-gray-400 dark:text-gray-500 opacity-60"
-                                        : "text-gray-600 dark:text-gray-300 hover:bg-[#F0E8D5] dark:hover:bg-white/5"
+                                'rounded-full py-2 text-[0.8125rem] font-bold transition-colors',
+                                wuduMode === mode
+                                    ? 'bg-[#FFFDF6] text-[#B45309] shadow-sm dark:bg-white/10 dark:text-islamic-gold'
+                                    : 'text-gray-600 dark:text-emerald-100/55'
                             )}
-                            whileTap={{ scale: 0.95 }}
                         >
-                            {isLocked && (
-                                <div className="absolute top-1 right-1 w-4 h-4 rounded-full bg-gradient-to-br from-islamic-gold to-amber-600 flex items-center justify-center shadow-sm">
-                                    <Crown size={8} className="text-white" fill="white" />
-                                </div>
-                            )}
-                            <Icon className={cn("w-5 h-5 mx-auto mb-1", isActive && "drop-shadow-md")} />
-                            <span className="text-[9px] leading-tight block">{t(cat.labelKey)}</span>
-                        </motion.button>
-                    );
-                })}
-            </div>
+                            {t(mode === 'short' ? 'abdestModeShort' : 'abdestModeFull')}
+                        </button>
+                    ))}
+                </div>
+            )}
 
             {/* Guide Title + Progress Bar */}
-            <div className="space-y-4">
-                <div className="flex items-center justify-between px-1">
-                    <div className="flex items-center gap-2 bg-islamic-gold/10 px-4 py-1.5 rounded-full border border-islamic-gold/20">
-                        <Droplets className="w-4 h-4 text-islamic-gold" />
-                        <span className="text-xs font-bold text-islamic-green dark:text-islamic-gold uppercase tracking-widest">{guide?.title}</span>
+            <div className="space-y-3">
+                <div className="flex items-center justify-between gap-3 px-1">
+                    <div className="flex min-w-0 items-center gap-2">
+                        <ActiveIcon className="h-4 w-4 shrink-0 text-islamic-gold" />
+                        <span className="truncate text-xs font-bold uppercase tracking-widest text-islamic-green dark:text-islamic-gold">{guide?.title}</span>
                     </div>
-                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{t('stepProgress', { current: currentStep + 1, total: totalSteps })}</span>
+                    <span className="shrink-0 text-[10px] font-bold uppercase tracking-widest tabular-nums text-gray-400">
+                        {t('stepProgress', { current: safeStep + 1, total: totalSteps })}
+                    </span>
                 </div>
 
-                <div className="w-full h-2 bg-[#F0E8D5] dark:bg-white/10 rounded-full overflow-hidden shadow-inner">
+                <div className="h-1.5 w-full overflow-hidden rounded-full bg-[#F0E8D5] dark:bg-white/10">
                     <motion.div
-                        className="h-full bg-islamic-green dark:bg-islamic-gold shadow-sm"
+                        className="h-full rounded-full bg-islamic-green dark:bg-islamic-gold"
                         initial={{ width: 0 }}
-                        animate={{ width: `${((currentStep + 1) / (totalSteps || 1)) * 100}%` }}
+                        animate={{ width: `${((safeStep + 1) / (totalSteps || 1)) * 100}%` }}
                         transition={{ duration: 0.5, ease: "easeOut" }}
                     />
                 </div>
             </div>
 
-            {/* Main Presentation Area */}
+            {/* Main Presentation Area — yatay sürükleme adım değiştirir (dikey kaydırma kilitlenmez) */}
             <div className="relative">
                 <AnimatePresence mode="wait">
                     <motion.div
-                        key={`${selectedCategory}-${currentStep}`}
+                        key={`${guideKey}-${wuduMode}-${safeStep}`}
                         initial={{ x: 20, opacity: 0 }}
                         animate={{ x: 0, opacity: 1 }}
                         exit={{ x: -20, opacity: 0 }}
                         transition={{ duration: 0.15 }}
+                        drag="x"
+                        dragDirectionLock
+                        dragElastic={0.08}
+                        dragMomentum={false}
+                        dragConstraints={{ left: 0, right: 0 }}
+                        onDragEnd={handleSwipe}
                     >
-                        <GuideStepCard step={step} />
+                        <GuideStepCard
+                            step={step}
+                            index={safeStep}
+                            total={totalSteps}
+                            icon={ActiveIcon}
+                            isRtl={isRtl}
+                            meta={stepMeta}
+                            collapsed={guideKey === 'abdest' && wuduMode === 'short'}
+                        />
                     </motion.div>
                 </AnimatePresence>
             </div>
 
-            {/* Navigation Buttons */}
-            <div className="fixed bottom-28 left-1/2 -translate-x-1/2 w-full max-w-md px-6 flex justify-between items-center pointer-events-none z-40">
+            {/* Navigation — akışın içinde, kartın altında. Eskiden ekrana sabitliydi
+                ve kaydırırken içeriğin üstünde kalıyordu. */}
+            <div className="flex items-stretch gap-3">
                 <Button
                     variant="outline"
                     onClick={prev}
-                    disabled={currentStep === 0}
-                    className="bg-white/80 dark:bg-white/10 backdrop-blur-md h-14 px-6 rounded-2xl border-[#EDE5D1] dark:border-white/10 text-gray-500 dark:text-white pointer-events-auto shadow-lg active:scale-95 disabled:opacity-30 font-bold text-sm"
+                    disabled={safeStep === 0}
+                    aria-label={t('navBack')}
+                    className="h-14 w-14 shrink-0 rounded-2xl border-[#EDE5D1] bg-[#FFFDF6] p-0 text-gray-500 shadow-sm transition-all active:scale-95 disabled:opacity-30 dark:border-white/10 dark:bg-white/5 dark:text-white"
                 >
-                    <ChevronLeft className="mr-1.5 h-4 w-4" /> {t('navBack')}
+                    <ChevronLeft className="h-5 w-5" />
                 </Button>
 
                 <Button
                     onClick={next}
-                    className={cn(
-                        "h-14 px-8 rounded-2xl shadow-xl pointer-events-auto transition-all active:scale-95 font-bold text-sm",
-                        currentStep === totalSteps - 1
-                            ? "bg-islamic-green dark:bg-islamic-gold text-white dark:text-[#032e18] px-10"
-                            : "bg-islamic-green dark:bg-islamic-gold text-white dark:text-[#032e18]"
-                    )}
+                    className="h-14 flex-1 rounded-2xl bg-islamic-green text-sm font-bold text-white shadow-lg shadow-islamic-green/20 transition-all active:scale-[0.98] dark:bg-islamic-gold dark:text-[#032e18] dark:shadow-islamic-gold/20"
                 >
-                    {showCrownOnNext ? (
-                        <><span className="text-base">👑</span> Premium</>
-                    ) : currentStep === totalSteps - 1 ? (
+                    {safeStep === totalSteps - 1 ? (
                         <>{t('navComplete')} <CheckCircle2 className="ml-1.5 h-4 w-4" /></>
                     ) : (
                         <>{t('navNext')} <ChevronRight className="ml-1.5 h-4 w-4" /></>
                     )}
                 </Button>
             </div>
+
+            {/* Islak el modu — YALNIZ abdest rehberinde. Kaydırmalı sihirbaz tam
+                kullanılacağı anda kullanılamıyordu; bu onun cevabı. Gusül ve
+                teyemmümde gösterilmez: bitiş metni abdest duasını hatırlatıyor
+                ve bazı dillerde butonun nesnesi de açıkça "abdest". */}
+            {abdestTopic === 'abdest' && totalSteps > 0 && (
+                <button
+                    type="button"
+                    onClick={() => { selection(); setHandsFree(true); }}
+                    className="flex h-14 items-center justify-center gap-2 rounded-2xl border border-[#B45309]/35 font-display text-[0.9375rem] font-bold text-[#B45309] transition-colors active:bg-[#B45309]/[0.06] dark:border-islamic-gold/35 dark:text-islamic-gold dark:active:bg-islamic-gold/10"
+                >
+                    <Droplets className="h-4 w-4" />
+                    {t('handsFreeCta')}
+                </button>
+            )}
+
+            <HandsFree
+                open={handsFree}
+                steps={wizardSteps}
+                onClose={() => setHandsFree(false)}
+            />
+
         </div>
     );
 }

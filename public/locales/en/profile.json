@@ -65,7 +65,10 @@
   },
   "delete_account": {
     "title": "Delete Account",
-    "confirm": "Your account and all data will be deleted. This cannot be undone. Are you sure?"
+    "confirm": "Your account and all data will be deleted. This cannot be undone. Are you sure?",
+    "success_title": "Your Account Has Been Deleted",
+    "success_desc": "Your account and all your data have been deleted successfully. You can safely close the app.",
+    "success_hint": "You can close the app"
   },
   "avatar": {
     "male": "Male",
@@ -100,5 +103,14 @@
   "haptics": {
     "title": "Haptics",
     "subtitle": "In-app touch feedback"
+  },
+  "rate_us": {
+    "title": "Rate Us",
+    "subtitle": "Support the app",
+    "already_rated_title": "Thank You",
+    "already_rated": "Thank you for your support"
+  },
+  "common": {
+    "done": "Done"
   }
 }

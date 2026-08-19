@@ -7,6 +7,39 @@
     "nowListening": "Şu an Dinleniyor",
     "listenersCount": "{{count}} kişi dinliyor",
     "read": "Oku",
-    "normalSpeed": "Normal Hız",
-    "speedUp": "2x Hızlandır"
+    "completed": "Tamamlandı",
+    "resume": "Kaldığın yerden",
+    "back15": "15 saniye geri",
+    "forward15": "15 saniye ileri",
+    "speedAria": "Oynatma hızı",
+    "nextUp": "Sıradaki",
+    "audioError": "Ses yüklenemedi",
+    "retry": "Tekrar dene",
+    "paused": "Duraklatıldı",
+    "mediaPlay": "Oynat",
+    "mediaPause": "Duraklat",
+    "tour": {
+        "gotIt": "Anladım",
+        "next": "İleri",
+        "card": {
+            "title": "Dinle ya da oku",
+            "body": "Karta dokun: hikayeyi baştan dinleyebilir, aşağı kaydırıp okuyabilirsin. İlk hikaye ücretsiz."
+        },
+        "play": {
+            "title": "Dinlemeye başla",
+            "body": "Altın tuşa dokun. Ekranı kilitlesen de kilit ekranından durdurup devam ettirebilirsin."
+        },
+        "karaoke": {
+            "title": "Kelime kelime takip",
+            "body": "Dinlerken okunan kelime altın renge döner; gözünle metni rahatça izlersin."
+        },
+        "seek": {
+            "title": "İstediğin yere atla",
+            "body": "Ses dalgasını sürükle ya da 15 saniye ileri/geri tuşlarını kullan."
+        },
+        "speed": {
+            "title": "Hızı ayarla",
+            "body": "1×, 1.5× ve 2× arasında geçer. Uzun hikayeleri daha hızlı bitirirsin."
+        }
+    }
 }

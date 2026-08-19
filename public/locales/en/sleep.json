@@ -13,5 +13,27 @@
     "error": "Error:",
     "audioError": "Audio couldn't load. Please check your internet.",
     "forgivenMsg": "Your heart is at ease. May Allah grant you comfort.",
-    "forgiveBtn": "I Forgive"
+    "forgiveBtn": "I Forgive",
+    "premiumGate": {
+        "title": "Free trial used",
+        "desc": "You have tried Sleep Mode once for free. Upgrade to Premium for unlimited access.",
+        "cta": "Unlimited Sleep Mode — Premium",
+        "dismiss": "Close"
+    },
+    "tour": {
+        "gotIt": "Got it",
+        "next": "Next",
+        "controls": {
+            "title": "Play and repeat",
+            "body": "The gold button starts Surah Al-Mulk. The loop button next to it restarts it at the end — it keeps going until you fall asleep."
+        },
+        "rain": {
+            "title": "Rain sound",
+            "body": "It can play alongside the Qur'an. Turn both on and find the mix you like."
+        },
+        "forgive": {
+            "title": "Close the day clean",
+            "body": "Say that you forgive whatever others owe you. Once a day."
+        }
+    }
 }

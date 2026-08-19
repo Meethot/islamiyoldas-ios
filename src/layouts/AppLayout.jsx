@@ -138,7 +138,15 @@ export default function AppLayout() {
                         "px-6 pb-2 flex justify-between items-center bg-[#F6F0E1]/80 dark:bg-[#032e18]/80 backdrop-blur-md sticky top-0 z-40 border-b border-[#E2D9C4]/60 dark:border-white/5",
                         isIOS ? "pt-[env(safe-area-inset-top,2rem)]" : "header-safe-padding"
                     )}>
-                        <div className="flex flex-col min-w-0 mr-2">
+                        <button
+                            type="button"
+                            onClick={() => {
+                                selection();
+                                if (pathname !== '/') navigate('/');
+                            }}
+                            aria-label={t('header.appName')}
+                            className="flex flex-col items-start text-left min-w-0 mr-2 rounded-xl transition-transform active:scale-[0.97]"
+                        >
                             <span className="text-[11px] font-semibold tracking-[0.14em] text-stone-500/90 dark:text-emerald-100/60 uppercase mb-0.5 truncate animate-in fade-in slide-in-from-left duration-700">
                                 {(() => {
                                     const hour = new Date().getHours();
@@ -151,7 +159,7 @@ export default function AppLayout() {
                             <h1 className="font-display text-[clamp(17px,6vw,24px)] font-semibold tracking-tight leading-tight text-islamic-green dark:text-islamic-gold break-words">
                                 {t('header.appName')}
                             </h1>
-                        </div>
+                        </button>
                         <div className="flex items-center gap-2 shrink-0">
                             {/* Premium CTA Button — non-premium users */}
                             {!hasPremium && (

@@ -14,11 +14,426 @@
     "navComplete": "Tamamla",
     "restartBtn": "Yenidən Başa Dön",
     "goBackBtn": "Son Addıma Geri Dön",
-    "completionQuote": "\"Namaz möminin meracıdır.\"",
+    "completionQuote": "“Namaz möminin meracıdır.”",
     "completionSource": "— Hədis-i Şərif",
     "repeat": "təkrar",
     "tipsTitle": "İpuçları",
     "elhamdulillah": "Əlhəmdülillah",
     "mashallah": "Maşallah!",
-    "completionMsg": "bələdçisini uğurla tamamladın."
+    "completionMsg": "bələdçisini uğurla tamamladın.",
+    "translitLabel": "Oxunuşu",
+    "meaningLabel": "Mənası",
+    "abdestBack": "Geri",
+    "abdestModeShort": "Qısa · fərzlər",
+    "abdestModeFull": "Tam · sünnətlərlə",
+    "abdestSearchPlaceholder": "Qan dəstəmazı pozurmu?",
+    "handsFreeCta": "Əllər yaş ikən birlikdə dəstəmaz al",
+    "handsFreeStepOf": "Addım {{i}} / {{n}}",
+    "handsFreeRepeat": "{{n}} dəfə",
+    "handsFreeHint": "Telefonu lavabonun kənarına qoy. Ekran sönmür, addımlar özü irəliləyir.",
+    "handsFreePause": "Dayandır",
+    "handsFreeResume": "Davam et",
+    "handsFreeDone": "Dəstəmazın tamamdır",
+    "handsFreeDoneSub": "Şəhadət kəlməsini və dəstəmaz duasını oxumağı unutma.",
+    "rankFarz": "Fərz",
+    "rankSunnet": "Sünnət",
+    "rankMustehab": "Müstəhəb",
+    "stepDuaLabel": "Duası",
+    "topicWudu": "Dəstəmaz necə alınır",
+    "topicWuduSub": "Addım-addım, qısa və ya sünnətləri ilə tam",
+    "topicBreakers": "Pozurmu?",
+    "topicBreakersSub": "Pozanlar və pozduğu güman edilənlər",
+    "topicMesh": "Məsh: məst və sarğı",
+    "topicMeshSub": "Şərtləri və qalan vaxt",
+    "topicGusul": "Qüsl",
+    "topicGusulSub": "Fərzləri, sünnətləri, ardıcıllığı",
+    "topicTeyemmum": "Təyəmmüm",
+    "topicTeyemmumSub": "Su yoxdursa və ya işlədilə bilmirsə",
+    "duaSearchPlaceholder": "Dua axtar — yemək, göz dəyməsi, sıxıntı",
+    "duaSearchClear": "Təmizlə",
+    "duaResultCount": "{{n}} nəticə",
+    "duaEmptyTitle": "“{{query}}” üçün nəticə tapılmadı",
+    "duaEmptyHint": "Bölmələrdən birinə bax",
+    "duaFavorites": "Seçilmişlərim",
+    "groupDaily": "Gündəlik Həyat",
+    "groupHardship": "Sıxıntı və Şəfa",
+    "groupProtect": "Qorunma",
+    "groupPrayer": "Namazda Oxunanlar",
+    "groupRepent": "Tövbə və İman",
+    "groupSalawat": "Salavatlar",
+    "groupRequest": "İstək və Qəbul",
+    "groupOther": "Digər",
+    "duaRelated": "Bu bölmədən",
+    "duaShare": "Paylaş",
+    "duaShareDialogTitle": "Duanı paylaş",
+    "duaShareFooter": "İslami Yoldaş tətbiqindən paylaşıldı — {{link}}",
+    "duaFavAdd": "Seçilmişlərə əlavə et",
+    "duaFavRemove": "Seçilmişlərdən çıxar",
+    "duaLockTitle": "Oxunuşu və mənası",
+    "duaLockSub": "{{n}} dua daha oxunuşu və mənası ilə",
+    "duaLockCta": "Premium-u Aç",
+    "duaLockBadge": "Premium",
+    "duaClose": "Bağla",
+    "duaSectionCount": "{{n}} dua",
+    "duaSeeAll": "Hamısı",
+    "duaBack": "Geri",
+    "tour": {
+        "gotIt": "Anladım",
+        "next": "İrəli",
+        "search": {
+            "title": "Axtardığın duanı tap",
+            "body": "Duanın adını və ya içindəki bir sözü yaz. Oxunuş və məna mətnlərinin içində də axtarır."
+        },
+        "shelf": {
+            "title": "Bölmə-bölmə düzülüb",
+            "body": "Rəflər yana sürüşür. Karta toxun; duanın ərəbcəsi, oxunuşu və mənası açılır."
+        },
+        "seeAll": {
+            "title": "Bölmənin hamısı",
+            "body": "“Hamısı”na toxunanda həmin bölmədəki bütün dualar alt-alta sıralanır."
+        },
+        "favorite": {
+            "title": "Tez-tez oxuduğunu işarələ",
+            "body": "Ürəyə toxun. Sevimli dualarını ən yuxarıda öz bölməsində toplanır, axtarmadan çatırsan."
+        },
+        "sureCard": {
+            "title": "Əzbər buradan başlayır",
+            "body": "Bir surəyə toxun. Surə qısa hissələrə bölünür; hər hissəni əvvəl dinləyirsən, sonra mətn gizlənir və özün oxuyursan."
+        },
+        "sureProgress": {
+            "title": "Harada qaldığın burada",
+            "body": "Əzbərlədiyin surələrin sayı buradadır. Yarımçıq qoyduğun surə qaldığı yerdən davam edir, təkrar vaxtı çatanlar “Təkrar” nişanı ilə işarələnir."
+        },
+        "ezberRead": {
+            "title": "Əvvəlcə mətnə bax",
+            "body": "Oxunuş, məna və əzbər məsləhətləri buradadır. İstəsən birbaşa da başlaya bilərsən."
+        },
+        "ezberStart": {
+            "title": "Uca səslə işlə",
+            "body": "Hər sətir eyni dövrədən keçir: DİNLƏ, BİRLİKDƏ, SƏN DE, DOĞRUSU. Ucadan demək əzbəri qalıcı edir."
+        },
+        "ezberSteps": {
+            "title": "Dörd addımlıq dövrə",
+            "body": "Zolaqda hansı addımda olduğun yazılır. “SƏN DE”də mətn gizlənir; dedikdən sonra doğrusunu görürsən."
+        },
+        "ezberChain": {
+            "title": "Zəncir",
+            "body": "Sətirlər tək-tək qalmasın deyə başdan buraya qədər dayanmadan oxuyursan. Əzbər əsl burada oturur."
+        },
+        "ezberPeek": {
+            "title": "Çətinlik çəkirsənsə kopya",
+            "body": "Mətn birdən açılmır. Hər toxunuşda bir söz də görünür."
+        }
+    },
+    "ezberDueToday": "Bu gün {{title}} təkrarı var.",
+    "ezberDueMore": "+{{n}} surə daha",
+    "ezberDueStart": "Başla",
+    "ezberClose": "Bağla",
+    "ezberLineOf": "{{title}} · {{n}}/{{total}}. sətir",
+    "ezberStepListen": "DİNLƏ",
+    "ezberStepTogether": "BİRLİKDƏ",
+    "ezberStepYou": "SƏN DE",
+    "ezberStepAnswer": "DOĞRUSU",
+    "ezberStepChain": "BAŞDAN BAĞLA · İLK {{n}} SƏTİR",
+    "ezberCurtain": "Mətn gizlidir",
+    "ezberIntroLearn": "Bu surənin {{total}} sətri var. Bu gün {{n}} sətir işləyəcəyik.",
+    "ezberIntroReview": "{{n}} sətrin hamısı əzbərindədir. Bu gün başdan sona bir təkrar var.",
+    "ezberIntroHint": "Uca səslə işlə; pıçıltı da olar.",
+    "ezberStart": "Başla",
+    "ezberStartReview": "Təkrara başla",
+    "ezberContinue": "Davam",
+    "ezberStop": "Dayandır",
+    "ezberSaid": "Dedim",
+    "ezberPeek": "Kopya",
+    "ezberGood": "Oldu",
+    "ezberAgain": "Bir daha",
+    "ezberHintListen": "Sadəcə dinlə. Oxumağa çalışma.",
+    "ezberHintTogether": "Səslə birlikdə de.",
+    "ezberHintYou": "İndi sən de, sonra «Dedim»ə bas.",
+    "ezberHintAnswer": "Öz dediyinlə müqayisə et.",
+    "ezberHintChain": "Başdan buraya qədər dayanmadan de.",
+    "ezberNoAudio": "Hazırda səs yoxdur; mətnlə davam edə bilərsən.",
+    "ezberDoneKeep": "Sabah qaldığın yerdən davam.",
+    "ezberOneMore": "Bir sətir daha",
+    "ezberFinish": "Bitir",
+    "ezberSimilarKafirun": "Diqqət: 3 və 5-ci sətirlər demək olar eynidir; aradakı 4-cü sətir «Və lə ənə abidun mə abədtum»dur.",
+    "ezberSimilarFalaq": "Diqqət: Fələq və Nas eyni başlayır. Fələq «birabbil fələq», Nas «birabbin nas» deyir.",
+    "ezberSimilarNas": "Diqqət: Nas və Fələq eyni başlayır. Nas «birabbin nas», Fələq «birabbil fələq» deyir.",
+    "ezberSimilarHashr": "Diqqət: 22 və 23-cü ayələr eyni başlayır. 22-də “qeybi bilən”, 23-də “Hökmran, Müqəddəs” deyə ayrılır.",
+    "ezberSimilarAhzab": "Diqqət: bütün sətirlər eyni qəlibdədir. Sıra: müsəlman, mömin, qanit, sadiq, sabir, xaşi, mutəsaddiq, saim, hafiz, zakir.",
+    "ezberNotifTitle": "Təkrar vaxtı",
+    "ezberNotifOne": "{{title}} bu gün təkrar ediləcək.",
+    "ezberNotifMany": "{{title}} və daha {{n}} surə bu gün təkrar ediləcək.",
+    "ezberBadgeMemorized": "Əzbər",
+    "ezberBadgeDue": "Təkrar",
+    "ezberBadgeProgressLabel": "{{total}} sətrin {{done}} dənəsi əzbərdir",
+    "ezberListSummary": "{{total}} surədən {{n}} dənəsi əzbərindir. Əzbərləmək üçün surəyə toxun.",
+    "ezberRead": "Mətnin tamamı",
+    "ezberReplay": "Yenidən dinlə",
+    "ezberDoneCelebrate": "Əzbərlədin!",
+    "ezberDoneReview": "Təkrar tamam!",
+    "ezberDoneSub": "{{title}} · {{n}} sətir",
+    "ezberDoneProgress": "surə əzbərində",
+    "ezberHoldCta": "Basılı saxla",
+    "ezberHoldHint": "Ulduzunu günbəzə qoymaq üçün basılı saxla",
+    "ezberDoneNextLabel": "Növbəti təkrar",
+    "mesh": {
+        "beforeStart": "Məst, ayaqlar yuyularaq alınmış tam dəstəmazdan SONRA geyilməlidir. Müddət məstin geyildiyi andan yox, geyildikdən sonra dəstəmazın ilk pozulduğu andan başlayır.",
+        "startCta": "Dəstəmazım pozuldu — vaxtı başlat",
+        "residentLabel": "Müqim · 24 saat",
+        "travelerLabel": "Müsafir · 72 saat",
+        "runningBody": "Müddət bitəndə məsh düşür. Məstləri çıxarıb ayaqlarını yumalısan.",
+        "expiredBody": "Vaxt bitdi. Məstləri çıxar və ayaqlarını yu; dəstəmazın pozulmayıbsa yalnız ayaqları yumaq kifayətdir.",
+        "reset": "Vaxtı sıfırla",
+        "resetHint": "Məstləri çıxarmısansa və ya qüsl tələb edən bir hal olubsa, müddət öz-özünə bitir.",
+        "badgeHours": "{{n}} saat qalıb",
+        "badgeMinutes": "{{n}} dəq qalıb",
+        "badgeExpired": "Vaxt bitdi",
+        "notifWarnTitle": "Məsh müddətin bitmək üzrədir",
+        "notifWarnBody": "Məst üzərinə məsh müddətinə 1 saat qalıb.",
+        "notifEndTitle": "Məsh müddəti bitdi",
+        "notifEndBody": "Məstləri çıxarıb ayaqlarını yumalısan.",
+        "sections": {
+            "sureBaslangici": {
+                "title": "Müddət nə vaxt başlayır?",
+                "body": "Məsh müddəti məstin geyildiyi andan YOX, məst geyildikdən sonra dəstəmazın ilk pozulduğu andan başlayır.\n\nMəsələn: Saat 12.00-də dəstəmaz alıb ayaqlarını yudun və məstləri geydin. Dəstəmazın 16.00-da pozuldu. Müddət 12.00-dən yox, 16.00-dan işləməyə başlayır; müqimsənsə ertəsi gün 16.00-ya qədər məsh edə bilərsən.\n\nMəstləri səhər geyib axşama qədər dəstəmazın pozulmayıbsa, keçən o müddətin heç biri sayğacdan düşmür.",
+                "safii": "Şafii məzhəbində də müddət dəstəmazın pozulduğu andan başlayır; bu məsələdə iki məzhəb arasında fərq yoxdur."
+            },
+            "sartlar": {
+                "title": "Məshin şərtləri",
+                "body": "Beş şərt bir yerdə olmalıdır:\n\n1. Məst, ayaqlar yuyularaq alınmış tam dəstəmazdan sonra geyilməlidir. Ən vacib şərt budur; dəstəmazsız geyilən məst üzərinə məsh edilə bilməz.\n2. Ayaqları aşıq (topuq) sümükləri ilə birlikdə tamamilə örtməlidir.\n3. Geyildikdən sonra bağsız dura biləcək qədər möhkəm və qalın olmalıdır.\n4. Suyu çəkib dərhal ayağa keçirməməlidir.\n5. Hər bir məstdə ən kiçik ayaq barmağının üç misli genişlikdə deşik və ya cırıq olmamalıdır.\n\nDəstəmazlı ikən məstləri çıxarıb yenidən geymək dəstəmazı pozmur. Ancaq məst çıxarıldığı anda məsh müddəti bitir; yeni haqq qazanmaq üçün ayaqları yuyaraq dəstəmaz alıb məstləri həmin dəstəmazdan sonra geymək lazımdır.",
+                "safii": "Şafii məzhəbində də məstin tam dəstəmazdan sonra geyilməsi şərtdir."
+            },
+            "nasilYapilir": {
+                "title": "Məsh necə edilir?",
+                "body": "1. Əlini islat, barmaqlarını açıq tut.\n2. Sağ əlin barmaqlarını sağ məstin, sol əlin barmaqlarını sol məstin ÜST səthinə qoy.\n3. Ayaq barmaqlarının ucundan başlayıb baldıra doğru bir dəfə çək.\n4. Bu qədəri kifayətdir; məsh bir dəfə edilir, təkrarlanmır.\n\nFərz olan miqdar, hər məstin ön-üst səthində əl barmaqlarından üçü qədər sahənin islanmasıdır. Bu ölçü hər ayaq üçün ayrıdır; bir ayağa artıq məsh etmək digərinin əskiyini tamamlamır.\n\nMəstin ALTI, DABANI və arxa-yan səthləri məsh edilmir. Yalnız üst səth məsh edilir; təkcə altını məsh etmək keçərli deyil.",
+                "safii": "Şafii məzhəbində fərz olan miqdar daha azdır: üst səthdən bir barmaq eni qədər sahə kifayətdir. Həmçinin məshi üç dəfə etmək müstəhəb sayılır."
+            },
+            "sureler": {
+                "title": "Məsh müddətləri",
+                "body": "Müqim (yolçu olmayan) üçün 1 gün 1 gecə, yəni 24 saat.\nMüsafir (səfəri) üçün 3 gün 3 gecə, yəni 72 saat.\n\nHər iki müddətdə də sayğac məst geyildikdən sonra dəstəmazın ilk pozulduğu andan işləyir.\n\nSəfərilik nədir? Yaşadığı yaşayış məntəqəsindən kənara, Diyanətin qəbul etdiyi ölçü ilə təxminən 90 kilometr və daha uzağa getməyi niyyət edən şəxs, yaşayış məntəqəsinin sərhədini keçdiyi andan səfəri sayılır. Gedilən yerdə 15 gün və ya daha uzun qalmağa niyyət edilərsə şəxs orada müqim olur; öz yaşayış məntəqəsinə qayıdanda da səfərilik bitir.\n\nQeyd: Klassik fiqhdəki 18 fərsəx ölçüsü təxminən 104 km-ə uyğun gəlir. Türkiyədə Diyanətin rəsmi tətbiqi 90 km əsasındadır.",
+                "safii": "Şafii məzhəbində də müddətlər eynidir: müqim 24 saat, səfəri 72 saat."
+            },
+            "bozanlar": {
+                "title": "Məshi pozan şeylər",
+                "body": "• Dəstəmazı pozan hər şey məshi də pozur.\n• Məstin ayaqdan çıxması və ya çıxarılması. Birinin çıxması kifayətdir; ayağın məstin içində daban səviyyəsindən kənara çıxması da çıxmış sayılır.\n• Məsh müddətinin bitməsi.\n• Qüsl tələb edən bir hal. Cənabət, heyz və nifasda məstlər çıxarılır, ayaqlar yuyulur.\n• Məstdə müəyyən ölçüdən böyük cırıq olması: bir məstdəki deşik və söküklərin cəmi ən kiçik ayaq barmağının üç misli genişliyə çatarsa, o məst üzərinə məsh edilə bilməz. Eyni məstdəki kiçik cırıqlar bir-birinə əlavə edilir; sağ və sol məstdəkilər əlavə edilmir.\n• Ayağın məstin içində çox hissəsinin islanması.",
+                "safii": "Şafii məzhəbində məstdəki ən kiçik deşik belə məshi etibarsız edir; hənəfilərdəki üç barmaq güzəşti yoxdur."
+            },
+            "sureDolunca": {
+                "title": "Müddət bitəndə nə edilir?",
+                "body": "Müddət bitəndə dəstəmazın hələ durursa: məstləri çıxarıb YALNIZ ayaqlarını yumaq kifayətdir, dəstəmazın hamısını təzələməyə ehtiyac yoxdur.\n\nMüddət bitəndə dəstəmazın onsuz da pozulubsa: məstləri çıxarıb ayaqlarını yuyaraq başdan tam dəstəmaz alırsan.\n\nYeni 24/72 saatlıq haqq üçün ayaqlarını yuyaraq yeni dəstəmaz almalı və məstləri həmin dəstəmazdan sonra geyməlisən. Sayğac yenə məstləri geydikdən sonra dəstəmazın ilk pozulduğu anda başlayır.",
+                "safii": "Şafii məzhəbində geniş yayılmış qəbula görə müddət bitəndə və ya məst çıxarılanda dəstəmazın hamısı yenidən alınır; təkcə ayaqları yumaq kifayət sayılmır."
+            },
+            "mukimMisafirGecisi": {
+                "title": "Müqim və müsafir keçidi",
+                "body": "Müqim ikən səfərə çıxan: 24 saatlıq müddəti bitmədən yola çıxarsa müddəti 72 saata uzanır. Müddəti bitdikdən sonra yola çıxarsa haqqı onsuz da bitib; səfər bitmiş müddəti geri qaytarmır.\n\nSəfəri ikən müqim olan: 24 saatı keçməyibsə müddəti 24 saata enir və qalanı qədər məsh edə bilər. 24 saatı keçibsə məsh haqqı dərhal düşür.\n\nXülasə: səfərə çıxmaq müddəti uzadır (müddət bitməyibsə), müqim olmaq müddəti qısaldır.",
+                "safii": ""
+            },
+            "mestNedir": {
+                "title": "Məst nədir, corab olarmı?",
+                "body": "Məst, dəstəmazda ayaqların yuyulması əvəzinə üzərinə məsh edilməsinə icazə verilən ayaq geyimidir. Klassik mənbələrdə dəridən hazırlanır; ancaq Diyanət dəri olma şərti qoymur, bu xüsusiyyətləri axtarır: ayaqları aşıq sümükləri ilə örtməsi, suyu çəkib dərhal keçirməməsi, bağsız dik dura biləcək qədər möhkəm olması, təxminən 5 km yol getməyə tab gətirməsi, içini göstərməməsi və üç barmaqdan böyük cırığının olmaması.\n\nQalın corablar məst sayılırmı? Bir corab bu şərtlərin HAMISINI birdən daşıyırsa üzərinə məsh edilə bilər. Ölçü material yox, bu xüsusiyyətlərdir. Adi nazik pambıq, neylon və ya likralı corablar bu şərtləri ödəmir; onların üzərinə məsh keçərli deyil.\n\nPraktiki ölçü: corabı yaş əllə silərkən yaşlıq dərhal ayağa keçirsə, o corab məst deyil. Şübhə halında ayaqları yumaq əsasdır.",
+                "safii": "Şafii məzhəbində də dəri şərti axtarılmır, ancaq şafii fəqihləri adi corabları bu tərifdən kənarda saxlamaqda hənəfilərdən daha sərt davranır."
+            },
+            "sargiMesh": {
+                "title": "Sarğı və gips üzərinə məsh",
+                "body": "Yara, sınıq və ya əməliyyat səbəbilə sarğı, gips, bandaj və ya yara plasteri varsa, dəstəmaz və qüsldə bunların üzərinə məsh edilir.\n\nSarğının açılması və ya altının yuyulması yaraya zərər verirsə, sağalmanı gecikdirirsə və ya dözülməz ağrı verirsə, sarğının üzərinə məsh edilir. Zərərli deyilsə sarğı açılır, altındakı sağlam yer yuyulur.\n\nSarğının hamısının məsh edilməsi əsasdır; çox hissəsinin məsh edilməsi də kifayət sayılıb. Məsh bir dəfə edilir və həmin üzv şəri hökmə görə yuyulmuş sayılır.\n\nMüddət həddi YOXDUR. Məstlərdəki 24 və 72 saatlıq hədlər sarğıda keçərli deyil; yara sağalana qədər məsh edilməyə davam olunur.\n\nSarğı müalicə səbəbilə düşərsə və ya dəyişərsə məsh pozulmur, yeni sarğı üzərinə məsh edilir. Ancaq yara sağaldığı üçün çıxarılarsa, altındakı üzvün yuyulması lazımdır. Sarğı dəstəmaz üzvlərinin çoxunu örtürsə və məsh də mümkün deyilsə, təyəmmüm edilir.",
+                "safii": "Şafii məzhəbində sarğı üzərinə məsh caizdir; ancaq sarğının dəstəmazlı ikən sarılması və zərurət ölçüsünü aşmaması axtarılır."
+            }
+        }
+    },
+    "verdict": {
+        "bozar": "Pozur",
+        "bozmaz": "Pozmur",
+        "duruma-gore": "Vəziyyətə görə"
+    },
+    "breakerSearchPlaceholder": "Qan dəstəmazı pozurmu?",
+    "breakerPopular": "Ən çox soruşulanlar",
+    "breakerEmptyTitle": "“{{query}}” üçün nəticə yoxdur",
+    "breakerEmptyHint": "Başqa sözlə axtar: qan, yuxu, qusma, iynə, axıntı.",
+    "breakerDisclaimer": "Bu məlumatlar hənəfi məzhəbinə və Diyanət mənbələrinə əsaslanır; fətva deyil. Öz vəziyyətinlə bağlı tərəddüdün varsa müftiliyə müraciət et.",
+    "breakers": {
+        "idrar-diski": {
+            "title": "Kiçik və böyük ayaqyolu",
+            "body": "Ön və ya arxa yoldan çıxan hər şey dəstəmazı pozur."
+        },
+        "gaz": {
+            "title": "Yel çıxarmaq",
+            "body": "Qaz çıxması dəstəmazı pozur."
+        },
+        "meni-mezi": {
+            "title": "Məni, məzi və vədi",
+            "body": "Bunların gəlməsi dəstəmazı pozur. Məni gəlməsi həmçinin qüsl tələb edir."
+        },
+        "cinsel-iliski": {
+            "title": "Cinsi əlaqə",
+            "body": "Dəstəmazı pozur və həmçinin qüsl tələb edir."
+        },
+        "bayilma": {
+            "title": "Huşunu itirmə, sərxoşluq, ağıl itkisi",
+            "body": "Şüurun nəzarətini aradan qaldıran hallar dəstəmazı pozur. Qısa sürməsi hökmü dəyişmir."
+        },
+        "namazda-kahkaha": {
+            "title": "Namazda qəhqəhə",
+            "body": "Namazda yanındakıların eşidəcəyi şəkildə gülmək hənəfi məzhəbində həm namazı, həm dəstəmazı pozur. Yalnız özünün eşidəcəyi gülüş isə təkcə namazı pozur.",
+            "safii": "Şafii məzhəbində qəhqəhə namazı pozur, amma dəstəmazı pozmur."
+        },
+        "agiz-dolusu-kan": {
+            "title": "Ağız dolusu qan gəlməsi",
+            "body": "Ağızdan ağız dolusu qan gəlməsi dəstəmazı pozur.",
+            "safii": "Şafii məzhəbində ağızdan gələn qan dəstəmazı pozmur."
+        },
+        "bagirsak-kurtlari": {
+            "title": "Bağırsaq qurdları",
+            "body": "Lentşəkilli qurd (soliter) və bənzər qurdların çıxması dəstəmazı pozur."
+        },
+        "kan-vermek": {
+            "title": "Qan vermə, analiz, hacamat",
+            "body": "Qan bağışı, hacamat və analiz üçün qan götürülməsi dəstəmazı pozur; qan bədəndən kənara çıxmış olur. Trombosit bağışında da hökm eynidir.",
+            "safii": "Şafii məzhəbində bədəndən çıxan qan dəstəmazı pozmur."
+        },
+        "diyaliz": {
+            "title": "Dializ",
+            "body": "Hemodializdə qan bədəndən kənara çıxdığı, periton dializində qarın boşluğundan maye götürüldüyü üçün dəstəmaz pozulur. Daimi müalicə alanlar üzr sahibi hökmlərindən istifadə edir.",
+            "safii": "Şafii məzhəbində hemodializdə çıxan qan dəstəmazı pozmur."
+        },
+        "adet-lohusalik": {
+            "title": "Heyz və nifas",
+            "body": "Bu hallarda namaz qılınmır, oruc tutulmur; dəstəmaz da sona çatır. Qanaxma tamamilə kəsiləndə qüsl alınaraq ibadətə başlanılır.",
+            "safii": "Nifasın yuxarı həddi hənəfi məzhəbində 40, şafii məzhəbində 60 gündür."
+        },
+        "uyku": {
+            "title": "Yatmaq",
+            "body": "Ölçü yerə möhkəm oturub-oturmamaqdır. Böyrü üstə və ya arxası üstə uzanaraq yatmaq dəstəmazı pozur; dik oturmuş və oynaqları boşalmamış halda mürgüləmək pozmur.",
+            "safii": "Şafii məzhəbi eyni ölçünü işlədir; maliki və hənbəlidə ölçü yuxunun ağırlığıdır."
+        },
+        "kusma": {
+            "title": "Qusmaq",
+            "body": "Ağız dolusu qusmaq dəstəmazı pozur, azı pozmur. Ölçü, gələn qusuntunun çətinlik çəkmədən saxlanıla bilməyəcək halda olmasıdır; bəlğəm ağız dolusu olsa belə pozmur.",
+            "safii": "Şafii məzhəbində qusmaq dəstəmazı pozmur."
+        },
+        "kanama": {
+            "title": "Qanaxma",
+            "body": "Ölçü miqdar yox, yayılmadır: qan, irin və ya sarı su çıxdığı yerdən kənara daşarsa dəstəmaz pozulur, yerində qalarsa pozmur.",
+            "safii": "Şafii məzhəbində bədəndən çıxan qan dəstəmazı pozmur."
+        },
+        "karsi-cinse-dokunmak": {
+            "title": "Əks cinsə toxunmaq",
+            "body": "Hənəfi məzhəbində əks cinsə toxunmaq dəstəmazı pozmur. Yalnız ər-arvad arasında arada maneə olmadan həddindən artıq təmas və ya bu səbəbdən maye gəlməsi dəstəmazı pozur.",
+            "safii": "Şafii məzhəbində evlənmə maneəsi olmayan əks cinsə birbaşa toxunmaq, şəhvət olmasa belə hər iki tərəfin dəstəmazını pozur."
+        },
+        "dis-eti-kanamasi": {
+            "title": "Diş əti qanaxması",
+            "body": "Diş ətindən çıxan qan qarışdığı tüpürcəyin yarısı qədər və ya daha çoxdursa dəstəmaz pozulur; daha azdırsa pozmur.",
+            "safii": "Şafii məzhəbində diş əti qanaxması dəstəmazı pozmur."
+        },
+        "burun-kanamasi": {
+            "title": "Burun qanaxması",
+            "body": "Qan burun deşiyindən çölə çıxıb axarsa dəstəmaz pozulur; içəridə qalıb çölə çıxmazsa pozmur. Daimi qanaxması olan şəxs üzr sahibi sayılır.",
+            "safii": "Şafii məzhəbində burun qanaxması dəstəmazı pozmur."
+        },
+        "tibbi-mudahale": {
+            "title": "İynə, əməliyyat, narkoz",
+            "body": "Ümumi anesteziya şüuru aradan qaldırdığı üçün dəstəmazı pozur. Lokal anesteziya tək başına pozmur; ancaq qan çıxıb yayılarsa dəstəmaz pozulur. Qan çıxmayan iynə və serum pozmur.",
+            "safii": "Şüur itkisi dörd məzhəbdə də dəstəmazı pozur; şafii məzhəbində isə çıxan qan dəstəmazı pozmur."
+        },
+        "kulak-goz-akintisi": {
+            "title": "Qulaq, göz və göbək axıntısı",
+            "body": "Ağrı və sızıltı olmadan gələn axıntı dəstəmazı pozmur. Ağrı ilə gələrsə yara əlaməti sayılır və hənəfi məzhəbində dəstəmaz pozulur.",
+            "safii": "Şafii məzhəbində bu axıntılar dəstəmazı pozmur."
+        },
+        "ozur-sahibi": {
+            "title": "Üzr sahibi olmaq",
+            "body": "Bir namaz vaxtı boyunca heç kəsilməyən sidik saxlaya bilməmə, qanaxma və ya axıntı üzr sayılır. Üzr sahibi hər namaz vaxtı üçün bir dəstəmaz alır; dəstəmazı vaxtın çıxması ilə bitir.",
+            "safii": "Şafii məzhəbində ölçü vaxt yox, fərz namazdır: hər fərz namaz üçün ayrıca dəstəmaz alınır."
+        },
+        "mest-cikarmak": {
+            "title": "Məst və ya corab çıxarmaq",
+            "body": "Ayaqlarını yuyaraq dəstəmaz alıb məst geyən şəxs məsti çıxarsa dəstəmazı pozulmur. Dəstəmazını məst üzərinə məsh edərək tamamlayıbsa, məsti çıxaranda yalnız ayaqlarını yuması kifayətdir."
+        },
+        "tirnak-sac-kesmek": {
+            "title": "Dırnaq, saç və saqqal kəsmək",
+            "body": "Dəstəmazı pozmur; kəsilən yeri təkrar yumaq da lazım deyil. Kəsik yerdən qan çıxıb yayılarsa, dəstəmazı pozan şey qandır.",
+            "safii": "Şafii məzhəbində qanaxma olsa belə dəstəmaz pozulmur."
+        },
+        "ter": {
+            "title": "Tərləmək",
+            "body": "Tər təmiz sayılır, dəstəmazı pozmur."
+        },
+        "balgam": {
+            "title": "Bəlğəm, tüpürmək, burnunu təmizləmək",
+            "body": "Bəlğəm tüpürcək hökmündədir; ağız dolusu olsa belə dəstəmazı pozmur."
+        },
+        "aglamak": {
+            "title": "Ağlamaq",
+            "body": "Ağlamaq və göz yaşı dəstəmazı pozmur. Namazda dünyəvi bir dərd üçün səsli ağlamaq namazı pozur, amma dəstəmazı pozmur; Allah qorxusundan ağlamaq isə heç birinə zərər vermir."
+        },
+        "namaz-disinda-gulmek": {
+            "title": "Namazdan kənarda gülmək",
+            "body": "Namazdan kənarda qəhqəhə ilə gülmək dəstəmazı pozmur. Gülüşün dəstəmazı pozması yalnız namaz içindəki səsli gülüşə aiddir."
+        },
+        "kan-gormek": {
+            "title": "Qan görmək, axmayan qan",
+            "body": "Çıxdığı yerdə duran, ətrafa yayılmayan qan dəstəmazı pozmur; iynə ucu boyda bir damcı da eynidir. Yayılmadan silinərsə yenə pozulmur.",
+            "safii": "Şafii məzhəbində qan nə qədər axsa da dəstəmazı pozmur."
+        },
+        "banyo": {
+            "title": "Çimmək və duş",
+            "body": "Dəstəmazlı ikən yuyunmaq dəstəmazı pozmur. Qüsl isə dəstəmazı da əhatə edir; qüsldən sonra ayrıca dəstəmaz almağa ehtiyac yoxdur."
+        },
+        "elbise-degistirmek": {
+            "title": "Soyunmaq, paltar dəyişmək",
+            "body": "Dəstəmazı pozmur. Övrət yerinin açılması namaza aiddir, dəstəmaza yox."
+        },
+        "yemek-sakiz": {
+            "title": "Yemək, içmək, saqqız",
+            "body": "Yemək yemək, su içmək və saqqız çeynəmək dəstəmazı pozmur; yeməyin odda bişmiş olması hökmü dəyişmir.",
+            "safii": "Dəvə əti yemək yalnız hənbəli məzhəbində dəstəmazı pozur; hənəfi və şafii məzhəblərində pozmur."
+        },
+        "dis-fircalamak": {
+            "title": "Diş fırçalamaq, misvak",
+            "body": "Dəstəmazı pozmur; ağız və diş təmizliyi dəstəmazın sünnətidir və diş fırçası da bu sünnəti yerinə yetirir. Fırçada görünən, axmayan qan izi pozmur."
+        },
+        "sivrisinek-isirigi": {
+            "title": "Ağcaqanad, birə, gənə dişləməsi",
+            "body": "Həşəratın sorduğu qan axıcı sayılmadığı üçün dəstəmazı pozmur. Zəli qarnı dolana qədər qan sorarsa dəstəmaz pozulur.",
+            "safii": "Şafii məzhəbində zəli də daxil olmaqla heç biri dəstəmazı pozmur."
+        },
+        "damla": {
+            "title": "Göz, qulaq, burun damcısı",
+            "body": "Damcı istifadə etmək dəstəmazı pozmur. Damcı səbəbilə qan və ya iltihab çıxarsa, hökm qanaxma maddəsinə görə işləyir."
+        },
+        "makyaj-oje": {
+            "title": "Makiyaj, pomada, lak",
+            "body": "Dəstəmazı pozmur; ancaq suyun dəriyə çatmasına maneə olduğu üçün dəstəmazdan əvvəl təmizlənməlidir. Saç jeli və xına təbəqə əmələ gətirmədiyi üçün maneə deyil."
+        },
+        "kadin-akintisi": {
+            "title": "Qadınlarda ağ axıntı",
+            "body": "Rəngsiz və iysiz axıntı dəstəmazı pozmur; alt paltara bulaşması da namaza maneə deyil. Rəngli, iyli və ya qanlı axıntı bu hökmdən kənardadır."
+        },
+        "yara-kabugu": {
+            "title": "Yara qabığının düşməsi",
+            "body": "Qabığın qan çıxmadan düşməsi dəstəmazı pozmur. Yaranın içində qalıb çölə çıxmayan qan və irin də pozmur."
+        },
+        "supheye-dusmek": {
+            "title": "Şübhə və vəsvəsə",
+            "body": "Dəstəmaz aldığına əminsənsə, sonradan gələn şübhə dəstəmazı pozmur. Qəti məlumat şübhə ilə pozulmur; vəsvəsəyə etibar edilmir."
+        },
+        "karsi-cinsin-saci": {
+            "title": "Əks cinsin saçı, dırnağı",
+            "body": "Əks cinsin saçına, dırnağına və ya dişinə toxunmaq heç bir məzhəbdə dəstəmazı pozmur."
+        },
+        "sigara": {
+            "title": "Siqaret çəkmək",
+            "body": "Dəstəmazı pozan hallar arasında sayılmadığı üçün dəstəmazı pozmur. Siqaretin öz hökmü ayrı mövzudur."
+        },
+        "cenazeye-dokunmak": {
+            "title": "Cənazəyə toxunmaq",
+            "body": "Cənazəyə toxunmaq dəstəmazı pozmur. Cənazəni yuyan şəxsin qüsl alması müstəhəbdir, məcburi deyil."
+        },
+        "kendi-avret-yerine-dokunmak": {
+            "title": "Öz övrət yerinə toxunmaq",
+            "body": "Hənəfi məzhəbində dəstəmazı pozmur.",
+            "safii": "Şafii, maliki və hənbəli məzhəblərində ovucun içi ilə toxunmaq dəstəmazı pozur."
+        }
+    }
 }

@@ -89,6 +89,26 @@ export const setPremiumUserProperties = (isPremium, planId = 'free') => {
 };
 
 export const analytics = {
+    // ── Öğren > Dualar ──
+    duaOpened: (key, group, locked, source) => trackEvent('learn_dua_open', { dua_key: key, group, locked, source }),
+    duaSearched: (len, results) => trackEvent('learn_dua_search', { query_len: len, result_count: results }),
+    duaPaywallViewed: (key) => trackEvent('learn_dua_paywall_view', { dua_key: key }),
+    duaPaywallTapped: (key) => trackEvent('learn_dua_paywall_tap', { dua_key: key }),
+    duaFavorited: (key, on) => trackEvent('learn_dua_fav', { dua_key: key, on }),
+    duaGroupOpened: (group) => trackEvent('learn_dua_group_open', { group }),
+    abdestTopicOpened: (topic, source) => trackEvent('learn_abdest_topic_open', { topic, source }),
+    abdestSearched: (len, results) => trackEvent('learn_abdest_search', { query_len: len, result_count: results }),
+    abdestModeChanged: (mode) => trackEvent('learn_abdest_mode', { mode }),
+    breakerSearched: (len, results) => trackEvent('learn_breaker_search', { query_len: len, result_count: results }),
+    breakerOpened: (id, verdict) => trackEvent('learn_breaker_open', { breaker_id: id, verdict }),
+    mestStarted: (traveler) => trackEvent('learn_mest_start', { traveler }),
+    mestExpired: (traveler) => trackEvent('learn_mest_expire', { traveler }),
+    ezberStarted: (key, mode) => trackEvent('learn_ezber_start', { sure_key: key, mode }),
+    ezberLineDone: (key, line) => trackEvent('learn_ezber_line_done', { sure_key: key, line }),
+    ezberStumbled: (key, line) => trackEvent('learn_ezber_stumble', { sure_key: key, line }),
+    ezberSessionDone: (key, learned) => trackEvent('learn_ezber_session_done', { sure_key: key, learned }),
+    ezberStarPlaced: (key, count) => trackEvent('learn_ezber_star_placed', { sure_key: key, memorized: count }),
+
     // ── Permission Events ──
     permissionRequested: (type) => trackEvent('permission_requested', { permission_type: type }),
     permissionGranted: (type) => trackEvent('permission_granted', { permission_type: type }),
@@ -156,6 +176,9 @@ export const analytics = {
     quranReadingCompleted: (surah) => trackEvent('quran_reading_completed', { surah }),
     quranBookmarkAdded: (surah, ayah) => trackEvent('quran_bookmark_added', { surah, ayah }),
     quranAudioPlayed: (surah, reciter) => trackEvent('quran_audio_played', { surah, reciter }),
+    // 60 sn'lik dinleme denemesi: nereden başladı, bitişte ne yapıldı
+    quranTrialStarted: (source) => trackEvent('quran_trial_started', { source }),
+    quranTrialEnded: (action) => trackEvent('quran_trial_ended', { action }),
     contentShared: (contentType, platform) => trackEvent('content_shared', { content_type: contentType, platform }),
 
     // ── Misc Events ──

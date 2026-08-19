@@ -65,7 +65,10 @@
   },
   "delete_account": {
     "title": "Konto löschen",
-    "confirm": "Dein Konto und alle Daten werden gelöscht. Dies kann nicht rückgängig gemacht werden. Bist du sicher?"
+    "confirm": "Dein Konto und alle Daten werden gelöscht. Dies kann nicht rückgängig gemacht werden. Bist du sicher?",
+    "success_title": "Dein Konto wurde gelöscht",
+    "success_desc": "Dein Konto und alle deine Daten wurden erfolgreich gelöscht. Du kannst die App nun bedenkenlos schließen.",
+    "success_hint": "Du kannst die App schließen"
   },
   "avatar": {
     "male": "Männlich",
@@ -100,5 +103,14 @@
   "haptics": {
     "title": "Vibration",
     "subtitle": "Taktiles Feedback in der App"
+  },
+  "rate_us": {
+    "title": "Bewerte uns",
+    "subtitle": "Unterstütze die App",
+    "already_rated_title": "Vielen Dank",
+    "already_rated": "Danke für deine Unterstützung"
+  },
+  "common": {
+    "done": "Fertig"
   }
 }

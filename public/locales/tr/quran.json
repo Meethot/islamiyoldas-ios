@@ -44,5 +44,33 @@
     "jumpToVersePlaceholder": "Ayet numarası yaz...",
     "modeTranslit": "Okunuş",
     "modeTranslation": "Meâl",
-    "modeArabic": "Arapça"
+    "modeArabic": "Arapça",
+    "tour": {
+        "gotIt": "Anladım",
+        "modes": {
+            "title": "Nasıl okuyacağını seç",
+            "body": "Okunuş, meâl ve Arapça arasında buradan geçersin. Seçtiğin biçim sonraki surelerde de açık gelir."
+        },
+        "jump": {
+            "title": "Ayete git",
+            "body": "Ayet numarasını yaz, sayfa doğrudan o ayete kaysın. Uzun surelerde aradığını saniyeler içinde bulursun."
+        },
+        "karaoke": {
+            "title": "Kelimeler seninle okuyor",
+            "body": "Okunan kelime altın renkle yanar, okunanlar açık kalır. Gözünle takip et — ezberde ve telaffuzda en çok bu işe yarar."
+        },
+        "next": "İleri",
+        "listen": {
+            "title": "Dinle'ye bir dokun",
+            "body": "Sure baştan okunmaya başlar ve okunan kelime tek tek yanar. İlk 60 saniye ücretsiz — istersen şimdi dene.",
+            "bodyPremium": "Sure baştan okunmaya başlar ve okunan kelime tek tek yanar. Okurken gözünle takip et."
+        }
+    },
+    "trial": {
+        "banner": "Ücretsiz deneme",
+        "endedTitle": "60 saniye doldu",
+        "endedBody": "Kelime kelime takip, tüm sureler ve kesintisiz dinleme Premium ile açılır.",
+        "endedCta": "Premium'a bak",
+        "endedDismiss": "Şimdi değil"
+    }
 }

@@ -204,7 +204,7 @@
     "setTargetDesc": "أدخل هدفك الشخصي لـ {{name}}.",
     "saveTarget": "حفظ الهدف",
     "resetAllTooltip": "إعادة تعيين جميع الأذكار",
-    "footerVerse": "\"يَا أَيُّهَا الَّذِينَ آمَنُوا اذْكُرُوا اللَّهَ ذِكْرًا كَثِيرًا * وَسَبِّحُوهُ بُكْرَةً وَأَصِيلًا\"",
+    "footerVerse": "«يَا أَيُّهَا الَّذِينَ آمَنُوا اذْكُرُوا اللَّهَ ذِكْرًا كَثِيرًا * وَسَبِّحُوهُ بُكْرَةً وَأَصِيلًا»",
     "footerVerseSource": "سورة الأحزاب، ٤١-٤٢",
     "changeDhikr": "تغيير الذكر",
     "searchPlaceholder": "ابحث عن ذكر أو اسم...",
@@ -212,105 +212,303 @@
     "categoryEsma": "أسماء الله الحسنى",
     "noResults": "لم يتم العثور على نتائج",
     "esma": {
-        "ar-rahman": { "meaning": "ذو الرحمة الواسعة" },
-        "ar-rahim": { "meaning": "ذو الرحمة الدائمة" },
-        "al-malik": { "meaning": "صاحب الملك والسلطان" },
-        "al-quddus": { "meaning": "المنزّه عن كل نقص" },
-        "as-salam": { "meaning": "ذو السلامة من كل عيب" },
-        "al-mumin": { "meaning": "المؤمّن من الخوف" },
-        "al-muhaymin": { "meaning": "الرقيب الحافظ" },
-        "al-aziz": { "meaning": "القوي الذي لا يُغلب" },
-        "al-jabbar": { "meaning": "الذي يجبر كل كسير" },
-        "al-mutakabbir": { "meaning": "المتعالي عن صفات الخلق" },
-        "al-khaliq": { "meaning": "الخالق المبدع" },
-        "al-bari": { "meaning": "المنشئ على غير مثال" },
-        "al-musawwir": { "meaning": "المعطي الصور" },
-        "al-ghaffar": { "meaning": "كثير المغفرة" },
-        "al-qahhar": { "meaning": "الغالب على كل شيء" },
-        "al-wahhab": { "meaning": "كثير العطاء بلا عوض" },
-        "ar-razzaq": { "meaning": "المتكفل بالرزق" },
-        "al-fattah": { "meaning": "الفاتح لأبواب الرحمة" },
-        "al-alim": { "meaning": "المحيط علمه بكل شيء" },
-        "al-qabid": { "meaning": "القابض" },
-        "al-basit": { "meaning": "الباسط" },
-        "al-khafid": { "meaning": "الخافض لمن يشاء" },
-        "ar-rafi": { "meaning": "الرافع لمن يشاء" },
-        "al-muizz": { "meaning": "المعطي العزة لمن يشاء" },
-        "al-mudhill": { "meaning": "المذل لمن يشاء" },
-        "as-sami": { "meaning": "السميع لكل شيء" },
-        "al-basir": { "meaning": "البصير بكل شيء" },
-        "al-hakam": { "meaning": "الحاكم بالعدل" },
-        "al-adl": { "meaning": "العدل في حكمه" },
-        "al-latif": { "meaning": "اللطيف بعباده" },
-        "al-khabir": { "meaning": "العليم بدقائق الأمور" },
-        "al-halim": { "meaning": "الذي لا يعجل بالعقوبة" },
-        "al-azim": { "meaning": "ذو العظمة المطلقة" },
-        "al-ghafur": { "meaning": "واسع المغفرة" },
-        "ash-shakur": { "meaning": "المثيب على القليل بالكثير" },
-        "al-ali": { "meaning": "العلي فوق خلقه" },
-        "al-kabir": { "meaning": "الكبير المتعالي" },
-        "al-hafiz": { "meaning": "الحافظ لكل شيء" },
-        "al-muqit": { "meaning": "المقيت المقتدر" },
-        "al-hasib": { "meaning": "المحاسب لعباده" },
-        "al-jalil": { "meaning": "ذو الجلال والعظمة" },
-        "al-karim": { "meaning": "الكريم الجواد" },
-        "ar-raqib": { "meaning": "المراقب لأحوال عباده" },
-        "al-mujib": { "meaning": "المجيب للدعاء" },
-        "al-wasi": { "meaning": "الواسع رحمةً وعلمًا" },
-        "al-hakim": { "meaning": "ذو الحكمة البالغة" },
-        "al-wadud": { "meaning": "المحب لعباده" },
-        "al-majid": { "meaning": "ذو المجد والشرف" },
-        "al-baith": { "meaning": "الباعث بعد الموت" },
-        "ash-shahid": { "meaning": "الشاهد على كل شيء" },
-        "al-haqq": { "meaning": "الحق الثابت" },
-        "al-wakil": { "meaning": "الموكل إليه الأمور" },
-        "al-qawiy": { "meaning": "ذو القوة المتينة" },
-        "al-matin": { "meaning": "الشديد القوة" },
-        "al-waliy": { "meaning": "الناصر والمتولي" },
-        "al-hamid": { "meaning": "المستحق للحمد" },
-        "al-muhsi": { "meaning": "المحصي لكل شيء" },
-        "al-mubdi": { "meaning": "المبدئ للخلق" },
-        "al-muid": { "meaning": "المعيد للخلق" },
-        "al-muhyi": { "meaning": "المحيي" },
-        "al-mumit": { "meaning": "المميت" },
-        "al-hayy": { "meaning": "الحي الذي لا يموت" },
-        "al-qayyum": { "meaning": "القائم بذاته" },
-        "al-wajid": { "meaning": "الغني الذي لا يفتقر" },
-        "al-majid2": { "meaning": "ذو المجد العظيم" },
-        "al-wahid": { "meaning": "الواحد الأحد" },
-        "al-ahad": { "meaning": "الفرد الذي لا شريك له" },
-        "as-samad": { "meaning": "المقصود في الحوائج" },
-        "al-qadir": { "meaning": "القادر على كل شيء" },
-        "al-muqtadir": { "meaning": "الذي لا يعجزه شيء" },
-        "al-muqaddim": { "meaning": "المقدّم لما يشاء" },
-        "al-muakhkhir": { "meaning": "المؤخّر لما يشاء" },
-        "al-awwal": { "meaning": "الأول بلا بداية" },
-        "al-akhir": { "meaning": "الآخر بلا نهاية" },
-        "az-zahir": { "meaning": "الظاهر فوق كل شيء" },
-        "al-batin": { "meaning": "الباطن المحتجب" },
-        "al-wali": { "meaning": "المتولي لأمور خلقه" },
-        "al-mutaali": { "meaning": "المتعالي على خلقه" },
-        "al-barr": { "meaning": "البرّ بعباده" },
-        "at-tawwab": { "meaning": "قابل التوبة" },
-        "al-muntaqim": { "meaning": "المنتقم من العصاة" },
-        "al-afuw": { "meaning": "العفو الذي يمحو السيئات" },
-        "ar-rauf": { "meaning": "الرؤوف بعباده" },
-        "malik-al-mulk": { "meaning": "مالك الملك كله" },
-        "dhul-jalali-wal-ikram": { "meaning": "ذو الجلال والإكرام" },
-        "al-muqsit": { "meaning": "العادل في حكمه" },
-        "al-jami": { "meaning": "الجامع للخلائق" },
-        "al-ghani": { "meaning": "الغني عن كل شيء" },
-        "al-mughni": { "meaning": "المغني من يشاء" },
-        "al-mani": { "meaning": "المانع لما يشاء" },
-        "ad-darr": { "meaning": "المقدّر للضر" },
-        "an-nafi": { "meaning": "المقدّر للنفع" },
-        "an-nur": { "meaning": "نور السماوات والأرض" },
-        "al-hadi": { "meaning": "الهادي إلى الحق" },
-        "al-badi": { "meaning": "المبدع بلا مثال" },
-        "al-baqi": { "meaning": "الباقي بلا انتهاء" },
-        "al-warith": { "meaning": "الوارث لكل شيء" },
-        "ar-rashid": { "meaning": "المرشد إلى الصواب" },
-        "as-sabur": { "meaning": "الصبور على عباده" }
+        "ar-rahman": {
+            "meaning": "ذو الرحمة الواسعة"
+        },
+        "ar-rahim": {
+            "meaning": "ذو الرحمة الدائمة"
+        },
+        "al-malik": {
+            "meaning": "صاحب الملك والسلطان"
+        },
+        "al-quddus": {
+            "meaning": "المنزّه عن كل نقص"
+        },
+        "as-salam": {
+            "meaning": "ذو السلامة من كل عيب"
+        },
+        "al-mumin": {
+            "meaning": "المؤمّن من الخوف"
+        },
+        "al-muhaymin": {
+            "meaning": "الرقيب الحافظ"
+        },
+        "al-aziz": {
+            "meaning": "القوي الذي لا يُغلب"
+        },
+        "al-jabbar": {
+            "meaning": "الذي يجبر كل كسير"
+        },
+        "al-mutakabbir": {
+            "meaning": "المتعالي عن صفات الخلق"
+        },
+        "al-khaliq": {
+            "meaning": "الخالق المبدع"
+        },
+        "al-bari": {
+            "meaning": "المنشئ على غير مثال"
+        },
+        "al-musawwir": {
+            "meaning": "المعطي الصور"
+        },
+        "al-ghaffar": {
+            "meaning": "كثير المغفرة"
+        },
+        "al-qahhar": {
+            "meaning": "الغالب على كل شيء"
+        },
+        "al-wahhab": {
+            "meaning": "كثير العطاء بلا عوض"
+        },
+        "ar-razzaq": {
+            "meaning": "المتكفل بالرزق"
+        },
+        "al-fattah": {
+            "meaning": "الفاتح لأبواب الرحمة"
+        },
+        "al-alim": {
+            "meaning": "المحيط علمه بكل شيء"
+        },
+        "al-qabid": {
+            "meaning": "القابض"
+        },
+        "al-basit": {
+            "meaning": "الباسط"
+        },
+        "al-khafid": {
+            "meaning": "الخافض لمن يشاء"
+        },
+        "ar-rafi": {
+            "meaning": "الرافع لمن يشاء"
+        },
+        "al-muizz": {
+            "meaning": "المعطي العزة لمن يشاء"
+        },
+        "al-mudhill": {
+            "meaning": "المذل لمن يشاء"
+        },
+        "as-sami": {
+            "meaning": "السميع لكل شيء"
+        },
+        "al-basir": {
+            "meaning": "البصير بكل شيء"
+        },
+        "al-hakam": {
+            "meaning": "الحاكم بالعدل"
+        },
+        "al-adl": {
+            "meaning": "العدل في حكمه"
+        },
+        "al-latif": {
+            "meaning": "اللطيف بعباده"
+        },
+        "al-khabir": {
+            "meaning": "العليم بدقائق الأمور"
+        },
+        "al-halim": {
+            "meaning": "الذي لا يعجل بالعقوبة"
+        },
+        "al-azim": {
+            "meaning": "ذو العظمة المطلقة"
+        },
+        "al-ghafur": {
+            "meaning": "واسع المغفرة"
+        },
+        "ash-shakur": {
+            "meaning": "المثيب على القليل بالكثير"
+        },
+        "al-ali": {
+            "meaning": "العلي فوق خلقه"
+        },
+        "al-kabir": {
+            "meaning": "الكبير المتعالي"
+        },
+        "al-hafiz": {
+            "meaning": "الحافظ لكل شيء"
+        },
+        "al-muqit": {
+            "meaning": "المقيت المقتدر"
+        },
+        "al-hasib": {
+            "meaning": "المحاسب لعباده"
+        },
+        "al-jalil": {
+            "meaning": "ذو الجلال والعظمة"
+        },
+        "al-karim": {
+            "meaning": "الكريم الجواد"
+        },
+        "ar-raqib": {
+            "meaning": "المراقب لأحوال عباده"
+        },
+        "al-mujib": {
+            "meaning": "المجيب للدعاء"
+        },
+        "al-wasi": {
+            "meaning": "الواسع رحمةً وعلمًا"
+        },
+        "al-hakim": {
+            "meaning": "ذو الحكمة البالغة"
+        },
+        "al-wadud": {
+            "meaning": "المحب لعباده"
+        },
+        "al-majid": {
+            "meaning": "ذو المجد والشرف"
+        },
+        "al-baith": {
+            "meaning": "الباعث بعد الموت"
+        },
+        "ash-shahid": {
+            "meaning": "الشاهد على كل شيء"
+        },
+        "al-haqq": {
+            "meaning": "الحق الثابت"
+        },
+        "al-wakil": {
+            "meaning": "الموكل إليه الأمور"
+        },
+        "al-qawiy": {
+            "meaning": "ذو القوة المتينة"
+        },
+        "al-matin": {
+            "meaning": "الشديد القوة"
+        },
+        "al-waliy": {
+            "meaning": "الناصر والمتولي"
+        },
+        "al-hamid": {
+            "meaning": "المستحق للحمد"
+        },
+        "al-muhsi": {
+            "meaning": "المحصي لكل شيء"
+        },
+        "al-mubdi": {
+            "meaning": "المبدئ للخلق"
+        },
+        "al-muid": {
+            "meaning": "المعيد للخلق"
+        },
+        "al-muhyi": {
+            "meaning": "المحيي"
+        },
+        "al-mumit": {
+            "meaning": "المميت"
+        },
+        "al-hayy": {
+            "meaning": "الحي الذي لا يموت"
+        },
+        "al-qayyum": {
+            "meaning": "القائم بذاته"
+        },
+        "al-wajid": {
+            "meaning": "الغني الذي لا يفتقر"
+        },
+        "al-majid2": {
+            "meaning": "ذو المجد العظيم"
+        },
+        "al-wahid": {
+            "meaning": "الواحد الأحد"
+        },
+        "al-ahad": {
+            "meaning": "الفرد الذي لا شريك له"
+        },
+        "as-samad": {
+            "meaning": "المقصود في الحوائج"
+        },
+        "al-qadir": {
+            "meaning": "القادر على كل شيء"
+        },
+        "al-muqtadir": {
+            "meaning": "الذي لا يعجزه شيء"
+        },
+        "al-muqaddim": {
+            "meaning": "المقدّم لما يشاء"
+        },
+        "al-muakhkhir": {
+            "meaning": "المؤخّر لما يشاء"
+        },
+        "al-awwal": {
+            "meaning": "الأول بلا بداية"
+        },
+        "al-akhir": {
+            "meaning": "الآخر بلا نهاية"
+        },
+        "az-zahir": {
+            "meaning": "الظاهر فوق كل شيء"
+        },
+        "al-batin": {
+            "meaning": "الباطن المحتجب"
+        },
+        "al-wali": {
+            "meaning": "المتولي لأمور خلقه"
+        },
+        "al-mutaali": {
+            "meaning": "المتعالي على خلقه"
+        },
+        "al-barr": {
+            "meaning": "البرّ بعباده"
+        },
+        "at-tawwab": {
+            "meaning": "قابل التوبة"
+        },
+        "al-muntaqim": {
+            "meaning": "المنتقم من العصاة"
+        },
+        "al-afuw": {
+            "meaning": "العفو الذي يمحو السيئات"
+        },
+        "ar-rauf": {
+            "meaning": "الرؤوف بعباده"
+        },
+        "malik-al-mulk": {
+            "meaning": "مالك الملك كله"
+        },
+        "dhul-jalali-wal-ikram": {
+            "meaning": "ذو الجلال والإكرام"
+        },
+        "al-muqsit": {
+            "meaning": "العادل في حكمه"
+        },
+        "al-jami": {
+            "meaning": "الجامع للخلائق"
+        },
+        "al-ghani": {
+            "meaning": "الغني عن كل شيء"
+        },
+        "al-mughni": {
+            "meaning": "المغني من يشاء"
+        },
+        "al-mani": {
+            "meaning": "المانع لما يشاء"
+        },
+        "ad-darr": {
+            "meaning": "المقدّر للضر"
+        },
+        "an-nafi": {
+            "meaning": "المقدّر للنفع"
+        },
+        "an-nur": {
+            "meaning": "نور السماوات والأرض"
+        },
+        "al-hadi": {
+            "meaning": "الهادي إلى الحق"
+        },
+        "al-badi": {
+            "meaning": "المبدع بلا مثال"
+        },
+        "al-baqi": {
+            "meaning": "الباقي بلا انتهاء"
+        },
+        "al-warith": {
+            "meaning": "الوارث لكل شيء"
+        },
+        "ar-rashid": {
+            "meaning": "المرشد إلى الصواب"
+        },
+        "as-sabur": {
+            "meaning": "الصبور على عباده"
+        }
     },
     "dhikrLimit": {
         "title": "حد الأذكار اليومي",
@@ -347,5 +545,25 @@
         "enabled": "التسبيح بأزرار الصوت مفعل",
         "disabled": "التسبيح بأزرار الصوت معطل",
         "tooltip": "التسبيح بأزرار الصوت"
+    },
+    "tour": {
+        "gotIt": "فهمت",
+        "next": "التالي",
+        "picker": {
+            "title": "اختر ذكرك",
+            "body": "٤٤ ذكرًا جاهزًا وأسماء الله الحسنى هنا. وإن لم تجد ذِكرك فاكتبه في خانة البحث وأضفه."
+        },
+        "target": {
+            "title": "حدّد هدفك",
+            "body": "٣٣ أو ٩٩ أو عددك الخاص. عند بلوغه تكتمل الجولة ويبدأ العدّاد جولة جديدة."
+        },
+        "theme": {
+            "title": "غيّر المظهر",
+            "body": "يتنقّل بين ثلاثة مظاهر: مسبحة خرز، مسبحة رقمية ومسبحة كلاسيكية. في الخرز تختار نوع الحبّة، وفي الرقمية تختار اللون."
+        },
+        "settings": {
+            "title": "الصوت والاهتزاز والاختصارات",
+            "body": "اضبط صوت النقر والاهتزاز من هنا. وللعدّ دون النظر إلى الشاشة فعّل العدّ بأزرار الصوت أو النقر على كامل الشاشة."
+        }
     }
 }

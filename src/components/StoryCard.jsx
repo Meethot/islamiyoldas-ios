@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
-import { Play, BookOpen, Clock, Headphones, Heart, Sparkles, Crown, Lock } from 'lucide-react';
+import { Play, BookOpen, Clock, Headphones, Heart, Sparkles, Crown, Lock, Check, RotateCcw } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useStoryImage } from '@/lib/storyImages';
 
@@ -10,7 +10,10 @@ const FALLBACK_ICONS = {
     moral: Sparkles,
 };
 
-export default function StoryCard({ story, onClick, category = 'prophets', locked = false }) {
+export default function StoryCard({ story, onClick, category = 'prophets', locked = false, progress = null }) {
+    const percent = progress?.done ? 100 : (progress?.percent || 0);
+    const isDone = !!progress?.done;
+    const inProgress = !isDone && percent > 1;
     const { t, i18n } = useTranslation('stories');
     const imageSrc = useStoryImage(story);
     const FallbackIcon = FALLBACK_ICONS[category] || BookOpen;
@@ -66,8 +69,14 @@ export default function StoryCard({ story, onClick, category = 'prophets', locke
 
     return (
         <Card
-            className="group overflow-hidden border-none shadow-[0_4px_20px_-5px_rgba(0,0,0,0.08)] rounded-[1.75rem] bg-[#FFFDF6] dark:bg-white/5 cursor-pointer hover:shadow-xl active:scale-[0.985] transition-all duration-300"
+            role="button"
+            tabIndex={0}
+            aria-label={`${story.title} — ${story.duration}${locked ? ' · Premium' : ''}`}
+            className="group overflow-hidden border-none shadow-[0_4px_20px_-5px_rgba(0,0,0,0.08)] rounded-[1.75rem] bg-[#FFFDF6] dark:bg-white/5 cursor-pointer hover:shadow-xl active:scale-[0.985] transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-islamic-green dark:focus-visible:ring-islamic-gold"
             onClick={onClick}
+            onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick(); }
+            }}
         >
             <div className="flex items-center gap-4 p-3">
                 {/* Kapak görseli + play */}
@@ -88,6 +97,11 @@ export default function StoryCard({ story, onClick, category = 'prophets', locke
                         <div className="absolute inset-x-0 bottom-0 flex items-center justify-center gap-1 bg-gradient-to-r from-islamic-gold to-amber-600 text-white text-[9px] font-bold tracking-wider py-1 pointer-events-none">
                             <Crown size={9} fill="white" /> PREMIUM
                         </div>
+                    )}
+                    {isDone && !locked && (
+                        <span className="absolute top-1.5 right-1.5 w-5 h-5 rounded-full bg-islamic-green dark:bg-islamic-gold flex items-center justify-center shadow-md ring-2 ring-white/70 dark:ring-black/30 pointer-events-none">
+                            <Check className="w-3 h-3 text-white dark:text-[#032e18]" strokeWidth={3} />
+                        </span>
                     )}
                 </div>
 
@@ -110,15 +124,33 @@ export default function StoryCard({ story, onClick, category = 'prophets', locke
                         <div className="flex items-center gap-1 text-[10px] font-bold text-gray-400">
                             <Clock className="w-3 h-3" /> {story.duration}
                         </div>
-                        <div className="flex items-center gap-1 text-[10px] font-bold text-islamic-green dark:text-islamic-gold">
-                            <BookOpen className="w-3 h-3" /> {t('read')}
-                        </div>
+                        {isDone ? (
+                            <div className="flex items-center gap-1 text-[10px] font-bold text-islamic-green dark:text-islamic-gold">
+                                <Check className="w-3 h-3" strokeWidth={3} /> {t('completed')}
+                            </div>
+                        ) : inProgress ? (
+                            <div className="flex items-center gap-1 text-[10px] font-bold text-islamic-green dark:text-islamic-gold">
+                                <RotateCcw className="w-3 h-3" /> {t('resume')}
+                            </div>
+                        ) : (
+                            <div className="flex items-center gap-1 text-[10px] font-bold text-islamic-green dark:text-islamic-gold">
+                                <BookOpen className="w-3 h-3" /> {t('read')}
+                            </div>
+                        )}
                         {/* Live Listener Indicator */}
                         <div className="flex items-center gap-1.5 text-[10px] font-bold text-amber-500 dark:text-amber-400 bg-amber-500/5 dark:bg-amber-400/10 px-2 py-0.5 rounded-full ring-1 ring-amber-500/20">
-                            <Headphones className="w-3 h-3 animate-pulse" />
+                            <Headphones className="w-3 h-3 animate-pulse motion-reduce:animate-none" />
                             <span>{t('listenersCount', { count: formattedCount })}</span>
                         </div>
                     </div>
+                    {inProgress && (
+                        <div className="mt-2 h-[3px] w-full rounded-full bg-black/5 dark:bg-white/10 overflow-hidden">
+                            <div
+                                className="h-full rounded-full bg-islamic-green dark:bg-islamic-gold"
+                                style={{ width: `${percent}%` }}
+                            />
+                        </div>
+                    )}
                 </div>
             </div>
         </Card>

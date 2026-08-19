@@ -1,5 +1,5 @@
 {
-    "headerQuote": "\"Das Bittgebet eines Muslims für seinen Bruder in dessen Abwesenheit wird angenommen.\"",
+    "headerQuote": "„Das Bittgebet eines Muslims für seinen Bruder in dessen Abwesenheit wird angenommen.“",
     "headerSource": "– Hadith",
     "successTitle": "Dein Gebet ist eingegangen!",
     "successDesc": "Es wird nach Prüfung durch den Redakteur veröffentlicht (meist 4-24 Stunden).",
@@ -46,7 +46,7 @@
     "paywallTitle": "Amin-Schatztruhe 🪙",
     "paywallCreditNeeded": "Für ein Gebetsanliegen werden <strong class=\"text-[#D4AF37]\">{{cost}} Guthaben</strong> benötigt.",
     "paywallCurrentCredit": "Dein Guthaben: <strong class=\"text-[#D4AF37]\">{{credits}} 🪙</strong>",
-    "paywallEarnHint": "Jedes Mal, wenn du <strong>\"Amin\"</strong> sagst, erhältst du <strong class=\"text-emerald-400\">+1 Guthaben</strong>!",
+    "paywallEarnHint": "Jedes Mal, wenn du <strong>„Amin“</strong> sagst, erhältst du <strong class=\"text-emerald-400\">+1 Guthaben</strong>!",
     "paywallPremiumHint": "oder werde Premium für unbegrenzte Gebete ✨",
     "paywallEarnBtn": "🤲 Verdiene durch Amin-Sagen",
     "paywallAdBtn": "🎬 Werbung ansehen (+{{reward}} Guthaben)",
@@ -75,6 +75,8 @@
     "formLabel": "Dein Gebetsanliegen",
     "formPlaceholder": "Schreibe dein Gebet hier... (z.B. Ich bitte um Gebet für Gesundheit, Frieden und Segen)",
     "formCharLimit": "Mindestens 10, maximal 200 Zeichen",
+    "formCapsWarn": "Dein Gebet ist überwiegend in GROSSBUCHSTABEN geschrieben. Das wirkt wie Schreien — bitte schreibe normal.",
+    "formCapsBlock": "Dein Gebet ist komplett in GROSSBUCHSTABEN geschrieben. Bitte schreibe es normal, um es zu senden.",
     "formSubmitting": "Wird gesendet...",
     "formUpdating": "Wird aktualisiert...",
     "formSubmitBtn": "Absenden",
@@ -87,5 +89,32 @@
     "historyEdit": "Bearbeiten",
     "historyDeleteRequested": "Anfrage gesendet",
     "historyDelete": "Löschen",
-    "historyClose": "Schließen"
+    "historyClose": "Schließen",
+    "tour": {
+        "gotIt": "Verstanden",
+        "next": "Weiter",
+        "amin": {
+            "title": "Sag Amin, füll dein Glas",
+            "body": "Sagst du Amin zum Bittgebet eines Bruders, hast du Anteil daran und dein Glas bekommt +{{reward}} Guthaben.",
+            "bodyPremium": "Sagst du Amin zum Bittgebet eines Bruders, hast du Anteil daran. Mit Premium brauchst du kein Guthaben zu sammeln."
+        },
+        "credits": {
+            "title": "Dein Amin-Glas",
+            "body": "Eine Gebetsanfrage kostet {{cost}} Guthaben. Du sammelst es mit Amin (+{{reward}}) oder indem du eine Anzeige ansiehst (+{{adReward}})."
+        },
+        "send": {
+            "title": "Um dein eigenes Gebet bitten",
+            "body": "Schreib dein Gebet und sende es. Es wird zuerst geprüft und erscheint dann in der öffentlichen Liste – meist innerhalb von 4-24 Stunden. Zwei pro Tag möglich."
+        },
+        "history": {
+            "title": "Status deiner Bitten",
+            "body": "Hier siehst du, wo jede Bitte steht: in Prüfung oder online. Du kannst den Text ändern oder die Löschung beantragen."
+        }
+    },
+    "report": "Melden",
+    "reportTitle": "Melden",
+    "reportText": "Melde Inhalte, die unangemessen sind oder gegen die Regeln verstoßen. Das Bittgebet wird sofort ausgeblendet.",
+    "reportConfirm": "Melden und ausblenden",
+    "reportedSuccess": "Ausgeblendet",
+    "reportedSuccessText": "Danke für deine Rückmeldung."
 }

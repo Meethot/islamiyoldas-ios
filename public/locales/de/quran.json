@@ -44,5 +44,33 @@
     "jumpToVersePlaceholder": "Versnummer eingeben...",
     "modeTranslit": "Umschrift",
     "modeTranslation": "Übersetzung",
-    "modeArabic": "Arabisch"
+    "modeArabic": "Arabisch",
+    "tour": {
+        "gotIt": "Verstanden",
+        "modes": {
+            "title": "Lesart wählen",
+            "body": "Wechsle hier zwischen Umschrift, Übersetzung und Arabisch. Deine Wahl bleibt auch für die nächsten Suren."
+        },
+        "jump": {
+            "title": "Zu einem Vers springen",
+            "body": "Gib eine Versnummer ein, die Seite springt direkt dorthin. In langen Suren findest du so in Sekunden, was du suchst."
+        },
+        "karaoke": {
+            "title": "Die Wörter lesen mit dir",
+            "body": "Das gerade rezitierte Wort leuchtet golden, die gelesenen bleiben hell. Folge mit — das hilft beim Auswendiglernen und der Aussprache am meisten."
+        },
+        "next": "Weiter",
+        "listen": {
+            "title": "Tippe auf Hören",
+            "body": "Die Sure startet von vorn und jedes Wort leuchtet beim Rezitieren auf. Die ersten 60 Sekunden sind gratis — probier es, wann du magst.",
+            "bodyPremium": "Die Sure startet von vorn und jedes Wort leuchtet beim Rezitieren auf. Lies einfach mit."
+        }
+    },
+    "trial": {
+        "banner": "Gratis testen",
+        "endedTitle": "Die 60 Sekunden sind um",
+        "endedBody": "Wortgenaues Mitlesen, alle Suren und ununterbrochenes Hören gibt es mit Premium.",
+        "endedCta": "Premium ansehen",
+        "endedDismiss": "Jetzt nicht"
+    }
 }

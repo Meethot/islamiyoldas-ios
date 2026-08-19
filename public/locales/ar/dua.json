@@ -1,5 +1,5 @@
 {
-    "headerQuote": "\"دعوة المرء المسلم لأخيه بظهر الغيب مستجابة\"",
+    "headerQuote": "«دعوة المرء المسلم لأخيه بظهر الغيب مستجابة»",
     "headerSource": "- حديث شريف",
     "successTitle": "تم استلام دعائك!",
     "successDesc": "سيتم نشره بعد موافقة المحرر (عادةً من 4 إلى 24 ساعة).",
@@ -46,7 +46,7 @@
     "paywallTitle": "خزينة الآمين 🪙",
     "paywallCreditNeeded": "لإرسال طلب دعاء، تحتاج <strong class=\"text-[#D4AF37]\">{{cost}} رصيد</strong>.",
     "paywallCurrentCredit": "أرصدتك: <strong class=\"text-[#D4AF37]\">{{credits}} 🪙</strong>",
-    "paywallEarnHint": "كل مرة تقول <strong>\"آمين\"</strong> تكسب <strong class=\"text-emerald-400\">+١ رصيد</strong>!",
+    "paywallEarnHint": "كل مرة تقول <strong>«آمين»</strong> تكسب <strong class=\"text-emerald-400\">+١ رصيد</strong>!",
     "paywallPremiumHint": "أو اشترك بريميوم لأدعية غير محدودة ✨",
     "paywallEarnBtn": "🤲 اكسب بقول آمين",
     "paywallAdBtn": "🎬 شاهد إعلان (+{{reward}} رصيد)",
@@ -75,6 +75,8 @@
     "formLabel": "طلب دعائك",
     "formPlaceholder": "اكتب دعاءك هنا... (مثال: أطلب الدعاء بالصحة والسكينة والبركة)",
     "formCharLimit": "الحد الأدنى ١٠، الحد الأقصى ٢٠٠ حرف",
+    "formCapsWarn": "دعاؤك مكتوب في الغالب بأحرف كبيرة. يُفهم ذلك كصياح، فاكتب من فضلك بشكل عادي.",
+    "formCapsBlock": "دعاؤك مكتوب بالكامل بأحرف كبيرة. يرجى إعادة كتابته بشكل عادي لإرساله.",
     "formSubmitting": "جارٍ الإرسال...",
     "formUpdating": "جارٍ التحديث...",
     "formSubmitBtn": "إرسال",
@@ -87,5 +89,32 @@
     "historyEdit": "تعديل",
     "historyDeleteRequested": "تم إرسال الطلب",
     "historyDelete": "حذف",
-    "historyClose": "إغلاق"
+    "historyClose": "إغلاق",
+    "tour": {
+        "gotIt": "فهمت",
+        "next": "التالي",
+        "amin": {
+            "title": "قل آمين واملأ جرّتك",
+            "body": "حين تقول آمين لدعاء أخيك تشاركه الدعاء وتُضاف إلى جرّتك +{{reward}} رصيد.",
+            "bodyPremium": "حين تقول آمين لدعاء أخيك تشاركه الدعاء. ومع Premium لا تحتاج إلى جمع الأرصدة."
+        },
+        "credits": {
+            "title": "جرّة الآمين",
+            "body": "إرسال طلب دعاء واحد يكلّف {{cost}} رصيدًا. تجمعها بقول آمين (+{{reward}}) أو بمشاهدة إعلان (+{{adReward}})."
+        },
+        "send": {
+            "title": "اطلب دعاءً لنفسك",
+            "body": "اكتب دعاءك وأرسله. تتم مراجعته أولًا ثم يظهر في القائمة التي يراها الجميع — عادةً خلال ٤ إلى ٢٤ ساعة. يمكنك إرسال طلبين يوميًا."
+        },
+        "history": {
+            "title": "حالة طلباتك",
+            "body": "هنا حالة كل طلب: في انتظار الموافقة أو منشور. يمكنك تعديل النص أو طلب حذفه."
+        }
+    },
+    "report": "إبلاغ",
+    "reportTitle": "إبلاغ",
+    "reportText": "أبلغ عن محتوى غير لائق أو مخالف للقواعد. سيُخفى الدعاء فوراً.",
+    "reportConfirm": "أبلغ وأخفِ",
+    "reportedSuccess": "تم الإخفاء",
+    "reportedSuccessText": "شكراً على ملاحظتك."
 }

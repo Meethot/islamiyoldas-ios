@@ -13,5 +13,27 @@
     "error": "Hata:",
     "audioError": "Ses yüklenemedi. Lütfen internetinizi kontrol edin.",
     "forgivenMsg": "Kalbin hafifledi. Allah rahatlık versin.",
-    "forgiveBtn": "Hakkımı Helal Ediyorum"
+    "forgiveBtn": "Hakkımı Helal Ediyorum",
+    "premiumGate": {
+        "title": "Ücretsiz Deneme Kullanıldı",
+        "desc": "Uyku modunu 1 kez ücretsiz denediniz. Sınırsız erişim için Premium'a yükseltin.",
+        "cta": "Sınırsız Uyku Modu — Premium",
+        "dismiss": "Kapat"
+    },
+    "tour": {
+        "gotIt": "Anladım",
+        "next": "İleri",
+        "controls": {
+            "title": "Çal ve tekrarla",
+            "body": "Altın tuşla Mülk Suresi başlar. Yanındaki döngü tuşu sure bitince baştan alır — sen uyuyana kadar sürer."
+        },
+        "rain": {
+            "title": "Yağmur sesi",
+            "body": "Kur'an'la aynı anda çalabilir. İkisini birlikte açıp dilediğin karışımı yakalarsın."
+        },
+        "forgive": {
+            "title": "Günü temiz kapat",
+            "body": "Üzerinde hakkı olanlara helal ettiğini söyle. Günde bir kez."
+        }
+    }
 }

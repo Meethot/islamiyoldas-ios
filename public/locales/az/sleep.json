@@ -13,5 +13,27 @@
     "error": "Xəta:",
     "audioError": "Səs yüklənə bilmədi. Zəhmət olmasa internetinizi yoxlayın.",
     "forgivenMsg": "Qəlbin yüngülləşdi. Allah rahatlıq versin.",
-    "forgiveBtn": "Haqqımı Halal Edirəm"
+    "forgiveBtn": "Haqqımı Halal Edirəm",
+    "premiumGate": {
+        "title": "Pulsuz sınaq istifadə olundu",
+        "desc": "Yuxu rejimini bir dəfə pulsuz sınadınız. Limitsiz giriş üçün Premium-a keçin.",
+        "cta": "Limitsiz Yuxu Rejimi — Premium",
+        "dismiss": "Bağla"
+    },
+    "tour": {
+        "gotIt": "Anladım",
+        "next": "İrəli",
+        "controls": {
+            "title": "Səsləndir və təkrarla",
+            "body": "Qızılı düymə Mülk surəsini başladır. Yanındakı təkrar düyməsi surə bitəndə yenidən başladır — sən yuxuya gedənə qədər davam edir."
+        },
+        "rain": {
+            "title": "Yağış səsi",
+            "body": "Quranla eyni vaxtda səslənə bilər. İkisini birlikdə açıb istədiyin qarışımı tapırsan."
+        },
+        "forgive": {
+            "title": "Günü təmiz bağla",
+            "body": "Üzərində haqqı olanlara halal etdiyini söylə. Gündə bir dəfə."
+        }
+    }
 }

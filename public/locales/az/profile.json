@@ -65,7 +65,10 @@
   },
   "delete_account": {
     "title": "Hesabı Sil",
-    "confirm": "Hesabınız ve bütün məlumatlarınız silinəcək. Bu əməliyyat geri qaytarıla bilməz. Əminsiniz?"
+    "confirm": "Hesabınız ve bütün məlumatlarınız silinəcək. Bu əməliyyat geri qaytarıla bilməz. Əminsiniz?",
+    "success_title": "Hesabınız silindi",
+    "success_desc": "Hesabınız və bütün məlumatlarınız uğurla silindi. Tətbiqi rahatlıqla bağlaya bilərsiniz.",
+    "success_hint": "Tətbiqi bağlaya bilərsiniz"
   },
   "avatar": {
     "male": "Bəy",
@@ -100,5 +103,14 @@
   "haptics": {
     "title": "Titrəmə",
     "subtitle": "Tətbiqdaxili toxunma hissi"
+  },
+  "rate_us": {
+    "title": "Bizi qiymətləndirin",
+    "subtitle": "Tətbiqə dəstək ol",
+    "already_rated_title": "Təşəkkür edirik",
+    "already_rated": "Dəstəyiniz üçün təşəkkür edirik"
+  },
+  "common": {
+    "done": "Tamam"
   }
 }

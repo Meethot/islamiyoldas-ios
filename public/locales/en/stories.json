@@ -7,6 +7,39 @@
     "nowListening": "Now Listening",
     "listenersCount": "{{count}} listeners",
     "read": "Read",
-    "normalSpeed": "Normal Speed",
-    "speedUp": "2x Speed Up"
+    "completed": "Completed",
+    "resume": "Resume",
+    "back15": "Back 15 seconds",
+    "forward15": "Forward 15 seconds",
+    "speedAria": "Playback speed",
+    "nextUp": "Next up",
+    "audioError": "Audio didn't load",
+    "retry": "Try again",
+    "paused": "Paused",
+    "mediaPlay": "Play",
+    "mediaPause": "Pause",
+    "tour": {
+        "gotIt": "Got it",
+        "next": "Next",
+        "card": {
+            "title": "Listen or read",
+            "body": "Tap a card to hear the story from the start, or scroll down and read it. The first story is free."
+        },
+        "play": {
+            "title": "Start listening",
+            "body": "Tap the gold button. You can pause and resume from the lock screen too."
+        },
+        "karaoke": {
+            "title": "Word-by-word follow",
+            "body": "As you listen, the word being read turns gold so your eyes can follow along."
+        },
+        "seek": {
+            "title": "Jump anywhere",
+            "body": "Drag the waveform, or use the 15-second back and forward buttons."
+        },
+        "speed": {
+            "title": "Set the speed",
+            "body": "Switches between 1×, 1.5× and 2× so long stories finish sooner."
+        }
+    }
 }

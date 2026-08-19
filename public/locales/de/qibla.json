@@ -28,7 +28,7 @@
     "tip3Title": "Halte Abstand zu Magnetfeldern",
     "tip3Desc": "Metallgegenstände, elektronische Geräte und Autos können den Kompass beeinflussen.",
     "distanceToKaaba": "Du bist {{distance}} km von der Kaaba entfernt",
-    "hadith": "\"Wo immer ihr auch seid, wendet euer Gesicht zur Heiligen Moschee.\"",
+    "hadith": "„Wo immer ihr auch seid, wendet euer Gesicht zur Heiligen Moschee.“",
     "hadithSource": "— Sure Al-Baqara, 144",
     "understood": "Verstanden ✨",
     "locationRequired": {
@@ -44,7 +44,7 @@
         "alternative": "Alternative Methode",
         "alternativeDesc": "Sie können die Richtung zur Kaaba von Ihrem Standort auf einer Karte sehen.",
         "openMaps": "Kaaba auf Karte anzeigen",
-        "hadith": "\"Allah gehört der Osten und der Westen. Wohin ihr euch auch wendet, dort ist das Angesicht Allahs.\"",
+        "hadith": "„Allah gehört der Osten und der Westen. Wohin ihr euch auch wendet, dort ist das Angesicht Allahs.“",
         "hadithSource": "— Sure Al-Baqara, 115",
         "close": "Verstanden 🧭",
         "openSettings": "Standorteinstellungen öffnen",

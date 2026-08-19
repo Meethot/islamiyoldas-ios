@@ -7,6 +7,39 @@
     "nowListening": "Wird angehört",
     "listenersCount": "{{count}} Hörer",
     "read": "Lesen",
-    "normalSpeed": "Normale Geschwindigkeit",
-    "speedUp": "2x Beschleunigen"
+    "completed": "Abgeschlossen",
+    "resume": "Fortsetzen",
+    "back15": "15 Sekunden zurück",
+    "forward15": "15 Sekunden vor",
+    "speedAria": "Wiedergabegeschwindigkeit",
+    "nextUp": "Als Nächstes",
+    "audioError": "Audio konnte nicht geladen werden",
+    "retry": "Erneut versuchen",
+    "paused": "Pausiert",
+    "mediaPlay": "Abspielen",
+    "mediaPause": "Pause",
+    "tour": {
+        "gotIt": "Verstanden",
+        "next": "Weiter",
+        "card": {
+            "title": "Hören oder lesen",
+            "body": "Tippe auf eine Karte, um die Geschichte von Anfang an zu hören, oder scrolle nach unten und lies sie. Die erste Geschichte ist kostenlos."
+        },
+        "play": {
+            "title": "Anhören starten",
+            "body": "Tippe auf die goldene Taste. Pausieren und Fortsetzen geht auch über den Sperrbildschirm."
+        },
+        "karaoke": {
+            "title": "Wort für Wort mitlesen",
+            "body": "Beim Hören wird das gerade gelesene Wort golden – so folgen deine Augen mühelos."
+        },
+        "seek": {
+            "title": "Überall hinspringen",
+            "body": "Zieh die Wellenform oder nutze die 15-Sekunden-Tasten vor und zurück."
+        },
+        "speed": {
+            "title": "Tempo einstellen",
+            "body": "Wechselt zwischen 1×, 1,5× und 2× – lange Geschichten sind schneller fertig."
+        }
+    }
 }

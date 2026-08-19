@@ -13,6 +13,13 @@ export function useIOSSwipeBack() {
         const handleTouchStart = (e) => {
             const touch = e.touches[0];
             // Relaxed: Start from left edge (extended to 80px to accommodate cases/thumbs)
+            // Yatay kaydırılan kaplarda (dua rafları) ve açık tabakalarda
+            // kenardan sağa kaydırmak sayfayı geri ATMAMALI — tabaka açıkken
+            // geri gidilirse okunan/ezberlenen yer kayboluyordu.
+            if (e.target?.closest?.('[data-hscroll],[data-sheet]')) {
+                touchStartRef.current = null;
+                return;
+            }
             if (touch.clientX < 80) {
                 touchStartRef.current = {
                     x: touch.clientX,

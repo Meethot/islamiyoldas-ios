@@ -30,7 +30,7 @@ public class MainActivity extends BridgeActivity {
                     NotificationManager manager = (NotificationManager) context
                             .getSystemService(Context.NOTIFICATION_SERVICE);
                     if (manager != null) {
-                        manager.cancelAll();
+                        clearNotificationsExceptMedia(manager);
                     }
                 }
             }
@@ -62,6 +62,22 @@ public class MainActivity extends BridgeActivity {
         new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
             refreshWidgets();
         }, 500);
+    }
+
+    /**
+     * Ekran açılınca ezan sesini kesmek için bildirimler temizlenir; ama dinleme kartı
+     * (ön plan servisi) hayatta kalmalı — yoksa hikaye/Kur'an çalarken kontroller kaybolur.
+     */
+    private void clearNotificationsExceptMedia(NotificationManager manager) {
+        try {
+            for (android.service.notification.StatusBarNotification sbn : manager.getActiveNotifications()) {
+                if (sbn.getId() == MediaNotificationService.NOTIFICATION_ID) continue;
+                manager.cancel(sbn.getTag(), sbn.getId());
+            }
+        } catch (Exception e) {
+            // Bildirim listesi okunamadıysa eski davranışa dön
+            manager.cancelAll();
+        }
     }
 
     private void refreshWidgets() {

@@ -14,11 +14,426 @@
     "navComplete": "Tamamla",
     "restartBtn": "Tekrar Başa Dön",
     "goBackBtn": "Son Adıma Geri Dön",
-    "completionQuote": "\"Namaz müminin miracıdır.\"",
+    "completionQuote": "“Namaz müminin miracıdır.”",
     "completionSource": "— Hadis-i Şerif",
     "repeat": "tekrar",
     "tipsTitle": "İpuçları",
     "elhamdulillah": "Elhamdülillah",
     "mashallah": "Maşallah!",
-    "completionMsg": "rehberini başarıyla tamamladın."
+    "completionMsg": "rehberini başarıyla tamamladın.",
+    "translitLabel": "Okunuşu",
+    "meaningLabel": "Anlamı",
+    "abdestBack": "Geri",
+    "abdestModeShort": "Kısa · farzlar",
+    "abdestModeFull": "Tam · sünnetleriyle",
+    "abdestSearchPlaceholder": "Abdest, gusül, teyemmüm… ara",
+    "handsFreeCta": "Eller ıslakken beraber al",
+    "handsFreeStepOf": "Adım {{i}} / {{n}}",
+    "handsFreeRepeat": "{{n}} kere",
+    "handsFreeHint": "Telefonu lavabo kenarına koy. Ekran kapanmaz, adımlar kendi ilerler.",
+    "handsFreePause": "Duraklat",
+    "handsFreeResume": "Devam et",
+    "handsFreeDone": "Abdestin tamam",
+    "handsFreeDoneSub": "Kelime-i şehadet ve abdest duasını okumayı unutma.",
+    "rankFarz": "Farz",
+    "rankSunnet": "Sünnet",
+    "rankMustehab": "Müstehap",
+    "stepDuaLabel": "Duası",
+    "topicWudu": "Abdest nasıl alınır",
+    "topicWuduSub": "Adım adım, kısa ya da sünnetleriyle tam",
+    "topicBreakers": "Bozar mı?",
+    "topicBreakersSub": "Bozanlar ve bozduğu sanılanlar",
+    "topicMesh": "Mesh: mest ve sargı",
+    "topicMeshSub": "Şartları ve kalan süre",
+    "topicGusul": "Gusül",
+    "topicGusulSub": "Farzları, sünnetleri, sırası",
+    "topicTeyemmum": "Teyemmüm",
+    "topicTeyemmumSub": "Su yoksa veya kullanılamıyorsa",
+    "duaSearchPlaceholder": "Dua ara — yemek, nazar, sıkıntı",
+    "duaSearchClear": "Temizle",
+    "duaResultCount": "{{n}} sonuç",
+    "duaEmptyTitle": "“{{query}}” için sonuç bulunamadı",
+    "duaEmptyHint": "Bölümlerden birine göz at",
+    "duaFavorites": "Favorilerim",
+    "groupDaily": "Günlük Hayat",
+    "groupHardship": "Sıkıntı ve Şifa",
+    "groupProtect": "Korunma",
+    "groupPrayer": "Namazda Okunanlar",
+    "groupRepent": "Tövbe ve İman",
+    "groupSalawat": "Salavatlar",
+    "groupRequest": "İstek ve Kabul",
+    "groupOther": "Diğer",
+    "duaRelated": "Bu bölümden",
+    "duaShare": "Paylaş",
+    "duaShareDialogTitle": "Duayı paylaş",
+    "duaShareFooter": "İslami Yoldaş uygulamasından paylaşıldı — {{link}}",
+    "duaFavAdd": "Favorilere ekle",
+    "duaFavRemove": "Favorilerden çıkar",
+    "duaLockTitle": "Okunuş ve meal",
+    "duaLockSub": "{{n}} dua daha okunuşu ve mealiyle",
+    "duaLockCta": "Premium’u Aç",
+    "duaLockBadge": "Premium",
+    "duaClose": "Kapat",
+    "duaSectionCount": "{{n}} dua",
+    "duaSeeAll": "Tümü",
+    "duaBack": "Geri",
+    "tour": {
+        "gotIt": "Anladım",
+        "next": "İleri",
+        "search": {
+            "title": "Aradığın duayı bul",
+            "body": "Duanın adını ya da içinde geçen bir kelimeyi yaz. Okunuş ve anlam metinlerinin içinde de arar."
+        },
+        "shelf": {
+            "title": "Bölüm bölüm dizili",
+            "body": "Raflar yana kayar. Bir karta dokun; duanın Arapçası, okunuşu ve anlamı açılır."
+        },
+        "seeAll": {
+            "title": "Bölümün tamamı",
+            "body": "“Tümü”ne dokununca o bölümdeki duaların hepsi alt alta listelenir."
+        },
+        "favorite": {
+            "title": "Sık okuduklarını işaretle",
+            "body": "Kalbe dokun. Favori duaların en üstte kendi bölümünde toplanır, aramadan ulaşırsın."
+        },
+        "sureCard": {
+            "title": "Ezber buradan başlar",
+            "body": "Bir sureye dokun. Sure kısa parçalara ayrılır; her parçayı önce dinlersin, sonra metin gizlenir ve kendin okursun."
+        },
+        "sureProgress": {
+            "title": "Nerede kaldığın burada",
+            "body": "Ezberlediğin sure sayısı burada. Yarım bıraktığın sure kaldığı yerden devam eder, tekrar sırası gelenler “Tekrar” rozetiyle işaretlenir."
+        },
+        "ezberRead": {
+            "title": "Önce metne göz at",
+            "body": "Okunuş, anlam ve ezber ipuçları burada. İstersen doğrudan başlayabilirsin."
+        },
+        "ezberStart": {
+            "title": "Sesli çalış",
+            "body": "Başlayınca her satır için aynı döngü işler: DUY, BERABER, SEN SÖYLE, DOĞRUSU. Yüksek sesle söylemek ezberi kalıcı yapar."
+        },
+        "ezberSteps": {
+            "title": "Dört adımlık döngü",
+            "body": "Şeritte hangi adımda olduğun yazar. “SEN SÖYLE”de metin gizlenir; söyledikten sonra doğrusunu görürsün."
+        },
+        "ezberChain": {
+            "title": "Zincir",
+            "body": "Öğrendiğin satırlar tek tek kalmasın diye baştan buraya kadar kesintisiz okursun. Ezberin asıl oturduğu yer burasıdır."
+        },
+        "ezberPeek": {
+            "title": "Takıldıysan kopya çek",
+            "body": "Metin tek seferde açılmaz. Her dokunuşta bir kelime daha görünür."
+        }
+    },
+    "ezberDueToday": "Bugün {{title}} tekrarı var.",
+    "ezberDueMore": "+{{n}} sure daha",
+    "ezberDueStart": "Başla",
+    "ezberClose": "Kapat",
+    "ezberLineOf": "{{title}} · {{n}}/{{total}}. satır",
+    "ezberStepListen": "DUY",
+    "ezberStepTogether": "BERABER",
+    "ezberStepYou": "SEN SÖYLE",
+    "ezberStepAnswer": "DOĞRUSU",
+    "ezberStepChain": "BAŞTAN BAĞLA · İLK {{n}} SATIR",
+    "ezberCurtain": "Metin gizli",
+    "ezberIntroLearn": "Bu surenin {{total}} satırı var. Bugün {{n}} satır çalışacağız.",
+    "ezberIntroReview": "{{n}} satırın hepsi ezberinde. Bugün baştan sona bir tekrar var.",
+    "ezberIntroHint": "Yüksek sesle çalış; fısıltı da olur.",
+    "ezberStart": "Başla",
+    "ezberStartReview": "Tekrara başla",
+    "ezberContinue": "Devam",
+    "ezberStop": "Durdur",
+    "ezberSaid": "Söyledim",
+    "ezberPeek": "Kopya",
+    "ezberGood": "Oldu",
+    "ezberAgain": "Bir daha",
+    "ezberHintListen": "Sadece dinle. Okumaya çalışma.",
+    "ezberHintTogether": "Sesle birlikte söyle.",
+    "ezberHintYou": "Şimdi sen söyle, sonra “Söyledim”e bas.",
+    "ezberHintAnswer": "Kendi söylediğinle karşılaştır.",
+    "ezberHintChain": "Baştan buraya kadar kesintisiz söyle.",
+    "ezberNoAudio": "Ses şu an yok; yazıyla devam edebilirsin.",
+    "ezberDoneKeep": "Yarın kaldığın yerden devam.",
+    "ezberOneMore": "Bir satır daha",
+    "ezberFinish": "Bitir",
+    "ezberSimilarKafirun": "Dikkat: 3. ve 5. satır neredeyse aynıdır; aradaki 4. satır “Ve lâ ene âbidün mâ abedtüm” ile ayrılır.",
+    "ezberSimilarFalaq": "Dikkat: Felak ve Nâs aynı başlar. Felak “birabbil felak”, Nâs “birabbin nâs” der.",
+    "ezberSimilarNas": "Dikkat: Nâs ve Felak aynı başlar. Nâs “birabbin nâs”, Felak “birabbil felak” der.",
+    "ezberSimilarHashr": "Dikkat: 22. ve 23. ayet aynı başlar. 22'de “âlimül gaybi veş şehâdeh”, 23'te “el melikül kuddûs” diye ayrılır.",
+    "ezberSimilarAhzab": "Dikkat: bütün satırlar aynı kalıpta. Sıra: müslim, mü'min, kânit, sâdık, sâbir, hâşi, mutasaddık, sâim, hâfız, zâkir.",
+    "ezberNotifTitle": "Tekrar zamanı",
+    "ezberNotifOne": "{{title}} bugün tekrar edilecek.",
+    "ezberNotifMany": "{{title}} ve {{n}} sure daha tekrar edilecek.",
+    "ezberBadgeMemorized": "Ezberde",
+    "ezberBadgeDue": "Tekrar",
+    "ezberBadgeProgressLabel": "{{total}} satırın {{done}} tanesi ezberde",
+    "ezberListSummary": "{{total}} sureden {{n}} tanesi ezberinde. Ezberlemek için bir sureye dokun.",
+    "ezberRead": "Metnin tamamı",
+    "ezberReplay": "Tekrar dinle",
+    "ezberDoneCelebrate": "Ezberledin!",
+    "ezberDoneReview": "Tekrar tamam!",
+    "ezberDoneSub": "{{title}} · {{n}} satır",
+    "ezberDoneProgress": "sure ezberinde",
+    "ezberHoldCta": "Basılı tut",
+    "ezberHoldHint": "Yıldızını kubbeye koymak için basılı tut",
+    "ezberDoneNextLabel": "Sonraki tekrar",
+    "mesh": {
+        "beforeStart": "Mest, ayaklar yıkanarak alınmış tam bir abdestten SONRA giyilmiş olmalı. Süre mestin giyildiği anda değil, giyildikten sonra abdestin ilk bozulduğu anda başlar.",
+        "startCta": "Abdestim bozuldu — süreyi başlat",
+        "residentLabel": "Mukim · 24 saat",
+        "travelerLabel": "Misafir · 72 saat",
+        "runningBody": "Süre bitince mesh düşer. Mestleri çıkarıp ayaklarını yıkaman gerekir.",
+        "expiredBody": "Süre doldu. Mestleri çıkar ve ayaklarını yıka; abdestin bozulmadıysa yalnız ayakları yıkamak yeterlidir.",
+        "reset": "Süreyi sıfırla",
+        "resetHint": "Mestleri çıkardıysan ya da gusül gerektiren bir hâl olduysa süre kendiliğinden biter.",
+        "badgeHours": "{{n}} sa kaldı",
+        "badgeMinutes": "{{n}} dk kaldı",
+        "badgeExpired": "Süre doldu",
+        "notifWarnTitle": "Mesh süren bitmek üzere",
+        "notifWarnBody": "Mest üzerine mesh süresine 1 saat kaldı.",
+        "notifEndTitle": "Mesh süresi doldu",
+        "notifEndBody": "Mestleri çıkarıp ayaklarını yıkaman gerekiyor.",
+        "sections": {
+            "sureBaslangici": {
+                "title": "Süre ne zaman başlar?",
+                "body": "Mesh süresi, mestin giyildiği anda DEĞİL, mest giyildikten sonra abdestin ilk bozulduğu anda başlar.\n\nÖrnek: Saat 12.00'de abdest alıp ayaklarını yıkadın ve mestleri giydin. Abdestin 16.00'da bozuldu. Süre 12.00'den değil, 16.00'dan işlemeye başlar; mukimsen ertesi gün 16.00'ya kadar mesh edebilirsin.\n\nMestleri sabah giyip akşama kadar abdestin bozulmadıysa, o geçen sürenin hiçbiri sayaçtan düşmez.",
+                "safii": "Şâfiî mezhebinde de süre abdestin bozulduğu andan başlar; bu konuda iki mezhep arasında fark yoktur."
+            },
+            "sartlar": {
+                "title": "Meshin şartları",
+                "body": "Beş şart birlikte bulunmalıdır:\n\n1. Mest, ayaklar yıkanarak alınmış tam bir abdestten sonra giyilmiş olmalı. En kritik şart budur; abdestsizken giyilen mest üzerine mesh edilemez.\n2. Ayakları aşık (topuk) kemikleriyle birlikte tamamen örtmeli.\n3. Giyildikten sonra bağsız durabilecek kadar sağlam ve kalın olmalı.\n4. Suyu emip hemen ayağa geçirmemeli.\n5. Her bir mestte, en küçük ayak parmağının üç katı kadar genişlikte delik veya yırtık bulunmamalı.\n\nAbdestli iken mestleri çıkarıp yeniden giymek abdesti bozmaz. Ancak mest çıkarıldığı anda mesh süresi biter; yeni bir hak için ayakları yıkayarak abdest alıp mestleri o abdestten sonra giymek gerekir.",
+                "safii": "Şâfiî mezhebinde de mestin tam abdestten sonra giyilmiş olması şarttır."
+            },
+            "nasilYapilir": {
+                "title": "Mesh nasıl yapılır?",
+                "body": "1. Elini ıslat, parmaklarını açık tut.\n2. Sağ elin parmaklarını sağ mestin, sol elin parmaklarını sol mestin ÜST yüzüne koy.\n3. Ayak parmaklarının ucundan başlayıp bacağa doğru bir kez çek.\n4. Bu kadarı yeterlidir; mesh bir defa yapılır, tekrarlanmaz.\n\nFarz olan miktar, her mestin ön-üst yüzünde el parmaklarından üçü kadar bir alanın ıslatılmasıdır. Bu ölçü her ayak için ayrıdır; bir ayağa fazla mesh etmek diğerinin eksiğini tamamlamaz.\n\nMestin ALTI, TOPUĞU ve arka-yan yüzleri mesh edilmez. Yalnız üst yüz mesh edilir; sadece tabanı mesh etmek geçerli değildir.",
+                "safii": "Şâfiî mezhebinde farz olan miktar daha azdır: üst yüzden bir parmak eni kadar alan yeterlidir. Ayrıca meshi üç defa yapmak müstehap sayılır."
+            },
+            "sureler": {
+                "title": "Mesh süreleri",
+                "body": "Mukim (yolcu olmayan) için 1 gün 1 gece, yani 24 saat.\nMisafir (seferi) için 3 gün 3 gece, yani 72 saat.\n\nHer iki sürede de sayaç, mest giyildikten sonra abdestin ilk bozulduğu andan işler.\n\nSeferilik (yolculuk hâli) nedir? Oturduğu yerleşim yerinin dışına, Diyanet'in benimsediği ölçüyle yaklaşık 90 kilometre ve daha uzağa gitmeye niyet eden kişi, yerleşim yerinin sınırını geçtiği andan itibaren seferi sayılır. Gidilen yerde 15 gün veya daha uzun kalmaya niyet edilirse kişi orada mukim olur; kendi yerleşim yerine dönünce de seferilik biter.\n\nNot: Klasik fıkıhtaki 18 fersah ölçüsü yaklaşık 104 km'ye karşılık gelir. Türkiye'de Diyanet'in resmî uygulaması 90 km üzerinedir.",
+                "safii": "Şâfiî mezhebinde de süreler aynıdır: mukim 24 saat, seferi 72 saat."
+            },
+            "bozanlar": {
+                "title": "Meshi bozan şeyler",
+                "body": "• Abdesti bozan her şey meshi de bozar.\n• Mestin ayaktan çıkması veya çıkarılması. Birinin çıkması yeterlidir; ayağın mest içinde topuk hizasının dışına çıkması da çıkmış sayılır.\n• Mesh süresinin dolması.\n• Gusül gerektiren bir hâl. Cünüplük, hayız ve nifasta mestler çıkarılır, ayaklar yıkanır.\n• Mestte belli ölçüden büyük yırtık bulunması: bir mestteki delik ve söküklerin toplamı en küçük ayak parmağının üç katı genişliğe ulaşırsa o mest üzerine mesh edilemez. Aynı mestteki küçük yırtıklar birbirine eklenir; sağ ve sol mestinkiler eklenmez.\n• Ayağın mest içinde çoğunun ıslanması.",
+                "safii": "Şâfiî mezhebinde mestteki en küçük delik bile meshi geçersiz kılar; Hanefîlerdeki üç parmak toleransı yoktur."
+            },
+            "sureDolunca": {
+                "title": "Süre dolunca ne yapılır?",
+                "body": "Süre dolduğunda abdestin duruyorsa: mestleri çıkarıp SADECE ayaklarını yıkaman yeterlidir, abdestin tamamını yenilemen gerekmez.\n\nSüre dolduğunda abdestin zaten bozulmuşsa: mestleri çıkarıp ayaklarını yıkayarak baştan tam abdest alırsın.\n\nYeni bir 24/72 saatlik hak için ayaklarını yıkayarak yeni bir abdest alman ve mestleri o abdestten sonra giymen gerekir. Sayaç yine, mestleri giydikten sonra abdestinin ilk bozulduğu anda başlar.",
+                "safii": "Şâfiî mezhebinde yaygın kabule göre süre dolduğunda veya mest çıkarıldığında abdestin tamamı yeniden alınır; sadece ayakları yıkamak yeterli görülmez."
+            },
+            "mukimMisafirGecisi": {
+                "title": "Mukim ve misafir geçişi",
+                "body": "Mukimken yolculuğa çıkan: 24 saatlik süresi dolmadan yola çıkarsa süresi 72 saate uzar. Süresi dolduktan sonra yola çıkarsa hakkı zaten bitmiştir; yolculuk dolmuş bir süreyi geri getirmez.\n\nSeferiyken mukim olan: 24 saati aşmamışsa süresi 24 saate iner ve kalanı kadar mesh edebilir. 24 saati aşmışsa mesh hakkı derhal düşer.\n\nÖzet: yolculuğa çıkmak süreyi uzatır (süre dolmamışsa), mukim olmak süreyi kısaltır.",
+                "safii": ""
+            },
+            "mestNedir": {
+                "title": "Mest nedir, çorap olur mu?",
+                "body": "Mest, abdestte ayakların yıkanması yerine üzerine mesh edilmesine izin verilen ayak giysisidir. Klasik kaynaklarda deriden yapılır; ancak Diyanet deri olma şartı koymaz, şu özellikleri arar: ayakları aşık kemikleriyle örtmesi, suyu emip hemen geçirmemesi, bağsız dik durabilecek kadar sağlam olması, yaklaşık 5 km yürüyüşe dayanması, içini göstermemesi ve üç parmaktan büyük yırtık bulunmaması.\n\nKalın çoraplar mest sayılır mı? Bir çorap bu şartların HEPSİNİ birden taşıyorsa üzerine mesh edilebilir. Ölçü malzeme değil, bu özelliklerdir. Sıradan ince pamuklu, naylon veya likralı çoraplar bu şartları karşılamaz; onların üzerine mesh geçerli değildir.\n\nPratik ölçü: çorabı ıslak elle silince ıslaklık hemen ayağa geçiyorsa o çorap mest değildir. Şüphe hâlinde ayakları yıkamak esastır.",
+                "safii": "Şâfiî mezhebinde de deri şartı aranmaz, ancak Şâfiî fakihleri sıradan çorapları bu tanımın dışında tutmakta Hanefîlerden daha katı davranır."
+            },
+            "sargiMesh": {
+                "title": "Sargı ve alçı üzerine mesh",
+                "body": "Yara, kırık veya ameliyat sebebiyle sargı, alçı, bandaj ya da yara bandı varsa abdest ve gusülde bunların üzerine mesh edilir.\n\nSargının çözülmesi veya altının yıkanması yaraya zarar veriyor, iyileşmeyi geciktiriyor ya da dayanılmaz acı veriyorsa sargının üzerine mesh edilir. Zararlı değilse sargı çözülür, altındaki sağlam yer yıkanır.\n\nSargının tamamının mesh edilmesi esastır; çoğunun mesh edilmesi de yeterli görülmüştür. Mesh bir defa yapılır ve o uzuv hükmen yıkanmış sayılır.\n\nSüre sınırı YOKTUR. Mestlerdeki 24 ve 72 saatlik sınırlar sargıda geçerli değildir; yara iyileşene kadar mesh edilmeye devam edilir.\n\nSargı tedavi gereği düşer veya değişirse mesh bozulmaz, yeni sargı üzerine mesh edilir. Ancak yara iyileştiği için çıkarılırsa altındaki uzvun yıkanması gerekir. Sargı abdest uzuvlarının çoğunu kaplıyor ve mesh de mümkün değilse teyemmüm yapılır.",
+                "safii": "Şâfiî mezhebinde sargı üzerine mesh caizdir; ancak sargının abdestli iken sarılmış olması ve zaruret ölçüsünü aşmaması aranır."
+            }
+        }
+    },
+    "verdict": {
+        "bozar": "Bozar",
+        "bozmaz": "Bozmaz",
+        "duruma-gore": "Duruma göre"
+    },
+    "breakerSearchPlaceholder": "Kan abdesti bozar mı?",
+    "breakerPopular": "En çok sorulanlar",
+    "breakerEmptyTitle": "“{{query}}” için sonuç yok",
+    "breakerEmptyHint": "Başka bir kelimeyle dene: kan, uyku, kusma, iğne, akıntı.",
+    "breakerDisclaimer": "Bu bilgiler Hanefî mezhebine ve Diyanet kaynaklarına dayanır; fetva değildir. Kendi durumunla ilgili tereddüt varsa müftülüğe danış.",
+    "breakers": {
+        "idrar-diski": {
+            "title": "Küçük ve büyük abdest",
+            "body": "Ön veya arka yoldan çıkan her şey abdesti bozar."
+        },
+        "gaz": {
+            "title": "Yellenmek",
+            "body": "Gaz çıkması abdesti bozar."
+        },
+        "meni-mezi": {
+            "title": "Meni, mezi ve vedi",
+            "body": "Bunların gelmesi abdesti bozar. Meni gelmesi ayrıca gusül gerektirir."
+        },
+        "cinsel-iliski": {
+            "title": "Cinsel ilişki",
+            "body": "Abdesti bozar ve ayrıca gusül gerektirir."
+        },
+        "bayilma": {
+            "title": "Bayılma, sarhoşluk, akıl yitimi",
+            "body": "Şuurun kontrolünü gideren hâller abdesti bozar. Kısa sürmesi hükmü değiştirmez."
+        },
+        "namazda-kahkaha": {
+            "title": "Namazda kahkaha",
+            "body": "Namazda yanındakilerin duyacağı şekilde gülmek Hanefî mezhebinde hem namazı hem abdesti bozar. Yalnız kendi duyacağı gülme sadece namazı bozar.",
+            "safii": "Şâfiî mezhebinde kahkaha namazı bozar ama abdesti bozmaz."
+        },
+        "agiz-dolusu-kan": {
+            "title": "Ağız dolusu kan gelmesi",
+            "body": "Ağızdan ağız dolusu kan gelmesi abdesti bozar.",
+            "safii": "Şâfiî mezhebinde ağızdan gelen kan abdesti bozmaz."
+        },
+        "bagirsak-kurtlari": {
+            "title": "Bağırsak kurtları",
+            "body": "Tenya ve benzeri kurtların çıkması abdesti bozar."
+        },
+        "kan-vermek": {
+            "title": "Kan verme, tahlil, hacamat",
+            "body": "Kan bağışı, hacamat ve tahlil için kan alınması abdesti bozar; kan vücut dışına çıkmış olur. Trombosit bağışında da hüküm aynıdır.",
+            "safii": "Şâfiî mezhebinde vücuttan çıkan kan abdesti bozmaz."
+        },
+        "diyaliz": {
+            "title": "Diyaliz",
+            "body": "Hemodiyalizde kan vücut dışına çıktığı, periton diyalizinde karın boşluğundan sıvı alındığı için abdest bozulur. Sürekli tedavi görenler özür sahibi hükümlerinden yararlanır.",
+            "safii": "Şâfiî mezhebinde hemodiyalizde çıkan kan abdesti bozmaz."
+        },
+        "adet-lohusalik": {
+            "title": "Âdet ve lohusalık",
+            "body": "Bu hâllerde namaz kılınmaz, oruç tutulmaz; abdest de sona erer. Kanama tamamen kesildiğinde gusül alınarak ibadete başlanır.",
+            "safii": "Lohusalığın üst sınırı Hanefî mezhebinde 40, Şâfiî mezhebinde 60 gündür."
+        },
+        "uyku": {
+            "title": "Uyumak",
+            "body": "Ölçü, yere sağlam oturup oturmamaktır. Yan yatarak veya uzanarak uyumak abdesti bozar; dik oturmuş ve eklemleri gevşememiş hâlde uyuklamak bozmaz.",
+            "safii": "Şâfiî mezhebi aynı ölçüyü kullanır; Mâlikî ve Hanbelî'de ölçü uykunun ağırlığıdır."
+        },
+        "kusma": {
+            "title": "Kusmak",
+            "body": "Ağız dolusu kusmak abdesti bozar, azı bozmaz. Ölçü, gelen kusmuğun zorlanmadan tutulamayacak durumda olmasıdır; balgam ağız dolusu olsa bile bozmaz.",
+            "safii": "Şâfiî mezhebinde kusmak abdesti bozmaz."
+        },
+        "kanama": {
+            "title": "Kanama",
+            "body": "Ölçü miktar değil yayılmadır: kan, irin veya sarı su çıktığı yerin dışına taşarsa abdest bozulur, yerinde kalırsa bozmaz.",
+            "safii": "Şâfiî mezhebinde vücuttan çıkan kan abdesti bozmaz."
+        },
+        "karsi-cinse-dokunmak": {
+            "title": "Karşı cinse dokunmak",
+            "body": "Hanefî mezhebinde karşı cinse dokunmak abdesti bozmaz. Yalnız eşler arasında arada engel olmadan aşırı temas ya da bu sebeple bir sıvı gelmesi abdesti bozar.",
+            "safii": "Şâfiî mezhebinde evlenme engeli bulunmayan karşı cinse doğrudan dokunmak, şehvet olmasa bile iki tarafın da abdestini bozar."
+        },
+        "dis-eti-kanamasi": {
+            "title": "Diş eti kanaması",
+            "body": "Diş etinden çıkan kan, karıştığı tükürüğün yarısı kadar veya daha fazlaysa abdest bozulur; daha azsa bozmaz.",
+            "safii": "Şâfiî mezhebinde diş eti kanaması abdesti bozmaz."
+        },
+        "burun-kanamasi": {
+            "title": "Burun kanaması",
+            "body": "Kan burun deliğinden dışarı çıkıp akarsa abdest bozulur; içeride kalıp dışarı çıkmazsa bozmaz. Sürekli kanaması olan kişi özür sahibi sayılır.",
+            "safii": "Şâfiî mezhebinde burun kanaması abdesti bozmaz."
+        },
+        "tibbi-mudahale": {
+            "title": "İğne, ameliyat, narkoz",
+            "body": "Genel anestezi şuuru giderdiği için abdesti bozar. Lokal anestezi tek başına bozmaz; ancak kan çıkıp yayılırsa abdest bozulur. Kan çıkmayan iğne ve serum bozmaz.",
+            "safii": "Şuur kaybı dört mezhepte de bozar; Şâfiî'de ayrıca çıkan kan abdesti bozmaz."
+        },
+        "kulak-goz-akintisi": {
+            "title": "Kulak, göz ve göbek akıntısı",
+            "body": "Ağrı ve sızı olmaksızın gelen akıntı abdesti bozmaz. Ağrıyla gelirse yara belirtisi sayılır ve Hanefî mezhebinde abdest bozulur.",
+            "safii": "Şâfiî mezhebinde bu akıntılar abdesti bozmaz."
+        },
+        "ozur-sahibi": {
+            "title": "Özür sahibi olmak",
+            "body": "Bir namaz vakti boyunca hiç kesilmeyen idrar kaçırma, kanama veya akıntı özür sayılır. Özür sahibi her namaz vakti için bir abdest alır; abdesti vaktin çıkmasıyla biter.",
+            "safii": "Şâfiî mezhebinde ölçü vakit değil farz namazdır: her farz namaz için ayrı abdest alınır."
+        },
+        "mest-cikarmak": {
+            "title": "Mest veya çorap çıkarmak",
+            "body": "Ayakları yıkayarak abdest alıp mest giyen kişi mesti çıkarsa abdesti bozulmaz. Abdestini mest üzerine mesh ederek tamamlamışsa mesti çıkarınca sadece ayaklarını yıkaması yeterlidir."
+        },
+        "tirnak-sac-kesmek": {
+            "title": "Tırnak, saç ve sakal kesmek",
+            "body": "Abdesti bozmaz; kesilen yeri tekrar yıkamak da gerekmez. Kesik yerinden kan çıkıp yayılırsa abdesti bozan şey kandır.",
+            "safii": "Şâfiî mezhebinde kanama olsa bile abdest bozulmaz."
+        },
+        "ter": {
+            "title": "Terlemek",
+            "body": "Ter temiz sayılır, abdesti bozmaz."
+        },
+        "balgam": {
+            "title": "Balgam, tükürmek, sümkürmek",
+            "body": "Balgam tükürük hükmündedir; ağız dolusu olsa bile abdesti bozmaz."
+        },
+        "aglamak": {
+            "title": "Ağlamak",
+            "body": "Ağlamak ve gözyaşı abdesti bozmaz. Namazda dünyevî bir dertle sesli ağlamak namazı bozar ama abdesti bozmaz; Allah korkusuyla ağlamak ikisine de zarar vermez."
+        },
+        "namaz-disinda-gulmek": {
+            "title": "Namaz dışında gülmek",
+            "body": "Namaz dışında kahkaha ile gülmek abdesti bozmaz. Gülmenin abdesti bozması yalnızca namaz içindeki sesli gülme için geçerlidir."
+        },
+        "kan-gormek": {
+            "title": "Kan görmek, akmayan kan",
+            "body": "Çıktığı yerde duran, etrafa yayılmayan kan abdesti bozmaz; iğne ucu kadar bir damla da aynıdır. Yayılmadan silinirse yine bozulmaz.",
+            "safii": "Şâfiî mezhebinde kan ne kadar aksa da abdesti bozmaz."
+        },
+        "banyo": {
+            "title": "Banyo ve duş",
+            "body": "Abdestli iken yıkanmak abdesti bozmaz. Gusül ise abdesti de içerir; gusülden sonra ayrıca abdest almak gerekmez."
+        },
+        "elbise-degistirmek": {
+            "title": "Soyunmak, elbise değiştirmek",
+            "body": "Abdesti bozmaz. Avret yerinin açılması namazı ilgilendirir, abdesti değil."
+        },
+        "yemek-sakiz": {
+            "title": "Yemek, içmek, sakız",
+            "body": "Yemek yemek, su içmek ve sakız çiğnemek abdesti bozmaz; yemeğin ateşte pişmiş olması hükmü değiştirmez.",
+            "safii": "Deve eti yemek yalnız Hanbelî mezhebinde abdesti bozar; Hanefî ve Şâfiî mezheplerinde bozmaz."
+        },
+        "dis-fircalamak": {
+            "title": "Diş fırçalamak, misvak",
+            "body": "Abdesti bozmaz; ağız ve diş temizliği abdestin sünnetidir ve diş fırçası da bu sünneti yerine getirir. Fırçada görülen, akmayan kan izi bozmaz."
+        },
+        "sivrisinek-isirigi": {
+            "title": "Sivrisinek, pire, kene ısırığı",
+            "body": "Haşeratın emdiği kan akıcı sayılmadığı için abdesti bozmaz. Sülük karnı doluncaya kadar kan emerse abdest bozulur.",
+            "safii": "Şâfiî mezhebinde sülük dâhil hiçbiri abdesti bozmaz."
+        },
+        "damla": {
+            "title": "Göz, kulak, burun damlası",
+            "body": "Damla kullanmak abdesti bozmaz. Damla sebebiyle kan veya iltihap çıkarsa hüküm kanama maddesine göre işler."
+        },
+        "makyaj-oje": {
+            "title": "Makyaj, ruj, oje",
+            "body": "Abdesti bozmaz; ancak suyun deriye ulaşmasını engellediği için abdestten önce çıkarılması gerekir. Saç jölesi ve kına tabaka oluşturmadığından engel değildir."
+        },
+        "kadin-akintisi": {
+            "title": "Kadınlarda beyaz akıntı",
+            "body": "Renksiz ve kokusuz akıntı abdesti bozmaz; çamaşıra bulaşması da namaza engel değildir. Renkli, kokulu veya kanlı akıntı bu hükmün dışındadır."
+        },
+        "yara-kabugu": {
+            "title": "Yara kabuğunun düşmesi",
+            "body": "Kabuğun kan çıkmadan düşmesi abdesti bozmaz. Yara içinde kalıp dışarı çıkmayan kan ve irin de bozmaz."
+        },
+        "supheye-dusmek": {
+            "title": "Şüphe ve vesvese",
+            "body": "Abdest aldığından eminsen sonradan gelen şüphe abdesti bozmaz. Kesin bilgi şüpheyle bozulmaz; vesveseye itibar edilmez."
+        },
+        "karsi-cinsin-saci": {
+            "title": "Karşı cinsin saçı, tırnağı",
+            "body": "Karşı cinsin saçına, tırnağına veya dişine dokunmak hiçbir mezhepte abdesti bozmaz."
+        },
+        "sigara": {
+            "title": "Sigara içmek",
+            "body": "Abdesti bozan hâller arasında sayılmadığı için abdesti bozmaz. Sigaranın kendi hükmü ayrı bir konudur."
+        },
+        "cenazeye-dokunmak": {
+            "title": "Cenazeye dokunmak",
+            "body": "Cenazeye dokunmak abdesti bozmaz. Cenazeyi yıkayan kimsenin gusletmesi müstehaptır, zorunlu değildir."
+        },
+        "kendi-avret-yerine-dokunmak": {
+            "title": "Kendi avret yerine dokunmak",
+            "body": "Hanefî mezhebinde abdesti bozmaz.",
+            "safii": "Şâfiî, Mâlikî ve Hanbelî mezheplerinde avuç içiyle dokunmak abdesti bozar."
+        }
+    }
 }

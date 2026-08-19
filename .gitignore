@@ -26,3 +26,9 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# hikaye zamanlama boru hattı çalışma klasörü
+.story-audio/
+
+# Playwright MCP oturum çıktıları (snapshot/console/ekran görüntüsü)
+.playwright-mcp/

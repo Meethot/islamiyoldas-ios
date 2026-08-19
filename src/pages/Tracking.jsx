@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import confetti from 'canvas-confetti';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Target, CheckCircle2, Plus, Minus, TrendingUp, Sparkles, Settings, BookOpen, Calendar, Eye, X, Calculator, Scale, Heart, AlertCircle, Edit2, Save, Crown } from 'lucide-react';
+import { Target, CheckCircle2, Plus, Minus, TrendingUp, Sparkles, Settings, BookOpen, Calendar, Eye, X, Calculator, Scale, Heart, AlertCircle, Edit2, Save, Crown, Search, Play } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useHaptics } from '@/hooks/useMobile';
@@ -20,6 +20,7 @@ import { isPremium } from '@/services/creditService';
 import { analytics } from '@/services/analyticsService';
 import { storageService } from '@/services/storageService';
 import HintCoach from '@/components/HintCoach';
+import { HINT_TEST_MODE, readSeenHints, markHintSeen } from '@/lib/hints';
 
 const PRAYER_TYPES = [
     { key: 'sabah', labelKey: 'prayerTypes.sabah' },
@@ -39,13 +40,25 @@ const TABS = [
 
 // Sekme başına tek ipucu: hangi eleman yanıp sönecek + hangi metin.
 // Hedefler `data-tour` ile işaretli; hedef yoksa ipucu sessizce iptal olur.
-const HINT_KEY = 'tracking_hints_seen';
+// Test bayrağı ve "görüldü" kaydı ortak: src/lib/hints.js
+// Sekme başına ipucu ZİNCİRİ: sırayla gösterilir, her biri kullanıcı başına bir kez.
 const TAB_HINTS = {
-    kuran: { target: 'quran-search', titleKey: 'tour.quran.title', bodyKey: 'tour.quran.body' },
-    namaz: { target: 'prayer-row', titleKey: 'tour.prayer.title', bodyKey: 'tour.prayer.body' },
-    kaza: { target: 'qada-counters', titleKey: 'tour.qada.title', bodyKey: 'tour.qada.body' },
-    murakabe: { target: 'murakabe-card', titleKey: 'tour.murakabe.title', bodyKey: 'tour.murakabe.body' },
+    kuran: [
+        { id: 'tab:kuran', target: 'quran-search', titleKey: 'tour.quran.title', bodyKey: 'tour.quran.body', icon: Search },
+        // Kart açmak herkese açık — koşul YOK (premium kullanıcı da görür)
+        { id: 'tab:kuran-open', target: 'quran-card', titleKey: 'tour.openSurah.title', bodyKey: 'tour.openSurah.body', icon: BookOpen },
+    ],
+    namaz: [{ id: 'tab:namaz', target: 'prayer-row', titleKey: 'tour.prayer.title', bodyKey: 'tour.prayer.body', icon: Calendar }],
+    kaza: [{ id: 'tab:kaza', target: 'qada-counters', titleKey: 'tour.qada.title', bodyKey: 'tour.qada.body', icon: Target }],
+    murakabe: [{ id: 'tab:murakabe', target: 'murakabe-card', titleKey: 'tour.murakabe.title', bodyKey: 'tour.murakabe.body', icon: Eye }],
 };
+
+/** Sekmenin sırada bekleyen ilk ipucu (görülmemiş ve o an geçerli olan). */
+function nextHintFor(tab, seen, after = -1) {
+    const chain = TAB_HINTS[tab];
+    if (!chain) return -1;
+    return chain.findIndex((h, i) => i > after && !seen[h.id] && (!h.visible || h.visible()));
+}
 
 export default function Tracking() {
     const navigate = useNavigate();
@@ -60,29 +73,64 @@ export default function Tracking() {
     // ── Sekme ipuçları ────────────────────────────────────────────────────
     // Her sekmeye İLK girişte, o sekmenin en önemli elemanı yanıp söner ve
     // yanında kısa bir ipucu çıkar. Ekran karartılmaz, hiçbir şey engellenmez.
-    const [seenHints, setSeenHints] = useState(() => {
-        try { return JSON.parse(localStorage.getItem(HINT_KEY) || '{}') || {}; } catch { return {}; }
-    });
-    const [activeHint, setActiveHint] = useState(null);
+    const [seenHints, setSeenHints] = useState(readSeenHints);
+    const [hintIndex, setHintIndex] = useState(-1);       // aktif sekmenin zincirindeki sıra
+    // TEST modunda aynı sekmeye tekrar dokunmak da ipucunu yeniden açsın diye sayaç
+    const [hintNonce, setHintNonce] = useState(0);
+    const hintTimerRef = useRef(null);
+
+    // Ekranda duran ipucunun kimliği — sekme değişince "görüldü" yazmak için
+    const shownHintRef = useRef(null);
+    useEffect(() => {
+        const chain = TAB_HINTS[activeTab] || [];
+        shownHintRef.current = hintIndex >= 0 ? chain[hintIndex]?.id || null : null;
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [hintIndex]);
 
     useEffect(() => {
-        setActiveHint(null);                    // sekme değişti: eskisini kapat
-        if (seenHints[activeTab] || !TAB_HINTS[activeTab]) return;
+        setHintIndex(-1);                       // sekme değişti: eskisini kapat
+        // Taze oku ve `seenHints`'i deps'e KOYMA: bir ipucu kapanınca kayıt değişir,
+        // bu effect yeniden koşarsa zinciri baştan başlatıp sıradaki ipucunu ezer
+        // (2. ipucu 450 ms'de açılıp 650 ms'de yerini 1.'ye bırakıyordu).
+        const first = nextHintFor(activeTab, readSeenHints());
         // Sekme geçiş animasyonu (0.3 sn) bitsin, içerik render olsun
-        const timer = setTimeout(() => setActiveHint(activeTab), 650);
-        return () => clearTimeout(timer);
-    }, [activeTab, seenHints]);
+        const timer = first === -1 ? null : setTimeout(() => setHintIndex(first), 650);
+        return () => {
+            if (timer) clearTimeout(timer);
+            clearTimeout(hintTimerRef.current);
+            // Balon kullanıcı kapatmadan düştü. "Görüldü" yazılmazsa bağlam geri
+            // gelince aynı ipucu baştan çıkar (kullanıcı raporu 2026-08-18).
+            const shown = shownHintRef.current;
+            if (shown) {
+                setSeenHints(markHintSeen(shown));
+                shownHintRef.current = null;
+            }
+        };
+    }, [activeTab, hintNonce]);
+
+    // `visible` GÖSTERİM ANINDA da doğrulanır: ipucu sıraya girdikten sonra koşul
+    // bozulmuş olabilir (ör. deneme hakkı bu arada başka yerden harcandı). Yoksa
+    // "60 saniye ücretsiz dinle" deyip kullanıcıyı paywall'a düşürürdük.
+    const queued = hintIndex >= 0 ? TAB_HINTS[activeTab]?.[hintIndex] : null;
+    const activeHint = queued && (!queued.visible || queued.visible()) ? queued : null;
+    // Adım noktaları o an GÖRÜNÜR olan ipuçlarına göre sayılır: gizlenmiş bir adım
+    // (ör. deneme hakkı bitmişse dinleme daveti) toplama katılmaz.
+    const visibleChain = (TAB_HINTS[activeTab] || []).filter(h => !h.visible || h.visible());
+    const hintStep = activeHint ? Math.max(0, visibleChain.indexOf(activeHint)) : 0;
 
     const closeHint = useCallback((markSeen = true) => {
-        if (activeHint && markSeen) {
-            setSeenHints(prev => {
-                const next = { ...prev, [activeHint]: true };
-                localStorage.setItem(HINT_KEY, JSON.stringify(next));
-                return next;
-            });
+        if (hintIndex < 0) return;
+        const chain = TAB_HINTS[activeTab] || [];
+        // markHintSeen TEST modunda hiçbir şey yazmaz (bkz. lib/hints.js)
+        const nextSeen = markSeen && chain[hintIndex] ? markHintSeen(chain[hintIndex].id) : seenHints;
+        setSeenHints(nextSeen);
+        setHintIndex(-1);
+        const nextIdx = nextHintFor(activeTab, nextSeen, hintIndex);
+        if (nextIdx >= 0) {
+            clearTimeout(hintTimerRef.current);
+            hintTimerRef.current = setTimeout(() => setHintIndex(nextIdx), 450);
         }
-        setActiveHint(null);
-    }, [activeHint]);
+    }, [activeTab, hintIndex, seenHints]);
 
     // Prayer Checklist State
     const [completedPrayers, setCompletedPrayers] = useState([]);
@@ -449,6 +497,7 @@ export default function Tracking() {
                             onClick={() => {
                                 selection();
                                 setActiveTab(tab.id);
+                                if (HINT_TEST_MODE) setHintNonce(n => n + 1);   // TEST: her dokunuşta ipucu
                             }}
                             className={cn(
                                 "relative px-3 py-3 overflow-hidden rounded-2xl font-bold text-xs uppercase tracking-wider transition-all",
@@ -562,9 +611,13 @@ export default function Tracking() {
                                 <Target className="w-5 h-5" />
                                 {t('kazaTitle')}
                             </h2>
-                            <div data-tour="qada-counters" className="grid grid-cols-2 gap-3">
-                                {PRAYER_TYPES.map((prayer) => (
-                                    <div key={prayer.key} className="glass-panel p-4 rounded-3xl flex flex-col gap-3">
+                            <div className="grid grid-cols-2 gap-3">
+                                {PRAYER_TYPES.map((prayer, prayerIndex) => (
+                                    <div
+                                        key={prayer.key}
+                                        data-tour={prayerIndex === 0 ? 'qada-counters' : undefined}
+                                        className="glass-panel p-4 rounded-3xl flex flex-col gap-3"
+                                    >
                                         <div className="flex justify-between items-start">
                                             <span className="text-[11px] font-bold text-gray-400 dark:text-emerald-100/40 uppercase tracking-widest">{t(prayer.labelKey)}</span>
                                             <div className="flex items-center gap-2">
@@ -904,13 +957,16 @@ export default function Tracking() {
             </AnimatePresence>
 
             {/* Sekmeye ilk girişte tek seferlik ipucu (engellemez, karartmaz) */}
-            {activeHint && TAB_HINTS[activeHint] && (
+            {activeHint && (
                 <HintCoach
-                    key={activeHint}
-                    targetId={TAB_HINTS[activeHint].target}
-                    titleKey={TAB_HINTS[activeHint].titleKey}
-                    bodyKey={TAB_HINTS[activeHint].bodyKey}
+                    key={activeHint.id}
+                    targetId={activeHint.target}
+                    titleKey={activeHint.titleKey}
+                    bodyKey={activeHint.bodyKey}
+                    icon={activeHint.icon}
                     ns="tracking"
+                    step={hintStep}
+                    total={visibleChain.length}
                     onClose={closeHint}
                 />
             )}

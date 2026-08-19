@@ -20,8 +20,25 @@ import { getFakePrayersByLang, normalizeLang } from '@/data/fakePrayers';
 import CreditPaywallModal from '@/components/CreditPaywallModal';
 import { analytics } from '@/services/analyticsService';
 import { useTheme } from '@/context/ThemeContext';
+import HintCoach from '@/components/HintCoach';
+import { readSeenHints, markHintSeen } from '@/lib/hints';
 
 
+
+// Tek seferlik ipuçları (HintCoach). Hedefler `data-tour` ile işaretli; hedef DOM'da
+// yoksa ipucu sessizce iptal olur ve "görüldü" YAZILMAZ — bu kasıtlı: "İsteklerim"
+// butonu ancak ilk dua gönderildikten sonra çıkar, ipucu da o zaman gösterilir.
+// Ortak kayıt + test bayrağı: src/lib/hints.js
+const DUA_HINTS = [
+    { id: 'dua:amin', target: 'dua-amin', titleKey: 'tour.amin.title', bodyKey: 'tour.amin.body', bodyKeyPremium: 'tour.amin.bodyPremium', icon: Heart },
+    // Kredi rozeti premium üyede hiç render edilmiyor
+    { id: 'dua:credits', target: 'dua-credits', titleKey: 'tour.credits.title', bodyKey: 'tour.credits.body', icon: Coins, freeOnly: true },
+    { id: 'dua:send', target: 'dua-send', titleKey: 'tour.send.title', bodyKey: 'tour.send.body', icon: Send },
+    // "İsteklerim" butonu ancak ilk dua gönderildikten sonra var olur
+    { id: 'dua:history', target: 'dua-history', titleKey: 'tour.history.title', bodyKey: 'tour.history.body', icon: History, needsRequests: true },
+];
+
+const nextDuaHint = (chain, seen, after = -1) => chain.findIndex((h, i) => i > after && !seen[h.id]);
 
 // ========== WEB AUDIO API - INSTANT SOUND ==========
 // Uses AudioContext for true zero-latency, overlapping sound playback
@@ -425,6 +442,66 @@ export default function DuaKosesi() {
         
         return combined.slice(0, 6);
     }, [realDuas, fakeDuas, freshSticky, reportedPrayers]);
+
+    // ── Tek seferlik ipuçları ─────────────────────────────────────────────
+    // Ekonomiyi (âmin → kredi → dua isteği) ve onay akışını tanıtır. Karartma yok.
+    const [seenHints, setSeenHints] = useState(readSeenHints);
+    // Sıra değil KİMLİK: zincir premium/istek durumuna göre uzayıp kısalıyor,
+    // index taşınırsa yanlış ipucu gösterilirdi.
+    const [hintId, setHintId] = useState(null);
+    const hintTimerRef = useRef(null);
+    // Kredi rozeti premium üyede, "İsteklerim" ilk dua gönderilene kadar ekranda yok.
+    // Zincire girmezlerse adım noktaları da doğru sayıyı gösterir.
+    const hasRequests = myRequests.length > 0;
+    const hintChain = React.useMemo(
+        () => DUA_HINTS.filter(h => (!h.freeOnly || !isPremium()) && (!h.needsRequests || hasRequests)),
+        [hasRequests]
+    );
+    // Zincir feed dolmadan başlarsa ilk ipucu (Âmin butonu) hedefini bulamayıp iptal olur
+    const feedReady = allDuas.length > 0;
+
+    // Form/geçmiş/paywall açıkken balon üstte asılı kalmasın
+    const hintsHidden = showForm || showHistory || showPaywall;
+    // Ekranda duran ipucunun kimliği — gizlenince "görüldü" yazmak için
+    const shownHintRef = useRef(null);
+    useEffect(() => { shownHintRef.current = hintId; }, [hintId]);
+
+    useEffect(() => {
+        if (!feedReady || hintsHidden) return undefined;
+        const first = nextDuaHint(hintChain, readSeenHints());
+        // Kartlar yerleşsin
+        const timer = first === -1 ? null : setTimeout(() => setHintId(hintChain[first].id), 700);
+        return () => {
+            if (timer) clearTimeout(timer);
+            clearTimeout(hintTimerRef.current);
+            // Balon kullanıcı kapatmadan düştü. "Görüldü" yazılmazsa bağlam geri
+            // gelince aynı ipucu baştan çıkar (kullanıcı raporu 2026-08-18).
+            const shown = shownHintRef.current;
+            if (shown && hintChain.some(h => h.id === shown)) {
+                setSeenHints(markHintSeen(shown));
+                shownHintRef.current = null;
+                setHintId(null);
+            }
+        };
+    }, [hintChain, feedReady, hintsHidden]);
+
+    const closeHint = useCallback((markSeen = true) => {
+        const index = hintId ? hintChain.findIndex(h => h.id === hintId) : -1;
+        if (index < 0) return;
+        // markHintSeen TEST modunda hiçbir şey yazmaz (bkz. lib/hints.js)
+        const nextSeen = markSeen ? markHintSeen(hintChain[index].id) : seenHints;
+        setSeenHints(nextSeen);
+        setHintId(null);
+        const nextIdx = nextDuaHint(hintChain, nextSeen, index);
+        if (nextIdx >= 0) {
+            clearTimeout(hintTimerRef.current);
+            // Kısa geçiş: uzun boşluk "tur bitti" hissi veriyordu
+            hintTimerRef.current = setTimeout(() => setHintId(hintChain[nextIdx].id), 180);
+        }
+    }, [hintChain, hintId, seenHints]);
+
+    const queuedHint = hintId ? hintChain.find(h => h.id === hintId) : null;
+    const activeHint = queuedHint && !hintsHidden ? queuedHint : null;
 
     // Fetch random approved prayers (cached to prevent changing on tab switch)
     useEffect(() => {
@@ -953,7 +1030,7 @@ export default function DuaKosesi() {
 
                     {/* Amin Kumbarası Badge */}
                     {!isPremium() && (
-                        <div className="absolute top-6 right-6 z-20">
+                        <div data-tour="dua-credits" className="absolute top-6 right-6 z-20">
                             <div className="flex items-center gap-1.5 px-3 py-1.5 bg-black/30 backdrop-blur-md rounded-full border border-islamic-gold/30 shadow-lg">
                                 <Coins size={14} className="text-islamic-gold" />
                                 <span className="text-sm font-bold text-islamic-gold">{credits}</span>
@@ -1036,7 +1113,7 @@ export default function DuaKosesi() {
                                 <p className="text-sm text-gray-400">{t('emptyFeed')}</p>
                             </div>
                         ) : (
-                            allDuas.map((dua) => {
+                            allDuas.map((dua, duaIndex) => {
                                 const isAmined = !!aminedPrayers[dua.id];
                                 return (
                                     <Card key={dua.id} className="rounded-[2.5rem] border-none shadow-sm dark:bg-white/5 overflow-hidden group">
@@ -1151,6 +1228,7 @@ export default function DuaKosesi() {
                                                     </AnimatePresence>
 
                                                     <Button
+                                                        data-tour={duaIndex === 0 ? 'dua-amin' : undefined}
                                                         onClick={() => handleAmin(dua.id)}
                                                         disabled={isAmined}
                                                         className={cn(
@@ -1182,6 +1260,7 @@ export default function DuaKosesi() {
                     <p className="text-sm font-bold text-gray-700 dark:text-emerald-100/80 mb-4">{t('joinQuestion')}</p>
 
                     <Button
+                        data-tour="dua-send"
                         onClick={() => {
                             if (!isPremium() && credits < CREDIT_COSTS.POST_DUA) {
                                 setShowPaywall(true);
@@ -1252,6 +1331,7 @@ export default function DuaKosesi() {
                     {
                         myRequests.length > 0 && (
                             <Button
+                                data-tour="dua-history"
                                 onClick={() => setShowHistory(true)}
                                 variant="ghost"
                                 className="w-full h-12 text-gray-500 dark:text-gray-400 rounded-2xl font-medium gap-2 hover:bg-[#F0E8D5] dark:hover:bg-white/5"
@@ -1352,8 +1432,49 @@ export default function DuaKosesi() {
                     }}
                 />
             </div >
+
+            {/* Tek seferlik ipuçları — karartmaz, engellemez */}
+            {activeHint && (
+                <HintCoach
+                    key={activeHint.id}
+                    targetId={activeHint.target}
+                    titleKey={activeHint.titleKey}
+                    bodyKey={activeHint.bodyKeyPremium && isPremium() ? activeHint.bodyKeyPremium : activeHint.bodyKey}
+                    icon={activeHint.icon}
+                    ns="dua"
+                    step={hintChain.indexOf(activeHint)}
+                    total={hintChain.length}
+                    values={{
+                        cost: CREDIT_COSTS.POST_DUA,
+                        reward: CREDIT_COSTS.AMIN_REWARD,
+                        adReward: CREDIT_COSTS.AD_REWARD,
+                    }}
+                    onClose={closeHint}
+                />
+            )}
         </div>
     );
+}
+
+// CAPSLOCK kontrolü — dua tamamen büyük harfle yazılınca bağırma gibi algılanıyor.
+// Türkçe'de I/İ ayrımı olduğu için dil duyarlı toLocale*Case ile harf tespiti yapılır;
+// Arapça gibi büyük/küçük harfi olmayan diller doğal olarak 0 oran döner (uyarı çıkmaz).
+const CAPS_WARN_RATIO = 0.6;
+const CAPS_BLOCK_RATIO = 0.8;
+const CAPS_MIN_LETTERS = 12;
+
+function getCapsRatio(text) {
+    let letters = 0;
+    let upper = 0;
+    for (const ch of text) {
+        const lower = ch.toLocaleLowerCase('tr');
+        const upperCh = ch.toLocaleUpperCase('tr');
+        if (lower === upperCh) continue; // harf değil (rakam, noktalama, emoji, Arapça harf...)
+        letters++;
+        if (ch === upperCh) upper++;
+    }
+    if (letters < CAPS_MIN_LETTERS) return 0; // kısa metinde oran yanıltıcı
+    return upper / letters;
 }
 
 // Prayer Request Form Component
@@ -1361,9 +1482,14 @@ function DuaIstegiFormu({ onSubmit, onCancel, initialText = '', mode = 'create',
     const [text, setText] = useState(initialText);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
+    const capsRatio = getCapsRatio(text);
+    const capsWarn = capsRatio >= CAPS_WARN_RATIO;
+    const capsBlocked = capsRatio >= CAPS_BLOCK_RATIO;
+
     const handleSubmit = async () => {
         const trimmedText = text.trim();
         if (trimmedText.length < 10 || trimmedText.length > 200) return;
+        if (getCapsRatio(trimmedText) >= CAPS_BLOCK_RATIO) return;
 
         setIsSubmitting(true);
         await onSubmit(trimmedText);
@@ -1445,6 +1571,17 @@ function DuaIstegiFormu({ onSubmit, onCancel, initialText = '', mode = 'create',
                         <div className="flex justify-between text-[11px] font-medium text-gray-400 dark:text-gray-500 px-1">
                             <span>{t('formCharLimit')}</span>
                         </div>
+                        {capsWarn && (
+                            <div className={cn(
+                                "flex items-start gap-2 rounded-2xl border p-4 text-[12px] leading-relaxed",
+                                capsBlocked
+                                    ? "bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-500/20 text-red-700 dark:text-red-300"
+                                    : "bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-500/20 text-amber-700 dark:text-amber-300"
+                            )}>
+                                <AlertCircle size={16} className="shrink-0 mt-0.5" />
+                                <span>{t(capsBlocked ? 'formCapsBlock' : 'formCapsWarn')}</span>
+                            </div>
+                        )}
                     </div>
                 </div>
 
@@ -1452,7 +1589,7 @@ function DuaIstegiFormu({ onSubmit, onCancel, initialText = '', mode = 'create',
                 <div className="p-6 pt-4 border-t dark:border-white/5 bg-white/50 dark:bg-[#032e18]/50 backdrop-blur-xl space-y-3">
                     <Button
                         onClick={handleSubmit}
-                        disabled={text.trim().length < 10 || isSubmitting}
+                        disabled={text.trim().length < 10 || capsBlocked || isSubmitting}
                         className="w-full h-14 bg-islamic-green dark:bg-islamic-gold text-white dark:text-[#032e18] rounded-2xl font-bold text-lg gap-3 disabled:opacity-50"
                     >
                         {isSubmitting ? (

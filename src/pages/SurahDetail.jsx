@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import {
     BookOpen, ArrowLeft, Bookmark, BookmarkCheck, Share2, RefreshCw, WifiOff,
     Loader2, ChevronDown, ChevronRight, CornerDownLeft, X, Play, Pause, Volume2, VolumeX, Crown,
-    SkipBack, SkipForward, MousePointerClick, Hash
+    SkipBack, SkipForward, MousePointerClick, Hash, Languages
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence, useDragControls } from 'framer-motion';
@@ -17,9 +17,14 @@ import ShareCard, { SHARE_THEMES } from '@/components/ShareCard';
 import { shareHiddenElement } from '@/lib/share';
 import { isPremium } from '@/services/creditService';
 import { analytics } from '@/services/analyticsService';
+import HintCoach from '@/components/HintCoach';
+import { readSeenHints, markHintSeen } from '@/lib/hints';
+import { requestListen, canListen, isTrialEligible } from '@/lib/quranTrial';
+import { useQuranTrial } from '@/hooks/useQuranTrial';
 
 import { useTranslation } from 'react-i18next';
 import { Capacitor, registerPlugin } from '@capacitor/core';
+import { clearMediaSession } from '@/lib/nowPlaying';
 
 const NowPlaying = Capacitor.isNativePlatform() ? registerPlugin('NowPlaying') : null;
 
@@ -627,6 +632,31 @@ const VerseItem = React.memo(({ verse, index, isBookmarked, toggleBookmark, hand
     );
 });
 
+// Sure içinde SIRAYLA gösterilen ipuçları. Kasıtlı olarak yalnız ücretsiz kullanıcıda
+// da çalışan işlevleri anlatır — dinleme/oynat premium olduğu için ipucu ona yönlendirmez.
+const SURAH_HINTS = [
+    { id: 'surah:modes', target: 'surah-modes', titleKey: 'tour.modes.title', bodyKey: 'tour.modes.body', icon: Languages },
+    { id: 'surah:jump', target: 'surah-jump', titleKey: 'tour.jump.title', bodyKey: 'tour.jump.body', icon: Hash },
+    // 3. adım: Dinle. İki metin varyantı aynı hedefi gösterir, biri görünür:
+    //  • deneme hakkı olan ücretsiz kullanıcı → "ilk 60 saniye ücretsiz"
+    //  • premium kullanıcı → 60 sn vurgusu olmadan
+    // Denemesi bitmiş ücretsiz kullanıcı hiçbirini görmez: onu "dinle" diye
+    // yönlendirmek doğrudan paywall'a itmek olurdu.
+    { id: 'surah:listen', target: 'surah-listen', titleKey: 'tour.listen.title', bodyKey: 'tour.listen.body', icon: Play, visible: isTrialEligible },
+    { id: 'surah:listen-premium', target: 'surah-listen', titleKey: 'tour.listen.title', bodyKey: 'tour.listen.bodyPremium', icon: Play, visible: isPremium },
+];
+
+// 60 saniyelik deneme ile gelindiğinde gösterilen tek ipucu: kelime takibi çalışırken
+// "şu an ne olduğunu" anlatır. Normal zincirin yerine geçer, üstüne binmez.
+const TRIAL_HINTS = [
+    { id: 'surah:karaoke', target: 'surah-modes', titleKey: 'tour.karaoke.title', bodyKey: 'tour.karaoke.body', icon: Volume2 },
+];
+
+/** Zincirde sırada bekleyen ilk ipucu (görülmemiş ve o an geçerli olan). */
+function nextInChain(chain, seen, after = -1) {
+    return chain.findIndex((h, i) => i > after && !seen[h.id] && (!h.visible || h.visible()));
+}
+
 export default function SurahDetail() {
     const { surahId } = useParams();
     const navigate = useNavigate();
@@ -656,12 +686,59 @@ export default function SurahDetail() {
         safeSetStorage('quran_default_sub_mode', readingSubMode);
     }, [readingSubMode]);
 
+    // ── Sure içi ipuçları ─────────────────────────────────────────────────
+    // İkisi de ÜCRETSİZ kullanıcıda çalışan şeyler: okuma modu geçişi ve ayete gitme.
+    // Dinleme/oynat premium olduğu için ipucu ona dokundurmaz.
+    const [seenHints, setSeenHints] = useState(readSeenHints);
+    const [hintIndex, setHintIndex] = useState(-1);
+    // Hangi zincir gösteriliyor: normal giriş mi, 60 sn'lik deneme akışı mı
+    const [hintChain, setHintChain] = useState(SURAH_HINTS);
+    const hintTimerRef = useRef(null);
+    // Zincir bitti mi? Aşağıdaki "çift dokun" ipucu bunu bekler — iki ipucu
+    // aynı anda ekranda olmasın.
+    const [hintsDone, setHintsDone] = useState(() => nextInChain(SURAH_HINTS, readSeenHints()) === -1);
+
+    const closeSurahHint = useCallback((markSeen = true) => {
+        if (hintIndex < 0) return;
+        const nextSeen = markSeen ? markHintSeen(hintChain[hintIndex].id) : seenHints;
+        setSeenHints(nextSeen);
+        setHintIndex(-1);
+        // Sıradaki ipucu varsa kısa bir nefes payından sonra açılır
+        const nextIdx = nextInChain(hintChain, nextSeen, hintIndex);
+        if (nextIdx >= 0) {
+            clearTimeout(hintTimerRef.current);
+            hintTimerRef.current = setTimeout(() => setHintIndex(nextIdx), 450);
+        } else if (hintChain === SURAH_HINTS) {
+            setHintsDone(true);
+        }
+    }, [hintIndex, seenHints, hintChain]);
+
+    useEffect(() => () => clearTimeout(hintTimerRef.current), []);
+
+    // `visible` gösterim anında da doğrulanır (koşul sırada beklerken bozulmuş olabilir)
+    const queuedHint = hintIndex >= 0 ? hintChain[hintIndex] : null;
+    const activeSurahHint = queuedHint && (!queuedHint.visible || queuedHint.visible()) ? queuedHint : null;
+    const visibleSurahChain = hintChain.filter(h => !h.visible || h.visible());
+
     // Jump to Verse State
     const verseRefs = React.useRef({});
     const [jumpTarget, setJumpTarget] = useState('');
     const [pendingJumpVerse, setPendingJumpVerse] = useState(null);
 
     const hasPremium = isPremium();
+
+    // ── 60 saniyelik dinleme denemesi ─────────────────────────────────────
+    // Süre dolunca ses durur ve tek seferlik bir kart çıkar. Deneme YALNIZ dinlemeyi
+    // açar: kaydetme ve paylaşım temaları premium olarak kalır.
+    const [trialEnded, setTrialEnded] = useState(false);
+    const stopEverythingRef = useRef(null);
+    const handleTrialEnd = useCallback(() => {
+        stopEverythingRef.current?.();
+        setTrialEnded(true);
+    }, []);
+    const trial = useQuranTrial({ onEnd: handleTrialEnd });
+    // Oynat tuşları: premium, süren deneme veya henüz kullanılmamış deneme hakkı
+    const canPlayUi = hasPremium || trial.active || trial.eligible;
 
     // Share State
     const [shareModalData, setShareModalData] = useState(null);
@@ -684,6 +761,7 @@ export default function SurahDetail() {
         if (!NowPlaying) return;
         let playListener;
         let pauseListener;
+        let stopListener;
 
         const setupListeners = async () => {
             playListener = await NowPlaying.addListener('remotePlay', () => {
@@ -698,6 +776,12 @@ export default function SurahDetail() {
                 setIsSurahPlaying(false);
                 NowPlaying.setNowPlaying({ isPlaying: false, currentTime: audio.currentTime });
             });
+            // Android: kullanıcı bildirimi kaydırdı — ses de sussun, kart yeniden kurulmasın
+            stopListener = await NowPlaying.addListener('remoteStop', () => {
+                audio.pause();
+                setIsSurahPlaying(false);
+                clearMediaSession();
+            });
         };
 
         setupListeners();
@@ -705,6 +789,7 @@ export default function SurahDetail() {
         return () => {
             if (playListener) playListener.remove();
             if (pauseListener) pauseListener.remove();
+            if (stopListener) stopListener.remove();
         };
     }, [audio]);
     const [isSurahPlaying, setIsSurahPlaying] = useState(false);
@@ -733,8 +818,9 @@ export default function SurahDetail() {
         }
         setJumpTarget('');
 
-        // Premium: start (or move) listening from that verse; free users just scroll
-        if (hasPremium) {
+        // Dinleme yetkisi varsa (premium ya da SÜREN deneme) oradan çalmaya başlar.
+        // Deneme burada BAŞLATILMAZ: başlatma bilinçli olsun diye yalnız oynat tuşunda.
+        if (canListen()) {
             playFromVerse(verseNumber);
         } else {
             selection();
@@ -790,6 +876,37 @@ export default function SurahDetail() {
             analytics.quranOpened(surahInfo.name, 'all');
         }
     }, [surahInfo?.name]);
+
+    // İlk ipucu: sure bilgisi gelip sayfa yerine oturduktan sonra
+    useEffect(() => {
+        if (!surahInfo || hintIndex >= 0) return undefined;
+        // Oynat tuşuyla gelindiyse ipucunu aşağıdaki otomatik-çalma effect'i kurar
+        // (deneme akışında kelime takibini anlatan ayrı zincir gösterilir).
+        if (location.state?.autoPlay) return undefined;
+        // Taze oku: bu effect `seenHints`'i deps'te tutmuyor, eski kopyayla karar verirse
+        // kapatılmış bir ipucunu (ör. dil değişip surahInfo tazelenince) tekrar açar.
+        const fresh = readSeenHints();
+        const first = nextInChain(hintChain, fresh);
+        if (first === -1) return undefined;
+        clearTimeout(hintTimerRef.current);
+        hintTimerRef.current = setTimeout(() => setHintIndex(first), 900);
+        return () => clearTimeout(hintTimerRef.current);
+        // Yalnız ilk yüklemede: sırayı closeSurahHint yürütür, bu effect araya girmemeli.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [surahInfo]);
+
+    // Ekranda duran ipucunun kimliği — sureden çıkarken "görüldü" yazmak için
+    const shownHintRef = useRef(null);
+    useEffect(() => {
+        shownHintRef.current = hintIndex >= 0 ? hintChain[hintIndex]?.id || null : null;
+    }, [hintIndex, hintChain]);
+
+    useEffect(() => () => {
+            // Balon kullanıcı kapatmadan düştü. "Görüldü" yazılmazsa başka bir
+            // sureye girildiğinde aynı ipucu baştan çıkar (kullanıcı raporu 2026-08-18).
+        const shown = shownHintRef.current;
+        if (shown) markHintSeen(shown);
+    }, []);
 
 
     // TanStack Query: Infinite Verses
@@ -877,7 +994,9 @@ export default function SurahDetail() {
                 album: album || 'Kuran-ı Kerim',
                 duration: audio.duration || 0,
                 currentTime: audio.currentTime || 0,
-                isPlaying: isPlaying
+                isPlaying: isPlaying,
+                // Android bildirim aksiyon metinleri (hikaye ile ortak çeviri)
+                labels: { play: t('stories:mediaPlay', 'Oynat'), pause: t('stories:mediaPause', 'Duraklat') }
             }).catch(() => {});
             
             // Listeners are added in useEffect
@@ -912,7 +1031,12 @@ export default function SurahDetail() {
     // Audio Logic
     const toggleSurahAudio = async () => {
         selection();
-        if (!hasPremium) { navigate('/premium'); return; }
+        // Dinleme kapısı — deneme hakkı varsa burada başlar (bkz. lib/quranTrial.js)
+        {
+            const gate = requestListen();
+            if (gate === 'blocked') { navigate('/premium'); return; }
+            if (gate === 'started') analytics.quranTrialStarted('surah_detail_listen');
+        }
 
         if (isSurahPlaying) {
             audio.pause();
@@ -949,8 +1073,19 @@ export default function SurahDetail() {
         const ts = location.state?._ts;
         if (location.state?.autoPlay && ts && ts !== autoPlayKey.current && surahInfo && verses.length > 0) {
             autoPlayKey.current = ts;
+            const fromTrial = location.state?.trialStarted === true;
             // Clear the state so back/forward doesn't re-trigger
             window.history.replaceState({}, '');
+            if (fromTrial) {
+                // Deneme akışı: kelime takibinin GÖRÜNDÜĞÜ ekrana geç ve onu anlatan
+                // ipucunu göster. Okunuş sekmesi seçilir çünkü takip orada en okunaklı.
+                setViewMode('reading');
+                setReadingSubMode('translit');
+                setHintChain(TRIAL_HINTS);
+                setHintIndex(-1);
+                clearTimeout(hintTimerRef.current);
+                hintTimerRef.current = setTimeout(() => setHintIndex(0), 1800);
+            }
             const timer = setTimeout(() => {
                 toggleSurahAudio();
             }, 600);
@@ -958,12 +1093,27 @@ export default function SurahDetail() {
         }
     }, [location.state, surahInfo, verses.length]);
 
+    // Tüm çalmayı durdurur: playlist sonu, deneme süresi bitişi ve benzeri durumlar.
+    const stopPlayback = useCallback(() => {
+        try { audio.pause(); } catch { /* ses kaynağı hazır değil */ }
+        setIsSurahPlaying(false);
+        setPlayingAyahKey(null);
+        setPlaylistIndex(-1);
+        if (NowPlaying) NowPlaying.clearNowPlaying().catch(() => {});
+        clearMediaSession(); // ölü handler kilit ekranında kalmasın
+        BackgroundMode.disable();
+    }, [audio]);
+
+    // Deneme bitiş geri çağrısı bu fonksiyondan ÖNCE tanımlandığı için ref üzerinden bağlanır
+    useEffect(() => { stopEverythingRef.current = stopPlayback; }, [stopPlayback]);
+
     const playFromPlaylist = (index, playlist = audioPlaylist) => {
         if (!playlist || index >= playlist.length) {
             setIsSurahPlaying(false);
             setPlayingAyahKey(null);
             setPlaylistIndex(-1);
             if (NowPlaying) NowPlaying.clearNowPlaying().catch(() => {});
+            clearMediaSession();
             BackgroundMode.disable();
             return;
         }
@@ -997,7 +1147,11 @@ export default function SurahDetail() {
         const target = parseInt(verseNumber);
         if (!target) return;
         selection();
-        if (!hasPremium) { navigate('/premium'); return; }
+        {
+            const gate = requestListen();
+            if (gate === 'blocked') { navigate('/premium'); return; }
+            if (gate === 'started') analytics.quranTrialStarted('surah_detail_verse');
+        }
 
         try {
             let files = audioPlaylist;
@@ -1018,7 +1172,11 @@ export default function SurahDetail() {
 
     const handlePlayAyah = async (verse) => {
         selection();
-        if (!hasPremium) { navigate('/premium'); return; }
+        {
+            const gate = requestListen();
+            if (gate === 'blocked') { navigate('/premium'); return; }
+            if (gate === 'started') analytics.quranTrialStarted('surah_detail_ayah');
+        }
 
         // Stop current playlist if running
         if (isSurahPlaying) {
@@ -1106,6 +1264,9 @@ export default function SurahDetail() {
     const hintScheduledRef = useRef(false);
     useEffect(() => {
         if (versesLoading || verses.length === 0 || hintScheduledRef.current) return;
+        // Sure ipuçları zinciri bitmeden ya da deneme sürerken gösterme:
+        // iki balon üst üste binmesin
+        if (!hintsDone || trial.active) return;
         const st = safeGetStorage(FOCUS_HINT_KEY, { count: 0, done: false });
         if (st.done || st.count >= 3) return;
         hintScheduledRef.current = true;
@@ -1115,7 +1276,7 @@ export default function SurahDetail() {
         }, 1200);
         const hideTimer = setTimeout(() => setShowFocusHint(false), 9000);
         return () => { clearTimeout(showTimer); clearTimeout(hideTimer); };
-    }, [versesLoading, verses.length]);
+    }, [versesLoading, verses.length, hintsDone, trial.active]);
 
     // Double-tap a verse in reading mode → open its focus card and play it
     const lastVerseTapRef = useRef({ key: null, t: 0 });
@@ -1281,7 +1442,7 @@ export default function SurahDetail() {
     return (
         <div className="min-h-screen bg-gradient-to-b from-[#F6F0E1] to-[#EDE5D1] dark:from-[#032e18] dark:to-[#021a0f] pb-24">
             <>
-                <div className="bg-islamic-green dark:bg-[#032e18] px-4 py-2 sticky top-0 z-40 border-b border-white/10 shadow-lg">
+                <div data-hint-anchor="surah-header" className="bg-islamic-green dark:bg-[#032e18] px-4 py-2 sticky top-0 z-40 border-b border-white/10 shadow-lg">
                     <div className="flex items-center gap-3">
                         <Button
                             onClick={() => {
@@ -1317,11 +1478,12 @@ export default function SurahDetail() {
                                 <span className="font-serif text-base">A<span className="text-xs ml-[1px]">a</span></span>
                             </Button>
                             <Button
+                                data-tour="surah-listen"
                                 onClick={toggleSurahAudio}
                                 disabled={isSurahLoading}
                                 className={cn(
                                     "flex items-center gap-2 px-6 py-2.5 rounded-2xl font-bold text-sm shadow-lg active:scale-95 transition-all",
-                                    hasPremium 
+                                    canPlayUi
                                         ? "bg-islamic-green dark:bg-islamic-gold text-white dark:text-[#032e18] hover:opacity-90"
                                         : "premium-play-btn bg-gradient-to-r from-[#D4AF37] via-[#E8C94A] to-[#C9982A] text-[#3D2E0A] shadow-[0_2px_16px_rgba(212,175,55,0.4)]"
                                 )}
@@ -1330,7 +1492,7 @@ export default function SurahDetail() {
                                     <Loader2 className="w-4 h-4 animate-spin" />
                                 ) : isSurahPlaying ? (
                                     <><Pause size={18} fill="currentColor" /> {t('quran:stop')}</>
-                                ) : !hasPremium ? (
+                                ) : !canPlayUi ? (
                                     <>
                                         <Crown size={16} className="fill-current opacity-80" />
                                         <span className="font-bold">{t('quran:listen')}</span>
@@ -1343,7 +1505,7 @@ export default function SurahDetail() {
                     </div>
                     
                     <div className="mt-2 border-t border-white/5 pt-2 flex items-center gap-2">
-                        <div className="bg-black/5 dark:bg-white/5 p-1 rounded-xl flex gap-1 overflow-hidden relative flex-1 min-w-0">
+                        <div data-tour="surah-modes" className="bg-black/5 dark:bg-white/5 p-1 rounded-xl flex gap-1 overflow-hidden relative flex-1 min-w-0">
                             {['translit', 'tr', 'ar'].map(mode => (
                                 <button
                                     key={`submode-${mode}`}
@@ -1386,7 +1548,7 @@ export default function SurahDetail() {
                         </>
                     )}
                     {/* Jump to verse: scrolls there, premium also starts listening from it */}
-                    <form onSubmit={handleJumpToVerse} className="flex items-center gap-2">
+                    <form data-tour="surah-jump" onSubmit={handleJumpToVerse} className="flex items-center gap-2">
                         <div className="relative flex-1">
                             <Hash className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400 dark:text-white/40" />
                             <input
@@ -1437,7 +1599,7 @@ export default function SurahDetail() {
                                             verseRefs.current[`idx-${verse.verseNumber}`] = el;
                                         }
                                     }}
-                                    hasPremium={hasPremium}
+                                    hasPremium={canPlayUi}
                                 />
                             ))}
                         </motion.div>
@@ -1781,7 +1943,89 @@ export default function SurahDetail() {
                 />
             )}
 
+            {/* Deneme geri sayımı — sadece deneme kullanan (premium olmayan) kullanıcıda */}
+            <AnimatePresence>
+                {trial.active && !hasPremium && (
+                    <motion.div
+                        initial={{ opacity: 0, y: -12 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -12 }}
+                        className="fixed left-1/2 -translate-x-1/2 z-[150] pointer-events-none"
+                        style={{ top: 'calc(env(safe-area-inset-top, 0px) + 64px)' }}
+                    >
+                        <div className="flex items-center gap-2 rounded-full pl-3 pr-3.5 py-1.5 bg-[#0b3d22]/95 dark:bg-[#0b3d22]/95 border border-islamic-gold/30 shadow-[0_8px_24px_-10px_rgba(0,0,0,0.7)]">
+                            <span className="relative flex w-2 h-2">
+                                <span className="absolute inline-flex w-full h-full rounded-full bg-islamic-gold opacity-70 animate-ping" />
+                                <span className="relative inline-flex w-2 h-2 rounded-full bg-islamic-gold" />
+                            </span>
+                            <span className="text-[11.5px] font-bold text-amber-50/90">{t('quran:trial.banner')}</span>
+                            <span className="text-[12px] font-black text-islamic-gold tabular-nums">{trial.label}</span>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
 
+            {/* Deneme bitti — tek seferlik satış kartı */}
+            <AnimatePresence>
+                {trialEnded && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-[210] flex items-end sm:items-center justify-center p-4 bg-black/55"
+                        onClick={() => setTrialEnded(false)}
+                    >
+                        <motion.div
+                            initial={{ y: 40, scale: 0.96 }}
+                            animate={{ y: 0, scale: 1 }}
+                            exit={{ y: 40, scale: 0.96 }}
+                            transition={{ type: 'spring', stiffness: 340, damping: 30 }}
+                            onClick={(e) => e.stopPropagation()}
+                            className="w-full max-w-sm rounded-[2rem] overflow-hidden bg-gradient-to-b from-[#0d4527] to-[#062c18] border border-islamic-gold/25 shadow-[0_24px_60px_-20px_rgba(0,0,0,0.8)]"
+                        >
+                            <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-islamic-gold/70 to-transparent" />
+                            <div className="p-6 text-center">
+                                <div className="w-14 h-14 mx-auto rounded-2xl flex items-center justify-center bg-gradient-to-br from-[#E8C766] to-[#C9A227] shadow-[0_10px_24px_-10px_rgba(212,175,55,0.7)]">
+                                    <Crown size={26} className="text-[#032e18]" fill="currentColor" />
+                                </div>
+                                <h3 className="mt-4 text-[19px] font-bold text-amber-50 tracking-tight">{t('quran:trial.endedTitle')}</h3>
+                                <p className="mt-2 text-[13.5px] leading-relaxed text-amber-50/70">{t('quran:trial.endedBody')}</p>
+
+                                <button
+                                    type="button"
+                                    onClick={() => { selection(); analytics.quranTrialEnded('to_premium'); setTrialEnded(false); navigate('/premium'); }}
+                                    className="mt-5 w-full h-12 rounded-2xl font-bold text-[14px] text-[#032e18] bg-gradient-to-b from-[#E8C766] to-[#CFA83A] shadow-[0_10px_24px_-10px_rgba(212,175,55,0.8)] active:scale-95 transition-transform"
+                                >
+                                    {t('quran:trial.endedCta')}
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => { selection(); analytics.quranTrialEnded('dismissed'); setTrialEnded(false); }}
+                                    className="mt-2 w-full h-10 rounded-2xl text-[13px] font-semibold text-amber-50/55 active:bg-white/5 transition-colors"
+                                >
+                                    {t('quran:trial.endedDismiss')}
+                                </button>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* Sure içi ipuçları — sırayla, engellemeden */}
+            {activeSurahHint && (
+                <HintCoach
+                    key={activeSurahHint.id}
+                    targetId={activeSurahHint.target}
+                    titleKey={activeSurahHint.titleKey}
+                    bodyKey={activeSurahHint.bodyKey}
+                    icon={activeSurahHint.icon}
+                    ns="quran"
+                    topAnchor="[data-hint-anchor='surah-header']"
+                    step={Math.max(0, visibleSurahChain.indexOf(activeSurahHint))}
+                    total={visibleSurahChain.length}
+                    onClose={closeSurahHint}
+                />
+            )}
         </div>
     );
 }

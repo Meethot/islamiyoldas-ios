@@ -35,8 +35,7 @@ Als der Prophet Yusuf seine Eltern auf seinen Thron setzte, hatte sich der Traum
 
 Das Geheimnis des Weges von der Dunkelheit des Brunnens zum Sultanat Ägyptens war ein einziges Wort: Geduld. Hz. Yusuf lehrte uns, dass das Fallen manchmal der erste Schritt zum Aufstieg ist. Und Allah ist mit den Geduldigen.`,
             duration: "5 Min",
-            category: "Propheten",
-            audioUrl: "/audio/hz-yusuf.mp3"
+            category: "Propheten"
         },
         { id: 2, title: "Die Heilung des Propheten Ayyub", content: "Trotz seiner jahrelangen Krankheit sagte das Denkmal der Geduld: 'Wahrlich, mich hat das Leid berührt, und Du bist der Barmherzigste der Barmherzigen'...", duration: "4 Min", category: "Propheten" },
         { id: 3, title: "Ibrahim und das Feuer", content: "Der Sultan des Gottvertrauens, der beim Wurf ins Feuer des Nimrod sagte: 'Allah genügt uns, und Er ist der beste Beschützer'...", duration: "6 Min", category: "Propheten" },

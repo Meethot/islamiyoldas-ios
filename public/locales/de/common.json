@@ -46,7 +46,7 @@
         "verse_daily": "Vers des Tages",
         "verse_filename": "vers-des-tages.png",
         "friday_filename": "freitagsbotschaft.png",
-        "verse_text": "\"{{text}}\" - {{source}}\n\nIslamischer Begleiter – Dein engster Begleiter auf dem spirituellen Weg 🤲",
+        "verse_text": "„{{text}}“ - {{source}}\n\nIslamischer Begleiter – Dein engster Begleiter auf dem spirituellen Weg 🤲",
         "verse_share_error": "Beim Teilen ist ein Fehler aufgetreten.",
         "hidden_title": "Islamischer Begleiter Teilen",
         "hidden_filename": "teilen.png",
@@ -59,9 +59,17 @@
         "title": "Gefällt dir der Islamische Begleiter?",
         "socialProof": "10.000+ Mitglieder in unserer Familie",
         "description": "Wir haben diese App mit Liebe für die Ummah entwickelt. Deine 5-Sterne-Bewertung hilft mehr Muslimen, diese App zu entdecken. 🤲",
-        "hadith": "\"Wer jemanden zum Guten führt, erhält eine ähnliche Belohnung.\" (Muslim)",
+        "hadith": "„Wer jemanden zum Guten führt, erhält eine ähnliche Belohnung.“ (Muslim)",
         "rateButton": "5 Sterne geben",
-        "later": "Später erinnern"
+        "later": "Später erinnern",
+        "askTitle": "Möchtest du uns unterstützen?",
+        "askDescription": "Wir entwickeln den Islamischen Begleiter mit viel Liebe und Mühe für die Ummah. Unterstützt du uns auf diesem Weg mit 5 Sternen?",
+        "askLater": "Später erinnern",
+        "thankYouTitle": "Möge Allah dich segnen! 🤍",
+        "thankYouDescription": "Deine Unterstützung bedeutet uns sehr viel. Danke, dass du uns bei der Weiterentwicklung motivierst.",
+        "feedbackTitle": "Danke für deine Rückmeldung",
+        "feedbackDescription": "Es tut uns leid, dass wir deine Erwartungen nicht erfüllen konnten. Wir arbeiten weiter daran, die App für dich besser zu machen.",
+        "closeUnderstand": "Verstanden"
     },
     "splash": {
         "title": "Islamischer Begleiter",

@@ -204,7 +204,7 @@
     "setTargetDesc": "Введите вашу личную цель для {{name}}.",
     "saveTarget": "СОХРАНИТЬ ЦЕЛЬ",
     "resetAllTooltip": "Сбросить весь зикр",
-    "footerVerse": "\"О вы, которые уверовали! Поминайте Аллаха часто и славьте Его утром и вечером.\"",
+    "footerVerse": "«О вы, которые уверовали! Поминайте Аллаха часто и славьте Его утром и вечером.»",
     "footerVerseSource": "СУРА АЛЬ-АХЗАБ, 41-42",
     "changeDhikr": "Сменить зикр",
     "searchPlaceholder": "Поиск зикра или имени...",
@@ -212,105 +212,303 @@
     "categoryEsma": "Прекрасные имена Аллаха",
     "noResults": "Ничего не найдено",
     "esma": {
-        "ar-rahman": { "meaning": "Милостивый" },
-        "ar-rahim": { "meaning": "Милосердный" },
-        "al-malik": { "meaning": "Властелин" },
-        "al-quddus": { "meaning": "Святой" },
-        "as-salam": { "meaning": "Дарующий мир" },
-        "al-mumin": { "meaning": "Дарующий безопасность" },
-        "al-muhaymin": { "meaning": "Хранитель" },
-        "al-aziz": { "meaning": "Могущественный" },
-        "al-jabbar": { "meaning": "Подчиняющий" },
-        "al-mutakabbir": { "meaning": "Превосходящий" },
-        "al-khaliq": { "meaning": "Творец" },
-        "al-bari": { "meaning": "Создатель" },
-        "al-musawwir": { "meaning": "Формирующий" },
-        "al-ghaffar": { "meaning": "Прощающий" },
-        "al-qahhar": { "meaning": "Покоряющий" },
-        "al-wahhab": { "meaning": "Дарующий" },
-        "ar-razzaq": { "meaning": "Дающий пропитание" },
-        "al-fattah": { "meaning": "Открывающий" },
-        "al-alim": { "meaning": "Всезнающий" },
-        "al-qabid": { "meaning": "Сжимающий" },
-        "al-basit": { "meaning": "Расширяющий" },
-        "al-khafid": { "meaning": "Понижающий" },
-        "ar-rafi": { "meaning": "Возвышающий" },
-        "al-muizz": { "meaning": "Дарующий честь" },
-        "al-mudhill": { "meaning": "Унижающий" },
-        "as-sami": { "meaning": "Всеслышащий" },
-        "al-basir": { "meaning": "Всевидящий" },
-        "al-hakam": { "meaning": "Судья" },
-        "al-adl": { "meaning": "Справедливый" },
-        "al-latif": { "meaning": "Добрый" },
-        "al-khabir": { "meaning": "Сведущий" },
-        "al-halim": { "meaning": "Кроткий" },
-        "al-azim": { "meaning": "Великий" },
-        "al-ghafur": { "meaning": "Всепрощающий" },
-        "ash-shakur": { "meaning": "Благодарный" },
-        "al-ali": { "meaning": "Высочайший" },
-        "al-kabir": { "meaning": "Величайший" },
-        "al-hafiz": { "meaning": "Хранитель" },
-        "al-muqit": { "meaning": "Питающий" },
-        "al-hasib": { "meaning": "Считающий" },
-        "al-jalil": { "meaning": "Величественный" },
-        "al-karim": { "meaning": "Щедрый" },
-        "ar-raqib": { "meaning": "Наблюдающий" },
-        "al-mujib": { "meaning": "Отзывчивый" },
-        "al-wasi": { "meaning": "Всеобъемлющий" },
-        "al-hakim": { "meaning": "Мудрый" },
-        "al-wadud": { "meaning": "Любящий" },
-        "al-majid": { "meaning": "Славный" },
-        "al-baith": { "meaning": "Воскрешающий" },
-        "ash-shahid": { "meaning": "Свидетель" },
-        "al-haqq": { "meaning": "Истина" },
-        "al-wakil": { "meaning": "Попечитель" },
-        "al-qawiy": { "meaning": "Сильный" },
-        "al-matin": { "meaning": "Прочный" },
-        "al-waliy": { "meaning": "Покровитель" },
-        "al-hamid": { "meaning": "Достохвальный" },
-        "al-muhsi": { "meaning": "Исчисляющий" },
-        "al-mubdi": { "meaning": "Начинающий" },
-        "al-muid": { "meaning": "Возвращающий" },
-        "al-muhyi": { "meaning": "Оживляющий" },
-        "al-mumit": { "meaning": "Умертвляющий" },
-        "al-hayy": { "meaning": "Живой" },
-        "al-qayyum": { "meaning": "Самодостаточный" },
-        "al-wajid": { "meaning": "Находящий" },
-        "al-majid2": { "meaning": "Благородный" },
-        "al-wahid": { "meaning": "Единый" },
-        "al-ahad": { "meaning": "Единственный" },
-        "as-samad": { "meaning": "Вечный" },
-        "al-qadir": { "meaning": "Могущественный" },
-        "al-muqtadir": { "meaning": "Всемогущий" },
-        "al-muqaddim": { "meaning": "Выдвигающий" },
-        "al-muakhkhir": { "meaning": "Отодвигающий" },
-        "al-awwal": { "meaning": "Первый" },
-        "al-akhir": { "meaning": "Последний" },
-        "az-zahir": { "meaning": "Явный" },
-        "al-batin": { "meaning": "Скрытый" },
-        "al-wali": { "meaning": "Управляющий" },
-        "al-mutaali": { "meaning": "Возвышенный" },
-        "al-barr": { "meaning": "Источник добра" },
-        "at-tawwab": { "meaning": "Принимающий покаяние" },
-        "al-muntaqim": { "meaning": "Мститель" },
-        "al-afuw": { "meaning": "Снисходительный" },
-        "ar-rauf": { "meaning": "Сострадательный" },
-        "malik-al-mulk": { "meaning": "Владыка царства" },
-        "dhul-jalali-wal-ikram": { "meaning": "Обладатель величия и почёта" },
-        "al-muqsit": { "meaning": "Беспристрастный" },
-        "al-jami": { "meaning": "Собирающий" },
-        "al-ghani": { "meaning": "Богатый" },
-        "al-mughni": { "meaning": "Обогащающий" },
-        "al-mani": { "meaning": "Предотвращающий" },
-        "ad-darr": { "meaning": "Приносящий вред" },
-        "an-nafi": { "meaning": "Приносящий пользу" },
-        "an-nur": { "meaning": "Свет" },
-        "al-hadi": { "meaning": "Ведущий верным путём" },
-        "al-badi": { "meaning": "Несравненный" },
-        "al-baqi": { "meaning": "Вечный" },
-        "al-warith": { "meaning": "Наследник" },
-        "ar-rashid": { "meaning": "Направляющий" },
-        "as-sabur": { "meaning": "Терпеливый" }
+        "ar-rahman": {
+            "meaning": "Милостивый"
+        },
+        "ar-rahim": {
+            "meaning": "Милосердный"
+        },
+        "al-malik": {
+            "meaning": "Властелин"
+        },
+        "al-quddus": {
+            "meaning": "Святой"
+        },
+        "as-salam": {
+            "meaning": "Дарующий мир"
+        },
+        "al-mumin": {
+            "meaning": "Дарующий безопасность"
+        },
+        "al-muhaymin": {
+            "meaning": "Хранитель"
+        },
+        "al-aziz": {
+            "meaning": "Могущественный"
+        },
+        "al-jabbar": {
+            "meaning": "Подчиняющий"
+        },
+        "al-mutakabbir": {
+            "meaning": "Превосходящий"
+        },
+        "al-khaliq": {
+            "meaning": "Творец"
+        },
+        "al-bari": {
+            "meaning": "Создатель"
+        },
+        "al-musawwir": {
+            "meaning": "Формирующий"
+        },
+        "al-ghaffar": {
+            "meaning": "Прощающий"
+        },
+        "al-qahhar": {
+            "meaning": "Покоряющий"
+        },
+        "al-wahhab": {
+            "meaning": "Дарующий"
+        },
+        "ar-razzaq": {
+            "meaning": "Дающий пропитание"
+        },
+        "al-fattah": {
+            "meaning": "Открывающий"
+        },
+        "al-alim": {
+            "meaning": "Всезнающий"
+        },
+        "al-qabid": {
+            "meaning": "Сжимающий"
+        },
+        "al-basit": {
+            "meaning": "Расширяющий"
+        },
+        "al-khafid": {
+            "meaning": "Понижающий"
+        },
+        "ar-rafi": {
+            "meaning": "Возвышающий"
+        },
+        "al-muizz": {
+            "meaning": "Дарующий честь"
+        },
+        "al-mudhill": {
+            "meaning": "Унижающий"
+        },
+        "as-sami": {
+            "meaning": "Всеслышащий"
+        },
+        "al-basir": {
+            "meaning": "Всевидящий"
+        },
+        "al-hakam": {
+            "meaning": "Судья"
+        },
+        "al-adl": {
+            "meaning": "Справедливый"
+        },
+        "al-latif": {
+            "meaning": "Добрый"
+        },
+        "al-khabir": {
+            "meaning": "Сведущий"
+        },
+        "al-halim": {
+            "meaning": "Кроткий"
+        },
+        "al-azim": {
+            "meaning": "Великий"
+        },
+        "al-ghafur": {
+            "meaning": "Всепрощающий"
+        },
+        "ash-shakur": {
+            "meaning": "Благодарный"
+        },
+        "al-ali": {
+            "meaning": "Высочайший"
+        },
+        "al-kabir": {
+            "meaning": "Величайший"
+        },
+        "al-hafiz": {
+            "meaning": "Хранитель"
+        },
+        "al-muqit": {
+            "meaning": "Питающий"
+        },
+        "al-hasib": {
+            "meaning": "Считающий"
+        },
+        "al-jalil": {
+            "meaning": "Величественный"
+        },
+        "al-karim": {
+            "meaning": "Щедрый"
+        },
+        "ar-raqib": {
+            "meaning": "Наблюдающий"
+        },
+        "al-mujib": {
+            "meaning": "Отзывчивый"
+        },
+        "al-wasi": {
+            "meaning": "Всеобъемлющий"
+        },
+        "al-hakim": {
+            "meaning": "Мудрый"
+        },
+        "al-wadud": {
+            "meaning": "Любящий"
+        },
+        "al-majid": {
+            "meaning": "Славный"
+        },
+        "al-baith": {
+            "meaning": "Воскрешающий"
+        },
+        "ash-shahid": {
+            "meaning": "Свидетель"
+        },
+        "al-haqq": {
+            "meaning": "Истина"
+        },
+        "al-wakil": {
+            "meaning": "Попечитель"
+        },
+        "al-qawiy": {
+            "meaning": "Сильный"
+        },
+        "al-matin": {
+            "meaning": "Прочный"
+        },
+        "al-waliy": {
+            "meaning": "Покровитель"
+        },
+        "al-hamid": {
+            "meaning": "Достохвальный"
+        },
+        "al-muhsi": {
+            "meaning": "Исчисляющий"
+        },
+        "al-mubdi": {
+            "meaning": "Начинающий"
+        },
+        "al-muid": {
+            "meaning": "Возвращающий"
+        },
+        "al-muhyi": {
+            "meaning": "Оживляющий"
+        },
+        "al-mumit": {
+            "meaning": "Умертвляющий"
+        },
+        "al-hayy": {
+            "meaning": "Живой"
+        },
+        "al-qayyum": {
+            "meaning": "Самодостаточный"
+        },
+        "al-wajid": {
+            "meaning": "Находящий"
+        },
+        "al-majid2": {
+            "meaning": "Благородный"
+        },
+        "al-wahid": {
+            "meaning": "Единый"
+        },
+        "al-ahad": {
+            "meaning": "Единственный"
+        },
+        "as-samad": {
+            "meaning": "Вечный"
+        },
+        "al-qadir": {
+            "meaning": "Могущественный"
+        },
+        "al-muqtadir": {
+            "meaning": "Всемогущий"
+        },
+        "al-muqaddim": {
+            "meaning": "Выдвигающий"
+        },
+        "al-muakhkhir": {
+            "meaning": "Отодвигающий"
+        },
+        "al-awwal": {
+            "meaning": "Первый"
+        },
+        "al-akhir": {
+            "meaning": "Последний"
+        },
+        "az-zahir": {
+            "meaning": "Явный"
+        },
+        "al-batin": {
+            "meaning": "Скрытый"
+        },
+        "al-wali": {
+            "meaning": "Управляющий"
+        },
+        "al-mutaali": {
+            "meaning": "Возвышенный"
+        },
+        "al-barr": {
+            "meaning": "Источник добра"
+        },
+        "at-tawwab": {
+            "meaning": "Принимающий покаяние"
+        },
+        "al-muntaqim": {
+            "meaning": "Мститель"
+        },
+        "al-afuw": {
+            "meaning": "Снисходительный"
+        },
+        "ar-rauf": {
+            "meaning": "Сострадательный"
+        },
+        "malik-al-mulk": {
+            "meaning": "Владыка царства"
+        },
+        "dhul-jalali-wal-ikram": {
+            "meaning": "Обладатель величия и почёта"
+        },
+        "al-muqsit": {
+            "meaning": "Беспристрастный"
+        },
+        "al-jami": {
+            "meaning": "Собирающий"
+        },
+        "al-ghani": {
+            "meaning": "Богатый"
+        },
+        "al-mughni": {
+            "meaning": "Обогащающий"
+        },
+        "al-mani": {
+            "meaning": "Предотвращающий"
+        },
+        "ad-darr": {
+            "meaning": "Приносящий вред"
+        },
+        "an-nafi": {
+            "meaning": "Приносящий пользу"
+        },
+        "an-nur": {
+            "meaning": "Свет"
+        },
+        "al-hadi": {
+            "meaning": "Ведущий верным путём"
+        },
+        "al-badi": {
+            "meaning": "Несравненный"
+        },
+        "al-baqi": {
+            "meaning": "Вечный"
+        },
+        "al-warith": {
+            "meaning": "Наследник"
+        },
+        "ar-rashid": {
+            "meaning": "Направляющий"
+        },
+        "as-sabur": {
+            "meaning": "Терпеливый"
+        }
     },
     "dhikrLimit": {
         "title": "Дневной лимит зикра",
@@ -347,5 +545,25 @@
         "enabled": "Счет кнопками громкости включен",
         "disabled": "Счет кнопками громкости выключен",
         "tooltip": "Счет кнопками громкости"
+    },
+    "tour": {
+        "gotIt": "Понятно",
+        "next": "Далее",
+        "picker": {
+            "title": "Выберите зикр",
+            "body": "Здесь 44 готовых зикра и прекрасные имена Аллаха. Если вашего нет, введите его в поле поиска и добавьте."
+        },
+        "target": {
+            "title": "Задайте цель",
+            "body": "33, 99 или своё число. При достижении круг завершается, и счётчик начинает новый."
+        },
+        "theme": {
+            "title": "Смените вид",
+            "body": "Переключает три темы: Чётки, Кликер и Классическая. У чёток выбирается материал бусины, у кликера — цвет."
+        },
+        "settings": {
+            "title": "Звук, вибрация, сочетания",
+            "body": "Звук нажатия и вибрация настраиваются здесь. Чтобы считать не глядя на экран, включите счёт кнопками громкости или касание всего экрана."
+        }
     }
 }

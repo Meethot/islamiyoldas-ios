@@ -57,7 +57,7 @@
     "birthdayCard": {
         "heading": "🎂 {{date}} doğulanların ayəsi",
         "share": "Paylaş",
-        "shareText": "🎂 {{date}} doğulanların ayəsi\n\n\"{{translation}}\"\n— {{source}}\n\nSəninki hansı ayədir? İslami Yoldaş ilə kəşf et:\n{{link}}",
+        "shareText": "🎂 {{date}} doğulanların ayəsi\n\n“{{translation}}”\n— {{source}}\n\nSəninki hansı ayədir? İslami Yoldaş ilə kəşf et:\n{{link}}",
         "cta": "Sənin doğum ayən hansıdır?\nİslami Yoldaş-da kəşf et",
         "appName": "İslami Yoldaş"
     }

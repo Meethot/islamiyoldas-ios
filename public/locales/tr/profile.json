@@ -65,7 +65,10 @@
   },
   "delete_account": {
     "title": "Hesabı Sil",
-    "confirm": "Hesabınız ve tüm verileriniz silinecektir. Bu işlem geri alınamaz. Emin misiniz?"
+    "confirm": "Hesabınız ve tüm verileriniz silinecektir. Bu işlem geri alınamaz. Emin misiniz?",
+    "success_title": "Hesabınız Silindi",
+    "success_desc": "Hesabınız ve tüm verileriniz başarıyla silindi. Uygulamadan güvenle çıkabilirsiniz.",
+    "success_hint": "Uygulamayı kapatabilirsiniz"
   },
   "avatar": {
     "male": "Bey",
@@ -100,5 +103,14 @@
   "haptics": {
     "title": "Titreşim",
     "subtitle": "Uygulama içi dokunma hissi"
+  },
+  "rate_us": {
+    "title": "Bizi Puanlayın",
+    "subtitle": "Uygulamaya destek olun",
+    "already_rated_title": "Teşekkür Ederiz",
+    "already_rated": "Desteğiniz için teşekkür ederiz"
+  },
+  "common": {
+    "done": "Tamam"
   }
 }
