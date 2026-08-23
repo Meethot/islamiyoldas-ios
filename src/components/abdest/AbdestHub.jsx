@@ -1,12 +1,13 @@
 import { useState, useMemo, useRef, useCallback, useEffect } from 'react';
 import { Search, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { cn } from '@/lib/utils';
 import { useHaptics } from '@/hooks/useMobile';
 import { analytics } from '@/services/analyticsService';
 import { MihrabArch } from '@/components/dua/DuaRow';
-import { ABDEST_TOPICS } from '@/data/abdestTopics';
 import { BREAKERS, scoreMatch, byRelevance } from '@/data/wuduBreakers';
-import { MESH_SECTIONS } from '@/data/abdestTopics';
+import { VERDICT_DOT } from '@/lib/verdictStyle';
+import { ABDEST_TOPICS, MESH_SECTIONS } from '@/data/abdestTopics';
 
 const MIN_QUERY = 2;
 const SEARCH_EVENT_DELAY = 600;
@@ -152,6 +153,7 @@ export default function AbdestHub({ guides, meshBadge = null, onOpen }) {
                     stepIndex: -1,
                     breakerId: b.id,
                     sectionId: null,
+                    hukum: b.hukum,
                     label: t(`breakers.${b.id}.title`),
                     aliases: b.aliases?.tr || [],
                     body: t(`breakers.${b.id}.body`),
@@ -249,6 +251,11 @@ export default function AbdestHub({ guides, meshBadge = null, onOpen }) {
                                 onClick={() => openTopic(hit.topic, hit.stepIndex, hit.breakerId, hit.sectionId)}
                                 className="flex w-full items-center gap-3 px-4 py-3 text-start transition-colors active:bg-black/[0.04] dark:active:bg-white/10"
                             >
+                                {/* Hüküm noktası "Bozar mı?" tabakasındakiyle aynı dil.
+                                    Renk tek taşıyıcı değil: hükmün adı alt satırda yazılı. */}
+                                {hit.hukum && (
+                                    <span aria-hidden="true" className={cn('h-2 w-2 shrink-0 rounded-full', VERDICT_DOT[hit.hukum])} />
+                                )}
                                 <span className="min-w-0 flex-1">
                                     <span className="block truncate font-display text-[0.875rem] font-semibold text-stone-800 dark:text-emerald-50">
                                         {hit.label}

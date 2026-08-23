@@ -31,7 +31,8 @@
   },
   "share": {
     "title": "Fortschritt teilen",
-    "subtitle": "Tuba-Baum in sozialen Medien teilen"
+    "subtitle": "Tuba-Baum in sozialen Medien teilen",
+    "button": "Teilen"
   },
   "invite": {
     "title": "Freund einladen",
@@ -112,5 +113,13 @@
   },
   "common": {
     "done": "Fertig"
-  }
+  },
+  "invalid_name": "Bitte gib einen Namen mit 1 bis 25 Zeichen ein.",
+  "name_modal": {
+    "title": "Namen bearbeiten",
+    "label": "Dein Name",
+    "placeholder": "Nutzer",
+    "hint": "Der Name muss 1–25 Zeichen lang sein und darf nur Buchstaben enthalten."
+  },
+  "rights_reserved": "ALLE RECHTE VORBEHALTEN"
 }

@@ -15,6 +15,7 @@ import { initCrashlytics, logPageView } from './services/crashService';
 import { initOneSignal, setLanguageTag } from './services/pushService';
 import { storageService } from './services/storageService';
 import { analytics } from './services/analyticsService';
+import { notificationTypeOf } from './lib/notificationTypes';
 
 import ScrollToTop from './components/ScrollToTop';
 import SwipeBackHandler from './components/SwipeBackHandler';
@@ -214,28 +215,13 @@ function AppContent() {
     const setupNotificationListeners = async () => {
       try {
         notifReceivedListener = await LocalNotifications.addListener('localNotificationReceived', (notification) => {
-          let type = 'general';
-          if (notification.extra && notification.extra.type) {
-            type = notification.extra.type;
-          } else if (notification.id >= 1001 && notification.id <= 1003) {
-            type = 'prayer_time';
-          } else if (notification.id === 2000) {
-            type = 'dhikr_reminder';
-          }
-          analytics.notificationReceived(type);
+          analytics.notificationReceived(notificationTypeOf(notification?.id, notification?.extra?.type));
         });
 
         notifActionListener = await LocalNotifications.addListener('localNotificationActionPerformed', (notificationAction) => {
           const notification = notificationAction.notification;
-          let type = 'general';
-          if (notification.extra && notification.extra.type) {
-            type = notification.extra.type;
-          } else if (notification.id >= 1001 && notification.id <= 1003) {
-            type = 'prayer_time';
-          } else if (notification.id === 2000) {
-            type = 'dhikr_reminder';
-          }
-          analytics.notificationTapped(type);
+          // Eski ID tahmini 2000'i 'dhikr_reminder' sanıyordu — 2000 CUMA, zikir 3000.
+          analytics.notificationTapped(notificationTypeOf(notification?.id, notification?.extra?.type));
 
           // Deep link: navigate to route if specified in notification extra
           if (notification.extra && notification.extra.route) {

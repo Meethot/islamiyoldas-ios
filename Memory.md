@@ -265,10 +265,255 @@ Projeye dair kalıcı bilgiler ve mevcut durum. Çalışma kuralları için `ins
     - **UYGULAMA GENELİ — düz tırnak temizliği.** 8 namespace × 6 dilde 160 düz `"` dile göre tipografik tırnağa çevrildi (tr/en/az `“ ”` · de `„ “` · ru/ar `« »`). **HTML etiketlerinin içine dokunulmadı**: `class="text-[#D4AF37]"` gibi öznitelikler düz tırnak olmak zorunda — dönüştürücü metni etiketlere göre parçalayıp yalnız etiket dışını çeviriyor (`dua.paywallEarnHint` ikisini bir arada taşıyor). Eşleşmeyen tek tırnak varsa dokunulmuyor.
     - **CANLI HATA — kodda t('anahtar', 'Türkçe varsayılan') ile çağrılan 17 anahtar HİÇBİR locale dosyasında yoktu**, yani beş dilde de ekranda Türkçe metin çıkıyordu: `Profile` puanlama diyaloğu + hesap silme onayı (8), `DuaKosesi` şikayet akışı (6), `WidgetGuide` geri butonu, `LocationSettings` "Hesaplama Yöntemi". 6 dile eklendi; TR değerleri koddaki metnin AYNISI (Türk kullanıcı için görünüm değişmedi).
     - **`ReviewPrompt`'un 8 anahtarı ar/az/de/ru'da eksikti** (`askTitle/askDescription/askLater/thankYou*/feedback*/closeUnderstand`) — herkese gösterilen diyalog o dillerde İngilizce'ye ya da koddaki Türkçe varsayılana düşüyordu. Dördü de çevrildi.
-    - **Sonuç: 20 namespace × 6 dil TAM parite** — eksik/fazla anahtar 0, placeholder farkı 0, kodda karşılıksız anahtar 0. (İlk kez app geneli ölçüldü; önceki turlar yalnız `learn`'e bakıyordu.)
+    - **Sonuç: 18 namespace × 6 dil TAM parite** — eksik/fazla anahtar 0, placeholder farkı 0, kodda karşılıksız anahtar 0. (İlk kez app geneli ölçüldü; önceki turlar yalnız `learn`'e bakıyordu.)
     - **FORMAT UYARISI:** `profile.json` ve `settings.json` altı dilde de **2 boşluk** girintili, diğer 18 namespace 4 boşluk. Kendi içinde tutarlı, bilerek bırakıldı — toplu "düzeltme" scripti yazarken bu iki dosyayı 4'e çevirme, dev bir gürültü diff'i olur.
-    - **Doğrulama:** 11.753 kontrol ✓ (hub 48→78, keys 220→222) · `npm run build` ✓ · dokunulan dosyalarda lint 0 hata · 20 ns × 6 dil parite + placeholder + format ✓ · `cap copy` ios+android ✓.
+    - **Doğrulama:** 11.753 kontrol ✓ (hub 48→78, keys 220→222) · `npm run build` ✓ · dokunulan dosyalarda lint 0 hata · 18 ns × 6 dil parite + placeholder + format ✓ · `cap copy` ios+android ✓.
     - **Dokunulmadı (bilinçli):** `ReviewPrompt.jsx`'te önceden duran 2 lint hatası (`set-state-in-effect`, `only-export-components`). `navCountSession` gerçekten kullanılıyor (3 gezinti sonrası tetikleyici); ref'e çevirmek popup'ın cooldown mantığını yeniden kurmayı gerektirir ve o mantık kullanıcı tarafından elle ayarlandı.
+
+## "Bozar mı?" ekranı — hüküm rengi (2026-08-20)
+
+Kullanıcı: *"Bu ekran aşırı sıkıcı ve sadece kalmış... odağı kaçırmayalım ama bu kadar da sıkıcı olmasın."* Yine **tahmin edilmedi, seçenek gösterildi** (memory: `yapi-once-gorunum-sonra`): 5 gerçekten farklı yön telefon çerçevesinde tek sayfada verildi (A Hüküm rengi · B Mihrap başlığı · C Kart ızgarası · D Her zaman bir cevap · E Renk bölgesi). Kullanıcı **A**'yı seçti, tek turda bitti.
+
+**Teşhis (sıkıcılığın sebebi süssüzlük değildi):** hüküm sağda %40 opaklıkla duruyordu, ekranda okunmuyordu bile — liste "41 isim" gibi görünüyordu, "41 cevap" gibi değil; büyük cevap kartı yalnız aramadan sonra çıktığı için ekran boş açılıyordu; üç bölüm de aynı ritimdeydi.
+
+**Uygulanan (`BreakerSheet.jsx`):** `DOT` / `PILL` / `BAND` sabitleri. Her satırın solunda 8px hüküm noktası (bozar = dolu kehribar/altın, duruma göre = halka, bozmaz = nötr) — soldan aşağı renk ritmi bu. Bölüm başlığı artık `Band` bileşeni: hükmün renginde, sayı sağda `tabular-nums` ile. Eski `{hüküm} · {sayı}` gri satırı gitti.
+
+**İnce karar — pili yalnız ARAMA sonuçlarında** (`Row` `pill` prop'u, gruplu listede `false`): gruplu listede üstteki bant zaten hükmü söylüyor, aynı kelimeyi 20 satır tekrar etmek hem gürültü hem Almanca ("BRICHT DEN WUDU" ~124px) başlığı kırpıyordu. Pili gizlenince hüküm `sr-only` ile ekran okuyucuya verilir — **renk asla tek taşıyıcı değil** (renk körlüğü + gündüz temasında yeşil yasağı; gündüz kehribar `#B45309`, gece `islamic-gold`).
+
+**Rötuş turu (aynı gün):** hüküm görsel dili `src/lib/verdictStyle.js`'e taşındı (`VERDICT_DOT` / `VERDICT_PILL` / `VERDICT_BAND`) — iki ekran okuyor: "Bozar mı?" tabakası ve **Öğren > Abdest merkezinin arama sonuçları** (orada bozan maddeler artık aynı noktayı taşıyor, hükmün adı alt satırda zaten yazılıydı). Ayrı tutulsaydı iki ekran aynı hükmü farklı renkte gösterirdi. `BreakerSheet` yerel sabitleri bıraktı, ölü `active={false}` prop'u silindi, `AbdestHub`'daki çift `abdestTopics` import'u birleştirildi. **duruma-göre noktası** `border-2` → `border-[1.5px]`: 8px kutuda 2px kenarlık deliği kapatıp dolu noktaya benziyordu. Açık temada nötr nokta `black/25` → `black/30`.
+
+**Yanlış alarm, kayda geçsin:** `usePrayerFocus.js` Android'e `sound: 'beep.wav'` gönderiyor, `HomeComponents` ise `'beep'` — sessiz bildirim şüphesiyle bakıldı, **sorun yok**: Capacitor `AssetUtil.getResourceBaseName()` uzantıyı kırpıyor. Kaynaktan doğrulandı, kod değiştirilmedi.
+
+**TEST TUZAĞI — tekrar etmesin:** `hub.mjs` sonundaki `process.exit(fail?1:0)`'ten SONRA yeni kontrol eklendiği için 20+ kontrol hiç çalışmadı ve test yine de "HEPSİ GEÇTİ" yazdı. Bu dosyalara kontrol eklerken **özet satırının ÖNÜNE** ekle. Diğer 6 test dosyası tarandı, aynı hata yok. Ayrıca `verdictStyle.js` `@/` alias'ı kullandığı için Node'dan `import` edilemiyor — test onu **metin olarak** tarıyor. Hub testi 78 → **183 kontrol**.
+
+Yeni locale anahtarı GEREKMEDİ (mevcut `verdict.*` kullanıldı). Build ✓ · lint 0 hata · 11.753 kontrol ✓ · Tailwind'in ürettiği CSS'te yeni keyfi değerler doğrulandı (`padding:.1875rem`, `letter-spacing:.06em`) · cap copy ✓. **Cihazda bakılacak:** `--app-font-scale` 1.3'te pilin başlığı ne kadar kırptığı, açık temada nokta kontrastı.
+
+## Paket temizliği (2026-08-20)
+
+Release öncesi, kullanıcı: "uygulamayı App Store'a yüklerken mb arttıran png falan varsa sil".
+
+**Uygulama paketinden çıkanlar** (hepsi "kullanılıyor mu" diye tek tek doğrulandı):
+- `public/pwa-192x192.png` (54K), `public/favicon.ico` (3K), `public/assets/beep.wav` (88K) — **bunlar commit `3e03bc3`'te git'ten silinmişti ama diskte kalmıştı**; `public/` altındaki her şey Vite tarafından kopyalandığı için üç dosya da hâlâ iOS ve Android paketine giriyordu. Sessiz sızıntı.
+- `ios/.../Assets.xcassets/Splash.imageset` (292K, 6 PNG) — LaunchScreen storyboard `SplashLogo`'yu kullanıyor, Capacitor splash eklentisi de storyboard'u açıyor (`SplashScreen.swift`: `UILaunchStoryboardName`). `Splash` adına hiçbir referans yok. **DİKKAT: `npx capacitor-assets generate` çalıştırılırsa geri gelir.**
+- Kazanç: iOS ~437K, Android ~145K.
+
+**Bilerek DURANLAR** (hepsi kullanımda, silinemez): `AppIcon-512@2x.png` 684K (App Store zorunlu) · `kabe-premium.png` 572K (Qibla) · `pwa-512x512.png` 328K + `apple-touch-icon.png` 48K (**MediaSession kilit ekranı görseli** — Quran.jsx/SurahDetail.jsx; PWA ikonu sanılıp silinmemeli) · `LockScreenLogo` 328K (NowPlayingPlugin) · `SplashLogo` 240K (LaunchScreen) · `logo.png` 216K (SplashScreen) · 15 hikaye JPG 848K (id 1-15, hepsi eşleşiyor) · `res/raw/ezan.mp3` 5.3M (Android'in en büyük varlığı) · `beep.wav`/`beep.caf` native kopyaları (bildirim sesi res/raw'dan çözülür, web kopyası gereksizdi).
+
+**Diskten silinenler (uygulamaya girmiyordu):** kök ekran görüntüleri `dua-light.png`/`stories-hint.png`/`stories-light.png` (536K), `.DS_Store`, `.playwright-mcp/` (3.1M), `dist/` (11M), `android/app/build/` (418M). Toplam ~433M.
+
+**Kullanıcı kararıyla DOKUNULMADI:** `android/app/release/` (92M; 18M bayat `.aab` + 74M açılmış hâli, 755 dosya git'te) ve kökteki 26 tek-seferlik `.py` scripti (148K) — ikisi de uygulamaya girmiyor. Not: oradaki `.aab` bu oturumlardaki işlerden ÖNCE alınmış, yani bayat; release'de onu yükleme.
+
+**Sonraki adım istenirse:** kalan PNG'ler sıkıştırılmamış (~2.4M'lik grup). pngquant/oxipng ile görsel kayıp olmadan ~1.5M kazanılabilir; makinede araç kurulu değil, kurulum + görsel kontrol gerekir.
+
+**Doğrulanmadı:** Xcode derlemesi çalıştırılmadı (imzalama gerekiyor). `Splash.imageset` referanssızlığı kaynak taramasıyla kanıtlandı, cihazda açılış ekranı bir kez görülmeli.
+
+## Uygulama geneli hata avı (2026-08-20)
+
+Kullanıcı: *"Tekrardan hataları kontrol et hiç hata olsun istemiyorum."* Abdest turu temizdi
+(11.845 kontrol ✓), o yüzden tarama **uygulama geneline** açıldı. Bulunanların hiçbiri
+kullanıcı raporu değil — hepsi ölçümle çıktı.
+
+**1. `Profile.jsx`'te gerçek çalışma-anı çökmesi.** Paylaş butonunda
+`const success = await shareProgress(...)` haptic `success` fonksiyonunu **gölgeliyordu**;
+sonraki satır `if (success) success()` yani `true()` çağırıyordu → her BAŞARILI paylaşımda
+`TypeError`. async onClick içinde olduğu için ErrorBoundary yakalamıyor, sessizce
+Crashlytics'e düşüyordu. Yerel değişken `shared` oldu. Aynı gölgeleme deseni
+`Profile.jsx:647` ve `Home.jsx:655`'te de var ama oralarda `heavy()`/`selection()`
+çağrılıyor — zararsız, dokunulmadı.
+
+**2. İsim alanı Latin'e kilitliydi.** `/^[a-zA-ZğüşıöçĞÜŞİÖÇ\s]*$/` — Arapça, Kiril,
+Azerice `ə`, Almanca `ä`/`ß` yazılamıyordu: tuşa basınca **hiçbir şey olmuyordu**
+(6 dilin 4'ünde kendi adını yazamama). Artık `/^[\p{L}\p{M}\s'’-]*$/u`. 11 vakalık
+birim testi ✓ (Əli, Мурат, محمد, Jörg Müller, 名前 geçer; "Ali 123", "<script>" geçmez).
+
+**3. Koşullu hook — React çökmesi bekliyordu.** `ReligiousCalendarWidget`
+(`HomeComponents.jsx`) `if (!nextEvent) return null;` **satırından SONRA** `useEffect`
+çağırıyordu. Yaklaşan dinî gün listesi tükendiğinde hook sayısı düşüp React
+"Rendered fewer hooks than expected" ile ana ekranı patlatırdı. Hook erken return'ün
+üstüne alındı. (`react-hooks/rules-of-hooks` lint hatası buydu.)
+
+**4. `MihrabDecoration` render içinde tanımlıydı** (`VerseOfDayCard`): her render'da yeni
+bileşen kimliği → SVG alt ağacı komple sökülüp yeniden kuruluyordu. Modül kapsamına alındı
+(hiçbir şeyi closure'lamıyordu).
+
+**5. 16 locale anahtarı HİÇBİR dilde yoktu** — `t('anahtar', { defaultValue: 'Türkçe' })`
+deseniyle maskelenmişti, yani 5 dilde de ekranda Türkçe çıkıyordu. 15'i Zikirmatik'in
+hızlı ayarlar panelinde (`dhikr`: `settings`, `quickSettings`, `setTotalCount(+Desc)`,
+`fullscreenTap`, `fullScreenTapDesc`, `fullScreenTap.enabled/disabled`,
+`volumeButtonsLabel/Desc`, `vibration.offShort/targetOnlyShort/everyClickShort`,
+`customDhikrDesc`, `searchResults`). **`profile:invalid_name` daha kötüydü**: kod
+`t('invalid_name') || 'Lütfen…'` yazıyordu ama i18next eksik anahtarda anahtarın KENDİSİNİ
+döndürür (truthy) → `||` hiç çalışmıyor, kullanıcı **ham "invalid_name"** yazısı görüyordu,
+Türkçe dahil. Hepsi 6 dile eklendi. (Aynı sınıf bir önceki turda 17 anahtarla yakalanmıştı;
+o tur pozisyonel varsayılana bakıyordu, bu tur `defaultValue:` ve `|| fallback` desenleri de
+tarandı.)
+
+**6. Sabit Türkçe UI metinleri lokalize edildi.** Profil isim modali (başlık, etiket,
+placeholder, ipucu, İptal, Kaydet), alt bilgideki "TÜM HAKLARI SAKLIDIR", paylaş butonu;
+Home'daki Esma sayacı sıfırlama onayı (soru, İptal, Sıfırla), sıfırla ve titreşim
+tooltip'leri. Yeni anahtar: `profile.name_modal.{title,label,placeholder,hint}`,
+`profile.rights_reserved`, `profile.share.button`, `home.reset_confirm`; İptal/Kaydet için
+zaten var olan `common:common.cancel/save` kullanıldı.
+
+**Bakılıp DOKUNULMAYANLAR (kayda geçsin, tekrar araştırma):**
+- `MoodSelector` (`HomeComponents.jsx`) sabit Türkçe ama **hiçbir yerden çağrılmıyor** — ölü export.
+- `Quran.jsx`'teki "💡 Ayet içeriği API'den yüklenecek" kartı **ulaşılamaz**: `showSurahList`
+  hiç `false` yapılmıyor, `setSelectedSurah` yalnız `null` ile çağrılıyor. Ölü dal.
+- `ErrorBoundary` içindeki Türkçe `FALLBACKS` kasıtlı (i18n'in kendisi çökerse devreye girer).
+- `MurakabeTab.jsx:107` `react-hooks/immutability` hatası **yanlış alarm**: `calculateStreak`
+  effect'ten çağrılıyor, effect mount'tan sonra koştuğu için TDZ oluşmuyor.
+- Konfeti partiküllerindeki `Math.random()` (purity hataları) dekoratif, kasıtlı.
+- 6 `set-state-in-effect` hatasının hepsi koşullu ve döngü yapmıyor; `ReviewPrompt`'unki
+  kullanıcı tarafından elle ayarlanmış mantık.
+- `InterstitialAdManager`'daki 5 `no-unreachable` reklamların kapalı olmasından (kasıtlı).
+
+**Doğrulama:** `npm run build` ✓ · **repo lint 46 → 44 hata** (düşen ikisi bu turda
+düzeltilen gerçek hatalar; dokunulan dosyalarda 0) · 108 locale dosyası, 18 namespace × 6 dil
+**tam parite**, placeholder farkı 0, format (4/2 boşluk + trailing newline yok) korundu ·
+kodda karşılıksız `t()` anahtarı **0/1090** · `returnObjects` kullanan 6 anahtarın hepsi
+6 dilde aynı uzunlukta ✓ · locale dosyalarında tekrar eden anahtar 0 · abdest testleri
+11.845 kontrol ✓ · `cap copy` ios+android ✓.
+
+**Kalıcı ders — tarama deseni:** eksik locale anahtarı üç şekilde maskeleniyor:
+`t('k', 'Türkçe')` · `t('k', { defaultValue: 'Türkçe' })` · `t('k') || 'Türkçe'`
+(sonuncusu HİÇ çalışmaz). Yeni metin eklerken üçünü de kullanma; tarama yaparken üçünü de ara.
+
+## İkinci tur — native köprü ve veri katmanı hataları (2026-08-21)
+
+Kullanıcı "devam" dedi; tarama lokalizasyondan **Capacitor köprüsüne, depolamaya ve
+bildirim boru hattına** kaydı. Dördü de sessiz hatalardı, hiçbiri kullanıcı raporu değil.
+
+**1. `removeAllListeners('resume')` @capacitor/app'in TÜM dinleyicilerini siliyordu.**
+`PrayerTimesContext`'in resume effect'i temizlikte bunu çağırıyordu. Capacitor imzası
+**`removeAllListeners(): Promise<void>` — olay adı ALMAZ** (kaynaktan doğrulandı:
+`node_modules/@capacitor/app/dist/esm/definitions.d.ts:267`), string sessizce yok sayılıyor
+ve plugin'in bütün dinleyicileri gidiyor: `App.jsx`'teki **`appUrlOpen` (deep link)**,
+`appStateChange` ve `useHardwareBack`'in **`backButton`**'ı. Effect `fetchPrayerTimes`'a
+bağlı, yani **konum/ayar her değiştiğinde** Android donanım geri tuşu ve deep link'ler
+uygulama ortasında ölüyordu. Artık dinleyici handle'ı tutulup yalnız o kaldırılıyor
+(unmount yarışı için `cancelled` bayrağı — `useHardwareBack`'teki doğru kalıp).
+*Qibla'daki `Motion/Compass.removeAllListeners()` sorun değil: o iki plugin'in tek tüketicisi
+Qibla (doğrulandı).*
+
+**2. Bildirim analytics'i ÇİFT sayıyordu.** `localNotificationReceived` ve
+`localNotificationActionPerformed` **hem `App.jsx`'te hem `PrayerTimesContext`'te**
+kayıtlıydı — her bildirim iki olay üretiyor, üstelik **farklı taksonomiyle** (biri
+`friday`, öteki `dhikr_reminder` diyordu). Ayrıca App.jsx'in ID tahmini **2000'i
+`dhikr_reminder` sanıyordu — 2000 CUMA, zikir 3000**; ve iki harita da sahur (4000),
+ezber (5100-5107), mest (5200-5201) bildirimlerini `other`'a atıyordu. Tek kaynak:
+yeni **`src/lib/notificationTypes.js` → `notificationTypeOf(id, extraType)`**
+(`extra.type` varsa o kazanır). PrayerTimesContext'teki kopya dinleyiciler kaldırıldı
+(App.jsx'teki deep link'i de işlediği için o kaldı); ölü `analytics` importu silindi.
+27 vakalık birim testi ✓. **Amplitude uyarısı: bildirim metrikleri bu düzeltmeden ÖNCE
+~2× şişik ve iki isim şemasına bölünmüş — eski veriyle karşılaştırma yaparken dikkat.**
+
+**3. Tuba Ağacı ilerlemesi Keychain'e ULAŞMIYORDU.** `tubaAgaci_data` `CRITICAL_KEYS`'te
+ama sulama yazımı (`HomeComponents.jsx`) **ham `localStorage.setItem`**'di. Keychain yedeği
+yalnız açılıştan 2 sn sonra bir kez alınıyor; ayrıca `initialize()`'daki senkron yalnız
+`localValue && !prefValue` yönünde çalışıyor, yani ilk senkrondan sonra ham yazımlar
+Preferences'a **hiç** geçmiyor. Sonuç: o oturumda sulanan gün bir sonraki açılışa kadar
+korumasız, uygulama silinip kurulunca kayıp. **Kaza sayaçlarında düzeltilen hatanın
+aynısı.** Artık `storageService.setItem` (3 katman). Kalan ham yazımlar bilinçli bırakıldı:
+`cached_address/district/country_code` (GPS'ten yeniden üretilir), `app_data_version`
+(iç sürüm damgası), `tubaAgaci_completedDays/weekId` (haftalık sıfırlanıyor), DebugMenu.
+
+**4. Ezber tekrar bildirimi yanlış sekmeye düşüyordu.** `extra.route: '/learn'` →
+Öğren varsayılan sekmesi **Dualar**; "Bugün İhlâs tekrarı var" bildirimine dokunan kullanıcı
+dua listesi görüyordu. Mest bildiriminde düzeltilen hata ezberde kalmıştı. Artık
+`/learn?ezber=1` ve Learn açılış kategorisi `sureler`. (17 maddelik `ROUTE_WHITELIST`
+ile backend `ROUTES` listesi karşılaştırıldı — birebir aynı ve hepsi `App.jsx`'te gerçek
+route, sorun yok.)
+
+**Yanlış alarmlar (kayda geçsin, tekrar araştırma):**
+- "18 temizlenmeyen `setInterval`" — tarama hatasıydı; regex `const timer = setInterval`
+  kalıbını atlıyordu. Doğru taramada **temizlenmeyen 0**.
+- Ön-hatırlatma bildirimleri `Math.floor(Math.random() * 2147483647)` ile ID üretiyor;
+  ~50 sabit ID ile çakışma olasılığı 2e-8, pratikte sorun değil.
+- Locale dosyalarında tekrar eden JSON anahtarı 0; JS nesne literallerinde tekrar eden
+  anahtar 0; analytics'te 76 olay adı, tekrar 0, adlandırma kuralı dışı 0.
+
+**Doğrulama:** `npm run build` ✓ · repo lint **44 hata** (tur başındakiyle aynı; dokunulan
+5 dosyada 0 yeni) · 18 ns × 6 dil parite + placeholder + format ✓ · karşılıksız `t()`
+anahtarı 0/1090 · abdest testleri 11.845 kontrol ✓ · `notificationTypeOf` 27 vaka ✓ ·
+`cap copy` ios+android ✓.
+
+**Cihazda doğrulanmalı:** dua/ezber/abdest tabakası açıkken konum ayarını değiştir, sonra
+Android geri tuşuna bas (1. hata tam bu senaryoda tetikleniyordu) · Live Activity deep
+link'i (`islamiyoldas://premium?offer=true`) konum değişiminden sonra · ezber tekrar
+bildirimine dokununca Sureler listesi açılıyor mu.
+
+## Üçüncü tur — kurulum, yama ve native kaynaklar (2026-08-23)
+
+Kullanıcı "iyi kontrol et başka hata olmasın" dedi. Tarama JS'ten **paket kurulumu,
+patch-package ve native kaynak dosyalarına** taşındı. Üçü de release'i doğrudan
+etkileyen, hiçbiri uygulama çalışırken görünmeyen hatalar.
+
+**1. RELEASE ENGELİ — temiz `npm ci` / `npm install` HİÇ ÇALIŞMIYORDU.**
+`@odion-cloud/capacitor-volume-control@2.0.1` peer olarak `@capacitor/core@^5` istiyor,
+proje Capacitor 8'de → ERESOLVE ile durur. Bu makinede node_modules zaten kurulu olduğu
+için hiç görünmemişti; **yeni klonda, CI'da veya `rm -rf node_modules` sonrası kurulum
+bitmez**. Yeni `.npmrc` → `legacy-peer-deps=true` (gerekçesi dosyada yazılı).
+`npm ci --dry-run` artık geçiyor. Eklenti yalnızca AudioManager sarmalayıcısı, peer
+aralığını geçmek güvenli. *Yan bulgu: `package-lock.json` sürümü 1.1.8'de kalmıştı,
+`package.json` 1.2.0 — npm kendisi düzeltti.*
+
+**2. İki patch-package yaması yanlışlıkla Gradle çıktısını yakalamış.**
+Biri bozuktu, ikisi de devasa:
+- `@odion-cloud+capacitor-volume-control` — **397K, 252 diff** ve **uygulanmıyordu**
+  (`postinstall` hata veriyordu). Gerçek içerik TEK dosya: `OdionCloudCapacitorVolumeControl.podspec`.
+  Gerisi `android/build/**` (.dex, .jar, .bin, kotlin cache, lint modelleri) + Eclipse
+  IDE dosyaları. **Podspec kritik**: `ios/App/Podfile:30` bu ada göre pod çekiyor,
+  olmadan iOS pod kurulumu kırılır.
+- `@capgo+capacitor-compass` — **331K, 103 diff**; gerçek içerik yine TEK dosya
+  (`CapgoCompass.java`, pusula füzyon düzeltmesi). Bu yama uygulanıyordu ama aynı çöpü
+  taşıyordu; node_modules'te bir kez daha Gradle çalıştırılsa o da bozulurdu.
+
+Her ikisi de `node_modules`'teki `android/build` + IDE dosyaları silinip yeniden üretildi:
+**397K → 979B** ve **331K → 7.6K**. Doğrulama: node_modules sıfırdan kuruldu
+(`npm install --legacy-peer-deps`), 4 yamanın hepsi ✔ uygulandı ve hem podspec hem
+`CapgoCompass.java` eski haliyle **byte-byte aynı** çıktı; `npm run build` çıktısı da
+aynı hash'leri verdi. **Ders: `npx patch-package <paket>` çalıştırmadan önce o paketin
+`android/build` klasörünü sil.**
+
+**3. iOS izin diyaloğu 6 dilde de Türkçe çıkıyordu.** Altı `InfoPlist.strings` dosyası da
+**`NSPrivacyTrackingUsageDescription`** yazıyordu — böyle bir anahtar yok, ATT diyaloğunun
+anahtarı **`NSUserTrackingUsageDescription`** (Info.plist'te doğru yazılı). Sonuç: her iOS
+kullanıcısına ilk açılışta gösterilen izleme izni diyaloğu, çeviriler hazır olmasına rağmen
+Türkçe metni gösteriyordu. Apple incelemesi bu diyaloğa ayrıca bakıyor. 6 dilde anahtar adı
+düzeltildi, `plutil -lint` ✓. Diğer 6 usage description anahtarı doğruydu.
+
+**4. Android widget seçicisindeki açıklamalar her dilde Türkçe'ydi.** `res/` altında yalnız
+`values/` vardı. 5 widget açıklaması için `values-en/de/ar/ru/az` eklendi — **metinler yeni
+çevrilmedi, iOS widget'ının kendi `Localizable.strings` çevirilerinden alındı**, iki platform
+aynı cümleyi göstersin diye. `gradlew :app:processDebugResources` ✓.
+
+**Bakılıp temiz çıkanlar:** `functions/index.js` sözdizimi + 2 export ✓ · zikirmatik 44 preset
+**4 yerde de indeks-eşleşmeli** (Dhikr.jsx / DhikrEntry.swift / DhikrWidgetProvider.java /
+6 locale) ✓ · dua kütüphanesi 70 kayıt, 6 dilde anahtar eşleşmesi, 14 ücretsiz, her bölümde
+en az 1 ücretsiz ✓ · esma 99 × 5 dil alanı tam ✓ · sure özeti 114 × 6 dil tam ✓ · hikaye
+id/görsel eşleşmesi, sahipsiz görsel yok ✓ · widget `Localizable.strings` 20 anahtar × 6 dil
+pariteli ✓ · Android izinleri ve iOS usage description'ları eksiksiz ✓ · `ROUTE_WHITELIST`
+17 madde, hepsi gerçek route ✓.
+
+**Not (hata değil, içerik boşluğu):** `spiritualData` yalnız tr/ar/de/ru için var;
+`STORIES_MAP`'te **en ve az yok**, yani İngilizce ve Azerice kullanıcılar hikayeleri
+**Türkçe** okuyor (Stories.jsx:85'teki yorum bunu bilinçli sayıyor). Karaoke takibi de
+sadece bu dillerde açık. Çevrilecekse 15 hikaye × 2 dil.
+
+**Yeni test dosyaları** (scratchpad, repoya girmez): `kontrol/dua.mjs` (1019 kontrol),
+`kontrol/veri.mjs` (467). Node ESM uzantısız import çözemediği için `src/data/*.js`
+kopyaları `kontrol/data/` altına `.js` uzantılı importlarla yazılıyor.
+`sure18/robust.mjs` (475) yeniden çalışır hale getirildi — `ezber_copy.mjs`/`dome.mjs`
+kopyaları güncel kaynaktan üretiliyor.
+
+**Doğrulama:** `npm run build` ✓ · repo lint **44 hata** (tur başıyla aynı, yeni 0) ·
+**13.821 kontrol** ✓ (11.845 abdest + 475 ezber + 1019 dua + 467 veri + 15 preset) ·
+4 patch-package yaması sıfırdan ✔ · `npm ci --dry-run` ✓ · `plutil -lint` 12 dosya ✓ ·
+`gradlew :app:processDebugResources` ✓ · `cap copy` ios+android ✓.
+
+**Cihazda/Xcode'da doğrulanmalı:** ATT diyaloğunu İngilizce cihazda gör (uygulamayı silip
+kur, ilk açılış) · Android widget seçicisini Almanca cihazda aç · iOS'ta `pod install`
+(podspec yaması yeniden üretildi).
 
 ## Kararlar
 - **Reklam yerleşimi:** Banner bottombar üstünde kalacak (`BOTTOM_CENTER, margin:75`). İçeriğe gömülü/in-feed reklam YAPILMAYACAK — plugin banner'ı WebView üstünde yüzen native view, DOM akışına giremez; scroll-sync custom plugin emeğe değmez; native ad asset'ini HTML'de render etmek AdMob politika ihlali (ban riski). (Karar: 2026-07-07)

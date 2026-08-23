@@ -395,5 +395,6 @@
         "android_note": "Kilid ekranı vidjetləri yalnız iPhone-da mövcuddur (iOS 16+). Android-də vidjetlər əsas ekrana əlavə olunur.",
         "steps_meta": "5 qısa addım · təxminən 1 dəqiqə",
         "back": "Geri"
-    }
+    },
+    "reset_confirm": "Sayğacı sıfırlamaq istədiyinizə əminsiniz?"
 }

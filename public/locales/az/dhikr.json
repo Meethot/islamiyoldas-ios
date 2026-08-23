@@ -181,7 +181,10 @@
     "vibration": {
         "everyClick": "Titrəmə: Hər Toxunmada",
         "targetOnly": "Titrəmə: Yalnız Hədəfdə",
-        "off": "Titrəmə: Bağlı"
+        "off": "Titrəmə: Bağlı",
+        "offShort": "Bağlı",
+        "targetOnlyShort": "Hədəf",
+        "everyClickShort": "Hər dəfə"
     },
     "vibrationTooltip": {
         "all": "Bütün Titrəmələr Açıq",
@@ -565,5 +568,19 @@
             "title": "Səs, titrəyiş və qısayollar",
             "body": "Klik səsi və titrəyiş buradan tənzimlənir. Ekrana baxmadan saymaq üçün səs düymələri ilə sayma və tam ekrana toxunma seçimləri də buradadır."
         }
+    },
+    "customDhikrDesc": "Xüsusi zikir olaraq başlat",
+    "searchResults": "Axtarış Nəticələri",
+    "settings": "Sürətli Ayarlar",
+    "quickSettings": "Sürətli Ayarlar",
+    "setTotalCount": "Ümumi Zikri Ayarla",
+    "setTotalCountDesc": "Başqa yerdə çəkdiyin zikirləri əlavə etmək üçün ümumi zikir sayını yenilə.",
+    "fullscreenTap": "Tam Ekran Toxunuş",
+    "fullScreenTapDesc": "Ekranın istənilən yerinə toxunaraq zikir çək",
+    "volumeButtonsLabel": "Səs Düymələri",
+    "volumeButtonsDesc": "Cihazın fiziki səs düymələri ilə zikir çək",
+    "fullScreenTap": {
+        "enabled": "Ekrana Toxunma Aktiv",
+        "disabled": "Ekrana Toxunma Deaktiv"
     }
 }

@@ -395,5 +395,6 @@
         "android_note": "Lock Screen widgets are only available on iPhone (iOS 16+). On Android, widgets go on the Home Screen.",
         "steps_meta": "5 quick steps · about a minute",
         "back": "Back"
-    }
+    },
+    "reset_confirm": "Are you sure you want to reset the counter?"
 }

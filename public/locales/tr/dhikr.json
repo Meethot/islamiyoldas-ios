@@ -181,7 +181,10 @@
     "vibration": {
         "everyClick": "Titreşim: Her Tıklamada",
         "targetOnly": "Titreşim: Sadece Hedefte",
-        "off": "Titreşim: Kapalı"
+        "off": "Titreşim: Kapalı",
+        "offShort": "Kapalı",
+        "targetOnlyShort": "Hedef",
+        "everyClickShort": "Her Tık"
     },
     "vibrationTooltip": {
         "all": "Tüm Titreşimler Açık",
@@ -565,5 +568,19 @@
             "title": "Ses, titreşim ve kısayollar",
             "body": "Klik sesi ve titreşim buradan ayarlanır. Ekrana bakmadan saymak için ses tuşlarıyla sayma ve tam ekrana dokunma seçenekleri de burada."
         }
+    },
+    "customDhikrDesc": "Özel zikir olarak başlat",
+    "searchResults": "Arama Sonuçları",
+    "settings": "Hızlı Ayarlar",
+    "quickSettings": "Hızlı Ayarlar",
+    "setTotalCount": "Toplam Zikri Ayarla",
+    "setTotalCountDesc": "Başka yerde çektiğiniz zikirleri buraya eklemek için toplam zikir sayısını güncelleyebilirsiniz.",
+    "fullscreenTap": "Tam Ekran Tıklama",
+    "fullScreenTapDesc": "Ekranın herhangi bir yerine dokunarak çekim yapın",
+    "volumeButtonsLabel": "Ses Tuşları",
+    "volumeButtonsDesc": "Cihazın fiziksel ses tuşları ile zikir çekin",
+    "fullScreenTap": {
+        "enabled": "Ekran Dokunma Açık",
+        "disabled": "Ekran Dokunma Kapalı"
     }
 }

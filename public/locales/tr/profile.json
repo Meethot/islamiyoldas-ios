@@ -31,7 +31,8 @@
   },
   "share": {
     "title": "İlerlemeyi Paylaş",
-    "subtitle": "Tuba Ağacını sosyal medyada paylaş"
+    "subtitle": "Tuba Ağacını sosyal medyada paylaş",
+    "button": "Paylaş"
   },
   "invite": {
     "title": "Arkadaş Davet Et",
@@ -112,5 +113,13 @@
   },
   "common": {
     "done": "Tamam"
-  }
+  },
+  "invalid_name": "Lütfen 1-25 karakter arası bir isim girin.",
+  "name_modal": {
+    "title": "İsmini Düzenle",
+    "label": "Kullanıcı Adı",
+    "placeholder": "Kullanıcı",
+    "hint": "İsim uzunluğu 1-25 karakter arasında olmalı ve sadece harf içermelidir."
+  },
+  "rights_reserved": "TÜM HAKLARI SAKLIDIR"
 }

@@ -395,5 +395,6 @@
         "android_note": "Kilit ekranı widget'ları yalnızca iPhone'da kullanılabilir (iOS 16+). Android'de widget'lar ana ekrana eklenir.",
         "steps_meta": "5 kısa adım · yaklaşık 1 dakika",
         "back": "Geri"
-    }
+    },
+    "reset_confirm": "Sayacı sıfırlamak istediğinizden emin misiniz?"
 }

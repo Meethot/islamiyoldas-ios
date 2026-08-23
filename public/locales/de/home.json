@@ -395,5 +395,6 @@
         "android_note": "Sperrbildschirm-Widgets gibt es nur auf dem iPhone (iOS 16+). Auf Android kommen Widgets auf den Startbildschirm.",
         "steps_meta": "5 kurze Schritte · ca. eine Minute",
         "back": "Zurück"
-    }
+    },
+    "reset_confirm": "Möchtest du den Zähler wirklich zurücksetzen?"
 }

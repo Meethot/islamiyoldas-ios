@@ -1020,7 +1020,7 @@ function EsmaDetailModal({ esma, count, setCount, onClose }) {
                                         ? "bg-islamic-gold/20 text-islamic-gold"
                                         : "text-white/30 hover:text-white/50"
                                 )}
-                                title={hapticsMode === 'all' ? "Her Tıklamada" : hapticsMode === 'target' ? "Hedefe Ulaşınca" : "Titreşim Kapalı"}
+                                title={hapticsMode === 'all' ? t('haptics_every') : hapticsMode === 'target' ? t('haptics_target') : t('haptics_off')}
                             >
                                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
@@ -1039,7 +1039,7 @@ function EsmaDetailModal({ esma, count, setCount, onClose }) {
                                     handleReset();
                                 }}
                                 className="p-2.5 rounded-full text-white/30 hover:text-white/50 transition-all"
-                                title="Sıfırla"
+                                title={t('reset')}
                             >
                                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -1059,19 +1059,19 @@ function EsmaDetailModal({ esma, count, setCount, onClose }) {
                                 onClick={(e) => e.stopPropagation()}
                             >
                                 <div className="space-y-4">
-                                    <p className="text-white text-sm font-medium">Sayacı sıfırlamak istediğinizden emin misiniz?</p>
+                                    <p className="text-white text-sm font-medium">{t('reset_confirm')}</p>
                                     <div className="flex gap-3 justify-center">
                                         <button
                                             onClick={() => setShowResetConfirm(false)}
                                             className="flex-1 px-4 py-2.5 rounded-xl bg-white/10 text-white/70 hover:bg-white/20 transition-colors text-xs font-bold uppercase tracking-wider"
                                         >
-                                            İptal
+                                            {t('common:common.cancel')}
                                         </button>
                                         <button
                                             onClick={confirmReset}
                                             className="flex-1 px-4 py-2.5 rounded-xl bg-red-500/80 text-white hover:bg-red-500 transition-colors text-xs font-bold uppercase tracking-wider shadow-lg shadow-red-500/20"
                                         >
-                                            Sıfırla
+                                            {t('reset')}
                                         </button>
                                     </div>
                                 </div>

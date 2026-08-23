@@ -5,4 +5,4 @@
 "NSLocationWhenInUseUsageDescription" = "Namaz vakitlerini ve Kıble yönünü hesaplamak için konumunuza ihtiyacımız var.";
 "NSMotionUsageDescription" = "Kıble yönünü doğru hesaplamak için hareket sensörlerine erişmemiz gerekiyor.";
 "NSPhotoLibraryAddUsageDescription" = "Paylaştığınız içerikleri galerinize kaydedebilmek için izninize ihtiyacımız var.";
-"NSPrivacyTrackingUsageDescription" = "Size daha uygun hizmet ve uygulama deneyiminizi iyileştirmek için izin istiyoruz.";
+"NSUserTrackingUsageDescription" = "Size daha uygun hizmet ve uygulama deneyiminizi iyileştirmek için izin istiyoruz.";

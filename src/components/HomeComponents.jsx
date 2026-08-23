@@ -24,6 +24,7 @@ import { useNavigate } from 'react-router-dom';
 import PrayerRewardModal from './PrayerRewardModal';
 import { PRAYER_CONTENT } from '@/data/hadithData';
 import { analytics } from '@/services/analyticsService';
+import { storageService } from '@/services/storageService';
 
 // Force Refresh
 // --- Animation Variants ---
@@ -273,7 +274,11 @@ export const WeeklyStreakWidget = memo(({ tubaData, setTubaData }) => {
         setCompletedDays(newCompletedDays);
         localStorage.setItem('tubaAgaci_completedDays', JSON.stringify(newCompletedDays));
         setTubaData(newData);
-        localStorage.setItem('tubaAgaci_data', JSON.stringify(newData));
+        // `tubaAgaci_data` CRITICAL_KEYS'te ama ham localStorage yazımı Keychain'e
+        // ULAŞMIYORDU: yedek yalnız açılıştan 2 sn sonra bir kez alınıyor, o
+        // oturumda sulanan gün bir sonraki açılışa kadar korumasız kalıyordu
+        // (kaza sayaçlarında düzeltilen hatanın aynısı). Üç katmana da yazar.
+        storageService.setItem('tubaAgaci_data', newData);
 
         // Halka dolumu biterken ikon pulse + "bloom" haptic zinciri
         setTimeout(() => {
@@ -589,26 +594,27 @@ export const WeeklyStreakWidget = memo(({ tubaData, setTubaData }) => {
     );
 });
 
+// Islamic arch SVG decoration (modül kapsamında: render içinde tanımlıysa
+// her render'da yeni bileşen kimliği doğar ve SVG alt ağacı yeniden kurulur)
+const MihrabDecoration = () => (
+    <svg className="absolute inset-0 w-full h-full pointer-events-none opacity-[0.04]" viewBox="0 0 400 500" preserveAspectRatio="xMidYMid slice">
+        <defs>
+            <pattern id="islamicPattern" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
+                <path d="M20 0 L40 20 L20 40 L0 20 Z" fill="none" stroke="currentColor" strokeWidth="0.5" />
+                <circle cx="20" cy="20" r="3" fill="none" stroke="currentColor" strokeWidth="0.3" />
+            </pattern>
+        </defs>
+        <rect width="400" height="500" fill="url(#islamicPattern)" />
+        {/* Mihrab Arch */}
+        <path d="M80 480 L80 200 Q80 80 200 80 Q320 80 320 200 L320 480" fill="none" stroke="currentColor" strokeWidth="1.5" opacity="0.5" />
+        <path d="M100 480 L100 210 Q100 100 200 100 Q300 100 300 210 L300 480" fill="none" stroke="currentColor" strokeWidth="0.8" opacity="0.3" />
+    </svg>
+);
+
 // --- Verse of the Day Widget (Premium Theme) ---
 export const VerseOfDayCard = memo(({ isFriday, verse, fridayContent, onShare }) => {
     const { t } = useTranslation('home');
     const currentVerse = isFriday ? { text: fridayContent.text, source: fridayContent.source } : verse;
-
-    // Islamic arch SVG decoration
-    const MihrabDecoration = () => (
-        <svg className="absolute inset-0 w-full h-full pointer-events-none opacity-[0.04]" viewBox="0 0 400 500" preserveAspectRatio="xMidYMid slice">
-            <defs>
-                <pattern id="islamicPattern" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
-                    <path d="M20 0 L40 20 L20 40 L0 20 Z" fill="none" stroke="currentColor" strokeWidth="0.5" />
-                    <circle cx="20" cy="20" r="3" fill="none" stroke="currentColor" strokeWidth="0.3" />
-                </pattern>
-            </defs>
-            <rect width="400" height="500" fill="url(#islamicPattern)" />
-            {/* Mihrab Arch */}
-            <path d="M80 480 L80 200 Q80 80 200 80 Q320 80 320 200 L320 480" fill="none" stroke="currentColor" strokeWidth="1.5" opacity="0.5" />
-            <path d="M100 480 L100 210 Q100 100 200 100 Q300 100 300 210 L300 480" fill="none" stroke="currentColor" strokeWidth="0.8" opacity="0.3" />
-        </svg>
-    );
 
     return (
         <motion.div variants={itemVariants}>
@@ -1859,6 +1865,18 @@ export const ReligiousCalendarWidget = memo(({ days }) => {
     const { t, i18n } = useTranslation('home');
     const lang = (i18n.language || 'en').split('-')[0];
 
+    // Body Scroll Lock
+    useEffect(() => {
+        if (showModal) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = '';
+        }
+        return () => {
+            document.body.style.overflow = '';
+        };
+    }, [showModal]);
+
     // Normalize today to local midnight
     const now = new Date();
     const todayMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -1890,18 +1908,6 @@ export const ReligiousCalendarWidget = memo(({ days }) => {
     const diffLabel = diff <= 0 ? (lang === 'tr' ? 'Bugün gerçekleşiyor' : t('calendar.today'))
         : diff === 1 ? (lang === 'tr' ? 'Yarın' : t('calendar.tomorrow'))
             : (lang === 'tr' ? `${diff} Gün Kaldı` : t('calendar.daysLeft', { count: diff }));
-
-    // Body Scroll Lock
-    useEffect(() => {
-        if (showModal) {
-            document.body.style.overflow = 'hidden';
-        } else {
-            document.body.style.overflow = '';
-        }
-        return () => {
-            document.body.style.overflow = '';
-        };
-    }, [showModal]);
 
     return (
         <>

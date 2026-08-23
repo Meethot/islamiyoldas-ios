@@ -1,0 +1,8 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="widget_desc_verse">Ein täglicher Vers für Ihre Seele</string>
+    <string name="widget_desc_hourly_verse">Jede Stunde ein neuer inspirierender Vers</string>
+    <string name="widget_desc_motivation">Ein motivierender Vers, der Sie jeden Tag inspiriert</string>
+    <string name="widget_desc_esma">Jeden Tag ein anderer schöner Name Allahs</string>
+    <string name="widget_desc_hourly_esma">Jede Stunde ein neuer schöner Name Allahs</string>
+</resources>

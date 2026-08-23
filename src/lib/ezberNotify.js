@@ -13,6 +13,13 @@ import { dueList, readProgress } from '@/lib/ezber';
  * 1001-1003 ayet, 2000 cuma, 3000 zikir, 4000 sahur.
  */
 const ID_BASE = 5100;
+
+/**
+ * Düz `/learn` Öğren'i varsayılan sekmesinde (Dualar) açıyordu: "Bugün İhlâs
+ * tekrarı var" bildirimine dokunup dua listesi görmek bildirimi anlamsız
+ * kılar. Mest bildiriminde aynı hata düzeltilmişti, ezberde kalmıştı.
+ */
+const EZBER_ROUTE = '/learn?ezber=1';
 const MAX_REMINDERS = 8;
 const HOUR = 20;
 
@@ -65,7 +72,7 @@ export async function rescheduleEzberReminders(titleOf, texts) {
                 : texts.bodyOne(first || ''),
             schedule: { at: day.at, allowWhileIdle: true },
             smallIcon: 'ic_stat_icon_config_sample',
-            extra: { type: 'ezber_review', route: '/learn' },
+            extra: { type: 'ezber_review', route: EZBER_ROUTE },
         };
     }).filter(n => n.body);
 

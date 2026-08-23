@@ -947,25 +947,26 @@ export default function Profile() {
                         >
                             <div className="flex justify-between items-center mb-6">
                                 <h3 className="text-xl font-bold font-serif text-islamic-green dark:text-islamic-gold flex items-center gap-2">
-                                    <User className="w-5 h-5" /> İsmini Düzenle
+                                    <User className="w-5 h-5" /> {t('name_modal.title')}
                                 </h3>
                                 <Button size="icon" variant="ghost" onClick={() => setShowNameModal(false)}><X className="w-5 h-5" /></Button>
                             </div>
 
                             <div className="space-y-4">
                                 <div className="space-y-2 relative">
-                                    <label className="text-xs font-bold text-gray-500 uppercase ml-1">Kullanıcı Adı</label>
+                                    <label className="text-xs font-bold text-gray-500 uppercase ml-1">{t('name_modal.label')}</label>
                                     <input
                                         type="text"
                                         value={tempName}
                                         onChange={(e) => {
                                             const val = e.target.value;
-                                            // Only allow letters (including Turkish characters) and spaces
-                                            if (/^[a-zA-ZğüşıöçĞÜŞİÖÇ\s]*$/.test(val)) {
+                                            // Harf + birleşen işaret + boşluk/kesme/tire. Latin'e kilitli
+                                            // eski desen Arapça/Kiril/ə/ä isimleri sessizce reddediyordu.
+                                            if (/^[\p{L}\p{M}\s'’-]*$/u.test(val)) {
                                                 setTempName(val);
                                             }
                                         }}
-                                        placeholder="Kullanıcı"
+                                        placeholder={t('name_modal.placeholder')}
                                         maxLength={25}
                                         className="w-full p-4 pl-12 bg-[#F6F0E1] dark:bg-white/5 border-2 border-[#E2D9C4] dark:border-white/10 rounded-xl text-lg font-bold text-gray-900 dark:text-white focus:outline-none focus:border-islamic-green dark:focus:border-islamic-gold transition-colors"
                                         autoFocus
@@ -979,14 +980,14 @@ export default function Profile() {
                                 </div>
 
 
-                                <p className="text-[10px] text-gray-400 text-center">İsim uzunluğu 1-25 karakter arasında olmalı ve sadece harf içermelidir.</p>
+                                <p className="text-[10px] text-gray-400 text-center">{t('name_modal.hint')}</p>
 
                                 <div className="flex gap-3">
                                     <Button
                                         onClick={() => setShowNameModal(false)}
                                         className="flex-1 h-12 bg-[#F0E8D5] text-stone-700 hover:bg-gray-200 dark:bg-white/10 dark:text-white dark:hover:bg-white/20 rounded-xl font-medium transition-colors"
                                     >
-                                        İptal
+                                        {t('common:common.cancel')}
                                     </Button>
                                     <Button
                                         onClick={() => {
@@ -1001,7 +1002,7 @@ export default function Profile() {
                                         disabled={!tempName.trim()}
                                         className="flex-1 h-12 bg-islamic-green hover:bg-islamic-green/90 dark:bg-islamic-gold dark:text-[#032e18] dark:hover:bg-islamic-gold/90 text-white font-bold text-base rounded-xl transition-all shadow-md active:scale-95"
                                     >
-                                        Kaydet
+                                        {t('common:common.save')}
                                     </Button>
                                 </div>
                             </div>
@@ -1015,7 +1016,7 @@ export default function Profile() {
                     İSLAMİ YOLDAŞ
                 </p>
                 <p className="text-[8px] text-stone-500 dark:text-gray-500 font-medium tracking-widest mt-1">
-                    © {new Date().getFullYear()} TÜM HAKLARI SAKLIDIR
+                    © {new Date().getFullYear()} {t('rights_reserved')}
                 </p>
             </div>
 
@@ -1108,13 +1109,13 @@ export default function Profile() {
                                 onClick={async () => {
                                     heavy();
                                     setShowShareModal(false);
-                                    const success = await shareProgress('share-card', shareData.streak);
-                                    if (success) success();
+                                    const shared = await shareProgress('share-card', shareData.streak);
+                                    if (shared) success();
                                 }}
                                 className="w-full py-6 bg-islamic-green hover:bg-islamic-green/90 text-white font-bold rounded-2xl"
                             >
                                 <Share2 size={20} className="mr-2" />
-                                Paylaş
+                                {t('share.button')}
                             </Button>
                         </motion.div>
                     </motion.div>

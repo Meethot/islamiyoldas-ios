@@ -1,0 +1,8 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="widget_desc_verse">آية يومية لتنعش روحك</string>
+    <string name="widget_desc_hourly_verse">آية ملهمة جديدة كل ساعة</string>
+    <string name="widget_desc_motivation">آية تحفيزية تلهمك كل يوم</string>
+    <string name="widget_desc_esma">اسم جميل من أسماء الله الحسنى كل يوم</string>
+    <string name="widget_desc_hourly_esma">اسم جديد من أسماء الله الحسنى كل ساعة</string>
+</resources>

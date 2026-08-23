@@ -181,7 +181,10 @@
     "vibration": {
         "everyClick": "الاهتزاز: كل ضغطة",
         "targetOnly": "الاهتزاز: عند الهدف فقط",
-        "off": "الاهتزاز: مغلق"
+        "off": "الاهتزاز: مغلق",
+        "offShort": "مغلق",
+        "targetOnlyShort": "الهدف",
+        "everyClickShort": "كل ضغطة"
     },
     "vibrationTooltip": {
         "all": "جميع الاهتزازات مفعّلة",
@@ -565,5 +568,19 @@
             "title": "الصوت والاهتزاز والاختصارات",
             "body": "اضبط صوت النقر والاهتزاز من هنا. وللعدّ دون النظر إلى الشاشة فعّل العدّ بأزرار الصوت أو النقر على كامل الشاشة."
         }
+    },
+    "customDhikrDesc": "ابدأ كذكر مخصص",
+    "searchResults": "نتائج البحث",
+    "settings": "إعدادات سريعة",
+    "quickSettings": "إعدادات سريعة",
+    "setTotalCount": "تعيين المجموع",
+    "setTotalCountDesc": "حدّث مجموع أذكارك لإضافة ما سبّحته في مكان آخر.",
+    "fullscreenTap": "النقر على كامل الشاشة",
+    "fullScreenTapDesc": "سبّح بالنقر على أي مكان في الشاشة",
+    "volumeButtonsLabel": "أزرار الصوت",
+    "volumeButtonsDesc": "سبّح بأزرار الصوت الفعلية في جهازك",
+    "fullScreenTap": {
+        "enabled": "النقر على الشاشة مفعل",
+        "disabled": "النقر على الشاشة معطل"
     }
 }

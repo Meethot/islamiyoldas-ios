@@ -31,7 +31,8 @@
   },
   "share": {
     "title": "Share Progress",
-    "subtitle": "Share Tuba Tree on social media"
+    "subtitle": "Share Tuba Tree on social media",
+    "button": "Share"
   },
   "invite": {
     "title": "Invite Friend",
@@ -112,5 +113,13 @@
   },
   "common": {
     "done": "Done"
-  }
+  },
+  "invalid_name": "Please enter a name between 1 and 25 characters.",
+  "name_modal": {
+    "title": "Edit Your Name",
+    "label": "Your Name",
+    "placeholder": "User",
+    "hint": "Your name must be 1–25 characters and contain letters only."
+  },
+  "rights_reserved": "ALL RIGHTS RESERVED"
 }

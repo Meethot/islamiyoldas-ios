@@ -181,7 +181,10 @@
     "vibration": {
         "everyClick": "Vibration: Bei jedem Tippen",
         "targetOnly": "Vibration: Nur beim Ziel",
-        "off": "Vibration: Aus"
+        "off": "Vibration: Aus",
+        "offShort": "Aus",
+        "targetOnlyShort": "Ziel",
+        "everyClickShort": "Immer"
     },
     "vibrationTooltip": {
         "all": "Alle Vibrationen an",
@@ -565,5 +568,19 @@
             "title": "Ton, Vibration, Kürzel",
             "body": "Klickton und Vibration stellst du hier ein. Zum Zählen ohne Hinsehen: Lautstärketasten oder Tippen auf den ganzen Bildschirm aktivieren."
         }
+    },
+    "customDhikrDesc": "Als eigenes Dhikr starten",
+    "searchResults": "Suchergebnisse",
+    "settings": "Schnelleinstellungen",
+    "quickSettings": "Schnelleinstellungen",
+    "setTotalCount": "Gesamtzahl festlegen",
+    "setTotalCountDesc": "Aktualisiere deine Gesamtzahl, um anderswo verrichtete Dhikr hinzuzufügen.",
+    "fullscreenTap": "Vollbild-Tippen",
+    "fullScreenTapDesc": "Zähle, indem du irgendwo auf den Bildschirm tippst",
+    "volumeButtonsLabel": "Lautstärketasten",
+    "volumeButtonsDesc": "Zähle Dhikr mit den physischen Lautstärketasten des Geräts",
+    "fullScreenTap": {
+        "enabled": "Bildschirm-Tippen an",
+        "disabled": "Bildschirm-Tippen aus"
     }
 }

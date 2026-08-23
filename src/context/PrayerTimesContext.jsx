@@ -10,7 +10,6 @@ import { DAILY_VERSES, DAILY_VERSES_EN, DAILY_VERSES_DE, DAILY_VERSES_RU, DAILY_
 import { getAppDate, getTodayString } from '@/lib/testDate';
 import { buildPrayerSchedule } from '@/lib/prayerTimeUtils';
 import { syncPrayerTimesToWidget } from '@/services/widgetService';
-import { analytics } from '@/services/analyticsService';
 
 const PrayerTimesContext = createContext();
 
@@ -308,26 +307,11 @@ export const PrayerTimesProvider = ({ children }) => {
                 });
             }
 
-            // Track when notifications are delivered (even if app is in foreground)
-            await LocalNotifications.addListener('localNotificationReceived', (notification) => {
-                const type = notification.id <= 45 ? 'prayer' :
-                             notification.id >= 100 && notification.id <= 114 ? 'pre_reminder' :
-                             notification.id >= 1001 && notification.id <= 1003 ? 'verse' :
-                             notification.id === 2000 ? 'friday' :
-                             notification.id === 3000 ? 'dhikr' : 'other';
-                analytics.notificationReceived(type);
-            });
-
-            // Track when user taps on a notification
-            await LocalNotifications.addListener('localNotificationActionPerformed', (action) => {
-                const id = action.notification?.id;
-                const type = id <= 45 ? 'prayer' :
-                             id >= 100 && id <= 114 ? 'pre_reminder' :
-                             id >= 1001 && id <= 1003 ? 'verse' :
-                             id === 2000 ? 'friday' :
-                             id === 3000 ? 'dhikr' : 'other';
-                analytics.notificationTapped(type);
-            });
+            // NOT: `localNotificationReceived` / `localNotificationActionPerformed`
+            // dinleyicileri BURADA DEĞİL, App.jsx'te kurulur. Eskiden iki yerde
+            // birden kayıtlıydı: her bildirim analytics'e İKİ KEZ ve farklı
+            // taksonomiyle gidiyordu (burada 'friday', App.jsx'te 'dhikr_reminder'
+            // gibi). App.jsx'teki sürüm deep link'i de işlediği için o kaldı.
         } catch (error) {
             console.error('Notification initialization error:', error);
         }
@@ -991,15 +975,20 @@ export const PrayerTimesProvider = ({ children }) => {
 
         LocalNotifications.removeAllDeliveredNotifications().catch(() => { });
 
-        const setupResumeListener = async () => {
-            NativeApp.addListener('resume', handleAppResume);
-            return () => NativeApp.removeAllListeners('resume');
-        };
+        // DİKKAT: Capacitor'ün removeAllListeners() olay adı ALMAZ — imza
+        // `removeAllListeners(): Promise<void>`. Eski kod 'resume' string'i
+        // geçiyordu, string yok sayılıyor ve @capacitor/app'in TÜM dinleyicileri
+        // siliniyordu: App.jsx'teki `appUrlOpen` (deep link) + `appStateChange`
+        // ve `useHardwareBack`'in `backButton`'ı. Bu effect konum/ayar
+        // değişiminde yeniden kurulduğu için Android geri tuşu ve deep link'ler
+        // uygulama ortasında sessizce ölüyordu. Artık yalnız kendi handle'ı.
+        let resumeHandle = null;
+        let cancelled = false;
+        NativeApp.addListener('resume', handleAppResume)
+            .then(h => { if (cancelled) h.remove(); else resumeHandle = h; })
+            .catch(() => { /* web / plugin yok */ });
 
-        let cleanup;
-        setupResumeListener().then(fn => { cleanup = fn; });
-
-        return () => { if (cleanup) cleanup(); };
+        return () => { cancelled = true; resumeHandle?.remove(); };
     }, [fetchPrayerTimes]);
 
     const findNextPrayer = (timings) => {

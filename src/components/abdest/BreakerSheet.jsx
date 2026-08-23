@@ -8,6 +8,7 @@ import { useHaptics } from '@/hooks/useMobile';
 import { useHardwareBack } from '@/hooks/useHardwareBack';
 import { analytics } from '@/services/analyticsService';
 import { BREAKERS, POPULAR, VERDICT, VERDICT_ORDER, scoreMatch, byRelevance } from '@/data/wuduBreakers';
+import { VERDICT_DOT, VERDICT_PILL, VERDICT_BAND } from '@/lib/verdictStyle';
 
 const MIN_QUERY = 2;
 const SEARCH_EVENT_DELAY = 600;
@@ -28,6 +29,17 @@ const VERDICT_STYLE = {
 };
 
 const CHIP = 'rounded-full border border-[#E2D9C4] bg-[#FFFDF6] px-3 py-1.5 text-[0.75rem] font-semibold text-stone-600 active:bg-black/[0.04] dark:border-white/[0.08] dark:bg-white/5 dark:text-emerald-100/70';
+
+/** Bölüm başlığı: hükmün rengi + sağda sayısı. */
+function Band({ hukum, count }) {
+    const { t } = useTranslation('learn');
+    return (
+        <p className={cn('mb-2 flex items-center px-1 text-[0.625rem] font-extrabold uppercase tracking-[0.16em]', VERDICT_BAND[hukum])}>
+            <span>{t(`verdict.${hukum}`)}</span>
+            <span className="ms-auto font-bold tabular-nums tracking-normal opacity-70">{count}</span>
+        </p>
+    );
+}
 
 /** Büyük cevap kartı. */
 function Verdict({ item }) {
@@ -64,27 +76,40 @@ function Verdict({ item }) {
     );
 }
 
-/** Kompakt sonuç satırı — hükmü sağda etiket olarak taşır. */
-function Row({ item, active, onSelect }) {
+/**
+ * Kompakt sonuç satırı — solda hüküm noktası, sağda hüküm pili.
+ *
+ * `pill`: hüküm YAZILI olarak da gösterilsin mi. Arama sonuçları karışık
+ * geldiği için orada şart. Gruplu listede üstteki bant zaten hükmü söylüyor;
+ * aynı kelimeyi 20 satır tekrar etmek hem gürültü, hem Almanca gibi uzun
+ * dillerde başlığı kırpıyor. Pili gizlenince hüküm ekran okuyucuya
+ * `sr-only` ile verilir — renk asla tek taşıyıcı olmaz.
+ */
+function Row({ item, active = false, onSelect, pill = true }) {
     const { t } = useTranslation('learn');
     return (
         <button
             type="button"
             onClick={() => onSelect(item)}
             className={cn(
-                'flex w-full items-center gap-3 border-t border-[#F0E8D5] px-4 py-3 text-start first:border-t-0 transition-colors active:bg-black/[0.04] dark:border-white/[0.06] dark:active:bg-white/10',
+                'flex w-full items-center gap-2.5 border-t border-[#F0E8D5] px-4 py-3 text-start first:border-t-0 transition-colors active:bg-black/[0.04] dark:border-white/[0.06] dark:active:bg-white/10',
                 active && 'bg-[#B45309]/[0.06] dark:bg-islamic-gold/[0.08]'
             )}
         >
+            <span aria-hidden="true" className={cn('h-2 w-2 shrink-0 rounded-full', VERDICT_DOT[item.hukum])} />
             <span className="min-w-0 flex-1 truncate font-display text-[0.875rem] font-semibold text-stone-800 dark:text-emerald-50">
                 {t(`breakers.${item.id}.title`)}
             </span>
-            <span className={cn(
-                'shrink-0 text-[0.625rem] font-black uppercase tracking-[0.1em]',
-                item.hukum === VERDICT.BREAKS ? 'text-[#B45309] dark:text-islamic-gold' : 'text-black/40 dark:text-emerald-100/40'
-            )}>
-                {t(`verdict.${item.hukum}`)}
-            </span>
+            {pill ? (
+                <span className={cn(
+                    'shrink-0 whitespace-nowrap rounded-full px-2 py-[0.1875rem] text-[0.625rem] font-extrabold uppercase tracking-[0.06em]',
+                    VERDICT_PILL[item.hukum]
+                )}>
+                    {t(`verdict.${item.hukum}`)}
+                </span>
+            ) : (
+                <span className="sr-only">{t(`verdict.${item.hukum}`)}</span>
+            )}
         </button>
     );
 }
@@ -232,7 +257,7 @@ function BreakerBody({ initialId }) {
             {searching && results.length > 1 && (
                 <div className="overflow-hidden rounded-2xl border border-[#E2D9C4] bg-[#FFFDF6] dark:border-white/[0.08] dark:bg-white/5">
                     {results.filter(r => r.id !== shown?.id).map(item => (
-                        <Row key={item.id} item={item} active={false} onSelect={select} />
+                        <Row key={item.id} item={item} onSelect={select} />
                     ))}
                 </div>
             )}
@@ -254,12 +279,10 @@ function BreakerBody({ initialId }) {
 
                     {groups.map(group => (
                         <div key={group.hukum}>
-                            <p className="mb-2 px-1 text-[0.625rem] font-bold uppercase tracking-[0.16em] text-black/40 dark:text-emerald-100/40">
-                                {t(`verdict.${group.hukum}`)} · {group.list.length}
-                            </p>
+                            <Band hukum={group.hukum} count={group.list.length} />
                             <div className="overflow-hidden rounded-2xl border border-[#E2D9C4] bg-[#FFFDF6] dark:border-white/[0.08] dark:bg-white/5">
                                 {group.list.map(item => (
-                                    <Row key={item.id} item={item} active={shown?.id === item.id} onSelect={select} />
+                                    <Row key={item.id} item={item} active={shown?.id === item.id} onSelect={select} pill={false} />
                                 ))}
                             </div>
                         </div>

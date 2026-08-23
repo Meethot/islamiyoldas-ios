@@ -31,7 +31,8 @@
   },
   "share": {
     "title": "İrəliləyişi Paylaş",
-    "subtitle": "Tuba Ağacını sosial şəbəkədə paylaş"
+    "subtitle": "Tuba Ağacını sosial şəbəkədə paylaş",
+    "button": "Paylaş"
   },
   "invite": {
     "title": "Dost Dəvət Et",
@@ -112,5 +113,13 @@
   },
   "common": {
     "done": "Tamam"
-  }
+  },
+  "invalid_name": "Zəhmət olmasa 1-25 simvol arası bir ad daxil et.",
+  "name_modal": {
+    "title": "Adını Dəyiş",
+    "label": "Adınız",
+    "placeholder": "İstifadəçi",
+    "hint": "Ad 1-25 simvol arasında olmalı və yalnız hərflərdən ibarət olmalıdır."
+  },
+  "rights_reserved": "BÜTÜN HÜQUQLAR QORUNUR"
 }

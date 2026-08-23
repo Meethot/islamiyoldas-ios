@@ -181,7 +181,10 @@
     "vibration": {
         "everyClick": "Vibration: Every Click",
         "targetOnly": "Vibration: Target Only",
-        "off": "Vibration: Off"
+        "off": "Vibration: Off",
+        "offShort": "Off",
+        "targetOnlyShort": "Target",
+        "everyClickShort": "Each Tap"
     },
     "vibrationTooltip": {
         "all": "All Vibrations On",
@@ -565,5 +568,19 @@
             "title": "Sound, vibration, shortcuts",
             "body": "Set the click sound and vibration here. To count without looking, turn on volume-button counting or full-screen tap."
         }
+    },
+    "customDhikrDesc": "Start as a custom dhikr",
+    "searchResults": "Search Results",
+    "settings": "Quick Settings",
+    "quickSettings": "Quick Settings",
+    "setTotalCount": "Set Total Count",
+    "setTotalCountDesc": "Update your total count to add dhikr you recited elsewhere.",
+    "fullscreenTap": "Full Screen Tap",
+    "fullScreenTapDesc": "Count by tapping anywhere on the screen",
+    "volumeButtonsLabel": "Volume Keys",
+    "volumeButtonsDesc": "Count dhikr with the device's physical volume keys",
+    "fullScreenTap": {
+        "enabled": "Screen Tap On",
+        "disabled": "Screen Tap Off"
     }
 }

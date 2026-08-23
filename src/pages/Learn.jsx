@@ -1601,13 +1601,18 @@ const GuideStepCard = memo(({ step, index, total, icon: Icon = Heart, isRtl, met
 export default function Learn() {
     const navigate = useNavigate();
     /**
-     * Mest bildiriminden gelindiyse (`/learn?abdest=mesh`) doğrudan mesh
-     * ekranı açılır. `useLocation` kullanılıyor çünkü router biçimi değişse
+     * Bildirimden gelindiyse doğrudan ilgili ekran açılır:
+     * `/learn?abdest=mesh` mesh tabakası, `/learn?ezber=1` Sureler listesi. `useLocation` kullanılıyor çünkü router biçimi değişse
      * bile (hash/browser) sorgu dizesi buradan doğru okunur. Başlangıç
      * değerleri olarak veriliyor — effect içinde setState yok.
      */
-    const deepLink = new URLSearchParams(useLocation().search).get('abdest');
-    const [selectedCategory, setSelectedCategory] = useState(deepLink ? 'abdest' : 'dualar');
+    const deepLinkParams = new URLSearchParams(useLocation().search);
+    const deepLink = deepLinkParams.get('abdest');
+    // `/learn?ezber=1` — ezber tekrar bildirimi doğrudan Sureler listesine düşer.
+    const ezberLink = deepLinkParams.get('ezber');
+    const [selectedCategory, setSelectedCategory] = useState(
+        deepLink ? 'abdest' : ezberLink ? 'sureler' : 'dualar'
+    );
     const [currentStep, setCurrentStep] = useState(0);
     const [isComplete, setIsComplete] = useState(false);
     // Ezber ("Perde") — yalnız Sureler kategorisinde

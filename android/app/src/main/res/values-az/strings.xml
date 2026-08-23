@@ -1,0 +1,8 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="widget_desc_verse">Hər gün ruhunuza yaxşı gələcək bir ayə</string>
+    <string name="widget_desc_hourly_verse">Hər saat başı yeni bir ilham verən ayə</string>
+    <string name="widget_desc_motivation">Hər gün ruhunuzu ilhamlandıracaq bir ayə</string>
+    <string name="widget_desc_esma">Hər gün fərqli bir Əsma-ül Hüsna</string>
+    <string name="widget_desc_hourly_esma">Hər saat başı yeni bir Əsma-ül Hüsna</string>
+</resources>

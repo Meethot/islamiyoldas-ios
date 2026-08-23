@@ -5,4 +5,4 @@
 "NSLocationWhenInUseUsageDescription" = "We need your location to calculate prayer times and Qibla direction.";
 "NSMotionUsageDescription" = "We need access to motion sensors to calculate the Qibla direction accurately.";
 "NSPhotoLibraryAddUsageDescription" = "We need your permission to save shared content to your photo library.";
-"NSPrivacyTrackingUsageDescription" = "We request permission to provide you with better service and improve your app experience.";
+"NSUserTrackingUsageDescription" = "We request permission to provide you with better service and improve your app experience.";

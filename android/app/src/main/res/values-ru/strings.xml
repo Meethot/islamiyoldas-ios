@@ -1,0 +1,8 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="widget_desc_verse">Ежедневный аят для вашей души</string>
+    <string name="widget_desc_hourly_verse">Каждый час новый вдохновляющий аят</string>
+    <string name="widget_desc_motivation">Мотивирующий аят, вдохновляющий вас каждый день</string>
+    <string name="widget_desc_esma">Каждый день новое Прекрасное Имя Аллаха</string>
+    <string name="widget_desc_hourly_esma">Каждый час новое Прекрасное Имя Аллаха</string>
+</resources>
