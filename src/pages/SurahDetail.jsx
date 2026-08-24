@@ -1074,6 +1074,8 @@ export default function SurahDetail() {
         if (location.state?.autoPlay && ts && ts !== autoPlayKey.current && surahInfo && verses.length > 0) {
             autoPlayKey.current = ts;
             const fromTrial = location.state?.trialStarted === true;
+            // "Sonraki sure" butonundan gelen otomatik devam mı?
+            const continueSurah = location.state?.continueSurah === true;
             // Clear the state so back/forward doesn't re-trigger
             window.history.replaceState({}, '');
             if (fromTrial) {
@@ -1087,6 +1089,15 @@ export default function SurahDetail() {
                 hintTimerRef.current = setTimeout(() => setHintIndex(0), 1800);
             }
             const timer = setTimeout(() => {
+                /*
+                 * Otomatik devamda dinleme kapısı kapalıysa SESSİZCE vazgeç.
+                 * Kullanıcı play'e basmadı; 60 saniyelik deneme tam bu sırada
+                 * dolarsa `toggleSurahAudio` içindeki `requestListen()` 'blocked'
+                 * döner ve kullanıcıyı dokunmadığı hâlde paywall'a fırlatırdı.
+                 * Denemeyi ilk kez başlatan akış (Quran.jsx) bu bayrağı taşımaz,
+                 * onun davranışı değişmez.
+                 */
+                if (continueSurah && !canListen()) return;
                 toggleSurahAudio();
             }, 600);
             return () => clearTimeout(timer);
@@ -1106,6 +1117,29 @@ export default function SurahDetail() {
 
     // Deneme bitiş geri çağrısı bu fonksiyondan ÖNCE tanımlandığı için ref üzerinden bağlanır
     useEffect(() => { stopEverythingRef.current = stopPlayback; }, [stopPlayback]);
+
+    /**
+     * Sure değişince sesi SIFIRLA.
+     *
+     * React Router aynı route'ta (`/quran/:surahId`) bu bileşeni yeniden kurmaz;
+     * yalnızca parametre değişir. Bu yüzden "sonraki sure" butonuna basınca ekran
+     * yeni sureye geçiyor ama `audio` nesnesi, `audioPlaylist` ve `audio.onended`
+     * kapanışı ESKİ surede kalıyordu: kullanıcı yeni sureyi okurken ses hâlâ
+     * eskisini okuyordu (kullanıcı raporu 2026-08-24).
+     *
+     * `onended` elle temizlenir — `playFromPlaylist` her çalışmada yeniden atıyor
+     * ama eski kapanış playlist'i parametreyle yakaladığı için, temizlenmezse
+     * araya giren tek bir bitiş olayı eski surenin sıradaki ayetine atlatabilir.
+     */
+    const prevSurahRef = useRef(surahId);
+    useEffect(() => {
+        if (prevSurahRef.current === surahId) return;   // ilk kurulum: durduracak bir şey yok
+        prevSurahRef.current = surahId;
+        audio.onended = null;
+        stopPlayback();
+        setAudioPlaylist([]);
+        setFocusVerseKey(null);   // odak kartı eski surenin ayetinde kalmasın
+    }, [surahId, audio, stopPlayback]);
 
     const playFromPlaylist = (index, playlist = audioPlaylist) => {
         if (!playlist || index >= playlist.length) {
@@ -1155,7 +1189,13 @@ export default function SurahDetail() {
 
         try {
             let files = audioPlaylist;
-            if (!files || files.length === 0) {
+            // Elde tutulan playlist BU sureye ait mi? Sure değişiminde liste zaten
+            // temizleniyor; bu ikinci savunma, aksi hâlde ayet numarasına dokunmak
+            // eski surenin listesinde arayıp bulamayınca sıra numarasına düşüyor ve
+            // YANLIŞ surenin ayetini çalıyordu.
+            const belongsToSurah = files?.length > 0
+                && String(files[0]?.verseKey || '').split(':')[0] === String(surahId);
+            if (!belongsToSurah) {
                 setIsSurahLoading(true);
                 files = await fetchChapterAudioFiles(surahId);
                 if (!files || files.length === 0) throw new Error("Could not load audio files");
@@ -1251,12 +1291,35 @@ export default function SurahDetail() {
     // and the verse focus card. Loaded once; falls back to the CDN string until ready.
     const [verseWords, setVerseWords] = useState({});
     const [focusVerseKey, setFocusVerseKey] = useState(null);
+    /*
+     * Hangi surenin kelime okunuşları yüklü. Eski koşul "elde kayıt varsa bir daha
+     * yükleme" idi; bileşen sure değişiminde yeniden kurulmadığı için ilk surenin
+     * kaydı ömür boyu kalıyor, sonraki surelerde arama tutmayıp kelime-senkron
+     * takip sessizce oransal (yaklaşık) moda düşüyordu. Anahtarlar "sure:ayet"
+     * olduğu için yanlış metin GÖSTERİLMİYORDU, ama takip bozuluyordu.
+     */
+    const wordsSurahRef = useRef(null);   // kelimeleri YÜKLÜ olan sure
+    const wordsFetchRef = useRef(null);  // hâlen istenmekte olan sure
     useEffect(() => {
         if (readingSubMode !== 'translit' && !focusVerseKey) return;
-        if (Object.keys(verseWords).length) return;
+        if (wordsSurahRef.current === surahId || wordsFetchRef.current === surahId) return;
+        wordsFetchRef.current = surahId;
         let alive = true;
-        fetchChapterWordTransliterations(surahId).then(w => { if (alive) setVerseWords(w); });
-        return () => { alive = false; };
+        fetchChapterWordTransliterations(surahId).then(w => {
+            if (!alive) return;
+            // Fonksiyon hatayı kendi yutup {} döndürüyor: boş sonuçta "yüklendi"
+            // damgası basma ki bir sonraki fırsatta tekrar denensin.
+            if (w && Object.keys(w).length) {
+                wordsSurahRef.current = surahId;
+                setVerseWords(w);
+            }
+            wordsFetchRef.current = null;
+        });
+        // İstek kilidi temizlikte BIRAKILIR. StrictMode mount'ta effect'i
+        // kur→sök→kur şeklinde iki kez çalıştırıyor; kilit bırakılmazsa ikinci
+        // çalıştırma "zaten isteniyor" deyip çıkar, ilk isteğin sonucu da
+        // `alive === false` diye atılır ve okunuşlar hiç yüklenmezdi.
+        return () => { alive = false; wordsFetchRef.current = null; };
     }, [readingSubMode, focusVerseKey, surahId]);
 
     // One-time coach mark: teach the double-tap gesture (max 3 shows, done once used)
@@ -1442,7 +1505,7 @@ export default function SurahDetail() {
     return (
         <div className="min-h-screen bg-gradient-to-b from-[#F6F0E1] to-[#EDE5D1] dark:from-[#032e18] dark:to-[#021a0f] pb-24">
             <>
-                <div data-hint-anchor="surah-header" className="bg-islamic-green dark:bg-[#032e18] px-4 py-2 sticky top-0 z-40 border-b border-white/10 shadow-lg">
+                <div data-hint-anchor="surah-header" className="relative bg-islamic-green dark:bg-[#032e18] px-4 py-2 sticky top-0 z-40 border-b border-white/10 shadow-lg">
                     <div className="flex items-center gap-3">
                         <Button
                             onClick={() => {
@@ -1526,6 +1589,37 @@ export default function SurahDetail() {
                             ))}
                         </div>
                     </div>
+
+                    {/*
+                     * Deneme geri sayımı — sadece deneme kullanan (premium olmayan) kullanıcıda.
+                     *
+                     * Eskiden `fixed` idi ve tepeden sabit 64 px aşağıya konuyordu; o ölçü
+                     * AppLayout header'ına göreydi ve bu sayfanın KENDİ yapışkan başlığının
+                     * (başlık + Dinle butonu + okuma sekmeleri) tam üstüne biniyordu.
+                     * Artık başlığın kendisine bağlı: `top-full` ile her zaman başlığın
+                     * hemen altında durur — başlık yazı boyutu/uzun sure adı yüzünden
+                     * büyüse de çakışma olmaz. Başlık `sticky` olduğu için rozet de
+                     * kaydırma boyunca görünür kalır.
+                     */}
+                    <AnimatePresence>
+                        {trial.active && !hasPremium && (
+                            <motion.div
+                                initial={{ opacity: 0, y: -12 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -12 }}
+                                className="pointer-events-none absolute left-1/2 top-full z-10 -translate-x-1/2 pt-2"
+                            >
+                                <div className="flex items-center gap-2 rounded-full pl-3 pr-3.5 py-1.5 bg-[#0b3d22]/95 dark:bg-[#0b3d22]/95 border border-islamic-gold/30 shadow-[0_8px_24px_-10px_rgba(0,0,0,0.7)]">
+                                    <span className="relative flex w-2 h-2">
+                                        <span className="absolute inline-flex w-full h-full rounded-full bg-islamic-gold opacity-70 animate-ping" />
+                                        <span className="relative inline-flex w-2 h-2 rounded-full bg-islamic-gold" />
+                                    </span>
+                                    <span className="text-[11.5px] font-bold text-amber-50/90">{t('quran:trial.banner')}</span>
+                                    <span className="text-[12px] font-black text-islamic-gold tabular-nums">{trial.label}</span>
+                                </div>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
                 </div>
             </>
 
@@ -1788,7 +1882,17 @@ export default function SurahDetail() {
                         <button
                             onClick={() => {
                                 selection();
-                                navigate(`/quran/${parseInt(surahId) + 1}`);
+                                // Dinlerken geçiliyorsa ses de yeni sureye taşınsın.
+                                // Niyet AÇIKÇA taşınır: yalnız bu buton ve yalnız ses
+                                // çalarken bayrak konur — geri gitme ve derin bağlantı
+                                // yolları kendiliğinden çalmaya başlamasın.
+                                const keepListening = isSurahPlaying && canListen();
+                                navigate(
+                                    `/quran/${parseInt(surahId) + 1}`,
+                                    keepListening
+                                        ? { state: { autoPlay: true, continueSurah: true, _ts: Date.now() } }
+                                        : undefined
+                                );
                             }}
                             className="w-full py-4 bg-amber-600/10 dark:bg-emerald-900/50 text-amber-800 dark:text-islamic-gold rounded-xl border border-amber-600/30 dark:border-emerald-800 flex justify-center items-center gap-2 font-semibold active:scale-95 transition-all hover:bg-amber-600/20 dark:hover:bg-emerald-900/70"
                         >
@@ -1942,28 +2046,6 @@ export default function SurahDetail() {
                     data={shareModalData}
                 />
             )}
-
-            {/* Deneme geri sayımı — sadece deneme kullanan (premium olmayan) kullanıcıda */}
-            <AnimatePresence>
-                {trial.active && !hasPremium && (
-                    <motion.div
-                        initial={{ opacity: 0, y: -12 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -12 }}
-                        className="fixed left-1/2 -translate-x-1/2 z-[150] pointer-events-none"
-                        style={{ top: 'calc(env(safe-area-inset-top, 0px) + 64px)' }}
-                    >
-                        <div className="flex items-center gap-2 rounded-full pl-3 pr-3.5 py-1.5 bg-[#0b3d22]/95 dark:bg-[#0b3d22]/95 border border-islamic-gold/30 shadow-[0_8px_24px_-10px_rgba(0,0,0,0.7)]">
-                            <span className="relative flex w-2 h-2">
-                                <span className="absolute inline-flex w-full h-full rounded-full bg-islamic-gold opacity-70 animate-ping" />
-                                <span className="relative inline-flex w-2 h-2 rounded-full bg-islamic-gold" />
-                            </span>
-                            <span className="text-[11.5px] font-bold text-amber-50/90">{t('quran:trial.banner')}</span>
-                            <span className="text-[12px] font-black text-islamic-gold tabular-nums">{trial.label}</span>
-                        </div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
 
             {/* Deneme bitti — tek seferlik satış kartı */}
             <AnimatePresence>

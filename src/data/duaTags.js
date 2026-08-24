@@ -124,16 +124,54 @@ export const DUA_TAGS = {
 
     // ── İstek ve kabul ──
     'ربنااتنافيالدنياحسنهوفيا': { group: 'request', free: true },
-    'ربيسرولاتعسرربتممبالخير': { group: 'request', free: true, aliases: { tr: ['sınav', 'imtihan', 'kolaylık', 'iş'], en: ['exam', 'test', 'ease'] } },
+    'ربيسرولاتعسرربتممبالخير': { group: 'request', free: true, aliases: { tr: ['sınav', 'imtihan', 'kolaylık', 'iş kolaylığı'], en: ['exam', 'test', 'ease'] } },
     'رباشرحليصدريويسرليامريوا': { group: 'request', free: true, aliases: { tr: ['heyecan', 'konuşma', 'sunum'], en: ['speech', 'anxiety'] } },
     'ربزدنيعلماوفهما': { group: 'request', free: false, aliases: { tr: ['ilim', 'ders', 'okul', 'öğrenci'], en: ['knowledge', 'study'] } },
     'اللهملاسهلالاماجعلتهسهلا': { group: 'request', free: false, aliases: { tr: ['zor', 'mülakat', 'iş görüşmesi'], en: ['difficult', 'interview'] } },
     'ربناتقبلمناانكانتالسميعا': { group: 'request', free: false },
     'سبحانربكربالعزهعمايصفونو': { group: 'request', free: false, aliases: { tr: ['hatim', 'bitiş'], en: ['closing'] } },
-    'اللهمانياسالكعلمانافعاور': { group: 'request', free: false, aliases: { tr: ["rızık", "helal kazanç", "iş", "bereket"], en: ["provision", "rizq", "livelihood"] } },   // Hayırlı Rızık Duası
-    'ربناهبلنامنازواجناوذريات': { group: 'request', free: false, aliases: { tr: ["eş", "evlilik", "aile", "çocuk"], en: ["spouse", "marriage", "family"] } },   // Eş ve Çocuk Duası
+    'اللهمانياسالكعلمانافعاور': { group: 'request', free: false, aliases: { tr: ["rızık", "helal kazanç", "iş bulma", "bereket"], en: ["provision", "rizq", "livelihood"] } },   // Hayırlı Rızık Duası
+    'ربناهبلنامنازواجناوذريات': { group: 'request', free: false, aliases: { tr: ["evlilik", "aile", "çocuk"], en: ["spouse", "marriage", "family"] } },   // Eş ve Çocuk Duası
     'ربارحمهماكماربيانيصغيرا': { group: 'request', free: false, aliases: { tr: ["anne", "baba", "ebeveyn", "ana baba"], en: ["parents", "mother", "father"] } },   // Anne Babaya Dua
     'اللهمانياستخيركبعلمكواست': { group: 'request', free: false, aliases: { tr: ["istihare", "karar", "hayırlısı", "seçim"], en: ["istikhara", "decision", "guidance"] } },   // İstihare Duası
+    // ── 2026-08-24 eklenen 20 dua ──
+    // Hepsi `free: false`: ücretsiz set 14'te bırakıldı, kimseden bir şey alınmadı.
+    // Takma adlar mevcut 214 adla ÇAKIŞMAYACAK şekilde seçildi; yeni ad eklerken
+    // scratchpad'deki alias testini koştur (her ad kendi duasını ilk sıraya koymalı).
+
+    // Günlük hayat
+    'اشهدانلاالهالااللهوحدهلا': { group: 'daily', free: false, aliases: { tr: ['abdest', 'abdest sonrası'], en: ['wudu', 'after ablution'] } },   // Abdestten Sonra
+    'اللهمربهذهالدعوهالتامهوا': { group: 'daily', free: false, aliases: { tr: ['ezan', 'vesile', 'minare'], en: ['adhan', 'call to prayer'] } },   // Ezan Duası
+    'الحمدللهالذيسقاناعذبافرا': { group: 'daily', free: false, aliases: { tr: ['içmek', 'susuzluk'], en: ['water', 'drinking', 'thirst'] } },   // Su İçtikten Sonra
+    'الحمدللهيرحمكاللهيهديكما': { group: 'daily', free: false, aliases: { tr: ['hapşırma', 'hapşırınca', 'çok yaşa'], en: ['sneeze', 'sneezing'] } },   // Aksırınca
+    'اللهمصيبانافعا': { group: 'daily', free: false, aliases: { tr: ['yağmur', 'yağış'], en: ['rain'] } },   // Yağmur Yağarken
+    'استودعاللهدينكوامانتكوخو': { group: 'daily', free: false, aliases: { tr: ['veda', 'uğurlama', 'havalimanı', 'otogar'], en: ['farewell', 'seeing off', 'airport'] } },   // Yolcuyu Uğurlarken
+
+    // Sıkıntı ve şifa
+    'اللهماكفنيبحلالكعنحرامكو': { group: 'hardship', free: false, aliases: { tr: ['helalden rızık', 'harama düşmemek', 'faiz'], en: ['lawful provision', 'avoid haram'] } },   // Hz. Ali'ye Öğretilen Borç Duası
+    'اللهمانيعبدكابنعبدكابنام': { group: 'hardship', free: false, aliases: { tr: ['bunalım', 'ferahlık', 'daralma'], en: ['worry', 'relief', 'anguish'] } },   // İç Sıkıntısı Duası
+    'اسالاللهالعظيمربالعرشالع': { group: 'hardship', free: false, aliases: { tr: ['yedi kez', 'hastane', 'ameliyat'], en: ['seven times', 'hospital', 'surgery'] } },   // Hastaya Şifa Dileği
+
+    // Korunma
+    'ماشاءاللهلاقوهالابالله': { group: 'protect', free: false, aliases: { tr: ['maşallah', 'maşaallah'], en: ['mashallah'] } },   // Mâşâallah
+    'حسبياللهلاالهالاهوعليهتو': { group: 'protect', free: false, aliases: { tr: ['tevekkül', 'yedi defa', 'tevbe 129'], en: ['reliance', 'trust in allah'] } },   // Hasbiyallâh
+    'سبحانالذييسبحالرعدبحمدهو': { group: 'protect', free: false, aliases: { tr: ['şimşek', 'fırtına', 'yıldırım', 'gök gürültüsü'], en: ['thunder', 'lightning', 'storm'] } },   // Gök Gürleyince
+
+    // Namazda okunanlar
+    'سمعاللهلمنحمدهربنالكالحم': { group: 'prayer', free: false, aliases: { tr: ['kavme', 'semiallahu', 'doğrulma'], en: ['sami allahu', 'rising from bowing'] } },   // Kavme
+    'اللهمانياعوذبكمنعذابالقب': { group: 'prayer', free: false, aliases: { tr: ['deccal', 'kabir azabı', 'selam öncesi'], en: ['dajjal', 'grave punishment'] } },   // Selâmdan Önce Okunan Dua
+
+    // Tövbe ve iman
+    'رباوزعنياناشكرنعمتكالتيا': { group: 'repent', free: false, aliases: { tr: ['şükür', 'nimet', 'süleyman'], en: ['gratitude', 'thankful', 'sulayman'] } },   // Şükür Duası
+    'ربناامنافاغفرلناوارحمناو': { group: 'repent', free: false, aliases: { tr: ['iman ettik', 'muminun 109'], en: ['we believe', 'muminun 109'] } },   // Rabbenâ Âmennâ
+
+    // Salavatlar
+    'اللهمصلعليسيدنامحمدالنبي': { group: 'salawat', free: false, aliases: { tr: ['ümmi', 'ümmiyye'], en: ['ummi', 'al ummiyya'] } },   // Salavât-ı Ümmiyye
+
+    // İstek ve kabul
+    'اللهمانياسالكالجنهواعوذب': { group: 'request', free: false, aliases: { tr: ['cennet', 'cehennem', 'ateş'], en: ['paradise', 'jannah', 'hellfire'] } },   // Cennet İsteme Duası
+    'ربلاتذرنيفرداوانتخيرالوا': { group: 'request', free: false, aliases: { tr: ['kısırlık', 'evlat isteme', 'yalnızlık', 'zekeriya'], en: ['infertility', 'longing for a child', 'zakariyya'] } },   // Hz. Zekeriyyâ'nın Duası
+    'رباجعلنيمقيمالصلاهومنذري': { group: 'request', free: false, aliases: { tr: ['namaza devam', 'ibrahim', 'nesil'], en: ['steadfast in prayer', 'ibrahim', 'offspring'] } },   // Namaza Devam Duası
 };
 
 /** Haritada olmayan dua kaybolmaz: "Diğer" bölümünde kilitli görünür. */

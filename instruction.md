@@ -71,6 +71,10 @@ Proje bilgileri ve mevcut durum için `Memory.md`'ye bak.
 - [x] `appTestDayOffset` — prod build offset'i yok sayar (`testDate.js` DEV gate) + `main.jsx` açılışta localStorage kalıntısını siler
 - [x] `AppLayout` / `Profile` içindeki `debugShowPaywall` kaldırıldı
 - [x] App Store Connect'te `offer.499` / `offer.399` doğrulandı — ikisi de APPROVED (₺499,99 / ₺399,99)
+- [x] `firebase deploy` yapıldı (2026-08-24): firestore.rules + generateSpiritualAdvice
+      güncellendi, `stampPrayerApproval` ilk kez oluşturuldu (europe-west4)
+- [x] Sürüm 1.2.1 / versionCode 22 — release AAB derlendi (R8 temiz), imzalama Android Studio'da
+- [x] Ana sayfadaki "boşta bekleme" tam ekran reklam zamanlayıcısı kaldırıldı (AdMob politika riski)
 - [ ] Gerçek satın alma testi: Android Internal Testing + iOS TestFlight
 > **Kur'an dinleme denemesi (60 sn):** `src/lib/quranTrial.js` kalıcı özelliktir, test bayrağı YOK.
 > Kasıtlı: bayrak unutulursa herkes sınırsız dinlerdi. Cihazda tekrar test etmek için uygulamayı

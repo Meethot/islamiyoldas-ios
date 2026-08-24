@@ -84,7 +84,12 @@ export default function DuaSheet({ dua, locked, lockedCount, favorite, related =
         if (platform === 'ios') appLink = 'https://apps.apple.com/app/id6759666173';
         else if (platform === 'android') appLink = 'https://play.google.com/store/apps/details?id=com.islamiyoldas.app';
 
-        const body = [dua.title, dua.arabic, dua.transcription, dua.meaning, t('duaShareFooter', { link: appLink })]
+        // Ekranda gizlenen `meaning` paylaşımda da gizlenmeli: AR arayüzünde o alan
+        // meal değil, Arapça metnin harekesiz kopyası — paylaşılan mesajda dua
+        // iki kez görünüyordu.
+        const arayuz = i18n.language?.split('-')[0];
+        const body = [dua.title, dua.arabic, dua.transcription, arayuz === 'ar' ? null : dua.meaning,
+            t('duaShareFooter', { link: appLink })]
             .filter(Boolean)
             .join('\n\n');
 
@@ -98,7 +103,7 @@ export default function DuaSheet({ dua, locked, lockedCount, favorite, related =
                 try { await navigator.share({ text: body }); } catch { /* kullanıcı iptal etti */ }
             }
         }
-    }, [dua, light, t]);
+    }, [dua, light, t, i18n.language]);
 
     const spring = reduceMotion ? { duration: 0 } : { type: 'spring', stiffness: 320, damping: 34 };
     const fade = reduceMotion ? { duration: 0 } : { duration: 0.16, ease: 'easeOut' };

@@ -752,6 +752,170 @@ kez de bilen birine okutman iyi olur.
   - **Sıklıklar kullanıcı kararıyla DEĞİŞTİRİLMEDİ** (2026-08-24): smart paywall her 4 geçişte / oturumda 3 / **günde 8**, interstitial 3. günden sonra **günde 10** (ilki 30 sn cooldown, sonra 1-2-3 dk), indirim teklifi 5 dk sürer **3 saat** cooldown. Şikayet gelirse önce paywall günlük kotası kısılmalı.
   - Sürüm hâlâ **1.2.0 / versionCode 21 / MARKETING_VERSION 1.2.0** — yeni yayın için bump gerekiyor.
 
+## 1.2.1 release turu (2026-08-24)
+
+Kullanıcı: *"live'a alıcam başka bişey var mı kontrol et. sürekli çıkmasını falan kaldır."*
+
+**"Sürekli çıkan" şey reklamdı — paywall değil.** `Home.jsx` ana sayfa açılır açılmaz 2 sn
+sonra ve ardından **her 15 saniyede** `showInterstitialAd()` çağıran bir `setInterval`
+taşıyordu. Kullanıcı hiçbir şeye dokunmasa bile cooldown dolar dolmaz (30 sn → 1 dk → 2 dk
+→ 3 dk) tam ekran reklam açılıyor, günlük 10 kota böyle tükeniyordu. Kaldırıldı. İki gerekçe:
+davranışın kendisi + **AdMob politikası** tam ekran reklamı yalnız doğal geçiş noktalarında
+kabul ediyor (beklemedeki ekranda kendiliğinden açılan reklam yayın kısıtlaması sebebi).
+İronik: `InterstitialAdManager.jsx` dosyasının başında zaten *"kullanıcının talebi üzerine
+KULLANILMIYOR"* yazıyor — daha önce kapatılmış, Home'a zamanlayıcı olarak geri sızmış.
+Gelir kapanmadı: 15 gerçek geçiş noktası (hikaye bitişi, zikir hedefi, 5 vakit, uyku modu,
+paylaşım) ve günlük 10 limiti duruyor.
+
+**KULLANICI KARARI — otomatik paywall ve puan popup'ına DOKUNULMAYACAK.** İkisini de
+seçenekli sorup "Dokunma" cevabı aldım. Kayda geçsin ki bir daha "yumuşatalım" diye önerme:
+`useSmartPaywall` her 4. gezintide ana sayfaya dönüşte `/premium`'a atıyor (oturum 3 / gün 8),
+`ReviewPrompt` 3 gezintide çıkıyor — ikisi aynı tetikte, arka arkaya gelebiliyorlar. Bilinçli.
+
+**Android widget adları 6 dile açıldı.** Manifest'teki 7 widget'ın `android:label` değeri
+**düz Türkçe yazılıydı** ("Namaz Vakitleri", "Zikirmatik"...). Önceki tur açıklamaları
+çevirmişti, adlar gözden kaçmıştı — Alman kullanıcı Almanca açıklama + Türkçe ad görüyordu.
+Ayrıca Namaz Vakitleri ve Zikirmatik widget'larının `android:description`'ı
+`@string/app_name`'e bağlıydı (açıklama yerine "İslami Yoldaş" yazıyordu). Metinler **iOS
+widget'ının kendi `Localizable.strings` çevirilerinden** alındı, yeni cümle yazılmadı.
+Yeni anahtarlar: `widget_name_*` (7) + `widget_desc_prayer_times` / `widget_desc_dhikr`.
+
+**Home.jsx'te kopya effect silindi** — aynı `debugShowPrayerOverlay` dinleyicisi iki kez
+kayıtlıydı.
+
+**DEPLOY YAPILDI (kullanıcı onayıyla).**
+- `firestore.rules` canlıya basıldı → **şikayet butonu artık gerçekten çalışıyor** (aylardır
+  `PERMISSION_DENIED` alıp `catch`'te yutuluyordu) + âmin sayacı sıkılaştı (yalnız
+  `aminCount`, tam +1). Yayındaki 1.2.0 istemcisini kırmadığı doğrulandı: `incrementAmin`
+  sadece `aminCount: increment(1)` yazıyor, `amins` alanı git geçmişinde hiç yazılmamış;
+  istemcinin üç `updateDoc` yolunun üçü de yeni kurallardan geçiyor.
+- `generateSpiritualAdvice` güncellendi (canlıdaki kaynak 2026-07-17'deymiş, bir ay geride).
+- **`stampPrayerApproval` İLK KEZ oluşturuldu** (europe-west4, `prayers/{prayerId}`,
+  `retry: false`, eur3 tetik bölgesi). İlk denemede *"Permission denied while using the
+  Eventarc Service Agent"* aldı — 2. nesil fonksiyon ilk kez kurulduğu için izinler henüz
+  yayılmamıştı; birkaç dakika sonra tekrar deneyince geçti. **Yeni v2 tetikleyici deploy
+  ederken bu hatayı görürsen bekle ve tekrar dene, kod hatası değil.** Artifact Registry
+  temizlik politikası otomatik kuruldu (1 gün).
+
+**Sürüm: 1.2.1, versionCode 22** (package.json, package-lock, build.gradle, pbxproj).
+Kullanıcı 1.3.0 değil 1.2.1 istedi. versionCode 21 kullanılmış, geri düşülemez.
+
+**Release AAB derlendi** (`android/app/build/outputs/bundle/release/app-release.aab`, 19M):
+R8 + `shrinkResources` ile **BUILD SUCCESSFUL** — yeni widget kaynakları kırpılmıyor,
+6 dilin widget adları `base/resources.pb` içinde doğrulandı (ar/ru dahil). **AAB İMZASIZ** —
+repoda `signingConfig` yok, imzalama Android Studio'dan yapılıyor (çıktı `android/app/release/`).
+
+**Bakılıp temiz çıkanlar:** `HINT_TEST_MODE=false` · `DEBUG_MODE=false` · AdMob
+`isTesting:false` + gerçek ID'ler · `IS_TESTING=false` (ReviewPrompt) · `.env` tam
+(iOS RC key kodda sabit, Android env'den) · targetSdk 36 · `PrivacyInfo.xcprivacy` var ·
+proguard widget paketini koruyor (`com.islamiyoldas.app.**`) · OneSignal izni tek sefer
+soruluyor (`onesignal_permission_asked`) · `npm ci --dry-run` ✓ · 18 ns × 6 dil tam parite ·
+eşleşmeyen `t()` anahtarı 0 (`share.js` ve `ErrorBoundary` yanlış alarmdı — ilki `share.`
+öneki ekleyen sarmalayıcı, ikincisi i18next'in "anahtarı döndürme" davranışını doğru
+kontrol ediyor).
+
+**Bilerek bırakıldı:** `?offer=force` (cihaz testi) · pakette 278 `console.*` ·
+`InterstitialAdManager.jsx` ölü dosya (hiçbir yerden import edilmiyor) · repo lint 44 hata
+(tur başıyla aynı, yeni 0).
+
+**Sırada:** gerçek satın alma testi (TestFlight + Play Internal Testing), Android Studio'dan
+imzalı AAB, iOS archive. Cihazda: reklamın seyreldiği, widget adları Almanca cihazda,
+şikayet butonunun `reports` koleksiyonuna gerçekten yazdığı, dua onayında `approvedAt`
+damgası.
+
+## Dua kütüphanesi 70 → 90 (2026-08-24)
+
+Kullanıcı: *"şu dualar kısmını daha çok dolduralım, 20 tane daha, çok popülerlerden."*
+
+**Seçim körlemesine yapılmadı:** önce mevcut 70 duanın başlığı VE Arapça metni çıkarıldı,
+tema olarak yakın olanların metni tek tek okundu. Bu sayede dört yanlış aday elendi —
+"Namaz Sonrası İstiğfar" zaten *Allahümme entes-selâm*, "Sabah-Akşam Zikri" zaten
+**Ayetel Kürsî**, "Vücut Ağrısı İçin" zaten *eûzü bi-izzetillâh*, "Sıkıntı Anında" zaten
+*kerb duası*. Sadece başlığa bakılsaydı dördü de ikinci kez eklenirdi.
+
+**Eklenen 20** (bölümlere dağılım): Günlük hayat +6 (Abdestten Sonra · Ezan/Vesîle Duası ·
+Su İçtikten Sonra · Aksırınca · Yağmur Yağarken · Yolcuyu Uğurlarken), Sıkıntı ve şifa +3
+(Hz. Ali'ye Öğretilen Borç Duası · İç Sıkıntısı Duası · Hastaya Şifa Dileği), Korunma +3
+(Mâşâallah · Hasbiyallâh 7 kez · Gök Gürleyince), Namazda okunanlar +2 (Kavme ·
+Selâmdan Önce Okunan Dua), Tövbe ve iman +2 (Şükür Duası/Neml 19 · Rabbenâ Âmennâ/
+Mü'minûn 109), Salavatlar +1 (Salavât-ı Ümmiyye), İstek ve kabul +3 (Cennet İsteme ·
+Hz. Zekeriyyâ/Enbiyâ 89 · Namaza Devam/İbrâhim 40). Sonuç: tr/az **90**, en/de/ru/ar **89**
+(bilinen ve zararsız eski fark).
+
+**İKİ BAŞLIK BİLEREK DEĞİŞTİRİLDİ.** Yeni kayıtlar listede eskileriyle ayırt edilemiyordu:
+"Borçtan Kurtulma Duası" ↔ mevcut "Borç ve Sıkıntı Duası", "Hüzün ve Keder Duası" ↔ mevcut
+"Üzüntü ve Keder Anında". Altı dilde **"Hz. Ali'ye Öğretilen Borç Duası"** ve
+**"İç Sıkıntısı Duası"** yapıldı. Dualar gerçekten farklı, sorun yalnız adlandırmaydı.
+
+**Hepsi `free: false`** — ücretsiz set 14'te kaldı, kimseden hiçbir şey alınmadı, kilitli
+56 → 76. Her bölümde hâlâ en az bir ücretsiz dua var (testle doğrulandı).
+
+**ARAMA — kendi testim üç eski hatayı yakaladı.** Takma ad testi önce "sonuç sayısı" ölçüyordu;
+o yanlış metrikti (sorgunun geniş olması adın suçu değil). Doğru ölçüt **adın kendi uzunluğu**:
+alt dize eşleşmesi yapıldığı için 2 harfli Türkçe ad alakasız onlarca duayı getiriyor.
+Bulunanlar — ikisi **benden önce vardı**: `iş` (63 sonuç, iki duada) ve `eş` (52 sonuç);
+`iş kolaylığı` / `iş bulma` yapıldı, `eş` tamamen kaldırıldı (zaten başlıkta geçiyor).
+Kendi eklediğim `su` (30 sonuç) ve `gam` (9) da kaldırıldı. **Yeni takma ad eklerken 3 harften
+kısa yazma.**
+
+**Yeni test: `scratchpad/kontrol/dua90.mjs` — 4124 kontrol.** Ölçtükleri: 6 dilde her duanın
+`DUA_TAGS` karşılığı (yoksa "Diğer"de kilitli görünür), anahtar uzunluğu ≥10, diller arası
+anahtar eşleşmesi, öksüz etiket, ücretsiz sayısı 14, her bölümde ücretsiz dua, her takma adın
+kendi duasını bulması, 6 dilde zorunlu alanların dolu olması. Node JSX okuyamadığı için TR
+dualar `Learn.jsx`'ten ayıklanıp `kontrol/data/trDuas.js` olarak yazılıyor.
+
+**Locale dosyası DEĞİŞMEDİ** — dua metni dil dosyalarında değil rehber dosyalarında; yeni
+bölüm/UI metni gerekmedi.
+
+Doğrulama: 4124 kontrol ✓ · anahtar çakışması 0 (20/20 benzersiz, mevcut 70 ile de) ·
+`npm run build` ✓ · dokunulan 7 dosyada lint 0 sorun · repo lint 44 hata (tur başıyla aynı) ·
+18 ns × 6 dil parite 0 sorun · `cap copy` ios+android ✓.
+
+### Denetim turu (aynı gün, kullanıcı "iyi kontrol et çok iyi")
+
+Yeni 20 dua satır satır 6 dilde okundu, ölçülebilir olan her şey de ölçüldü.
+**Kendi eklediklerimde iki hata, ESKİ kayıtlarda üç hata çıktı.**
+
+**Kur'an kaynaklı 6 dua bağımsız kaynakla doğrulandı** (alquran.cloud `quran-simple`,
+sessiz-harf iskeleti düzeyinde): Kehf 39, Tevbe 129, Neml 19, Mü'minûn 109, Enbiyâ 89,
+İbrâhim 40 — altısı da ayetin içinde **birebir** geçiyor. ⚠️ İlk denemede `quran-uthmani`
+edisyonuyla karşılaştırdım ve 6/6 "eşleşmedi" çıktı: Uthmanî imlâsı vasıl elifini ve
+"الله"nin lâm-elifini düşürüyor (`العرش`→`لعرش`, `الصلاة`→`لصلوه`). **Uygulamanın metni
+standart imlâ; karşılaştırma `quran-simple` ile yapılmalı.** quran.com API'si de
+User-Agent'sız istekte 403 veriyor.
+
+**Benim iki hatam:** AZ'de iki kayıt « » tırnağı kullanıyordu (AZ kuralı “ ”); RU'da
+"Была научена тому, кого тяготил долг" edilgen çatısı bozuktu ve başlık ("которой научен
+Али") tutuktu → "Мольба Али об избавлении от долга" + "Пророк (ﷺ) научил ей того...".
+Ayrıca üç dil rötuşu: RU "Ма ша Аллах" → **"Машаллах"**, RU "неграмотного Пророка"
+(aşağılayıcı tona kayıyor) → "Пророка, не знавшего грамоты", AR "الصلاة الأمية" (tek
+başına "ümmî salât" gibi okunuyor) → "الصلاة على النبي الأمي".
+
+**ESKİ kayıtlarda üç hata (hiçbiri kullanıcı raporu değil):**
+- **`guidesAR.js`'te Bakara 286 duası "..." ile KESİLMİŞTİ.** Arapça kullanıcı 306
+  karakterlik ayetin yalnız ilk 59 karakterini görüyordu; okunuş ve meal de yarımdı.
+  Diğer beş dilde tamdı. Tamamlandı. Anahtar ilk 24 harften türediği ve kesme daha
+  sonra olduğu için favori/kota etkilenmedi.
+- **Kelime-i Tevhid'de düz `"` tırnak** (tr ve az) → tipografik “ ”.
+- `DuaSheet` **paylaşım metni** `meaning`'i koşulsuz ekliyordu; AR arayüzünde o alan meal
+  değil Arapça metnin harekesiz kopyası (ekranda zaten gizli) — paylaşılan mesajda dua
+  **iki kez** görünüyordu. Paylaşım da ekranla aynı koşula bağlandı.
+
+**Test 4124 → 5830 kontrol.** Eklenen kontroller, bulunan hata sınıflarının aynısını
+kalıcı olarak kapatıyor: (a) her dilde **ipucu dolu** — bir tur boyunca TR ipuçları hiç
+ölçülmemişti çünkü çıkarıcı yalnız 5 alanı alıyordu, `tips` eklendi; (b) **tırnak kuralı**
+(tr/en/az “ ” · de „ “ · ru/ar « », düz `"` hiçbir dilde yok); (c) **Arapça metin 6 dosyada
+birebir aynı** — tek harf sapması duayı "Diğer" bölümüne düşürür, kesik metni bu yakaladı.
+`process.exit`'in ÖNÜNE eklendi (hub.mjs'teki eski tuzak).
+
+Ayrıca yapısal ölçümler: okunuş/Arapça kelime oranı, meal uzunluğu sapması, en/de/ru/ar
+okunuşunun ortak olması, tr≠az okunuşu — 20 duada tek uyarı çıktı ve yanlış alarmdı
+("Es'elüllâhe'l-azîme" Türkçe imlâda üç Arapça kelimeyi birleştiriyor).
+
+Doğrulama: 5830 + 4381 (diğer paketler) kontrol ✓ · Kur'an 6/6 canlı doğrulama ✓ ·
+`npm run build` ✓ · dokunulan 8 dosyada lint 0 sorun · repo lint 44 hata (tur başıyla
+aynı) · 18 ns × 6 dil parite 0 · `cap copy` ios+android ✓.
+
 ## Kararlar
 - **Reklam yerleşimi:** Banner bottombar üstünde kalacak (`BOTTOM_CENTER, margin:75`). İçeriğe gömülü/in-feed reklam YAPILMAYACAK — plugin banner'ı WebView üstünde yüzen native view, DOM akışına giremez; scroll-sync custom plugin emeğe değmez; native ad asset'ini HTML'de render etmek AdMob politika ihlali (ban riski). (Karar: 2026-07-07)
 
