@@ -5,4 +5,13 @@
     <string name="widget_desc_motivation">Ein motivierender Vers, der Sie jeden Tag inspiriert</string>
     <string name="widget_desc_esma">Jeden Tag ein anderer schöner Name Allahs</string>
     <string name="widget_desc_hourly_esma">Jede Stunde ein neuer schöner Name Allahs</string>
+    <string name="widget_name_prayer_times">Gebetszeiten</string>
+    <string name="widget_name_dhikr">Dhikr-Zähler</string>
+    <string name="widget_name_verse">Vers des Tages</string>
+    <string name="widget_name_hourly_verse">Stündlicher Vers</string>
+    <string name="widget_name_motivation">Tägliche Motivation</string>
+    <string name="widget_name_esma">Name des Tages</string>
+    <string name="widget_name_hourly_esma">Stündlicher Name</string>
+    <string name="widget_desc_prayer_times">Verfolgen Sie Ihre Gebetszeiten</string>
+    <string name="widget_desc_dhikr">Zähle dein Dhikr über das Widget</string>
 </resources>

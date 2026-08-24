@@ -9,7 +9,7 @@ export const GUIDES_AZ = {
                 arabic: 'نَوَيْتُ اَنْ اَتَوَضَّأَ لِرِضَا اللهِ تَعَالَى',
                 transcription: "Nəvəytü ən ətəvadda'ə li-ridaillahi təalə.",
                 meaning: "Allahın rizası üçün dəstəmaz almağa niyyət etdim.",
-                tips: ['Niyyət qəlbin işidir', 'Dəstəmaz boyu niyyəti qoru']
+                tips: ['Niyyət qəlbin işidir', 'Dəstəmaz boyu niyyəti qoru', 'Şafii məzhəbində niyyət dəstəmazın fərzlərindəndir; niyyətsiz dəstəmaz keçərli olmur.']
             },
             {
                 id: 'wudu-besmele',
@@ -33,7 +33,7 @@ export const GUIDES_AZ = {
             {
                 id: 'wudu-misvak',
                 title: 'Diş Təmizliyi (Misvak)',
-                instruction: 'Misvak, diş fırçası və ya sağ əlin barmaqları ilə dişləri və diş ətlərini təmizləmək sünnətdir.',
+                instruction: 'Misvak, diş fırçası və ya sağ əlin barmaqları ilə dişləri və diş ətlərini təmizləmək sünnətdir. Dişlər üst-alt və sağ-sol olaraq fırçalanır.',
                 arabic: 'اَللَّهُمَّ بَارِكْ لِي فِي فَمِي',
                 transcription: 'Allahümmə barik li fi fəmi.',
                 meaning: 'Allahım! Ağzımda mənim üçün bərəkət yarat.',
@@ -63,7 +63,7 @@ export const GUIDES_AZ = {
                 id: 'wudu-yuz',
                 title: 'Üzü Yumaq',
                 repeat: '3 dəfə',
-                instruction: 'Alnın üst hissəsindəki saç bitim xəttindən çənə altına, bir qulaq yumşağından digərinə qədər bütün üzünü üç dəfə yu.',
+                instruction: 'Alnın üst hissəsindəki saç bitim xəttindən çənə altına, bir qulaq yumşağından digərinə qədər bütün üzünü üç dəfə yu. Qaşların, göz çuxurlarının və saqqal altının islanmasına diqqət et.',
                 arabic: 'اَللَّهُمَّ بَيِّضْ وَجْهِي بِنُورِكَ يَوْمَ تَبْيَضُّ وُجُوهٌ وَتَسْوَدُّ وُجُوهٌ',
                 transcription: 'Allahümmə bəyyid vəchi binurikə yəvmə təbyəddu vücuhun və təsvəddu vücuh.',
                 meaning: 'Allahım! Bəzi üzlərin ağarıb, bəzi üzlərin qaralacağı gündə mənim üzümü nurunla ağart.',
@@ -92,7 +92,7 @@ export const GUIDES_AZ = {
             {
                 id: 'wudu-bas-mesh',
                 title: 'Başın Məsh Edilməsi',
-                instruction: 'Əllərini yeni su ilə islat. İslaq əllərini alnın saç bitim xəttindən ənsəyə doğru çək, sonra ənsədən alna geri gətir.',
+                instruction: 'Əllərini yeni su ilə islat. İslaq əllərini alnın saç bitim xəttindən ənsəyə doğru çək, sonra ənsədən alna geri gətir. Başın ən azı dörddə birini məsh etmək fərzdir, hamısını məsh etmək sünnətdir.',
                 arabic: 'اَللَّهُمَّ غَشِّنِي بِرَحْمَتِكَ وَأَنْزِلْ عَلَيَّ مِنْ بَرَكَاتِكَ',
                 transcription: 'Allahümmə ğaşşini birəhmətikə və ənzil aləyyə min bərəkatikə.',
                 meaning: 'Allahım! Məni rəhmətinlə əhatə et, üzərimə bərəkətlərini endir.',
@@ -1145,7 +1145,7 @@ export const GUIDES_AZ = {
             },
             {
                 title: '5. Qavmə (Qiyam)',
-                instruction: '"Səmiəlləhü limən hamidəh" deyərək qalx. Tam dik dur və "Rəbbənə ləkəl-həmd" de.',
+                instruction: '"Səmiəlləhü limən hamidəh" deyərək qalx. Tam dik dur və "Rəbbənə ləkəl-həmd" de. Əllər yanlara salınır.',
                 arabic: 'سَمِعَ اللهُ لِمَنْ حَمِدَهُ ، رَبَّنَا لَكَ الْحَمْدُ',
                 transcription: 'Qalxarkən: "Səmiəlləhü limən hamidəh." Dik duranda: "Rəbbənə ləkəl-həmd."',
                 meaning: 'Allah Ona həmd edənin həmdini eşidər. Rəbbimiz, həmd Sənədir.',
@@ -1153,7 +1153,7 @@ export const GUIDES_AZ = {
             },
             {
                 title: '6. Birinci Səcdə',
-                instruction: '"Allahu Əkbər" deyərək səcdəyə get. Sıra ilə: dizlər, əllər, burun və alın yerə dəyir. Dirsəklər qaldırılır (yerə dəymir), qarın budlardan uzaq tutulur.',
+                instruction: '"Allahu Əkbər" deyərək səcdəyə get. Sıra ilə: dizlər, əllər, burun və alın yerə dəyir. Dirsəklər qaldırılır (yerə dəymir), qarın budlardan uzaq tutulur. Ayaqlar dik, barmaq ucları qibləyə baxır.',
                 arabic: 'سُبْحَانَ رَبِّيَ الْأَعْلَى',
                 transcription: 'Ən az 3 dəfə: "Sübhanə Rabbiyəl-Əla"',
                 meaning: 'Ən uca olan Rəbbimi təsbih edirəm.',
@@ -1161,7 +1161,7 @@ export const GUIDES_AZ = {
             },
             {
                 title: '7. Cəlsə (Oturuş)',
-                instruction: '"Allahu Əkbər" deyərək otur. Sol ayağın üstündə otur, sağ ayaq dikdir. Əllər dizlərin üstündə, barmaq ucları dizləri tutur.',
+                instruction: '"Allahu Əkbər" deyərək otur. Sol ayağın üstündə otur, sağ ayaq dikdir (barmaqları qibləyə). Əllər dizlərin üstündə.',
                 arabic: 'رَبِّ اغْفِرْ لِي',
                 transcription: '"Rəbbığfirli" (Rəbbim, məni bağışla) deyilə bilər.',
                 meaning: 'Rəbbim, məni bağışla.',
@@ -1177,7 +1177,7 @@ export const GUIDES_AZ = {
             },
             {
                 title: '9. İkinci Rəkət (Qiyam)',
-                instruction: '"Allahu Əkbər" deyərək qalx. Əlləri sinəyə bağla. Ayaqlar birləşik.',
+                instruction: '"Allahu Əkbər" deyərək qalx. Əllər göbəyin altında bağlanır, gözlər səcdə yerinə baxır.',
                 arabic: 'بِسْمِ اللهِ الرَّحْمٰنِ الرَّحِيمِ ، الْفَاتِحَة... سُورَة',
                 transcription: 'Yalnız Bəsmələ ilə başla. Fatihə və əlavə surə (məs: İxlas) oxu.',
                 meaning: 'Quran qiraəti.',
@@ -1193,11 +1193,11 @@ export const GUIDES_AZ = {
             },
             {
                 title: '11. Son Oturuş (Əttəhiyyatü)',
-                instruction: 'İkinci səcdədən sonra otur. Sol ayaq altda, sağ ayaq dik (İftiraş). Əllər dizlərin üstündə.',
+                instruction: 'İkinci səcdədən sonra otur. Sol ayaq altda, sağ ayaq dik (İftiraş). Əllər dizlərin üstündə, gözlər qucağa baxır.',
                 arabic: 'اَلتَّحِيَّاتُ لِلّٰهِ وَالصَّلَوَاتُ وَالطَّيِّبَاتُ اَلسَّلَامُ عَلَيْكَ أَيُّهَا النَّبِيُّ وَرَحْمَةُ اللهِ وَبَرَكَاتُهُ اَلسَّلَامُ عَلَيْنَا وَعَلَى عِبَادِ اللهِ الصَّالِحِينَ أَشْهَدُ أَنْ لآ إِلٰهَ إِلَّا اللهُ وَأَشْهَدُ أَنَّ مُحَمَّداً عَبْدُهُ وَرَسُولُهُ',
                 transcription: 'Əttəhiyyatü lilləhi vəs-saləvatu vət-tayyibat. Əssələmü aləykə əyyühən-nəbiyyü və rahmətulləhi və bərəkatüh. Əssələmü aləyna və alə ibadilləhis-salihin. Əşhədü ən la ilahə illəllah və əşhədü ənnə Muhammədən abdühü və rasülüh.',
                 meaning: 'Bütün salamlar, dualar və yaxşılıqlar Allaha məxsusdur. Ey Peyğəmbər! Allahın salamı, rəhməti və bərəkətləri sənin üzərinə olsun. Allahdan başqa ilah olmadığına və Muhəmmədin Allahın qulu və elçisi olduğuna şəhadət edirəm.',
-                tips: ['"Əşhədü" deyərkən sağ əlin şəhadət barmağı qaldırılır.', 'Gözlər qucağa baxır; sakitcə oxunur.']
+                tips: ['Şəhadət cümləsində "Lâ ilahə" deyərkən sağ əlin şəhadət barmağı qaldırılır.', '"İllallah" deyəndə endirilir.', 'Bu dua Peyğəmbərimizin Merac gecəsinin xatirəsidir.']
             },
             {
                 title: '12. Salli, Barik və Rəbbənə',
@@ -1222,7 +1222,7 @@ export const GUIDES_AZ = {
         steps: [
             {
                 title: '1. Niyyət və İftitah Təkbiri',
-                instruction: 'Qibləyə dön. Ayaqlar birləşik. Əllər çiyin hizasına qədər qaldırılır (qulaq hizasına deyil). Ovuclar qibləyə baxır.',
+                instruction: 'Qibləyə dön. Ayaqlar birləşik. Əllər çiyin hizasına qədər qaldırılır (qulaq hizasına deyil). Barmaqlar bitişik, ovuclar qibləyə baxır.',
                 arabic: 'نَوَيْتُ أَنْ أُصَلِّيَ... اَللهُ اَكْبَرُ',
                 transcription: '"(...) namazını qılmağa niyyət etdim." "Allahu Əkbər" deyərək əllər çiyin hizasından endirilib sinəyə bağlanır.',
                 meaning: 'Allah ən böyükdür.',
@@ -1242,7 +1242,7 @@ export const GUIDES_AZ = {
                 arabic: 'أَعُوذُ بِاللهِ مِنَ الشَّيْطَانِ الرَّجِيمِ ، بِسْمِ اللهِ الرَّحْمٰنِ الرَّحِيمِ ، الْفَاتِحَة... سُورَة',
                 transcription: 'Taavvuz və Bəsmələ oxunur. Sonra Fatihə, ardınca bir surə.',
                 meaning: 'Fatihə və surə ilə Allaha yalvarış.',
-                tips: ['Kişilərlə eyni oxunuş; fərq duruşdadır.', 'Əlavə surə ən az 3 qısa ayə olmalıdır.']
+                tips: ['Birinci rükətdə Əuzu və Bəsmələ çəkilir.', 'Səs yalnız özünün eşidəcəyi qədər çıxır (gizli oxunur).', 'Əlavə surə ən az 3 qısa ayə və ya 1 uzun ayə olmalıdır.']
             },
             {
                 title: '4. Rüku',
@@ -1258,11 +1258,11 @@ export const GUIDES_AZ = {
                 arabic: 'سَمِعَ اللهُ لِمَنْ حَمِدَهُ ، رَبَّنَا لَكَ الْحَمْدُ',
                 transcription: 'Qalxarkən: "Səmiəlləhü limən hamidəh." Dik duranda: "Rəbbənə ləkəl-həmd."',
                 meaning: 'Allah Ona həmd edənin həmdini eşidər. Rəbbimiz, həmd Sənədir.',
-                tips: ['Kişilərlə eyni qaydadır.', 'Tam dik durmadan səcdəyə keçmə.']
+                tips: ['Qavmə vacibdir; tam dik durmadan səcdəyə keçilmir.', 'Kişilərlə eyni qaydadır.', 'Əllər yanlara salınır.']
             },
             {
                 title: '6. Birinci Səcdə',
-                instruction: '"Allahu Əkbər" deyərək səcdəyə get. Qollar yerə yaxın tutulur (kişilərdəki kimi açılmır). Bədən yığcam saxlanılır.',
+                instruction: '"Allahu Əkbər" deyərək səcdəyə get. Qollar yerə yapışdırılır (kişilərdəki kimi havada tutulmur), dirsəklər yerə dəyir. Qarın budlara bitişik, bədən yığcam saxlanılır.',
                 arabic: 'سُبْحَانَ رَبِّيَ الْأَعْلَى',
                 transcription: 'Ən az 3 dəfə: "Sübhanə Rabbiyəl-Əla"',
                 meaning: 'Ən uca olan Rəbbimi təsbih edirəm.',
@@ -1274,7 +1274,7 @@ export const GUIDES_AZ = {
                 arabic: 'رَبِّ اغْفِرْ لِي',
                 transcription: '"Rəbbığfirli" (Rəbbim, məni bağışla) deyilə bilər.',
                 meaning: 'Rəbbim, məni bağışla.',
-                tips: ['Qadınlar Tavarruk tərzdə oturur — ayaqlar sağ tərəfə çıxarılır.', 'Kişilərdəki İftiraş oturuşundan fərqlidir.']
+                tips: ['Qadınlar Tavarruk tərzdə oturur — ayaqlar sağ tərəfə çıxarılır.', 'Kişilərdəki İftiraş oturuşundan fərqlidir.', 'Cəlsə vacibdir; oturmadan ikinci səcdəyə keçilmir.']
             },
             {
                 title: '8. İkinci Səcdə',
@@ -1306,7 +1306,7 @@ export const GUIDES_AZ = {
                 arabic: 'اَلتَّحِيَّاتُ لِلّٰهِ وَالصَّلَوَاتُ وَالطَّيِّبَاتُ اَلسَّلَامُ عَلَيْكَ أَيُّهَا النَّبِيُّ وَرَحْمَةُ اللهِ وَبَرَكَاتُهُ اَلسَّلَامُ عَلَيْنَا وَعَلَى عِبَادِ اللهِ الصَّالِحِينَ أَشْهَدُ أَنْ لآ إِلٰهَ إِلَّا اللهُ وَأَشْهَدُ أَنَّ مُحَمَّداً عَبْدُهُ وَرَسُولُهُ',
                 transcription: 'Əttəhiyyatü lilləhi vəs-saləvatu vət-tayyibat. Əssələmü aləykə əyyühən-nəbiyyü və rahmətulləhi və bərəkatüh. Əssələmü aləyna və alə ibadilləhis-salihin. Əşhədü ən la ilahə illəllah və əşhədü ənnə Muhammədən abdühü və rasülüh.',
                 meaning: 'Bütün salamlar, dualar və yaxşılıqlar Allaha məxsusdur. Ey Peyğəmbər! Allahın salamı, rəhməti və bərəkəti sənin üzərinə olsun. Allahdan başqa ilah olmadığına və Muhəmmədin qulu və elçisi olduğuna şəhadət edirəm.',
-                tips: ['Şəhadət zamanı qadınların şəhadət barmağını qaldırıb qaldırmayacağı barəsində fərqli fikirlər var.', 'Gözlər qucağa baxır, sakitcə oxunur.', 'Kişilərdən fərqli olaraq: şəhadət barmağı barəsində fərqli baxışlar mövcuddur.']
+                tips: ['Şəhadət zamanı qadınların şəhadət barmağını qaldırıb-qaldırmayacağı barəsində fərqli fikirlər var.', 'Gözlər qucağa baxır, sakitcə oxunur.']
             },
             {
                 title: '12. Salli, Barik və Rəbbənə',

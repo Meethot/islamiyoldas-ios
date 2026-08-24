@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils';
 import { useHaptics } from '@/hooks/useMobile';
 import { useHardwareBack } from '@/hooks/useHardwareBack';
 import { wuduMeta, stepImage } from '@/data/wuduSteps';
+import { analytics } from '@/services/analyticsService';
 
 /** Adım süreleri. Tekrarlı adımlar (3 kere yıkama) daha uzun sürer. */
 const STEP_MS = 9000;
@@ -14,6 +15,20 @@ const REPEAT_STEP_MS = 15000;
 const TICK_MS = 100;
 
 const RING = 2 * Math.PI * 26;
+
+/**
+ * Hız çarpanı. Sabit 9 saniye kullanıcının GERÇEK hızını varsayıyordu: yavaş
+ * yıkayan geride kalıyor ve elleri ıslakken yakalayamıyordu (ekrana dokunmak
+ * bu modun tüm varlık sebebine aykırı). Seçim hatırlanır.
+ */
+const SPEEDS = { slow: 1.6, normal: 1, fast: 0.7 };
+const SPEED_KEY = 'abdest_handsfree_speed';
+const readSpeed = () => {
+    try {
+        const v = localStorage.getItem(SPEED_KEY);
+        return v && SPEEDS[v] ? v : 'normal';
+    } catch { return 'normal'; }
+};
 
 const durationOf = (step) => (step?.repeat ? REPEAT_STEP_MS : STEP_MS);
 
@@ -55,7 +70,8 @@ function HandsFreeBody({ steps, onClose }) {
 
     const total = steps?.length || 0;
     const step = steps?.[index] || null;
-    const duration = durationOf(step);
+    const [speed, setSpeed] = useState(readSpeed);
+    const duration = Math.round(durationOf(step) * (SPEEDS[speed] || 1));
 
     /**
      * Ekran uykusunu engelle. Tarayıcı sekme gizlenince kilidi kendiliğinden
@@ -93,7 +109,11 @@ function HandsFreeBody({ steps, onClose }) {
             if (prev < total - 1) return prev + 1;
             return prev;
         });
-        if (index >= total - 1) { success(); setDone(true); } else light();
+        if (index >= total - 1) {
+            success();
+            setDone(true);
+            analytics.abdestHandsFreeDone(total);
+        } else light();
     }, [index, light, reset, success, total]);
 
     const goPrev = useCallback(() => {
@@ -122,6 +142,12 @@ function HandsFreeBody({ steps, onClose }) {
         }, TICK_MS);
         return () => clearInterval(timer);
     }, [paused, done, total, duration]);
+
+    // Kapanış duası adımı akışta var mı? Kısa modda süzülüp düşüyor.
+    const hasClosingDua = useMemo(
+        () => (steps || []).some(st => st?.id === 'wudu-bitis-dua'),
+        [steps]
+    );
 
     const meta = useMemo(() => (step ? wuduMeta(step) : null), [step]);
     const image = stepImage(meta);
@@ -157,7 +183,10 @@ function HandsFreeBody({ steps, onClose }) {
                     {t('handsFreeDone')}
                 </h2>
                 <p className="max-w-[18rem] text-[0.9375rem] leading-relaxed text-stone-600 dark:text-emerald-100/60">
-                    {t('handsFreeDoneSub')}
+                    {/* Kısa modda kapanış duası adımı listede YOK; metin onu
+                        okumayı hatırlatınca kullanıcı hiç görmediği bir şeye
+                        yönlendiriliyordu. */}
+                    {t(hasClosingDua ? 'handsFreeDoneSub' : 'handsFreeDoneSubNoDua')}
                 </p>
                 <button
                     type="button"
@@ -168,13 +197,27 @@ function HandsFreeBody({ steps, onClose }) {
                 </button>
             </div>
         ) : (
-            <div className="flex min-h-0 flex-1 flex-col items-center justify-center gap-5 px-5">
+            /* Kaydırılabilir: talimat metni eklendi ve görseller geldiğinde
+               kart uzayacak. Fıkhî talimat KIRPILAMAZ (rule: line-clamp yok),
+               o yüzden taşma kırpmayla değil kaydırmayla çözülüyor —
+               `--app-font-scale` 1.3'te de aynı yol geçerli. */
+            <div className="flex min-h-0 flex-1 flex-col items-center justify-center gap-5 overflow-y-auto px-5 py-2">
                 <div className="w-full max-w-[22rem] overflow-hidden rounded-[1.75rem] bg-[#FFFDF6] shadow-[0_10px_40px_-18px_rgba(0,0,0,0.3)] dark:bg-white/5">
                     <StepImage key={index} src={image} />
                     <div className="px-5 py-5 text-center">
                         <h2 className="font-display text-[1.6rem] font-extrabold leading-tight tracking-tight text-balance text-stone-900 dark:text-white">
                             {step?.title}
                         </h2>
+
+                        {/* Modun asıl içeriği. Telefon tezgâhta ve kol boyu
+                            uzakta olduğu için normal kart puntosundan büyük;
+                            fıkhî talimat KIRPILMAZ (yüz yıkamanın sınırını
+                            tarif eden cümle tam bu metnin içinde). */}
+                        {step?.instruction && (
+                            <p className="mx-auto mt-3 max-w-[19rem] text-[1.0625rem] leading-[1.5] text-stone-700 dark:text-emerald-100/75">
+                                {step.instruction}
+                            </p>
+                        )}
 
                         {repeatCount > 1 && (
                             <>
@@ -218,6 +261,33 @@ function HandsFreeBody({ steps, onClose }) {
                 <p className="max-w-[20rem] text-center text-[0.75rem] leading-relaxed text-black/40 dark:text-emerald-100/35">
                     {t('handsFreeHint')}
                 </p>
+            </div>
+        )}
+
+        {!done && (
+            <div className="shrink-0 px-5 pb-2">
+                <div className="mx-auto grid max-w-[22rem] grid-cols-3 gap-1 rounded-full bg-[#F0E8D5] p-1 dark:bg-white/[0.06]">
+                    {['slow', 'normal', 'fast'].map(sp => (
+                        <button
+                            key={sp}
+                            type="button"
+                            aria-pressed={speed === sp}
+                            onClick={() => {
+                                light();
+                                setSpeed(sp);
+                                try { localStorage.setItem(SPEED_KEY, sp); } catch { /* özel mod */ }
+                            }}
+                            className={cn(
+                                'rounded-full py-2 text-[0.8125rem] font-bold transition-colors',
+                                speed === sp
+                                    ? 'bg-[#FFFDF6] text-[#B45309] shadow-sm dark:bg-white/10 dark:text-islamic-gold'
+                                    : 'text-stone-600 dark:text-emerald-100/55'
+                            )}
+                        >
+                            {t(sp === 'slow' ? 'handsFreeSlow' : sp === 'fast' ? 'handsFreeFast' : 'handsFreeNormal')}
+                        </button>
+                    ))}
+                </div>
             </div>
         )}
 

@@ -77,8 +77,8 @@ Proje bilgileri ve mevcut durum için `Memory.md`'ye bak.
 > silip kur ya da `quran_listen_trial_at` anahtarını sil. Deneme SADECE dinlemeyi açar —
 > `isPremium()`'a dokunulmaz, kaydetme/paylaşım temaları premium kalır.
 
-- [ ] **`src/lib/hints.js` → `HINT_TEST_MODE = true` → `false` YAP** (ipuçları cihaz testi için her seferinde açılıyor; false olunca her ipucu kullanıcı başına bir kez çıkar. Tek bayrak: hem İbadetlerim sekmeleri hem sure içi ipuçları buradan)
-- [ ] `PremiumPaywall.jsx`'teki gizli test-premium jesti (ilk özellik satırına 3 sn basılı tutma → `setPremium(true)`, `window._testPremiumTimer`) — canlıya çıkmadan KALDIR
+- [x] **`src/lib/hints.js` → `HINT_TEST_MODE = false`** (2026-08-24 yapıldı)
+- [x] `PremiumPaywall.jsx` gizli test-premium jesti — kodda YOK, doğrulandı (2026-08-24: `_testPremiumTimer` ve elle `setPremium(true)` araması boş; kalan iki çağrı gerçek satın alma başarısı)
 
 ## Effort / Ultracode notu
 - `high/xhigh` = düşünme derinliği (hız değil). Kritik iş → yüksek.

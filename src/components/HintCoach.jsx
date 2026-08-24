@@ -270,22 +270,41 @@ export default function HintCoach({ targetId, titleKey, bodyKey, icon: Icon, ns 
     const roomBelow = bottomLimit - belowTop;
     const roomAbove = ring.top - GAP - topEdge;
     const fitsBelow = bubbleH <= roomBelow;
-    const maxBubbleH = Math.max(MIN_BUBBLE_H, fitsBelow ? roomBelow : roomAbove);
+    const fitsAbove = bubbleH <= roomAbove;
+    // Ekranda gerçekten kullanılabilir yükseklik (başlık çubuğu ile alt bant arası).
+    const available = bottomLimit - topEdge;
+    /**
+     * Hedef ekrandan uzunsa (ör. namaz sihirbazının kartı) ne altında ne üstünde
+     * balona yer kalır; eskiden balon 130 px'e sıkıştırılıyor, içeriği kayıyor ve
+     * kendi "İleri" düğmesi görünmez oluyordu. Böyle durumda balon hedefin ÜSTÜNE
+     * biner ve alt banda oturur — halka kartı sarmaya devam ettiği için bağ kopmaz.
+     */
+    // ...ama YALNIZ uzun hedeflerde. Kısa bir düğmenin üstüne binmek halkayı da
+    // örterdi; orada balon geniş tarafta kalır, gerekirse metni kayar (düğme sabit).
+    const tallTarget = ring.height > available * 0.5;
+    const overlaps = !fitsBelow && !fitsAbove && tallTarget && available > Math.max(roomBelow, roomAbove);
+    const room = fitsBelow || roomBelow >= roomAbove ? roomBelow : roomAbove;
+    const maxBubbleH = overlaps ? available : Math.min(available, Math.max(MIN_BUBBLE_H, room));
+    const effBubbleH = Math.min(bubbleH, maxBubbleH);
     // Üstte konumlanırken iki sınır birden: halkanın üstünde kal VE alt banda girme
     // (hedefin kendisi bandın içinde kalmış olabilir — o zaman halka değil bant belirler).
-    const effBubbleH = Math.min(bubbleH, maxBubbleH);
-    const bubbleTop = fitsBelow
-        // Alttayken de üst sınır şart: hedef kayarsa balon başlık çubuğuna tırmanmasın
-        ? Math.max(topEdge, Math.min(belowTop, bottomLimit - effBubbleH))
-        : Math.max(topEdge, Math.min(ring.top - GAP - effBubbleH, bottomLimit - effBubbleH));
+    const below = fitsBelow || (!overlaps && roomBelow >= roomAbove);
+    const bubbleTop = overlaps
+        ? Math.max(topEdge, bottomLimit - effBubbleH)
+        : below
+            // Alttayken de üst sınır şart: hedef kayarsa balon başlık çubuğuna tırmanmasın
+            ? Math.max(topEdge, Math.min(belowTop, bottomLimit - effBubbleH))
+            : Math.max(topEdge, Math.min(ring.top - GAP - effBubbleH, bottomLimit - effBubbleH));
 
     // Balonu halkaya bağlayan ok — halkanın yatay merkezine hizalanır, balonun
     // köşelerine yapışmaması için kenarlardan CARET_INSET kadar içeride tutulur.
     // Kullanıcı kaydırıp halkayı uzaklaştırdıysa balon sınırına yapışır; o anda ok
     // yanlış yeri gösterir, gizlenir.
-    const attached = fitsBelow
-        ? Math.abs(bubbleTop - belowTop) < 1
-        : Math.abs(bubbleTop + effBubbleH - (ring.top - GAP)) < 1;
+    const attached = overlaps
+        ? false                                     // balon kartın üstünde: ok yanlış yeri gösterirdi
+        : below
+            ? Math.abs(bubbleTop - belowTop) < 1
+            : Math.abs(bubbleTop + effBubbleH - (ring.top - GAP)) < 1;
     const ringCenterX = ring.left + ring.width / 2;
     const caretLeft = bubbleBox && attached
         ? Math.max(CARET_INSET, Math.min(ringCenterX - bubbleBox.left, bubbleBox.width - CARET_INSET))
@@ -318,13 +337,14 @@ export default function HintCoach({ targetId, titleKey, bodyKey, icon: Icon, ns 
             {/* İpucu balonu */}
             <motion.div
                 ref={bubbleRef}
-                initial={{ opacity: 0, y: fitsBelow ? 14 : -14, scale: 0.96 }}
+                initial={{ opacity: 0, y: below ? 14 : -14, scale: 0.96 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 transition={{ type: 'spring', stiffness: 380, damping: 30 }}
                 style={{ top: bubbleTop, maxHeight: maxBubbleH }}
                 className={cn(
                     'absolute left-4 right-4 mx-auto max-w-sm pointer-events-auto',
-                    'rounded-[1.75rem] overflow-hidden',
+                    // Dikey kutu: metin kaysa bile alttaki düğme şeridi yerinde kalır
+                    'flex flex-col rounded-[1.75rem] overflow-hidden',
                     'bg-gradient-to-b from-[#FFFDF6] to-[#F7F0DF] dark:from-[#0d4527] dark:to-[#062c18]',
                     'border border-[#E7DCC2] dark:border-islamic-gold/20',
                     'shadow-[0_20px_48px_-16px_rgba(146,64,14,0.32),0_2px_8px_-2px_rgba(0,0,0,0.08)]',
@@ -336,8 +356,9 @@ export default function HintCoach({ targetId, titleKey, bodyKey, icon: Icon, ns 
                 {/* Sağ üstte tek kısıtlı hale */}
                 <div className="absolute -top-10 -right-8 w-32 h-32 rounded-full bg-amber-400/10 dark:bg-islamic-gold/10 blur-2xl pointer-events-none" />
 
-                {/* Aşırı dar/kısa ekranda uzun çeviri taşarsa balon değil, içerik kayar */}
-                <div className="relative px-4 pt-4 pb-3 overflow-y-auto overscroll-contain" style={{ maxHeight: maxBubbleH }}>
+                {/* Aşırı dar/kısa ekranda uzun çeviri taşarsa balon değil, YALNIZ metin kayar:
+                    adım noktaları ve "İleri" düğmesi bu alanın dışında, hep görünür. */}
+                <div className="relative min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 pb-2 pt-4">
                     <div className="flex items-start gap-3">
                         {Icon && (
                             <motion.div
@@ -370,35 +391,36 @@ export default function HintCoach({ targetId, titleKey, bodyKey, icon: Icon, ns 
                         </button>
                     </div>
 
-                    <div className="flex items-center justify-between gap-3 mt-3">
-                        {/* Adım noktaları: zincirde birden fazla ipucu varsa kaç tane
-                            kaldığı görünür. Tek ipuçlu sekmelerde hiç çizilmez. */}
-                        {total > 1 ? (
-                            <div className="flex items-center gap-1.5 pl-1">
-                                {Array.from({ length: total }, (_, i) => (
-                                    <span
-                                        key={i}
-                                        className={cn(
-                                            'h-1.5 rounded-full transition-all duration-300',
-                                            i === step
-                                                ? 'w-5 bg-amber-600 dark:bg-islamic-gold'
-                                                : i < step
-                                                    ? 'w-1.5 bg-amber-600/45 dark:bg-islamic-gold/45'
-                                                    : 'w-1.5 bg-stone-300 dark:bg-white/20'
-                                        )}
-                                    />
-                                ))}
-                            </div>
-                        ) : <span />}
+                </div>
 
-                        <button
-                            type="button"
-                            onClick={() => close(true)}
-                            className="rounded-full px-5 h-9 text-[12.5px] font-bold tracking-tight text-white dark:text-[#032e18] bg-gradient-to-b from-amber-600 to-amber-700 dark:from-[#E8C766] dark:to-[#CFA83A] shadow-[0_8px_18px_-8px_rgba(180,83,9,0.85)] dark:shadow-[0_8px_20px_-8px_rgba(212,175,55,0.65)] active:scale-95 transition-transform"
-                        >
-                            {step < total - 1 ? t('tour.next') : t('tour.gotIt')}
-                        </button>
-                    </div>
+                <div className="relative flex shrink-0 items-center justify-between gap-3 px-4 pb-3 pt-1">
+                    {/* Adım noktaları: zincirde birden fazla ipucu varsa kaç tane
+                        kaldığı görünür. Tek ipuçlu sekmelerde hiç çizilmez. */}
+                    {total > 1 ? (
+                        <div className="flex items-center gap-1.5 pl-1">
+                            {Array.from({ length: total }, (_, i) => (
+                                <span
+                                    key={i}
+                                    className={cn(
+                                        'h-1.5 rounded-full transition-all duration-300',
+                                        i === step
+                                            ? 'w-5 bg-amber-600 dark:bg-islamic-gold'
+                                            : i < step
+                                                ? 'w-1.5 bg-amber-600/45 dark:bg-islamic-gold/45'
+                                                : 'w-1.5 bg-stone-300 dark:bg-white/20'
+                                    )}
+                                />
+                            ))}
+                        </div>
+                    ) : <span />}
+
+                    <button
+                        type="button"
+                        onClick={() => close(true)}
+                        className="rounded-full px-5 h-9 shrink-0 text-[12.5px] font-bold tracking-tight text-white dark:text-[#032e18] bg-gradient-to-b from-amber-600 to-amber-700 dark:from-[#E8C766] dark:to-[#CFA83A] shadow-[0_8px_18px_-8px_rgba(180,83,9,0.85)] dark:shadow-[0_8px_20px_-8px_rgba(212,175,55,0.65)] active:scale-95 transition-transform"
+                    >
+                        {step < total - 1 ? t('tour.next') : t('tour.gotIt')}
+                    </button>
                 </div>
 
                 {/* Kendiliğinden kapanma sayacı — dipteki ince altın çizgi */}
@@ -418,13 +440,13 @@ export default function HintCoach({ targetId, titleKey, bodyKey, icon: Icon, ns 
                     transition={{ delay: 0.08 }}
                     className={cn(
                         'absolute w-3 h-3 rotate-45 pointer-events-none',
-                        fitsBelow
+                        below
                             ? 'bg-[#FFFDF6] dark:bg-[#0d4527] border-t border-l border-[#E7DCC2] dark:border-islamic-gold/20'
                             : 'bg-[#F7F0DF] dark:bg-[#062c18] border-b border-r border-[#E7DCC2] dark:border-islamic-gold/20'
                     )}
                     style={{
                         left: bubbleBox.left + caretLeft - 6,
-                        top: fitsBelow ? bubbleTop - 6 : bubbleTop + bubbleH - 6,
+                        top: below ? bubbleTop - 6 : bubbleTop + effBubbleH - 6,
                     }}
                 />
             )}

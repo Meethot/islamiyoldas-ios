@@ -77,6 +77,7 @@
     "formCharLimit": "Minimum 10, maximum 200 characters",
     "formCapsWarn": "Your prayer is mostly in CAPITAL LETTERS. All caps reads like shouting — please use normal writing.",
     "formCapsBlock": "Your prayer is written entirely in CAPITAL LETTERS. Please rewrite it normally before sending.",
+    "formCapsFix": "Fix to normal writing",
     "formSubmitting": "Submitting...",
     "formUpdating": "Updating...",
     "formSubmitBtn": "Submit",

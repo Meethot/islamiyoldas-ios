@@ -77,6 +77,7 @@
     "formCharLimit": "Ən az 10, ən çox 200 simvol",
     "formCapsWarn": "Duanız əsasən BÖYÜK HƏRFLƏRLƏ yazılıb. Böyük hərf qışqırmaq kimi qəbul edilir; zəhmət olmasa normal yazın.",
     "formCapsBlock": "Dua tamamilə BÖYÜK HƏRFLƏRLƏ yazılıb. Göndərmək üçün zəhmət olmasa normal yazıya çevirin.",
+    "formCapsFix": "Normal yazıya çevir",
     "formSubmitting": "Göndərilir...",
     "formUpdating": "Yenilənir...",
     "formSubmitBtn": "Göndər",

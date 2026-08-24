@@ -123,6 +123,18 @@
         "ezberPeek": {
             "title": "Spicken, wenn du feststeckst",
             "body": "Der Text erscheint nicht auf einmal. Jeder Tipp zeigt ein Wort mehr."
+        },
+        "namazSwipe": {
+            "title": "Schritt für Schritt",
+            "body": "Wische die Karte zur Seite oder tippe unten auf Weiter. Das Beispielgebet mit zwei Gebetseinheiten läuft der Reihe nach, von der Absicht bis zum Salam."
+        },
+        "namazJump": {
+            "title": "Zu jedem Schritt springen",
+            "body": "Tippe oben auf der Karte auf den Schrittzähler, dann erscheinen alle Schritte. Zurückwischen, um die Worte im Ruku nachzusehen, entfällt."
+        },
+        "namazKadin": {
+            "title": "Unterschiede zum Männergebet",
+            "body": "In den Hinweisen jedes Schritts beginnen Zeilen mit „Unterschied zu Männern“: Hände, Arme, Niederwerfung und Sitzen weichen dort ab."
         }
     },
     "ezberDueToday": "{{title}} ist heute zur Wiederholung fällig.",
@@ -435,5 +447,11 @@
             "body": "Bricht in der hanafitischen Rechtsschule den Wudu nicht.",
             "safii": "In der schafiitischen, der malikitischen und der hanbalitischen Rechtsschule bricht die Berührung mit der Handfläche den Wudu."
         }
-    }
+    },
+    "farzAssurance": "Einmal waschen erfüllt die Fard · dreimal ist Sunna",
+    "handsFreeDoneSubNoDua": "Das Bittgebet nach dem Wudu findest du im letzten Schritt der Anleitung.",
+    "stepJumpTitle": "Zu Schritt springen",
+    "handsFreeSlow": "Langsam",
+    "handsFreeNormal": "Normal",
+    "handsFreeFast": "Schnell"
 }

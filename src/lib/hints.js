@@ -6,10 +6,9 @@
  * ipucu olduğu için tek yerden açılıp kapanmalı.
  */
 
-// ⚠️ TEST — CANLIYA ÇIKMADAN `false` YAP.
-// true iken "görüldü" kaydı ne okunur ne yazılır: ipuçları her seferinde çıkar.
-// false yapıldığında kayıt temiz olduğu için herkes ipucunu normal şekilde bir kez görür.
-export const HINT_TEST_MODE = true;
+// Cihaz testi bayrağı. true iken "görüldü" kaydı ne okunur ne yazılır: ipuçları her
+// açılışta yeniden çıkar. CANLIDA false olmalı — herkes her ipucunu bir kez görür.
+export const HINT_TEST_MODE = false;
 
 const STORE_KEY = 'app_hints_seen';
 

@@ -9,7 +9,7 @@ export const GUIDES_DE = {
                 arabic: 'نَوَيْتُ اَنْ اَتَوَضَّأَ لِرِضَا اللهِ تَعَالَى',
                 transcription: "Nawaytu an atawadda'a li-ridaillahi ta'ala.",
                 meaning: 'Ich beabsichtige, die Gebetswaschung zur Zufriedenheit Allahs des Allmächtigen durchzuführen.',
-                tips: ['Die Absicht ist eine Handlung des Herzens', 'Halte deine Absicht während der gesamten Waschung aufrecht']
+                tips: ['Die Absicht ist eine Handlung des Herzens', 'Halte deine Absicht während der gesamten Waschung aufrecht', 'In der schafiitischen Rechtsschule gehört die Absicht zu den Pflichten des Wudu; ohne Absicht ist das Wudu nicht gültig.']
             },
             {
                 id: 'wudu-besmele',
@@ -33,7 +33,7 @@ export const GUIDES_DE = {
             {
                 id: 'wudu-misvak',
                 title: 'Zähneputzen (Miswak)',
-                instruction: 'Es ist Sunna, die Zähne und das Zahnfleisch mit einem Miswak, einer Zahnbürste oder den Fingern der rechten Hand zu reinigen.',
+                instruction: 'Es ist Sunna, die Zähne und das Zahnfleisch mit einem Miswak, einer Zahnbürste oder den Fingern der rechten Hand zu reinigen. Die Zähne werden oben und unten sowie rechts und links geputzt.',
                 arabic: 'اَللَّهُمَّ بَارِكْ لِي فِي فَمِي',
                 transcription: 'Allahumma barik li fi fami.',
                 meaning: 'O Allah! Segne meinen Mund.',
@@ -63,7 +63,7 @@ export const GUIDES_DE = {
                 id: 'wudu-yuz',
                 title: 'Waschen des Gesichts',
                 repeat: '3x',
-                instruction: 'Wasche das gesamte Gesicht dreimal, vom Haaransatz bis unter das Kinn und von einem Ohrläppchen zum anderen.',
+                instruction: 'Wasche das gesamte Gesicht dreimal, vom Haaransatz bis unter das Kinn und von einem Ohrläppchen zum anderen. Achte darauf, dass Augenbrauen, Augenhöhlen und die Haut unter dem Bart nass werden.',
                 arabic: 'اَللَّهُمَّ بَيِّضْ وَجْهِي بِنُورِكَ يَوْمَ تَبْيَضُّ وُجُوهٌ وَتَسْوَدُّ وُجُوهٌ',
                 transcription: 'Allahumma bayyid wajhi bi-nurika yawma tabyaddhu wujuhun wa taswaddu wujuh.',
                 meaning: 'O Allah! Erhelle mein Gesicht mit Deinem Licht am Tag, an dem manche Gesichter hell und manche dunkel sein werden.',
@@ -92,7 +92,7 @@ export const GUIDES_DE = {
             {
                 id: 'wudu-bas-mesh',
                 title: 'Streichen über den Kopf',
-                instruction: 'Befeuchte deine Hände mit frischem Wasser. Führe die nassen Hände vom Haaransatz zum Nacken und zurück.',
+                instruction: 'Befeuchte deine Hände mit frischem Wasser. Führe die nassen Hände vom Haaransatz zum Nacken und zurück. Mindestens ein Viertel des Kopfes zu streichen ist Fard, den ganzen Kopf zu streichen ist Sunna.',
                 arabic: 'اَللَّهُمَّ غَشِّنِي بِرَحْمَتِكَ وَأَنْزِلْ عَلَيَّ مِنْ بَرَكَاتِكَ',
                 transcription: 'Allahumma ghashshini bi-rahmatika wa anzil alayya min barakatik.',
                 meaning: 'O Allah! Hülle mich in Deine Barmherzigkeit und sende Deinen Segen auf mich herab.',
@@ -646,7 +646,7 @@ export const GUIDES_DE = {
             },
             {
                 title: '4. Verbeugung (Ruku)',
-                instruction: 'Sage "Allahu Akbar" und verbeuge dich. Die Hände greifen die Knie. Der Rücken ist gerade und parallel zum Boden. Der Kopf ist auf gleicher Höhe mit dem Rücken.',
+                instruction: 'Sage "Allahu Akbar" und verbeuge dich. Die Finger sind gespreizt und umfassen die Knie. Der Rücken ist gerade und parallel zum Boden (wie ein Tisch), der Kopf ist auf gleicher Höhe mit dem Rücken. Beine und Arme sind gestreckt.',
                 arabic: 'سُبْحَانَ رَبِّيَ الْعَظِيمِ',
                 transcription: 'Sage mindestens 3 Mal: "Subhana Rabbiyal Adhim"',
                 meaning: 'Preis sei meinem Herrn, dem Gewaltigen.',
@@ -654,7 +654,7 @@ export const GUIDES_DE = {
             },
             {
                 title: '5. Aufrichten (Qawmah)',
-                instruction: 'Richte dich aus der Verbeugung auf, indem du sagst: "Sami Allahu liman hamidah." Stehe gerade, die Hände an den Seiten.',
+                instruction: 'Richte dich aus der Verbeugung auf, indem du sagst: "Sami Allahu liman hamidah." Stehe vollständig gerade und sage: "Rabbana lakal hamd." Die Hände hängen an den Seiten.',
                 arabic: 'سَمِعَ اللهُ لِمَنْ حَمِدَهُ ، رَبَّنَا لَكَ الْحَمْدُ',
                 transcription: 'Sami Allahu liman hamidah. Rabbana lakal hamd.',
                 meaning: 'Allah erhört den, der Ihn preist. Unser Herr, Dir gebührt alles Lob.',
@@ -662,7 +662,7 @@ export const GUIDES_DE = {
             },
             {
                 title: '6. Erste Niederwerfung (Sudschud)',
-                instruction: 'Sage "Allahu Akbar" und gehe in die Niederwerfung. Zuerst berühren die Knie, dann die Hände, dann Stirn und Nase den Boden. Die Füße stehen aufrecht.',
+                instruction: 'Sage "Allahu Akbar" und gehe in die Niederwerfung. Zuerst berühren die Knie, dann die Hände, dann Nase und Stirn den Boden. Die Ellbogen bleiben vom Boden abgehoben, der Bauch bleibt von den Oberschenkeln entfernt. Die Füße stehen aufrecht, die Zehen zeigen zur Qibla.',
                 arabic: 'سُبْحَانَ رَبِّيَ الْأَعْلَى',
                 transcription: 'Sage mindestens 3 Mal: "Subhana Rabbiyal A\'la"',
                 meaning: 'Preis sei meinem Herrn, dem Höchsten.',
@@ -670,7 +670,7 @@ export const GUIDES_DE = {
             },
             {
                 title: '7. Sitzen zwischen den Niederwerfungen (Dschalsah)',
-                instruction: 'Richte dich auf und setze dich, indem du "Allahu Akbar" sagst. Setze dich auf den linken Fuß, der rechte Fuß steht aufrecht. Hände auf den Knien.',
+                instruction: 'Richte dich auf und setze dich, indem du "Allahu Akbar" sagst. Setze dich auf den linken Fuß, der rechte Fuß steht aufrecht, die Zehen zeigen zur Qibla. Hände auf den Knien.',
                 arabic: 'رَبِّ اغْفِرْ لِي',
                 transcription: 'Rabbi-ghfir li. Rabbi-ghfir li.',
                 meaning: 'Mein Herr, vergib mir.',
@@ -686,7 +686,7 @@ export const GUIDES_DE = {
             },
             {
                 title: '9. Zweite Gebetseinheit (Stehen)',
-                instruction: 'Stehe auf, indem du "Allahu Akbar" sagst. Falte die Hände auf der Brust. Halte die Füße zusammen.',
+                instruction: 'Stehe auf, indem du "Allahu Akbar" sagst. Die Hände werden unter dem Nabel gefaltet. Die Augen blicken auf die Stelle der Niederwerfung.',
                 arabic: 'بِسْمِ اللهِ الرَّحْمٰنِ الرَّحِيمِ ، الْفَاتِحَة... سُورَة',
                 transcription: 'Beginne nur mit der Basmala. Rezitiere Al-Fatiha und eine zusätzliche Sure (z.B. Sure Al-Ikhlas).',
                 meaning: 'Koranrezitation.',
@@ -731,7 +731,7 @@ export const GUIDES_DE = {
         steps: [
             {
                 title: '1. Absicht und Eröffnungs-Takbir',
-                instruction: 'Wende dich zur Qibla. Halte die Füße zusammen. Hebe die Hände auf Schulterhöhe (nicht auf Ohrhöhe). Die Handflächen zeigen zur Qibla.',
+                instruction: 'Wende dich zur Qibla. Halte die Füße zusammen. Hebe die Hände auf Schulterhöhe (nicht auf Ohrhöhe). Die Finger sind geschlossen, die Handflächen zeigen zur Qibla.',
                 arabic: 'نَوَيْتُ أَنْ أُصَلِّيَ... اَللهُ اَكْبَرُ',
                 transcription: '"Ich beabsichtige das (...) Gebet um Allahs willen zu verrichten." Dann sage "Allahu Akbar" und falte die Hände.',
                 meaning: 'Allah ist der Größte.',
@@ -751,7 +751,7 @@ export const GUIDES_DE = {
                 arabic: 'أَعُوذُ بِاللهِ مِنَ الشَّيْطَانِ الرَّجِيمِ ، بِسْمِ اللهِ الرَّحْمٰنِ الرَّحِيمِ ، الْفَاتِحَة... سُورَة',
                 transcription: 'Rezitiere Ta\'awwudh und Basmala. Dann Al-Fatiha und eine zusätzliche Sure.',
                 meaning: 'Anrufung Allahs durch die Koranrezitation.',
-                tips: ['Die gleichen Suren werden rezitiert wie im Männergebet.', 'Der einzige Unterschied ist die körperliche Haltung, nicht die Rezitation.']
+                tips: ['In der ersten Rakah werden Ta\'awwudh und Basmala rezitiert.', 'Die Stimme bleibt so leise, dass sie nur für einen selbst hörbar ist (leise Rezitation).', 'Die zusätzliche Sure muss mindestens 3 kurze Verse oder 1 langen Vers umfassen.']
             },
             {
                 title: '4. Verbeugung (Ruku)',
@@ -767,7 +767,7 @@ export const GUIDES_DE = {
                 arabic: 'سَمِعَ اللهُ لِمَنْ حَمِدَهُ ، رَبَّنَا لَكَ الْحَمْدُ',
                 transcription: 'Sami Allahu liman hamidah. Rabbana lakal hamd.',
                 meaning: 'Allah erhört den, der Ihn preist. Unser Herr, Dir gebührt alles Lob.',
-                tips: ['Ruhe beim Aufrichten ist wichtig.', 'Stehe vollständig gerade, bevor du dich niederwirfst.']
+                tips: ['Die Qawmah ist wadschib; gehe nicht zur Niederwerfung über, bevor du ganz aufrecht stehst.', 'Wird genauso ausgeführt wie bei Männern.', 'Die Hände hängen an den Seiten herab.']
             },
             {
                 title: '6. Erste Niederwerfung (Sudschud)',
@@ -783,7 +783,7 @@ export const GUIDES_DE = {
                 arabic: 'رَبِّ اغْفِرْ لِي',
                 transcription: 'Rabbi-ghfir li. Rabbi-ghfir li.',
                 meaning: 'Mein Herr, vergib mir.',
-                tips: ['Anders als bei Männern: Die Tawarruk-Position — beide Füße zeigen nach rechts, man sitzt auf dem Boden.', 'Einen Moment ruhig sitzen.']
+                tips: ['Anders als bei Männern: Die Tawarruk-Position — beide Füße zeigen nach rechts, man sitzt auf dem Boden.', 'Diese frauenspezifische Sitzhaltung heißt \'Tawarruk\'.', 'Die Dschalsah ist wadschib; gehe nicht zur zweiten Niederwerfung über, ohne zu sitzen.']
             },
             {
                 title: '8. Zweite Niederwerfung (Sudschud)',
@@ -815,7 +815,7 @@ export const GUIDES_DE = {
                 arabic: 'اَلتَّحِيَّاتُ لِلّٰهِ وَالصَّلَوَاتُ وَالطَّيِّبَاتُ اَلسَّلَامُ عَلَيْكَ أَيُّهَا النَّبِيُّ وَرَحْمَةُ اللهِ وَبَرَكَاتُهُ اَلسَّلَامُ عَلَيْنَا وَعَلَى عِبَادِ اللهِ الصَّالِحِينَ أَشْهَدُ أَنْ لآ إِلٰهَ إِلَّا اللهُ وَأَشْهَدُ أَنَّ مُحَمَّداً عَبْدُهُ وَرَسُولُهُ',
                 transcription: 'Attahiyyatu lillahi was-salawatu wat-tayyibat. Assalamu alayka ayyuhan-nabiyyu wa rahmatullahi wa barakatuh. Assalamu alayna wa ala ibadillahis-salihin. Ashhadu an la ilaha illallah wa ashhadu anna Muhammadan abduhu wa rasuluh.',
                 meaning: 'Alle verbalen, körperlichen und finanziellen Gottesdienste sind für Allah. O Prophet! Friede, Barmherzigkeit und Segen Allahs seien auf dir. Ich bezeuge, dass es keinen Gott gibt außer Allah und dass Muhammad Sein Diener und Gesandter ist.',
-                tips: ['Es gibt unterschiedliche Meinungen, ob Frauen den Zeigefinger während der Schahada heben.', 'Blick auf den Schoß; rezitiere mit Ruhe.', 'Anders als bei Männern: Es gibt verschiedene Ansichten, ob Frauen den Zeigefinger zeigen.']
+                tips: ['Es gibt unterschiedliche Meinungen, ob Frauen den Zeigefinger während der Schahada heben.', 'Blick auf den Schoß; rezitiere mit Ruhe.']
             },
             {
                 title: '12. Salli, Barik und Rabbana',

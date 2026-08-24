@@ -77,6 +77,7 @@
     "formCharLimit": "Mindestens 10, maximal 200 Zeichen",
     "formCapsWarn": "Dein Gebet ist überwiegend in GROSSBUCHSTABEN geschrieben. Das wirkt wie Schreien — bitte schreibe normal.",
     "formCapsBlock": "Dein Gebet ist komplett in GROSSBUCHSTABEN geschrieben. Bitte schreibe es normal, um es zu senden.",
+    "formCapsFix": "In normale Schreibweise umwandeln",
     "formSubmitting": "Wird gesendet...",
     "formUpdating": "Wird aktualisiert...",
     "formSubmitBtn": "Absenden",

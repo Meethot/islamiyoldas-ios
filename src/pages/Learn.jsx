@@ -2,7 +2,7 @@ import React, { useState, useCallback, useMemo, useEffect, memo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ChevronRight, ChevronLeft, ChevronDown, Droplets, BookOpen, Heart, CheckCircle2, RotateCcw, Sparkles as SparklesIcon, Crown, CalendarCheck } from 'lucide-react';
+import { ChevronRight, ChevronLeft, ChevronDown, Droplets, BookOpen, Heart, CheckCircle2, RotateCcw, Sparkles as SparklesIcon, Crown, CalendarCheck, MoveHorizontal, ListOrdered } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useHaptics } from '@/hooks/useMobile';
@@ -13,6 +13,7 @@ import { GUIDES_DE } from '@/data/guidesDE';
 import { GUIDES_RU } from '@/data/guidesRU';
 import { GUIDES_AR } from '@/data/guidesAR';
 import { GUIDES_AZ } from '@/data/guidesAZ';
+import { Levha } from '@/components/ui/levha';
 import DuaLibrary from '@/components/dua/DuaLibrary';
 import EzberSheet from '@/components/ezber/EzberSheet';
 import SureList from '@/components/ezber/SureList';
@@ -22,6 +23,7 @@ import AbdestHub from '@/components/abdest/AbdestHub';
 import MeshSheet from '@/components/abdest/MeshSheet';
 import BreakerSheet from '@/components/abdest/BreakerSheet';
 import HandsFree from '@/components/abdest/HandsFree';
+import StepJumpSheet from '@/components/abdest/StepJumpSheet';
 import { readMest, mestStatus, splitRemaining } from '@/lib/mestMesh';
 import { wuduMeta, stepImage } from '@/data/wuduSteps';
 import { useHardwareBack } from '@/hooks/useHardwareBack';
@@ -53,6 +55,20 @@ const SURE_HINTS = [
     { id: 'learn:sureCard', target: 'sure-card', titleKey: 'tour.sureCard.title', bodyKey: 'tour.sureCard.body', icon: BookOpen },
     { id: 'learn:sureProgress', target: 'sure-progress', titleKey: 'tour.sureProgress.title', bodyKey: 'tour.sureProgress.body', icon: CalendarCheck },
 ];
+// Namaz sihirbazı (erkek + kadın) ipuçları. İlk ikisi ORTAK kimlikte: iki
+// kategoriyi de gezen kullanıcı aynı şeyi iki kez okumaz. Kadın namazında
+// üçüncü adım var — farkların nerede yazdığını gösterir.
+const NAMAZ_HINTS = [
+    { id: 'learn:namazSwipe', target: 'namaz-card', titleKey: 'tour.namazSwipe.title', bodyKey: 'tour.namazSwipe.body', icon: MoveHorizontal },
+    { id: 'learn:namazJump', target: 'namaz-jump', titleKey: 'tour.namazJump.title', bodyKey: 'tour.namazJump.body', icon: ListOrdered },
+];
+const KADIN_NAMAZ_HINTS = [
+    ...NAMAZ_HINTS,
+    { id: 'learn:namazKadin', target: 'namaz-tips', titleKey: 'tour.namazKadin.title', bodyKey: 'tour.namazKadin.body', icon: SparklesIcon },
+];
+const HINT_CHAINS = { sure: SURE_HINTS, namaz: NAMAZ_HINTS, kadin: KADIN_NAMAZ_HINTS };
+const NO_HINTS = [];
+
 const nextHint = (chain, seen, after = -1) => chain.findIndex((h, i) => i > after && !seen[h.id]);
 
 /**
@@ -78,7 +94,7 @@ const GUIDES = {
                 arabic: 'نَوَيْتُ اَنْ اَتَوَضَّأَ لِرِضَا اللهِ تَعَالَى',
                 transcription: "Neveytü en etevadda’e li-ridâillâhi teâlâ.",
                 meaning: "Allah’ın rızası için abdest almaya niyet ettim.",
-                tips: ['Niyet kalbin işidir', 'Abdest boyunca niyeti muhafaza et']
+                tips: ['Niyet kalbin işidir', 'Abdest boyunca niyeti muhafaza et', 'Şâfiî mezhebinde niyet abdestin farzlarındandır; niyetsiz abdest geçerli olmaz.']
             },
             {
                 id: 'wudu-besmele',
@@ -1214,7 +1230,7 @@ const GUIDES = {
             },
             {
                 title: '5. Doğrulma (Kavme)',
-                instruction: '"Semiallâhü limen hamideh" diyerek doğrulunur. Tam dik durulur ve "Rabbenâ lekel hamd" denir.',
+                instruction: '"Semiallâhü limen hamideh" diyerek doğrulunur. Tam dik durulur ve "Rabbenâ lekel hamd" denir. Eller yanlara salınır.',
                 arabic: 'سَمِعَ اللهُ لِمَنْ حَمِدَهُ ، رَبَّنَا لَكَ الْحَمْدُ',
                 transcription: 'Doğrulurken: "Semiallâhü limen hamideh". Dik durunca: "Rabbenâ lekel hamd".',
                 meaning: 'Allah, kendisine hamd edeni işitti. Rabbimiz, hamd Sanadır.',
@@ -1222,7 +1238,7 @@ const GUIDES = {
             },
             {
                 title: '6. Birinci Secde',
-                instruction: '"Allâhu Ekber" diyerek secdeye gidilir. Sırasıyla: dizler, eller, burun ve alın yere konur. Dirsekler havada (yere değmez), karın uyluktan uzak tutulur.',
+                instruction: '"Allâhu Ekber" diyerek secdeye gidilir. Sırasıyla: dizler, eller, burun ve alın yere konur. Dirsekler havada (yere değmez), karın uyluktan uzak tutulur. Ayaklar dik, parmak uçları kıbleye döner.',
                 arabic: 'سُبْحَانَ رَبِّيَ الْأَعْلَى',
                 transcription: 'En az 3 kere: "Sübhâne Rabbiyel A\'lâ"',
                 meaning: 'Yüce olan Rabbimi tenzih ederim.',
@@ -1242,7 +1258,7 @@ const GUIDES = {
                 arabic: 'سُبْحَانَ رَبِّيَ الْأَعْلَى',
                 transcription: 'En az 3 kere: "Sübhâne Rabbiyel A\'lâ"',
                 meaning: 'Yüce olan Rabbimi tenzih ederim.',
-                tips: ['Secde anı, kulun Allah\'a en yakın olduğu anıdır.', 'Bu makamda gönülden dua edilebilir.']
+                tips: ['Alın ve burun yerde sabitlenir.', 'Secde anı, kulun Allah\'a en yakın olduğu anıdır.', 'Bu makamda gönülden dua edilebilir.']
             },
             {
                 title: '9. İkinci Rekat (Kıyam)',
@@ -1375,7 +1391,7 @@ const GUIDES = {
                 arabic: 'اَلتَّحِيَّاتُ لِلّٰهِ وَالصَّلَوَاتُ وَالطَّيِّبَاتُ اَلسَّلَامُ عَلَيْكَ أَيُّهَا النَّبِيُّ وَرَحْمَةُ اللهِ وَبَرَكَاتُهُ اَلسَّلَامُ عَلَيْنَا وَعَلَى عِبَادِ اللهِ الصَّالِحِينَ أَشْهَدُ أَنْ لآ إِلٰهَ إِلَّا اللهُ وَأَشْهَدُ أَنَّ مُحَمَّداً عَبْدُهُ وَرَسُولُهُ',
                 transcription: 'Ettehiyyâtü lillâhi ves-salevâtü vet-tayyibât. Esselâmü aleyke eyyühen-nebiyyü ve rahmetullâhi ve berakâtüh. Esselâmü aleynâ ve alâ ibâdillâhis-sâlihîn. Eşhedü en lâ ilâhe illallâh ve eşhedü enne Muhammeden abdühû ve rasûlüh.',
                 meaning: 'Bütün tahiyyatlar, salavat ve tayyibat Allah içindir. Ey Peygamber! Selam, rahmet ve bereket sana olsun. Şehadet ederim ki Allah\'tan başka ilah yoktur ve Muhammed O\'nun kulu ve rasülüdür.',
-                tips: ['Şehadet cümlesinde "Lâ ilâhe" derken şehadet parmağı kaldırılmaz (kadınlarda).', 'Bakışlar kucağa yönelir, sükunetle okunur.', 'Erkek-kadın farkı: Kadınlarda şehadet parmağı kaldirma konusunda farklı görüşler vardır.']
+                tips: ['Kadınların şehadet parmağını kaldırıp kaldırmayacağı konusunda farklı görüşler vardır.', 'Bakışlar kucağa yönelir, sükunetle okunur.']
             },
             {
                 title: '12. Salli, Barik ve Rabbena',
@@ -1412,8 +1428,8 @@ function arabicTypeClass(text) {
 }
 
 /** Etiket + içerik bloğu — okunuş ve anlam artık aynı gri yığında değil. */
-const FieldBlock = ({ label, children, className }) => (
-    <div className={className}>
+const FieldBlock = ({ label, children, className, tour }) => (
+    <div className={className} data-tour={tour}>
         <p className="mb-1.5 text-[10px] font-bold uppercase tracking-[0.16em] text-gray-400 dark:text-emerald-100/30">
             {label}
         </p>
@@ -1461,7 +1477,19 @@ const FoldRow = ({ label, open, onToggle }) => (
     </button>
 );
 
-const GuideStepCard = memo(({ step, index, total, icon: Icon = Heart, isRtl, meta = null, collapsed = false }) => {
+/**
+ * Sihirbaz kartı.
+ *
+ * Denetimde kapatılan kusurlar: (a) aynı sayaç ekranda üç kez yazılıyordu —
+ * artık YALNIZ burada; (b) başlık `font-serif`'ti, projenin kendi kuralı
+ * "başlıkta serif yasak" diyor; (c) her adımda aynı damla ikonu bir kutuda
+ * duruyordu (Dua bölümünde sildirilen "hepsi aynı ikon" kalıbının aynısı);
+ * (d) Arapça düz bir şeritteydi, dua ve ezber ekranlarındaki levhaya bağlandı.
+ *
+ * Fıkhî talimat HİÇBİR yerde kırpılmaz (`line-clamp` yok) ve hüküm asla
+ * yalnız renkle taşınmaz — rozetin metni her zaman okunur.
+ */
+const GuideStepCard = memo(({ step, index, total, isRtl, meta = null, collapsed = false, assurance = false, onJump = null, tour = false }) => {
     const { t } = useTranslation('learn');
     // Görsel dosyası henüz konmadıysa kart bozulmasın: hata olursa hiç çizilmez.
     // `loaded` olmadan yer AYRILMAZ — aksi hâlde dosya yokken kart önce 4:3
@@ -1477,36 +1505,38 @@ const GuideStepCard = memo(({ step, index, total, icon: Icon = Heart, isRtl, met
     const image = imgOk ? stepImage(meta) : null;
     const hasDua = !!(step.arabic || step.transcription || step.meaning);
     const hasTips = step.tips?.length > 0;
+    const isFarz = meta?.rank === 'farz';
 
     const duaBlock = (
-        <>
+        <div className="px-5 pb-1 pt-4">
             {step.arabic && (
-                <div className="border-y border-islamic-gold/15 bg-islamic-green/[0.035] px-5 py-7 dark:bg-islamic-gold/[0.05]">
+                <Levha>
                     <p
                         dir="rtl"
                         lang="ar"
-                        className={cn('break-words text-center font-arabic text-islamic-gold', arabicTypeClass(step.arabic))}
+                        className={cn('break-words text-center font-arabic text-[#92400E] dark:text-islamic-gold', arabicTypeClass(step.arabic))}
                     >
                         {step.arabic}
                     </p>
-                </div>
+                </Levha>
             )}
 
             {(step.transcription || step.meaning) && (
-                <div className="space-y-5 px-6 pb-1 pt-5">
+                <div className="space-y-4 pt-5">
                     {step.transcription && (
                         <FieldBlock label={t('translitLabel')}>
-                            <p className="text-[15px] font-medium leading-relaxed text-gray-700 dark:text-emerald-100/80">
+                            <p className="text-[0.8125rem] leading-relaxed text-gray-600 dark:text-emerald-100/65">
                                 {step.transcription}
                             </p>
                         </FieldBlock>
                     )}
 
+                    {/* Anlam sayfanın EN PARLAK metni: asıl okunacak şey bu. */}
                     {step.meaning && (
                         <FieldBlock label={t('meaningLabel')}>
                             <p
                                 dir={isRtl ? 'rtl' : 'ltr'}
-                                className="border-s-2 border-islamic-gold/25 ps-3.5 text-[15px] leading-relaxed text-gray-600 dark:text-emerald-100/60"
+                                className="text-[0.9375rem] leading-relaxed text-stone-900 dark:text-white"
                             >
                                 {step.meaning}
                             </p>
@@ -1514,16 +1544,20 @@ const GuideStepCard = memo(({ step, index, total, icon: Icon = Heart, isRtl, met
                     )}
                 </div>
             )}
-        </>
+        </div>
     );
 
     const tipsBlock = hasTips && (
-        <div className="px-6 pb-1 pt-5">
-            <FieldBlock label={t('tipsTitle')} className="rounded-2xl bg-[#F6F0E1] p-4 dark:bg-white/5">
+        <div className="px-5 pb-1 pt-5">
+            <FieldBlock
+                label={t('tipsTitle')}
+                tour={tour ? 'namaz-tips' : undefined}
+                className="rounded-2xl border border-[#B45309]/25 p-4 dark:border-islamic-gold/25"
+            >
                 <ul className="space-y-2">
                     {step.tips.map((tip, idx) => (
-                        <li key={idx} className="flex items-start gap-2.5 text-[13px] leading-relaxed text-gray-600 dark:text-emerald-100/45">
-                            <span className="mt-[7px] h-1 w-1 shrink-0 rounded-full bg-islamic-gold" />
+                        <li key={idx} className="flex items-start gap-2.5 text-[0.8125rem] leading-relaxed text-gray-600 dark:text-emerald-100/55">
+                            <span className="mt-[0.4375rem] h-[3px] w-[3px] shrink-0 rotate-45 bg-[#B45309] dark:bg-islamic-gold" />
                             <span>{tip}</span>
                         </li>
                     ))}
@@ -1533,7 +1567,16 @@ const GuideStepCard = memo(({ step, index, total, icon: Icon = Heart, isRtl, met
     );
 
     return (
-        <Card className="relative overflow-hidden rounded-[2rem] border-none bg-[#FFFDF6] p-0 shadow-[0_10px_40px_-18px_rgba(0,0,0,0.28)] dark:bg-white/5 dark:text-white">
+        <Card
+            className={cn(
+                'relative overflow-hidden rounded-[1.75rem] bg-[#FFFDF6] p-0 shadow-[0_10px_40px_-18px_rgba(0,0,0,0.28)] dark:bg-white/5 dark:text-white',
+                // Farz adımın çerçevesi bir tık kalın: hüküm renkten bağımsız
+                // ikinci bir kanalla da taşınsın.
+                isFarz
+                    ? 'border-[1.5px] border-[#B45309]/35 dark:border-islamic-gold/35'
+                    : 'border border-[#B45309]/15 dark:border-islamic-gold/15'
+            )}
+        >
             {/* Görsel kartın en başında: fiziksel bir işlem önce gösterilir,
                 sonra anlatılır. Dosya yoksa blok hiç çizilmez. */}
             {image && (
@@ -1544,24 +1587,32 @@ const GuideStepCard = memo(({ step, index, total, icon: Icon = Heart, isRtl, met
                     onLoad={() => setImgLoaded(true)}
                     onError={() => setImgOk(false)}
                     className={cn(
-                        'aspect-[4/3] w-full border-b border-islamic-gold/15 object-cover',
+                        'aspect-[4/3] w-full border-b border-[#B45309]/15 object-cover dark:border-islamic-gold/15',
                         !imgLoaded && 'hidden'
                     )}
                 />
             )}
 
-            {/* Başlık bölgesi */}
-            <div className="px-6 pt-6 pb-5">
-                <div className="mb-3 flex flex-wrap items-center gap-2">
-                    <span className="flex h-7 items-center rounded-lg bg-islamic-green px-2.5 text-[11px] font-black tabular-nums tracking-wider text-white dark:bg-islamic-gold dark:text-[#032e18]">
-                        {String(index + 1).padStart(2, '0')}
-                    </span>
-                    <span className="text-[10px] font-bold uppercase tracking-[0.16em] text-gray-400 tabular-nums dark:text-emerald-100/30">
-                        / {total}
-                    </span>
+            <div className="px-5 pb-5 pt-5">
+                {/* Künye — adım sayacının ekrandaki TEK yeri. */}
+                <div className="mb-3 flex items-center gap-2">
+                    {/* Künye dokunulabilir: "boynumu meshettim mi" sorusunun cevabı
+                        12. karttaydı ve 11 kaydırma uzaktaydı. Bu ADIM yönünün
+                        kabul edilen tek zayıflığıydı; O(n) gezinme O(1) seçime indi. */}
+                    <button
+                        type="button"
+                        data-tour={tour && onJump ? 'namaz-jump' : undefined}
+                        onClick={onJump}
+                        disabled={!onJump}
+                        aria-label={t('stepJumpTitle')}
+                        className="-ms-1 -my-1 flex items-center gap-1.5 rounded-lg px-1 py-1 text-[1.125rem] font-extrabold tabular-nums tracking-tight text-black/35 transition-colors active:bg-black/[0.05] disabled:pointer-events-none dark:text-emerald-100/35 dark:active:bg-white/10"
+                    >
+                        {String(index + 1).padStart(2, '0')} / {String(total).padStart(2, '0')}
+                        {onJump && <ChevronDown className="h-3.5 w-3.5" />}
+                    </button>
                     <span className="ms-auto flex items-center gap-1.5">
                         {step.repeat && (
-                            <span className="rounded-full border border-islamic-gold/25 bg-islamic-gold/10 px-2.5 py-0.5 text-[10px] font-black uppercase text-islamic-gold">
+                            <span className="rounded-full border border-[#B45309]/30 bg-[#B45309]/10 px-2.5 py-0.5 text-[10px] font-black uppercase text-[#B45309] dark:border-islamic-gold/30 dark:bg-islamic-gold/10 dark:text-islamic-gold">
                                 {step.repeat}
                             </span>
                         )}
@@ -1569,19 +1620,23 @@ const GuideStepCard = memo(({ step, index, total, icon: Icon = Heart, isRtl, met
                     </span>
                 </div>
 
-                <div className="flex items-start gap-3">
-                    <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-islamic-green/10 text-islamic-green dark:bg-islamic-gold/10 dark:text-islamic-gold">
-                        <Icon className="h-5 w-5" />
-                    </span>
-                    <div className="min-w-0 flex-1">
-                        <h2 className="font-serif text-[1.6rem] font-bold leading-tight text-balance">{step.title}</h2>
-                        {step.instruction && (
-                            <p className="mt-1.5 text-[13.5px] leading-relaxed text-gray-500 dark:text-emerald-100/50">
-                                {step.instruction}
-                            </p>
-                        )}
-                    </div>
-                </div>
+                <h2 className="font-display text-[1.5rem] font-bold leading-tight tracking-tight text-balance text-stone-900 dark:text-white">
+                    {step.title}
+                </h2>
+                {step.instruction && (
+                    <p className="mt-2 text-[0.9375rem] leading-relaxed text-gray-600 dark:text-emerald-100/60">
+                        {step.instruction}
+                    </p>
+                )}
+
+                {/* Güvence satırı: üç kez yıkamak sünnet, bir kez farzı düşürür.
+                    Ceza dili yok — "3'ü tamamlayamadın" hissi ürünü ters çevirir.
+                    Yalnız TEKRARLI farz adımlarında; baş meshi farz ama tekrarsız. */}
+                {assurance && isFarz && step.repeat && (
+                    <p className="mt-3 text-[0.75rem] font-bold leading-relaxed text-[#B45309] dark:text-islamic-gold">
+                        {t('farzAssurance')}
+                    </p>
+                )}
 
                 {collapsed && (hasDua || hasTips) && (
                     <div className="mt-4 grid gap-2">
@@ -1593,7 +1648,7 @@ const GuideStepCard = memo(({ step, index, total, icon: Icon = Heart, isRtl, met
 
             {hasDua && showDua && duaBlock}
             {hasTips && showTips && tipsBlock}
-            {((hasDua && showDua) || (hasTips && showTips)) && <div className="pb-6" />}
+            {((hasDua && showDua) || (hasTips && showTips)) && <div className="pb-5" />}
         </Card>
     );
 });
@@ -1625,11 +1680,15 @@ export default function Learn() {
     const [meshSection, setMeshSection] = useState(null);
     const [wuduMode, setWuduMode] = useState(readWuduMode);
     const [handsFree, setHandsFree] = useState(false);
+    const [stepJump, setStepJump] = useState(false);
     // Mest durumu React state'inde TUTULMAZ: tek yazan MeshSheet, tek okuyan
     // aşağıdaki rozet. Kopyasını burada tutmak, tabaka her yazdığında iki
     // kaynağı senkron tutmayı gerektiriyordu. Tik yalnız "yeniden oku" işareti.
     const [mestTick, setMestTick] = useState(0);
     const bumpMest = useCallback(() => setMestTick(v => v + 1), []);
+    // Hub aramasından gelince "Tam" moda geçici geçiş yapılır; konudan
+    // çıkınca kullanıcının gerçek tercihi buradan geri yüklenir.
+    const restoreModeRef = React.useRef(null);
 
     const { selection, success, heavy, light } = useHaptics();
     const { t, i18n } = useTranslation('learn');
@@ -1686,15 +1745,15 @@ export default function Learn() {
         } else {
             success();
             setIsComplete(true);
+            if (guideKey) analytics.abdestGuideCompleted(guideKey, totalSteps, wuduMode);
         }
-    }, [light, safeStep, success, totalSteps]);
+    }, [light, safeStep, success, totalSteps, guideKey, wuduMode]);
 
     const prev = useCallback(() => {
         light();
         setCurrentStep(Math.max(0, safeStep - 1));
     }, [light, safeStep]);
 
-    const ActiveIcon = CATEGORIES.find(c => c.id === selectedCategory)?.icon || Heart;
     const isRtl = lang === 'ar';
 
     /** Kartı yana kaydırmak adım değiştirir; RTL'de yön ters. */
@@ -1728,11 +1787,13 @@ export default function Learn() {
             setAbdestSheet(topic.id);
             return;
         }
-        // Aramadan gelen adım kısa modda süzülmüş olabilir; tam listeye geç ki
-        // kullanıcı tıkladığı adımı gerçekten görsün.
+        // Aramadan gelen adım kısa modda süzülmüş olabilir; tam listeye geçilir
+        // ki kullanıcı tıkladığı adımı gerçekten görsün. DEPOYA YAZILMAZ:
+        // eskiden kullanıcının tercihi arka planda kalıcı olarak değişiyordu.
+        // Konudan çıkınca eski tercih geri gelir (`closeAbdestTopic`).
         if (stepIndex >= 0 && wuduMode === 'short') {
+            restoreModeRef.current = 'short';
             setWuduMode('full');
-            storageService.setItem(WUDU_MODE_KEY, 'full');
         }
         setAbdestTopic(topic.id);
         setCurrentStep(Math.max(0, stepIndex));
@@ -1741,18 +1802,73 @@ export default function Learn() {
 
     const closeAbdestTopic = useCallback(() => {
         light();
+        // Arama yüzünden geçici olarak açılan "Tam" modu geri alınır.
+        if (restoreModeRef.current) {
+            setWuduMode(restoreModeRef.current);
+            restoreModeRef.current = null;
+        }
         setAbdestTopic(null);
         setCurrentStep(0);
         setIsComplete(false);
     }, [light]);
 
+    /**
+     * Adıma git tabakası — künyeden açılır.
+     *
+     * Haptic ref üzerinden okunur: `useHaptics` her render'da YENİ fonksiyon
+     * kimliği döndürüyor (`selection` bir `useCallback` değil). Doğrudan
+     * bağımlılık verilseydi `openStepJump` her render'da değişir ve karta prop
+     * olarak gittiği için `GuideStepCard`'ın `memo`'su boşa düşerdi.
+     * (HandsFree'deki `goNextRef` aynı sebeple var.)
+     */
+    const selectionRef = React.useRef(selection);
+    useEffect(() => { selectionRef.current = selection; });
+    const openStepJump = useCallback(() => { selectionRef.current?.(); setStepJump(true); }, []);
+    const pickStep = useCallback((i) => {
+        setCurrentStep(i);
+        setStepJump(false);
+        setIsComplete(false);
+        // Kabuğu namazlar/kadınNamaz/gusül/teyemmüm de kullanıyor: hangi rehberden
+        // atlandığı yazılmazsa olay "abdest" adı altında karışık veri üretir.
+        analytics.abdestStepJump(guideKey, i);
+    }, [guideKey]);
+
+    /** Islak el modu — açılışı ölçülüyor; bu modun kullanımı hiç bilinmiyordu. */
+    const openHandsFree = useCallback(() => {
+        selection();
+        setHandsFree(true);
+        analytics.abdestHandsFreeStart(wizardSteps.length, wuduMode);
+    }, [selection, wizardSteps.length, wuduMode]);
+
+    /**
+     * Mod değişimi KONUMU KORUR. Eskiden `setCurrentStep(0)` vardı: 12. adımdaki
+     * kullanıcı "Kısa"ya bakıp geri dönünce baştan başlıyordu.
+     *
+     * Eşleme indeksle değil `id` ile: iki listenin uzunluğu farklı (15 ↔ 7).
+     * Bulunulan adım yeni listede yoksa ONDAN ÖNCEKİ en yakın adıma düşülür —
+     * ileri atlamak, görülmemiş bir farzı geçmiş göstermek olurdu.
+     */
     const changeWuduMode = useCallback((mode) => {
         selection();
+        const all = guide?.steps || [];
+        const nextList = mode === 'short'
+            ? (all.filter(st => wuduMeta(st)?.short).length ? all.filter(st => wuduMeta(st)?.short) : all)
+            : all;
+        const currentId = wizardSteps[safeStep]?.id;
+        let target = nextList.findIndex(st => st.id === currentId);
+        if (target < 0) {
+            const posInAll = all.findIndex(st => st.id === currentId);
+            target = 0;
+            for (let i = 0; i < nextList.length; i++) {
+                const idx = all.findIndex(st => st.id === nextList[i].id);
+                if (idx <= posInAll) target = i; else break;
+            }
+        }
         setWuduMode(mode);
-        setCurrentStep(0);
+        setCurrentStep(Math.max(0, target));
         storageService.setItem(WUDU_MODE_KEY, mode);
         analytics.abdestModeChanged(mode);
-    }, [selection]);
+    }, [selection, guide, wizardSteps, safeStep]);
 
     const abdestHubVisible = selectedCategory === 'abdest' && !abdestTopic;
 
@@ -1782,7 +1898,7 @@ export default function Learn() {
      * birden tetikler, kullanıcı bir adım geri giderken iki adım geri giderdi.
      */
     useHardwareBack(
-        selectedCategory === 'abdest' && !!abdestTopic && !abdestSheet && !handsFree,
+        selectedCategory === 'abdest' && !!abdestTopic && !abdestSheet && !handsFree && !stepJump,
         closeAbdestTopic
     );
 
@@ -1804,54 +1920,62 @@ export default function Learn() {
         [ezberSure, guide]
     );
 
-    // ── Sure listesi ipuçları ────────────────────────────────────────────
-    // Yalnız liste görünürken: ezber tabakası açıkken hedefler (kart, özet satırı)
-    // perdenin altında kalır, oradaki ipuçlarını EzberSheet yönetir.
+    // ── İpuçları ─────────────────────────────────────────────────────────
+    // Bağlam = o an hangi ekran görünüyor. Sure listesi ve namaz sihirbazı ayrı
+    // zincirler; ezber tabakası açıkken sure ipuçlarını EzberSheet yönetir.
     const [seenHints, setSeenHints] = useState(readSeenHints);
     const [hintId, setHintId] = useState(null);
     const hintTimerRef = React.useRef(null);
     const shownHintRef = React.useRef(null);
     const sureListReady = selectedCategory === 'sureler' && !ezberSure && (guide?.steps?.length || 0) > 0;
+    // Sihirbaz ipuçları: adım listesi / tam ekran açıkken hedefler görünmüyor
+    const isNamazGuide = selectedCategory === 'namazlar' || selectedCategory === 'kadinNamaz';
+    const namazReady = isNamazGuide && !isComplete && !stepJump && !handsFree && (guide?.steps?.length || 0) > 0;
+    const hintCtx = sureListReady ? 'sure'
+        : namazReady ? (selectedCategory === 'kadinNamaz' ? 'kadin' : 'namaz')
+            : null;
+    const hintChain = hintCtx ? HINT_CHAINS[hintCtx] : NO_HINTS;
 
-    // Ekranda duran ipucunun kimliği — liste kapanırken "görüldü" yazmak için.
+    // Ekranda duran ipucunun kimliği — ekran değişince "görüldü" yazmak için.
     useEffect(() => { shownHintRef.current = hintId; }, [hintId]);
 
     useEffect(() => {
-        if (!sureListReady) return undefined;
-        const first = nextHint(SURE_HINTS, readSeenHints());
-        if (first === -1) return undefined;
-        const timer = setTimeout(() => setHintId(SURE_HINTS[first].id), 800);
+        if (!hintCtx) return undefined;
+        const chain = HINT_CHAINS[hintCtx];
+        const first = nextHint(chain, readSeenHints());
+        const timer = first === -1 ? null : setTimeout(() => setHintId(chain[first].id), 800);
         return () => {
-            clearTimeout(timer);
+            if (timer) clearTimeout(timer);
             clearTimeout(hintTimerRef.current);
-            // Kullanıcı sureyi açtı: balon kendi kapanmadan düşüyor. Görüldü
-            // yazılmazsa listeye her dönüşte aynı ipucu tekrar çıkardı.
+            // Balon kullanıcı kapatmadan düştü (sure açıldı, kategori değişti).
+            // Görüldü yazılmazsa ekrana her dönüşte aynı ipucu baştan çıkar.
             const shown = shownHintRef.current;
-            if (shown) {
+            if (shown && chain.some(h => h.id === shown)) {
                 setSeenHints(markHintSeen(shown));
                 shownHintRef.current = null;
                 setHintId(null);
             }
         };
-    }, [sureListReady]);
+    }, [hintCtx]);
 
     useEffect(() => () => clearTimeout(hintTimerRef.current), []);
 
     const closeHint = useCallback((markSeen = true) => {
-        const index = hintId ? SURE_HINTS.findIndex(h => h.id === hintId) : -1;
+        const index = hintId ? hintChain.findIndex(h => h.id === hintId) : -1;
         if (index < 0) return;
         // markHintSeen TEST modunda hiçbir şey yazmaz (bkz. lib/hints.js)
-        const nextSeen = markSeen ? markHintSeen(SURE_HINTS[index].id) : seenHints;
+        const nextSeen = markSeen ? markHintSeen(hintChain[index].id) : seenHints;
         setSeenHints(nextSeen);
         setHintId(null);
-        const nextIdx = nextHint(SURE_HINTS, nextSeen, index);
+        const nextIdx = nextHint(hintChain, nextSeen, index);
         if (nextIdx >= 0) {
             clearTimeout(hintTimerRef.current);
-            hintTimerRef.current = setTimeout(() => setHintId(SURE_HINTS[nextIdx].id), 180);
+            hintTimerRef.current = setTimeout(() => setHintId(hintChain[nextIdx].id), 180);
         }
-    }, [hintId, seenHints]);
+    }, [hintChain, hintId, seenHints]);
 
-    const activeHint = sureListReady && hintId ? SURE_HINTS.find(h => h.id === hintId) : null;
+    // Zincir değişince eski kimlik bulunamaz — yanlış balon çıkmaz.
+    const activeHint = hintId ? hintChain.find(h => h.id === hintId) : null;
 
     /** Bugün tekrarı gelen ilk sure — sihirbazın üstünde tek satır. */
     const dueToday = useMemo(() => {
@@ -1884,11 +2008,10 @@ export default function Learn() {
                 {/* Background glow */}
                 <div className="absolute inset-0 rounded-[3rem] overflow-hidden">
                     <div className="absolute inset-0 bg-gradient-to-b from-islamic-green/5 via-islamic-green/[0.02] to-transparent dark:from-islamic-gold/10 dark:via-islamic-gold/5 dark:to-transparent" />
-                    <motion.div
-                        className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 rounded-full bg-islamic-green/10 dark:bg-islamic-gold/15 blur-3xl"
-                        animate={{ scale: [1, 1.2, 1], opacity: [0.4, 0.7, 0.4] }}
-                        transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
-                    />
+                    {/* Sabit hale. Eskiden sonsuz nefes alıyordu: günde beş kez
+                        görülen bir ekranda sürekli animasyon hem tören fazlası
+                        hem de bitmeyen repaint. Ekranda tek glow kuralı. */}
+                    <div className="absolute top-1/3 left-1/2 h-64 w-64 -translate-x-1/2 -translate-y-1/2 rounded-full bg-islamic-green/10 blur-3xl dark:bg-islamic-gold/15" />
                 </div>
 
                 {/* Content */}
@@ -1903,17 +2026,6 @@ export default function Learn() {
                         <div className="w-28 h-28 rounded-full bg-gradient-to-br from-islamic-green to-amber-700 dark:from-islamic-gold dark:to-amber-500 flex items-center justify-center shadow-2xl shadow-islamic-green/30 dark:shadow-islamic-gold/30">
                             <CheckCircle2 className="w-14 h-14 text-white dark:text-[#032e18]" strokeWidth={2.5} />
                         </div>
-                        {/* Pulse rings */}
-                        <motion.div
-                            className="absolute inset-0 rounded-full border-2 border-islamic-green/40 dark:border-islamic-gold/40"
-                            animate={{ scale: [1, 1.5], opacity: [0.6, 0] }}
-                            transition={{ duration: 2, repeat: Infinity, ease: 'easeOut' }}
-                        />
-                        <motion.div
-                            className="absolute inset-0 rounded-full border border-islamic-green/20 dark:border-islamic-gold/20"
-                            animate={{ scale: [1, 1.8], opacity: [0.4, 0] }}
-                            transition={{ duration: 2, repeat: Infinity, ease: 'easeOut', delay: 0.3 }}
-                        />
                     </motion.div>
 
                     {/* Title */}
@@ -1925,7 +2037,7 @@ export default function Learn() {
                         <p className="text-sm font-bold uppercase tracking-[0.3em] text-islamic-green/60 dark:text-islamic-gold/60 mb-2">
                             {t('elhamdulillah')}
                         </p>
-                        <h2 className="text-4xl font-serif font-bold text-islamic-green dark:text-islamic-gold mb-3">
+                        <h2 className="font-display text-[2rem] font-extrabold tracking-tight text-islamic-green dark:text-islamic-gold mb-3">
                             {t('mashallah')}
                         </h2>
                     </motion.div>
@@ -2094,8 +2206,8 @@ export default function Learn() {
                         bodyKey={activeHint.bodyKey}
                         icon={activeHint.icon}
                         ns="learn"
-                        step={SURE_HINTS.indexOf(activeHint)}
-                        total={SURE_HINTS.length}
+                        step={hintChain.indexOf(activeHint)}
+                        total={hintChain.length}
                         onClose={closeHint}
                     />
                 )}
@@ -2186,19 +2298,18 @@ export default function Learn() {
                 </div>
             )}
 
-            {/* Guide Title + Progress Bar */}
-            <div className="space-y-3">
-                <div className="flex items-center justify-between gap-3 px-1">
-                    <div className="flex min-w-0 items-center gap-2">
-                        <ActiveIcon className="h-4 w-4 shrink-0 text-islamic-gold" />
-                        <span className="truncate text-xs font-bold uppercase tracking-widest text-islamic-green dark:text-islamic-gold">{guide?.title}</span>
-                    </div>
-                    <span className="shrink-0 text-[10px] font-bold uppercase tracking-widest tabular-nums text-gray-400">
-                        {t('stepProgress', { current: safeStep + 1, total: totalSteps })}
-                    </span>
-                </div>
-
-                <div className="h-1.5 w-full overflow-hidden rounded-full bg-[#F0E8D5] dark:bg-white/10">
+            {/* İlerleme — yalnız çubuk.
+                Başlık geri satırında zaten yazıyor, adım sayacı da kartın
+                künyesinde: eskiden aynı iki bilgi ekranda üçer kez vardı. */}
+            <div>
+                <div
+                    role="progressbar"
+                    aria-valuenow={safeStep + 1}
+                    aria-valuemin={1}
+                    aria-valuemax={totalSteps || 1}
+                    aria-label={t('stepProgress', { current: safeStep + 1, total: totalSteps })}
+                    className="h-1 w-full overflow-hidden rounded-full bg-[#F0E8D5] dark:bg-white/10"
+                >
                     <motion.div
                         className="h-full rounded-full bg-islamic-green dark:bg-islamic-gold"
                         initial={{ width: 0 }}
@@ -2212,6 +2323,7 @@ export default function Learn() {
             <div className="relative">
                 <AnimatePresence mode="wait">
                     <motion.div
+                        data-tour={isNamazGuide ? 'namaz-card' : undefined}
                         key={`${guideKey}-${wuduMode}-${safeStep}`}
                         initial={{ x: 20, opacity: 0 }}
                         animate={{ x: 0, opacity: 1 }}
@@ -2228,14 +2340,35 @@ export default function Learn() {
                             step={step}
                             index={safeStep}
                             total={totalSteps}
-                            icon={ActiveIcon}
                             isRtl={isRtl}
+                            tour={isNamazGuide}
                             meta={stepMeta}
                             collapsed={guideKey === 'abdest' && wuduMode === 'short'}
+                            assurance={guideKey === 'abdest'}
+                            onJump={totalSteps > 1 ? openStepJump : null}
                         />
                     </motion.div>
                 </AnimatePresence>
             </div>
+
+            {/* Islak el modu — YALNIZ abdest rehberinde. Kaydırmalı sihirbaz tam
+                kullanılacağı anda kullanılamıyordu; bu onun cevabı. Gusül ve
+                teyemmümde gösterilmez: bitiş metni abdest duasını hatırlatıyor
+                ve bazı dillerde butonun nesnesi de açıkça "abdest".
+
+                Navigasyonun ÜSTÜNDE duruyor: ekranın kurucu özelliğiydi ama
+                kartın da butonların da altında gömülüydü — bitiş duası kartı
+                ~800 karakter, o adımda kimse oraya inmiyordu. İkon yok; aynı
+                damla simgesi bu ekranda üç ayrı yerde tekrarlanıyordu. */}
+            {abdestTopic === 'abdest' && totalSteps > 0 && (
+                <button
+                    type="button"
+                    onClick={openHandsFree}
+                    className="flex h-[3.25rem] items-center justify-center rounded-2xl border border-[#B45309]/35 font-display text-[0.9375rem] font-bold text-[#B45309] transition-colors active:bg-[#B45309]/[0.06] dark:border-islamic-gold/35 dark:text-islamic-gold dark:active:bg-islamic-gold/10"
+                >
+                    {t('handsFreeCta')}
+                </button>
+            )}
 
             {/* Navigation — akışın içinde, kartın altında. Eskiden ekrana sabitliydi
                 ve kaydırırken içeriğin üstünde kalıyordu. */}
@@ -2247,7 +2380,7 @@ export default function Learn() {
                     aria-label={t('navBack')}
                     className="h-14 w-14 shrink-0 rounded-2xl border-[#EDE5D1] bg-[#FFFDF6] p-0 text-gray-500 shadow-sm transition-all active:scale-95 disabled:opacity-30 dark:border-white/10 dark:bg-white/5 dark:text-white"
                 >
-                    <ChevronLeft className="h-5 w-5" />
+                    <ChevronLeft className="h-5 w-5 rtl:rotate-180" />
                 </Button>
 
                 <Button
@@ -2255,27 +2388,22 @@ export default function Learn() {
                     className="h-14 flex-1 rounded-2xl bg-islamic-green text-sm font-bold text-white shadow-lg shadow-islamic-green/20 transition-all active:scale-[0.98] dark:bg-islamic-gold dark:text-[#032e18] dark:shadow-islamic-gold/20"
                 >
                     {safeStep === totalSteps - 1 ? (
-                        <>{t('navComplete')} <CheckCircle2 className="ml-1.5 h-4 w-4" /></>
+                        <>{t('navComplete')} <CheckCircle2 className="ms-1.5 h-4 w-4" /></>
                     ) : (
-                        <>{t('navNext')} <ChevronRight className="ml-1.5 h-4 w-4" /></>
+                        <>{t('navNext')} <ChevronRight className="ms-1.5 h-4 w-4 rtl:rotate-180" /></>
                     )}
                 </Button>
             </div>
 
-            {/* Islak el modu — YALNIZ abdest rehberinde. Kaydırmalı sihirbaz tam
-                kullanılacağı anda kullanılamıyordu; bu onun cevabı. Gusül ve
-                teyemmümde gösterilmez: bitiş metni abdest duasını hatırlatıyor
-                ve bazı dillerde butonun nesnesi de açıkça "abdest". */}
-            {abdestTopic === 'abdest' && totalSteps > 0 && (
-                <button
-                    type="button"
-                    onClick={() => { selection(); setHandsFree(true); }}
-                    className="flex h-14 items-center justify-center gap-2 rounded-2xl border border-[#B45309]/35 font-display text-[0.9375rem] font-bold text-[#B45309] transition-colors active:bg-[#B45309]/[0.06] dark:border-islamic-gold/35 dark:text-islamic-gold dark:active:bg-islamic-gold/10"
-                >
-                    <Droplets className="h-4 w-4" />
-                    {t('handsFreeCta')}
-                </button>
-            )}
+            <StepJumpSheet
+                open={stepJump}
+                steps={wizardSteps}
+                current={safeStep}
+                guideTitle={guide?.title}
+                isRtl={isRtl}
+                onPick={pickStep}
+                onClose={() => setStepJump(false)}
+            />
 
             <HandsFree
                 open={handsFree}
@@ -2283,6 +2411,20 @@ export default function Learn() {
                 onClose={() => setHandsFree(false)}
             />
 
+            {/* Tek seferlik ipuçları — karartmaz, engellemez */}
+            {activeHint && (
+                <HintCoach
+                    key={activeHint.id}
+                    targetId={activeHint.target}
+                    titleKey={activeHint.titleKey}
+                    bodyKey={activeHint.bodyKey}
+                    icon={activeHint.icon}
+                    ns="learn"
+                    step={hintChain.indexOf(activeHint)}
+                    total={hintChain.length}
+                    onClose={closeHint}
+                />
+            )}
         </div>
     );
 }

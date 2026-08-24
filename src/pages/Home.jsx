@@ -145,22 +145,23 @@ export default function Home() {
     // Track current date key for midnight transition detection
     const [currentDateKey, setCurrentDateKey] = useState(getTodayString());
 
-    // Interstitial idle timer: Kullanıcı anasayfada beklerken periyodik reklam kontrolü
-    useEffect(() => {
-        const idleAdInterval = setInterval(() => {
-            import('@/services/adService').then(({ showInterstitialAd }) => showInterstitialAd()).catch(() => {});
-        }, 15000); // Her 15 saniyede kontrol et
-        
-        // Mount anında da hemen bir kez dene
-        const mountTimer = setTimeout(() => {
-            import('@/services/adService').then(({ showInterstitialAd }) => showInterstitialAd()).catch(() => {});
-        }, 2000); // 2 saniye sonra ilk deneme (AdMob init'in tamamlanması için)
-        
-        return () => {
-            clearInterval(idleAdInterval);
-            clearTimeout(mountTimer);
-        };
-    }, []);
+    /**
+     * KALDIRILDI (2026-08-24): "boşta bekleme" tam ekran reklam zamanlayıcısı.
+     *
+     * Eski kod ana sayfa açılır açılmaz 2 sn sonra ve ardından HER 15 SANİYEDE
+     * `showInterstitialAd()` çağırıyordu. Kullanıcı hiçbir şeye dokunmasa bile
+     * cooldown dolar dolmaz (30 sn → 1 dk → 2 dk → 3 dk) ekranı tam ekran reklam
+     * kaplıyordu; günde 10'luk kotanın tamamı böyle tükenebiliyordu. Kullanıcının
+     * "sürekli çıkıyor" dediği davranış buydu.
+     *
+     * Ayrıca AdMob politikası tam ekran reklamı yalnız DOĞAL GEÇİŞ noktalarında
+     * kabul ediyor; beklemedeki bir ekranda kendiliğinden açılan reklam yayın
+     * kısıtlaması sebebidir.
+     *
+     * Reklam geliri kapanmadı: hikaye bitişi, zikir hedefi, 5 vaktin tamamlanması,
+     * uyku modu başlangıcı, paylaşım sonrası gibi 15 gerçek geçiş noktası ve
+     * günlük 10 limiti aynen duruyor.
+     */
 
     // Initial Data Load & Event Listener
     useEffect(() => {
@@ -189,13 +190,6 @@ export default function Home() {
         window.addEventListener('prayerStatusChanged', handleStatusChange);
         return () => window.removeEventListener('prayerStatusChanged', handleStatusChange);
     }, [currentDateKey]);
-
-    // Debug: Listen for debug overlay trigger
-    useEffect(() => {
-        const handleDebugOverlay = () => setDebugOverlay(true);
-        window.addEventListener('debugShowPrayerOverlay', handleDebugOverlay);
-        return () => window.removeEventListener('debugShowPrayerOverlay', handleDebugOverlay);
-    }, []);
 
     // Debug: Listen for debug overlay trigger
     useEffect(() => {

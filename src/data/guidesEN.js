@@ -1,6 +1,6 @@
 export const GUIDES_EN = {
     abdest: {
-        title: 'Ablution Guide',
+        title: 'Wudu Guide',
         steps: [
             {
                 id: 'wudu-niyet',
@@ -9,7 +9,7 @@ export const GUIDES_EN = {
                 arabic: 'نَوَيْتُ اَنْ اَتَوَضَّأَ لِرِضَا اللهِ تَعَالَى',
                 transcription: "Nawaytu an atawadda'a li-ridaillahi ta'ala.",
                 meaning: 'I intend to perform wudu for the pleasure of Allah the Almighty.',
-                tips: ['Intention is an act of the heart', 'Maintain your intention throughout the wudu']
+                tips: ['Intention is an act of the heart', 'Maintain your intention throughout the wudu', "In the Shafi'i school intention is one of the fard acts of wudu; a wudu without intention is not valid."]
             },
             {
                 id: 'wudu-besmele',
@@ -138,7 +138,7 @@ export const GUIDES_EN = {
             },
             {
                 id: 'wudu-bitis-dua',
-                title: 'Post-Ablution Supplication',
+                title: 'Supplication After Wudu',
                 instruction: 'After completing wudu, look towards the sky or face the Qiblah and recite the Shahadah and supplication. The eight gates of Paradise are opened for the one who recites this prayer.',
                 arabic: 'أَشْهَدُ أَنْ لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ وَأَشْهَدُ أَنَّ مُحَمَّدًا عَبْدُهُ وَرَسُولُهُ ، اللَّهُمَّ اجْعَلْنِي مِنَ التَّوَّابِينَ وَاجْعَلْنِي مِنَ الْمُتَطَهِّرِينَ',
                 transcription: "Ashhadu an la ilaha illallahu wahdahu la sharika lah, wa ashhadu anna Muhammadan abduhu wa rasuluh. Allahumma-j'alni minat-tawwabina waj'alni minal-mutatahhirin.",
@@ -1137,7 +1137,7 @@ export const GUIDES_EN = {
             },
             {
                 title: '5. Rising (Qawmah)',
-                instruction: 'Rise while saying "Sami\'allahu liman hamidah." Stand fully upright and say "Rabbana lakal hamd."',
+                instruction: 'Rise while saying "Sami\'allahu liman hamidah." Stand fully upright and say "Rabbana lakal hamd." Hands hang at the sides.',
                 arabic: 'سَمِعَ اللهُ لِمَنْ حَمِدَهُ ، رَبَّنَا لَكَ الْحَمْدُ',
                 transcription: 'While rising: "Sami\'allahu liman hamidah." When fully upright: "Rabbana lakal hamd."',
                 meaning: 'Allah hears the one who praises Him. Our Lord, to You is all praise.',
@@ -1145,7 +1145,7 @@ export const GUIDES_EN = {
             },
             {
                 title: '6. First Prostration (Sujud)',
-                instruction: 'Go into prostration saying "Allahu Akbar." In order: knees, hands, nose, and forehead touch the ground. Elbows are raised (not touching the ground), stomach is kept away from the thighs.',
+                instruction: 'Go into prostration saying "Allahu Akbar." In order: knees, hands, nose, and forehead touch the ground. Elbows are raised (not touching the ground), stomach is kept away from the thighs. Feet are upright with toes facing the Qiblah.',
                 arabic: 'سُبْحَانَ رَبِّيَ الْأَعْلَى',
                 transcription: 'Say at least 3 times: "Subhana Rabbiyal A\'la"',
                 meaning: 'Glory be to my Lord, the Most High.',
@@ -1165,7 +1165,7 @@ export const GUIDES_EN = {
                 arabic: 'سُبْحَانَ رَبِّيَ الْأَعْلَى',
                 transcription: 'Say at least 3 times: "Subhana Rabbiyal A\'la"',
                 meaning: 'Glory be to my Lord, the Most High.',
-                tips: ['The moment of prostration is when a servant is closest to Allah.', 'Heartfelt supplication can be made in this position.']
+                tips: ['Forehead and nose are firm on the ground.', 'The moment of prostration is when a servant is closest to Allah.', 'Heartfelt supplication can be made in this position.']
             },
             {
                 title: '9. Second Rak\'ah (Standing)',
@@ -1298,7 +1298,7 @@ export const GUIDES_EN = {
                 arabic: 'اَلتَّحِيَّاتُ لِلّٰهِ وَالصَّلَوَاتُ وَالطَّيِّبَاتُ اَلسَّلَامُ عَلَيْكَ أَيُّهَا النَّبِيُّ وَرَحْمَةُ اللهِ وَبَرَكَاتُهُ اَلسَّلَامُ عَلَيْنَا وَعَلَى عِبَادِ اللهِ الصَّالِحِينَ أَشْهَدُ أَنْ لآ إِلٰهَ إِلَّا اللهُ وَأَشْهَدُ أَنَّ مُحَمَّداً عَبْدُهُ وَرَسُولُهُ',
                 transcription: 'Attahiyyatu lillahi was-salawatu wat-tayyibat. Assalamu alayka ayyuhan-nabiyyu wa rahmatullahi wa barakatuh. Assalamu alayna wa ala ibadillahis-salihin. Ashhadu an la ilaha illallah wa ashhadu anna Muhammadan abduhu wa rasuluh.',
                 meaning: 'All verbal, physical, and monetary worship are for Allah. O Prophet! Peace, mercy, and blessings of Allah be upon you. I bear witness that there is no god but Allah and Muhammad is His servant and messenger.',
-                tips: ['There are different opinions on whether women raise the index finger during the Shahadah.', 'Gaze is directed to the lap; recite with calmness.', 'Unlike men: Different views exist on whether women point the index finger.']
+                tips: ['There are different opinions on whether women raise the index finger during the Shahadah.', 'Gaze is directed to the lap; recite with calmness.']
             },
             {
                 title: '12. Salli, Barik, and Rabbana',

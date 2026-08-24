@@ -21,7 +21,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
-        android:usesCleartextTraffic="true">
+        android:usesCleartextTraffic="false">
 
         <!-- AdMob: Required or app crashes immediately on launch -->
         <meta-data
@@ -61,7 +61,7 @@
                 android:resource="@xml/file_paths" />
         </provider>
 
-        <receiver android:name=".PrayerTimesWidgetProvider" android:exported="true" android:label="Namaz Vakitleri">
+        <receiver android:name=".PrayerTimesWidgetProvider" android:exported="true" android:label="@string/widget_name_prayer_times">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
@@ -70,7 +70,7 @@
                 android:resource="@xml/prayer_times_widget_info" />
         </receiver>
 
-        <receiver android:name=".DhikrWidgetProvider" android:exported="true" android:label="Zikirmatik">
+        <receiver android:name=".DhikrWidgetProvider" android:exported="true" android:label="@string/widget_name_dhikr">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
                 <action android:name="com.islamiyoldas.app.DHIKR_INCREMENT" />
@@ -81,7 +81,7 @@
                 android:resource="@xml/dhikr_widget_info" />
         </receiver>
 
-        <receiver android:name=".VerseWidgetProvider" android:exported="true" android:label="Günün Ayeti">
+        <receiver android:name=".VerseWidgetProvider" android:exported="true" android:label="@string/widget_name_verse">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
@@ -90,7 +90,7 @@
                 android:resource="@xml/verse_widget_info" />
         </receiver>
 
-        <receiver android:name=".HourlyVerseWidgetProvider" android:exported="true" android:label="Saatlik Ayet">
+        <receiver android:name=".HourlyVerseWidgetProvider" android:exported="true" android:label="@string/widget_name_hourly_verse">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
                 <action android:name="com.islamiyoldas.app.HOURLY_VERSE_TICK" />
@@ -100,7 +100,7 @@
                 android:resource="@xml/hourly_verse_widget_info" />
         </receiver>
 
-        <receiver android:name=".MotivationWidgetProvider" android:exported="true" android:label="Günün Motivasyonu">
+        <receiver android:name=".MotivationWidgetProvider" android:exported="true" android:label="@string/widget_name_motivation">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
@@ -109,7 +109,7 @@
                 android:resource="@xml/motivation_widget_info" />
         </receiver>
 
-        <receiver android:name=".EsmaWidgetProvider" android:exported="true" android:label="Günün Esması">
+        <receiver android:name=".EsmaWidgetProvider" android:exported="true" android:label="@string/widget_name_esma">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
@@ -118,7 +118,7 @@
                 android:resource="@xml/esma_widget_info" />
         </receiver>
 
-        <receiver android:name=".HourlyEsmaWidgetProvider" android:exported="true" android:label="Saatlik Esma">
+        <receiver android:name=".HourlyEsmaWidgetProvider" android:exported="true" android:label="@string/widget_name_hourly_esma">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
                 <action android:name="com.islamiyoldas.app.HOURLY_ESMA_TICK" />

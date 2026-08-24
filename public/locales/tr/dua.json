@@ -77,6 +77,7 @@
     "formCharLimit": "En az 10, en fazla 200 karakter",
     "formCapsWarn": "Duanız çoğunlukla BÜYÜK HARFLE yazılmış. Büyük harf bağırmak gibi algılanır; lütfen normal yazım kullanın.",
     "formCapsBlock": "Dua tamamen BÜYÜK HARFLE yazılmış. Gönderebilmek için lütfen normal yazıma çevirin.",
+    "formCapsFix": "Normal yazıma çevir",
     "formSubmitting": "Gönderiliyor...",
     "formUpdating": "Güncelleniyor...",
     "formSubmitBtn": "Gönder",

@@ -5,4 +5,13 @@
     <string name="widget_desc_motivation">آية تحفيزية تلهمك كل يوم</string>
     <string name="widget_desc_esma">اسم جميل من أسماء الله الحسنى كل يوم</string>
     <string name="widget_desc_hourly_esma">اسم جديد من أسماء الله الحسنى كل ساعة</string>
+    <string name="widget_name_prayer_times">أوقات الصلاة</string>
+    <string name="widget_name_dhikr">عداد الأذكار</string>
+    <string name="widget_name_verse">آية اليوم</string>
+    <string name="widget_name_hourly_verse">آية الساعة</string>
+    <string name="widget_name_motivation">تحفيز اليوم</string>
+    <string name="widget_name_esma">اسم اليوم</string>
+    <string name="widget_name_hourly_esma">اسم الساعة</string>
+    <string name="widget_desc_prayer_times">تتبّع أوقات الصلاة</string>
+    <string name="widget_desc_dhikr">سبّح من الويدجت</string>
 </resources>

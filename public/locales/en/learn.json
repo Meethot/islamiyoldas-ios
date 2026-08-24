@@ -123,6 +123,18 @@
         "ezberPeek": {
             "title": "Peek if you are stuck",
             "body": "The text does not open all at once. Each tap reveals one more word."
+        },
+        "namazSwipe": {
+            "title": "Move step by step",
+            "body": "Swipe the card sideways or tap Next below. The two-rak'ah example prayer runs in order, from the intention to the salam."
+        },
+        "namazJump": {
+            "title": "Jump to any step",
+            "body": "Tap the step counter at the top of the card to list every step. No more swiping back to check what is recited in ruku."
+        },
+        "namazKadin": {
+            "title": "Differences from men's prayer",
+            "body": "In each step's tips, lines starting with “Difference from men” mark what changes: the hands, arms, prostration and sitting."
         }
     },
     "ezberDueToday": "{{title}} is due for review today.",
@@ -435,5 +447,11 @@
             "body": "In the Hanafi school it does not break wudu.",
             "safii": "In the Shafi'i, Maliki and Hanbali schools touching them with the palm breaks wudu."
         }
-    }
+    },
+    "farzAssurance": "Washing once fulfils the fard · three times is sunnah",
+    "handsFreeDoneSubNoDua": "You can find the supplication after wudu in the last step of the guide.",
+    "stepJumpTitle": "Jump to step",
+    "handsFreeSlow": "Slow",
+    "handsFreeNormal": "Normal",
+    "handsFreeFast": "Fast"
 }

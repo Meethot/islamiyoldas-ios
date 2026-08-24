@@ -71,7 +71,7 @@
     "duaFavRemove": "Favorilerden çıkar",
     "duaLockTitle": "Okunuş ve meal",
     "duaLockSub": "{{n}} dua daha okunuşu ve mealiyle",
-    "duaLockCta": "Premium’u Aç",
+    "duaLockCta": "Premium'u Aç",
     "duaLockBadge": "Premium",
     "duaClose": "Kapat",
     "duaSectionCount": "{{n}} dua",
@@ -123,6 +123,18 @@
         "ezberPeek": {
             "title": "Takıldıysan kopya çek",
             "body": "Metin tek seferde açılmaz. Her dokunuşta bir kelime daha görünür."
+        },
+        "namazSwipe": {
+            "title": "Adım adım ilerle",
+            "body": "Kartı yana kaydır ya da alttaki İleri tuşuna bas. İki rekatlık örnek namaz, niyetten selama kadar sırayla anlatılır."
+        },
+        "namazJump": {
+            "title": "İstediğin adıma atla",
+            "body": "Kartın üstündeki adım sayacına dokun; bütün adımlar listelenir. “Rükûda ne okunuyordu” diye baştan kaydırmana gerek kalmaz."
+        },
+        "namazKadin": {
+            "title": "Erkek namazından farklar",
+            "body": "Her adımın ipuçlarında “Erkeklerden farkı” diye başlayan satırlar var: el, kol, secde ve oturuş burada ayrılıyor."
         }
     },
     "ezberDueToday": "Bugün {{title}} tekrarı var.",
@@ -435,5 +447,11 @@
             "body": "Hanefî mezhebinde abdesti bozmaz.",
             "safii": "Şâfiî, Mâlikî ve Hanbelî mezheplerinde avuç içiyle dokunmak abdesti bozar."
         }
-    }
+    },
+    "farzAssurance": "Bir kez yıkamak farzdır · üç kez yıkamak sünnettir",
+    "handsFreeDoneSubNoDua": "Abdest duasını rehberin son adımında bulabilirsin.",
+    "stepJumpTitle": "Adıma git",
+    "handsFreeSlow": "Yavaş",
+    "handsFreeNormal": "Normal",
+    "handsFreeFast": "Hızlı"
 }

@@ -19,6 +19,7 @@ import { useTranslation } from 'react-i18next';
 import { getFakePrayersByLang, normalizeLang } from '@/data/fakePrayers';
 import CreditPaywallModal from '@/components/CreditPaywallModal';
 import { analytics } from '@/services/analyticsService';
+import { getCapsRatio, normalizeShouting, toCalmCase, CAPS_WARN_RATIO, CAPS_BLOCK_RATIO } from '@/lib/duaText';
 import { useTheme } from '@/context/ThemeContext';
 import HintCoach from '@/components/HintCoach';
 import { readSeenHints, markHintSeen } from '@/lib/hints';
@@ -77,10 +78,14 @@ const MAX_MY_REQUESTS = 500;      // kullanıcının kendi dua geçmişi (günde
  *    → "3.5", "site.com", "vs.diğerleri", "..." bozulmaz.
  *  • Virgül/noktalı virgül/iki nokta herhangi bir harften önce açılır
  *    → "1,5" bozulmaz (rakam, harf değil).
+ *
+ * Ayrıca CAPSLOCK'la yazılmış dualar sakin yazıma çevrilir (`normalizeShouting`).
+ * Yeni gönderimler formda engelleniyor; bu, eski sürümlerden gelmiş ve zaten
+ * onaylanmış "bağıran" duaları da duvarda düzeltir.
  */
-function formatDuaText(text) {
+function formatDuaText(text, lang = 'tr') {
     if (typeof text !== 'string') return '';
-    return text
+    return normalizeShouting(text, lang)
         .replace(/([.!?])(?=[\p{Lu}\p{Script=Arabic}])/gu, '$1 ')
         .replace(/([,;:،])(?=\p{L})/gu, '$1 ')
         .replace(/[ \t]{2,}/g, ' ')
@@ -636,7 +641,7 @@ export default function DuaKosesi() {
 
             await Share.share({
                 // title ve url parametrelerini sildik çünkü iOS bunları ayrı ayrı "öğeler" olarak algılayıp "2 Görüntü/Öğe" yazıyor.
-                text: `"${dua.text}"\n\nBir kardeşinin duasına sen de 'Amin' de.\nUygulamayı İndir: ${appLink}`,
+                text: `"${formatDuaText(dua.text, dua.lang)}"\n\nBir kardeşinin duasına sen de 'Amin' de.\nUygulamayı İndir: ${appLink}`,
                 dialogTitle: 'Duayı Paylaş'
             });
         } catch (error) {
@@ -644,7 +649,7 @@ export default function DuaKosesi() {
             if (navigator.share) {
                 try {
                     await navigator.share({
-                        text: `"${dua.text}"\n\nUygulamayı İndir: https://islamiyoldas.com`
+                        text: `"${formatDuaText(dua.text, dua.lang)}"\n\nUygulamayı İndir: https://islamiyoldas.com`
                     });
                 } catch (e) {
                     console.error('Web share error:', e);
@@ -1161,7 +1166,7 @@ export default function DuaKosesi() {
                                                         Okunabilirlik için satır aralığı açık tutuldu (leading-[1.75])
                                                         ve harf aralığı bir tık genişletildi — italik sıkışık görünmesin. */}
                                                     <p className="text-gray-900 dark:text-white font-serif text-lg italic leading-[1.75] tracking-[0.01em]">
-                                                        "{formatDuaText(dua.text)}"
+                                                        "{formatDuaText(dua.text, dua.lang)}"
                                                     </p>
                                                 </div>
                                             </div>
@@ -1348,6 +1353,7 @@ export default function DuaKosesi() {
                     {showForm && (
                         <DuaIstegiFormu
                             t={t}
+                            lang={currentLang}
                             initialText={editingPrayer ? editingPrayer.text : ''}
                             mode={editingPrayer ? 'edit' : 'create'}
                             onSubmit={editingPrayer ? handleUpdateRequest : handleSubmitRequest}
@@ -1364,6 +1370,7 @@ export default function DuaKosesi() {
                     {showHistory && (
                         <DuaIstekleriGecmisi
                             t={t}
+                            lang={currentLang}
                             requests={myRequests}
                             onDelete={handleDeleteRequest}
                             onEdit={handleEditRequest}
@@ -1456,35 +1463,32 @@ export default function DuaKosesi() {
     );
 }
 
-// CAPSLOCK kontrolü — dua tamamen büyük harfle yazılınca bağırma gibi algılanıyor.
-// Türkçe'de I/İ ayrımı olduğu için dil duyarlı toLocale*Case ile harf tespiti yapılır;
-// Arapça gibi büyük/küçük harfi olmayan diller doğal olarak 0 oran döner (uyarı çıkmaz).
-const CAPS_WARN_RATIO = 0.6;
-const CAPS_BLOCK_RATIO = 0.8;
-const CAPS_MIN_LETTERS = 12;
-
-function getCapsRatio(text) {
-    let letters = 0;
-    let upper = 0;
-    for (const ch of text) {
-        const lower = ch.toLocaleLowerCase('tr');
-        const upperCh = ch.toLocaleUpperCase('tr');
-        if (lower === upperCh) continue; // harf değil (rakam, noktalama, emoji, Arapça harf...)
-        letters++;
-        if (ch === upperCh) upper++;
-    }
-    if (letters < CAPS_MIN_LETTERS) return 0; // kısa metinde oran yanıltıcı
-    return upper / letters;
-}
-
 // Prayer Request Form Component
-function DuaIstegiFormu({ onSubmit, onCancel, initialText = '', mode = 'create', t }) {
+function DuaIstegiFormu({ onSubmit, onCancel, initialText = '', mode = 'create', t, lang = 'tr' }) {
     const [text, setText] = useState(initialText);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const capsRatio = getCapsRatio(text);
     const capsWarn = capsRatio >= CAPS_WARN_RATIO;
     const capsBlocked = capsRatio >= CAPS_BLOCK_RATIO;
+    const capsReportedRef = useRef(false);
+
+    // Kaç kişi bu duvara takılıyor, ölçülmeden eşik ayarlanamaz.
+    // Form açılışı başına tek event (metin düzeltilip tekrar bozulursa tekrar saymaz).
+    useEffect(() => {
+        if (capsBlocked && !capsReportedRef.current) {
+            capsReportedRef.current = true;
+            analytics.duaCapsBlocked(Math.round(capsRatio * 100), text.trim().length);
+        }
+    }, [capsBlocked, capsRatio, text]);
+
+    // "Normal yazıma çevir" — reddetmek yerine tek dokunuşla düzeltme sun.
+    const handleCalmText = () => {
+        const fixed = toCalmCase(text, lang);
+        if (fixed === text) return;
+        setText(fixed);
+        analytics.duaCapsFixed(Math.round(capsRatio * 100), fixed.trim().length);
+    };
 
     const handleSubmit = async () => {
         const trimmedText = text.trim();
@@ -1579,7 +1583,22 @@ function DuaIstegiFormu({ onSubmit, onCancel, initialText = '', mode = 'create',
                                     : "bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-500/20 text-amber-700 dark:text-amber-300"
                             )}>
                                 <AlertCircle size={16} className="shrink-0 mt-0.5" />
-                                <span>{t(capsBlocked ? 'formCapsBlock' : 'formCapsWarn')}</span>
+                                <div className="flex-1 space-y-2.5">
+                                    <p>{t(capsBlocked ? 'formCapsBlock' : 'formCapsWarn')}</p>
+                                    <button
+                                        type="button"
+                                        onClick={handleCalmText}
+                                        className={cn(
+                                            "inline-flex items-center gap-1.5 rounded-full px-3.5 py-2 text-[11px] font-bold transition-colors",
+                                            capsBlocked
+                                                ? "bg-red-600/10 dark:bg-red-500/15 text-red-700 dark:text-red-200 hover:bg-red-600/20"
+                                                : "bg-amber-600/10 dark:bg-amber-500/15 text-amber-800 dark:text-amber-200 hover:bg-amber-600/20"
+                                        )}
+                                    >
+                                        <Sparkles size={13} />
+                                        {t('formCapsFix')}
+                                    </button>
+                                </div>
                             </div>
                         )}
                     </div>
@@ -1618,7 +1637,7 @@ function DuaIstegiFormu({ onSubmit, onCancel, initialText = '', mode = 'create',
 }
 
 // History Modal Component
-function DuaIstekleriGecmisi({ requests, onDelete, onEdit, onClose, getStatusBadge, t }) {
+function DuaIstekleriGecmisi({ requests, onDelete, onEdit, onClose, getStatusBadge, t, lang = 'tr' }) {
     return (
         <motion.div
             initial={{ opacity: 0 }}
@@ -1677,7 +1696,7 @@ function DuaIstekleriGecmisi({ requests, onDelete, onEdit, onClose, getStatusBad
                                             </span>
                                         </div>
                                         <p className="text-gray-700 dark:text-gray-300 font-serif italic leading-[1.75] tracking-[0.01em] mb-4">
-                                            "{formatDuaText(request.text)}"
+                                            "{formatDuaText(request.text, lang)}"
                                         </p>
                                         {request.status === 'pending' && (
                                             <div className="flex items-start gap-2 mb-4 px-3 py-2.5 rounded-2xl bg-amber-50 dark:bg-amber-500/10 border border-amber-200/60 dark:border-amber-500/20">

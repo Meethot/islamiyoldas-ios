@@ -22,7 +22,9 @@ export const RANK = { FARZ: 'farz', SUNNET: 'sunnet', MUSTEHAB: 'mustehab' };
  * sessiz kural yok.
  *
  * NOT: niyet Hanefi'de sünnet, Şafii'de farzdır. Rozet Hanefi'ye göre yazılır;
- * fark adımın kendi ipuçlarında belirtilir.
+ * fark adımın kendi ipuçlarında belirtilir. Bu vaat 2026-08-23'e kadar
+ * TUTULMUYORDU — abdestte hiçbir dilde Şafii notu yoktu. Artık altı dilde de
+ * var ve `scratchpad/kontrol/parite.mjs` mezhep çapasıyla bekçilik ediyor.
  */
 const STEPS = {
     // ── Abdest ──────────────────────────────────────────────────────────

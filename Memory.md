@@ -515,6 +515,243 @@ kopyaları güncel kaynaktan üretiliyor.
 kur, ilk açılış) · Android widget seçicisini Almanca cihazda aç · iOS'ta `pod install`
 (podspec yaması yeniden üretildi).
 
+## Abdest sihirbazı yeniden tasarlandı — yön "ADIM" (2026-08-23)
+
+Kullanıcı: *"erkek abdesti kısmını tasarlayalım... bütün skilleri ve ajanları çalıştırarak."*
+15 ajanlık tasarım workflow'u koşuldu (2 keşif → 4 rakip konsept → 4 acımasız eleştiri →
+4 mercekli jüri → sentez), 4 yön telefon çerçevesinde web'de gösterildi, kullanıcı
+**01 · ADIM**'ı seçti: bugünkü tek-kart sihirbazı kalıyor, denetimin bulduğu kusurlar
+kapatılıyor.
+
+**Jüri sonuçları (kayda geçsin):** fıkıh AKIŞ (7) · maliyet AKIŞ (7) · görsel ŞERİT (7) ·
+yeni başlayan ŞERİT (7). Kullanıcı ikisini de değil, en muhafazakâr yönü seçti.
+
+**ELENEN VE BİR DAHA ÖNERİLMEYECEK İKİ MODEL:**
+- **Beden haritası** (mihrap kemerinin içine 4 bölge, bölgeye dokun-aç): okuma sırası
+  BAŞ'tan başlıyor, gerçek abdest sırasıyla çelişiyor; serbest gezinme Şâfiî'de farz olan
+  **tertibi** bozup geçersiz abdest öğretebilir. Fıkıh hakemi 3/10.
+- **Dokunarak sayma** (tesbih modeli): ıslak elle 17-31 dokunuş; hayalet dokunuş adımı
+  sessizce atlatır (atlanan farz); saydırmak vesveseyi ürünleştirir. Tek iyi fikri alındı:
+  güvence satırı.
+- **Tekrarı çubuğa segment olarak kodlamak**: grafik "üç yıkamanın da farz" olduğunu
+  öğretiyordu. Ayrıca **`step.repeat` sayı DEĞİL, 6 dilde çevrilmiş dize** (`'3x tekrar'`,
+  `'3 مرات'`) — ritmi görselleştiren her fikir yeni sayısal alan ister.
+
+**Uygulanan değişiklikler:**
+1. **Kart** (`GuideStepCard`): `font-serif` başlık → `font-display` 1.5rem (projenin kendi
+   kuralı "başlıkta serif yasak"tı, burası çiğniyordu) · adım ikonu kutusu KALDIRILDI (aynı
+   damla ikonu bu ekranda üç yerdeydi — Dua bölümünde sildirilen kalıbın aynısı) · Arapça
+   düz şeritten **levhaya** taşındı (yeni `src/components/ui/levha.jsx`, dua/ezber
+   ekranlarıyla aynı dil) · meal artık sayfanın **en parlak** metni · ipuçları kutusu dolgu
+   yerine **altın çerçeve** · farz adımda kart çerçevesi 1.5px (hüküm için ikinci kanal).
+2. **Işık teması kontrast düzeltmesi:** tekrar pili, Arapça metin ve ipucu madde imi
+   `islamic-gold` (#D4AF37) idi — krem zeminde 1.8:1. Işıkta `#B45309`/`#92400E`'ye alındı,
+   koyu tema değişmedi.
+3. **Üçlü sayaç tekrarı bitti:** ilerleme çubuğu + "Adım 1/15" + kart içi "01/15" vardı.
+   Artık sayaç YALNIZ kartın künyesinde; çubuk kaldı ama metni `aria-label`'a indi;
+   rehber başlığı da iki kez yazılıyordu (geri satırı + eyebrow), eyebrow bloğu silindi.
+4. **Mod değişimi ilerlemeyi SİLMİYOR.** Eskiden `setCurrentStep(0)`: 12. adımdaki kullanıcı
+   "Kısa"ya bakıp dönünce baştan başlıyordu. Eşleme **indeksle değil `id` ile** (listeler
+   15 ↔ 7). Adım yeni listede yoksa **ÖNCEKİ** en yakın adıma düşülür — ileri atlamak
+   görülmemiş bir farzı geçmiş göstermek olurdu. 83 birim testi (`scratchpad/kontrol/mod.mjs`).
+5. **Hub aramasından gelince mod artık DEPOYA YAZILMIYOR.** Kullanıcının tercihi arka planda
+   kalıcı değişiyordu; şimdi geçici geçiş + `restoreModeRef` ile çıkışta geri yükleme.
+6. **Islak el modu artık metronom değil:** `instruction` metni HİÇ gösterilmiyordu, görsel de
+   olmadığı için kullanıcı 9 sn boyunca bir başlığa ve sayaca bakıyordu. Şimdi 1.0625rem ile
+   gösteriliyor, kap `overflow-y-auto` (fıkhî metin kırpılamaz, taşma kaydırmayla çözülür).
+   Bitiş metni Kısa modda var olmayan kapanış duasını istiyordu → `handsFreeDoneSubNoDua`.
+7. **Farz güvence satırı:** "Bir kez yıkamak farzdır · üç kez yıkamak sünnettir." Yalnız
+   TEKRARLI farz adımlarında (baş meshi farz ama tekrarsız). Ceza dili yok, sayaç yok.
+8. **Bitiş ekranı sakinleşti:** iki sonsuz pulse halkası + sonsuz nefes alan glow kaldırıldı,
+   `font-serif` → `font-display`. Günde beş kez görülen ekranda bitmeyen repaint yoktu.
+   Learn.jsx'te artık `repeat: Infinity` YOK.
+9. **Sihirbaz ölçülüyor:** hiç event yoktu. `learn_abdest_complete`,
+   `learn_abdest_handsfree_start`, `learn_abdest_handsfree_done` eklendi — ekranın kurucu
+   özelliğinin kullanılıp kullanılmadığı ilk kez görülecek.
+
+**DİKKAT — kabuk paylaşımlı:** sihirbazı gusül, teyemmüm, namazlar ve kadınNamaz da
+kullanıyor. Güvence satırı `assurance` prop'uyla YALNIZ abdeste veriliyor; kartın geri kalanı
+beş rehberde de değişti (hepsi aynı kusurları taşıyordu).
+
+**Test tuzağı (tekrar):** `hub.mjs`'teki regresyon bekçisi eski davranışı (`arama modu depoya
+yazılır`) koruyordu ve doğru biçimde patladı — bekçi yeni sözleşmeye göre güncellendi.
+Ayrıca iki kontrolüm yanlış alarm verdi: `font-serif` yorum içinde eşleşti, `stepProgress`
+`aria-label` olarak yaşıyordu. Regex'ler `className="..."` ve görünür-metin biçimine daraltıldı.
+`keys.mjs`'e **üçlü koşullu `t(kosul ? 'a' : 'b')`** kalıbı eklendi — `handsFreeDoneSubNoDua`
+bu yüzden hiç doğrulanmıyordu (215 anahtar, eskiden 207).
+
+**Doğrulama:** `npm run build` ✓ · repo lint **44 hata** (tur başıyla aynı, yeni 0) ·
+**13.915 kontrol** ✓ · learn.json **307 anahtar × 6 dil** pariteli, format korundu ·
+karşılıksız `t()` 0/1090 · `cap copy` ios+android ✓.
+
+**Cihazda bakılacak:** Kısa ⇄ Tam geçişinde kalınan adım · ıslak el modunda talimatın
+okunabilirliği (telefon tezgâhta, kol boyu) · `--app-font-scale` 1.3'te kart ve ıslak el
+kaydırması · aramadan bir adıma gidip çıkınca mod tercihinin korunması.
+
+**Hâlâ eksik:** `public/images/abdest/` boş. 16 görsel gelince farz adımlarına 4:3 olarak
+girer, kart zaten `onLoad`/`onError` ile yer ayırmıyor.
+
+- ✅ **Dua Kardeşliği — CAPSLOCK kalkanı** (2026-08-23). Kullanıcı: "capslock açıp bütün duayı büyük yazmasın, gerekirse reddedelim". Mantık ortak dosyada: `src/lib/duaText.js`.
+  - **Ölçüm `getCapsRatio`**: yalnız büyük/küçük ayrımı OLAN harfler sayılır — rakam, noktalama, emoji ve **Arapça** hesaba girmez (Arapça dua asla uyarı almaz). Türkçe I/İ için `toLocale*Case('tr')`. **≥%60 sarı uyarı, ≥%80 kırmızı + gönder butonu kilitli.** Alt sınır **8 harf** (12'den indirildi; "YARDIM EDİN" gibi kısa bağırma da yakalanıyor, dua zaten min 10 karakter).
+  - **Reddetmek yerine düzeltme**: uyarı kutusunda **"Normal yazıma çevir"** butonu (`formCapsFix`, 6 dil) — `toCalmCase` metni küçültür, cümle başlarını büyütür, özel adları geri getirir (`Allah, Rabbim, Kur'an, İslam, Mekke...`; en `God/Quran/I`, de `Gott/Koran`, ru `Господь/Бог/Коран`; ar listesi boş).
+  - **SIRA ÖNEMLİ**: özel ad düzeltmesi cümle-başı büyütmesinden ÖNCE koşar. Sebep: "ISLAM" küçülünce noktasız "ıslam" olur, cümle başı onu "Islam" yapar ve `ıslam` kalıbıyla bir daha eşleşmez (Unicode katlaması I↔i, I↔ı DEĞİL). Bu yüzden tr/az listesinde `['ıslam','İslam']` gibi **çift** girdiler var.
+  - **Gösterim tarafı** (`formatDuaText(text, lang)`): ≥%80 caps olan dualar duvarda, geçmişte ve **paylaşım metninde** sakin yazımla çizilir. Firestore'daki metne DOKUNULMAZ; amaç eski sürümlerden (APKPure 1.1.x) gelmiş, zaten onaylanmış bağıran duaları temizlemek. Dil `dua.lang` alanından gelir.
+  - **Son savunma**: `prayerService.addPrayer` + `updatePrayer` `isShouting` ile reddeder (UI atlanırsa). Dualar `status:'pending'` ile gidip elle onaylanıyor; bu kalkan moderasyon yükünü azaltır.
+  - Analytics: `dua_caps_blocked` / `dua_caps_fixed` (caps yüzdesi + metin uzunluğu) — eşik ancak bu ikisinin oranıyla ayarlanabilir. Form açılışı başına tek blocked event.
+  - **Bilinen sınır**: Almanca'da normalize edilen metinde isim büyük harfleri kaybolur ("Gesundheit" → "gesundheit"); sözlüksüz çözülemez, bağırmaya göre yine de daha iyi. Ayrıca tr'de "kuran" (fiil) çakışması yüzünden listede sadece "kur'an" var.
+  - Doğrulama: 2 birim test dosyası (eşikler, idempotanlık, bozuk girdi, 6 dil, tr I/İ, Arapça+Latin karışık) ✓ · dua.json **99 key** 6 dil pariteli + placeholder kontrolü ✓ · `npm run build` ✓ · lint 0 hata (6 uyarı önceden vardı) · `cap copy` ios+android ✓. Cihazda bakılacak: uyarı kutusu + buton `--app-font-scale` 1.3'te satır kırılması.
+
+## Abdest — iyileştirme turu (2026-08-23, ADIM sonrası)
+
+Kullanıcı: *"İyileştirmeler yap birsürü."* Tarama görünümden **içeriğe** kaydı ve
+üç gerçek fıkhî boşluk çıktı. Hiçbiri kullanıcı raporu değil; hepsi ölçümle bulundu.
+
+**1. FIKHÎ İÇERİK KAYBI — "başın en az dörtte biri" cümlesi 4 dilde YOKTU.**
+`wudu-bas-mesh` FARZ adımı. TR ve EN: *"Başın en az dörtte birini mesh etmek farzdır,
+tamamını mesh etmek sünnettir."* **AR, AZ, DE, RU'da bu cümle hiç yoktu** — altı dilin
+dördünde kullanıcı bir farzın ÖLÇÜSÜNÜ öğrenmiyordu. Dördüne de kendi kaydında eklendi
+(DE "Streichen"/du-formu, RU "протирание"/вы-formu — dosya geneli вы, AZ "məsh"/sən,
+AR eril tekil emir). Aynı turda iki detay daha eklendi: `wudu-yuz`'de kaş/göz çukuru/
+sakal altı cümlesi (DE, RU, AR) ve `wudu-misvak`'ta üst-alt/sağ-sol (DE, RU, AZ, AR).
+
+**2. KOD KENDİ YORUMUNDA YALAN SÖYLÜYORDU.** `wuduSteps.js`: *"niyet Hanefi'de sünnet,
+Şafii'de farzdır… fark adımın kendi ipuçlarında belirtilir."* **Hiçbir dilde
+belirtilmiyordu.** Rozet Hanefî'ye göre "Sünnet" yazıyor; Şâfiî kullanıcı niyeti atlarsa
+abdesti geçersiz. Gusül ve teyemmümde bu not altı dilde de vardı — abdestte yazılmayı
+unutulmuş. Altı dile eklendi, yorum da düzeltildi.
+
+**3. Kalıcı bekçi: `scratchpad/kontrol/parite.mjs` (965 kontrol).** Anahtar paritesi
+ölçülüyordu ama ADIM METİNLERİ hiç ölçülmemişti. Yeni test: adım sayısı/id sırası, alan
+varlığı (title/instruction/arabic/transcription/meaning), ipucu sayısı, tekrar alanı,
+**talimat uzunluk oranı** (tr'nin %62'sinin altı = detay düşmüş olabilir), ve **fıkhî
+çapalar** — "dörtte bir", "dirsek", "topuk", "bilek", "yeni su", mezhep notu — her dilde
+o dilin GERÇEKTE kullandığı kelimeyle aranıyor.
+*İki yanlış alarm buradan çıktı ve düzeltildi:* Arapça bilek için `رسغ` değil **`معصم`**
+kullanıyor; ve **JS'te `\w` Kiril harf eşlemez** (`[A-Za-z0-9_]`), `/свеж\w* вод/` sahte
+bulgu üretti. Çapa yazarken hedef dilin kendi kelimesini doğrula.
+
+**4. "Adıma git" — ADIM yönünün kabul edilen tek zayıflığı kapatıldı.**
+"Boynumu meshettim mi" cevabı 12. karttaydı, 11 kaydırma uzaktaydı. Künye ("07 / 15")
+artık dokunulabilir: alttan `StepJumpSheet` açılıyor, tüm adımlar sıra + başlık + tekrar +
+hüküm adı + hüküm noktasıyla listeleniyor, dokunulan adıma atlıyor. **Model değişmedi**,
+O(n) gezinme O(1) seçime indi. Portal (route değil), `useHardwareBack` bağlı, `data-sheet`
+ile iOS kenardan-geri jesti yok sayılıyor, hüküm asla yalnız renkle taşınmıyor.
+Sihirbaz kabuğunu paylaşan gusül/teyemmüm/namaz rehberleri de kazandı.
+
+**5. Islak el modunda HIZ seçimi.** Sabit 9 sn (tekrarlı adımda 15 sn) kullanıcının gerçek
+hızını varsayıyordu; yavaş yıkayan geride kalıyor ve **elleri ıslakken yakalayamıyordu** —
+ekrana dokunmak bu modun tüm varlık sebebine aykırı. Yavaş 1.6× / Normal 1× / Hızlı 0.7×,
+seçim `abdest_handsfree_speed`'de hatırlanıyor.
+
+**6. EN terim birliği:** gövde 36 kez "wudu" diyordu, başlık "Ablution Guide" ve bir adım
+"Post-Ablution Supplication" — aynı ekranda iki terim. İkisi de "Wudu"ya çekildi.
+
+**7. Yeni analytics:** `learn_abdest_step_jump`.
+
+**Doğrulama:** `npm run build` ✓ · repo lint **44 hata** (tur başıyla aynı, yeni 0) ·
+**14.889 kontrol** ✓ (hub 194→202, yeni parite 965) · learn.json **311 anahtar × 6 dil**
+pariteli, format korundu · `cap copy` ios+android ✓.
+
+**Denetim turu (aynı gün, kullanıcı "genel kontrol et"):** üç kendi hatam bulundu ve
+düzeltildi. (a) `learn_abdest_step_jump` TÜM rehberlerden tetikleniyordu — kabuğu
+namazlar/kadınNamaz/gusül/teyemmüm de kullanıyor, olay "abdest" adı altında karışık veri
+üretecekti; artık `topic` yazılıyor (bildirim tipi hatasının aynı sınıfı). (b) Sihirbaz
+navigasyonundaki oklar RTL'de aynalanmıyordu ve ikon boşluğu fiziksel `ml-`'di — HandsFree'de
+doğru yapılmış, kabukta unutulmuştu; `rtl:rotate-180` + mantıksal `ms-`. (c) **`memo`
+regresyonu:** karta geçirdiğim `onJump`, `useHaptics`'in kararsız kimliği yüzünden her
+render'da değişiyor ve `GuideStepCard`'ın `memo`'sunu boşa düşürüyordu — haptic ref'e
+alındı (reponun kendi kalıbı: `HandsFree`'deki `goNextRef`), ref yazımı effect içinde.
+
+**Temiz çıkanlar:** t() anahtarı 1179 tarandı/0 eksik · tekrar eden JSON anahtarı 0 ·
+`removeAllListeners` yalnız Qibla'da (Motion/Compass'ın tek tüketicisi) · `if(X) X()`
+gölgelemesi 0 · dinleyici dengesi (nowPlaying ve adService temizleyici döndürüyor, catch'te
+de çağırıyor — sayım heuristiğim yanlış alarmdı) · abdest bileşenlerinde fiziksel yön sınıfı
+0 · z-index katmanı sağlam (tabakalar 100, adıma-git 105, ıslak el 110, paywall/ipucu 200+) ·
+eklenen dini metinler 6 dilde bozulmadan render oluyor (tırnak/kaçış hatası yok).
+
+**Paralel çalışma (bana ait değil, dokunulmadı):** `src/lib/duaText.js` + `DuaKosesi.jsx` +
+`prayerService.js` — CAPSLOCK kalkanı. Export'lar kullanılıyor, import'lar çözülüyor, build
+geçiyor; `prayerService`'teki Türkçe `throw` mesajı kullanıcıya GÖSTERİLMİYOR (son çare
+sunucu kontrolü), sorun değil.
+
+**Cihazda bakılacak:** künyeye dokunup adıma atlama (özellikle Android geri tuşu sırası:
+tabaka → sihirbaz → merkez) · ıslak el modunda hız şeridi ve `overflow-y-auto` ile
+kaydırma · yeni eklenen cümlelerin DE/RU'da satır taşırıp taşırmadığı (`--app-font-scale` 1.3).
+
+**Bilinçli bırakılan:** `guidesRU.js` dosya genelinde **вы** (resmî), `learn.json` ise
+**ты** kullanıyor. Eklediğim cümleler dosyanın kendi kaydına uydu; 26 talimatı toptan
+çevirmek ayrı bir içerik kararı.
+
+## Namaz rehberleri — 6 dilde içerik denetimi (2026-08-23)
+
+Kullanıcı: *"namazları açıklamaları her dilde doğru mu, hata yanlış bir anlatım istemiyorum."*
+`namazlar` (13 adım) ve `kadinNamaz` (13 adım) altı dilde adım adım okundu. **On bulgu**,
+biri ciddi. Türkçe kaynak alındı; uygulama Hanefî'yi esas alıyor.
+
+**1. CİDDİ — erkek rehberinde KADIN duruşu.** `namazlar` #9 (İkinci Rekat):
+ar/az/de **"eller GÖĞSE bağlanır"** diyordu — Şâfiî duruşu ve kadın rehberinden
+kopyalanmış. Aynı rehberin #2 adımı "göbek altında" diyor: **rehber kendi içinde
+çelişiyordu.** Üçü de "ayaklar bitişik" diyordu; #1 adımı ise "dört parmak boşluk" diyor —
+ikinci çelişki. ru "eller" deyip yeri hiç söylemiyordu. Dördü de göbek altı + secde yerine
+bakış olarak düzeltildi. **Kadın rehberine dokunulmadı** (orada göğüs üstü ve bitişik ayak
+DOĞRU) — düzeltme `namazlar` bloğuna kapsamlandı, çünkü az/de'de iki metin birebir aynıydı.
+
+**2. Kavmede ne söyleneceği ar/de/ru'da HİÇ yazmıyordu.** "Rabbenâ lekel hamd" yoktu.
+Karşılığında o üç dilde olup tr/en/az'de olmayan "eller yanlara salınır" detayı da eklendi.
+
+**3. Erkek secdesinin iki ayırt edici kuralı ar/de/ru'da yoktu:** "dirsekler havada
+(yere değmez)" ve "karın uyluktan uzak". İkisi de kadın secdesinin tam tersi — düşünce
+erkek-kadın ayrımı kayboluyordu. "Ayaklar dik, parmaklar kıbleye" ise tr/en/az'de yoktu.
+
+**4. Rükûda "parmaklar açık"** ar/de/ru'da yoktu (kadınlarda bitişik — yine ayrım).
+**5. Celsede "sağ ayak parmakları kıbleye"** ar/az/de/ru'da yoktu.
+
+**6. AZ `namazlar` #11'de iki hata:** parmağın kaldırılma ANI yanlıştı ("Əşhədü" derken
+deniyordu; doğrusu "Lâ ilâhe" derken kaldırılır, "illallâh" denince indirilir) ve 2. ipucu
+("gözlər qucağa baxır") **kadın rehberinden kopyalanmıştı**; Merac notu düşmüştü.
+
+**7. `kadinNamaz` #3 — İDDİA ÇATIŞMASI.** ar/de/ru *"tek fark duruşta, KIRAATTE DEĞİL"*
+diyordu; tr/en ise kadının sesini yalnız kendi duyacağı kadar çıkardığını (gizli okuma)
+söylüyor. Hanefî'de kıraat farkı gerçektir; üç dil de tr'ye hizalandı (+ zamm-ı sure ölçüsü).
+
+**8. `kadinNamaz` #5 ve #7'de VACİPLİK hükmü ar/az/de/ru'da düşmüştü** (kavme ve celse
+vaciptir). Hüküm bildiren cümle atlanacak bir detay değil.
+
+**9. `kadinNamaz` #11 — Türkçe kendi içinde çelişiyordu:** 1. ipucu "şehadet parmağı
+kaldırılmaz" diye KESİN konuşuyor, 3. ipucu "farklı görüşler vardır" diyor. Hanefî
+kaynaklarının çoğu kadınların da işaret ettiğini söyler; kesin dil yanlıştı. Diğer beş dilde
+1 ve 3 zaten birbirinin kopyasıydı. Altı dil de iki ipucuna indirildi.
+
+**10. Küçükler:** `namazlar` #8'de "alın ve burun yerde sabitlenir" ipucu ar/az/de/ru'da VE
+her dilin kadın rehberinde varken yalnız tr/en'in ERKEK rehberinde yoktu · `kadinNamaz` #1'de
+"parmaklar bitişik" dört dilde yoktu · `kadinNamaz` #4 (RU) kadın rükûsunun tarifini
+(sırt dümdüz değil, dizler bükük, eller kavramaz) kaybetmişti · AZ `kadinNamaz` #6 "yere
+yakın" diyordu, tr "yapıştırılır".
+
+**Kalıcı bekçi:** `parite.mjs` **2071 kontrol**. Yapısal paritenin üstüne **10 namaz çapası**
+(erkek: göbek altı · rükûda açık parmak · Rabbenâ lekel hamd · dirsek havada · karın uzak;
+kadın: göğüs üstü · omuz hizası · kollar yere yapışık · teverrük · gizli kıraat) ve
+**"erkek rehberinde kadın duruşu anlatılmasın"** kontrolü. Her çapa o dilin GERÇEKTE
+kullandığı kelimeyle aranıyor.
+
+**Doğrulama:** `npm run build` ✓ · repo lint **44 hata** (tur başıyla aynı, yeni 0) ·
+**15.955 kontrol** ✓ · locale parite bozulmadı · `cap copy` ios+android ✓.
+
+**Not:** Bu tur METİN denetimidir; mezhep tercihi (Hanefî) ve mevcut fıkhî duruşlar
+değiştirilmedi, yalnız diller arasındaki kayıp/çelişki giderildi. İçeriğin kendisini bir
+kez de bilen birine okutman iyi olur.
+
+- ✅ **Yayın öncesi denetim** (2026-08-24). Bulunanlar ve yapılanlar:
+  - **ŞİKAYET ÖZELLİĞİ ÖLÜYDÜ.** `reportPrayer` `reports` koleksiyonuna yazıyor ama `firestore.rules`'da o koleksiyonun kuralı YOKTU → varsayılan deny. Canlı REST probe ile doğrulandı: `403 PERMISSION_DENIED`. Hata `catch` içinde yutulduğu için kullanıcıya "Geri bildiriminiz için teşekkürler" deniyor, kayıt hiç oluşmuyordu. Muhtemelen 2026-08-17 kural deploy'uyla başladı (öncesi konsoldaki izinli kurallardı). Kural dosyasına `/reports` **create-only** eklendi (alanlar `prayerId/reason/timestamp/status`, ≤64 karakter, `status=='pending_review'`; read/update/delete kapalı). **Deploy kullanıcıda:** `firebase deploy --only firestore:rules`. Ayrıca `reportPrayer` başarısızlığı artık Amplitude'a düşüyor (`dua_report_failed`) — bir daha sessizce kaybolmasın.
+  - **Âmin kuralı sıkıldı**: `['aminCount','amins']` serbestken artık yalnız `aminCount` ve **tam olarak +1** (`resource.data.get('aminCount', 0) + 1` — alanı olmayan eski kayıtlar kırılmasın). `amins` alanı kodda hiç kullanılmamış (git geçmişinde de yok).
+  - **AndroidManifest `usesCleartextTraffic` true → false.** Uygulama kaynağında tek bir `http://` yok, Capacitor 8 varsayılan `androidScheme=https` (CapConfig.java'dan doğrulandı). **Android cihazda bir kez açılış testi şart.**
+  - **ProGuard**: topluluk eklentileri keep listesine eklendi (`app.capgo.*`, `com.revenuecat.purchases.*`, `com.aparajita.*`, `io.capawesome.*`, `com.ryltsov.*`, `com.yourcompany.*`). Capacitor bunları `capacitor.plugins.json`'daki adla `Class.forName` ile yüklüyor; R8 çağrıyı göremediği için release'de kırpılabilirdi. `:app:minifyReleaseWithR8` ✓, `usage.txt`te kırpılmamış.
+  - **Backend zaten canlı** — "deploy bekliyor" notu ESKİ. Canlı fonksiyona sorularak doğrulandı: `birthday_verse` (`{"type":"birthday_verse","day":14,"month":2}`) ve `guide` çalışıyor.
+  - **Temiz çıkanlar**: `HINT_TEST_MODE=false`, DebugMenu `DEBUG_MODE=false` + DEV gate, Profile test butonları yok, `testDate` prod'da 0, ReviewPrompt `IS_TESTING=false`, AdMob `isTesting:false` + gerçek ID, capacitor.config'de dev server yok, `.env` 8 anahtar dolu, pakette gerçek RC anahtarı (placeholder yok), ezber DEV "sona atla" prod paketinde yok, `debugger`/`alert`/TODO yok.
+  - **AÇIK RİSKLER (bilgi, dokunulmadı)**: (1) `App.entitlements` → `aps-environment = development`; App Store yüklemesinde Apple production'a çevirir ama Xcode Release entitlement'ini doğrula. (2) **AdMob UMP/GDPR onay formu YOK** — `GoogleUserMessagingPlatform` pod'u var ama `requestConsentInfo/showConsentForm` hiç çağrılmıyor; EEA'da reklam sınırlanır + politika riski. (3) `prayers` kuralları kimliksiz: herkes bekleyen duayı silebilir/metnini değiştirebilir, onaylı duayı `delete_requested` yapabilir — auth veya App Check olmadan kapanmaz. (4) iOS bildirim bütçesi ~59/64 dolu (30 ezan + 15 ön-hatırlatma + 8 ezber + ~6 sabit); yeni bildirim eklenirse taşar. (5) `USE_EXACT_ALARM` Play politikasında alarm/takvim dışı uygulamalarda reddedilebiliyor. (6) 65 `console.log` prod'da açık. (7) `?offer=force` kodda duruyor.
+  - **Sıklıklar kullanıcı kararıyla DEĞİŞTİRİLMEDİ** (2026-08-24): smart paywall her 4 geçişte / oturumda 3 / **günde 8**, interstitial 3. günden sonra **günde 10** (ilki 30 sn cooldown, sonra 1-2-3 dk), indirim teklifi 5 dk sürer **3 saat** cooldown. Şikayet gelirse önce paywall günlük kotası kısılmalı.
+  - Sürüm hâlâ **1.2.0 / versionCode 21 / MARKETING_VERSION 1.2.0** — yeni yayın için bump gerekiyor.
+
 ## Kararlar
 - **Reklam yerleşimi:** Banner bottombar üstünde kalacak (`BOTTOM_CENTER, margin:75`). İçeriğe gömülü/in-feed reklam YAPILMAYACAK — plugin banner'ı WebView üstünde yüzen native view, DOM akışına giremez; scroll-sync custom plugin emeğe değmez; native ad asset'ini HTML'de render etmek AdMob politika ihlali (ban riski). (Karar: 2026-07-07)
 

@@ -26,12 +26,35 @@ service cloud.firestore {
            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status']))
           ||
           (resource.data.status == 'approved'
-           && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['aminCount', 'amins']));
+           && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['aminCount'])
+           && request.resource.data.aminCount is int
+           // .get(): alanı olmayan eski kayıtlarda "âmin" butonu kırılmasın.
+           && request.resource.data.aminCount == resource.data.get('aminCount', 0) + 1);
       allow delete: if resource.data.status == 'pending';
     }
 
     // ---------------------------------------------------------
-    // 2. ONBOARDING ANALİTİK VERİSİ
+    // 2. ŞİKAYETLER (uygunsuz dua bildirimi)
+    // ---------------------------------------------------------
+    // Bu koleksiyonun kuralı YOKTU → varsayılan "deny" yüzünden `reportPrayer`
+    // yazmaları PERMISSION_DENIED alıyor, hata `catch` içinde yutulduğu için
+    // kullanıcıya "şikayetin alındı" deniyordu. Mağazalar kullanıcı içeriği için
+    // ÇALIŞAN bir şikayet yolu şart koşar; create açıldı.
+    // Okuma/güncelleme/silme kapalı — moderasyon Firebase konsolundan yapılır.
+    match /reports/{reportId} {
+      allow read, update, delete: if false;
+
+      allow create: if request.resource.data.keys().hasOnly(
+                         ['prayerId', 'reason', 'timestamp', 'status'])
+                    && request.resource.data.prayerId is string
+                    && request.resource.data.prayerId.size() <= 64
+                    && request.resource.data.reason is string
+                    && request.resource.data.reason.size() <= 64
+                    && request.resource.data.status == 'pending_review';
+    }
+
+    // ---------------------------------------------------------
+    // 3. ONBOARDING ANALİTİK VERİSİ
     // ---------------------------------------------------------
     // Eskiden `allow write: if true` idi. Uygulamada kimlik doğrulaması olmadığı
     // ve Firebase config APK'dan çıkarılabildiği için herkes bu koleksiyona
@@ -61,7 +84,7 @@ service cloud.firestore {
     }
 
     // ---------------------------------------------------------
-    // 3. KULLANICI PROFİLİ VE TAKİP SİSTEMİ
+    // 4. KULLANICI PROFİLİ VE TAKİP SİSTEMİ
     // ---------------------------------------------------------
     match /users/{userId} {
       allow read, write: if request.auth != null && request.auth.uid == userId;

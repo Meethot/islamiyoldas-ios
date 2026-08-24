@@ -123,6 +123,18 @@
         "ezberPeek": {
             "title": "Çətinlik çəkirsənsə kopya",
             "body": "Mətn birdən açılmır. Hər toxunuşda bir söz də görünür."
+        },
+        "namazSwipe": {
+            "title": "Addım-addım irəlilə",
+            "body": "Kartı yana sürüşdür və ya aşağıdakı İrəli düyməsinə bas. İki rükətlik nümunə namaz niyyətdən salama qədər ardıcıl izah olunur."
+        },
+        "namazJump": {
+            "title": "İstədiyin addıma keç",
+            "body": "Kartın üstündəki addım sayğacına toxun; bütün addımlar siyahılanır. “Rükuda nə oxunurdu” deyə başdan sürüşdürməyə ehtiyac qalmır."
+        },
+        "namazKadin": {
+            "title": "Kişi namazından fərqlər",
+            "body": "Hər addımın məsləhətlərində “Kişilərdən fərqi” ilə başlayan sətirlər var: əl, qol, səcdə və oturuş orada ayrılır."
         }
     },
     "ezberDueToday": "Bu gün {{title}} təkrarı var.",
@@ -435,5 +447,11 @@
             "body": "Hənəfi məzhəbində dəstəmazı pozmur.",
             "safii": "Şafii, maliki və hənbəli məzhəblərində ovucun içi ilə toxunmaq dəstəmazı pozur."
         }
-    }
+    },
+    "farzAssurance": "Bir dəfə yumaq fərzi yerinə yetirir · üç dəfə yumaq sünnətdir",
+    "handsFreeDoneSubNoDua": "Dəstəmaz duasını bələdçinin son addımında tapa bilərsən.",
+    "stepJumpTitle": "Addıma keç",
+    "handsFreeSlow": "Yavaş",
+    "handsFreeNormal": "Normal",
+    "handsFreeFast": "Sürətli"
 }

@@ -84,12 +84,20 @@ export default function SleepMode() {
     const [hintIndex, setHintIndex] = useState(-1);
     const hintTimerRef = React.useRef(null);
 
+    // Ekranda duran ipucunun kimliği — sayfadan çıkarken "görüldü" yazmak için
+    const shownHintRef = React.useRef(null);
+    useEffect(() => { shownHintRef.current = hintIndex >= 0 ? SLEEP_HINTS[hintIndex].id : null; }, [hintIndex]);
+
     useEffect(() => {
         const first = nextHint(readSeenHints());
-        if (first === -1) return undefined;
         // Sayfa geçiş animasyonu bitsin, kartlar yerleşsin
-        const timer = setTimeout(() => setHintIndex(first), 800);
-        return () => clearTimeout(timer);
+        const timer = first === -1 ? null : setTimeout(() => setHintIndex(first), 800);
+        return () => {
+            if (timer) clearTimeout(timer);
+            // Kullanıcı balon açıkken çıktı: yazılmazsa her girişte aynı ipucu çıkardı.
+            const shown = shownHintRef.current;
+            if (shown) { markHintSeen(shown); shownHintRef.current = null; }
+        };
     }, []);
 
     useEffect(() => () => clearTimeout(hintTimerRef.current), []);

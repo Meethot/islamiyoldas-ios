@@ -1,4 +1,6 @@
 import { db } from '@/lib/firebase';
+import { isShouting } from '@/lib/duaText';
+import { trackEvent } from '@/services/analyticsService';
 import {
     collection,
     addDoc,
@@ -27,6 +29,11 @@ const COLLECTION_NAME = 'prayers';
 export async function addPrayer(text, lang = 'tr') {
     if (!text || text.trim().length < 10) {
         throw new Error("Dua metni en az 10 karakter olmalıdır.");
+    }
+
+    // CAPSLOCK kalkanı: form zaten engelliyor, bu yalnız UI atlanırsa devreye girer.
+    if (isShouting(text)) {
+        throw new Error("Dua metni tamamen büyük harfle yazılamaz.");
     }
 
     try {
@@ -199,6 +206,10 @@ export async function updatePrayer(prayerId, newText) {
         throw new Error("Geçersiz dua metni.");
     }
 
+    if (isShouting(newText)) {
+        throw new Error("Dua metni tamamen büyük harfle yazılamaz.");
+    }
+
     try {
         const prayerRef = doc(db, COLLECTION_NAME, prayerId);
 
@@ -352,6 +363,11 @@ export async function reportPrayer(prayerId, reason = 'inappropriate') {
             status: 'pending_review'
         });
     } catch (e) {
+        // Kullanıcıya hata göstermiyoruz (dua zaten cihazda gizlendi) ama sessiz
+        // kaybı ölçüyoruz: kural/ağ yüzünden şikayetler kaybolursa Amplitude'de
+        // görünür. Firestore kuralı eksik olduğu için bu ay boyunca sessizce
+        // PERMISSION_DENIED alınıyordu.
         console.error("Error reporting prayer:", e);
+        trackEvent('dua_report_failed', { code: e?.code || 'unknown' });
     }
 }

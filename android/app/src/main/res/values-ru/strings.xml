@@ -5,4 +5,13 @@
     <string name="widget_desc_motivation">Мотивирующий аят, вдохновляющий вас каждый день</string>
     <string name="widget_desc_esma">Каждый день новое Прекрасное Имя Аллаха</string>
     <string name="widget_desc_hourly_esma">Каждый час новое Прекрасное Имя Аллаха</string>
+    <string name="widget_name_prayer_times">Время намаза</string>
+    <string name="widget_name_dhikr">Счётчик зикра</string>
+    <string name="widget_name_verse">Аят дня</string>
+    <string name="widget_name_hourly_verse">Аят часа</string>
+    <string name="widget_name_motivation">Мотивация дня</string>
+    <string name="widget_name_esma">Имя дня</string>
+    <string name="widget_name_hourly_esma">Имя часа</string>
+    <string name="widget_desc_prayer_times">Следите за временем намаза</string>
+    <string name="widget_desc_dhikr">Считайте зикр через виджет</string>
 </resources>

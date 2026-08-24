@@ -99,6 +99,12 @@ export const analytics = {
     abdestTopicOpened: (topic, source) => trackEvent('learn_abdest_topic_open', { topic, source }),
     abdestSearched: (len, results) => trackEvent('learn_abdest_search', { query_len: len, result_count: results }),
     abdestModeChanged: (mode) => trackEvent('learn_abdest_mode', { mode }),
+    // Sihirbazın kendisi ölçülmüyordu: tamamlama da, ekranın kurucu özelliği
+    // olan ıslak el modunun kullanımı da bilinmiyordu.
+    abdestGuideCompleted: (topic, steps, mode) => trackEvent('learn_abdest_complete', { topic, steps, mode }),
+    abdestHandsFreeStart: (steps, mode) => trackEvent('learn_abdest_handsfree_start', { steps, mode }),
+    abdestHandsFreeDone: (steps) => trackEvent('learn_abdest_handsfree_done', { steps }),
+    abdestStepJump: (topic, step) => trackEvent('learn_abdest_step_jump', { topic, step }),
     breakerSearched: (len, results) => trackEvent('learn_breaker_search', { query_len: len, result_count: results }),
     breakerOpened: (id, verdict) => trackEvent('learn_breaker_open', { breaker_id: id, verdict }),
     mestStarted: (traveler) => trackEvent('learn_mest_start', { traveler }),
@@ -188,6 +194,9 @@ export const analytics = {
     habitGoalCompleted: (goalType) => trackEvent('habit_goal_completed', { goal_type: goalType }),
     widgetUsed: (widgetType) => trackEvent('widget_used', { widget_type: widgetType }),
     duaRead: (duaName) => trackEvent('dua_read', { dua_name: duaName }),
+    // Dua duvarı — CAPSLOCK kalkanı. Eşiği ancak bu ikisinin oranı ayarlar.
+    duaCapsBlocked: (pct, len) => trackEvent('dua_caps_blocked', { caps_pct: pct, text_len: len }),
+    duaCapsFixed: (pct, len) => trackEvent('dua_caps_fixed', { caps_pct: pct, text_len: len }),
     duaBookmarked: (duaName) => trackEvent('dua_bookmarked', { dua_name: duaName }),
     takvimViewed: () => trackEvent('takvim_viewed'),
 };

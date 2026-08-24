@@ -9,4 +9,13 @@
     <string name="widget_desc_motivation">Her gün ruhunuza iyi gelecek motivasyon veren bir ayet</string>
     <string name="widget_desc_esma">Her gün farklı bir Esma-ül Hüsnâ</string>
     <string name="widget_desc_hourly_esma">Her saat başı yeni bir Esma-ül Hüsnâ</string>
+    <string name="widget_name_prayer_times">Namaz Vakitleri</string>
+    <string name="widget_name_dhikr">Zikirmatik</string>
+    <string name="widget_name_verse">Günün Ayeti</string>
+    <string name="widget_name_hourly_verse">Saatlik Ayet</string>
+    <string name="widget_name_motivation">Günün Motivasyonu</string>
+    <string name="widget_name_esma">Günün Esması</string>
+    <string name="widget_name_hourly_esma">Saatlik Esma</string>
+    <string name="widget_desc_prayer_times">Namaz vakitlerini takip edin</string>
+    <string name="widget_desc_dhikr">Widget üzerinden zikir çekin</string>
 </resources>
