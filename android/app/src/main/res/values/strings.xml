@@ -18,4 +18,7 @@
     <string name="widget_name_hourly_esma">Saatlik Esma</string>
     <string name="widget_desc_prayer_times">Namaz vakitlerini takip edin</string>
     <string name="widget_desc_dhikr">Widget üzerinden zikir çekin</string>
+    <!-- Meta (Facebook) App Events. Ceviri gerektirmez, tum dillerde ayni. -->
+    <string name="facebook_app_id">3541670729334292</string>
+    <string name="facebook_client_token">d5ecea803504a63733be98c57957ebc0</string>
 </resources>

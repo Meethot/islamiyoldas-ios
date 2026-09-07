@@ -1,0 +1,106 @@
+diff --git a/node_modules/@capgo/capacitor-facebook-analytics/android/src/main/kotlin/app/capgo/facebookanalytics/FacebookAnalyticsPlugin.kt b/node_modules/@capgo/capacitor-facebook-analytics/android/src/main/kotlin/app/capgo/facebookanalytics/FacebookAnalyticsPlugin.kt
+index 82a23bf..d3c82a0 100644
+--- a/node_modules/@capgo/capacitor-facebook-analytics/android/src/main/kotlin/app/capgo/facebookanalytics/FacebookAnalyticsPlugin.kt
++++ b/node_modules/@capgo/capacitor-facebook-analytics/android/src/main/kotlin/app/capgo/facebookanalytics/FacebookAnalyticsPlugin.kt
+@@ -1,6 +1,7 @@
+ package app.capgo.facebookanalytics
+ 
+ import android.app.Application
++import android.content.pm.PackageManager
+ import android.os.Bundle
+ import com.facebook.FacebookException
+ import com.facebook.FacebookSdk
+@@ -34,14 +35,32 @@ class FacebookAnalyticsPlugin : Plugin() {
+             return
+         }
+ 
++        // Manifest'te com.facebook.sdk.ApplicationId yoksa SDK baslarken
++        // IllegalStateException atiyor; FacebookException yakalamasi bunu kacirir.
++        if (resolveFacebookAppId().isNullOrEmpty()) {
++            call.reject("com.facebook.sdk.ApplicationId is not configured in AndroidManifest")
++            return
++        }
++
+         try {
+             AppEventsLogger.activateApp(application)
+             call.resolve()
+-        } catch (error: FacebookException) {
++        } catch (error: Exception) {
+             call.reject(error.message ?: "Failed to activate Facebook App Events")
+         }
+     }
+ 
++    /** Manifest meta-data'sini dogrudan okur; SDK baslatilmamis olsa da guvenli. */
++    private fun resolveFacebookAppId(): String? = try {
++        val info = context.packageManager.getApplicationInfo(
++            context.packageName,
++            PackageManager.GET_META_DATA
++        )
++        info.metaData?.get("com.facebook.sdk.ApplicationId")?.toString()
++    } catch (error: Exception) {
++        null
++    }
++
+     @PluginMethod
+     fun logEvent(call: PluginCall) {
+         val event = call.getString("event")
+@@ -135,6 +154,18 @@ class FacebookAnalyticsPlugin : Plugin() {
+         call.resolve(ret)
+     }
+ 
++    /**
++     * RevenueCat'in Meta entegrasyonu icin gereken anonim cihaz kimligi.
++     * Reklam kimligi (GAID) yoksa Meta eslesmesi buna dayanir.
++     */
++    @PluginMethod
++    fun getAnonymousID(call: PluginCall) {
++        val ret = JSObject().apply {
++            put("anonymousID", AppEventsLogger.getAnonymousAppDeviceGUID(context))
++        }
++        call.resolve(ret)
++    }
++
+     @PluginMethod
+     fun getPluginVersion(call: PluginCall) {
+         val ret = JSObject().apply {
+diff --git a/node_modules/@capgo/capacitor-facebook-analytics/ios/Sources/FacebookAnalyticsPlugin/FacebookAnalyticsPlugin.swift b/node_modules/@capgo/capacitor-facebook-analytics/ios/Sources/FacebookAnalyticsPlugin/FacebookAnalyticsPlugin.swift
+index cbd8075..7a42e77 100644
+--- a/node_modules/@capgo/capacitor-facebook-analytics/ios/Sources/FacebookAnalyticsPlugin/FacebookAnalyticsPlugin.swift
++++ b/node_modules/@capgo/capacitor-facebook-analytics/ios/Sources/FacebookAnalyticsPlugin/FacebookAnalyticsPlugin.swift
+@@ -14,12 +14,21 @@ public class FacebookAnalyticsPlugin: CAPPlugin, CAPBridgedPlugin {
+         CAPPluginMethod(name: "enableAdvertiserTracking", returnType: CAPPluginReturnPromise),
+         CAPPluginMethod(name: "disableAdvertiserTracking", returnType: CAPPluginReturnPromise),
+         CAPPluginMethod(name: "getAdvertiserTrackingStatus", returnType: CAPPluginReturnPromise),
++        CAPPluginMethod(name: "getAnonymousID", returnType: CAPPluginReturnPromise),
+         CAPPluginMethod(name: "getPluginVersion", returnType: CAPPluginReturnPromise)
+     ]
+ 
+     private let implementation = FacebookAnalytics()
+ 
+     @objc func initAppEvents(_ call: CAPPluginCall) {
++        // Info.plist'te FacebookAppID yoksa SDK "App ID not found" ile patlayabilir.
++        // JS tarafi Objective-C istisnasini yakalayamaz, o yuzden burada durduruyoruz.
++        let appID = Bundle.main.object(forInfoDictionaryKey: "FacebookAppID") as? String
++        guard let appID = appID, !appID.isEmpty else {
++            call.reject("FacebookAppID is not configured in Info.plist")
++            return
++        }
++
+         DispatchQueue.main.async {
+             ApplicationDelegate.shared.initializeSDK()
+             AppEvents.shared.activateApp()
+@@ -85,6 +94,14 @@ public class FacebookAnalyticsPlugin: CAPPlugin, CAPBridgedPlugin {
+         ])
+     }
+ 
++    /// RevenueCat'in Meta entegrasyonu icin gereken anonim cihaz kimligi.
++    /// ATT reddedilse bile uretilir; IDFA yoksa Meta eslesmesi buna dayanir.
++    @objc func getAnonymousID(_ call: CAPPluginCall) {
++        call.resolve([
++            "anonymousID": AppEvents.shared.anonymousID
++        ])
++    }
++
+     @objc func getPluginVersion(_ call: CAPPluginCall) {
+         call.resolve([
+             "version": implementation.getPluginVersion()

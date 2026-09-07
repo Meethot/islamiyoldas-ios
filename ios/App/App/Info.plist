@@ -42,6 +42,12 @@
 	</array>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
+	<key>FacebookAppID</key>
+	<string>3541670729334292</string>
+	<key>FacebookClientToken</key>
+	<string>d5ecea803504a63733be98c57957ebc0</string>
+	<key>FacebookDisplayName</key>
+	<string>İslami Yoldaş</string>
 	<key>GADApplicationIdentifier</key>
 	<string>ca-app-pub-3345957146167395~6039014177</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
@@ -60,6 +66,13 @@
 	<true/>
 	<key>NSUserTrackingUsageDescription</key>
 	<string>Size daha uygun hizmet ve uygulama deneyiminizi iyileştirmek için izin istiyoruz.</string>
+	<key>SKAdNetworkItems</key>
+	<array>
+		<dict>
+			<key>SKAdNetworkIdentifier</key>
+			<string>v9wttpbfk9.skadnetwork</string>
+		</dict>
+	</array>
 	<key>UIApplicationShortcutItems</key>
 	<array>
 		<dict>

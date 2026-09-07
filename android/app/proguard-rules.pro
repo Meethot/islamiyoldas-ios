@@ -12,6 +12,9 @@
 # release derlemesinde kırpılabilir ve eklenti "not implemented" hatası verir.
 # Liste kaynağı: android/app/src/main/assets/capacitor.plugins.json
 -keep class app.capgo.capacitor.** { *; }
+# DİKKAT: Facebook Analytics eklentisi `app.capgo.capacitor.*` ALTINDA DEĞİL,
+# kendi paketinde (app.capgo.facebookanalytics) — üstteki kural onu kapsamaz.
+-keep class app.capgo.facebookanalytics.** { *; }
 -keep class com.aparajita.capacitor.** { *; }
 -keep class com.revenuecat.purchases.** { *; }
 -keep class com.ryltsov.alex.plugins.** { *; }
@@ -28,6 +31,10 @@
 # Firebase
 -keep class com.google.firebase.** { *; }
 -dontwarn com.google.firebase.**
+
+# Meta (Facebook) App Events — kurulum/abonelik ölçümü
+-keep class com.facebook.** { *; }
+-dontwarn com.facebook.**
 
 # Cordova
 -keep class org.apache.cordova.** { *; }

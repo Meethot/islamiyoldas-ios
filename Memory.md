@@ -947,3 +947,130 @@ aynı) · 18 ns × 6 dil parite 0 · `cap copy` ios+android ✓.
 - (Opsiyonel) Canlıya çıkmadan `?offer=force` paramı kaldırılabilir (şu an cihaz testi için duruyor).
 - (Öneri) Çökme takibi için Sentry değerlendirilebilir (mevcut: Crashlytics).
 - (İleride) Orantılı UI ölçekleme: `html { font-size: clamp(...) }` (Tailwind rem tabanı) + `@capacitor/text-zoom` kilidi + px arbitrary değerleri (`text-[26px]` vb.) rem'e çevirme. Amaç: her ekranda aynı görünüm, yazı taşması yok. Kullanıcı erteledi (2026-07-08) — istemeden başlama.
+
+## Meta reklam ölçümü — Facebook SDK entegrasyonu (2026-09-04/05)
+
+Kullanıcı: *"reklamla alakalı çalışmalar yapacağız, Metanın MCP'si çıkmış"* → sonra *"ben geliri
+görmek istiyorum ads karşılığı"*. Amaç: hangi reklamın ne kadar **gelir** getirdiğini görebilmek.
+
+### Teşhis — eski 5.494 TL neden boşa gitti
+
+Meta Ads MCP (`mcp.facebook.com/ads`) bağlandı, hesap okundu. Beş kampanyanın **beşi de
+trafik/tıklama hedefliydi**, hiçbiri uygulama yükleme değildi. 7.700 tıklama alınmış (ort. 0,71 TL)
+ama Meta kimin yüklediğini göremediği için optimize edememiş. Bir kampanya 184 TL'yi **Instagram
+profil ziyaretine** harcamış.
+
+Demografi (bütün harcamanın kırılımı, toplam tam tutuyor): **35-64 kadın tıklaması 0,65 TL,
+aynı yaş erkek 1,06 TL** — %63 pahalı, yine de 1.290 TL o segmente gitmiş. Bütçenin %37'si
+(2.047 TL) 18-34 yaşa gitmiş (ucuz tıklama, abone profiline uzak).
+
+Yerleşim: **%100 Instagram, Facebook'a tek kuruş yok.** Reels en iyi (%6,2 CTR, 0,58 TL),
+**Feed+iPhone en kötü (%3,72, 1,35 TL)** — ama aynı iPhone Reels'te 0,58 TL. Yani sorun cihaz
+değil, **kare/statik görsel**. Reklam bazında: video %9,48 CTR / 0,49 TL, widget fotoğrafı
+%2,31 / 2,09 TL. Frekans her yerde 1,03-1,30 → hiçbir kitle doymamış, öğrenme aşaması hiç bitmemiş.
+Hesap Temmuz'dan beri kapalı (Mart 1.546 + Mayıs 3.503 + Temmuz 445 TL).
+
+### Rakipler (Meta Reklam Kütüphanesi'nden)
+
+**Devler Meta'da reklam vermiyor** — Ezan Vakti Pro (10M+), Amin Pro, Athan Pro hiç yok, ASO'dan
+besleniyorlar. Meta'da yarışanlar yeni oyuncular: **Nurlu** (66 reklam, 5 aydır kesintisiz, parti
+halinde 8-12 varyant, kanca 2-4 haftada yenileniyor, kazanan geri geliyor), **Nur**, **Mümin AI**,
+**Balum.app** (30+ reklam, 6 dil, "Abonelik yok, reklam yok" ile doğrudan bizim iş modelimize
+saldırıyor), EzNidâ, Kolabs, IQibla, **Muslim Prayer** ("Kuran ve Namazı Kolayca Öğren" — bizim
+Öğren bölümümüzün kancası, yabancı reklamveren Türkçe kullanıyor).
+
+Nurlu'nun 4 Eylül'deki en büyük partisi: **"Kilit ekranında her saat ayet"**. Nur'un ana kancası
+da widget. **İkisi de bizde zaten var olan özellikle bizden pay alıyor** — bizim widget kampanyamız
+ise hesabın en kötüsüydü. Zikirmatik aramasında çıkan 77 reklamın hepsi fiziksel tesbih satıcısı,
+o kancada uygulama rakibi yok.
+
+### Yapılan iş — kod
+
+**Paket:** `@capgo/capacitor-facebook-analytics@8.1.11` (peer `@capacitor/core >=8.0.0`, aynı
+geliştirici zaten iki eklentimizde var). iOS FBSDKCoreKit 18.1.1, Android facebook-core 18.2.3.
+
+**patch-package yaması** (`patches/@capgo+capacitor-facebook-analytics+8.1.11.patch`, 8 KB, 2 dosya):
+1. `getAnonymousID()` eklendi (iOS `AppEvents.shared.anonymousID`, Android
+   `AppEventsLogger.getAnonymousAppDeviceGUID`). Gerekçe: RevenueCat'in Meta eşleşmesi iOS'ta
+   `$idfa`+ATT **veya** `$fbAnonId` istiyor; TR'de ATT kabul oranı düşük, eklenti bu kimliği
+   dışarı vermiyordu.
+2. **Anahtar yoksa güvenli çıkış**: Info.plist'te `FacebookAppID` / manifest'te
+   `com.facebook.sdk.ApplicationId` yoksa SDK başlatılmadan reddediliyor. Sebep: FBSDK binary'sinde
+   "App ID not found" mesajı var, çökme mi log mu belirsizdi; JS Objective-C istisnası yakalayamaz.
+   Android'de yakalama `FacebookException` → `Exception` genişletildi (SDK `IllegalStateException`
+   atıyor).
+   *Yama üretmeden önce `node_modules/.../android/build` silindi (Memory'deki 397 KB'lık ders).*
+
+**Yeni dosya `src/services/metaService.js`**: `initMetaSdk` (App.jsx'te 2 sn gecikmeli, ATT
+beklemeden — anonim kimlik izinden bağımsız), `setMetaAdvertiserTracking`, `getMetaAnonymousId`.
+Hepsi native değilse ve yapılandırma yoksa sessizce no-op.
+
+**`purchaseService.js`**: `syncMetaAttributes()` — `setFBAnonymousID` + `collectDeviceIdentifiers`,
+`isInitialized = true`'dan SONRA, init'i bloklamadan.
+**`adService.js`**: ATT cevabı Meta'ya taşınıyor. `requestTrackingAuthorization()` dönüşü
+`att?.status` ile okunuyor — doğrudan parçalama plugin undefined dönerse TypeError atıp Meta
+senkronunu sessizce iptal ediyordu (kendi eklediğim kırılganlık, denetimde yakalandı).
+
+**Info.plist**: FacebookAppID / FacebookClientToken / FacebookDisplayName + `SKAdNetworkItems`
+(`v9wttpbfk9.skadnetwork`, dosyada hiç yoktu).
+**Android**: `strings.xml` + manifest meta-data.
+**ProGuard**: `-keep class app.capgo.facebookanalytics.**` — **eklenti `app.capgo.capacitor.*`
+ALTINDA DEĞİL**, mevcut kural onu kapsamıyordu, release'de kırpılırdı. Ayrıca `com.facebook.**`.
+
+**Sürüm 1.2.2 / build 23.** pbxproj'de **4 yapılandırma** var (uygulama + widget uzantısı,
+Debug + Release) — Apple ikisinin eşleşmesini şart koşuyor, sadece 2'sini güncellemek yetmez.
+package-lock'ta 5 eşleşmeden yalnız 3. ve 9. satır projeye ait (diğerleri ieee754/prelude-ls/
+source-map-js bağımlılıkları).
+
+**Doğrulama:** `npm run build` ✓ · lint 0 yeni hata · iOS tam uygulama derlemesi (simulator,
+imzasız) BUILD SUCCEEDED ✓ · Android release + R8 BUILD SUCCESSFUL, `usage.txt`'te eklentiden
+kırpılan 0 ✓ · AAB içinde App ID + Client Token + `AppEventsLogger` doğrulandı ✓ · 5 yama sıfırdan
+uygulanıyor ✓ · AD_ID izni birleşik manifestte ✓ · FBSDK kendi `PrivacyInfo.xcprivacy`'sini
+taşıyor (bizim dosyaya ekleme gerekmedi) ✓.
+
+### Meta paneli — kurulan yapı
+
+Kimlikler ve hangi hesabın doğru olduğu artık kalıcı hafızada (`meta-ads-kurulumu`).
+App ID `3541670729334292`, doğru reklam hesabı `884357117757506`.
+
+**ÇİFTE GELİR SAYIMI ÖNLENDİ:** Meta panelinde iOS ve Android kartlarındaki *"Uygulama içi
+olayları otomatik kaydet"* KAPATILDI. Açık kalsaydı hem SDK hem RevenueCat aynı satın almayı
+gönderir, panelde gelir iki kat görünürdü.
+
+**Conversions API kullanılamadı** — ayrıntı ve gerekçe kalıcı hafızada (`sirket-yok-meta-dogrulama`).
+Özet: şirket yok → işletme doğrulaması yapılamıyor → veri seti açılamıyor → CAPI imkânsız.
+**App Events API** ile kuruldu. Sales Reporting: *Revenue after store commission and taxes*
+(komisyon sonrası gerçek para; gross seçilseydi zararda kârlı görünürdü).
+
+**App Store gizlilik beyanı güncellendi** (FBSDK'nın kendi `PrivacyInfo.xcprivacy` dosyası
+okunarak): Device ID → Third-Party Advertising + Developer's Advertising or Marketing + Analytics
++ App Functionality, **linked + tracking**. Purchase History → Developer's Advertising or Marketing
+eklendi, **linked + tracking** (RevenueCat abonelik verisini cihaz kimliğiyle Meta'ya gönderiyor;
+Meta'nın SDK beyanında yok çünkü veriyi uygulama değil RevenueCat sunucusu gönderiyor).
+
+### Kullanıcı hataları / bilinmesi gerekenler
+
+- **500 TL yanlış hesaba yüklendi** (kişisel `1483016153219413`). API ile doğrulandı: o hesapta
+  sabah ödeme yöntemi yoktu, sonra çıktı. Meta desteğine transfer/iade talebi açıldı. Meta ön
+  ödemeli bakiyeyi hesaplar arası taşımıyor. Karar: doğru hesapla devam, öğrenme verisi bölünmesin.
+- RevenueCat formunda tarayıcı otomatik doldurması App ID alanına **e-posta**, Client Token alanına
+  **parola** yazmıştı — yakalandı, kullanıcıya o parolayı değiştirmesi önerildi.
+- İlk turda `mcp.facebook.com/ads` bağlantısı Instagram-girişli profille reddedildi
+  ("Bu hesapla ads MCP server uygulamasına bağlanamazsın"). Çözüm: Facebook profilini
+  (Mithat Acargür) işletme portföyüne **Kişi davet et** ile tam erişimle eklemek. Instagram-girişli
+  hesap Meta'nın gözünde "WorkPlatform" kullanıcısı, OAuth'ta ads izinlerini veremiyor.
+
+### Sırada
+
+1. Meta → App settings → Gelişmiş → **Authorized ad account IDs** → `884357117757506`
+2. Android Studio → imzalı AAB (repoda signingConfig yok) → Play Console
+3. Xcode → Archive → Upload
+4. App Store açıklama temizlikleri (EN/DE/AR ham Markdown; dosyalar scratchpad'de `asc/temiz-*.txt`)
+5. Yayından sonra: Events Manager → "Olayları test edin" ile akış doğrulaması
+6. **Kampanya sırası (önemli):** önce App Install hedefiyle aç, Meta veri toplasın; haftada ~50
+   `Subscribe` birikince abonelik/değer optimizasyonuna geç. ROAS ancak o zaman anlamlı olur —
+   ilk hafta boş veriye bakıp yanlış karar verilmesin.
+
+**Doğrulanmadı:** cihazda tek bir Meta olayı görülmedi (sürüm henüz yayında değil). Xcode archive
+alınmadı (imzalama gerekiyor). Kullanıcının "Authorized ad account IDs" alanını doldurup
+doldurmadığı teyit edilmedi.

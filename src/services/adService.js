@@ -1,6 +1,19 @@
 import { Capacitor } from '@capacitor/core';
 import { AdMob, RewardAdPluginEvents, InterstitialAdPluginEvents } from '@capacitor-community/admob';
 import { storageService } from './storageService';
+import { setMetaAdvertiserTracking } from './metaService';
+
+/**
+ * ATT cevabını Meta tarafına taşır: reklam izleme bayrağını ayarlar ve
+ * RevenueCat'teki eşleşme kimliklerini tazeler (izin verildiyse IDFA artık
+ * okunabilir). Çağıran beklemez — reklam akışını geciktirmesin.
+ */
+function syncMetaTrackingConsent(granted) {
+    setMetaAdvertiserTracking(granted)
+        .then(() => import('./purchaseService'))
+        .then(({ syncMetaAttributes }) => syncMetaAttributes())
+        .catch(() => { /* Meta yapılandırılmamışsa sessiz geç */ });
+}
 
 // 🔴 Reklamlar şu an kapalı — aktif etmek için true yap
 export const ADS_ENABLED = true;
@@ -56,7 +69,13 @@ export async function initAdMob() {
             // iOS için zorunlu: App Tracking Transparency (ATT) izni iste
             if (Capacitor.getPlatform() === 'ios') {
                 try {
-                    await AdMob.requestTrackingAuthorization();
+                    // Dönüşü doğrudan parçalama: plugin undefined döndürürse
+                    // TypeError atar ve alttaki Meta senkronu hiç çalışmaz.
+                    const att = await AdMob.requestTrackingAuthorization();
+                    // Meta'ya da haber ver: izin varsa IDFA kullanabilir, yoksa
+                    // sadece anonim kimlikle devam eder. Reklamı bloklamasın diye
+                    // beklemiyoruz.
+                    syncMetaTrackingConsent(att?.status === 'authorized');
                 } catch (e) {
                     console.warn('ATT Prompt error or already answered:', e);
                 }

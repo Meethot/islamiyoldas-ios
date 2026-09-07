@@ -24,6 +24,7 @@ dependencies {
     implementation project(':capacitor-splash-screen')
     implementation project(':capacitor-status-bar')
     implementation project(':capgo-capacitor-compass')
+    implementation project(':capgo-capacitor-facebook-analytics')
     implementation project(':capgo-capacitor-in-app-review')
     implementation project(':odion-cloud-capacitor-volume-control')
     implementation project(':revenuecat-purchases-capacitor')

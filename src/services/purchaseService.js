@@ -2,6 +2,7 @@ import { Capacitor } from '@capacitor/core';
 import { Purchases, LOG_LEVEL } from '@revenuecat/purchases-capacitor';
 import { storageService } from './storageService';
 import { setPremiumUserProperties, setAnalyticsUserId } from './analyticsService';
+import { getMetaAnonymousId } from './metaService';
 
 // RevenueCat Public API Keys
 const RC_API_KEY_IOS = 'appl_hKXYxTRTsDPOKptWBGGHoFltKZc';
@@ -69,6 +70,31 @@ function checkEntitlements(customerInfo) {
         };
     }
     return { isPremium: false, planId: 'free' };
+}
+
+/**
+ * Meta eşleşme kimliklerini RevenueCat'e yazar.
+ *
+ * RevenueCat abonelik olaylarını Meta'ya sunucudan gönderiyor; olayın bir
+ * cihazla eşleşmesi için bu iki alandan en az biri dolu olmalı:
+ *   $fbAnonId  — Meta SDK'sının anonim kimliği, ATT'den bağımsız çalışır
+ *   $idfa/$gpsAdId — collectDeviceIdentifiers() toplar (iOS'ta ATT izni şart)
+ *
+ * ATT cevabı değişince yeniden çağrılır (bkz. adService).
+ */
+export async function syncMetaAttributes() {
+    if (!Capacitor.isNativePlatform() || !isInitialized) return;
+
+    try {
+        const anonId = await getMetaAnonymousId();
+        if (anonId) {
+            await Purchases.setFBAnonymousID({ fbAnonymousID: anonId });
+        }
+        // IDFA/GAID: iOS'ta ATT verilmediyse RevenueCat boş değeri zaten göndermez.
+        await Purchases.collectDeviceIdentifiers();
+    } catch (error) {
+        console.warn('[RC] Meta kimlikleri yazılamadı:', error?.message || error);
+    }
 }
 
 /**
@@ -141,6 +167,10 @@ export async function initializePurchases() {
                     }, 30000);
                 }
             }
+
+            // Meta eşleşme kimlikleri. Init'i BLOKLAMAZ: burada beklenirse
+            // ağ/izin gecikmesi paywall açılışını geciktirir.
+            syncMetaAttributes();
 
             console.log('[RC] Initialization complete ✓');
         } catch (err) {

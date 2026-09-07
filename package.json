@@ -1,7 +1,7 @@
 {
   "name": "mobi",
   "private": true,
-  "version": "1.2.1",
+  "version": "1.2.2",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -33,6 +33,7 @@
     "@capacitor/splash-screen": "^8.0.1",
     "@capacitor/status-bar": "^8.0.0",
     "@capgo/capacitor-compass": "^8.1.9",
+    "@capgo/capacitor-facebook-analytics": "^8.1.11",
     "@capgo/capacitor-in-app-review": "^8.1.9",
     "@odion-cloud/capacitor-volume-control": "^2.0.1",
     "@radix-ui/react-slot": "^1.2.4",

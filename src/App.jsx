@@ -10,6 +10,7 @@ import { LocalNotifications } from '@capacitor/local-notifications';
 import { FontSizeProvider } from './context/FontSizeContext';
 
 import { initAdMob, shouldInitAdMobOnLaunch } from './services/adService';
+import { initMetaSdk } from './services/metaService';
 import { isPremium } from './services/creditService';
 import { initCrashlytics, logPageView } from './services/crashService';
 import { initOneSignal, setLanguageTag } from './services/pushService';
@@ -179,7 +180,11 @@ function AppContent() {
     }
     const t2 = setTimeout(initCrashlytics, 3000);
     const t3 = setTimeout(initOneSignal, 4000);
-    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
+    // Meta SDK: kurulum ve açılış olayları ancak SDK aktifken Meta'ya gider,
+    // o yüzden ATT'yi beklemeden ilk açılışta başlatılır (anonim kimlik izinden
+    // bağımsız üretilir). Reklam iznine bağlı kısmı adService devralır.
+    const t4 = setTimeout(() => { initMetaSdk(); }, 2000);
+    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); clearTimeout(t4); };
   }, []);
 
   // Sync app language to OneSignal for segment-based notifications
